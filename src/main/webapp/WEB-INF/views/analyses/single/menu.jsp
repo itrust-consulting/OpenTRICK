@@ -115,10 +115,10 @@
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">
 				<li class="dropdown-header"><spring:message code="label.title.computation" /></li>
-				<%-- <li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" /></a></li> --%>
+				
 				<c:choose>
 					<c:when test="${type=='QUALITATIVE'}">
-						<li><a href="#"> <spring:message code="label.menu.analysis.action_plan" /> (coming soon)</a></li>
+						<li><a href="#" onclick="return calculateAction({'id':'${analysis.id}'})"> <spring:message code="label.menu.analysis.action_plan" /></a></li>
 					</c:when>
 					<c:otherwise>
 						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" /></a></li>

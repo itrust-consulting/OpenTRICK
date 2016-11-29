@@ -80,6 +80,7 @@ import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomAnalysisValidator;
 
@@ -407,12 +408,6 @@ public class ControllerAnalysisCreate {
 					}
 				}
 
-				if (analysisForm.isRiskProfile()) {
-					List<RiskProfile> riskProfiles = serviceRiskProfile.getAllFromAnalysis(analysisForm.getScenario());
-					for (RiskProfile riskProfile : riskProfiles)
-						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters));
-				}
-				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 			}
 
 			Map<Integer, Phase> mappingPhases;
@@ -448,6 +443,17 @@ public class ControllerAnalysisCreate {
 				for (AnalysisStandardBaseInfo standardBaseInfo : analysisForm.getStandards())
 					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases, mappingParameters,
 							mappingAssets, false));
+			}
+
+			if (!(mappingScenarios == null || mappingAssets == null)) {
+				if (analysisForm.isRiskProfile()) {
+					Map<String, Measure> measures = analysis.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+							.collect(Collectors.toMap(Measure::getKeyName, Function.identity()));
+					List<RiskProfile> riskProfiles = serviceRiskProfile.getAllFromAnalysis(analysisForm.getScenario());
+					for (RiskProfile riskProfile : riskProfiles)
+						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters, measures));
+				}
+				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 			}
 
 			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1)

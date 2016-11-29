@@ -47,6 +47,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.OpenMode;
@@ -121,10 +122,14 @@ public class ControllerActionPlan {
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
 		// load all affected assets of the actionplans (unique assets used)
-		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(selected);
 		// prepare model
-		model.addAttribute("assets", assets);
+
+		if (type == AnalysisType.QUANTITATIVE)
+			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType(actionplans));
+		model.addAttribute("type", type);
+		model.addAttribute("analysisId", selected);
 		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
@@ -172,6 +177,7 @@ public class ControllerActionPlan {
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis ID
 		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(selected);
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
 		if (!actionplans.isEmpty()) {
@@ -182,8 +188,8 @@ public class ControllerActionPlan {
 			model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 		} else
 			model.addAttribute("actionplans", actionplans);
-
-		// return view
+		model.addAttribute("type", type);
+		model.addAttribute("analysisId", selected);
 		return "analyses/single/components/actionPlan/section";
 	}
 

@@ -29,12 +29,12 @@
 							onclick="return navToogled('#section_summary','#menu_summary,#tabOption','${actionPlanType.name}', true);"><spring:message
 									code="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 					</c:forEach>
-					<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <spring:message
+					<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${empty analysisId? analysis.id : analysisId}')"><i class="glyphicon glyphicon-expand"></i> <spring:message
 						code="label.action.compute" /></a></li>
 				</c:when>
 				<c:otherwise>
-					<li><a href="#"><i class="glyphicon glyphicon-expand"></i> <spring:message
-						code="label.action.compute" /> (Coming soon)</a></li>
+					<li><a href="#" onclick="return calculateAction({'id':'${empty analysisId? analysis.id : analysisId}'})"><i class="glyphicon glyphicon-expand"></i> <spring:message
+						code="label.action.compute" /></a></li>
 				</c:otherwise>
 			</c:choose>
 			

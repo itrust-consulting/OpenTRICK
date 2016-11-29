@@ -85,6 +85,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		deleteActionPlanByAnalysisId(analysis.getId());
 		deleteActionPlanSummaryByAnalysisId(analysis.getId());
 		deleteRiskRegisterFromAnalysis(analysis.getId());
+		analysis.getRiskProfiles().forEach(riskProfile -> riskProfile.getMeasures().clear());
 		deleteStandardByAnalysis(analysis);
 		getSession().delete(analysis);
 	}

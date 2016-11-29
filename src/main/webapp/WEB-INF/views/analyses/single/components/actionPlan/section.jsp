@@ -58,11 +58,22 @@
 				<c:if test="${isLinkedToProject or  actionplansplitted.size()>1}">
 					<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 				</c:if>
-				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <spring:message
-							code="label.action_plan_assets.show" /></a></li>
+				<c:if test="${type =='QUANTITATIVE'}">
+					<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <spring:message
+								code="label.action_plan_assets.show" /></a></li>
+				</c:if>
 			</c:if>
-			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <spring:message
+			<c:choose>
+				<c:when test="${type =='QUANTITATIVE'}">
+					<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${empty analysisId? analysis.id : analysisId}')"><i class="glyphicon glyphicon-expand"></i> <spring:message
 						code="label.action.compute" /></a></li>
+				</c:when>
+				<c:otherwise>
+					<li class="pull-right"><a href="#" onclick="return calculateAction({'id':'${empty analysisId? analysis.id : analysisId}'})"><i class="glyphicon glyphicon-expand"></i> <spring:message
+						code="label.action.compute" /></a></li>
+				</c:otherwise>
+			</c:choose>
+			
 		</ul>
 		<c:choose>
 			<c:when test="${not empty actionplansplitted}">
@@ -78,10 +89,18 @@
 									<th style="width: 5%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
 									<th style="width: 5%;" title='<spring:message code="label.reference" />'><spring:message code="label.reference" /></th>
 									<th title='<spring:message code="label.measure.todo" />'><spring:message code="label.measure.todo" /></th>
-									<th style="width: 2%;" title='<spring:message code="label.title.ale" />'><spring:message code="label.action_plan.total_ale" /></th>
-									<th style="width: 2%;" title='<spring:message code="label.title.delta_ale" />'><spring:message code="label.action_plan.delta_ale" /></th>
-									<th style="width: 2%;" title='<spring:message code="label.title.measure.cost" />'><spring:message code="label.measure.cost" /></th>
-									<th style="width: 2%;" title='<spring:message code="label.title.action_plan.roi" />'><spring:message code="label.action_plan.roi" /></th>
+									<c:choose>
+										<c:when test="${type == QUANTITATIVE}">
+											<th style="width: 2%;" title='<spring:message code="label.title.ale" />'><spring:message code="label.action_plan.total_ale" /></th>
+											<th style="width: 2%;" title='<spring:message code="label.title.delta_ale" />'><spring:message code="label.action_plan.delta_ale" /></th>
+											<th style="width: 2%;" title='<spring:message code="label.title.measure.cost" />'><spring:message code="label.measure.cost" /></th>
+											<th style="width: 2%;" title='<spring:message code="label.title.action_plan.roi" />'><spring:message code="label.action_plan.roi" /></th>
+										</c:when>
+										<c:otherwise>
+											<th style="width: 2%;" title='<spring:message code="label.title.measure.risk_count" />'><spring:message code="label.measure.risk_count" /></th>
+											<th style="width: 2%;" title='<spring:message code="label.title.measure.cost" />'><spring:message code="label.measure.cost" /></th>
+										</c:otherwise>
+									</c:choose>
 									<th style="width: 2%;" title='<spring:message code="label.title.measure.iw" />'><spring:message code="label.measure.iw" /></th>
 									<th style="width: 2%;" title='<spring:message code="label.title.measure.ew" />'><spring:message code="label.measure.ew" /></th>
 									<th style="width: 2%;" title='<spring:message code="label.title.measure.inv" />'><spring:message code="label.measure.inv" /></th>
@@ -89,7 +108,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<c:if test="${actionplansplitted.get(apt).size()>0}">
+								<c:if test="${type == 'QUANTITATIVE' and actionplansplitted.get(apt).size()>0}">
 									<tr>
 										<td colspan="${isLinkedToProject && apt=='APPN'?'2':'1'}">&nbsp;</td>
 										<td colspan="3"><spring:message code="label.action_plan.current_ale" /></td>
@@ -120,14 +139,24 @@
 										</td>
 										<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></b> <br /> <spring:message
 												text="${ape.measure.getToDo()}" /></td>
-										<td align="right" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-												value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
-										<td align="right" ${ape.deltaALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.deltaALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-												value="${fct:round(ape.deltaALE*0.001,0)}" maxFractionDigits="0" /></td>
-										<td align="right" ${ape.measure.cost == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.cost}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-												value="${fct:round(ape.measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
-										<td align="right" ${ape.ROI == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.ROI}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-												value="${fct:round(ape.ROI*0.001,0)}" maxFractionDigits="0" /></td>
+										<c:choose>
+											<c:when test="${type == QUANTITATIVE}">
+												<td align="right" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
+												<td align="right" ${ape.deltaALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.deltaALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${fct:round(ape.deltaALE*0.001,0)}" maxFractionDigits="0" /></td>
+												<td align="right" ${ape.measure.cost == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.cost}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${fct:round(ape.measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
+												<td align="right" ${ape.ROI == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.ROI}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${fct:round(ape.ROI*0.001,0)}" maxFractionDigits="0" /></td>
+											</c:when>
+											<c:otherwise>
+												<td align="right" title='<fmt:formatNumber value="${ape.riskCount}" maxFractionDigits="0" />'><fmt:formatNumber value="${ape.riskCount}" maxFractionDigits="0" /></td>
+												<td align="right" ${ape.measure.cost == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.cost}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${fct:round(ape.measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
+											</c:otherwise>
+										</c:choose>
+
 										<td align="right" ${ape.measure.internalWL == 0? "class='danger'" : "" } title="${ape.measure.internalWL}"><fmt:formatNumber value="${ape.measure.internalWL}"
 												maxFractionDigits="1" /></td>
 										<td align="right" ${ape.measure.externalWL == 0? "class='danger'" : "" } title="${ape.measure.externalWL}"><fmt:formatNumber value="${ape.measure.externalWL}"

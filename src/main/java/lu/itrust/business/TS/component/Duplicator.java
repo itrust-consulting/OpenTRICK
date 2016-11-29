@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,18 +201,7 @@ public class Duplicator {
 				copy.getAssessments().add(clone);
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", (int) (minProgress + bound * 40)));
-
-			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
-
-			for (RiskProfile riskProfile : analysis.getRiskProfiles())
-				copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters));
-
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 45)));
-
-			assessmentAndRiskProfileManager.updateRiskDendencies(copy, null);
-
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", (int) (minProgress + bound * 50)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", (int) (minProgress + bound * 40)));
 
 			copy.setPhases(new ArrayList<Phase>(analysis.getPhases().size()));
 
@@ -219,23 +210,39 @@ public class Duplicator {
 				copy.add(phases.get(phase.getNumber()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * 60)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * 42)));
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
 
 			if (!analysis.getAnalysisStandards().isEmpty()) {
 
-				Integer percentageperstandard = (int) 60 / analysis.getAnalysisStandards().size();
+				Integer percentageperstandard = (int) analysis.getAnalysisStandards().size() / 90 * 100;
 
 				int copycounter = 0;
 
 				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
 					copycounter++;
 					serviceTaskFeedback.send(idTask,
-							new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * (60 + (percentageperstandard * copycounter)))));
+							new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * (42 + (percentageperstandard * copycounter)))));
 					copy.add(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
 				}
 			}
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", (int) (minProgress + bound * 90)));
+
+			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
+
+			if (!analysis.getRiskProfiles().isEmpty()) {
+				Map<String, Measure> measures = copy.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+						.collect(Collectors.toMap(Measure::getKeyName, Function.identity()));
+				for (RiskProfile riskProfile : analysis.getRiskProfiles())
+					copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters, measures));
+			}
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 95)));
+
+			assessmentAndRiskProfileManager.updateRiskDendencies(copy, null);
+
 			return copy;
 		} finally {
 			scenarios.clear();

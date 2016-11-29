@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,6 +17,7 @@ import javax.naming.directory.InvalidAttributesException;
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
@@ -32,8 +34,10 @@ import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurren
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
@@ -175,24 +179,23 @@ public class ActionPlanComputation {
 		this.idTask = idTask;
 		this.analysis = analysis;
 		this.messageSource = messageSource;
-
 		// check if standards to compute is empty -> YES: take all standards;
 		// NO: use
 		// only the standards given
-		if (standards == null || standards.isEmpty())
-			this.standards = this.analysis.getAnalysisStandards();
-		else
-			this.standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> standards.contains(analysisStandard))
-					.collect(Collectors.toList());
-
-		if (this.standards.stream().anyMatch(analysisStandard -> analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable())) {
-			if (!this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002))) {
-				AnalysisStandard analysisStandard = analysis.getAnalysisStandardByLabel(Constant.STANDARD_27002);
-				if (analysisStandard != null)
-					this.standards.add(analysisStandard);
+		if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+			if (standards == null || standards.isEmpty())
+				this.standards = this.analysis.getAnalysisStandards();
+			else
+				this.standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> standards.contains(analysisStandard)).collect(Collectors.toList());
+			if (this.standards.stream().anyMatch(analysisStandard -> analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable())) {
+				if (!this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002))) {
+					AnalysisStandard analysisStandard = analysis.getAnalysisStandardByLabel(Constant.STANDARD_27002);
+					if (analysisStandard != null)
+						this.standards.add(analysisStandard);
+				}
 			}
+			this.uncertainty = uncertainty;
 		}
-		this.uncertainty = uncertainty;
 	}
 
 	/***********************************************************************************************
@@ -225,33 +228,23 @@ public class ActionPlanComputation {
 	 */
 	public MessageHandler calculateActionPlans() {
 
-		// initialise task feedback progress in percentage to return to the user
-		int progress = 10;
-		// check if uncertainty to adopt the progress factor
-		if (!uncertainty)
-			progress = 20;
-		if (locale == null)
-			locale = new Locale(this.analysis.getLanguage().getAlpha2());
-
-		numberFormat.setMaximumFractionDigits(2);
-		// send feedback
-		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", progress));
-
-		System.out.println("Computing Action Plans...");
-
-		factory = new ValueFactory(this.analysis.getExpressionParameters());
-
 		try {
-			preImplementedMeasures = new MaintenanceRecurrentInvestment();
-			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
-				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
-					if (measure.getImplementationRateValue(factory) >= 100)
-						preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
-					if (!this.phases.contains(measure.getPhase()))
-						this.phases.add(measure.getPhase());
-				}
-			});
+			if (locale == null)
+				locale = new Locale(this.analysis.getLanguage().getAlpha2());
+			// initialise task feedback progress in percentage to return to the
+			// user
+			int progress = uncertainty ? 10 : 20;
+			// check if uncertainty to adopt the progress factor
+			numberFormat.setMaximumFractionDigits(2);
+			// send feedback
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", progress));
 
+			System.out.println("Computing Action Plans...");
+			
+			factory = new ValueFactory(this.analysis.getExpressionParameters());
+			
+			preImplementedMeasures = new MaintenanceRecurrentInvestment();
+			
 			Collections.sort(phases, new Comparator<Phase>() {
 				@Override
 				public int compare(Phase o1, Phase o2) {
@@ -259,170 +252,12 @@ public class ActionPlanComputation {
 				}
 			});
 
-			// ***************************************************************
-			// * compute Action Plan - normal mode - Phase //
-			// ***************************************************************
-			System.out.println("compute Action Plan - normal mode - Phase");
-
-			// check if uncertainty to adopt the progress factor
-			if (uncertainty)
-				progress = 20;
-			else
-				progress = 40;
-
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", progress));
-
-			if (normalcomputation) {
-				computeActionPlan(ActionPlanMode.APN);
-				if (uncertainty) {
-					computeActionPlan(ActionPlanMode.APP);
-					computeActionPlan(ActionPlanMode.APO);
-				}
-			}
-
-			// compute
-			computePhaseActionPlan(ActionPlanMode.APPN);
-
-			// ****************************************************************
-			// * compute Action Plan - optimistic mode - Phase
-			// ****************************************************************
-
-			// check if uncertainty to adopt the progress factor and computation
-			// (if not, optimisitc
-			// and pessimistic will not be computed)
-			if (uncertainty) {
-				progress = 30;
-
-				System.out.println("compute Action Plan - optimistic mode - Phase");
-
-				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
-
-				// compute
-				computePhaseActionPlan(ActionPlanMode.APPO);
-
-				// ****************************************************************
-				// * compute Action Plan - pessimistic mode - Phase
-				// ****************************************************************
-
-				// update progress
-				progress += 10;
-
-				System.out.println("compute Action Plan - pessimistic mode - Phase");
-
-				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
-
-				// compute
-				computePhaseActionPlan(ActionPlanMode.APPP);
-			}
-			// *********************************************************************
-			// * set positions relative to normal action plan for all action
-			// plans
-			// *********************************************************************
-
-			System.out.println("Calculating positions...");
-
-			// update progress
-			if (uncertainty)
-				progress = 50;
-			else
-				progress = 60;
-
-			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions", progress));
-
-			// compute
-			determinePositions();
-
-			// ****************************************************************
-			// * create summary for normal phase action plan summary //
-			// ****************************************************************
-
-			System.out.println("compute Summary of Action Plan - normal mode - Phase");
-
-			// update progress
-			if (uncertainty)
-				progress = 60;
-			else
-				progress = 80;
-
-			// send feedback
-			serviceTaskFeedback.send(idTask,
-					new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", progress));
-
-			parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-
-			parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-
-			soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
-
-			if (normalcomputation) {
-				computeSummary(ActionPlanMode.APN);
-				if (uncertainty) {
-					computeSummary(ActionPlanMode.APP);
-					computeSummary(ActionPlanMode.APO);
-				}
-			}
-
-			// compute
-			computeSummary(ActionPlanMode.APPN);
-
-			// check if uncertainty for optimisitc and pessimistic compputations
-			if (uncertainty) {
-
-				// update progress
-				progress = 70;
-
-				System.out.println("compute Summary of Action Plan - optimistic mode - Phase");
-
-				// ****************************************************************
-				// * create summary for optimistic phase action plan summary
-				// ****************************************************************
-
-				// send feedback
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", progress));
-
-				// compute
-				computeSummary(ActionPlanMode.APPO);
-
-				// update progress
-				progress += 10;
-
-				System.out.println("compute Summary of Action Plan - pessimistic mode - Phase");
-
-				// ****************************************************************
-				// * create summary for pessimistic phase action plan summary
-				// ****************************************************************
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", progress));
-
-				// compute
-				computeSummary(ActionPlanMode.APPP);
-
-			}
-
-			// ****************************************************************
-			// * Store action plans into database
-			// ****************************************************************
-
-			System.out.println("Saving Action Plans...");
-
-			// update progress
-			if (uncertainty)
-				progress = 90;
-			else
-				progress = 95;
-
-			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans",
+					this.analysis.getType() == AnalysisType.QUANTITATIVE ? quantitativeActionPlan() : qualitativeActionPlan()));
 
 			// save to database
 			sericeAnalysis.saveOrUpdate(analysis);
-
-			// return null: no errors
 			return null;
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -437,6 +272,243 @@ public class ActionPlanComputation {
 			// return messagehandler with errors
 			return messageHandler;
 		}
+	}
+
+	private int qualitativeActionPlan() throws Exception {
+		int position[] = { 0 }, progress = 10, maxProgress = analysis.getRiskProfiles().size() / 80 * 100, index = 0;
+		// get actionplantype by given mode
+		ActionPlanType actionPlanType = serviceActionPlanType.get(ActionPlanMode.APPN.getValue());
+		// check if the actionplantype exists and add it to database if not
+		if (actionPlanType == null)
+			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(ActionPlanMode.APPN));
+
+		MessageHandler handler = new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", progress);
+
+		serviceTaskFeedback.send(idTask, handler);
+
+		this.standards = new LinkedList<>();
+
+		Map<String, ActionPlanEntry> actionPlanEntries = new LinkedHashMap<>();
+		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
+			for (Measure measure : riskProfile.getMeasures()) {
+				ActionPlanEntry entry = actionPlanEntries.get(measure.getKey());
+				if (entry == null)
+					actionPlanEntries.put(measure.getKey(), entry = new ActionPlanEntry(measure, actionPlanType, 0));
+				entry.setRiskCount(entry.getRiskCount() + 1);
+				if (!this.standards.contains(measure.getAnalysisStandard()))
+					this.standards.add(measure.getAnalysisStandard());
+
+			}
+			handler.setProgress(progress);
+		}
+
+		analysis.setActionPlans(actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
+			actionPlan.setPosition(position[0]++);
+			actionPlan.setOrder(actionPlan.getPosition() + "");
+			return actionPlan;
+		}).collect(Collectors.toList()));
+
+		// send feedback
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 90));
+
+		parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+
+		parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+
+		soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
+		
+		generatePreImplementedMeasures();
+
+		computeSummary(actionPlanType.getActionPlanMode());
+
+		return progress;
+	}
+
+	private Comparator<? super ActionPlanEntry> qualitativeComparator() {
+		return (a1, a2) -> {
+			int comp = Integer.compare(a1.getRiskCount(), a2.getRiskCount());
+			if (comp == 0) {
+				comp = Integer.compare(a1.getMeasure().getPhase().getNumber(), a2.getMeasure().getPhase().getNumber());
+				if (comp == 0) {
+					comp = NaturalOrderComparator.compareTo(a1.getMeasure().getMeasureDescription().getStandard().getLabel(),
+							a2.getMeasure().getMeasureDescription().getStandard().getLabel());
+					if (comp == 0)
+						comp = NaturalOrderComparator.compareTo(a1.getMeasure().getMeasureDescription().getReference(), a2.getMeasure().getMeasureDescription().getReference());
+
+				}
+			}
+			return comp;
+		};
+	}
+
+	protected int quantitativeActionPlan() throws Exception {
+
+		generatePreImplementedMeasures();
+		
+		// ***************************************************************
+		// * compute Action Plan - normal mode - Phase //
+		// ***************************************************************
+		System.out.println("compute Action Plan - normal mode - Phase");
+
+		int progress = uncertainty ? 20 : 40;
+
+		// send feedback
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", progress));
+
+		if (normalcomputation) {
+			computeActionPlan(ActionPlanMode.APN);
+			if (uncertainty) {
+				computeActionPlan(ActionPlanMode.APP);
+				computeActionPlan(ActionPlanMode.APO);
+			}
+		}
+
+		// compute
+		computePhaseActionPlan(ActionPlanMode.APPN);
+
+		// ****************************************************************
+		// * compute Action Plan - optimistic mode - Phase
+		// ****************************************************************
+
+		// check if uncertainty to adopt the progress factor and computation
+		// (if not, optimisitc
+		// and pessimistic will not be computed)
+		if (uncertainty) {
+			progress = 30;
+
+			System.out.println("compute Action Plan - optimistic mode - Phase");
+
+			// send feedback
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
+
+			// compute
+			computePhaseActionPlan(ActionPlanMode.APPO);
+
+			// ****************************************************************
+			// * compute Action Plan - pessimistic mode - Phase
+			// ****************************************************************
+
+			// update progress
+			progress += 10;
+
+			System.out.println("compute Action Plan - pessimistic mode - Phase");
+
+			// send feedback
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
+
+			// compute
+			computePhaseActionPlan(ActionPlanMode.APPP);
+		}
+		// *********************************************************************
+		// * set positions relative to normal action plan for all action
+		// plans
+		// *********************************************************************
+
+		System.out.println("Calculating positions...");
+
+		// update progress
+		if (uncertainty)
+			progress = 50;
+		else
+			progress = 60;
+
+		// send feedback
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions", progress));
+
+		// compute
+		determinePositions();
+
+		// ****************************************************************
+		// * create summary for normal phase action plan summary //
+		// ****************************************************************
+
+		System.out.println("compute Summary of Action Plan - normal mode - Phase");
+
+		// update progress
+		if (uncertainty)
+			progress = 60;
+		else
+			progress = 80;
+
+		// send feedback
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", progress));
+
+		parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+
+		parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+
+		soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
+
+		if (normalcomputation) {
+			computeSummary(ActionPlanMode.APN);
+			if (uncertainty) {
+				computeSummary(ActionPlanMode.APP);
+				computeSummary(ActionPlanMode.APO);
+			}
+		}
+
+		// compute
+		computeSummary(ActionPlanMode.APPN);
+
+		// check if uncertainty for optimisitc and pessimistic compputations
+		if (uncertainty) {
+
+			// update progress
+			progress = 70;
+
+			System.out.println("compute Summary of Action Plan - optimistic mode - Phase");
+
+			// ****************************************************************
+			// * create summary for optimistic phase action plan summary
+			// ****************************************************************
+
+			// send feedback
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", progress));
+
+			// compute
+			computeSummary(ActionPlanMode.APPO);
+
+			// update progress
+			progress += 10;
+
+			System.out.println("compute Summary of Action Plan - pessimistic mode - Phase");
+
+			// ****************************************************************
+			// * create summary for pessimistic phase action plan summary
+			// ****************************************************************
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", progress));
+
+			// compute
+			computeSummary(ActionPlanMode.APPP);
+
+		}
+
+		// ****************************************************************
+		// * Store action plans into database
+		// ****************************************************************
+
+		System.out.println("Saving Action Plans...");
+
+		// update progress
+		if (uncertainty)
+			progress = 90;
+		else
+			progress = 95;
+
+		return progress;
+	}
+
+	private void generatePreImplementedMeasures() {
+		this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
+			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+				if (measure.getImplementationRateValue(factory) >= 100)
+					preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+				if (!this.phases.contains(measure.getPhase()))
+					this.phases.add(measure.getPhase());
+			}
+		});
 	}
 
 	/**
@@ -817,9 +889,12 @@ public class ActionPlanComputation {
 	 * 
 	 * @param mode
 	 *            The Mode to Compute: Normal, Optimistic or Pessimistic
+	 * @throws CloneNotSupportedException
+	 * @throws TrickException
+	 * @throws InvalidAttributesException
 	 * @throws Exception
 	 */
-	private void computePhaseActionPlan(ActionPlanMode mode) throws Exception {
+	private void computePhaseActionPlan(ActionPlanMode mode) throws InvalidAttributesException, TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * variables initialisation

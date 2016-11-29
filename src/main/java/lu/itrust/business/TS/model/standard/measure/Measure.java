@@ -26,6 +26,7 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
@@ -40,7 +41,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-//@DiscriminatorColumn(name="dtType")
+// @DiscriminatorColumn(name="dtType")
 public abstract class Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -97,14 +98,12 @@ public abstract class Measure implements Cloneable {
 	private String toDo = "";
 
 	private String responsible = "";
-	
+
 	/** ticket id for ticketing system */
 	private String ticket;
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
-
-	
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -142,7 +141,7 @@ public abstract class Measure implements Cloneable {
 	 * @return The Measure Identifier
 	 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idMeasure")
 	public int getId() {
 		return id;
@@ -219,7 +218,7 @@ public abstract class Measure implements Cloneable {
 	 */
 	@Transient
 	public abstract double getImplementationRateValue(ValueFactory factory);
-	
+
 	/**
 	 * getImplementationRate: <br>
 	 * Returns the "implementationRate" field value (Real Value)
@@ -369,7 +368,7 @@ public abstract class Measure implements Cloneable {
 	 * 
 	 * @return The Measure Comment
 	 */
-	@Column(name = "dtComment", nullable = false, length=16777216)
+	@Column(name = "dtComment", nullable = false, length = 16777216)
 	public String getComment() {
 		return comment;
 	}
@@ -391,7 +390,7 @@ public abstract class Measure implements Cloneable {
 	 * 
 	 * @return The "ToDo" Comment
 	 */
-	@Column(name = "dtToDo", nullable = false, length=16777216)
+	@Column(name = "dtToDo", nullable = false, length = 16777216)
 	public String getToDo() {
 		return toDo;
 	}
@@ -521,9 +520,10 @@ public abstract class Measure implements Cloneable {
 	public void setRecurrentInvestment(double recurrentInvestment) {
 		this.recurrentInvestment = recurrentInvestment;
 	}
-	
+
 	/**
 	 * TicketingTask id
+	 * 
 	 * @return the ticket
 	 */
 	@Column(name = "dtTicket")
@@ -533,12 +533,13 @@ public abstract class Measure implements Cloneable {
 
 	/**
 	 * TicketingTask id
-	 * @param ticket the ticket to set
+	 * 
+	 * @param ticket
+	 *            the ticket to set
 	 */
 	public void setTicket(String ticket) {
 		this.ticket = ticket;
 	}
-
 
 	/**
 	 * hashCode:<br>
@@ -666,5 +667,24 @@ public abstract class Measure implements Cloneable {
 
 	public void setResponsible(String responsible) {
 		this.responsible = responsible;
+	}
+
+	@Transient
+	public String getKey() {
+		return key(measureDescription.getStandard(), measureDescription.getReference());
+	}
+
+	@Transient
+	public String getKeyName() {
+		return keyName(measureDescription.getStandard(), measureDescription.getReference());
+	}
+
+	@Transient
+	public static String key(Standard standard, String reference) {
+		return standard.getId() + "^-'MEASURE'-^" + reference;
+	}
+
+	public static String keyName(Standard standard, String reference) {
+		return standard.getLabel() + "^NAME-'MEASURE'-NAME^" + reference;
 	}
 }

@@ -51,7 +51,7 @@ public class ActionPlanEntry {
 
 	/** The ID of the entry */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idActionPlanCalculation")
 	private int id = -1;
 
@@ -96,6 +96,12 @@ public class ActionPlanEntry {
 	@Column(name = "dtROI", nullable = false)
 	private double ROI = 0;
 
+	/**
+	 * Only for qualitative
+	 */
+	@Column(name = "dtRiskCount", nullable = false)
+	private int riskCount = 0;
+
 	/** list of assets with the current ALE of this entry */
 	@OneToMany(mappedBy = "actionPlanEntry")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
@@ -111,6 +117,17 @@ public class ActionPlanEntry {
 	 * Constructor:<br>
 	 */
 	public ActionPlanEntry() {
+	}
+
+	/**
+	 * @param measure
+	 * @param riskCount
+	 */
+	public ActionPlanEntry(Measure measure, ActionPlanType actionplantype, int riskCount) {
+		this.measure = measure;
+		this.riskCount = riskCount;
+		setCost(measure.getCost());
+		setActionPlanType(actionplantype);
 	}
 
 	/**
@@ -467,6 +484,21 @@ public class ActionPlanEntry {
 				+ measure.getMeasureDescription().getReference() + ",cost=" + measure.getCost() + ",IS=" + measure.getInternalWL() + ",ES=" + measure.getExternalWL() + ",INV="
 				+ measure.getInvestment() + ",phase=" + measure.getPhase().getNumber() + "}} ";
 
+	}
+
+	/**
+	 * @return the riskCount
+	 */
+	public int getRiskCount() {
+		return riskCount;
+	}
+
+	/**
+	 * @param riskCount
+	 *            the riskCount to set
+	 */
+	public void setRiskCount(int riskCount) {
+		this.riskCount = riskCount;
 	}
 
 }

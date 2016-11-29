@@ -6,6 +6,7 @@ package lu.itrust.business.TS.model.cssf;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
@@ -209,7 +210,6 @@ public class RiskProfile implements Cloneable {
 	public RiskProbaImpact getRawProbaImpact() {
 		return rawProbaImpact;
 	}
-	
 
 	/**
 	 * @return the measures
@@ -219,7 +219,8 @@ public class RiskProfile implements Cloneable {
 	}
 
 	/**
-	 * @param measures the measures to set
+	 * @param measures
+	 *            the measures to set
 	 */
 	public void setMeasures(List<Measure> measures) {
 		this.measures = measures;
@@ -319,20 +320,24 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
-	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters) throws CloneNotSupportedException {
+	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters, Map<String, Measure> measures)
+			throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
-		riskProfile.updateData(assets, scenarios, parameters);
+		riskProfile.updateData(assets, scenarios, parameters, measures);
 		riskProfile.id = 0;
 		return riskProfile;
 	}
 
-	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters) throws CloneNotSupportedException {
+	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters, Map<String, Measure> measures)
+			throws CloneNotSupportedException {
 		if (rawProbaImpact != null)
 			rawProbaImpact = rawProbaImpact.duplicate(parameters);
 		if (expProbaImpact != null)
 			expProbaImpact = expProbaImpact.duplicate(parameters);
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
+		this.measures = this.measures.stream().filter(measure -> measures.containsKey(measure.getKeyName())).map(measure -> measures.get(measure.getKeyName()))
+				.collect(Collectors.toList());
 	}
 
 	public Boolean isSelected() {

@@ -48,6 +48,7 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
@@ -303,6 +304,39 @@ public class ExportAnalysis {
 				addRiskProfileImpact(params, riskProfile, "RAW", getImpact(riskProfile.getRawProbaImpact(), scaleType));
 				query += unionQuery;
 				addRiskProfileImpact(params, riskProfile, "EXP", getImpact(riskProfile.getExpProbaImpact(), scaleType));
+				if (--index > 0)
+					query += unionQuery;
+			}
+		}
+
+		if (!params.isEmpty()) {
+			sqlite.query(query, params);
+			params.clear();
+		}
+
+		query = "";
+		unionQuery = " UNION Select ?,?,?,?,?";
+		baseQuery = "INSERT INTO risk_profile_measure SELECT ? as id_threat,? as id_asset,? as id_norme,? as version_norme, ? as ref_measure";
+		// parse all Risk Register Entries
+		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
+			// add parameters for the current Risk Register Item
+			if (riskProfile.getMeasures().isEmpty())
+				continue;
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 5 * riskProfile.getMeasures().size() > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
+			int index = riskProfile.getMeasures().size();
+			for (Measure measure : riskProfile.getMeasures()) {
+				params.add(riskProfile.getScenario().getId());
+				params.add(riskProfile.getAsset().getId());
+				params.add(measure.getAnalysisStandard().getStandard().getLabel());
+				params.add(measure.getAnalysisStandard().getStandard().getVersion());
+				params.add(measure.getMeasureDescription().getReference());
 				if (--index > 0)
 					query += unionQuery;
 			}
@@ -1478,17 +1512,17 @@ public class ExportAnalysis {
 					if (measurequery.isEmpty()) {
 
 						// build query
-						measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
-								+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
-								+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
-								+ "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
-								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
-								+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
-								+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
-								+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
-								+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
-								+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
-								+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
+						measurequery = "INSERT INTO measures SELECT ? as 'id_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norme_type',"
+								+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
+								+ "? as 'question_measure',? as 'level',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
+								+ "? as 'integrity',? as 'availability',? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
+								+ "? as 'd61',? as 'd62',? as 'd63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',"
+								+ "? as 'i5',? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',? as 'i84',? as 'i9',"
+								+ "? as 'i10',? as 'preventive',? as 'detective',? as 'limiting',? as 'corrective',? as 'intentional',"
+								+ "? as 'accidental',? as 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',"
+								+ "? as 'external_setup',? as 'investment',? as 'lifetime',? as 'internal_maintenance',? as 'external_maintenance',"
+								+ "? as 'recurrent_investment',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',"
+								+ "? as 'responsible',? as 'phase',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 						// System.out.println(measurequery);
 
@@ -1509,17 +1543,17 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
-									+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
-									+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
-									+ "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
-									+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
-									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
-									+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
-									+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
-									+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
-									+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
-									+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
+							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
+									+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
+									+ "? as 'question_measure',? as 'level',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
+									+ "? as 'integrity',? as 'availability',? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
+									+ "? as 'd61',? as 'd62',? as 'd63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',"
+									+ "? as 'i5',? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',? as 'i84',? as 'i9',"
+									+ "? as 'i10',? as 'preventive',? as 'detective',? as 'limiting',? as 'corrective',? as 'intentional',"
+									+ "? as 'accidental',? as 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',"
+									+ "? as 'external_setup',? as 'investment',? as 'lifetime',? as 'internal_maintenance',? as 'external_maintenance',"
+									+ "? as 'recurrent_investment',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',"
+									+ "? as 'responsible',? as 'phase',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 							// reset limit counter
 							measurecounter = MEASURE_ROW_COUNT;

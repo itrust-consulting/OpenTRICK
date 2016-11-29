@@ -29,6 +29,7 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Phase;
 
 /**
@@ -72,6 +73,10 @@ public class ControllerSummary {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+
+		model.addAttribute("analysisId", idAnalysis);
+
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
 		// add phases of analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(idAnalysis));

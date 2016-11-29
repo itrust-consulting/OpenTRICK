@@ -18,13 +18,13 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.risk_profile.manage.measure" text="Manage measure" />
+					<spring:message code="label.risk_profile.management.measure" text="Measure management" />
 				</h4>
 			</div>
 			<div class="modal-body" style="padding-top: 5px;">
 				<ul class="nav nav-tabs">
-					<li class="active"><a href="#tab_current_measure" data-toggle="tab"><spring:message code='label.measures' /></a></li>
-					<li><a href="#tab_add_measure" data-toggle="tab"><spring:message code='label.action.add' /></a></li>
+					<li class="active" title="<spring:message code='label.title.selected.measures' />"><a href="#tab_current_measure" data-toggle="tab"><spring:message code='label.measures' /></a></li>
+					<li title="<spring:message code='label.title.measure.collection'/>"><a href="#tab_add_measure" data-toggle="tab"><spring:message code='label.measure.collection' /></a></li>
 					<li id="riskProfileMessageContainer" style="padding-top: 10px"></li>
 				</ul>
 				<div class="tab-content" style="height: 580px; overflow-y: auto; overflow-x: hidden">
