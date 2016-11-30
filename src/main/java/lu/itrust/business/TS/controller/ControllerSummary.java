@@ -29,7 +29,6 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Phase;
 
 /**

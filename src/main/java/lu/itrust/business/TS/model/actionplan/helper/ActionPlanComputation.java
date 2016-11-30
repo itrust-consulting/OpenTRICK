@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -240,11 +239,11 @@ public class ActionPlanComputation {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", progress));
 
 			System.out.println("Computing Action Plans...");
-			
+
 			factory = new ValueFactory(this.analysis.getExpressionParameters());
-			
+
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
-			
+
 			Collections.sort(phases, new Comparator<Phase>() {
 				@Override
 				public int compare(Phase o1, Phase o2) {
@@ -275,58 +274,79 @@ public class ActionPlanComputation {
 	}
 
 	private int qualitativeActionPlan() throws Exception {
-		int position[] = { 0 }, progress = 10, maxProgress = analysis.getRiskProfiles().size() / 80 * 100, index = 0;
+		int position[] = { 0 };
 		// get actionplantype by given mode
 		ActionPlanType actionPlanType = serviceActionPlanType.get(ActionPlanMode.APPN.getValue());
 		// check if the actionplantype exists and add it to database if not
 		if (actionPlanType == null)
 			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(ActionPlanMode.APPN));
 
-		MessageHandler handler = new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", progress);
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 10));
 
-		serviceTaskFeedback.send(idTask, handler);
-
-		this.standards = new LinkedList<>();
+		Map<Integer, AnalysisStandard> tmpAnalysisStandards = new LinkedHashMap<>(), analysisStandards = new LinkedHashMap<>();
 
 		Map<String, ActionPlanEntry> actionPlanEntries = new LinkedHashMap<>();
 		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
 			for (Measure measure : riskProfile.getMeasures()) {
+				if (measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+					continue;
 				ActionPlanEntry entry = actionPlanEntries.get(measure.getKey());
-				if (entry == null)
+				if (entry == null) {
+					AnalysisStandard analysisStandard = tmpAnalysisStandards.get(measure.getAnalysisStandard().getId());
+					if (analysisStandard == null) {
+						if (measure.getAnalysisStandard() instanceof AssetStandard)
+							tmpAnalysisStandards.put(measure.getAnalysisStandard().getId(), analysisStandard = new AssetStandard(measure.getAnalysisStandard().getStandard()));
+						else if (measure.getAnalysisStandard() instanceof NormalStandard)
+							tmpAnalysisStandards.put(measure.getAnalysisStandard().getId(), analysisStandard = new NormalStandard(measure.getAnalysisStandard().getStandard()));
+						else
+							continue;
+						analysisStandard.setId(measure.getAnalysisStandard().getId());
+						analysisStandards.put(measure.getAnalysisStandard().getId(), measure.getAnalysisStandard());
+					}
+					analysisStandard.getMeasures().add(measure);
+					if (measure.getImplementationRateValue(factory) >= 100)
+						continue;
 					actionPlanEntries.put(measure.getKey(), entry = new ActionPlanEntry(measure, actionPlanType, 0));
+				}
 				entry.setRiskCount(entry.getRiskCount() + 1);
-				if (!this.standards.contains(measure.getAnalysisStandard()))
-					this.standards.add(measure.getAnalysisStandard());
-
 			}
-			handler.setProgress(progress);
 		}
+
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 60));
+
+		this.standards = tmpAnalysisStandards.values().stream().collect(Collectors.toList());
 
 		analysis.setActionPlans(actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
 			actionPlan.setPosition(position[0]++);
-			actionPlan.setOrder(actionPlan.getPosition() + "");
+			actionPlan.setOrder((actionPlan.getPosition() + 1) + "");
 			return actionPlan;
 		}).collect(Collectors.toList()));
 
 		// send feedback
-		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 90));
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 70));
 
 		parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
 		parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
 		soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
-		
+
 		generatePreImplementedMeasures();
 
 		computeSummary(actionPlanType.getActionPlanMode());
 
-		return progress;
+		analysis.getSummaries().forEach(summary -> {
+			summary.getConformances().forEach(conformance -> {
+				conformance.setAnalysisStandard(analysisStandards.get(conformance.getAnalysisStandard().getId()));
+			});
+		});
+
+		return 95;
 	}
 
 	private Comparator<? super ActionPlanEntry> qualitativeComparator() {
 		return (a1, a2) -> {
-			int comp = Integer.compare(a1.getRiskCount(), a2.getRiskCount());
+			int comp = Integer.compare(a2.getRiskCount(), a1.getRiskCount());
 			if (comp == 0) {
 				comp = Integer.compare(a1.getMeasure().getPhase().getNumber(), a2.getMeasure().getPhase().getNumber());
 				if (comp == 0) {
@@ -344,7 +364,7 @@ public class ActionPlanComputation {
 	protected int quantitativeActionPlan() throws Exception {
 
 		generatePreImplementedMeasures();
-		
+
 		// ***************************************************************
 		// * compute Action Plan - normal mode - Phase //
 		// ***************************************************************

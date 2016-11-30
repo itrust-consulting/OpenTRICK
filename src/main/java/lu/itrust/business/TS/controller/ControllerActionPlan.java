@@ -49,7 +49,6 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;

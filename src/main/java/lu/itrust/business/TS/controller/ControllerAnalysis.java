@@ -1097,16 +1097,19 @@ public class ControllerAnalysis {
 			XSSFRow row = sheet.getRow(0);
 			if (row == null)
 				row = sheet.createRow(0);
-			for (int i = 0; i < 21; i++) {
+
+			int colCount = analysis.getType() == AnalysisType.QUANTITATIVE ? 21 : 19;
+
+			for (int i = 0; i < colCount; i++) {
 				if (row.getCell(i) == null)
 					row.createCell(i, Cell.CELL_TYPE_STRING);
 			}
-			addActionPLanHeader(row, locale);
+			addActionPLanHeader(row, analysis.getType(), locale);
 			for (ActionPlanEntry actionPlanEntry : analysis.getActionPlan(ActionPlanMode.APPN)) {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry, expressionParameters, locale);
+				writeActionPLanData(row, colCount, actionPlanEntry, analysis.getType(), expressionParameters, locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
@@ -1130,8 +1133,9 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, List<IProbabilityParameter> expressionParameters, Locale locale) {
-		for (int i = 0; i < 21; i++) {
+	private void writeActionPLanData(XSSFRow row, int colCount, ActionPlanEntry actionPlanEntry, AnalysisType type, List<IProbabilityParameter> expressionParameters,
+			Locale locale) {
+		for (int i = 0; i < colCount; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
 		}
@@ -1155,12 +1159,16 @@ public class ControllerAnalysis {
 		row.getCell(++colIndex).setCellValue(measure.getRecurrentInvestment() * 0.001);
 		row.getCell(++colIndex).setCellValue(measure.getCost() * 0.001);
 		row.getCell(++colIndex).setCellValue(measure.getPhase().getNumber());
-		row.getCell(++colIndex).setCellValue(actionPlanEntry.getTotalALE() * 0.001);
-		row.getCell(++colIndex).setCellValue(actionPlanEntry.getDeltaALE() * 0.001);
-		row.getCell(++colIndex).setCellValue(actionPlanEntry.getROI() * 0.001);
+		if (type == AnalysisType.QUALITATIVE)
+			row.getCell(++colIndex).setCellValue(actionPlanEntry.getRiskCount());
+		else {
+			row.getCell(++colIndex).setCellValue(actionPlanEntry.getTotalALE() * 0.001);
+			row.getCell(++colIndex).setCellValue(actionPlanEntry.getDeltaALE() * 0.001);
+			row.getCell(++colIndex).setCellValue(actionPlanEntry.getROI() * 0.001);
+		}
 	}
 
-	private void addActionPLanHeader(XSSFRow row, Locale locale) {
+	private void addActionPLanHeader(XSSFRow row, AnalysisType type, Locale locale) {
 		int colIndex = 0;
 		row.getCell(colIndex).setCellValue(messageSource.getMessage("report.action_plan.norm", null, "Stds", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
@@ -1179,9 +1187,12 @@ public class ControllerAnalysis {
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("label.measure.phase", null, "Phase", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
+		if (type == AnalysisType.QUANTITATIVE) {
+			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
+			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
+			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
+		} else
+			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale));
 	}
 
 	// ******************************************************************************************************************

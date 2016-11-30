@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +33,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -55,6 +58,9 @@ import lu.itrust.business.TS.model.general.helper.ExportType;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -84,6 +90,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	private CSSFExportForm cssfExportForm;
 
 	private String alpha2 = "EN";
+
+	private DateFormat dateFormat;
 
 	public static String FR_TEMPLATE;
 
@@ -200,6 +208,11 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			workbook = new XSSFWorkbook();
 			XSSFSheet sheet = workbook.createSheet();
 			Analysis analysis = daoAnalysis.get(idAnalysis);
+			locale = new Locale(analysis.getLanguage().getAlpha2());
+			if (locale.getLanguage().equals("fr"))
+				dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+			else
+				dateFormat = new SimpleDateFormat("MM-dd-yyyy");
 
 			List<ScaleType> scaleTypes = analysis.getImpacts();
 			CSSFFilter cssfFilter = cssfExportForm.getFilter();
@@ -247,8 +260,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	}
 
-	
-
 	private void addEstimation(XSSFSheet sheet, List<Estimation> estimations, List<ScaleType> types, String title, int startIndex) {
 		XSSFRow row = getRow(sheet, startIndex++);
 		int size = 16 + types.size() * 3;
@@ -282,7 +293,23 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				strategy = RiskStrategy.ACCEPT;
 			String response = strategy.getNameToLower();
 			setCellString(row, index++, getMessage("label.risk_register.strategy." + response, response));
-			setCellString(row, index++, estimation.getActionPlan());
+			List<String> actionPlan = new LinkedList<>();
+			for (Measure measure : estimation.getRiskProfile().getMeasures()) {
+				MeasureDescription description = measure.getMeasureDescription();
+				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+				String date = dateFormat.format(measure.getPhase().getEndDate());
+				actionPlan.add(getMessage("report.risk_profile.action_plan.measure",
+						new Object[] { description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain(), date },
+						String.format("%s: %s, %s; %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain(), date)));
+			}
+
+			if (actionPlan.isEmpty())
+				setCellString(row, index++, estimation.getActionPlan());
+			else {
+				if (!estimation.getActionPlan().isEmpty())
+					actionPlan.add(estimation.getActionPlan());
+				setCellString(row, index++, String.join("\n\r", actionPlan));
+			}
 		}
 	}
 
@@ -354,6 +381,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 60, index = 0;
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
+
+		if (locale.getLanguage().equals("fr"))
+			dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		else
+			dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
@@ -362,7 +395,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		boolean isFirst = true;
 		try {
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
-			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),Estimation.IdComparator());
+			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
+					Estimation.IdComparator());
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
@@ -395,7 +429,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
-				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
+				addTable(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile);
 				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
 				messageHandler.setProgress((int) (progress + (++index / (double) estimations.size()) * (max - progress)));
 			}
@@ -430,7 +464,34 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		}
 	}
 
-	
+	private void addTable(XWPFDocument document, String title, RiskProfile riskProfile) {
+		addTitle(document, title);
+		if (!riskProfile.getMeasures().isEmpty()) {
+			XWPFTable table = document.createTable(riskProfile.getMeasures().size() + 1, 4);
+			table.setStyleID("TSTABLEMEASURE");
+			XWPFTableRow row = table.getRow(0);
+			getCell(row, 0).setText(getMessage("report.risk_sheet.measure.standard", "Standard"));
+			getCell(row, 1).setText(getMessage("report.risk_sheet.measure.reference", "Reference"));
+			getCell(row, 2).setText(getMessage("report.risk_sheet.measure.domain", "Domain"));
+			getCell(row, 3).setText(getMessage("report.risk_sheet.measure.due_date", "Due date"));
+			int index = 1;
+			for (Measure measure : riskProfile.getMeasures()) {
+				row = table.getRow(index++);
+				if (row == null)
+					row = table.createRow();
+				MeasureDescription description = measure.getMeasureDescription();
+				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+				addFieldContent(getCell(row, 0), description.getStandard().getLabel());
+				addFieldContent(getCell(row, 1), description.getReference());
+				addFieldContent(getCell(row, 2), descriptionText.getDomain());
+				addFieldContent(getCell(row, 3), dateFormat.format(measure.getPhase().getEndDate()));
+			}
+		}
+
+		if (!StringUtils.isEmpty(riskProfile.getActionPlan()))
+			addFieldContent(document, riskProfile.getActionPlan());
+
+	}
 
 	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, List<ScaleType> types) {
 		addTitle(document, title);
@@ -478,6 +539,17 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		String[] texts = content.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			XWPFParagraph paragraph = document.createParagraph();
+			paragraph.setStyle("BodyOfText");
+			paragraph.createRun().setText(texts[i]);
+		}
+	}
+
+	private void addFieldContent(XWPFTableCell cell, String content) {
+		if (content == null || content.isEmpty())
+			return;
+		String[] texts = content.split("(\r\n|\n\r|\r|\n)");
+		for (int i = 0; i < texts.length; i++) {
+			XWPFParagraph paragraph = i == 0 ? cell.getParagraphs().get(i) : cell.addParagraph();
 			paragraph.setStyle("BodyOfText");
 			paragraph.createRun().setText(texts[i]);
 		}

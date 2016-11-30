@@ -488,6 +488,8 @@ public class ControllerAnalysisStandard {
 
 		Comparator<Measure> comparator = new MeasureComparator();
 
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
+		
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 
 		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream().map(analysisStandard -> {

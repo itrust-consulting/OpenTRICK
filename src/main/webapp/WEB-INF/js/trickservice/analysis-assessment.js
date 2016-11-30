@@ -101,9 +101,12 @@ function saveAssessmentData(e) {
 
 function toggleAdditionalActionPlan(e) {
 	var $additional = $("textarea[name='riskProfile.actionPlan']");
+	if(!$additional.length)
+		return false;
 	if (e == undefined) {
-		if (helper['toggleAdditionalActionPlan'] == undefined)
+		if (helper['toggleAdditionalActionPlan'] == undefined){
 			helper['toggleAdditionalActionPlan'] = $additional.is(":visible") ? 'show' : 'hide';
+		}
 		else {
 			var $show = $("#measureManagementAdvance a[data-action='show']").parent(), $hide = $("#measureManagementAdvance a[data-action='hide']").parent();
 			if (helper['toggleAdditionalActionPlan'] == 'hide') {
@@ -284,13 +287,20 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
 										$("<td>" + measure.phase + "</td>").appendTo($tr);
 										$("<td>" + measure.domain + "</td>").appendTo($tr);
-										$button.on("click", removeMeasure);
 										$clone = $tr;
+										$button.on("click", removeMeasure).attr("title", MessageResolver("label.action.remove","Remove"));
+										
 									} else {
-										$("button.btn.btn-xs.btn-primary", $clone).removeClass("btn-primary").addClass("btn-danger").off("click").on("click", removeMeasure).find("i.fa-plus").removeClass("fa-plus").addClass("fa-times");
+										$("button.btn.btn-xs.btn-primary", $clone).removeClass("btn-primary").addClass("btn-danger").off("click").on("click", removeMeasure).attr("title", MessageResolver("label.action.remove","Remove")).find("i.fa-plus").removeClass("fa-plus").addClass("fa-times");
 										$clone.find("[data-toggle='tooltip']").tooltip().on('show.bs.tooltip', toggleToolTip);
 										$measure.addClass("info").find(".btn").prop("disabled", true);
 									}
+									
+									if(measure.status == 'NA')
+										$clone.addClass("danger");
+									else if(measure.implementationRate>=100)
+										$clone.addClass("warning");
+									
 									$clone.appendTo($("tbody", this.$selectedMeasures));
 								}
 								return this;
@@ -313,13 +323,16 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
 									$("<td>" + measure.phase + "</td>").appendTo($tr);
 									$("<td>" + measure.domain + "</td>").appendTo($tr);
+									
 									if (this.measures[measure.id] != undefined) {
 										$tr.addClass("info");
 										$button.prop("disabled", true);
 									}
+									
 									$button.on("click", function () {
 										standardCaching.addMeasure(standardCaching.getMeasure(standard, $(this).closest("tr[data-trick-id]").attr("data-trick-id")));
-									});
+									}).attr("title", MessageResolver("label.action.add","Add"));
+									
 									$tr.appendTo($tbody);
 								}
 								return this;
@@ -400,14 +413,17 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							success: function (response) {
 								if (response.success) {
 									$("<label class='label label-success' />").text(response.success).appendTo($messageContainer);
-									standardCaching.updateView().$measureManager.modal("hide");
+									setTimeout(function() {
+										standardCaching.updateView().$measureManager.modal("hide");
+									}, 2000);
+									
 								} else if (response.error)
 									$("<label class='label label-error' />").text(response.error).appendTo($messageContainer);
 								else $("<label class='label label-error' />").text(MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures')).appendTo($messageContainer);
 
 							},
 							error: unknowError
-						}).complete(function () { $progress.hide() });
+						}).complete(function () { $progress.hide();});
 					});
 
 				} else

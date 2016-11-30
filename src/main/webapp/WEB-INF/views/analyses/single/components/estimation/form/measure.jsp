@@ -12,6 +12,7 @@
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
+<spring:message code="label.action.remove" var="titleRemove" />
 <div class="modal fade" id="riskProfileMeasureManager" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal" data-keyboard="false">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -44,8 +45,8 @@
 							<tbody>
 								<c:forEach items="${riskProfile.measures}" var="measure">
 									<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
-									<tr data-trick-class="Measure" data-trick-id="${measure.id}">
-										<td><button class="btn btn-xs btn-danger">
+									<tr data-trick-class="Measure" data-trick-id="${measure.id}" ${implementationRateValue==100? 'class="warning"' : measure.status=='NA'? 'class="danger"':''} >
+										<td><button class="btn btn-xs btn-danger" title="${titleRemove}" >
 												<i class="fa fa-times" aria-hidden="true"></i>
 											</button></td>
 										<td data-real-value='${measure.measureDescription.standard.id}'><spring:message text='${ measure.measureDescription.standard.label}' /></td>
@@ -111,7 +112,7 @@
 				<button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.close" />
 				</button>
-				<button type="button" name="save" class="btn btn-primary" data-dismiss="modal">
+				<button type="button" name="save" class="btn btn-primary">
 					<spring:message code="label.action.save" />
 				</button>
 			</div>

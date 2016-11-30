@@ -23,6 +23,9 @@
 	<script type="text/javascript">
 	<!--
 		resolveMessage("error.timeout", "<spring:message code='error.timeout' />");
+		resolveMessage("label.action.remove", "<spring:message code='label.action.remove' />");
+		resolveMessage("label.action.add", "<spring:message code='label.action.add' />");
+		resolveMessage("error.not_authorized", "<spring:message code='error.not_authorized' />");
 		resolveMessage("error.forbidden", "<spring:message code='error.forbidden' htmlEscape='false'/>");
 		resolveMessage("error.unknown.occurred", "<spring:message code='error.unknown.occurred' />");
 		application['taskManager'] = new TaskManager().Start();

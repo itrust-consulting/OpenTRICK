@@ -274,7 +274,7 @@
 		<tbody>
 			<c:forEach items="${riskProfile.measures}" var="measure">
 				<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
-				<tr data-trick-class="Measure" data-trick-id="${measure.id}">
+				<tr data-trick-class="Measure" data-trick-id="${measure.id}" ${implementationRateValue==100? 'class="warning"' : measure.status=='NA'? 'class="danger"':''}>
 					<td><spring:message text='${ measure.measureDescription.standard.label}' /></td>
 					<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 					<c:choose>
@@ -305,7 +305,7 @@
 		</tbody>
 	</table>
 	<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}"
-		style="resize: vertical; margin-top: 5px; display: ${empty riskProfile.actionPlan? 'none' : 'inline-block'};" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
+		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 </div>
 <div class='form-group'>
 	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
