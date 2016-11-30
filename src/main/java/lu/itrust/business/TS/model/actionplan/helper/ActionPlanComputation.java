@@ -346,9 +346,9 @@ public class ActionPlanComputation {
 
 	private Comparator<? super ActionPlanEntry> qualitativeComparator() {
 		return (a1, a2) -> {
-			int comp = Integer.compare(a2.getRiskCount(), a1.getRiskCount());
+			int comp = Integer.compare(a1.getMeasure().getPhase().getNumber(), a2.getMeasure().getPhase().getNumber());
 			if (comp == 0) {
-				comp = Integer.compare(a1.getMeasure().getPhase().getNumber(), a2.getMeasure().getPhase().getNumber());
+				comp = Integer.compare(a2.getRiskCount(), a1.getRiskCount());
 				if (comp == 0) {
 					comp = NaturalOrderComparator.compareTo(a1.getMeasure().getMeasureDescription().getStandard().getLabel(),
 							a2.getMeasure().getMeasureDescription().getStandard().getLabel());
@@ -2935,7 +2935,7 @@ public class ActionPlanComputation {
 				double imprate = measure.getImplementationRateValue(factory);
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					numerator += imprate * 0.01;// imprate / 100.0
-					if (firstStage && imprate == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
+					if (firstStage && imprate >= Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
 						tmpval.implementedCount++;
 					else if (helper.measures.contains(measure)) {
 						numerator += (1.0 - imprate * 0.01);
