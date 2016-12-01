@@ -486,11 +486,10 @@ datalist {
 	height: 445px;
 }
 
-@media ( min-width : 1200px) {
+@media ( min-width : 992px) {
 	li.back-btn-bottom {
 		display: none;
 	}
-	
 	.back-btn-top {
 		margin-top: 10px;
 		display: block;
@@ -500,18 +499,17 @@ datalist {
 	.max-height {
 		height: 100%;
 	}
-	*[role='left-menu'],*[role='nav-tabs'] {
+	*[role='left-menu'], *[role='nav-tabs'] {
 		position: fixed;
 	}
 	*[role='left-menu']+*[class*='col-'] {
 		float: right;
 	}
-	
 	.affixNav {
 		height: 88%;
 	}
-	
-	@media ( min-height :400px) {
+
+	/*@media ( min-height :400px) {
 		.nav-chapter {
 			height: 36%;
 		}
@@ -565,6 +563,47 @@ datalist {
 	@media ( min-height :1200px) {
 		.nav-chapter {
 			height: 78%;
+		}
+	}*/
+	
+	@media ( min-height :300px) {
+		ul[data-trick-role='nav-estimation'] {
+			position: fixed;
+			bottom: 42px;
+		}
+	}
+	
+	@media ( min-height :400px) {
+		.nav-chapter {
+			height: 36%;
+		}
+	}
+	@media ( min-height :500px) {
+		.nav-chapter {
+			height: 55%;
+		}
+	}
+	
+	@media ( min-height :600px) {
+		.nav-chapter {
+			height: 60%;
+		}
+	}
+	
+	@media ( min-height :766px) {
+		.nav-chapter {
+			height: 65%;
+		}
+	}
+	@media ( min-height :900px) {
+		.nav-chapter {
+			height: 71%;
+		}
+	}
+	
+	@media ( min-height :1200px) {
+		.nav-chapter {
+			height: 75%;
 		}
 	}
 }

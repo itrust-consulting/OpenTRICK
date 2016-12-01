@@ -858,5 +858,7 @@ $(document)
 						if (e.keyCode == 27)
 							forceCloseToolTips();
 					});
-
+					
+					if(window.location.hash!=undefined)
+						$('a[data-toggle="tab"][href="'+window.location.hash+'"]', $tabNav).trigger("shown.bs.tab");
 				});

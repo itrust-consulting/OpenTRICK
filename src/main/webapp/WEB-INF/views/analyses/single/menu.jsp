@@ -44,6 +44,7 @@
 			</c:if>
 			<li><a href="#tabScenario" data-toggle="tab"><spring:message code="label.menu.analysis.scenario" /></a></li>
 			<c:if test="${!isProfile}">
+				<li><a href="#tabRiskEstimation" data-toggle="tab"><spring:message code="label.menu.analysis.risk_estimation" /></a></li>
 				<li class="divider"></li>
 				<li class="dropdown-header"><spring:message code="label.action.assessment.by" /></li>
 				<li><a href="?open=${open.readOnly?'read-only' : 'edit'}-estimation"><spring:message code="label.action.risk_sheet" /></a></li>
@@ -108,9 +109,9 @@
 				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>
 			</ul></li>
 	</c:if>
-	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted"
+	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-danger"
 		title='<spring:message code="label.action.close.analysis" />' style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
-	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle text-muted" data-toggle="dropdown" title='<spring:message code="label.actions" />'
+	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown" title='<spring:message code="label.actions" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">

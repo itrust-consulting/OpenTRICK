@@ -159,7 +159,7 @@ public class ControllerAssessment {
 			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 		}
 		model.addAttribute("asset", asset);
-		return "analyses/single/components/estimation/asset/home";
+		return "analyses/single/components/risk-estimation/asset/home";
 	}
 
 	/**
@@ -210,14 +210,14 @@ public class ControllerAssessment {
 			if (scenario == null)
 				throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
-			if (!assessment.isSelected())
+			if (assessment == null || !assessment.isSelected())
 				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
 			model.addAttribute("asset", asset);
 			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 
 		}
 		model.addAttribute("scenario", scenario);
-		return "analyses/single/components/estimation/scenario/home";
+		return "analyses/single/components/risk-estimation/scenario/home";
 
 	}
 

@@ -42,11 +42,14 @@
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
 					<jsp:include page="./components/assessment/home.jsp" />
-					<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
-					<c:set var="assetALE" value="${ales[0]}" scope="request" />
+					<jsp:include page="./components/risk-estimation/home.jsp" />
+					<c:if test="${type=='QUANTITATIVE' }">
+						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
+						<c:set var="assetALE" value="${ales[0]}" scope="request" />
+						<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
+					</c:if>
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/asset/asset.jsp" />
-					<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
 				</c:if>
 				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<jsp:include page="./components/scenario/scenario.jsp" />
@@ -88,10 +91,16 @@
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/assessment.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js" />"></script>
-		<c:if test="${type=='QUALITATIVE'}">
-			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
-		</c:if>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/risk-estimation.js" />"></script>
+		<c:if test="${type=='QUALITATIVE'}" >
+			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
+			<script type="text/javascript">
+				<!-- 
+					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}}; 
+				-->
+			</script>
+		</c:if>
 	</c:if>
 	<script type="text/javascript">
 	<!--

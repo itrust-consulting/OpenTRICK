@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model.analysis;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -781,13 +782,10 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Scenario> findScenarioSelected() {
-		List<Scenario> selectedScenarios = new ArrayList<>();
-		if (scenarios == null || scenarios.isEmpty())
-			return selectedScenarios;
-		for (Scenario scenario : scenarios)
-			if (scenario.isSelected())
-				selectedScenarios.add(scenario);
-		return selectedScenarios;
+		if (scenarios == null)
+			return Collections.emptyList();
+		return scenarios.stream().filter(Scenario::isSelected).collect(Collectors.toList());
+
 	}
 
 	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {
@@ -799,11 +797,10 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Asset> findSelectedAssets() {
-		List<Asset> selectedAssets = new ArrayList<>();
 		if (assets == null)
-			return selectedAssets;
-		assets.stream().filter(asset -> asset.isSelected()).forEach(asset -> selectedAssets.add(asset));
-		return selectedAssets;
+			return Collections.emptyList();
+		return assets.stream().filter(Asset::isSelected).collect(Collectors.toList());
+
 	}
 
 	/**
@@ -2608,7 +2605,7 @@ public class Analysis implements Cloneable {
 		return mappedParameters;
 
 	}
-	
+
 	/**
 	 * Retrieves parameter by type
 	 * 
