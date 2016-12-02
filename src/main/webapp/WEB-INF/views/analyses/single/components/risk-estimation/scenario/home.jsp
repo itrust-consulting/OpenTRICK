@@ -13,13 +13,13 @@
 	</c:when>
 	<c:when test="${not empty assessment}">
 		<div id="estimation-ui" data-view='estimation-ui' class='col-md-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
-			<fieldset style="display: block; width: 100%; clear: left;">
+			<%-- <fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${asset.name}' />
 				</legend>
 				<div id="description" class='well well-sm' 
 				style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 40px;"><spring:message text="${fn:trim(asset.comment)}" /></div>
-			</fieldset>
+			</fieldset> --%>
 			<c:choose>
 				<c:when test="${type == 'QUALITATIVE'}">
 					<jsp:include page="../form/qualitative.jsp" />

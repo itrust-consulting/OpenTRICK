@@ -28,7 +28,6 @@ function selectAsset(assetId, value) {
 					contentType : "application/json;charset=UTF-8",
 					data : JSON.stringify(requiredUpdate, null, 2),
 					type : 'post',
-					async : false,
 					success : function(reponse) {
 						reloadSection('section_asset');
 						return false;
@@ -42,7 +41,6 @@ function selectAsset(assetId, value) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Asset/Select/" + assetId,
-				async : false,
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_asset");
@@ -74,7 +72,7 @@ function deleteAsset() {
 									"confirm.delete.selected.asset",
 									"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
 									assetname));
-		$("#confirm-dialog .btn-danger").click(function() {
+		$("#confirm-dialog .btn-danger").one("click", function() {
 			var $progress = $("#loading-indicator").show(), hasChange = false;
 			while (selectedAsset.length) {
 				var assetId = selectedAsset.pop();
@@ -83,26 +81,21 @@ function deleteAsset() {
 					type : "POST",
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
-						if (response["success"] != undefined) {
-							$("tr[data-trick-id='" + assetId + "']", "#section_asset").remove();
-							hasChange = true;
-						} else if (response["error"] != undefined) {
-							$("#alert-dialog .modal-body").text(response["error"]);
-							$("#alert-dialog").modal("toggle");
-						} else {
-							$("#alert-dialog .modal-body").text(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
-							$("#alert-dialog").modal("toggle");
-						}
-						return false;
+						if (response["success"] != undefined)
+							hasChange |= $("tr[data-trick-id='" + assetId + "']", "#section_asset").remove().length > 0;
+						else if (response["error"] != undefined)
+							showDialog("#alert-dialog", response["error"]);
+						else
+							showDialog("#alert-dialog", MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
 					},
 					error : unknowError
 				}).complete(function() {
 					if (!selectedAsset.length) {
-						$progress.hide();
 						if (hasChange)
 							reloadSection("section_asset");
+						else
+							$progress.hide();
 					}
-
 				});
 			}
 

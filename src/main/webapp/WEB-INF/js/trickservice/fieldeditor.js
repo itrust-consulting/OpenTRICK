@@ -549,7 +549,8 @@ function AssessmentFieldEditor(element) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
 							if (application["estimation-helper"] != undefined) {
-								application["estimation-helper"].tryUpdate(that.classId);
+								riskEstimationUpdate();
+								application["estimation-helper"].tryUpdate(that.classId);//it should be removed
 								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
 								chartALE();
 							}

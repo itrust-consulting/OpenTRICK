@@ -13,7 +13,7 @@
 	</c:when>
 	<c:when test="${not empty assessment}">
 		<div id="estimation-ui" data-view='estimation-ui' class='col-md-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' data-trick-content='asset'>
-			<fieldset style="display: block; width: 100%; clear: left;">
+			<%-- <fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${scenario.name}' />
 				</legend>
@@ -22,7 +22,7 @@
 					<spring:message text="${fn:trim(scenario.description)}" var="description" />
 					<textarea class="form-control" id='description' style="resize: vertical;" name="scenario.description" readonly="readonly" placeholder="${description}">${description}</textarea>
 				</div>
-			</fieldset>
+			</fieldset> --%>
 			<c:choose>
 				<c:when test="${type == 'QUALITATIVE'}">
 					<jsp:include page="../form/qualitative.jsp" />

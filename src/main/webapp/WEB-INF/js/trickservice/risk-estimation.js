@@ -63,6 +63,9 @@ function saveAssessmentData(e) {
 							else if ($target.tagName = 'SELECT')
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
+						
+						if (application.analysisType == "QUALITATIVE")
+							reloadSection("section_riskregister", undefined, true);
 					}
 				}
 			},
@@ -108,7 +111,7 @@ function toggleAdditionalActionPlan(e) {
 }
 
 function loadAssessmentData(id) {
-	var $currentUI = $("div[data-view='estimation-ui']"), idAsset = -3, idScenario = -3, url = context + "/Analysis/Assessment/";
+	var $currentUI = $("div[data-view='estimation-ui']"), idAsset = -3, idScenario = -3, url = context + "/Analysis/Assessment/", invalidate = helper !=undefined && helper.invalidate;
 	if (activeSelector == "asset") {
 		idAsset = $("select[name='asset']").val();
 		url += "Asset/" + idAsset + "/Load?idScenario=" + (idScenario = id);
@@ -116,8 +119,8 @@ function loadAssessmentData(id) {
 		idScenario = $("select[name='scenario']").val();
 		url += "Scenario/" + idScenario + "/Load?idAsset=" + (idAsset = id);
 	}
-
-	if (idAsset == -1 && idScenario == -1 || $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
+	
+	if (idAsset == -1 && idScenario == -1 || !invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
 		&& $currentUI.attr("data-trick-content") == activeSelector)
 		return false;
 	var $progress = $("#loading-indicator").show();
@@ -127,9 +130,7 @@ function loadAssessmentData(id) {
 		success: function (response) {
 			var $assessmentUI = $("div[data-view='estimation-ui']", new DOMParser().parseFromString(response, "text/html"));
 			if ($assessmentUI.length) {
-				backupDescriptionHeight();
 				$currentUI.replaceWith($assessmentUI);
-				restoreDescriptionHeight();
 				if (OPEN_MODE.isReadOnly()) {
 					$("select:not([disabled])", $assessmentUI).prop("disabled", true);
 					$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
@@ -138,7 +139,6 @@ function loadAssessmentData(id) {
 				} else {
 					$("select", $assessmentUI).on("change", saveAssessmentData);
 					$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
-
 					$("a[data-controller]", $assessmentUI).on("click", function () {
 						var $description = $("#description", $assessmentUI), $control = $("i.fa", this);
 						if ($control.hasClass("fa-lock")) {
@@ -182,6 +182,287 @@ function loadAssessmentData(id) {
 	});
 	return false;
 }
+
+
+function backupDescriptionHeight() {
+	var $description = $("#description");
+	if ($description.length) {
+		var height = $description.outerHeight(), defaultHeight = application["estimation-description-default-size"];
+		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
+			application["estimation-description-size-prev"] = application["estimation-description-size"];
+			application["estimation-description-size"] = $description.outerHeight();
+		} else if (application["estimation-description-size"] && application["estimation-description-size"] != height && application["estimation-description-size-prev"] != height) {
+			delete application["estimation-description-size"];
+			delete application["estimation-description-size-prev"]
+		}
+	}
+	return false;
+}
+
+function restoreDescriptionHeight() {
+	var $description = $("#description");
+	if ($description.length) {
+		application["estimation-description-default-size"] = $description.outerHeight();
+		var height = application["estimation-description-size"];
+		if (height != undefined) {
+			$("#description").css({
+				"height": height
+			});
+		}
+	}
+	return false;
+}
+
+function updateScroll(element) {
+	var currentActive = document.activeElement;
+	if (element != currentActive) {
+		element.focus();// / / update scroll
+		currentActive.focus();
+	}
+	return false;
+}
+
+function updateAssessmentUI() {
+	var $assessment = $("div.list-group:visible>.list-group-item.active");
+	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
+		updateScroll($assessment);
+	loadAssessmentData($assessment.attr("data-trick-id"));
+}
+
+function riskEstimationUpdate(){
+	var $view = $("#tabRiskEstimation");
+	if($view.is(":visible")){
+		if(helper == undefined)
+			initialiseRiskEstimation();
+		updateNavigation();
+		updateAssessmentUI();
+	}else if(helper!=undefined)
+		$view.attr("data-update-required",helper.invalidate = true);
+}
+
+function updateNavigation() {
+	var $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active");
+	
+	if(activeSelector == undefined)
+		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario"? "asset" : "scenario";
+	
+	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected"), $previousSelector = $(
+		"[data-trick-nav='previous-selector']").parent(), $nextSelector = $("[data-trick-nav='next-selector']").parent(), $previousAssessment = $(
+			"[data-trick-nav='previous-assessment']").parent(), $nextAssessment = $("[data-trick-nav='next-assessment']").parent();
+
+	if ($currentSelector.next(":first").length)
+		$nextSelector.removeClass("disabled");
+	else
+		$nextSelector.addClass("disabled");
+
+	if ($currentSelector.prev("[value!='-1']:last").length)
+		$previousSelector.removeClass("disabled");
+	else
+		$previousSelector.addClass("disabled");
+
+	if ($currentAssessment.prevAll(".list-group-item:visible").length)
+		$previousAssessment.removeClass("disabled");
+	else
+		$previousAssessment.addClass("disabled");
+
+	if ($currentAssessment.nextAll(".list-group-item:visible").length)
+		$nextAssessment.removeClass("disabled");
+	else
+		$nextAssessment.addClass("disabled");
+	return false;
+
+}
+
+function changeAssessment(e) {
+	var $target = $(e.currentTarget);
+	if (!$target.hasClass('active')) {
+		var $parent = $target.closest(".list-group");
+		$(".list-group-item.active", $parent).removeClass("active");
+		$target.addClass('active');
+	}
+	riskEstimationUpdate();
+	return false;
+}
+
+function AssessmentHelder() {
+	this.names = ["asset", "scenario"];
+	this.asset = $("select[name='asset']");
+	this.scenario = $("select[name='scenario']");
+	this.lastSelected = {
+		asset: this.asset.find("option[value!='-1']:first").val(),
+		scenario: this.scenario.find("option[value!='-1']:first").val()
+	};
+	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
+}
+
+AssessmentHelder.prototype = {
+
+	invalidate : true,
+	
+	getCurrent: function (name) {
+		return name == "asset" ? this.asset : this.scenario;
+	},
+	getOther: function (name) {
+		return name == "asset" ? this.scenario : this.asset;
+	},
+	getOtherName: function (name) {
+		return name == "asset" ? 'scenario' : 'asset';
+	},
+	setLastSelected: function (name, id) {
+		if (id == "-1")
+			return false;
+		this.lastSelected[name] = id;
+	},
+	getLastSelected: function (name) {
+		return this.lastSelected[name];
+	},
+
+	switchControl: function (name) {
+		if (name == activeSelector)
+			return this;
+		activeSelector = name;
+		$("div[data-trick-content]").each(function () {
+			if (this.getAttribute("data-trick-content") == name)
+				$(this).hide();
+			else
+				$(this).show();
+		});
+		return this;
+	},
+	updateContent: function () {
+		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
+		if (activeSelector == "asset") {
+			$elements.each(function () {
+				var $this = $(this), scenarioType = $this.attr("data-trick-type");
+				if (scenarioType && scenarioType.search(type) != -1)
+					$this.show();
+				else
+					$this.hide();
+			});
+		} else {
+			$elements.each(function () {
+				var $this = $(this);
+				if (type.search($this.attr("data-trick-type")) != -1)
+					$this.show();
+				else
+					$this.hide();
+			});
+		}
+
+		if ($elements.filter(".active").is(":hidden"))
+			$elements.filter(":visible:first").click();
+		else
+			updateAssessmentUI();
+		return this;
+	}
+}
+
+function displayParameters(name, title) {
+	var view = new Modal(undefined, $(name).html()), $legend = $(view.modal_body).find("legend").remove();
+	$(view.modal_footer).remove();
+	$(view.modal_body).find("tbody").css({
+		"text-align" : "center"
+	}).find("td").removeAttributes();
+	if (!title)
+		title = $legend.text();
+	view.setTitle(title);
+	view.Show();
+	return false;
+}
+
+function computeAssessment(silent) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Assessment/Update",
+			type : "POST",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response['error'] != undefined) {
+					$("#info-dialog .modal-body").text(response['error']);
+					$("#info-dialog").modal("toggle");
+				} else if (response['success'] != undefined) {
+					if (!silent) {
+						$("#info-dialog .modal-body").text(response['success']);
+						$("#info-dialog").modal("toggle");
+					}
+					chartALE();
+				} else
+					unknowError();
+				return false;
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		permissionError();
+	return false;
+}
+
+function refreshAssessment() {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
+		$("#confirm-dialog .btn-danger").click(function() {
+			var $progress = $("#loading-indicator").show();
+			$.ajax({
+				url : context + "/Analysis/Assessment/Refresh",
+				type : "POST",
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					if (response['error'] != undefined) {
+						$("#info-dialog .modal-body").text(response['error']);
+						$("#info-dialog").modal("toggle");
+					} else if (response['success'] != undefined) {
+						$("#info-dialog .modal-body").text(response['success']);
+						$("#info-dialog").modal("toggle");
+						chartALE();
+					} else
+						unknowError();
+					return false;
+				},
+				error : unknowError
+			}).complete(function() {
+				$progress.hide();
+			});
+		});
+		$("#confirm-dialog").modal("show");
+	} else
+		permissionError();
+	return false;
+}
+
+function updateAssessmentAle(silent) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Assessment/Update/ALE",
+			type : "POST",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response['error'] != undefined) {
+					$("#info-dialog .modal-body").text(response['error']);
+					$("#info-dialog").modal("toggle");
+				} else if (response['success'] != undefined) {
+					if (!silent) {
+						$("#info-dialog .modal-body").text(response['success']);
+						$("#info-dialog").modal("toggle");
+					}
+					reloadSection("section_asset");
+				} else
+					unknowError();
+				return false;
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		permissionError();
+
+	return false;
+}
+
 
 function manageRiskProfileMeasure(idAsset, idScenario, e) {
 	var $progress = $("#loading-indicator").show();
@@ -409,183 +690,13 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 			$progress.hide()
 		});
 	return false;
-
 }
 
-function backupDescriptionHeight() {
-	var $description = $("#description");
-	if ($description.length) {
-		var height = $description.outerHeight(), defaultHeight = application["estimation-description-default-size"];
-		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
-			application["estimation-description-size-prev"] = application["estimation-description-size"];
-			application["estimation-description-size"] = $description.outerHeight();
-		} else if (application["estimation-description-size"] && application["estimation-description-size"] != height && application["estimation-description-size-prev"] != height) {
-			delete application["estimation-description-size"];
-			delete application["estimation-description-size-prev"]
-		}
-	}
-	return false;
-}
-
-function restoreDescriptionHeight() {
-	var $description = $("#description");
-	if ($description.length) {
-		application["estimation-description-default-size"] = $description.outerHeight();
-		var height = application["estimation-description-size"];
-		if (height != undefined) {
-			$("#description").css({
-				"height": height
-			});
-		}
-	}
-	return false;
-}
-
-function updateScroll(element) {
-	var currentActive = document.activeElement;
-	if (element != currentActive) {
-		element.focus();// / / update scroll
-		currentActive.focus();
-	}
-	return false;
-}
-
-function updateAssessmentUI() {
-	var $assessment = $("div.list-group:visible>.list-group-item.active");
-	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
-		updateScroll($assessment);
-	loadAssessmentData($assessment.attr("data-trick-id"));
-}
-
-function riskEstimationUpdate(){
-	var $view = $("#tabRiskEstimation");
-	if($view.is(":visible")){
-		updateNavigation();
-		updateAssessmentUI();
-	}else
-		$view.attr("data-update-required",true);
-}
-
-function updateNavigation() {
-	var $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active");
-	
-	if(activeSelector == undefined)
-		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario"? "asset" : "scenario";
-	
-	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected"), $previousSelector = $(
-		"[data-trick-nav='previous-selector']").parent(), $nextSelector = $("[data-trick-nav='next-selector']").parent(), $previousAssessment = $(
-			"[data-trick-nav='previous-assessment']").parent(), $nextAssessment = $("[data-trick-nav='next-assessment']").parent();
-
-	if ($currentSelector.next(":first").length)
-		$nextSelector.removeClass("disabled");
-	else
-		$nextSelector.addClass("disabled");
-
-	if ($currentSelector.prev("[value!='-1']:last").length)
-		$previousSelector.removeClass("disabled");
-	else
-		$previousSelector.addClass("disabled");
-
-	if ($currentAssessment.prevAll(".list-group-item:visible").length)
-		$previousAssessment.removeClass("disabled");
-	else
-		$previousAssessment.addClass("disabled");
-
-	if ($currentAssessment.nextAll(".list-group-item:visible").length)
-		$nextAssessment.removeClass("disabled");
-	else
-		$nextAssessment.addClass("disabled");
-	return false;
-
-}
-
-function changeAssessment(e) {
-	var $target = $(e.currentTarget);
-	if (!$target.hasClass('active')) {
-		var $parent = $target.closest(".list-group");
-		$(".list-group-item.active", $parent).removeClass("active");
-		$target.addClass('active');
-	}
-	riskEstimationUpdate();
-	return false;
-}
-
-function AssessmentHelder() {
-	this.names = ["asset", "scenario"];
-	this.asset = $("select[name='asset']");
-	this.scenario = $("select[name='scenario']");
-	this.lastSelected = {
-		asset: this.asset.find("option[value!='-1']:first").val(),
-		scenario: this.scenario.find("option[value!='-1']:first").val()
-	};
-	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
-}
-
-AssessmentHelder.prototype = {
-
-	getCurrent: function (name) {
-		return name == "asset" ? this.asset : this.scenario;
-	},
-	getOther: function (name) {
-		return name == "asset" ? this.scenario : this.asset;
-	},
-	getOtherName: function (name) {
-		return name == "asset" ? 'scenario' : 'asset';
-	},
-	setLastSelected: function (name, id) {
-		if (id == "-1")
-			return false;
-		this.lastSelected[name] = id;
-	},
-	getLastSelected: function (name) {
-		return this.lastSelected[name];
-	},
-
-	switchControl: function (name) {
-		if (name == activeSelector)
-			return this;
-		activeSelector = name;
-		$("div[data-trick-content]").each(function () {
-			if (this.getAttribute("data-trick-content") == name)
-				$(this).hide();
-			else
-				$(this).show();
-		});
-		return this;
-	},
-	updateContent: function () {
-		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
-		if (activeSelector == "asset") {
-			$elements.each(function () {
-				var $this = $(this), scenarioType = $this.attr("data-trick-type");
-				if (scenarioType && scenarioType.search(type) != -1)
-					$this.show();
-				else
-					$this.hide();
-			});
-		} else {
-			$elements.each(function () {
-				var $this = $(this);
-				if (type.search($this.attr("data-trick-type")) != -1)
-					$this.show();
-				else
-					$this.hide();
-			});
-		}
-
-		if ($elements.filter(".active").is(":hidden"))
-			$elements.filter(":visible:first").click();
-		else
-			updateAssessmentUI();
-		return this;
-	}
-}
-
-$(function () {
+function initialiseRiskEstimation () {
 
 	helper = new AssessmentHelder();
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
+	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']");
 	
 	$previousSelector.on("click", function () {
 		$("select[name='" + activeSelector + "']>option:selected").prev("[value!='-1']:last").prop('selected', true).parent().change();
@@ -626,4 +737,4 @@ $(function () {
 
 	for (var i in helper.names)
 		helper.getCurrent(helper.names[i]).on('change', updateSelector)
-});
+}

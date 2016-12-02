@@ -183,7 +183,6 @@ EstimationHelper.prototype = {
 				});
 			} catch (e) {
 				instance.updateLocked = false;
-				console.log(e);
 			}
 		}
 		return this;

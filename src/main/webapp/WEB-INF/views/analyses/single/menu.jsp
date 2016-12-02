@@ -45,11 +45,11 @@
 			<li><a href="#tabScenario" data-toggle="tab"><spring:message code="label.menu.analysis.scenario" /></a></li>
 			<c:if test="${!isProfile}">
 				<li><a href="#tabRiskEstimation" data-toggle="tab"><spring:message code="label.menu.analysis.risk_estimation" /></a></li>
-				<li class="divider"></li>
+				<%-- <li class="divider"></li>
 				<li class="dropdown-header"><spring:message code="label.action.assessment.by" /></li>
 				<li><a href="?open=${open.readOnly?'read-only' : 'edit'}-estimation"><spring:message code="label.action.risk_sheet" /></a></li>
 				<li hidden="hidden" data-menu='estimation' data-type='asset'><a href="#tabEstimationAsset" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li>
-				<li hidden="hidden" data-menu='estimation' data-type='scenario'><a href="#tabEstimationScenario" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li>
+				<li hidden="hidden" data-menu='estimation' data-type='scenario'><a href="#tabEstimationScenario" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li> --%>
 			</c:if>
 		</ul></li>
 
