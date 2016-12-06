@@ -4,7 +4,6 @@
 package lu.itrust.TS.controller;
 
 import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.ANALYSIS_ID;
-import static lu.itrust.TS.helper.TestMethod.redirectedUrlMatch;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.getString;
 import static lu.itrust.TS.helper.TestSharingData.getStringValue;
@@ -24,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.List;
@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.TS.helper.TestConstant;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
@@ -72,7 +73,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	private static final String STANDARD_FOR_TEST = "Standard for test";
 
 	private static final String TEST_STANDARD = "Test standard";
-	
+
 	private static final String TEST_STANDARD_ID = "Test-standard-id";
 
 	private static final String TEST_ANALYSIS_FROM_TEST_PROFILE = "test analysis from test profile";
@@ -135,27 +136,16 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	@Test
 	public void test_00_CreateLanguageAndCustomer() throws Exception {
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Customer/Save")
-								.with(httpBasic(USERNAME, PASSWORD))
-								.with(csrf())
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format(
-												"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-												CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME)))
+				.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(
+								"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
+								CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Language/Save")
-								.with(httpBasic(USERNAME, PASSWORD))
-								.with(csrf())
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", LANGUAGE_DEU_ALPHA_3, LANGUAGE_DEU_NAME,
-												LANGUAGE_DEU_ALT_NAME))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
-				.andExpect(content().string("{}"));
+				.perform(post("/KnowledgeBase/Language/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).content(
+						String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", LANGUAGE_DEU_ALPHA_3, LANGUAGE_DEU_NAME, LANGUAGE_DEU_ALT_NAME)))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
 	@Test(dependsOnMethods = "test_00_CreateLanguageAndCustomer")
@@ -174,17 +164,11 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Integer idCustomer = getInteger(CUSTOMER_MEME_ID);
 		notNull(idCustomer, "Customer id cannot be found");
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Customer/Save")
-								.with(httpBasic(USERNAME, PASSWORD))
-								.with(csrf())
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format(
-												"{\"id\":%d, \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-												idCustomer, "meme compagny", CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME,
-												CUSTOMER_NAME))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
-				.andExpect(content().string("{}"));
+				.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(
+								"{\"id\":%d, \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
+								idCustomer, "meme compagny", CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME)))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
 	@Test(dependsOnMethods = "test_00_LoadCustomerIdAndLanguageId")
@@ -192,15 +176,9 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Integer idLanguage = getInteger(LANGUAGE_DEU_ID);
 		notNull(idLanguage, "Language id cannot be found");
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Language/Save")
-								.with(httpBasic(USERNAME, PASSWORD))
-								.with(csrf())
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format("{\"id\":%d, \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", idLanguage, LANGUAGE_DEU_ALPHA_3, LANGUAGE_DEU_NAME,
-												"German"))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
-				.andExpect(content().string("{}"));
+				.perform(post("/KnowledgeBase/Language/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).content(
+						String.format("{\"id\":%d, \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", idLanguage, LANGUAGE_DEU_ALPHA_3, LANGUAGE_DEU_NAME, "German")))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
 	@Test(dependsOnMethods = { "test_01_EditCustomer", "test_02_EditLanguage" })
@@ -229,16 +207,15 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		String standards = getString(PROFILE_STANDARD_LIST);
 		notNull(standards, "Standards cannot be found");
 		JsonNode node = new ObjectMapper().readTree(this.mockMvc
-				.perform(
-						post("/AnalysisProfile/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(String.format("{\"id\":%d, %s, \"description\":\"%s\"}", ANALYSIS_ID, standards, "test profile")))
+				.perform(post("/AnalysisProfile/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, %s, \"description\":\"%s\"}", ANALYSIS_ID, standards, "test profile")))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.taskid").exists()).andReturn().getResponse()
 				.getContentAsString());
 		String idTask = node.get("taskid").asText(null);
 		notNull(idTask, "Task id cannot be found");
 
 		Worker worker = null;
-		
+
 		for (int i = 0; i < 30; i++) {
 			worker = workersPoolManager.get(idTask);
 			if (worker == null)
@@ -263,18 +240,12 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_03_LoadData")
 	public void test_03_AddAssetToProfile() throws Exception {
-		this.mockMvc
-				.perform(
-						post("/Analysis/Asset/Save")
-								.with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD))
-								.accept(APPLICATION_JSON_CHARSET_UTF_8).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
-								.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
-								.content(
-										String.format(
-												"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
-												"Trick service", 1, "687,688", false, "comment", "hiddenComment"))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.asset").exists());
+		this.mockMvc.perform(post("/Analysis/Asset/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
+				.content(String.format(
+						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
+						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.asset").exists());
 	}
 
 	@Test(dependsOnMethods = { "test_05_CheckUpdateCustomerAndLanguage", "test_03_LoadData", "test_03_LoadData" })
@@ -282,11 +253,10 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Integer idProfile = getInteger(ANALYSIS_PROFILE_ID);
 		notNull(idProfile, "Profile analysis cannot be found");
 		this.mockMvc
-				.perform(
-						post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8).param("author", "Admin Admin")
-								.param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
-								.param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.success").exists());
+				.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
+						.param("author", "Admin Admin").param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION)
+						.param("comment", "comment").param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test(dependsOnMethods = "test_04_CreateAnalysisUsedCustomerLanguageAndProfile")
@@ -318,15 +288,10 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test
 	public void test_06_CreateStandard() throws Exception {
-		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Standard/Save")
-								.with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD))
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format("{\"id\":\"-1\", \"label\":\"%s\",\"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												TEST_STANDARD, "test standard description", "NORMAL", 2015, "on"))).andExpect(status().isOk()).andExpect(content().string("{}"));
+		this.mockMvc.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.content(String.format("{\"id\":\"-1\", \"label\":\"%s\",\"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}", TEST_STANDARD,
+						"test standard description", "NORMAL", 2015, "on")))
+				.andExpect(status().isOk()).andExpect(content().string("{}"));
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
@@ -355,28 +320,22 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 			}
 
 			this.mockMvc
-					.perform(
-							post(String.format("/KnowledgeBase/Standard/%d/Measures/Save", idStandard, getInteger(LANGUAGE_DEU_ID))).with(csrf())
-									.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-									.content(String.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}", "1", 1, "", domainAndDescription)))
+					.perform(post(String.format("/KnowledgeBase/Standard/%d/Measures/Save", idStandard, getInteger(LANGUAGE_DEU_ID))).with(csrf())
+							.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).content(
+									String.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}", "1", 1, "", domainAndDescription)))
 					.andExpect(status().isOk()).andExpect(content().string("{}"));
 
 			this.mockMvc
-					.perform(
-							post(String.format("/KnowledgeBase/Standard/%d/Measures/Save", idStandard, getInteger(LANGUAGE_DEU_ID))).with(csrf())
-									.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-									.content(String.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}", "1.1", 2, "", domainAndDescription)))
+					.perform(post(String.format("/KnowledgeBase/Standard/%d/Measures/Save", idStandard, getInteger(LANGUAGE_DEU_ID))).with(csrf())
+							.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).content(
+									String.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}", "1.1", 2, "", domainAndDescription)))
 					.andExpect(status().isOk()).andExpect(content().string("{}"));
 
 			this.mockMvc
-					.perform(
-							post(String.format("/KnowledgeBase/Standard/%d/Measures/Save", idStandard, getInteger(LANGUAGE_DEU_ID)))
-									.with(csrf())
-									.with(httpBasic(USERNAME, PASSWORD))
-									.accept(APPLICATION_JSON_CHARSET_UTF_8)
-									.content(
-											String.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}", "1.1.1", 3, "on",
-													domainAndDescription))).andExpect(status().isOk()).andExpect(content().string("{}"));
+					.perform(post(String.format("/KnowledgeBase/Standard/%d/Measures/Save", idStandard, getInteger(LANGUAGE_DEU_ID))).with(csrf())
+							.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).content(
+									String.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}", "1.1.1", 3, "on", domainAndDescription)))
+					.andExpect(status().isOk()).andExpect(content().string("{}"));
 
 		} finally {
 			if (session != null && session.isOpen())
@@ -386,46 +345,30 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = { "test_07_CreateMeasure", "test_04_LoadAnalysis" })
 	public void test_08_CreateAnalysisUseStandard() throws Exception {
-		this.mockMvc
-				.perform(
-						post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD_ID)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc.perform(post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD_ID)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test(dependsOnMethods = "test_08_CreateAnalysisUseStandard")
 	public void test_09_EditStandard() throws Exception {
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Standard/Save")
-								.with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD))
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "ASSET", 2016, "on"))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.type").exists());
+				.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+								getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "ASSET", 2016, "on")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.type").exists());
 
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Standard/Save")
-								.with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD))
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on"))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.type").exists());
+				.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+								getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.type").exists());
 
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Standard/Save")
-								.with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD))
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "NORMAL", 2016, "on"))).andExpect(status().isOk())
-				.andExpect(content().string("{}"));
+				.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+								getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "NORMAL", 2016, "on")))
+				.andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
 	@Test(dependsOnMethods = { "test_05_DeleteUsedCustomerAndLanguageAndProfile", "test_09_EditStandard" })
@@ -468,18 +411,26 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		assertEquals(FilenameUtils.getExtension(template), result.getResponse().getContentType());
 	}
 
-	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage",timeOut=120000)
+	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage", timeOut = 120000)
 	public synchronized void test_13_ImportStandard() throws Exception {
 		Resource resource = resourceLoader.getResource(importStandard);
 		isTrue(resource.exists(), "Resource cannot be found");
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		String idTask = this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isFound())
-				.andExpect(redirectedUrlMatch("/Task/Status/\\d+")).andReturn().getModelAndView().getViewName().replace("redirect:/Task/Status/", "");
+		this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
-			worker = workersPoolManager.get(idTask);
+		for (int i = 0; i < 3000; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 instanceof WorkerImportStandard) {
+					worker = worker2;
+					break;
+				}
+			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
@@ -502,12 +453,11 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_13_ImportStandard")
 	public void test_14_ExportStandard() throws Exception {
-		MvcResult result = this.mockMvc
-				.perform(
-						get("/KnowledgeBase/Standard/Export/" + getInteger(STANDARD_FOR_TEST)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
-		assertEquals(String.format("attachment; filename=\"TL_TRICKService_Norm_%s_Version_%d.xlsx\"", STANDARD_FOR_TEST.trim().replaceAll(":|-|[ ]", "_"), 2015), result
-				.getResponse().getHeaderValue("Content-Disposition"));
+		MvcResult result = this.mockMvc.perform(
+				get("/KnowledgeBase/Standard/Export/" + getInteger(STANDARD_FOR_TEST)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andReturn();
+		assertEquals(String.format("attachment; filename=\"TL_TRICKService_Norm_%s_Version_%d.xlsx\"", STANDARD_FOR_TEST.trim().replaceAll(":|-|[ ]", "_"), 2015),
+				result.getResponse().getHeaderValue("Content-Disposition"));
 		assertEquals(FilenameUtils.getExtension(importStandard), result.getResponse().getContentType());
 	}
 }
