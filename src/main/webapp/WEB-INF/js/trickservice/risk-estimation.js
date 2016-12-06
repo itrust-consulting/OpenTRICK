@@ -63,7 +63,7 @@ function saveAssessmentData(e) {
 							else if ($target.tagName = 'SELECT')
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
-						
+
 						if (application.analysisType == "QUALITATIVE")
 							reloadSection("section_riskregister", undefined, true);
 					}
@@ -79,10 +79,10 @@ function saveAssessmentData(e) {
 
 function toggleAdditionalActionPlan(e) {
 	var $additional = $("textarea[name='riskProfile.actionPlan']");
-	if(!$additional.length)
+	if (!$additional.length)
 		return false;
 	if (e == undefined) {
-		if (helper['toggleAdditionalActionPlan'] == undefined){
+		if (helper['toggleAdditionalActionPlan'] == undefined) {
 			helper['toggleAdditionalActionPlan'] = $additional.is(":visible") ? 'show' : 'hide';
 		}
 		else {
@@ -111,78 +111,8 @@ function toggleAdditionalActionPlan(e) {
 }
 
 function loadAssessmentData(id) {
-	var $currentUI = $("div[data-view='estimation-ui']"), idAsset = -3, idScenario = -3, url = context + "/Analysis/Assessment/", invalidate = helper !=undefined && helper.invalidate;
-	if (activeSelector == "asset") {
-		idAsset = $("select[name='asset']").val();
-		url += "Asset/" + idAsset + "/Load?idScenario=" + (idScenario = id);
-	} else {
-		idScenario = $("select[name='scenario']").val();
-		url += "Scenario/" + idScenario + "/Load?idAsset=" + (idAsset = id);
-	}
-	
-	if (idAsset == -1 && idScenario == -1 || !invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
-		&& $currentUI.attr("data-trick-content") == activeSelector)
-		return false;
-	var $progress = $("#loading-indicator").show();
-	$.ajax({
-		url: url,
-		contentType: "application/json;charset=UTF-8",
-		success: function (response) {
-			var $assessmentUI = $("div[data-view='estimation-ui']", new DOMParser().parseFromString(response, "text/html"));
-			if ($assessmentUI.length) {
-				$currentUI.replaceWith($assessmentUI);
-				if (OPEN_MODE.isReadOnly()) {
-					$("select:not([disabled])", $assessmentUI).prop("disabled", true);
-					$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
-					$("a[data-controller]", $assessmentUI).remove();
-					$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).remove();
-				} else {
-					$("select", $assessmentUI).on("change", saveAssessmentData);
-					$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
-					$("a[data-controller]", $assessmentUI).on("click", function () {
-						var $description = $("#description", $assessmentUI), $control = $("i.fa", this);
-						if ($control.hasClass("fa-lock")) {
-							$control.removeClass("fa-lock").addClass("fa-unlock")
-							$description.removeAttr("readonly");
-						} else {
-							$control.removeClass("fa-unlock").addClass("fa-lock")
-							$description.attr("readonly", true).parent().removeAttr("title").removeClass("has-success has-error");
-						}
-						return false;
-					});
-
-					$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).on("click", function (e) {
-						forceCloseToolTips();
-						manageRiskProfileMeasure(idAsset, idScenario, e);
-					});
-				}
-
-				$("#measureManagementAdvance a[data-action][data-action!='manage']", $assessmentUI).on("click", toggleAdditionalActionPlan)
-				
-				toggleAdditionalActionPlan();
-
-				$('[data-toggle="tooltip"]', $assessmentUI).tooltip().on('show.bs.tooltip', toggleToolTip);
-
-				$("button[data-scale-modal]", $assessmentUI).on("click", function () {
-					forceCloseToolTips();
-					var name = this.getAttribute("data-scale-modal");
-					if (scales[name] == undefined)
-						scales[name] = $("#" + name);
-					scales[name].modal("show");
-				});
-
-			} else
-				unknowError();
-		},
-		error: unknowError
-	}).complete(function () {
-		if (idAsset == -1 || idScenario == -1)
-			fixTableHeader(".table-fixed-header-analysis");
-		$progress.hide()
-	});
-	return false;
+	return application["estimation-helper"].reload(id) == undefined;
 }
-
 
 function backupDescriptionHeight() {
 	var $description = $("#description");
@@ -229,33 +159,42 @@ function updateAssessmentUI() {
 	loadAssessmentData($assessment.attr("data-trick-id"));
 }
 
-function riskEstimationUpdate(){
+function updateEstimationAssetSelect(assets, status){
+	$("select[name='asset']>option[data-trick-type][data-trick-selected!='"+status+"'],div[data-trick-content='asset'] a[data-trick-type][data-trick-id][data-trick-selected!='"+status+"']","#tabRiskEstimation").filter(function(){
+		return assets.indexof(this.getAttribute("data-trick-asset-id"))!=-1;
+	}).attr("data-trick-selected",status).show();
+	if(helper!=null)
+		updateNavigation();
+	return false;
+}
+
+function riskEstimationUpdate() {
 	var $view = $("#tabRiskEstimation");
-	if($view.is(":visible")){
-		if(helper == undefined)
+	if ($view.is(":visible")) {
+		if (helper == undefined)
 			initialiseRiskEstimation();
 		updateNavigation();
 		updateAssessmentUI();
-	}else if(helper!=undefined)
-		$view.attr("data-update-required",helper.invalidate = true);
+	} else if (helper != undefined)
+		$view.attr("data-update-required", helper.invalidate = true);
 }
 
 function updateNavigation() {
 	var $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active");
-	
-	if(activeSelector == undefined)
-		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario"? "asset" : "scenario";
-	
+
+	if (activeSelector == undefined)
+		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario" ? "asset" : "scenario";
+
 	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected"), $previousSelector = $(
 		"[data-trick-nav='previous-selector']").parent(), $nextSelector = $("[data-trick-nav='next-selector']").parent(), $previousAssessment = $(
 			"[data-trick-nav='previous-assessment']").parent(), $nextAssessment = $("[data-trick-nav='next-assessment']").parent();
 
-	if ($currentSelector.next(":first").length)
+	if ($currentSelector.next("[data-trick-selected='true']:first").length)
 		$nextSelector.removeClass("disabled");
 	else
 		$nextSelector.addClass("disabled");
 
-	if ($currentSelector.prev("[value!='-1']:last").length)
+	if ($currentSelector.prev("[data-trick-selected='true']:last").length)
 		$previousSelector.removeClass("disabled");
 	else
 		$previousSelector.addClass("disabled");
@@ -285,20 +224,23 @@ function changeAssessment(e) {
 }
 
 function AssessmentHelder() {
+	this.id = -1;
+	this.invalidate = true;
+	this.updateLocked = false;
 	this.names = ["asset", "scenario"];
-	this.asset = $("select[name='asset']");
-	this.scenario = $("select[name='scenario']");
+	this.section = "div[data-view='estimation-ui']";
+	this.asset = $("select[name='asset']", "#tabRiskEstimation");
+	this.scenario = $("select[name='scenario']", "#tabRiskEstimation");
+	this.isReadOnly = application.openMode.value.startsWith("read-only");
 	this.lastSelected = {
-		asset: this.asset.find("option[value!='-1']:first").val(),
-		scenario: this.scenario.find("option[value!='-1']:first").val()
+		asset: this.asset.find("option[data-trick-selected='true']:first").val(),
+		scenario: this.scenario.find("option[data-trick-selected='true']:first").val()
 	};
 	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
 }
 
 AssessmentHelder.prototype = {
 
-	invalidate : true,
-	
 	getCurrent: function (name) {
 		return name == "asset" ? this.asset : this.scenario;
 	},
@@ -316,7 +258,9 @@ AssessmentHelder.prototype = {
 	getLastSelected: function (name) {
 		return this.lastSelected[name];
 	},
-
+	getURL: function (idAsset, idScenario) {
+		return context + "/Analysis/Assessment/" + (activeSelector == "asset" ? "Asset/" + idAsset + "/Load?idScenario=" + idScenario : "Scenario/" + idScenario + "/Load?idAsset=" + idAsset);
+	},
 	switchControl: function (name) {
 		if (name == activeSelector)
 			return this;
@@ -328,9 +272,8 @@ AssessmentHelder.prototype = {
 				$(this).show();
 		});
 		return this;
-	},
-	updateContent: function () {
-		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
+	}, updateContent: function () {
+		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']");
 		if (activeSelector == "asset") {
 			$elements.each(function () {
 				var $this = $(this), scenarioType = $this.attr("data-trick-type");
@@ -354,6 +297,159 @@ AssessmentHelder.prototype = {
 		else
 			updateAssessmentUI();
 		return this;
+	}, updateTableViewContent: function ($section, idAsset, idScenario, content) {
+		var $content = $(this.section, new DOMParser().parseFromString(content, "text/html"));
+		if ($content.length) {
+			$("#tabRiskEstimation").attr("data-update-required", false);
+			if ($content.attr("data-trick-content") == $section.attr("data-trick-content") && $content.attr("data-trick-asset-id") == idAsset && $content.attr("data-trick-scenario-id") == idScenario) {
+				if (this.smartUpdate($content))
+					$section.replaceWith($content);
+			} else
+				$section.replaceWith($content);
+			this.invalidate = false;
+		} else
+			unknowError();
+		return false;
+	},
+	tryUpdate: function (id) {
+		var $section = $(this.section), $fields = $("input,select,textarea", $section);
+		if ($fields.length) {
+			this.invalidate = true;
+			var $tr = $("tr[data-trick-id='" + id + "']", $section), $trTotal = $("tr.panel-footer", $section);
+			$trTotal.addClass('warning').attr("title",
+				MessageResolver("error.ui.update.wait.editing", 'Data was saved but user interface was not updated, it will be updated after edition'));
+			$tr.addClass('warning').attr("title",
+				MessageResolver("error.ui.update.wait.editing", 'Data was saved but user interface was not updated, it will be updated after edition'));
+		} else if (this.invalidate || id != undefined)
+			this.load($section, $section.attr("data-trick-asset-id"), $section.attr("data-trick-scenario-id"));
+		return this;
+	},
+	smartUpdate: function (assessments) {
+		var $section = $(this.section), tableDestTrs = $("tbody tr", $section);
+		if (!(tableDestTrs.length && $("td", tableDestTrs[0]).length == $("tbody>tr:first>td", assessments).length))
+			return true;
+		for (var i = 0; i < tableDestTrs.length; i++) {
+			var trickId = $(tableDestTrs[i]).attr("data-trick-id");
+			if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
+				var $tr = $(assessments).find("tbody tr.panel-footer");
+				if ($tr.length)
+					$(tableDestTrs[i]).replaceWith($tr);
+				else
+					$(tableDestTrs[i]).appendTo($("tbody", $section));
+			} else {
+				var $tr = $(assessments).find("tbody tr[data-trick-id='" + trickId + "']");
+				if (!$tr.length)
+					$(tableDestTrs[i]).remove();
+				else
+					$(tableDestTrs[i]).replaceWith($tr);
+			}
+		}
+		var $tbody = $("tbody", $section), $footer = $("tbody tr.panel-footer", $section), tableSourceTrs = $("tbody tr[data-trick-id]", assessments);
+		if (!$footer.length) {
+			$footer = $("tbody tr.panel-footer", assessments);
+			if ($footer.length)
+				$footer.appendTo($tbody);
+		}
+		for (var i = 0; i < tableSourceTrs.length; i++) {
+			var trickId = $(tableSourceTrs[i]).attr("data-trick-id"), $tr = $("tbody tr[data-trick-id='" + trickId + "']", $section);
+			if (!$tr.length) {
+				if ($footer.length)
+					$tr.before($footer);
+				else
+					$tr.appendTo($tbody);
+			}
+		}
+		return false;
+	}, reload: function (id) {
+		var $currentUI = $(this.section), idAsset = -3, idScenario = -3;
+		if (activeSelector == "asset") {
+			idAsset = $("select[name='asset']").val();
+			idScenario = id;
+		} else {
+			idScenario = $("select[name='scenario']").val();
+			idAsset = id;
+		}
+		return (!this.invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
+			&& $currentUI.attr("data-trick-content") == activeSelector) ? this : this.load($currentUI, idAsset, idScenario);
+
+	}, load: function ($section, idAsset, idScenario) {
+		if(idAsset == -1 && idScenario == -1 ){
+			this.invalidate = true;
+			return this;
+		}
+		return idAsset == -1 || idScenario == -1 ? this.loadTableView($section, idAsset, idScenario) : this.loadSheetView($section, idAsset, idScenario);
+	}, loadTableView: function ($currentUI, idAsset, idScenario) {
+		var $progress = $("#loading-indicator").show(), instance = this;
+		$.ajax({
+			url: this.getURL(idAsset, idScenario),
+			contentType: "application/json;charset=UTF-8",
+			success: function (response) {
+				instance.updateTableViewContent($currentUI, idAsset, idScenario, response);
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+		return this;
+	}, error: function (message) {
+		return showDialog("#alert-dialog", message);
+	}, loadSheetView: function ($currentUI, idAsset, idScenario) {
+		var $progress = $("#loading-indicator").show(), instance = this;
+		$.ajax({
+			url: this.getURL(idAsset, idScenario),
+			contentType: "application/json;charset=UTF-8",
+			success: function (response) {
+				var $assessmentUI = $(instance.section, new DOMParser().parseFromString(response, "text/html"));
+				if ($assessmentUI.length) {
+					$currentUI.replaceWith($assessmentUI);
+					if (OPEN_MODE.isReadOnly()) {
+						$("select:not([disabled])", $assessmentUI).prop("disabled", true);
+						$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
+						$("a[data-controller]", $assessmentUI).remove();
+						$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).remove();
+					} else {
+						$("select", $assessmentUI).on("change", saveAssessmentData);
+						$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
+						$("a[data-controller]", $assessmentUI).on("click", function () {
+							var $description = $("#description", $assessmentUI), $control = $("i.fa", this);
+							if ($control.hasClass("fa-lock")) {
+								$control.removeClass("fa-lock").addClass("fa-unlock")
+								$description.removeAttr("readonly");
+							} else {
+								$control.removeClass("fa-unlock").addClass("fa-lock")
+								$description.attr("readonly", true).parent().removeAttr("title").removeClass("has-success has-error");
+							}
+							return false;
+						});
+
+						$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).on("click", function (e) {
+							forceCloseToolTips();
+							manageRiskProfileMeasure(idAsset, idScenario, e);
+						});
+					}
+
+					$("#measureManagementAdvance a[data-action][data-action!='manage']", $assessmentUI).on("click", toggleAdditionalActionPlan)
+
+					toggleAdditionalActionPlan();
+
+					$('[data-toggle="tooltip"]', $assessmentUI).tooltip().on('show.bs.tooltip', toggleToolTip);
+
+					$("button[data-scale-modal]", $assessmentUI).on("click", function () {
+						forceCloseToolTips();
+						var name = this.getAttribute("data-scale-modal");
+						if (scales[name] == undefined)
+							scales[name] = $("#" + name);
+						scales[name].modal("show");
+					});
+
+				} else
+					unknowError();
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+		return this;
 	}
 }
 
@@ -361,7 +457,7 @@ function displayParameters(name, title) {
 	var view = new Modal(undefined, $(name).html()), $legend = $(view.modal_body).find("legend").remove();
 	$(view.modal_footer).remove();
 	$(view.modal_body).find("tbody").css({
-		"text-align" : "center"
+		"text-align": "center"
 	}).find("td").removeAttributes();
 	if (!title)
 		title = $legend.text();
@@ -374,10 +470,10 @@ function computeAssessment(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Assessment/Update",
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Assessment/Update",
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -391,8 +487,8 @@ function computeAssessment(silent) {
 					unknowError();
 				return false;
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -403,13 +499,13 @@ function computeAssessment(silent) {
 function refreshAssessment() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
-		$("#confirm-dialog .btn-danger").click(function() {
+		$("#confirm-dialog .btn-danger").click(function () {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Assessment/Refresh",
-				type : "POST",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Assessment/Refresh",
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					if (response['error'] != undefined) {
 						$("#info-dialog .modal-body").text(response['error']);
 						$("#info-dialog").modal("toggle");
@@ -421,8 +517,8 @@ function refreshAssessment() {
 						unknowError();
 					return false;
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		});
@@ -436,10 +532,10 @@ function updateAssessmentAle(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Assessment/Update/ALE",
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Assessment/Update/ALE",
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -453,8 +549,8 @@ function updateAssessmentAle(silent) {
 					unknowError();
 				return false;
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -544,19 +640,19 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$("<td>" + measure.phase + "</td>").appendTo($tr);
 										$("<td>" + measure.domain + "</td>").appendTo($tr);
 										$clone = $tr;
-										$button.on("click", removeMeasure).attr("title", MessageResolver("label.action.remove","Remove"));
-										
+										$button.on("click", removeMeasure).attr("title", MessageResolver("label.action.remove", "Remove"));
+
 									} else {
-										$("button.btn.btn-xs.btn-primary", $clone).removeClass("btn-primary").addClass("btn-danger").off("click").on("click", removeMeasure).attr("title", MessageResolver("label.action.remove","Remove")).find("i.fa-plus").removeClass("fa-plus").addClass("fa-times");
+										$("button.btn.btn-xs.btn-primary", $clone).removeClass("btn-primary").addClass("btn-danger").off("click").on("click", removeMeasure).attr("title", MessageResolver("label.action.remove", "Remove")).find("i.fa-plus").removeClass("fa-plus").addClass("fa-times");
 										$clone.find("[data-toggle='tooltip']").tooltip().on('show.bs.tooltip', toggleToolTip);
 										$measure.addClass("info").find(".btn").prop("disabled", true);
 									}
-									
-									if(measure.status == 'NA')
+
+									if (measure.status == 'NA')
 										$clone.addClass("danger");
-									else if(measure.implementationRate>=100)
+									else if (measure.implementationRate >= 100)
 										$clone.addClass("warning");
-									
+
 									$clone.appendTo($("tbody", this.$selectedMeasures));
 								}
 								return this;
@@ -579,16 +675,16 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
 									$("<td>" + measure.phase + "</td>").appendTo($tr);
 									$("<td>" + measure.domain + "</td>").appendTo($tr);
-									
+
 									if (this.measures[measure.id] != undefined) {
 										$tr.addClass("info");
 										$button.prop("disabled", true);
 									}
-									
+
 									$button.on("click", function () {
 										standardCaching.addMeasure(standardCaching.getMeasure(standard, $(this).closest("tr[data-trick-id]").attr("data-trick-id")));
-									}).attr("title", MessageResolver("label.action.add","Add"));
-									
+									}).attr("title", MessageResolver("label.action.add", "Add"));
+
 									$tr.appendTo($tbody);
 								}
 								return this;
@@ -669,17 +765,17 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							success: function (response) {
 								if (response.success) {
 									$("<label class='label label-success' />").text(response.success).appendTo($messageContainer);
-									setTimeout(function() {
+									setTimeout(function () {
 										standardCaching.updateView().$measureManager.modal("hide");
 									}, 2000);
-									
+
 								} else if (response.error)
 									$("<label class='label label-error' />").text(response.error).appendTo($messageContainer);
 								else $("<label class='label label-error' />").text(MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures')).appendTo($messageContainer);
 
 							},
 							error: unknowError
-						}).complete(function () { $progress.hide();});
+						}).complete(function () { $progress.hide(); });
 					});
 
 				} else
@@ -692,19 +788,19 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 	return false;
 }
 
-function initialiseRiskEstimation () {
+function initialiseRiskEstimation() {
 
-	helper = new AssessmentHelder();
+	application["estimation-helper"] = helper = new AssessmentHelder();
 
 	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']");
-	
+
 	$previousSelector.on("click", function () {
-		$("select[name='" + activeSelector + "']>option:selected").prev("[value!='-1']:last").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected").prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$nextSelector.on("click", function () {
-		$("select[name='" + activeSelector + "']>option:selected").next(":first").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected").next("[data-trick-selected='true']:first").prop('selected', true).parent().change();
 		return false;
 	});
 
@@ -721,7 +817,7 @@ function initialiseRiskEstimation () {
 	var updateSelector = function (e) {
 		var $target = $(e.currentTarget), value = $target.val(), name = $target.attr("name"), other = helper.getOtherName(name);
 		if (value == '-1')
-			helper.switchControl(other).getCurrent(other).find("option[value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
+			helper.switchControl(other).getCurrent(other).find("option[data-trick-selected='true'][value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
 		else if (helper.getCurrent(other).val() != "-1")
 			helper.switchControl(name).getCurrent(other).find("option[value='-1']").prop('selected', true);
 		else

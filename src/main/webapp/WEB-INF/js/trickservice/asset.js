@@ -29,6 +29,7 @@ function selectAsset(assetId, value) {
 					data : JSON.stringify(requiredUpdate, null, 2),
 					type : 'post',
 					success : function(reponse) {
+						
 						reloadSection('section_asset');
 						return false;
 					},

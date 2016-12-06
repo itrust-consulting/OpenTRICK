@@ -38,20 +38,21 @@
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 				<jsp:include page="./components/parameters/home.jsp" />
+				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<c:if test="${!isProfile}">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
 					<%-- <jsp:include page="./components/assessment/home.jsp" /> --%>
+					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />
 					<c:if test="${type=='QUANTITATIVE' }">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
 						<c:set var="assetALE" value="${ales[0]}" scope="request" />
 						<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
 					</c:if>
-					<c:set var="assets" value="${analysis.assets}" scope="request" />
+					
 					<jsp:include page="./components/asset/asset.jsp" />
 				</c:if>
-				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<jsp:include page="./components/scenario/scenario.jsp" />
 				<c:set var="phases" scope="request" value="${analysis.phases}" />
 				<jsp:include page="./components/phase/phase.jsp" />
@@ -104,10 +105,10 @@
 	</c:if>
 	<script type="text/javascript">
 	<!--
-		application.analysisType = '${type}'
-		application.openMode = OPEN_MODE.valueOf('${open}');
-		application.isLinkedToProject = '${isLinkedToProject}';
-		application.hasMaturity = '${hasMaturity}';
+		application['analysisType'] = '${type}'
+		application['openMode'] = OPEN_MODE.valueOf('${open}');
+		application['isLinkedToProject'] = '${isLinkedToProject}';
+		application['hasMaturity'] = '${hasMaturity}';
 		-->
 	</script>
 </body>

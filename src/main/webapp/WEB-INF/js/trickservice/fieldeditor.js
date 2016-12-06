@@ -548,12 +548,14 @@ function AssessmentFieldEditor(element) {
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
-							if (application["estimation-helper"] != undefined) {
-								riskEstimationUpdate();
-								application["estimation-helper"].tryUpdate(that.classId);//it should be removed
+							if ($("#tabRiskEstimation").is(":visible")) {
+								application["estimation-helper"].tryUpdate(that.classId);
 								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
-								chartALE();
+							} else {
+								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
+								riskEstimationUpdate();
 							}
+							chartALE();
 						} else {
 							that.Rollback();
 							application["estimation-helper"].error(response["error"]);
