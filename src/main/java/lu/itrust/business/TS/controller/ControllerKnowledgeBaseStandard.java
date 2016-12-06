@@ -256,7 +256,7 @@ public class ControllerKnowledgeBaseStandard {
 			// errors
 		} catch (Exception e) {
 			// return errors
-			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("standard", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -302,7 +302,7 @@ public class ControllerKnowledgeBaseStandard {
 		}
 	}
 
-	@RequestMapping(value="/Template", method = RequestMethod.GET)
+	@RequestMapping(value = "/Template", method = RequestMethod.GET)
 	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		File templateFile = new File(request.getServletContext().getRealPath(template));
 		if (!(templateFile.exists() && templateFile.isFile()))
@@ -337,18 +337,17 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8,method=RequestMethod.POST)
-	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-			executor.execute(worker);
-			return "redirect:/Task/Status/" + worker.getId();
-		}
-		attributes.addFlashAttribute("errors", messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
-		return "redirect:/KnowledgeBase/Standard/Upload";
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
+
 	}
 
 	/**
@@ -859,7 +858,8 @@ public class ControllerKnowledgeBaseStandard {
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, jsonNode, locale)) {
 				if (isNew)
 					measureManager.createNewMeasureForAllAnalyses(measureDescription);
-				else serviceMeasureDescription.saveOrUpdate(measureDescription);
+				else
+					serviceMeasureDescription.saveOrUpdate(measureDescription);
 			}
 
 			// System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
@@ -871,7 +871,7 @@ public class ControllerKnowledgeBaseStandard {
 		catch (Exception e) {
 
 			// return errors
-			errors.put("measuredescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("measuredescription", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -1044,7 +1044,7 @@ public class ControllerKnowledgeBaseStandard {
 		} catch (Exception e) {
 
 			// return error message
-			errors.put("measureDescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("measureDescription", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}
@@ -1133,7 +1133,7 @@ public class ControllerKnowledgeBaseStandard {
 
 		} catch (Exception e) {
 			// return error
-			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("standard", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}
