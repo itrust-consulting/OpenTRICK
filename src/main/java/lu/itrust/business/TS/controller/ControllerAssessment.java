@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,7 +40,6 @@ import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -150,13 +148,12 @@ public class ControllerAssessment {
 			model.addAttribute("assessments", assessments);
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
-			if (scenario == null)
-				throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
-			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
-			if (!assessment.isSelected())
-				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
-			model.addAttribute("scenario", scenario);
-			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
+			if (scenario != null) {
+				Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
+				if (assessment.isSelected()) 
+					loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
+				model.addAttribute("scenario", scenario);
+			}	
 		}
 		model.addAttribute("asset", asset);
 		return "analyses/single/components/risk-estimation/asset/home";
@@ -207,14 +204,12 @@ public class ControllerAssessment {
 			model.addAttribute("assessments", assessments);
 		} else {
 			Asset asset = analysis.findAsset(idAsset);
-			if (scenario == null)
-				throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
-			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
-			if (assessment == null || !assessment.isSelected())
-				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
-			model.addAttribute("asset", asset);
-			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
-
+			if (asset != null) {
+				Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
+				if (assessment != null && assessment.isSelected())
+					loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
+				model.addAttribute("asset", asset);
+			}
 		}
 		model.addAttribute("scenario", scenario);
 		return "analyses/single/components/risk-estimation/scenario/home";

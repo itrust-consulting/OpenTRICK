@@ -159,24 +159,54 @@ function updateAssessmentUI() {
 	loadAssessmentData($assessment.attr("data-trick-id"));
 }
 
-function updateEstimationAssetSelect(assets, status){
-	$("select[name='asset']>option[data-trick-type][data-trick-selected!='"+status+"'],div[data-trick-content='asset'] a[data-trick-type][data-trick-id][data-trick-selected!='"+status+"']","#tabRiskEstimation").filter(function(){
-		return assets.indexof(this.getAttribute("data-trick-asset-id"))!=-1;
-	}).attr("data-trick-selected",status).show();
-	if(helper!=null)
+function updateEstimationSelect(type, elements, status) {
+	var $selector = $("select[name='" + type + "']"), $selections = $("select[name='" + type + "']>option[data-trick-type][data-trick-selected!='" + status + "'],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id][data-trick-selected!='" + status + "']", "#tabRiskEstimation").filter(function () {
+		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
+	}).attr("data-trick-selected", status);
+	if (status == "true")
+		$selections.show();
+	else $selections.hide();
+	if (helper != null)
 		updateNavigation();
+	if (activeSelector != undefined && activeSelector != type && $selector.val() == "-1")
+		$("select[name='" + activeSelector + "']").trigger("change");
+	return false;
+}
+
+function addEstimationAsset(asset){
+	var $selector = $("select[name='asset']"), $option =   $("<option/>"), $link = $("<a href='#' class='list-group-item' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'");
+	for ( var field in asset) {
+		switch (key) {
+		case "id":
+			
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
+function removeEstimation(type, elements){
+	var $selector = $("select[name='" + type + "']"), $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tabRiskEstimation").filter(function () {
+		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
+	}).remove();
+	
+	if (helper != null)
+		updateNavigation();
+	
+	if (activeSelector != undefined && activeSelector != type && $selector.val() == "-1")
+		$("select[name='" + activeSelector + "']").trigger("change");
 	return false;
 }
 
 function riskEstimationUpdate() {
-	var $view = $("#tabRiskEstimation");
-	if ($view.is(":visible")) {
-		if (helper == undefined)
-			initialiseRiskEstimation();
+	if (helper == undefined)
+		initialiseRiskEstimation();
+	if (helper.$tabSection.is(":visible")) {
 		updateNavigation();
 		updateAssessmentUI();
-	} else if (helper != undefined)
-		$view.attr("data-update-required", helper.invalidate = true);
+	} else helper.$tabSection.attr("data-update-required", helper.invalidate = true);
 }
 
 function updateNavigation() {
@@ -237,6 +267,7 @@ function AssessmentHelder() {
 		scenario: this.scenario.find("option[data-trick-selected='true']:first").val()
 	};
 	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
+	this.$tabSection = $("#tabRiskEstimation");
 }
 
 AssessmentHelder.prototype = {
@@ -254,6 +285,8 @@ AssessmentHelder.prototype = {
 		if (id == "-1")
 			return false;
 		this.lastSelected[name] = id;
+	}, isValid: function (idAsset, idScanerio) {
+		return activeSelector == "asset" ? idAsset != '-1' : activeSelector == 'scenario' ? idScanerio != '-1' : false;
 	},
 	getLastSelected: function (name) {
 		return this.lastSelected[name];
@@ -361,23 +394,23 @@ AssessmentHelder.prototype = {
 		}
 		return false;
 	}, reload: function (id) {
-		var $currentUI = $(this.section), idAsset = -3, idScenario = -3;
-		if (activeSelector == "asset") {
-			idAsset = $("select[name='asset']").val();
-			idScenario = id;
-		} else {
-			idScenario = $("select[name='scenario']").val();
-			idAsset = id;
+		if (this.$tabSection.is(":visible")) {
+			var $currentUI = $(this.section), idAsset = -3, idScenario = -3;
+			if (activeSelector == "asset") {
+				idAsset = $("select[name='asset']").val();
+				idScenario = id;
+			} else {
+				idScenario = $("select[name='scenario']").val();
+				idAsset = id;
+			}
+			return (!this.invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
+				&& $currentUI.attr("data-trick-content") == activeSelector) ? this : this.load($currentUI, idAsset, idScenario);
 		}
-		return (!this.invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
-			&& $currentUI.attr("data-trick-content") == activeSelector) ? this : this.load($currentUI, idAsset, idScenario);
+		this.$tabSection.attr("data-update-required", helper.invalidate = true);
+		return this;
 
 	}, load: function ($section, idAsset, idScenario) {
-		if(idAsset == -1 && idScenario == -1 ){
-			this.invalidate = true;
-			return this;
-		}
-		return idAsset == -1 || idScenario == -1 ? this.loadTableView($section, idAsset, idScenario) : this.loadSheetView($section, idAsset, idScenario);
+		return this.isValid(idAsset, idScenario) ? (idAsset == -1 || idScenario == -1 ? this.loadTableView($section, idAsset, idScenario) : this.loadSheetView($section, idAsset, idScenario)) : this.reset($section);
 	}, loadTableView: function ($currentUI, idAsset, idScenario) {
 		var $progress = $("#loading-indicator").show(), instance = this;
 		$.ajax({
@@ -449,6 +482,14 @@ AssessmentHelder.prototype = {
 		}).complete(function () {
 			$progress.hide();
 		});
+		return this;
+	}, reset: function ($section) {
+		if (!$section)
+			$section = $(this.section);
+		if (!this.$tabSection.is(":visible")) {
+			$section.attr("data-trick-asset-id", -2).attr("data-trick-scenario-id", -2);
+			this.$tabSection.attr("data-update-required", helper.invalidate = true);
+		}
 		return this;
 	}
 }

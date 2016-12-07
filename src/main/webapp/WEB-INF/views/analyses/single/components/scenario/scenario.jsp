@@ -7,7 +7,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane" id="tabScenario" data-callback="showTabEstimation" data-callback-data='scenario'>
+<div class="tab-pane" id="tabScenario">
 	<div class="section" id="section_scenario">
 		<div class="page-header tab-content-header">
 			<div class="container">
@@ -24,10 +24,6 @@
 				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
 				<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span
 						class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /> </a></li>
-			</c:if>
-			<c:if test="${!isProfile}">
-				<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
-						class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.assessment" /> </a></li>
 			</c:if>
 			<c:if test="${isEditable}">
 				<li class="disabled" data-trick-check="!isSelected('scenario')" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span
@@ -74,7 +70,7 @@
 					<tr data-trick-id="${scenario.id}" onclick="selectElement(this)" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="success"' : ''} data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 						<c:set var="selectClass" value="${scenario.selected?'selected':'unselected'}" />
-						<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario', null,'showTabEstimation(\'scenario\')');"></td>
+						<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${scenario.name}" /></td>
 						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>

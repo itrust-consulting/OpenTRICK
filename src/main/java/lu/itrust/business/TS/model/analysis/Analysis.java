@@ -789,11 +789,11 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {
-		return assessments.stream().filter(assessment -> assessment.getAsset().getId() == idAsset).collect(Collectors.toList());
+		return assessments.stream().filter(assessment -> assessment.isSelected() && assessment.getAsset().getId() == idAsset).collect(Collectors.toList());
 	}
 
 	public List<Assessment> findSelectedAssessmentByScenario(int idScenario) {
-		return assessments.stream().filter(assessment -> assessment.getScenario().getId() == idScenario).collect(Collectors.toList());
+		return assessments.stream().filter(assessment -> assessment.isSelected() && assessment.getScenario().getId() == idScenario).collect(Collectors.toList());
 	}
 
 	public List<Asset> findSelectedAssets() {

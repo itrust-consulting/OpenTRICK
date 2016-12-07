@@ -488,6 +488,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 			else
 				eval(callback);
 		} catch (e) {
+			console.log(idsection);
 			console.log(e);
 		}
 	}

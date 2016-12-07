@@ -44,7 +44,6 @@ function reloadSection(section, subSection, refreshOnly) {
 				reloadSection(section[i][0], section[i][1], refreshOnly);
 			else
 				reloadSection(section[i], subSection, refreshOnly);
-
 		}
 	} else if (section == "section_standard")
 		location.reload();

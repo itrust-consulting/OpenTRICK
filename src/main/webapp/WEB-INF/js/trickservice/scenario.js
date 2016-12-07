@@ -131,16 +131,18 @@ function deleteScenario(scenarioId) {
 					"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios");
 			$("#confirm-dialog .modal-body").text(text);
 			$("#confirm-dialog .btn-danger").click(function() {
+				var $progress = $("#loading-indicator").show(), hasChange = false;
 				while (selectedScenario.length) {
 					rowTrickId = selectedScenario.pop();
 					$.ajax({
 						url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
 						type : 'POST',
 						contentType : "application/json;charset=UTF-8",
-						async : false,
 						success : function(response, textStatus, jqXHR) {
-							if (response["success"] != undefined)
-								reloadSection('section_scenario');
+							if (response["success"] != undefined){
+								hasChange |= $("tr[data-trick-id='" + rowTrickId + "']", "#section_scenario").remove().length > 0;
+								removeEstimation("scenario",[rowTrickId]);
+							}
 							else if (response["error"] != undefined) {
 								$("#alert-dialog .modal-body").html(response["error"]);
 								$("#alert-dialog").modal("toggle");
@@ -151,6 +153,13 @@ function deleteScenario(scenarioId) {
 							return false;
 						},
 						error : unknowError
+					}).complete(function(){
+						if (!selectedScenario.length) {
+							if (hasChange)
+								reloadSection("section_scenario");
+							else
+								$progress.hide();
+						}
 					});
 				}
 
@@ -205,20 +214,21 @@ function selectScenario(scenarioId, value) {
 			var selectedItem = findSelectItemIdBySection("section_scenario");
 			if (!selectedItem.length)
 				return false;
-			var requiredUpdate = [];
+			var requiredUpdates = [];
 			for (var i = 0; i < selectedItem.length; i++) {
 				var selected = $("#section_scenario tbody tr[data-trick-id='" + selectedItem[i] + "']").attr("data-trick-selected");
 				if (value != selected)
-					requiredUpdate.push(selectedItem[i]);
+					requiredUpdates.push(selectedItem[i]);
 			}
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Scenario/Select",
 				contentType : "application/json;charset=UTF-8",
-				data : JSON.stringify(requiredUpdate, null, 2),
+				data : JSON.stringify(requiredUpdates, null, 2),
 				type : 'post',
 				success : function(reponse) {
 					reloadSection('section_scenario');
+					updateEstimationSelect("scenario",requiredUpdates,value);
 					return false;
 				},
 				error : unknowError
@@ -232,6 +242,7 @@ function selectScenario(scenarioId, value) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_scenario");
+					updateEstimationSelect("scenario",[scenarioId],value);
 					return false;
 				},
 				error : unknowError

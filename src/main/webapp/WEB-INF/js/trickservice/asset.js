@@ -15,22 +15,22 @@ function selectAsset(assetId, value) {
 			var selectedItem = findSelectItemIdBySection("section_asset");
 			if (!selectedItem.length)
 				return false;
-			var requiredUpdate = [];
+			var requiredUpdates = [];
 			for (var i = 0; i < selectedItem.length; i++) {
 				var selected = $("#section_asset tbody tr[data-trick-id='" + selectedItem[i] + "']").attr("data-trick-selected");
 				if (value != selected)
-					requiredUpdate.push(selectedItem[i]);
+					requiredUpdates.push(selectedItem[i]);
 			}
-			if (requiredUpdate.length) {
+			if (requiredUpdates.length) {
 				var $progress = $("#loading-indicator").show();
 				$.ajax({
 					url : context + "/Analysis/Asset/Select",
 					contentType : "application/json;charset=UTF-8",
-					data : JSON.stringify(requiredUpdate, null, 2),
+					data : JSON.stringify(requiredUpdates, null, 2),
 					type : 'post',
 					success : function(reponse) {
-						
 						reloadSection('section_asset');
+						updateEstimationSelect("asset",requiredUpdates,value);
 						return false;
 					},
 					error : unknowError
@@ -45,6 +45,7 @@ function selectAsset(assetId, value) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_asset");
+					updateEstimationSelect("asset",[assetId],value);
 					return false;
 				},
 				error : unknowError
@@ -82,8 +83,10 @@ function deleteAsset() {
 					type : "POST",
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
-						if (response["success"] != undefined)
+						if (response["success"] != undefined){
 							hasChange |= $("tr[data-trick-id='" + assetId + "']", "#section_asset").remove().length > 0;
+							removeEstimation("asset",[assetId]);
+						}
 						else if (response["error"] != undefined)
 							showDialog("#alert-dialog", response["error"]);
 						else

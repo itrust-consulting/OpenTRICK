@@ -7,7 +7,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane"  id="tabAsset" data-callback="showTabEstimation" data-callback-data='asset'>
+<div class="tab-pane"  id="tabAsset">
 	<div class="section" id="section_asset" >
 		<div class="page-header tab-content-header">
 			<div class="container">
@@ -26,8 +26,6 @@
 				<li class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span
 						class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit.asset" /> </a></li>
 			</c:if>
-			<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return showEstimation('asset')"><span
-					class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.show.asset.assessment" /> </a></li>
 			<c:if test="${isEditable}">
 				<li data-trick-single-check="!isSelected('asset')" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span
 						class="glyphicon glyphicon-plus-sign"></span> <spring:message code="label.action.select.asset" /> </a></li>
@@ -78,7 +76,7 @@
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
 						<c:set var="selectClass" value="${asset.selected?'selected':'unselected'}" />
-						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset', null, 'showTabEstimation(\'asset\')');"></td>
+						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${asset.name}" /></td>
 						<td><spring:message text="${asset.assetType.type}" /></td>
