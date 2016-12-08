@@ -150,7 +150,7 @@ public class ControllerAssessment {
 			Scenario scenario = analysis.findScenario(idScenario);
 			if (scenario != null) {
 				Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
-				if (assessment.isSelected()) 
+				if (assessment!=null && assessment.isSelected()) 
 					loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 				model.addAttribute("scenario", scenario);
 			}	

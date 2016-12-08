@@ -3,6 +3,7 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -282,12 +283,14 @@ public class ControllerScenario {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create errors list
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		Map<String, Object> results = new LinkedHashMap<>(), errors = new HashMap<>();
 
 		try {
+
+			results.put("errors", errors);
 			// get analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -298,15 +301,13 @@ public class ControllerScenario {
 			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
 
 			if (!errors.isEmpty())
-				return errors;
-
+				return results;
 			if (scenario.getId() > 0) {
-
 				if (!serviceScenario.belongsToAnalysis(idAnalysis, scenario.getId())) {
 					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", locale));
-					return errors;
+					return results;
 				}
-
+				
 				serviceScenario.saveOrUpdate(scenario);
 
 				if (scenario.isSelected())
@@ -318,25 +319,20 @@ public class ControllerScenario {
 				if (serviceScenario.exist(idAnalysis, scenario.getName())) {
 					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
 							String.format("Scenario (%s) already exists", scenario.getName()), locale));
-					return errors;
+					return results;
 				}
 			}
-
 			assessmentAndRiskProfileManager.buildOnly(scenario, analysis);
-
 			serviceAnalysis.saveOrUpdate(analysis);
-
-			return errors;
-
+			results.put("id", scenario.getId());
 		} catch (TrickException e) {
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
-			return errors;
 		} catch (Exception e) {
 			errors.put("scenario", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
-			return errors;
 		}
+		return results;
 
 	}
 
@@ -387,7 +383,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private Scenario buildScenario(Map<String, String> errors, List<AssetType> assetTypes, String source, Locale locale, boolean cssf) {
+	private Scenario buildScenario(Map<String, Object> errors, List<AssetType> assetTypes, String source, Locale locale, boolean cssf) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -426,7 +422,7 @@ public class ControllerScenario {
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			}
-			
+
 			String description = jsonNode.get("description").asText();
 
 			error = validator.validate(returnvalue, "name", name);
@@ -459,7 +455,7 @@ public class ControllerScenario {
 					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
 
 			}
-			
+
 			if (!cssf) {
 				returnvalue.setAccidental(jsonNode.get("accidental").asInt());
 
@@ -484,7 +480,7 @@ public class ControllerScenario {
 				if (!returnvalue.hasControlCharacteristics())
 					throw new TrickException("error.scenario.control.characteristic", "Sum of the control characteristics must be equal to 1.");
 			}
-			
+
 			return returnvalue;
 
 		} catch (TrickException e) {

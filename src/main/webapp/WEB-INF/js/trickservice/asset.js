@@ -1,12 +1,12 @@
 /* Asset */
-function serializeAssetForm(formId) {
-	var form = $("#" + formId), data = form.serializeJSON();
+function serializeAsset($form) {
+	var data = $form.serializeJSON();
 	data["assetType"] = {
 		"id" : parseInt(data["assetType"]),
 		"type" : $("#asset_assettype_id option:selected").text()
 	};
 	data["selected"] = data["selected"] == "on";
-	return JSON.stringify(data);
+	return data;
 }
 
 function selectAsset(assetId, value) {
@@ -148,56 +148,51 @@ function editAsset(rowTrickId, isAdd) {
 }
 
 function saveAsset(form) {
-	var $progress = $("#loading-indicator").show();
+	var $progress = $("#loading-indicator").show(), $assetModal = $("#addAssetModal"), $form = $("#"+form), data = serializeAsset($form);
+	$(".label-danger,.alert",$assetModal).remove();
 	$.ajax({
 		url : context + "/Analysis/Asset/Save",
 		type : "post",
-		data : serializeAssetForm(form),
+		data : JSON.stringify(data),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			$("#addAssetModal .label-danger,#addAssetModal .alert").remove();
-			for ( var error in response) {
+			for ( var error in response.errors) {
 				if (error != "asset") {
-					var errorElement = document.createElement("label");
-					errorElement.setAttribute("class", "label label-danger");
-					$(errorElement).text(response[error]);
+					var $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
 					switch (error) {
 					case "name":
-						$(errorElement).appendTo($("#asset_form #asset_name").parent());
+						$errorElement.appendTo($("#asset_name",$form).parent());
 						break;
 					case "assetType":
-						$(errorElement).appendTo($("#asset_form #asset_assettype_id").parent());
+						$errorElement.appendTo($("#asset_assettype_id",$form).parent());
 						break;
 					case "value":
-						$(errorElement).appendTo($("#asset_form #asset_value").parent());
+						$errorElement.appendTo($("#asset_value",$form).parent());
 						break;
 					case "selected":
-						$(errorElement).appendTo($("#asset_form #asset_selected").parent());
+						$errorElement.appendTo($("#asset_selected",$form).parent());
 						break;
 					case "comment":
-						$(errorElement).appendTo($("#asset_form #asset_comment").parent());
+						$errorElement.appendTo($("#asset_comment",$form).parent());
 						break;
 					case "hiddenComment":
-						$(errorElement).appendTo($("#asset_form #asset_hiddenComment").parent());
+						$errorElement.appendTo($("#asset_hiddenComment",$form).parent());
 						break;
 					}
 				} else
-					showError($("#asset_form").parent()[0], response[error]);
+					showError($form.parent()[0], response.errors[error]);
 
 			}
-			if (!$("#addAssetModal .label-danger, #addAssetModal .alert").length) {
-				$("#addAssetModal").modal("hide");
+			if (!$(".label-danger,.alert","#addAssetModal").length) {
+				$assetModal.modal("hide");
 				reloadSection("section_asset");
+				data.id = response.id;
+				data['type'] = data["assetType"].type;
+				updateEstimationIteam("asset",data);
 			}
-			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			$("#addAssetModal .label-danger").remove();
-			var errorElement = document.createElement("label");
-			errorElement.setAttribute("class", "label label-danger");
-			$(errorElement).text(MessageResolver("error.unknown.add.asset", "An unknown error occurred during adding asset"));
-			$(errorElement).appendTo($("#addAssetModal .modal-body"));
-			return false;
+			$("<label class='label label-danger'>").text(MessageResolver("error.unknown.add.asset", "An unknown error occurred during adding asset")).appendTo($(".modal-body",$assetModal));
 		}
 	}).complete(function() {
 		$progress.hide();

@@ -15,7 +15,6 @@ function editScenario(rowTrickId, isAdd) {
 		$.ajax({
 			url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				var $modal = $("#addScenarioModal", new DOMParser().parseFromString(response, "text/html"));
 				if (!$modal.length)
@@ -62,45 +61,52 @@ function editScenario(rowTrickId, isAdd) {
 
 function saveScenario(form) {
 	try {
-		$("#addScenarioModal .label-danger").remove();
+		var $progress = $("#loading-indicator").show(), $scenarioModal = $("#addScenarioModal"), $form = $("#"+form), scenario = serializeScenario($form);
+		$(".label-danger",$scenarioModal).remove();
 		$.ajax({
 			url : context + "/Analysis/Scenario/Save",
 			type : "post",
-			data : serializeScenarioForm(form),
+			data : JSON.stringify(scenario),
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
-				for ( var error in response) {
-					var errorElement = document.createElement("label");
-					errorElement.setAttribute("class", "label label-danger");
-
-					$(errorElement).text(response[error]);
+				for ( var error in response.errors) {
+					var $errorElement = $("<label class='label label-danger' />").text(response.errors[error]);
 					switch (error) {
 					case "name":
-						$(errorElement).appendTo($("#scenario_form #scenario_name").parent());
+						$errorElement.appendTo($("#scenario_name", $scenarioModal).parent());
 						break;
 					case "scenarioType":
-						$(errorElement).appendTo($("#scenario_form #scenario_scenariotype_id").parent());
+						$errorElement.appendTo($("#scenario_scenariotype_id",$scenarioModal).parent());
 						break;
 					case "description":
-						$(errorElement).appendTo($("#scenario_form #scenario_description").parent());
+						$errorElement.appendTo($("#scenario_description",$scenarioModal).parent());
 						break;
 					case "selected":
-						$(errorElement).appendTo($("#scenario_form #asset_selected").parent());
+						$errorElement.appendTo($("#asset_selected",$scenarioModal).parent());
 						break;
 					case "scenario":
-						$(errorElement).appendTo($("#error_scenario_container"));
+						$errorElement.appendTo($("#error_scenario_container"));
 						break;
 					}
 				}
-				if (!$("#addScenarioModal .label-danger").length) {
-					$("#addScenarioModal").modal("toggle");
+				if (!$(".label-danger",$scenarioModal).length) {
+					$scenarioModal.modal("hide");
 					reloadSection("section_scenario");
+					var types = ["Busi","Compl","Fin","HW","IV","Info","Net","SW","Serv","Staff"], type = "";
+					for (let assetType of types) {
+						if(scenario[assetType]=='1')
+							type+= (type.length == 0? '' : ';')+assetType;
+					}
+					scenario.type = type;
+					scenario.id = response.id;
+					updateEstimationIteam("scenario",scenario);
 				} else
-					$("#addScenarioModal li:not(.active) a[href='#tab_scenario_general']").tab("show");
+					$("li:not(.active) a[href='#tab_scenario_general']",$scenarioModal).tab("show");
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} catch (e) {
 		switch (e) {
@@ -185,21 +191,20 @@ function deleteScenario(scenarioId) {
 
 }
 
-function serializeScenarioForm(formId) {
-	var $form = $("#" + formId), data = $form.serializeJSON();
+function serializeScenario($form) {
+	var data = $form.serializeJSON(), total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
+	+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);
+	
 	data["scenarioType"] = {
 		"id" : parseInt(data["scenarioType"], 0),
 		"type" : $("#scenario_scenariotype_id option:selected").text()
 	};
 
-	var total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
-			+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);
-
 	if (Math.abs(1 - total) > 0.001)
 		throw "error.scenario.control.characteristic";
 	if (source == 0)
 		throw "error.scenario.threat.source";
-	return JSON.stringify(data);
+	return  data;
 }
 
 function clearScenarioFormData() {

@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.security.Principal;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,7 +92,6 @@ public class ControllerAsset {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
-
 	/**
 	 * select: <br>
 	 * Description
@@ -113,7 +113,7 @@ public class ControllerAsset {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -236,37 +236,31 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
-
-		// create error list
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+	public @ResponseBody Object save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Map<String, Object> results = new LinkedHashMap<>(), errors = new HashMap<>();
 		try {
+			results.put("errors", errors);
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			
-			if(serviceAnalysis.isProfile(idAnalysis))
+			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
-			
 			// create new asset object
 			Asset asset = new Asset();
 			// build asset
 			buildAsset(errors, asset, value, locale);
-
 			if (!errors.isEmpty())
-				// return error on failure
-				return errors;
+				return results;
 			asset.setValue(asset.getValue() * 1000);
-
 			if (asset.getId() > 0) {
 				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
 					errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", locale));
-					return errors;
+					return results;
 				}
 				serviceAsset.saveOrUpdate(asset);
 			} else if (serviceAsset.exist(idAnalysis, asset.getName())) {
 				errors.put("name",
 						messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
-				return errors;
+				return results;
 			} else {
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				analysis.add(asset);
@@ -281,17 +275,15 @@ public class ControllerAsset {
 			// create assessments for the new asset and save asset and
 			// Assessments into analysis
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
-			
+			results.put("id", asset.getId());
 		} catch (TrickException e) {
 			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
-			return errors;
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			errors.put("asset", messageSource.getMessage(e.getMessage(), null, locale));
-			return errors;
 		}
-		return errors;
+		return results;
 	}
 
 	/**
@@ -342,7 +334,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAsset(Map<String, String> errors, Asset asset, String source, Locale locale) {
+	private boolean buildAsset(Map<String, Object> errors, Asset asset, String source, Locale locale) {
 		try {
 
 			// create json parser for the source
@@ -401,7 +393,7 @@ public class ControllerAsset {
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			// return error message
-			errors.put("asset",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("asset", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 
