@@ -27,15 +27,16 @@
 	<thead>
 		<tr>
 			<th width="15px" rowspan="2"></th>
-			<th rowspan="2" style="text-align: center;vertical-align: middle;min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
+			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
 			<th colspan="${impactTypes.size()}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-			<th rowspan="2" style="border-left: 2px solid window; width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance" text="Importance" /></th>
+			<th rowspan="2" style="border-left: 2px solid window; width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"
+					text="Importance" /></th>
 		</tr>
 		<tr>
 			<c:forEach items="${impactTypes}" var="impactType">
 				<spring:message code="label.title.assessment.impact_${fn:toLowerCase(impactType.name)}"
 					text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue]}" var="impactTitle" />
-				<th title='${impactTitle}' style="text-align: center;min-width: 90px;"><spring:message code="label.impact.${fn:toLowerCase(impactType.name)}"
+				<th title='${impactTitle}' style="text-align: center; min-width: 90px;"><spring:message code="label.impact.${fn:toLowerCase(impactType.name)}"
 						text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue]}" /></th>
 			</c:forEach>
 		</tr>
@@ -244,25 +245,27 @@
 	<label class='label-control'>${riskTreatment}</label>
 	<textarea class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;" placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
 </div>
-<div class='form-group'>
+<div class='form-group' id="section_estimation_action_plan">
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
-	<label class='label-control col-xs-11' style="padding-left: 0">${actionPlan}</label>
-	<div class="col-xs-1">
-		<div class="pull-right">
-			<a class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-cog" aria-hidden="true"></i></a>
-			<ul class="dropdown-menu" id="measureManagementAdvance">
-				<li><a href="#" data-action='manage' onclick="return false" ><spring:message code='label.risk_profile.manage.measure' text="Manage measure" /></a></li>
-				<li role="separator" class="divider"></li>
-				<li class="dropdown-header"><spring:message code='label.additional.field' text="Additional field" /></li>
-				<li style="display :${empty riskProfile.actionPlan? '' : 'none'};"><a href="#" data-action='show' onclick="return false"><spring:message code='label.action.show' /></a></li>
-				<li style="display: ${empty riskProfile.actionPlan? 'none' : ''};"><a href="#" data-action='hide' onclick="return false" ><spring:message code='label.action.hide' /></a></li>
-			</ul>
-		</div>
-	</div>
+	<ul class='nav nav-pills' style="padding-left: 0;" id="menu_estimation_action_plan">
+		<li style="padding-left: 0; margin-right: 15px; padding-top: 6px;">${actionPlan}</li>
+		<c:if test="${isEditable}">
+			<li data-trick-ignored='true'><a href="#" data-action='manage' onclick="return false" style="padding: 6px 10px;"><i class="fa fa-plus" aria-hidden="true"></i> <spring:message code='label.action.add' /></a></li>
+			<li data-trick-selectable="multi"><a href="#" data-action='delete' class="text text-danger" onclick="return false" style="padding: 6px 10px;"><i class="fa fa-remove" aria-hidden="true"></i> <spring:message
+						code='label.action.delete' /></a></li>
+		</c:if>
+		
+		<li data-trick-ignored='true' class='pull-right' style="display :${empty riskProfile.actionPlan? '' : 'none'};"><a href="#" data-action='show' style="padding: 6px 10px;" onclick="return false"><i class="fa fa-plus-square-o" aria-hidden="true"></i> <spring:message code='label.action.show.additional.field' /></a></li>
+		<li data-trick-ignored='true' class='pull-right' style="display: ${empty riskProfile.actionPlan? 'none' : ''};"><a href="#" data-action='hide' style="padding: 6px 10px;" onclick="return false"><i class="fa fa-minus-square-o" aria-hidden="true"></i> <spring:message code='label.action.hide.additional.field' /></a></li>
+	</ul>
 	<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
 	<table id="riskProfileMeasure" class="table table-hover">
 		<thead>
 			<tr>
+				<c:if test="${isEditable}">
+					<th style="width: 2%; padding-bottom: 5px;" title='<spring:message code="label.measure.norm" />'><input type="checkbox" data-menu-controller='menu_estimation_action_plan'
+						onchange="return checkControlChange(this,'estimation_action_plan')"></th>
+				</c:if>
 				<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
 				<th style="width: 3%;" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
 				<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
@@ -274,7 +277,12 @@
 		<tbody>
 			<c:forEach items="${riskProfile.measures}" var="measure">
 				<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
-				<tr data-trick-class="Measure" data-trick-id="${measure.id}" ${implementationRateValue==100? 'class="warning"' : measure.status=='NA'? 'class="danger"':''}>
+				<tr data-trick-class="Measure" ${isEditable? 'onclick="selectElement(this)"' : ''} data-trick-id="${measure.id}"
+					${implementationRateValue==100? 'class="warning"' : measure.status=='NA'? 'class="danger"':''}>
+					<c:if test="${isEditable}">
+						<td><input type="checkbox" class="checkbox" data-menu-controller='menu_estimation_action_plan'
+							onchange="return updateMenu(this,'#section_estimation_action_plan','#menu_estimation_action_plan');"></td>
+					</c:if>
 					<td><spring:message text='${ measure.measureDescription.standard.label}' /></td>
 					<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 					<c:choose>

@@ -41,10 +41,8 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -89,8 +87,6 @@ public class ControllerAsset {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	/**
 	 * select: <br>
@@ -192,14 +188,13 @@ public class ControllerAsset {
 	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		// load all assets of analysis to model
 		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analyses/single/components/asset/asset";
 	}

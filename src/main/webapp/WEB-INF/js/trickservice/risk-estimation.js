@@ -1,12 +1,5 @@
 var activeSelector = undefined, helper = undefined, scales = [], standardCaching = undefined;
 
-function removeMeasure() {
-	var $tr = $(this).closest("tr[data-trick-id]"), id = $tr.attr('data-trick-id');
-	$tr.find("td[data-toggle='tooltip']").tooltip("destroy");
-	standardCaching.removeMeasure(id);
-	$tr.remove();
-}
-
 function saveAssessmentData(e) {
 	var $assessmentUI = $("#estimation-ui"), $target = $(e.currentTarget), value = $target.val(), idScenario = $assessmentUI.attr('data-trick-scenario-id'), idAsset = $assessmentUI
 		.attr('data-trick-asset-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target.hasAttr("placeholder") ? $target
@@ -86,7 +79,7 @@ function toggleAdditionalActionPlan(e) {
 			helper['toggleAdditionalActionPlan'] = $additional.is(":visible") ? 'show' : 'hide';
 		}
 		else {
-			var $show = $("#measureManagementAdvance a[data-action='show']").parent(), $hide = $("#measureManagementAdvance a[data-action='hide']").parent();
+			var $show = $("#menu_estimation_action_plan a[data-action='show']").parent(), $hide = $("#menu_estimation_action_plan a[data-action='hide']").parent();
 			if (helper['toggleAdditionalActionPlan'] == 'hide') {
 				$additional.hide();
 				$show.show();
@@ -98,7 +91,7 @@ function toggleAdditionalActionPlan(e) {
 			}
 		}
 	} else {
-		$("#measureManagementAdvance a[data-action][data-action!='manage']").parent().toggle();
+		$("a[data-action='hide'],a[data-action='show']","#menu_estimation_action_plan").parent().toggle();
 		if (helper["toggleAdditionalActionPlan"] == 'hide') {
 			$additional.css({ "display": "inline-block" });
 			helper["toggleAdditionalActionPlan"] = 'show';
@@ -454,10 +447,9 @@ AssessmentHelder.prototype = {
 						$("select:not([disabled])", $assessmentUI).prop("disabled", true);
 						$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
 						$("a[data-controller]", $assessmentUI).remove();
-						$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).remove();
 					} else {
 						$("select", $assessmentUI).on("change", saveAssessmentData);
-						$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
+						$("textarea,input:not([disabled]):not([data-menu-controller])", $assessmentUI).on("blur", saveAssessmentData);
 						$("a[data-controller]", $assessmentUI).on("click", function () {
 							var $description = $("#description", $assessmentUI), $control = $("i.fa", this);
 							if ($control.hasClass("fa-lock")) {
@@ -470,13 +462,28 @@ AssessmentHelder.prototype = {
 							return false;
 						});
 
-						$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).on("click", function (e) {
-							forceCloseToolTips();
-							manageRiskProfileMeasure(idAsset, idScenario, e);
+						$("a[data-action='manage']", $assessmentUI).on("click", function (e) {
+							if($(this).parent().hasClass("disabled"))
+								e.preventDefault();
+							else {
+								forceCloseToolTips();
+								manageRiskProfileMeasure(idAsset, idScenario, e);
+							}
+						});
+						
+						$("thead input[type='checkbox']",$assessmentUI).trigger('change');
+						
+						$("a[data-action='delete']", $assessmentUI).on("click", function (e) {
+							if($(this).parent().hasClass("disabled"))
+								e.preventDefault();
+							else {
+								forceCloseToolTips();
+								deleteEstimationMeasures(idAsset, idScenario,$assessmentUI,$progress);
+							}
 						});
 					}
 
-					$("#measureManagementAdvance a[data-action][data-action!='manage']", $assessmentUI).on("click", toggleAdditionalActionPlan)
+					$("a[data-action='hide'],a[data-action='show']", $assessmentUI).on("click", toggleAdditionalActionPlan)
 
 					toggleAdditionalActionPlan();
 
@@ -520,6 +527,38 @@ function displayParameters(name, title) {
 	view.setTitle(title);
 	view.Show();
 	return false;
+}
+
+function deleteEstimationMeasures(idAsset, idScenario,$assessmentUI,$progress){
+	
+	var $toDelete = [], measures = [];
+	
+	$progress.show();
+	
+	$("tbody tr[data-trick-id]>td>input[type='checkbox']",$assessmentUI).each(function(){
+		var $this = $(this),$tr = $this.closest("tr[data-trick-id]");
+		if($this.is(":checked"))
+			$toDelete.push($tr);
+		else measures.push($tr.attr("data-trick-id"));
+	});
+	
+	$.ajax({
+		url: context + "/Analysis/Assessment/RiskProfile/Update/Measure?idAsset=" + idAsset + "&idScenario=" + idScenario,
+		type: "POST",
+		data: JSON.stringify(measures),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response) {
+			if (response.success){
+				for ( var i in $toDelete)
+					$toDelete[i].remove();
+				$("thead input[type='checkbox']",$assessmentUI).trigger('change');
+			}
+			else if (response.error)
+				showDialog("#alert-dialog", response.error);
+			else showDialog("#alert-dialog",MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures'));
+		},
+		error: unknowError
+	}).complete(function () { $progress.hide(); });
 }
 
 function computeAssessment(silent) {
@@ -637,7 +676,6 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							$selectedMeasures: $selectedMeasures,
 							$standardMeasures: $standardMeasures,
 							$messageContainer: $messageContainer,
-
 							load: function (standard) {
 								this.$messageContainer.empty();
 								if (this.hasStandard(standard))
@@ -686,9 +724,8 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									this.measures[measure.id] = measure.id;
 									var $measure = $("tbody tr[data-trick-id='" + measure.id + "']", this.$standardMeasures), $clone = $measure.clone();
 									if (!$measure.length) {
-										var $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"), standardName = $("option[value='" + measure.idStandard + "']", this.$standardSelector).text(),
-											$button = $("<button class='btn btn-xs btn-danger'><i class='fa fa-times' aria-hidden='true'></i></button>"), status = application.measureStatus[measure.status];
-										$button.appendTo($("<td />").appendTo($tr));
+										var $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"), standardName = $("option[value='" + measure.idStandard + "']", this.$standardSelector).text(), status = application.measureStatus[measure.status];
+										$("<td />").appendTo($tr);
 										$("<td data-real-value='" + measure.idStandard + "'>" + standardName + "</td>").appendTo($tr);
 										$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
 										$("<td data-real-value='" + measure.status + "'>" + status.value + "</td>").attr("title", status.title).appendTo($tr);
@@ -696,12 +733,9 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$("<td>" + measure.phase + "</td>").appendTo($tr);
 										$("<td>" + measure.domain + "</td>").appendTo($tr);
 										$clone = $tr;
-										$button.on("click", removeMeasure).attr("title", MessageResolver("label.action.remove", "Remove"));
-
 									} else {
-										$("button.btn.btn-xs.btn-primary", $clone).removeClass("btn-primary").addClass("btn-danger").off("click").on("click", removeMeasure).attr("title", MessageResolver("label.action.remove", "Remove")).find("i.fa-plus").removeClass("fa-plus").addClass("fa-times");
-										$clone.find("[data-toggle='tooltip']").tooltip().on('show.bs.tooltip', toggleToolTip);
-										$measure.addClass("info").find(".btn").prop("disabled", true);
+										$("button.btn.btn-xs.btn-primary", $clone).remove();
+										$measure.addClass("info").find(".btn").removeClass("btn-primary").addClass("btn-danger").find(".fa").removeClass("fa-plus").addClass("fa-remove");
 									}
 
 									if (measure.status == 'NA')
@@ -716,14 +750,15 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							removeMeasure: function (idMeasure) {
 								if (this.measures[idMeasure])
 									delete this.measures[idMeasure];
-								$("tbody tr[data-trick-id='" + idMeasure + "']", this.$standardMeasures).removeClass("info").find(".btn").prop("disabled", false);
+								$("tbody tr[data-trick-id='" + idMeasure + "']", this.$standardMeasures).removeClass("info").find(".btn").removeClass("btn-danger").addClass("btn-primary").find(".fa").removeClass("fa-remove").addClass("fa-plus");
+								$("tbody tr[data-trick-id='" + idMeasure + "']", this.$selectedMeasures).remove();
 								return this;
 							},
 							updateStandardUI: function (standard) {
 								var measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text();
 								for (var idMeasure in measures) {
 									var measure = measures[idMeasure], $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"),
-										$button = $("<button class='btn btn-xs btn-primary'><i class='fa fa-plus' aria-hidden='true'></i></button>"), status = application.measureStatus[measure.status];
+										$button = $("<button class='btn btn-xs'></button>"), status = application.measureStatus[measure.status];
 									$button.appendTo($("<td />").appendTo($tr));
 									$("<td data-real-value='" + measure.idStandard + "' >" + standardName + "</td>").appendTo($tr);
 									$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
@@ -734,11 +769,14 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 
 									if (this.measures[measure.id] != undefined) {
 										$tr.addClass("info");
-										$button.prop("disabled", true);
-									}
+										$("<i class='fa fa-remove' aria-hidden='true'></i>").appendTo($button.addClass("btn-danger"));
+									}else $("<i class='fa fa-plus' aria-hidden='true'></i>").appendTo($button.addClass("btn-primary"));
 
 									$button.on("click", function () {
-										standardCaching.addMeasure(standardCaching.getMeasure(standard, $(this).closest("tr[data-trick-id]").attr("data-trick-id")));
+										var $this = $(this), id = $this.closest("tr[data-trick-id]").attr("data-trick-id");
+										if(standardCaching.measures[id])
+											standardCaching.removeMeasure(id);
+										else standardCaching.addMeasure(standardCaching.getMeasure(standard, id));
 									}).attr("title", MessageResolver("label.action.add", "Add"));
 
 									$tr.appendTo($tbody);
@@ -766,12 +804,14 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 								$selectedTrs.each(function () {
 									var measureId = this.getAttribute("data-trick-id");
 									if (measures[measureId]) {
-										var $clone = $(this).clone();
-										$("td:first", $clone).remove();
-										$("td[data-toggle='tooltip']", $clone).tooltip().on('show.bs.tooltip', toggleToolTip);
-										$clone.appendTo($finalBody);
+										var $this = $(this);
+										$("<input type='checkbox' class='checkbox' data-menu-controller='menu_estimation_action_plan' onchange=\"return updateMenu(this,'#section_estimation_action_plan','#menu_estimation_action_plan')\" > ").appendTo($("td:first", $this));
+										$("td[data-toggle='tooltip']", $this).tooltip().on('show.bs.tooltip', toggleToolTip);
+										$this.appendTo($finalBody);
 									}
 								});
+								
+								$("thead input[type='checkbox']",application["estimation-helper"].section).trigger('change');
 
 								return this;
 							}
@@ -789,10 +829,8 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					standardCaching.measures = [];
 
 					$("tbody>tr[data-trick-id]", $selectedMeasures).each(function () {
-						var $this = $(this), idMeasure = $this.attr("data-trick-id");
-						$("button", $this).on("click", removeMeasure);
+						var idMeasure = $(this).attr("data-trick-id");
 						standardCaching.measures[idMeasure] = idMeasure;
-						$('[data-toggle="tooltip"]', $this).tooltip().on('show.bs.tooltip', toggleToolTip)
 					});
 
 					$('a[data-toggle="tab"]', $measureManager).on('shown.bs.tab', function (e) {
@@ -819,13 +857,9 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							data: JSON.stringify(measures),
 							contentType: "application/json;charset=UTF-8",
 							success: function (response) {
-								if (response.success) {
-									$("<label class='label label-success' />").text(response.success).appendTo($messageContainer);
-									setTimeout(function () {
-										standardCaching.updateView().$measureManager.modal("hide");
-									}, 2000);
-
-								} else if (response.error)
+								if (response.success)
+									standardCaching.updateView().$measureManager.modal("hide");
+								else if (response.error)
 									$("<label class='label label-error' />").text(response.error).appendTo($messageContainer);
 								else $("<label class='label label-error' />").text(MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures')).appendTo($messageContainer);
 

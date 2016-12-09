@@ -451,7 +451,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
-			if ($liSelected.attr("data-trick-selectable") === "multi")
+			if ($liSelected.attr("data-trick-selectable") === "multi" || $liSelected.attr("data-trick-ignored"))
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
@@ -461,10 +461,11 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]), singleChecker = $liSelected.attr("data-trick-single-check");
-			if ($liSelected.attr("data-trick-selectable") != undefined)
+			if ($liSelected.attr("data-trick-selectable") != undefined || $liSelected.attr("data-trick-ignored"))
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
+			
 			if (singleChecker !== undefined)
 				updateMenuItemState(cachingChecker, $liSelected, singleChecker);
 			else
@@ -474,10 +475,10 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]);
-			if ($liSelected.attr("data-trick-selectable") != undefined)
-				$liSelected.addClass("disabled");
-			else
+			if($liSelected.attr("data-trick-selectable") == undefined)
 				$liSelected.removeClass("disabled");
+			else
+				$liSelected.addClass("disabled");
 		}
 	}
 

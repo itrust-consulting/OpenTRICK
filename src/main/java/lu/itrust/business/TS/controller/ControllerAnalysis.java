@@ -288,19 +288,6 @@ public class ControllerAnalysis {
 				model.addAttribute("standardChapters", measuresByChapter);
 				model.addAttribute("standards", standards);
 				break;
-			case EDIT_ESTIMATION:
-			case READ_ESTIMATION:
-				model.addAttribute("type", analysis.getType());
-				model.addAttribute("assets", analysis.findSelectedAssets());
-				model.addAttribute("scenarios", analysis.findSelectedScenarios());
-				model.addAttribute("impacts", valueFactory.getImpacts());
-				model.addAttribute("probabilities", analysis.getLikelihoodParameters());
-				if (analysis.getType() != AnalysisType.QUALITATIVE) {
-					model.addAttribute("dynamics", analysis.getDynamicParameters());
-					model.addAttribute("show_uncertainty", analysis.isUncertainty());
-				}
-				model.addAttribute("impactTypes", analysis.getImpacts());
-				break;
 			}
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
@@ -320,8 +307,7 @@ public class ControllerAnalysis {
 					analysis.getVersion());
 			throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form"
-				: mode == OpenMode.EDIT_ESTIMATION || mode == OpenMode.READ_ESTIMATION ? "analyses/single/components/estimation/home" : "analyses/single/home";
+		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form" : "analyses/single/home";
 	}
 
 	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {

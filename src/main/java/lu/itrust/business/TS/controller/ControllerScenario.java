@@ -36,11 +36,9 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.asset.helper.AssetTypeValueComparator;
@@ -92,9 +90,6 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	/**
 	 * select: <br>
@@ -208,13 +203,12 @@ public class ControllerScenario {
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
-		model.addAttribute("isEditable", OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("isProfile", serviceAnalysis.isProfile(integer));
 		return "analyses/single/components/scenario/scenario";

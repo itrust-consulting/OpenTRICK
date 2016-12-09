@@ -1,11 +1,11 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,21 +25,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
-import lu.itrust.business.TS.database.service.ServiceImpactParameter;
-import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
-import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -48,10 +41,9 @@ import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
-import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -76,54 +68,13 @@ public class ControllerAssessment {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
-	private ServiceAssessment serviceAssessment;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
-
-	@Autowired
-	private ServiceDynamicParameter serviceDynamicParameter;
-
-	@Autowired
-	private ServiceImpactParameter serviceImpactParameter;
-
-	@Autowired
-	private ServiceLikelihoodParameter serviceLikelihoodParameter;
-
-	@Autowired
 	private ServiceRiskProfile serviceRiskProfile;
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
-	private ServiceScenario serviceScenario;
-
-	@Autowired
 	private ServiceMeasure serviceMeasure;
-
-	/**
-	 * loadAssessmentsOfAsset: <br>
-	 * Description
-	 * 
-	 * @param assetId
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String loadAssessmentsOfAsset(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		// get analysis id
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		loadAssessmentData(model, locale, idAnalysis);
-		// retrieve asset
-		Asset asset = serviceAsset.get(elementID);
-		// load assessments by asset into model
-		return assessmentByAsset(model, asset, serviceAssessment.getAllSelectedFromAsset(asset), idAnalysis, true);
-	}
 
 	@RequestMapping(value = "/Asset/{idAsset}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
@@ -156,29 +107,8 @@ public class ControllerAssessment {
 			}	
 		}
 		model.addAttribute("asset", asset);
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		return "analyses/single/components/risk-estimation/asset/home";
-	}
-
-	/**
-	 * loadByScenario: <br>
-	 * Description
-	 * 
-	 * @param scenarioId
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String loadByScenario(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		loadAssessmentData(model, locale, idAnalysis);
-		Scenario scenario = serviceScenario.get(elementID);
-		// load all assessments by scenario to model
-		return assessmentByScenario(model, scenario, serviceAssessment.getAllFromScenario(scenario), idAnalysis, true);
 	}
 
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -212,6 +142,7 @@ public class ControllerAssessment {
 			}
 		}
 		model.addAttribute("scenario", scenario);
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		return "analyses/single/components/risk-estimation/scenario/home";
 
 	}
@@ -317,74 +248,6 @@ public class ControllerAssessment {
 		}
 	}
 
-	/**
-	 * updateAsset: <br>
-	 * Description
-	 * 
-	 * @param assetId
-	 * @param model
-	 * @param session
-	 * @param locale
-	 * @return
-	 */
-	@RequestMapping(value = "/Asset/{elementID}/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String updateAsset(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
-		try {
-			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			// retrieve asset by id
-			Asset asset = serviceAsset.get(elementID);
-			// retrieve assessments of analysis
-			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
-			updateAssessments(idAnalysis, model, locale, assessments);
-			return assessmentByAsset(model, asset, assessments, idAnalysis, false);
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			// return null
-			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
-		}
-		return "redirect:/Error";
-	}
-
-	/**
-	 * updateByScenario: <br>
-	 * Description
-	 * 
-	 * @param scenarioId
-	 * @param model
-	 * @param session
-	 * @param locale
-	 * @return
-	 */
-	@RequestMapping(value = "/Scenario/{elementID}/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String updateByScenario(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
-		try {
-			// load analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			// load scenario
-			Scenario scenario = serviceScenario.get(elementID);
-			// retrieve parameters which are considered in the expression
-			List<Assessment> assessments = serviceAssessment.getAllSelectedFromScenario(scenario);
-			updateAssessments(idAnalysis, model, locale, assessments);
-			return assessmentByScenario(model, scenario, assessments, idAnalysis, false);
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
-		}
-		return "redirect:/Error";
-
-	}
-
 	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
 			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -397,7 +260,7 @@ public class ControllerAssessment {
 		model.addAttribute("riskProfile", riskProfile);
 		model.addAttribute("valueFactory", new ValueFactory(Collections.emptyList()));
 		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class, AssetStandard.class));
-		return "analyses/single/components/estimation/form/measure";
+		return "analyses/single/components/risk-estimation/form/measure";
 	}
 
 	@RequestMapping(value = "/RiskProfile/Update/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -444,87 +307,12 @@ public class ControllerAssessment {
 		};
 	}
 
-	/**
-	 * assessmentByAsset: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param asset
-	 * @param assessments
-	 * @param sort
-	 * @return
-	 * @throws Exception
-	 */
-	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis, boolean sort) throws Exception {
-		AnalysisType type = (AnalysisType) model.asMap().get("type");
-		if (type == AnalysisType.QUANTITATIVE) {
-			ALE ale = new ALE(asset.getName(), 0);
-			ALE aleo = new ALE(asset.getName(), 0);
-			ALE alep = new ALE(asset.getName(), 0);
-			model.addAttribute("ale", ale);
-			model.addAttribute("aleo", aleo);
-			model.addAttribute("alep", alep);
-			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
-			asset.setALE(ale.getValue());
-			asset.setALEO(aleo.getValue());
-			asset.setALEP(alep.getValue());
-		}
-		if (sort)
-			Collections.sort(assessments, assessmentScenarioComparator().reversed());
-		model.addAttribute("asset", asset);
-		model.addAttribute("assessments", assessments);
-		serviceAsset.saveOrUpdate(asset);
-		return "analyses/single/components/assessment/assets";
-	}
-
-	/**
-	 * assessmentByScenario: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param scenario
-	 * @param assessments
-	 * @param sort
-	 * @return
-	 * @throws Exception
-	 */
-	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis, boolean sort) throws Exception {
-		AnalysisType type = (AnalysisType) model.asMap().get("type");
-		if (type == AnalysisType.QUANTITATIVE) {
-			ALE ale = new ALE(scenario.getName(), 0);
-			ALE aleo = new ALE(scenario.getName(), 0);
-			ALE alep = new ALE(scenario.getName(), 0);
-			model.addAttribute("ale", ale);
-			model.addAttribute("aleo", aleo);
-			model.addAttribute("alep", alep);
-
-			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
-		}
-		if (sort)
-			Collections.sort(assessments, assessmentAssetComparator().reversed());
-		model.addAttribute("scenario", scenario);
-		model.addAttribute("assessments", assessments);
-		return "analyses/single/components/assessment/scenarios";
-	}
-
 	private void loadAssessmentData(Model model, Locale locale, Analysis analysis) {
 		model.addAttribute("valueFactory", new ValueFactory(analysis.getParameters()));
 		model.addAttribute("impactTypes", analysis.getImpacts());
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("language", locale.getISO3Country());
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
-		model.addAttribute("langue", locale.getLanguage().toUpperCase());
-	}
-
-	private void loadAssessmentData(Model model, Locale locale, Integer idAnalysis) {
-		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-		List<ILevelParameter> parameters = loadParameters(idAnalysis);
-		if (type != AnalysisType.QUALITATIVE)
-			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-		model.addAttribute("type", type);
-		model.addAttribute("valueFactory", new ValueFactory(parameters));
-		model.addAttribute("impactTypes", parameters.stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> ((ImpactParameter) parameter).getType())
-				.distinct().collect(Collectors.toList()));
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 	}
 
@@ -541,38 +329,4 @@ public class ControllerAssessment {
 		}
 	}
 
-	private List<ILevelParameter> loadParameters(Integer idAnalysis) {
-		List<ILevelParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-		return parameters;
-	}
-
-	private void updateAssessments(Integer idAnalysis, Model model, Locale locale, List<Assessment> assessments) {
-		List<ILevelParameter> parameters = loadParameters(idAnalysis);
-		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-		ValueFactory factory = new ValueFactory(parameters);
-		if (type != AnalysisType.QUALITATIVE)
-			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-		model.addAttribute("type", type);
-		model.addAttribute("langue", locale.getLanguage().toUpperCase());
-		model.addAttribute("impactTypes", parameters.stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> ((ImpactParameter) parameter).getType())
-				.distinct().collect(Collectors.toList()));
-		model.addAttribute("valueFactory", factory);
-		// parse assessments and initialise impact values to 0 if empty
-		for (Assessment assessment : assessments) {
-			if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
-				assessment.setLikelihood("0");
-			if (type == AnalysisType.QUALITATIVE)
-				factory.getImpactNames().stream().filter(name -> !assessment.hasImpact(name)).forEach(name -> assessment.setImpact(factory.findValue(0, name)));
-			else {
-				factory.getImpactNames().stream().filter(name -> !assessment.hasImpact(name)).forEach(name -> assessment.setImpact(factory.findValue(0D, name)));
-				// compute ALE
-				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
-			}
-			// update assessments
-			serviceAssessment.saveOrUpdate(assessment);
-			// add assessments of asset to model
-		}
-	}
 }

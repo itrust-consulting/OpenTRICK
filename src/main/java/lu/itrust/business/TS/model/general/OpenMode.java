@@ -8,7 +8,7 @@ package lu.itrust.business.TS.model.general;
  *
  */
 public enum OpenMode {
-	READ("read-only"), EDIT("edit"), EDIT_MEASURE("edit-measure"), READ_ESTIMATION("read-only-estimation"), EDIT_ESTIMATION("edit-estimation");
+	READ("read-only"), EDIT("edit"), EDIT_MEASURE("edit-measure");
 
 	private String value;
 
