@@ -24,7 +24,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.standards" text="Standards" /></label>
+						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.measures"/></label>
 						<div class="panel-body col-sm-10">
 							<c:if test="${!empty analysisStandards}">
 								<select class="form-control" name="standards" id="standards" multiple="multiple" style="display: none;">

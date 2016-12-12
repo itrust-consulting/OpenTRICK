@@ -489,7 +489,7 @@ public class ControllerAnalysisStandard {
 		Comparator<Measure> comparator = new MeasureComparator();
 
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		
+
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 
 		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream().map(analysisStandard -> {
@@ -608,7 +608,8 @@ public class ControllerAnalysisStandard {
 				return errors;
 			if (standard.getId() < 1) {
 				if (analysis.getAnalysisStandards().stream().anyMatch(analysisStandard -> analysisStandard.getStandard().hasSameName(standard)))
-					throw new TrickException("error.analysis.standard_exist_in_analysis", "The standard already exists in this analysis!");
+					return JsonMessage.Field("label",
+							messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
 				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 				switch (standard.getType()) {
 				case ASSET:
@@ -1101,6 +1102,7 @@ public class ControllerAnalysisStandard {
 			measureForm.setImplementationRate((int) measure.getImplementationRateValue(Collections.emptyList()));
 			measureForm.setStatus(measure.getStatus());
 			measureForm.setPhase(measure.getPhase().getNumber());
+			measureForm.setResponsible(measure.getResponsible());
 			if (descriptionText != null) {
 				measureForm.setDomain(descriptionText.getDomain());
 				measureForm.setDescription(descriptionText.getDescription());

@@ -690,9 +690,9 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 											if ($.isArray(response)) {
 												standardCaching.addStandard(standard, response).clearStandardMeasureUI().updateStandardUI(standard);
 											} else if (response.error)
-												$("<label class='label label-danger' />").text(response.error).appendTo(instance.$messageContainer.empty());
+												$("<label class='label label-danger' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;' />").text(response.error).appendTo(instance.$messageContainer.empty());
 											else
-												$("<label class='label label-danger' />").text(
+												$("<label class='label label-danger' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;'/>").text(
 													MessageResolver("error.loading.measures", 'An unknown error occurred while loading measures')).appendTo(
 													instance.$messageContainer.empty());
 										}, error: unknowError
@@ -728,21 +728,27 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$("<td />").appendTo($tr);
 										$("<td data-real-value='" + measure.idStandard + "'>" + standardName + "</td>").appendTo($tr);
 										$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
+										$("<td />").text( measure.domain).appendTo($tr);
 										$("<td data-real-value='" + measure.status + "'>" + status.value + "</td>").attr("title", status.title).appendTo($tr);
 										$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
 										$("<td>" + measure.phase + "</td>").appendTo($tr);
-										$("<td>" + measure.domain + "</td>").appendTo($tr);
+										$("<td />").text(measure.responsible).appendTo($tr);
 										$clone = $tr;
 									} else {
 										$("button.btn.btn-xs.btn-primary", $clone).remove();
-										$measure.addClass("info").find(".btn").removeClass("btn-primary").addClass("btn-danger").find(".fa").removeClass("fa-plus").addClass("fa-remove");
+										$measure.find(".btn").removeClass("btn-primary").addClass("btn-danger").find(".fa").removeClass("fa-plus").addClass("fa-remove");
+										if (measure.status == 'NA')
+											$measure.addClass("danger");
+										else if (measure.implementationRate >= 100)
+											$measure.addClass("warning");
+										else $measure.addClass("info");
 									}
 
 									if (measure.status == 'NA')
 										$clone.addClass("danger");
 									else if (measure.implementationRate >= 100)
 										$clone.addClass("warning");
-
+	
 									$clone.appendTo($("tbody", this.$selectedMeasures));
 								}
 								return this;
@@ -750,7 +756,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							removeMeasure: function (idMeasure) {
 								if (this.measures[idMeasure])
 									delete this.measures[idMeasure];
-								$("tbody tr[data-trick-id='" + idMeasure + "']", this.$standardMeasures).removeClass("info").find(".btn").removeClass("btn-danger").addClass("btn-primary").find(".fa").removeClass("fa-remove").addClass("fa-plus");
+								$("tbody tr[data-trick-id='" + idMeasure + "']", this.$standardMeasures).removeClass("info").removeClass("warning").removeClass("danger").find(".btn").removeClass("btn-danger").addClass("btn-primary").find(".fa").removeClass("fa-remove").addClass("fa-plus");
 								$("tbody tr[data-trick-id='" + idMeasure + "']", this.$selectedMeasures).remove();
 								return this;
 							},
@@ -762,16 +768,20 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									$button.appendTo($("<td />").appendTo($tr));
 									$("<td data-real-value='" + measure.idStandard + "' >" + standardName + "</td>").appendTo($tr);
 									$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
+									$("<td />").text(measure.domain).appendTo($tr);
 									$("<td data-real-value='" + measure.status + "' >" + status.value + "</td>").attr("title", status.title).appendTo($tr);
 									$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
 									$("<td>" + measure.phase + "</td>").appendTo($tr);
-									$("<td>" + measure.domain + "</td>").appendTo($tr);
-
+									$("<td />").text(measure.responsible).appendTo($tr);
 									if (this.measures[measure.id] != undefined) {
-										$tr.addClass("info");
+										if (measure.status == 'NA')
+											$tr.addClass("danger");
+										else if (measure.implementationRate >= 100)
+											$tr.addClass("warning");
+										else $tr.addClass("info");
 										$("<i class='fa fa-remove' aria-hidden='true'></i>").appendTo($button.addClass("btn-danger"));
 									}else $("<i class='fa fa-plus' aria-hidden='true'></i>").appendTo($button.addClass("btn-primary"));
-
+									
 									$button.on("click", function () {
 										var $this = $(this), id = $this.closest("tr[data-trick-id]").attr("data-trick-id");
 										if(standardCaching.measures[id])
@@ -857,11 +867,13 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							data: JSON.stringify(measures),
 							contentType: "application/json;charset=UTF-8",
 							success: function (response) {
-								if (response.success)
+								if (response.success){
+									$("<label class='label label-success' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;' />").text(response.success).appendTo($messageContainer);
 									standardCaching.updateView().$measureManager.modal("hide");
+								}
 								else if (response.error)
-									$("<label class='label label-error' />").text(response.error).appendTo($messageContainer);
-								else $("<label class='label label-error' />").text(MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures')).appendTo($messageContainer);
+									$("<label class='label label-danger' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;' />").text(response.error).appendTo($messageContainer);
+								else $("<label class='label label-danger' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;' />").text(MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures')).appendTo($messageContainer);
 
 							},
 							error: unknowError

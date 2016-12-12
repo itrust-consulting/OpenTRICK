@@ -384,7 +384,8 @@ function customAnalysis(element) {
 									$modalContent.appendTo("#widget");
 								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body), $emptyText = $modalBody.find("*[dropzone='true']>div:first").text(), $removeText = MessageResolver(
 										"label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector = $("#selector-analysis",
-										$modalBody), $impacts = $("select[name='impacts']", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2");
+										$modalBody), $impacts = $("select[name='impacts']", $modalBody), $impactValue = $("input#scale_level", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2"), $qualitativeSection = $(
+										"#analysis_qualitative", $modalBody);
 								// load data from database and manage caching
 
 								analysesCaching = {
@@ -533,8 +534,17 @@ function customAnalysis(element) {
 									checkProfile : function() {
 										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
 												this.assessmentDisable || this.analysisType != 'QUALITATIVE');
-										$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", this.analysisType == 'QUALITATIVE');
+
+										if (this.analysisType == 'QUALITATIVE') {
+											$qualitativeSection.show()
+											$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", true);
+										} else {
+											$qualitativeSection.hide();
+											$modalBody.find("input[name='uncertainty']").prop("disabled", false);
+										}
+
 										$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType + "']").trigger("click");
+
 										var type = this.analysisType;
 										$modalBody.find("select[name='profile']").val("-1").find("option[value!='-1']").each(function() {
 											if (this.getAttribute("data-type") == type)
@@ -573,8 +583,7 @@ function customAnalysis(element) {
 										return this;
 									},
 									changeImpactState : function(enable) {
-										$impacts.val('-1').prop("disabled", enable);
-										$modalBody.find("input[name='scale.level']").val('11').prop("disabled", enable);
+										$impacts.val('-1').prop("disabled", enable).trigger("change");
 										return this;
 									},
 									nameAnalysisStandard : function() {
@@ -633,8 +642,11 @@ function customAnalysis(element) {
 
 								$impacts.on("change", function() {
 									var options = this.selectedOptions;
-									if (options[0].value == "-1" && options.length > 1)
-										$(options[0]).prop("selected", false)
+									if (options[0].value == "-1") {
+										$(options[0]).prop("selected", options.length < 2);
+										$impactValue.prop("disabled", options.length < 2);
+									} else
+										$impactValue.prop("disabled", false);
 								});
 
 								$("#analysis-build-parameters").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
@@ -788,7 +800,7 @@ function customAnalysis(element) {
 													setTimeout(function() {
 														modal.Destroy();
 														reloadSection("section_analysis");
-													}, 3000);
+													}, 1000);
 													$saveButton.unbind();
 												} else {
 													var errorContainer = document.getElementById("build-analysis-modal-error");

@@ -24,6 +24,7 @@
 			</div>
 			<div class="modal-body">
 				<div style="height: 580px; overflow-y: auto; overflow-x: hidden">
+					<div id="riskProfileMessageContainer"></div>
 					<div class="form-group">
 						<label class="label-control col-sm-4"><spring:message code="label.measure.collection" /></label>
 						<div class="col-sm-8">
@@ -41,25 +42,28 @@
 								<th style="width: 5%;" title='<spring:message code="label.action" />'><spring:message code="label.action" /></th>
 								<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
 								<th style="width: 3%;" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+								<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
 								<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 								<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir_no_unit" /></th>
 								<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
-								<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+								<th style="width: 2%;" title='<spring:message code="label.title.measure.responsible" />' ><spring:message code="label.measure.responsible" /></th>
 							</tr>
 						</thead>
 						<tbody></tbody>
 					</table>
 				</div>
+				
 				<table style="display: none;" id="riskProfileSelectedMeasureContainer">
 					<thead>
 						<tr>
 							<th style="width: 5%;" title='<spring:message code="label.action" />'><spring:message code="label.action" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
 							<th style="width: 3%;" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+							<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir_no_unit" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
-							<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+							<th style="width: 2%;" title='<spring:message code="label.title.measure.responsible" />' ><spring:message code="label.measure.responsible" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -81,6 +85,7 @@
 														text="${measureDescriptionText.description}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 									</c:otherwise>
 								</c:choose>
+								<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 								<c:choose>
 									<c:when test="${measure.status=='NA'}">
 										<td title="${titleStatusNA}" data-real-value='NA'>${statusNA}</td>
@@ -94,7 +99,7 @@
 								</c:choose>
 								<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
 								<td>${measure.phase.number}</td>
-								<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+								<td><spring:message text="${measure.responsible}"/></td>
 						</c:forEach>
 					</tbody>
 				</table>

@@ -11,8 +11,8 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
-					<h4 class="col-xs-4" style="padding: 0; margin: 0">
-						<spring:message code="label.menu.manage_standard" />
+					<h4 class="col-xs-5" style="padding: 0; margin: 0">
+						<spring:message code="label.title.manage_standard" />
 					</h4>
 					<div class="col-xs-7" id="error-standard-modal" style="padding: 0"></div>
 				</div>

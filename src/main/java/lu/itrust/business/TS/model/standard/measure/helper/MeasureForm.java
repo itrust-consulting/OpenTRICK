@@ -48,6 +48,8 @@ public class MeasureForm {
 	private String status;
 	
 	private int phase;
+	
+	private String responsible;
 
 	/**
 	 * 
@@ -227,6 +229,20 @@ public class MeasureForm {
 	 */
 	public void setPhase(int phase) {
 		this.phase = phase;
+	}
+
+	/**
+	 * @return the responsible
+	 */
+	public String getResponsible() {
+		return responsible;
+	}
+
+	/**
+	 * @param responsible the responsible to set
+	 */
+	public void setResponsible(String responsible) {
+		this.responsible = responsible;
 	}
 
 }

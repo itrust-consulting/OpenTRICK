@@ -250,7 +250,7 @@
 	<ul class='nav nav-pills' style="padding-left: 0;" id="menu_estimation_action_plan">
 		<li style="padding-left: 0; margin-right: 15px; padding-top: 6px;">${actionPlan}</li>
 		<c:if test="${isEditable}">
-			<li data-trick-ignored='true'><a href="#" data-action='manage' onclick="return false" style="padding: 6px 10px;"><i class="fa fa-plus" aria-hidden="true"></i> <spring:message code='label.action.add' /></a></li>
+			<li><a href="#" data-action='manage' onclick="return false" style="padding: 6px 10px;"><i class="fa fa-plus" aria-hidden="true"></i> <spring:message code='label.action.add' /></a></li>
 			<li data-trick-selectable="multi"><a href="#" data-action='delete' class="text text-danger" onclick="return false" style="padding: 6px 10px;"><i class="fa fa-remove" aria-hidden="true"></i> <spring:message
 						code='label.action.delete' /></a></li>
 		</c:if>
@@ -268,10 +268,11 @@
 				</c:if>
 				<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
 				<th style="width: 3%;" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+				<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
 				<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 				<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir_no_unit" /></th>
 				<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
-				<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+				<th style="width: 2%;" title='<spring:message code="label.title.measure.responsible" />' ><spring:message code="label.measure.responsible" /></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -295,6 +296,7 @@
 														text="${measureDescriptionText.description}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 						</c:otherwise>
 					</c:choose>
+					<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 					<c:choose>
 						<c:when test="${measure.status=='NA'}">
 							<td title="${titleStatusNA}">${statusNA}</td>
@@ -308,7 +310,7 @@
 					</c:choose>
 					<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
 					<td>${measure.phase.number}</td>
-					<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+					<td><spring:message text="${measure.responsible}"/></td>
 			</c:forEach>
 		</tbody>
 	</table>
