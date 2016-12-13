@@ -64,7 +64,7 @@ function saveMeasureData(e) {
 
 function loadMeasureData(id) {
 	var $currentUI = $("#measure-ui");
-	if ($currentUI.attr("data-trick-id") == id && !application["measure-view-invalidate"]){
+	if ($currentUI.attr("data-trick-id") == id && !application["measure-view-invalidate"]) {
 		console.log(application["measure-view-invalidate"]);
 		return false;
 	}
@@ -78,14 +78,19 @@ function loadMeasureData(id) {
 				backupDescriptionHeight();
 				$currentUI.replaceWith($measureUI);
 				restoreDescriptionHeight();
-				$("select", $measureUI).on("change", saveMeasureData);
-				$("input[name!='cost'],textarea", $measureUI).on("blur", saveMeasureData);
-				$("input[type='number']", $measureUI).on("change", function(e) {
-					var $target = $(e.currentTarget);
-					if (!$target.is(":focus"))
-						$target.focus();
-					return this;
-				});
+				if (OPEN_MODE.isReadOnly()) {
+					$("select:not([disabled])", $measureUI).prop("disabled", true);
+					$("input:not([disabled]),textarea:not([disabled])", $measureUI).attr("readOnly", true);
+				} else {
+					$("select", $measureUI).on("change", saveMeasureData);
+					$("input[name!='cost'],textarea", $measureUI).on("blur", saveMeasureData);
+					$("input[type='number']", $measureUI).on("change", function(e) {
+						var $target = $(e.currentTarget);
+						if (!$target.is(":focus"))
+							$target.focus();
+						return this;
+					});
+				}
 			} else
 				unknowError();
 		},
