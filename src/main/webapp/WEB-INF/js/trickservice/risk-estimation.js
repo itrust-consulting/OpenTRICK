@@ -1,4 +1,4 @@
-var activeSelector = undefined, helper = undefined, scales = [], standardCaching = undefined;
+var activeSelector = undefined, helper = undefined, standardCaching = undefined;
 
 function saveAssessmentData(e) {
 	var $assessmentUI = $("#estimation-ui"), $target = $(e.currentTarget), value = $target.val(), idScenario = $assessmentUI.attr('data-trick-scenario-id'), idAsset = $assessmentUI
@@ -491,10 +491,7 @@ AssessmentHelder.prototype = {
 
 					$("button[data-scale-modal]", $assessmentUI).on("click", function () {
 						forceCloseToolTips();
-						var name = this.getAttribute("data-scale-modal");
-						if (scales[name] == undefined)
-							scales[name] = $("#" + name);
-						scales[name].modal("show");
+						displayParameters(this.getAttribute("data-scale-modal"));
 					});
 
 				} else

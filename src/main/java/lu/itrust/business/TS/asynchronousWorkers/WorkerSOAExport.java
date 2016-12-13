@@ -211,7 +211,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			// progress, max, size, index
 			int[] progressing = { 2, 95, 0, 0 };
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
-			format = locale.getLanguage().equals("fr") ? new SimpleDateFormat("dd-MM-yyyy") : new SimpleDateFormat("MM-dd-yyyy");
+			format = new SimpleDateFormat("dd/MM/yyyy");
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
 			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));

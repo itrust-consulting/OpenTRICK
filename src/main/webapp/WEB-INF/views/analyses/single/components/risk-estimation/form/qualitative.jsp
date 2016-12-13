@@ -47,7 +47,7 @@
 			<td style="transform: rotate(270deg);">${raw}</td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
-					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="probaScale">
+					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
 							<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 							</span>
 						</button></span>
@@ -74,7 +74,7 @@
 				<td>
 					<div class="input-group">
 						<spring:message text='${impactType.name}' var="impactName" />
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='impact${impactName}Scale'>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='#Scale_Impact_${impactName}'>
 								<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 								</span>
 							</button></span>
@@ -108,7 +108,7 @@
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<spring:message text="${assessment.likelihood}" var="likelihood" />
-					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='probaScale'>
+					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='#Scale_Probability'>
 							<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 							</span>
 						</button></span> <select class="form-control" name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
@@ -121,7 +121,7 @@
 			<c:forEach items="${impactTypes}" var="impactType">
 				<td><spring:message text='${impactType.name}' var="impactName" /> <c:set var="impact" value="${assessment.getImpact(impactType.name)}" />
 					<div class="input-group">
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="impact${impactName}Scale">
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Impact_${impactName}">
 								<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 								</span>
 							</button></span>
@@ -153,7 +153,7 @@
 			<td style="transform: rotate(270deg);">${exp}</td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
-					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="probaScale">
+					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
 							<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 							</span>
 						</button></span>
@@ -180,7 +180,7 @@
 				<td>
 					<div class="input-group">
 						<spring:message text='${impactType.name}' var="impactName" />
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='impact${impactName}Scale'>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='#Scale_Impact_${impactName}'>
 								<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 								</span>
 							</button></span>

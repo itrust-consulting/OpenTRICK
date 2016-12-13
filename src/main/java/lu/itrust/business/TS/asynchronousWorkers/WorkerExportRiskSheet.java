@@ -381,12 +381,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 60, index = 0;
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
-
-		if (locale.getLanguage().equals("fr"))
-			dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-		else
-			dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-
+		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;

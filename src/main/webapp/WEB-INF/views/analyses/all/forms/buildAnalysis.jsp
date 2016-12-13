@@ -20,7 +20,7 @@
 					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
 					<li class="col-sm-8 pull-right" id="build-analysis-modal-error"></li>
 				</ul>
-				<form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 635px;">
+				<form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 610px;">
 					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 						<div class="form-group">
 							<label for="type" class="col-sm-2 control-label"> <spring:message code="label.analysis.type" text="Type" /></label>
@@ -224,7 +224,7 @@
 								<label for="standards" class="col-sm-3 control-label" title='<spring:message code="label.analysis.standards" text="Standards" />'><spring:message
 										code="label.measures" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
-									<div class="well well-sm" style="height: 195px; overflow-y: auto; resize: vertical;">
+									<div class="well well-sm" style="height: 170px; overflow-y: auto; resize: vertical;">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 								</div>

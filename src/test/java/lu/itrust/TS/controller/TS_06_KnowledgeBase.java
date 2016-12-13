@@ -245,7 +245,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.content(String.format(
 						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
 						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asset").exists());
+				.andExpect(status().isOk()).andExpect(jsonPath("$.errors.asset").exists());
 	}
 
 	@Test(dependsOnMethods = { "test_05_CheckUpdateCustomerAndLanguage", "test_03_LoadData", "test_03_LoadData" })

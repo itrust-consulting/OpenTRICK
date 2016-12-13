@@ -12,7 +12,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -181,7 +180,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.content(String.format(
 						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
 						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
-				.andExpect(status().isOk()).andExpect(content().string("{}"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 	}
 
 	@Test(dependsOnMethods = "test_07_AddAsset")
@@ -214,7 +213,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.content(String.format(
 						"{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\"%s, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
 						"Scenario test", 1, false, "Test scenario", SCENARIO_ASSET_TYPE_VALUE)))
-				.andExpect(status().isOk()).andExpect(content().string("{}"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 	}
 
 	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")

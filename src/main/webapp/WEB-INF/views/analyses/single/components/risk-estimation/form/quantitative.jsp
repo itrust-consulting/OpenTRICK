@@ -41,7 +41,7 @@
 							text="${scenarioType}" /></strong></td>
 				<td>
 					<div class="input-group">
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="impactScale">k&euro;</button></span>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Impact">k&euro;</button></span>
 						<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
 						<c:choose>
 							<c:when test="${empty impact}">
@@ -64,7 +64,7 @@
 				</td>
 				<td>
 					<div class="input-group" align="right">
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="probaScale">${probaUnit}</button></span>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Probability">${probaUnit}</button></span>
 						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 						<c:choose>
 							<c:when test="${empty likelihood}">
