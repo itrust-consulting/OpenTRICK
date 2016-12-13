@@ -25,11 +25,11 @@
 		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
 	</c:choose>
 </c:set>
-<c:forEach items="${measures.keySet()}" var="standard">
-	<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
-	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
-	<c:set var="standardid" value="${selectedStandard.id }" scope="page"/>
-	<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" scope="page" />
+<c:forEach items="${measuresByStandard.keySet()}" var="standard">
+	<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard"/>
+	<c:set var="standardType" value="${selectedStandard.type}"/>
+	<c:set var="standardid" value="${selectedStandard.id }"/>
+	<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}"/>
 	<div class="tab-pane" id="tabStandard_${standardid}" data-trick-id="${standardid}">
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
 		<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">
@@ -124,7 +124,7 @@
 				<tfoot>
 				</tfoot>
 				<tbody>
-					<c:forEach items="${measures.get(standard)}" var="measure">
+					<c:forEach items="${measuresByStandard.get(standard)}" var="measure">
 						<c:set var="css">
 							<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA' }">class="success"</c:if>
 						</c:set>

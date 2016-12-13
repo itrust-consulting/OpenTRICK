@@ -45,11 +45,6 @@
 			<li><a href="#tabScenario" data-toggle="tab"><spring:message code="label.menu.analysis.scenario" /></a></li>
 			<c:if test="${!isProfile}">
 				<li><a href="#tabRiskEstimation" data-toggle="tab"><spring:message code="label.menu.analysis.risk_estimation" /></a></li>
-				<%-- <li class="divider"></li>
-				<li class="dropdown-header"><spring:message code="label.action.assessment.by" /></li>
-				<li><a href="?open=${open.readOnly?'read-only' : 'edit'}-estimation"><spring:message code="label.action.risk_sheet" /></a></li>
-				<li hidden="hidden" data-menu='estimation' data-type='asset'><a href="#tabEstimationAsset" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li>
-				<li hidden="hidden" data-menu='estimation' data-type='scenario'><a href="#tabEstimationScenario" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li> --%>
 			</c:if>
 		</ul></li>
 
@@ -58,24 +53,25 @@
 		<ul class="dropdown-menu" id="standardmenu">
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.standards" /></li>
 			<c:if test="${!empty(standards)}">
+				<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tabMeasureEdition" data-toggle="tab"><spring:message
+							code="label.measures" /></a></li>
+				<li class="divider"></li>
+				<li class="dropdown-header"><spring:message code="label.menu.analysis.measure_by_collection" /></li>
 				<c:forEach items="${standards}" var="standard">
 					<li><a href="#tabStandard_${standard.id}" data-toggle="tab"> <spring:message text="${standard.label}" /></a>
 				</c:forEach>
-				<li class="divider"></li>
-			</c:if>
-			<c:if test="${isProfile || isEditable}">
-				<c:if test="${!empty(standards)}">
-					<li title='<spring:message code="label.menu.view.measures"/>'><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <spring:message
-								code="label.action.edit" /></a></li>
-				</c:if>
-				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <spring:message
-							code="label.action.manage" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.implementation" /></li>
 			<li><a href="#tabPhase" data-toggle="tab"> <spring:message code="label.menu.analysis.phase" /></a></li>
 			<c:if test="${!isProfile}">
 				<li><a href="#tabActionPlan" data-toggle="tab"> <spring:message code="label.menu.analysis.action_plan" /></a></li>
+			</c:if>
+			<c:if test="${isProfile || isEditable}">
+				<li class="divider"></li>
+				<li class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
+				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message
+							code="label.action.manage" /></a></li>
 			</c:if>
 		</ul></li>
 	<c:if test="${!isProfile}">

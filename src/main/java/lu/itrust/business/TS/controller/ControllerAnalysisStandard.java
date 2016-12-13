@@ -235,25 +235,25 @@ public class ControllerAnalysisStandard {
 
 		List<Standard> standards = new ArrayList<>(analysisStandards.size());
 
-		Map<String, List<Measure>> measures = new LinkedHashMap<>(analysisStandards.size());
+		Map<String, List<Measure>> measuresByStandard = new LinkedHashMap<>(analysisStandards.size());
 
 		ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 
 		analysisStandards.forEach(analysisStandard -> {
 			standards.add(analysisStandard.getStandard());
-			measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
+			measuresByStandard.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
 		});
 
-		boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
+		boolean hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 
 		if (hasMaturity)
-			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
+			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
 					loadMaturityParameters(idAnalysis), true, factory));
 		model.addAttribute("hasMaturity", hasMaturity);
 
 		model.addAttribute("standards", standards);
 
-		model.addAttribute("measures", measures);
+		model.addAttribute("measuresByStandard", measuresByStandard);
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
@@ -288,7 +288,7 @@ public class ControllerAnalysisStandard {
 			return null;
 		ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		List<Standard> standards = new ArrayList<Standard>(1);
-		Map<String, List<Measure>> measures = new HashMap<>(1);
+		Map<String, List<Measure>> measuresByStandard = new HashMap<>(1);
 		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
 			if (maturityStandard != null && maturityStandard.getStandard().isComputable())
@@ -298,11 +298,11 @@ public class ControllerAnalysisStandard {
 
 		standards.add(analysisStandard.getStandard());
 
-		measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
+		measuresByStandard.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
 
 		model.addAttribute("standards", standards);
 
-		model.addAttribute("measures", measures);
+		model.addAttribute("measuresByStandard", measuresByStandard);
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
@@ -1032,7 +1032,7 @@ public class ControllerAnalysisStandard {
 		return errors;
 	}
 
-	@RequestMapping(value = "/Measure/{idMeasure}/Form", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Measure/{idMeasure}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String measureForm(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -1058,7 +1058,7 @@ public class ControllerAnalysisStandard {
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
-		return "analyses/single/components/standards/measure";
+		return "analyses/single/components/standards/edition/measure";
 
 	}
 

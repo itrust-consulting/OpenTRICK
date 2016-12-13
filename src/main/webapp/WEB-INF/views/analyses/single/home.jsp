@@ -42,7 +42,6 @@
 				<c:if test="${!isProfile}">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
-					<%-- <jsp:include page="./components/assessment/home.jsp" /> --%>
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />
 					<c:if test="${type=='QUANTITATIVE' }">
@@ -57,7 +56,9 @@
 				<c:set var="phases" scope="request" value="${analysis.phases}" />
 				<jsp:include page="./components/phase/phase.jsp" />
 				<jsp:include page="./components/standards/standard/standards.jsp" />
+				<jsp:include page="./components/standards/edition/home.jsp" />
 				<c:if test="${!isProfile}">
+					
 					<jsp:include page="./components/soa/home.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 					<jsp:include page="./components/actionPlan/section.jsp" />
@@ -87,9 +88,9 @@
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrfManager.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrf.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-measure.js" />"></script>
 	<c:if test="${!isProfile}">
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js" />"></script>
-		<%-- <script type="text/javascript" src="<spring:url value="/js/trickservice/assessment.js" />"></script> --%>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>

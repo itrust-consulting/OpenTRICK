@@ -509,67 +509,15 @@ datalist {
 		height: 88%;
 	}
 
-	/*@media ( min-height :400px) {
-		.nav-chapter {
-			height: 36%;
-		}
-		
-	}
-	
-	@media ( min-height :500px) {
-		.nav-chapter {
-			height: 48%;
-		}
-	}
-	
-	@media ( min-height :600px) {
-		.nav-chapter {
-			height: 50%;
-		}
-		
-		@media ( min-width : 1280px) {
-			.nav-chapter {
-				height: 54%;
-			}
-		}
-		@media ( min-width : 1400px) {
-			.nav-chapter {
-				height: 64%;
-			}
-		}
-	}
-	
-	@media ( min-height :766px) {
-		.nav-chapter {
-			height: 60%;
-		}
-		
-		@media ( min-width : 1600px) {
-			.nav-chapter {
-				height: 66%;
-			}
-		}
-	}
-	@media ( min-height :900px) {
-		.nav-chapter {
-			height: 66%;
-		}
-		@media ( min-width : 1600px) {
-			.nav-chapter {
-				height: 72%;
-			}
-		}
-	}
-	@media ( min-height :1200px) {
-		.nav-chapter {
-			height: 78%;
-		}
-	}*/
 	
 	@media ( min-height :300px) {
-		ul[data-trick-role='nav-estimation'] {
+		ul[data-trick-role='nav-estimation'], ul[data-trick-role="nav-measure"] {
 			position: fixed;
 			bottom: 42px;
+		}
+		
+		ul[data-trick-role='nav-estimation']>li>a, ul[data-trick-role="nav-measure"]>li>a{
+			padding: 2px 15px;
 		}
 	}
 	

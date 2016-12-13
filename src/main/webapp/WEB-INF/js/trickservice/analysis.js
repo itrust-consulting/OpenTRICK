@@ -68,8 +68,8 @@ $.fn.loadOrUpdateChart = function(parameters) {
 						var metadata = this.series.options.metadata[dataIndex];
 						if (metadata.length > 0)
 							str += "<br/>\u00A0"; // non-breaking space;
-													// prevents empty line from
-													// being ignored
+						// prevents empty line from
+						// being ignored
 						for (var i = 0; i < metadata.length; i++)
 							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: "
 									+ language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
@@ -108,6 +108,15 @@ function findAnalysisId() {
 		id = application['selected-analysis-id'] = el.getAttribute("data-trick-id");
 	}
 	return id;
+}
+
+function updateScroll(element) {
+	var currentActive = document.activeElement;
+	if (element != currentActive) {
+		element.focus();// update scroll
+		currentActive.focus();
+	}
+	return false;
 }
 
 function findAnalysisLocale() {
@@ -201,6 +210,17 @@ function reloadMeasureRow(idMeasure, standard) {
 					$("[data-toggle='tooltip']", $newRow).tooltip().on('show.bs.tooltip', toggleToolTip);
 					if ($checked.length)
 						$newRow.find("input[type='checkbox']").prop("checked", true).change();
+
+					if (application["measure-view-init"]) {//See analysis-measure
+						if ($("#measure-ui[data-trick-id='" + idMeasure + "']:hidden").length)
+							$("#tabMeasureEdition").attr("data-update-required",  application["measure-view-invalidate"] = true);
+					}
+
+					if (application["estimation-helper"]){//See risk-estimation
+						application["estimation-helper"].$tabSection.attr("data-update-required", application["estimation-helper"].invalidate = true);
+						if(application["standard-caching"])//See risk-estimation -> manage measure
+							application["standard-caching"].clear(standard);
+					}
 				}
 			},
 			error : unknowError
@@ -446,7 +466,7 @@ function displayChart(id, response) {
 }
 
 function loadChartAsset() {
-	
+
 	if ($('#chart_ale_asset').length) {
 		if ($('#chart_ale_asset').is(":visible")) {
 			var $progress = $("#loading-indicator").show();

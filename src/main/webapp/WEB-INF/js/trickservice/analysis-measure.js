@@ -1,28 +1,3 @@
-function escape(key, val) {
-	if (typeof (val) != "string")
-		return val;
-	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
-			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
-}
-
-function defaultValueByType(value, type) {
-	if (value.length == 0) {
-		if (type == "int" || type == "integer")
-			value = 0;
-		else if (type == "float")
-			value = 0.0;
-		else if (type == "double")
-			value = 0.0;
-		else if (type == "bool" || type == "boolean")
-			value = false;
-		else if (type == "date")
-			return new Date().toDateString();
-		else
-			value = "";
-	}
-	return escape(undefined, value);
-}
-
 function saveMeasureData(e) {
 	var $target = $(e.currentTarget), value = $target.val(), id = $("#measure-ui").attr('data-trick-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target
 			.hasAttr("placeholder") ? $target.attr("placeholder") : $target.attr("data-trick-value");
@@ -30,54 +5,57 @@ function saveMeasureData(e) {
 		$target.parent().removeClass('has-error');
 	else {
 		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : context + "/Analysis/EditField/Measure/" + id + "/Update",
-			async : false,
-			type : "post",
-			data : '{"id":' + id + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response.message == undefined)
-					unknowError();
-				else {
-					var $parent = $target.parent();
-					if (response.error) {
-						$parent.addClass("has-error");
-						$parent.removeClass("has-success");
-						$parent.attr("title", response.message);
-					} else {
-						$parent.removeAttr("title");
-						$parent.removeClass("has-error");
-						$parent.addClass("has-success");
-						if (response.empty) {
-							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", value);
-						} else {
-							for (var i = 0; i < response.fields.length; i++) {
-								var field = response.fields[i], $element = name == field.name ? $target : $("#measure-ui [name='" + field.name + "'].form-control");
-								for ( var fieldName in field) {
-									switch (fieldName) {
-									case "value":
-										$element.attr("placeholder", field[fieldName]);
-										$element.val(field[fieldName]);
-										break;
-									case "title":
-										$element.attr(fieldName, field[fieldName]);
-										break;
+		$.ajax(
+				{
+					url : context + "/Analysis/EditField/Measure/" + id + "/Update",
+					type : "post",
+					data : '{"id":' + id + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
+					contentType : "application/json;charset=UTF-8",
+					success : function(response) {
+						if (response.message == undefined)
+							unknowError();
+						else {
+							var $parent = $target.parent();
+							if (response.error) {
+								$parent.addClass("has-error");
+								$parent.removeClass("has-success");
+								$parent.attr("title", response.message);
+							} else {
+								$parent.removeAttr("title");
+								$parent.removeClass("has-error");
+								$parent.addClass("has-success");
+								if (response.empty) {
+									$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", value);
+								} else {
+									for (var i = 0; i < response.fields.length; i++) {
+										var field = response.fields[i], $element = name == field.name ? $target : $("#measure-ui [name='" + field.name + "'].form-control");
+										for ( var fieldName in field) {
+											switch (fieldName) {
+											case "value":
+												$element.attr("placeholder", field[fieldName]);
+												$element.val(field[fieldName]);
+												break;
+											case "title":
+												$element.attr(fieldName, field[fieldName]);
+												break;
+											}
+										}
 									}
 								}
+								var status = name == 'status' ? value : $("#measure-ui select[name='status']").val(), $cost = $("#measure-ui input[name='cost']"), cost = $cost
+										.attr("title");
+								if (status != "NA" && cost == "0€")
+									$cost.parent().addClass("has-error");
+								else
+									$cost.parent().removeClass("has-error");
+
+								reloadMeasureRow(id, $("select[name='standard']").val());
 							}
+
 						}
-						var status = name == 'status' ? value : $("#measure-ui select[name='status']").val(), $cost = $("#measure-ui input[name='cost']"), cost = $cost
-								.attr("title");
-						if (status != "NA" && cost == "0€")
-							$cost.parent().addClass("has-error");
-						else
-							$cost.parent().removeClass("has-error");
-					}
-				}
-			},
-			error : unknowError
-		}).complete(function(){
+					},
+					error : unknowError
+				}).complete(function() {
 			$progress.hide();
 		});
 	}
@@ -86,11 +64,13 @@ function saveMeasureData(e) {
 
 function loadMeasureData(id) {
 	var $currentUI = $("#measure-ui");
-	if ($currentUI.attr("data-trick-id") == id)
+	if ($currentUI.attr("data-trick-id") == id && !application["measure-view-invalidate"]){
+		console.log(application["measure-view-invalidate"]);
 		return false;
+	}
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/Standard/Measure/" + id + "/Form",
+		url : context + "/Analysis/Standard/Measure/" + id + "/Load",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var $measureUI = $("div#measure-ui", new DOMParser().parseFromString(response, "text/html"));
@@ -110,14 +90,15 @@ function loadMeasureData(id) {
 				unknowError();
 		},
 		error : unknowError
-	}).complete(function(){
+	}).complete(function() {
 		$progress.hide();
+		application["measure-view-invalidate"] = false;
 	});
 	return false;
 }
 
 function backupDescriptionHeight() {
-	var $description = $("#description");
+	var $description = $("#tabMeasureEdition #description");
 	if ($description.length) {
 		var height = $description.outerHeight(), defaultHeight = application["measure-description-default-size"];
 		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
@@ -132,12 +113,12 @@ function backupDescriptionHeight() {
 }
 
 function restoreDescriptionHeight() {
-	var $description = $("#description");
+	var $description = $("#tabMeasureEdition #description");
 	if ($description.length) {
 		application["measure-description-default-size"] = $description.outerHeight();
 		var height = application["measure-description-size"];
 		if (height != undefined) {
-			$("#description").css({
+			$("#tabMeasureEdition #description").css({
 				"height" : height
 			});
 		}
@@ -145,26 +126,17 @@ function restoreDescriptionHeight() {
 	return false;
 }
 
-function updateScroll(element) {
-	var currentActive = document.activeElement;
-	if (element != currentActive) {
-		element.focus();// update scroll
-		currentActive.focus();
-	}
-	return false;
-}
-
 function updateMeasureUI() {
-	var $measure = $("div.list-group:visible>.list-group-item.active"), id = $measure.attr('data-trick-id');
+	var $measure = $("#tabMeasureEdition div.list-group:visible>.list-group-item.active"), id = $measure.attr('data-trick-id');
 	if (!$measure.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
 		updateScroll($measure);
 	loadMeasureData(id);
 }
 
-function updateNavigation() {
-	var $currentChapter = $("select[name='chapter']:visible>option:selected"), $currentMeasure = $("div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active"), $previousChatper = $(
-			"[data-trick-nav='previous-chapter']").parent(), $nextChapter = $("[data-trick-nav='next-chapter']").parent(), $previousMeasure = $(
-			"[data-trick-nav='previous-measure']").parent(), $nextMeasure = $("[data-trick-nav='next-measure']").parent();
+function updateMeasureNavigation() {
+	var $currentChapter = $("#tabMeasureEdition select[name='chapter']:visible>option:selected"), $currentMeasure = $("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active"), $previousChatper = $(
+			"#tabMeasureEdition [data-trick-nav='previous-chapter']").parent(), $nextChapter = $("#tabMeasureEdition [data-trick-nav='next-chapter']").parent(), $previousMeasure = $(
+			"#tabMeasureEdition [data-trick-nav='previous-measure']").parent(), $nextMeasure = $("#tabMeasureEdition [data-trick-nav='next-measure']").parent();
 	if ($currentChapter.next(":first").length)
 		$nextChapter.removeClass("disabled");
 	else
@@ -194,51 +166,68 @@ function changeMeasure(e) {
 		var $parent = $target.closest(".list-group");
 		$(".list-group-item.active", $parent).removeClass("active");
 		$target.addClass('active');
+		updateMeasureView();
 	}
-	updateMeasureUI();
-	updateNavigation();
+
 	return false;
 }
 
-$(function() {
+function updateMeasureView() {
+	var $section = $("#tabMeasureEdition");
+	if ($section.is(":visible")) {
+		if (!application["measure-view-init"])
+			initilisateMeasureView();
+		updateMeasureUI();
+		updateMeasureNavigation();
+	} else
+		$section.attr("data-update-required", application["measure-view-invalidate"] = true);
+	return false;
+}
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateNavigation), $returnAnalysis = $("a[data-base-url]", $nav), $standardSelector = $("select[name='standard']"), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']");
+function initilisateMeasureView() {
+
+	var $nav = $("#tabMeasureEdition ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateMeasureNavigation), $returnAnalysis = $("a[data-base-url]",
+			$nav), $standardSelector = $("select[name='standard']"), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']"), $chapterSelector = $("#tabMeasureEdition select[name='chapter']");
 
 	$previousChatper.on("click", function() {
-		$("select[name='chapter']:visible>option:selected").prev(":last").prop('selected', true).parent().change();
+		$("#tabMeasureEdition select[name='chapter']:visible>option:selected").prev(":last").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$nextChapter.on("click", function() {
-		$("select[name='chapter']:visible>option:selected").next(":first").prop('selected', true).parent().change();
+		$("#tabMeasureEdition select[name='chapter']:visible>option:selected").next(":first").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$previousMeasure.on("click", function() {
-		$("div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").prev(":visible:last").click();
+		$("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").prev(":visible:last")
+				.click();
 		return false;
 	});
 
 	$nextMeasure.on("click", function() {
-		$("div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").next(":visible:first").click();
+		$("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").next(":visible:first")
+				.click();
 		return false;
 	});
 
 	$standardSelector.on('change', function(e) {
 		var value = $standardSelector.val();
-		$("div[data-trick-standard-name][data-trick-id!='" + value + "']:visible").hide();
-		$("div[data-trick-standard-name][data-trick-id='" + value + "']:hidden").show();
+		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id!='" + value + "']:visible").hide();
+		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id='" + value + "']:hidden").show();
 		updateMeasureUI();
 		$nav.trigger("trick.update.nav");
 		return false;
 	});
 
-	$("select[name='chapter']")
-			.on(
-					'change',
+	$("#tabMeasureEdition div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
+
+	$chapterSelector
+			.on('change',
 					function(e) {
 						var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), value = $target
-								.val(), $measuresContainer = $("div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='" + standardId + "']:visible");
+								.val(), $measuresContainer = $("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='" + standardId
+								+ "']:visible");
 						$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + value + "']:visible").hide();
 						$measuresContainer.find("div.list-group[data-trick-chapter-name='" + value + "']:hidden").show();
 						updateMeasureUI();
@@ -246,12 +235,7 @@ $(function() {
 						return false;
 					});
 
-	$("div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
-
-	$returnAnalysis.on("click", function() {
-		$returnAnalysis.attr("href", $returnAnalysis.attr("data-base-url") + "#tabStandard_" + $standardSelector.val());
-	});
-
-	updateNavigation();
-	updateMeasureUI();
-});
+	application["measure-view-init"] = true;
+	$standardSelector.trigger("change");
+	$chapterSelector.filter(":visible").trigger("change");
+}

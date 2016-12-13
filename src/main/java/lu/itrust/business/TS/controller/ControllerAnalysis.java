@@ -256,39 +256,27 @@ public class ControllerAnalysis {
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
-			// initialise analysis
-			switch (mode) {
-			case READ:
-			case EDIT:
-				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-				standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
-						.collect(Collectors.toList());
-				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-				hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
-				model.addAttribute("soaThreshold", analysis.getParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
-				model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(
-						Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measures.get(analysisStandard.getStandard().getLabel()))));
-				model.addAttribute("measures", measures);
-				model.addAttribute("show_uncertainty", analysis.isUncertainty());
-				model.addAttribute("type", analysis.getType());
-				model.addAttribute("standards", standards);
-				model.addAttribute("hasMaturity", hasMaturity);
-				if (analysis.getType() == AnalysisType.QUALITATIVE)
-					model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
-				if (hasMaturity)
-					model.addAttribute("effectImpl27002",
-							MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
-									analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
-				break;
-			case EDIT_MEASURE:
-				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
-						.map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator()).collect(Collectors.toList());
-				Map<String, Map<String, List<Measure>>> measuresByChapter = spliteMeasureByChapter(analysis.getAnalysisStandards());
-				hasMaturity = measuresByChapter.containsKey(Constant.STANDARD_MATURITY);
-				model.addAttribute("standardChapters", measuresByChapter);
-				model.addAttribute("standards", standards);
-				break;
-			}
+
+			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
+			standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
+					.collect(Collectors.toList());
+			Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards());
+			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
+			model.addAttribute("soaThreshold", analysis.getParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
+			model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled)
+					.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()))));
+			model.addAttribute("measuresByStandard", measuresByStandard);
+			model.addAttribute("show_uncertainty", analysis.isUncertainty());
+			model.addAttribute("type", analysis.getType());
+			model.addAttribute("standards", standards);
+			model.addAttribute("hasMaturity", hasMaturity);
+			if (analysis.getType() == AnalysisType.QUALITATIVE)
+				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
+			if (hasMaturity)
+				model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
+						analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
+			
+			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
@@ -307,24 +295,22 @@ public class ControllerAnalysis {
 					analysis.getVersion());
 			throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form" : "analyses/single/home";
+		return "analyses/single/home";
 	}
 
-	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {
-		Comparator<Measure> comparator = new MeasureComparator();
+	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(Map<String, List<Measure>> measuresByStandard) {
 		Map<String, Map<String, List<Measure>>> mapper = new LinkedHashMap<>();
-		analysisStandards.stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty()).forEach(analysisStandard -> {
+		measuresByStandard.forEach((standard, measures) -> {
 			Map<String, List<Measure>> chapters = new LinkedHashMap<>();
-			Collections.sort(analysisStandard.getMeasures(), comparator);
-			analysisStandard.getMeasures().forEach(measure -> {
+			measures.forEach(measure -> {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
-				List<Measure> measures = chapters.get(chapter);
-				if (measures == null)
-					chapters.put(chapter, measures = new LinkedList<Measure>());
-				measures.add(measure);
+				List<Measure> measuresByChpater = chapters.get(chapter);
+				if (measuresByChpater == null)
+					chapters.put(chapter, measuresByChpater = new LinkedList<Measure>());
+				measuresByChpater.add(measure);
 			});
 
-			mapper.put(analysisStandard.getStandard().getLabel(), chapters);
+			mapper.put(standard, chapters);
 		});
 		return mapper;
 	}

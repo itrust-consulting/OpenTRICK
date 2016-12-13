@@ -107,31 +107,6 @@ function loadAssessmentData(id) {
 	return application["estimation-helper"].reload(id) == undefined;
 }
 
-function backupDescriptionHeight() {
-	var $description = $("#description");
-	if ($description.length) {
-		var height = $description.outerHeight(), defaultHeight = application["estimation-description-default-size"];
-		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
-			application["estimation-description-size-prev"] = application["estimation-description-size"];
-			application["estimation-description-size"] = $description.outerHeight();
-		} else if (application["estimation-description-size"] && application["estimation-description-size"] != height && application["estimation-description-size-prev"] != height) {
-			delete application["estimation-description-size"];
-			delete application["estimation-description-size-prev"]
-		}
-	}
-	return false;
-}
-
-
-function updateScroll(element) {
-	var currentActive = document.activeElement;
-	if (element != currentActive) {
-		element.focus();// / / update scroll
-		currentActive.focus();
-	}
-	return false;
-}
-
 function updateAssessmentUI() {
 	var $assessment = $("div.list-group:visible>.list-group-item.active");
 	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
@@ -212,12 +187,13 @@ function riskEstimationUpdate() {
 	if (helper == undefined)
 		initialiseRiskEstimation();
 	if (helper.$tabSection.is(":visible")) {
-		updateNavigation();
+		updateRiskEstimationNavigation();
 		helper.updateContent();
-	} else helper.$tabSection.attr("data-update-required", helper.invalidate = true);
+	} else
+		helper.$tabSection.attr("data-update-required", helper.invalidate = true);
 }
 
-function updateNavigation() {
+function updateRiskEstimationNavigation() {
 	var $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active");
 
 	if (activeSelector == undefined)
@@ -665,7 +641,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					var $standardSelector = $("#riskProfileStandardSelector", $measureManager), $messageContainer = $("#riskProfileMessageContainer", $measureManager),
 						$selectedMeasures = $("table#riskProfileSelectedMeasureContainer", $measureManager), $standardMeasures = $("table#riskProfileStandardMeasureContainer", $measureManager);
 					if (standardCaching == undefined) {
-						standardCaching = {
+						application["standard-caching"] = standardCaching = {
 							standards: {},
 							measures: {},
 							$standardSelector: $standardSelector,
@@ -821,6 +797,9 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 								$("thead input[type='checkbox']",application["estimation-helper"].section).trigger('change');
 
 								return this;
+							},clear : function(standard){
+								delete this.standards[standard];
+								return this;
 							}
 						};
 					} else standardCaching.update($standardSelector, $measureManager, $selectedMeasures, $standardMeasures, $messageContainer);
@@ -891,7 +870,7 @@ function initialiseRiskEstimation() {
 
 	application["estimation-helper"] = helper = new AssessmentHelder();
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']");
+	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateRiskEstimationNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']");
 
 	$previousSelector.on("click", function () {
 		$("select[name='" + activeSelector + "']>option:selected").prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();

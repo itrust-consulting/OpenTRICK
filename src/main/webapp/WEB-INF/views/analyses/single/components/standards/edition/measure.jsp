@@ -7,9 +7,9 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <fmt:setLocale value="fr" scope="session" />
-<div id="measure-ui" class='col-lg-10 trick-ui' data-trick-id='${selectedMeasure.id}'>
+<div id="measure-ui" class='col-md-10 trick-ui' data-trick-id='${selectedMeasure.id}'>
 	<c:if test="${not empty selectedMeasure }">
-		<c:set var="rowSize" value="${isMaturity? 10 : 5}" />
+		<c:set var="rowSize" value="${isMaturity? 9 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">
 			<legend>
 				<c:choose>
