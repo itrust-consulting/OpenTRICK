@@ -131,7 +131,7 @@ public class CustomDelete {
 
 	@Autowired
 	private DAORiskProfile daoRiskProfile;
-	
+
 	@Autowired
 	private DAOIDS daoIDS;
 
@@ -304,39 +304,32 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteAnalysisMeasure(Integer analysisID, MeasureDescription measureDescription) throws Exception {
+	public void deleteAnalysisMeasure(Integer analysisID, Integer idStandard, Integer idMeasure) {
 
-		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
+		Measure measure = daoMeasure.getFromAnalysisById(analysisID, idMeasure);
 
-		for (AnalysisStandard astandard : astandards) {
+		if (measure == null || measure.getAnalysisStandard().getStandard().getId() != idStandard)
+			throw new TrickException("error.measure.not_found", "Measure cannot be found");
+		else if (!measure.getAnalysisStandard().isAnalysisOnly())
+			throw new TrickException("error.measure.manage_knowledgebase_measure", "This measure can only be managed from the knowledge base");
 
-			Measure mes = null;
+		MeasureDescription measureDescription = measure.getMeasureDescription();
 
-			for (Measure measure : astandard.getMeasures()) {
-				if (measure.getMeasureDescription().equals(measureDescription)) {
-					mes = measure;
-					break;
-				}
-			}
+		List<ActionPlanEntry> entries = daoActionPlan.getAllFromAnalysis(analysisID);
 
-			List<ActionPlanEntry> entries = daoActionPlan.getAllFromAnalysis(analysisID);
+		if (entries.stream().anyMatch(entry -> entry.getMeasure().equals(measure)))
+			daoActionPlan.deleteAllFromAnalysis(analysisID);
 
-			boolean contains = false;
+		measure.getAnalysisStandard().getMeasures().remove(measure);
 
-			for (ActionPlanEntry entry : entries)
-				if (entry.getMeasure().equals(mes)) {
-					contains = true;
-					break;
-				}
-			if (contains)
-				daoActionPlan.deleteAllFromAnalysis(analysisID);
+		daoAnalysisStandard.saveOrUpdate(measure.getAnalysisStandard());
 
-			astandard.getMeasures().remove(mes);
+		daoRiskProfile.findByIdAnalysisAndContainsMeasure(analysisID, measure).forEach(riskProfile -> {
+			riskProfile.getMeasures().remove(measure);
+			daoRiskProfile.saveOrUpdate(riskProfile);
+		});
 
-			daoMeasure.delete(mes);
-
-			daoAnalysisStandard.saveOrUpdate(astandard);
-		}
+		daoMeasure.delete(measure);
 
 		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
 		while (iterator.hasNext()) {
@@ -363,12 +356,12 @@ public class CustomDelete {
 	}
 
 	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
-		
+
 		daoIDS.getByAnalysis(analysis).forEach(ids -> {
 			ids.getSubscribers().remove(analysis);
 			daoIDS.saveOrUpdate(ids);
 		});
-		
+
 		daoAnalysis.delete(analysis);
 		/**
 		 * Log
@@ -393,12 +386,12 @@ public class CustomDelete {
 			return;
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
 		for (Analysis analysis : analyses) {
-			
+
 			daoIDS.getByAnalysis(analysis).forEach(ids -> {
 				ids.getSubscribers().remove(analysis);
 				daoIDS.saveOrUpdate(ids);
 			});
-			
+
 			daoAnalysis.delete(analysis);
 			/**
 			 * Log

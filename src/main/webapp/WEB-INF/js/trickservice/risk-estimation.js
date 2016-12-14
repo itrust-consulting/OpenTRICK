@@ -108,7 +108,7 @@ function loadAssessmentData(id) {
 }
 
 function updateAssessmentUI() {
-	var $assessment = $("div.list-group:visible>.list-group-item.active");
+	var $assessment = $("#tabRiskEstimation div.list-group:visible>.list-group-item.active");
 	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
 		updateScroll($assessment);
 	loadAssessmentData($assessment.attr("data-trick-id"));
@@ -134,7 +134,7 @@ function updateEstimationSelect(type, elements, status) {
 }
 
 function updateEstimationIteam(type,item){
-	var $selector = $("select[name='"+type+"']"), $option =  $("option[data-trick-type][value='"+item.id+"']", $selector), $link = undefined;
+	var $selector = $("select[name='"+type+"']","#tabRiskEstimation"), $option =  $("option[data-trick-type][value='"+item.id+"']", $selector), $link = undefined;
 	if($option.length)
 		$link = $("div[data-trick-content='"+type+"'] a[data-trick-type][data-trick-id='"+item.id+"'][data-trick-selected!='" + status + "']", "#tabRiskEstimation");
 	else{
@@ -167,7 +167,7 @@ function updateEstimationIteam(type,item){
 	}
 	
 	if(!$option.parent().length){
-		$link.appendTo("#tabRiskEstimation div[data-trick-content='"+type+"']>div.list-group").on("click",changeAssessment);
+		$link.appendTo("div[data-trick-content='"+type+"']>div.list-group","#tabRiskEstimation").on("click",changeAssessment);
 		$option.appendTo($selector);
 	}
 
@@ -177,9 +177,10 @@ function updateEstimationIteam(type,item){
 }
 
 function removeEstimation(type, elements){
-	var $selector = $("select[name='" + type + "']"), $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tabRiskEstimation").filter(function () {
+	var $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tabRiskEstimation").filter(function () {
 		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
 	}).remove();
+	refreshEstimation(type);
 	return false;
 }
 
@@ -194,14 +195,14 @@ function riskEstimationUpdate() {
 }
 
 function updateRiskEstimationNavigation() {
-	var $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active");
+	var $tabSection = $("#tabRiskEstimation") , $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active",$tabSection);
 
 	if (activeSelector == undefined)
 		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario" ? "asset" : "scenario";
 
-	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected"), $previousSelector = $(
-		"[data-trick-nav='previous-selector']").parent(), $nextSelector = $("[data-trick-nav='next-selector']").parent(), $previousAssessment = $(
-			"[data-trick-nav='previous-assessment']").parent(), $nextAssessment = $("[data-trick-nav='next-assessment']").parent();
+	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected",$tabSection), $previousSelector = $(
+		"[data-trick-nav='previous-selector']",$tabSection).parent(), $nextSelector = $("[data-trick-nav='next-selector']",$tabSection).parent(), $previousAssessment = $(
+			"[data-trick-nav='previous-assessment']",$tabSection).parent(), $nextAssessment = $("[data-trick-nav='next-assessment']",$tabSection).parent();
 
 	if ($currentSelector.next("[data-trick-selected='true']:first").length)
 		$nextSelector.removeClass("disabled");
@@ -229,8 +230,7 @@ function updateRiskEstimationNavigation() {
 function changeAssessment(e) {
 	var $target = $(e.currentTarget);
 	if (!$target.hasClass('active')) {
-		var $parent = $target.closest(".list-group");
-		$(".list-group-item.active", $parent).removeClass("active");
+		$(".list-group-item.active", $target.closest(".list-group")).removeClass("active");
 		$target.addClass('active');
 	}
 	riskEstimationUpdate();
@@ -242,16 +242,17 @@ function AssessmentHelder() {
 	this.invalidate = true;
 	this.updateLocked = false;
 	this.names = ["asset", "scenario"];
+	this.$tabSection = $("#tabRiskEstimation");
 	this.section = "div[data-view='estimation-ui']";
-	this.asset = $("select[name='asset']", "#tabRiskEstimation");
-	this.scenario = $("select[name='scenario']", "#tabRiskEstimation");
+	this.asset = $("select[name='asset']", this.$tabSection);
+	this.scenario = $("select[name='scenario']", this.$tabSection);
 	this.isReadOnly = application.openMode.value.startsWith("read-only");
 	this.lastSelected = {
 		asset: this.asset.find("option[data-trick-selected='true']:first").val(),
 		scenario: this.scenario.find("option[data-trick-selected='true']:first").val()
 	};
 	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
-	this.$tabSection = $("#tabRiskEstimation");
+	
 }
 
 AssessmentHelder.prototype = {
@@ -280,7 +281,7 @@ AssessmentHelder.prototype = {
 	},
 	switchControl: function (name) {
 		activeSelector = name;
-		$("div[data-trick-content]").each(function () {
+		$("div[data-trick-content]",this.$tabSection).each(function () {
 			if (this.getAttribute("data-trick-content") == name)
 				$(this).hide();
 			else
@@ -288,8 +289,7 @@ AssessmentHelder.prototype = {
 		});
 		return this;
 	}, updateContent: function () {
-		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']");
-		
+		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']",this.$tabSection);
 		if(type == undefined){
 			if(this.getOther(activeSelector).find("option[data-trick-type]:visible").length)
 				this.getCurrent(activeSelector).trigger("change");
@@ -322,7 +322,7 @@ AssessmentHelder.prototype = {
 	}, updateTableViewContent: function ($section, idAsset, idScenario, content) {
 		var $content = $(this.section, new DOMParser().parseFromString(content, "text/html"));
 		if ($content.length) {
-			$("#tabRiskEstimation").attr("data-update-required", false);
+			this.$tabSection.attr("data-update-required", false);
 			if ($content.attr("data-trick-content") == $section.attr("data-trick-content") && $content.attr("data-trick-asset-id") == idAsset && $content.attr("data-trick-scenario-id") == idScenario) {
 				if (this.smartUpdate($content))
 					$section.replaceWith($content);
@@ -388,10 +388,10 @@ AssessmentHelder.prototype = {
 		if (this.$tabSection.is(":visible")) {
 			var $currentUI = $(this.section), idAsset = -3, idScenario = -3;
 			if (activeSelector == "asset") {
-				idAsset = $("select[name='asset']").val();
+				idAsset = $("select[name='asset']",this.$tabSection).val();
 				idScenario = id;
 			} else {
-				idScenario = $("select[name='scenario']").val();
+				idScenario = $("select[name='scenario']",this.$tabSection).val();
 				idAsset = id;
 			}
 			return (!this.invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
@@ -549,14 +549,13 @@ function computeAssessment(silent) {
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				if (response['error'] != undefined) {
-					$("#info-dialog .modal-body").text(response['error']);
-					$("#info-dialog").modal("toggle");
-				} else if (response['success'] != undefined) {
-					if (!silent) {
-						$("#info-dialog .modal-body").text(response['success']);
-						$("#info-dialog").modal("toggle");
-					}
+				if (response['error'] != undefined)
+					showDialog("#alert-dialog", response['error']);
+				else if (response['success'] != undefined) {
+					if (!silent) 
+						showDialog("#info-dialog",response['success']);
+					riskEstimationUpdate();
+					reloadAssetScenario();
 					chartALE();
 				} else
 					unknowError();
@@ -581,12 +580,12 @@ function refreshAssessment() {
 				type: "POST",
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					if (response['error'] != undefined) {
-						$("#info-dialog .modal-body").text(response['error']);
-						$("#info-dialog").modal("toggle");
-					} else if (response['success'] != undefined) {
-						$("#info-dialog .modal-body").text(response['success']);
-						$("#info-dialog").modal("toggle");
+					if (response['error'] != undefined) 
+						showDialog("#alert-dialog", response['error']);
+					else if (response['success'] != undefined) {
+						showDialog("#info-dialog",response['success']);
+						riskEstimationUpdate();
+						reloadAssetScenario();
 						chartALE();
 					} else
 						unknowError();
@@ -611,15 +610,14 @@ function updateAssessmentAle(silent) {
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				if (response['error'] != undefined) {
-					$("#info-dialog .modal-body").text(response['error']);
-					$("#info-dialog").modal("toggle");
-				} else if (response['success'] != undefined) {
-					if (!silent) {
-						$("#info-dialog .modal-body").text(response['success']);
-						$("#info-dialog").modal("toggle");
-					}
-					reloadSection("section_asset");
+				if (response['error'] != undefined)
+					showDialog("#alert-dialog", response['error']);
+				else if (response['success'] != undefined) {
+					if (!silent) 
+						showDialog("#info-dialog",response['success']);
+					riskEstimationUpdate();
+					reloadAssetScenario();
+					chartALE();
 				} else
 					unknowError();
 				return false;
@@ -877,45 +875,45 @@ function initialiseRiskEstimation() {
 
 	application["estimation-helper"] = helper = new AssessmentHelder();
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateRiskEstimationNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']");
+	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']", application["estimation-helper"].$tabSection).on("trick.update.nav", updateRiskEstimationNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']",application["estimation-helper"].$tabSection), $nextSelector = $("[data-trick-nav='next-selector']",application["estimation-helper"].$tabSection), $previousAssessment = $("[data-trick-nav='previous-assessment']",application["estimation-helper"].$tabSection), $nextAssessment = $("[data-trick-nav='next-assessment']",application["estimation-helper"].$tabSection);
 
 	$previousSelector.on("click", function () {
-		$("select[name='" + activeSelector + "']>option:selected").prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected",application["estimation-helper"].$tabSection).prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$nextSelector.on("click", function () {
-		$("select[name='" + activeSelector + "']>option:selected").next("[data-trick-selected='true']:first").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected",application["estimation-helper"].$tabSection).next("[data-trick-selected='true']:first").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$previousAssessment.on("click", function () {
-		$("div[data-trick-content]:visible .list-group-item.active").prevAll(":visible:first").click();
+		$("div[data-trick-content]:visible .list-group-item.active",application["estimation-helper"].$tabSection).prevAll(":visible:first").click();
 		return false;
 	});
 
 	$nextAssessment.on("click", function () {
-		$("div[data-trick-content]:visible .list-group-item.active").nextAll(":visible:first").click();
+		$("div[data-trick-content]:visible .list-group-item.active",application["estimation-helper"].$tabSection).nextAll(":visible:first").click();
 		return false;
 	});
 
 	var updateSelector = function (e) {
-		var $target = $(e.currentTarget), value = $target.val(), name = $target.attr("name"), other = helper.getOtherName(name);
+		var $target = $(e.currentTarget), value = $target.val(), name = $target.attr("name"), other = application["estimation-helper"].getOtherName(name);
 		if (value == '-1')
-			helper.switchControl(other).getCurrent(other).find("option[data-trick-selected='true'][value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
+			application["estimation-helper"].switchControl(other).getCurrent(other).find("option[data-trick-selected='true'][value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
 		else if (helper.getCurrent(other).val() != "-1")
-			helper.switchControl(name).getCurrent(other).find("option[value='-1']").prop('selected', true);
+			application["estimation-helper"].switchControl(name).getCurrent(other).find("option[value='-1']").prop('selected', true);
 		else
-			helper.setLastSelected(name, value);
+			application["estimation-helper"].setLastSelected(name, value);
 
-		helper.updateContent();
+		application["estimation-helper"].updateContent();
 
 		$nav.trigger("trick.update.nav");
 		return false;
 	};
 
-	$("div.list-group>.list-group-item").on("click", changeAssessment);
+	$("div.list-group>.list-group-item",application["estimation-helper"].$tabSection).on("click", changeAssessment);
 
 	for (var i in helper.names)
-		helper.getCurrent(helper.names[i]).on('change', updateSelector)
+		application["estimation-helper"].getCurrent(helper.names[i]).on('change', updateSelector)
 }

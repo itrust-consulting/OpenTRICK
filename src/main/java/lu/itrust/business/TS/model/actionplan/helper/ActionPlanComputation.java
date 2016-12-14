@@ -2867,14 +2867,11 @@ public class ActionPlanComputation {
 	 * @return
 	 */
 	public static String extractMainChapter(String chapter) {
-
 		if ((chapter.toUpperCase().startsWith("A.")) || (chapter.toUpperCase().startsWith("M."))) {
 			String[] chapters = chapter.split("[.]");
 			return chapters[0] + "." + chapters[1];
-		} else {
-			return (chapter.contains(".") ? chapter.split("[.]")[0] : chapter);
 		}
-
+		return chapter.split(Constant.REGEX_SPLIT_REFERENCE)[0];
 	}
 
 	/**

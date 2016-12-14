@@ -110,6 +110,7 @@
 		application['openMode'] = OPEN_MODE.valueOf('${open}');
 		application['isLinkedToProject'] = '${isLinkedToProject}';
 		application['hasMaturity'] = '${hasMaturity}';
+		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		-->
 	</script>
 </body>

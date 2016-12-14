@@ -383,22 +383,19 @@ function manageMeasure(url) {
 }
 
 function saveMeasure() {
-	var data = {};
-	var form = $("#modalMeasureForm #measure_form");
-	var $genearal = form.find("#tab_general");
-	var properties = form.find("#tab_properties #values").serializeJSON();
-	var $assetTab = form.find("#tab_asset");
+	var data = {}, $modalMeasureForm = $("#modalMeasureForm"), $form = $("#measure_form", $modalMeasureForm), $genearal = $("#tab_general", $form), properties = $(
+			"#tab_properties #values", $form).serializeJSON(), $assetTab = $("#tab_asset", $form);
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
-	$(".label-danger", "#modalMeasureForm").remove();
-	data.id = form.find("#id").val();
-	data.idStandard = form.find("#idStandard").val();
+	$(".label-danger", $modalMeasureForm).remove();
+	data.id = $form.find("#id").val();
+	data.idStandard = $("#idStandard", $form).val();
 	data.assetValues = [];
 
 	if ($assetTab.length) {
 		data.type = "ASSET";
 		if (application.analysisType == "QUANTITATIVE") {
-			form.find("#tab_properties #values input[id^='property_asset']").each(function() {
+			$("#tab_properties #values input[id^='property_asset']", $form).each(function() {
 				data.assetValues.push({
 					id : this.name,
 					value : properties[this.name]
@@ -406,7 +403,7 @@ function saveMeasure() {
 				delete properties[this.name];
 			});
 		} else {
-			$assetTab.find("li[data-trick-selected='true'][data-trick-type][data-trick-id]").each(function() {
+			$("li[data-trick-selected='true'][data-trick-type][data-trick-id]", $assetTab).each(function() {
 				data.assetValues.push({
 					id : this.getAttribute("data-trick-id"),
 					value : 100
@@ -415,8 +412,8 @@ function saveMeasure() {
 		}
 
 		if (data.computable && !data.assetValues.length) {
-			$("<label class='label label-danger'></label>").text(MessageResolver("error.asset.empty", "Asset cannot be empty")).appendTo($("#modalMeasureForm #error_container"));
-			$("#modalMeasureForm a[href='#tab_asset']").tab("show");
+			$("<label class='label label-danger'></label>").text(MessageResolver("error.asset.empty", "Asset cannot be empty")).appendTo($("#error_container", $modalMeasureForm));
+			$("a[href='#tab_asset']", $modalMeasureForm).tab("show");
 			return false;
 		}
 
@@ -433,35 +430,34 @@ function saveMeasure() {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			for ( var error in response) {
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
-				$(errorElement).text(response[error]);
+				var $errorElement = $("<label class='label label-danger'/>").text(response[error]);
 				switch (error) {
 				case "reference":
 				case "level":
 				case "computable":
 				case "domain":
 				case "description":
-					$(errorElement).appendTo(form.find("#" + error).parent());
+					$errorElement.appendTo($("#" + error, $form).parent());
 					break;
 				default:
-					$(errorElement).appendTo($("#modalMeasureForm #error_container"))
+					$errorElement.appendTo($("#error_container", $modalMeasureForm))
 					break;
 				}
 			}
-			if (!$("#modalMeasureForm").find(".label-danger").length) {
-				$("#modalMeasureForm").modal("hide");
+			if (!$(".label-danger", $modalMeasureForm).length) {
+				$modalMeasureForm.modal("hide");
 				if (data.id > 0)
 					reloadMeasureRow(data.id, data.idStandard);
 				else
 					reloadSection("section_standard_" + data.idStandard);
+				updateMeasureNavigationControl(data);
 			} else if ($genearal.length)
-				$("#modalMeasureForm a[href='#tab_general']").tab("show");
+				$("a[href='#tab_general']", $modalMeasureForm).tab("show");
 			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			$('<label class="label label-danger">' + MessageResolver("error.unknown.occurred", "An unknown error occurred") + '</label>').appendTo(
-					$("#modalMeasureForm #error_container"));
+					$("#error_container", $modalMeasureForm));
 			return false;
 		}
 	});
@@ -470,8 +466,6 @@ function saveMeasure() {
 }
 
 function deleteMeasure(measureId, standardid) {
-
-	$("#addMeasureModel .label-danger").remove();
 
 	if (standardid == null || standardid == undefined)
 		return false;
@@ -501,33 +495,35 @@ function deleteMeasure(measureId, standardid) {
 	}
 
 	$("#confirm-dialog .btn-danger").click(function() {
-
-		var errors = false;
-
+		$("#confirm-dialog").modal("hide");
+		var errors = false, $progress = $("#loading-indicator").show(), idMeasure = -2;
 		while (selectedMeasures.length) {
 			if (errors)
 				break;
 			$.ajax({
-				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + selectedMeasures.pop(),
-				async : false,
+				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + (idMeasure = selectedMeasures.pop()),
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					if (response["success"] == undefined) {
-						errors = true;
-						if (response["error"] != undefined) {
+					if ((errors = response["success"] == undefined)) {
+						if (response["error"] != undefined)
 							$("#alert-dialog .modal-body").html(response["error"]);
-						} else {
+						else
 							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
-						}
 						$("#alert-dialog").modal("show");
+					} else {
+						$("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + standardid);
+						removeFromMeasureNavigation(standardid, idMeasure)
 					}
 				},
 				error : unknowError
+			}).complete(function() {
+				if (errors || !selectedMeasures.length) {
+					$progress.hide();
+					reloadSection("section_standard_" + standardid);
+				}
 			});
 		}
-		$("#confirm-dialog").modal("hide");
-		reloadSection("section_standard_" + standardid);
 		return false;
 	});
 	$("#confirm-dialog").modal("show");
@@ -575,7 +571,7 @@ function manageSOA() {
 										calculateAction({
 											"id" : idAnalysis
 										});
-										
+
 										setTimeout(function() {
 											$progress.show();
 											setTimeout(function name() {
@@ -607,12 +603,13 @@ function manageSOA() {
 	return false;
 }
 
-function validateSOAState(idStandard,idMeasure){
-	$("tr[data-trick-id='"+idMeasure+"']>td>pre[data-trick-field!='soaReference'][data-trick-field]","#table_SOA_"+idStandard).each(function(){
+function validateSOAState(idStandard, idMeasure) {
+	$("tr[data-trick-id='" + idMeasure + "']>td>pre[data-trick-field!='soaReference'][data-trick-field]", "#table_SOA_" + idStandard).each(function() {
 		var $this = $(this), $td = $this.parent();
-		if($this.text().trim() =="")
+		if ($this.text().trim() == "")
 			$td.addClass("warning");
-		else $td.removeClass("warning");
+		else
+			$td.removeClass("warning");
 	});
 	return false;
 }

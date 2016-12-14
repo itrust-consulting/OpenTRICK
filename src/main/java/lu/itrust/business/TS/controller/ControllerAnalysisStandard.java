@@ -247,8 +247,8 @@ public class ControllerAnalysisStandard {
 		boolean hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 
 		if (hasMaturity)
-			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
-					loadMaturityParameters(idAnalysis), true, factory));
+			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002),
+					measuresByStandard.get(Constant.STANDARD_MATURITY), loadMaturityParameters(idAnalysis), true, factory));
 		model.addAttribute("hasMaturity", hasMaturity);
 
 		model.addAttribute("standards", standards);
@@ -771,24 +771,13 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Principal principal,
 			HttpSession session) {
 		try {
-			// try to delete measure
-			MeasureDescription measureDescription = serviceMeasure.get(idMeasure).getMeasureDescription();
-
-			Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
-
-			if (!measureDescription.getStandard().isAnalysisOnly())
-				return JsonMessage
-						.Error(messageSource.getMessage("error.measure.manage_knowledgebase_measure", null, "This measure can only be managed from the knowledge base", locale));
-
-			customDelete.deleteAnalysisMeasure(analysisID, measureDescription);
+			customDelete.deleteAnalysisMeasure((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard, idMeasure);
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
-			// return error
 			TrickLogManager.Persist(e);
+			if (e instanceof TrickException)
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in use", locale));
 		}
 	}

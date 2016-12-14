@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAORiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * @author eomar
@@ -142,16 +143,15 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 
 	@Override
 	public RiskProfile getByAssetAndScanrio(int idAsset, int idScenario) {
-		return (RiskProfile) getSession().createQuery("From RiskProfile where asset.id = :idAsset and scenario.id = :idScenario").setParameter("idAsset", idAsset)
+		return getSession().createQuery("From RiskProfile where asset.id = :idAsset and scenario.id = :idScenario", RiskProfile.class).setParameter("idAsset", idAsset)
 				.setParameter("idScenario", idScenario).getSingleResult();
 	}
 
 	@Override
 	public RiskProfile getFromAnalysisById(int idAnalysis, int idRiskProfile) {
-		return (RiskProfile) getSession()
-				.createQuery(
-						"Select riskProfile From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.id = :idRiskProfile")
-				.setParameter("idRiskProfile", idRiskProfile).setParameter("idAnalysis", idAnalysis).getSingleResult();
+		return getSession().createQuery(
+				"Select riskProfile From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.id = :idRiskProfile",
+				RiskProfile.class).setParameter("idRiskProfile", idRiskProfile).setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 	@Override
@@ -160,6 +160,12 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 				.createQuery(
 						"Select count(*)>0 From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.identifier = :identifier")
 				.setParameter("identifier", identifier).setParameter("idAnalysis", idAnalysis).getSingleResult();
+	}
+
+	@Override
+	public List<RiskProfile> findByIdAnalysisAndContainsMeasure(Integer idAnalysis, Measure measure) {
+		return getSession().createQuery("Select riskProfile From Analysis analysis inner join analysis.riskProfiles riskProfile inner join riskProfile.measures as measure where analysis.id = :idAnalysis and measure = :measure", RiskProfile.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("measure", measure).getResultList();
 	}
 
 }

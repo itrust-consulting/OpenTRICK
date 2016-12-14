@@ -37,8 +37,9 @@
 							<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
 								<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 								<spring:message text="${measureDescriptionText.domain}" var="domain" />
-								<a href="#" title="${domain}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
-									data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference}" /> - ${domain}</a>
+								<spring:message text="${measure.measureDescription.reference}" var="reference"/>
+								<a href="#" title="${domain}" data-trick-level="${measure.measureDescription.level}" data-trick-reference='${reference}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
+									data-trick-id='${measure.id}'>${reference} - ${domain}</a>
 							</c:forEach>
 						</div>
 					</c:forEach>

@@ -7,6 +7,7 @@
 <sec:authorize access="authenticated">
 	<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
 	<script src="<spring:url value="/js/dom-parser.js" />"></script>
+	<script src="<spring:url value="/js/naturalSort.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/timeoutmanager.js" />"></script>
@@ -28,6 +29,8 @@
 		resolveMessage("error.not_authorized", "<spring:message code='error.not_authorized' />");
 		resolveMessage("error.forbidden", "<spring:message code='error.forbidden' htmlEscape='false'/>");
 		resolveMessage("error.unknown.occurred", "<spring:message code='error.unknown.occurred' />");
+		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
+		
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>

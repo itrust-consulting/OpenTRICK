@@ -6,6 +6,7 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * @author eomar
@@ -36,5 +37,7 @@ public interface DAORiskProfile {
 	RiskProfile getFromAnalysisById(int idAnalysis, int idRiskProfile);
 
 	boolean isUsed(String identifier, Integer idAnalysis);
+
+	List<RiskProfile> findByIdAnalysisAndContainsMeasure(Integer idAnalysis, Measure measure);
 
 }

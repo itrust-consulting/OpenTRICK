@@ -43,11 +43,7 @@ $(document).ready(function() {
 
 	// Periodically reload assessment values
 	window.setInterval(function() {
-		reloadSection("section_asset", undefined, true /* prevent propagation */);
-		reloadSection("section_scenario", undefined, true /*
-															 * prevent
-															 * propagation
-															 */);
+		reloadAssetScenario();
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
 		loadChartDynamicAleEvolutionByScenario();
@@ -128,6 +124,14 @@ function findAnalysisLocale() {
 		locale = application['selected-analysis-locale'] = el.getAttribute("data-trick-language");
 	}
 	return locale;
+}
+
+function reloadAssetScenario() {
+	if($("#section_asset:visible"))
+		reloadSection("section_asset")
+	else if($("#section_scenario"))
+		reloadSection("section_scenario");
+	else reloadSection(["section_asset","section_scenario", undefined, true]);
 }
 
 function isEditable() {
@@ -270,7 +274,6 @@ function updateMeasureEffience(reference) {
 				if (updateRequired && triggerName == 'updateMeasureEffience') {
 					if (parameters && parameters.indexOf(chapter) == -1)
 						parameters.push(chapter);
-					console.log(parameters);
 				} else
 					application["parameter-27002-efficience"] = [ chapter ];
 			} else
