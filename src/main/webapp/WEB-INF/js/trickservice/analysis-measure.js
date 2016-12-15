@@ -132,10 +132,19 @@ function restoreDescriptionHeight() {
 }
 
 function updateMeasureUI() {
-	var $measure = $("#tabMeasureEdition div.list-group:visible>.list-group-item.active"), id = $measure.attr('data-trick-id');
-	if (!$measure.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
-		updateScroll($measure);
-	loadMeasureData(id);
+	var $container = $("#tabMeasureEdition div.list-group:visible");
+	$measure = $(".list-group-item.active", $container), id = $measure.attr('data-trick-id');
+	if ($container.length) {
+		if (!$measure.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
+			updateScroll($measure);
+		loadMeasureData(id);
+	} else {
+		var $selector = $("#tabMeasureEdition select[name='chapter']:visible>option:first");
+		if ($selector.length)
+			$selector.parent().trigger("change");
+		else
+			loadMeasureData();//clean UI
+	}
 }
 
 function updateMeasureNavigation() {
@@ -192,40 +201,50 @@ function extractChapter(reference) {
 	return reference.split(/\.|\s|;|-|,/, (reference.toUpperCase().startsWith("A.")) || (reference.toUpperCase().startsWith("M.")) ? 2 : 1).join('.');
 }
 
+function findMeasuresChapter(chapter, $measureContainer, $chapterSelector) {
+	var $chapter = $("[data-trick-chapter-name='" + chapter + "']", $measureContainer);
+	if (!$chapter.length) {
+		$chapter = $("<div hidden='hidden' class='list-group' data-trick-chapter-name='" + chapter + "' />").appendTo($measureContainer);
+		$("<option value='" + chapter + "' />").text(MessageResolver("label.index.chapter", "Chapter {0}").replace("{0}", chapter)).appendTo($chapterSelector);
+
+		$("option", $chapterSelector).sort(function(a, b) {
+			return naturalSort(a.getAttribute("value"), b.getAttribute("value"));
+		}).detach().appendTo($chapterSelector);
+	}
+	return $chapter;
+}
+
+function sortMeasureChapterByReference($chapter) {
+	return $("[data-trick-reference][data-trick-level][data-trick-id]", $chapter).sort(function(a, b) {
+		return naturalSort(a.getAttribute("data-trick-reference"), b.getAttribute("data-trick-reference"));
+	}).detach().appendTo($chapter).removeClass("active").filter(":first").addClass("active");
+}
+
 function updateMeasureNavigationControl(measure) {
 	if (measure.reference == undefined)
 		return false;
 	var $tabSection = $("#tabMeasureEdition"), $measureContainer = $("div[data-trick-id='" + measure.idStandard + "'][data-trick-content='measure']", $tabSection), $chapterSelector = $(
-			"div[data-trick-id='" + measure.idStandard + "'][data-trick-content='chapter'] select[name='chapter']", $tabSection), chapter = extractChapter(measure.reference);
-	if (measure.id > 0) {
-		var $selectedMeasure = $("[data-trick-reference][data-trick-level][data-trick-id='" + measure.id + "']"), $chapter = $selectedMeasure.closest("[data-trick-chapter-name]");
-
-		if ($chapter.attr("data-trick-chapter-name") != chapter) {
-			$chapter = $("[data-trick-chapter-name='" + chapter + "']", $measureContainer);
-			if (!$chapter.length) {
-				$chapter = $("<div hidden='hidden' class='list-group' data-trick-chapter-name='" + chapter + "' />").appendTo($measureContainer);
-				$("<option value='" + chapter + "' />").text(MessageResolver("label.index.chapter", "Chapter {0}").replace("{0}", chapter)).appendTo($chapterSelector);
-				
-				$("option", $chapterSelector).sort(function(a, b) {
-					return naturalSort(a.getAttribute("value"), b.getAttribute("value"));
-				}).detach().appendTo($chapterSelector);
-			}
-		}
+			"div[data-trick-id='" + measure.idStandard + "'][data-trick-content='chapter'] select[name='chapter']", $tabSection), chapter = extractChapter(measure.reference), $selectedMeasure = $("[data-trick-reference][data-trick-level][data-trick-id='"
+			+ measure.id + "']");
+	if ($selectedMeasure.length) {
+		var $chapter = $selectedMeasure.closest("[data-trick-chapter-name]");
+		if ($chapter.attr("data-trick-chapter-name") != chapter)
+			$chapter = findMeasuresChapter(chapter, $measureContainer, $chapterSelector);
 
 		if ($selectedMeasure.attr("data-trick-reference") != measure.reference) {
-			
-			$selectedMeasure.attr("data-trick-reference", measure.reference).appendTo($chapter);
-			
-			$("[data-trick-reference][data-trick-level][data-trick-id]", $chapter).sort(function(a, b) {
-				return naturalSort(a.getAttribute("data-trick-reference"), b.getAttribute("data-trick-reference"));
-			}).detach().appendTo($chapter).removeClass("active").filter(":first").addClass("active");
+			$selectedMeasure.attr("data-trick-reference", measure.reference).attr("data-trick-level", measure.level).appendTo($chapter);
+			sortMeasureChapterByReference($chapter);
 		}
-		
+
 		$selectedMeasure.attr("title", measure.domain).text(measure.reference + " - " + measure.domain);
 	} else {
-		console.log("add");
+		var $chapter = findMeasuresChapter(chapter, $measureContainer, $chapterSelector);
+		$("<a href='#' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' class='list-group-item' />").attr("title", measure.domain).attr(
+				"data-trick-reference", measure.reference).attr("data-trick-level", measure.level).attr("data-trick-id", measure.id).text(
+				measure.reference + " - " + measure.domain).appendTo($chapter).on("click", changeMeasure);
+		sortMeasureChapterByReference($chapter);
 	}
-	updateMeasureView();
+	return updateMeasureView();
 }
 
 function removeFromMeasureNavigation(idStandard, idMeasure) {
@@ -239,6 +258,7 @@ function removeFromMeasureNavigation(idStandard, idMeasure) {
 	}
 	$measure.remove();
 	$tabSection.attr("data-update-required", true);// update if required
+	return false;
 }
 
 function initilisateMeasureView() {
@@ -269,24 +289,21 @@ function initilisateMeasureView() {
 	});
 
 	$standardSelector.on('change', function(e) {
-		var value = $standardSelector.val();
-		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id!='" + value + "']:visible").hide();
-		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id='" + value + "']:hidden").show();
-		updateMeasureUI();
-		$nav.trigger("trick.update.nav");
+		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id!='" + this.value + "']:visible").hide();
+		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id='" + this.value + "']:hidden").show().find("select[name='chapter']").trigger("change");
 		return false;
 	});
 
 	$("#tabMeasureEdition div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
 
 	$chapterSelector
-			.on('change',
+			.on(
+					'change',
 					function(e) {
-						var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), value = $target
-								.val(), $measuresContainer = $("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='" + standardId
-								+ "']:visible");
-						$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + value + "']:visible").hide();
-						$measuresContainer.find("div.list-group[data-trick-chapter-name='" + value + "']:hidden").show();
+						var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), $measuresContainer = $("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='"
+								+ standardId + "']:visible");
+						$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + this.value + "']:visible").hide();
+						$measuresContainer.find("div.list-group[data-trick-chapter-name='" + this.value + "']:hidden").show();
 						updateMeasureUI();
 						$nav.trigger("trick.update.nav");
 						return false;
@@ -295,4 +312,5 @@ function initilisateMeasureView() {
 	application["measure-view-init"] = true;
 	$standardSelector.trigger("change");
 	$chapterSelector.filter(":visible").trigger("change");
+	return false;
 }

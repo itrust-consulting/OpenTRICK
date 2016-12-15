@@ -934,18 +934,18 @@ public class ControllerAnalysisStandard {
 
 	@RequestMapping(value = "/Measure/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> measuresave(@RequestBody MeasureForm measureForm, Model model, Principal principal, HttpSession session, Locale locale)
+	public @ResponseBody Map<String, Object> measuresave(@RequestBody MeasureForm measureForm, Model model, Principal principal, HttpSession session, Locale locale)
 			throws Exception {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Map<String, Object> result = new HashMap<>(), errors = new LinkedHashMap<>();
 		try {
-
+			result.put("errors", errors);
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			if (analysisStandard == null) {
 				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not belong to analysis!", locale));
-				return errors;
+				return result;
 			}
 
 			Measure measure = null;
@@ -958,14 +958,14 @@ public class ControllerAnalysisStandard {
 				else if (measure instanceof AssetMeasure && measureForm.isComputable() && measureForm.getAssetValues().isEmpty())
 					errors.put("asset", messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
 				if (!errors.isEmpty())
-					return errors;
+					return result;
 			} else {
 				switch (measureForm.getType()) {
 				case ASSET:
 					measure = new AssetMeasure();
 					if (measureForm.isComputable() && measureForm.getAssetValues().isEmpty()) {
 						errors.put("asset", messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
-						return errors;
+						return result;
 					}
 					break;
 				case NORMAL:
@@ -978,7 +978,7 @@ public class ControllerAnalysisStandard {
 				Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, Constant.PHASE_DEFAULT);
 				if (phase == null) {
 					errors.put("phase", messageSource.getMessage("error.measure.default.pahse.not_found", null, "Default phase cannot be found", locale));
-					return errors;
+					return result;
 				}
 
 				measure.setPhase(phase);
@@ -992,25 +992,28 @@ public class ControllerAnalysisStandard {
 
 			if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
 				errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
-				return errors;
+				return result;
 			}
 
 			if (analysisStandard.getStandard().isAnalysisOnly()) {
 				validate(measureForm, errors, locale);
 				if (!errors.isEmpty())
-					return errors;
+					return result;
 				if (!update(measure, measureForm, idAnalysis, type, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
-					return errors;
+					return result;
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
 					throw new TrickException("error.measure.not_found", "Measure cannot be found");
 				measureForm.getProperties().copyTo(((NormalMeasure) measure).getMeasurePropertyList());
 				if (!updateAssetTypeValues((NormalMeasure) measure, measureForm.getAssetValues(), errors, locale).isEmpty())
-					return errors;
+					return result;
 			} else
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
 			serviceMeasure.saveOrUpdate(measure);
+			
+			result.put("id", measure.getId());
+			
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1018,7 +1021,7 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
-		return errors;
+		return result;
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1423,7 +1426,7 @@ public class ControllerAnalysisStandard {
 		});
 	}
 
-	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)
+	private Map<String, Object> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, Object> errors, Locale locale)
 			throws Exception {
 		Map<Integer, AssetType> assetTypes = new LinkedHashMap<Integer, AssetType>();
 		serviceAssetType.getAll().stream().forEach(assetType -> assetTypes.put(assetType.getId(), assetType));
@@ -1448,7 +1451,7 @@ public class ControllerAnalysisStandard {
 
 	}
 
-	private void validate(MeasureForm measureForm, Map<String, String> errors, Locale locale) throws Exception {
+	private void validate(MeasureForm measureForm, Map<String, Object> errors, Locale locale) throws Exception {
 		ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionValidator.class);
 		if (validator == null)
 			serviceDataValidation.register(validator = new MeasureDescriptionValidator());
@@ -1472,10 +1475,10 @@ public class ControllerAnalysisStandard {
 			errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
 	}
 
-	private Map<String, String> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type, Language language, Locale locale,
-			Map<String, String> errors) throws Exception {
+	private Map<String, Object> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type, Language language, Locale locale,
+			Map<String, Object> errors) throws Exception {
 		if (errors == null)
-			errors = new LinkedHashMap<String, String>();
+			errors = new LinkedHashMap<String, Object>();
 		MeasureDescription description = measure.getMeasureDescription();
 		if (description == null) {
 			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {

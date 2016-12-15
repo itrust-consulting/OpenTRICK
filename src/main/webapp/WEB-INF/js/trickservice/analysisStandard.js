@@ -429,8 +429,8 @@ function saveMeasure() {
 		data : JSON.stringify(data),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			for ( var error in response) {
-				var $errorElement = $("<label class='label label-danger'/>").text(response[error]);
+			for ( var error in response.errors) {
+				var $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
 				switch (error) {
 				case "reference":
 				case "level":
@@ -444,12 +444,13 @@ function saveMeasure() {
 					break;
 				}
 			}
-			if (!$(".label-danger", $modalMeasureForm).length) {
+			if (response.id != undefined) {
 				$modalMeasureForm.modal("hide");
 				if (data.id > 0)
 					reloadMeasureRow(data.id, data.idStandard);
 				else
 					reloadSection("section_standard_" + data.idStandard);
+				data.id = response.id;
 				updateMeasureNavigationControl(data);
 			} else if ($genearal.length)
 				$("a[href='#tab_general']", $modalMeasureForm).tab("show");
@@ -465,24 +466,24 @@ function saveMeasure() {
 	return false;
 }
 
-function deleteMeasure(measureId, standardid) {
+function deleteMeasure(measureId, idStandard) {
 
-	if (standardid == null || standardid == undefined)
+	if (idStandard == null || idStandard == undefined)
 		return false;
 
 	var selectedMeasures = [];
 
 	if (measureId == null || measureId == undefined) {
-		selectedMeasures = findSelectItemIdBySection("section_standard_" + standardid);
+		selectedMeasures = findSelectItemIdBySection("section_standard_" + idStandard);
 		if (!selectedMeasures.length)
 			return false;
 	} else
 		selectedMeasures.push(measureId);
 
-	var standard = $("#section_standard_" + standardid + " #menu_standard_" + standardid + " li:first-child").text();
+	var standard = $("#section_standard_" + idStandard + " #menu_standard_" + idStandard + " li:first-child").text();
 
 	if (selectedMeasures.length == 1) {
-		var measure = $("#section_standard_" + standardid + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
+		var measure = $("#section_standard_" + idStandard + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
 		reference = $(measure[0]).text();
 		$("#confirm-dialog .modal-body").html(
 				MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
@@ -496,38 +497,47 @@ function deleteMeasure(measureId, standardid) {
 
 	$("#confirm-dialog .btn-danger").click(function() {
 		$("#confirm-dialog").modal("hide");
-		var errors = false, $progress = $("#loading-indicator").show(), idMeasure = -2;
+		var $progress = $("#loading-indicator").show();
 		while (selectedMeasures.length) {
-			if (errors)
+			if ($progress.is(":hidden"))
 				break;
-			$.ajax({
-				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + (idMeasure = selectedMeasures.pop()),
-				type : "POST",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
-					if ((errors = response["success"] == undefined)) {
-						if (response["error"] != undefined)
-							$("#alert-dialog .modal-body").html(response["error"]);
-						else
-							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
-						$("#alert-dialog").modal("show");
-					} else {
-						$("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + standardid);
-						removeFromMeasureNavigation(standardid, idMeasure)
-					}
-				},
-				error : unknowError
-			}).complete(function() {
-				if (errors || !selectedMeasures.length) {
-					$progress.hide();
-					reloadSection("section_standard_" + standardid);
-				}
-			});
+			deleteSingleMeasure($progress, idStandard, selectedMeasures.pop(), selectedMeasures.length == 0);
 		}
 		return false;
 	});
 	$("#confirm-dialog").modal("show");
 	return false;
+}
+
+function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
+	var error = false;
+	$.ajax({
+		url : context + "/Analysis/Standard/" + idStandard + "/Measure/Delete/" + idMeasure,
+		type : "POST",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if ((error = response["success"] == undefined)) {
+				var $errorModal = $("#alert-dialog");
+				if ($errorModal.is(":hidden")) {
+					if (response["error"] != undefined)
+						$(".modal-body", $errorModal).text(response["error"]);
+					else
+						$("#alert-dialog", $errorModal).text(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
+					$errorModal.modal("show");
+				}
+			} else {
+				$("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + idStandard).remove();
+				removeFromMeasureNavigation(idStandard, idMeasure);
+			}
+		},
+		error : unknowError
+	}).complete(function() {
+		if (error || last) {
+			$progress.hide();
+			if (error)
+				reloadSection("section_standard_" + idStandard);
+		}
+	});
 }
 
 function manageSOA() {
