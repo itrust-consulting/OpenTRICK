@@ -23,6 +23,7 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xwpf.usermodel.BreakType;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -138,7 +139,7 @@ public class ExportAnalysisReport {
 
 	private XWPFRun addCellNumber(XWPFTableCell cell, String number, boolean isBold) {
 		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TableParagraphTS");
+		paragraph.setStyle("TabText2");
 		paragraph.setAlignment(ParagraphAlignment.RIGHT);
 		XWPFRun run = paragraph.createRun();
 		run.setBold(isBold);
@@ -158,7 +159,7 @@ public class ExportAnalysisReport {
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
 				paragraph = cell.addParagraph();
-			paragraph.setStyle("TableParagraphTS");
+			paragraph.setStyle("TabText2");
 			paragraph.createRun().setText(texts[i]);
 		}
 		return paragraph;
@@ -901,11 +902,9 @@ public class ExportAnalysisReport {
 					addCellParagraph(row.getCell(4), assessment.getOwner());
 					addCellParagraph(row.getCell(5), assessment.getComment());
 				}
-				paragraph.setStyle("Figure");
-				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 				paragraph.createRun().setText(getMessage("report.assessment.table.caption", new Object[] { ale.getAssetName() },
 						String.format("Risk estimation for the asset %s", ale.getAssetName()), locale));
-				paragraph.setStyle("CaptionTab");
+				paragraph.setStyle("Caption");
 			}
 			assessementsmap.clear();
 			ales.clear();
@@ -1375,6 +1374,10 @@ public class ExportAnalysisReport {
 					isFirst = false;
 				else
 					paragraph = document.createParagraph();
+				
+				paragraph.createRun().addBreak(BreakType.PAGE);
+				
+				paragraph = document.createParagraph();
 
 				paragraph.setStyle("TSMeasureTitle");
 
