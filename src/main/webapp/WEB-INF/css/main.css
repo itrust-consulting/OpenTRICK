@@ -486,6 +486,13 @@ datalist {
 	height: 445px;
 }
 
+.label-as-badge {
+    border-radius: 1.0em;
+    margin-left: 5px;
+    font-size: 9.5px;
+    
+}
+
 @media ( min-width : 992px) {
 	li.back-btn-bottom {
 		display: none;

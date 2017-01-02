@@ -465,7 +465,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
-			
+
 			if (singleChecker !== undefined)
 				updateMenuItemState(cachingChecker, $liSelected, singleChecker);
 			else
@@ -475,7 +475,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]);
-			if($liSelected.attr("data-trick-selectable") == undefined)
+			if ($liSelected.attr("data-trick-selectable") == undefined)
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
@@ -640,18 +640,6 @@ function oldversionComparator(version1, version2) {
 		return value1 > value2 ? 1 : -1;
 }
 
-function togglePopever(e) {
-	var target = e.target, current = application["settings-open-popover"];
-	if (current != undefined) {
-		if (target === current)
-			return e;
-		else if (current.hasAttribute("aria-describedby"))
-			$(current).click();
-	}
-	application["settings-open-popover"] = target;
-	return e;
-}
-
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
 	if (current != undefined) {
@@ -680,12 +668,28 @@ function forceCloseToolTips() {
 	}, 100);
 }
 
-function closePopover() {
-	if (application["settings-open-popover"]) {
-		if (application["settings-open-popover"].hasAttribute("aria-describedby"))
-			$(application["settings-open-popover"]).click();
-		delete application["settings-open-popover"];
-	}
+function generateHelper($selection, container) {
+	if ($selection == undefined || $selection == null)
+		$selection = $("[data-helper-content]");
+	if (container == undefined || container == null)
+		container = "body";
+	$selection
+			.each(function() {
+				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<a href='#' data-trigger='hover focus' class='label label-primary label-as-badge'><i class='fa fa-info'/></a>");
+				if (title == "" || title == undefined) {
+					title = $this.attr("title");
+					if (title == "" || title == undefined)
+						return false;
+				}
+
+				if (placement == undefined || placement == "")
+					placement = "auto right";
+
+				$helper.attr("data-content", title).attr("data-placement", placement).popover({
+					container : container
+				}).appendTo($this);
+			});
+	return false;
 }
 
 $(document)
@@ -860,7 +864,7 @@ $(document)
 						if (e.keyCode == 27)
 							forceCloseToolTips();
 					});
-					
-					if(window.location.hash!=undefined)
-						$('a[data-toggle="tab"][href="'+window.location.hash+'"]', $tabNav).trigger("shown.bs.tab");
+
+					if (window.location.hash != undefined)
+						$('a[data-toggle="tab"][href="' + window.location.hash + '"]', $tabNav).trigger("shown.bs.tab");
 				});
