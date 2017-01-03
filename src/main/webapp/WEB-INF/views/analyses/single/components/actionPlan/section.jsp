@@ -90,7 +90,7 @@
 									<th style="width: 5%;" title='<spring:message code="label.reference" />'><spring:message code="label.reference" /></th>
 									<th title='<spring:message code="label.measure.todo" />'><spring:message code="label.measure.todo" /></th>
 									<c:choose>
-										<c:when test="${type == QUANTITATIVE}">
+										<c:when test="${type == 'QUANTITATIVE'}">
 											<th style="width: 2%;" title='<spring:message code="label.title.ale" />'><spring:message code="label.action_plan.total_ale" /></th>
 											<th style="width: 2%;" title='<spring:message code="label.title.delta_ale" />'><spring:message code="label.action_plan.delta_ale" /></th>
 											<th style="width: 2%;" title='<spring:message code="label.title.measure.cost" />'><spring:message code="label.measure.cost" /></th>
@@ -140,7 +140,7 @@
 										<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></b> <br /> <spring:message
 												text="${ape.measure.getToDo()}" /></td>
 										<c:choose>
-											<c:when test="${type == QUANTITATIVE}">
+											<c:when test="${type == 'QUANTITATIVE'}">
 												<td align="right" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 														value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
 												<td align="right" ${ape.deltaALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.deltaALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber

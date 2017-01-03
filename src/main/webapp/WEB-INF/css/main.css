@@ -378,7 +378,7 @@ ul#task-manager>li>li {
 	border-top: 1px solid #777;
 }
 
-.tooltip-inner {
+.tooltip-inner,.popover-content {
 	max-width: 800px;
 	white-space: pre-wrap;
 	word-break: normal;
@@ -487,10 +487,9 @@ datalist {
 }
 
 .label-as-badge {
-    border-radius: 1.0em;
+    border-radius: 1em;
     margin-left: 5px;
     font-size: 9.5px;
-    
 }
 
 @media ( min-width : 992px) {

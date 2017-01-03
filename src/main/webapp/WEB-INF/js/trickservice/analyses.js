@@ -535,15 +535,17 @@ function customAnalysis(element) {
 										return this.checkProfile();
 									},
 									checkProfile : function() {
-										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
-												this.assessmentDisable || this.analysisType != 'QUALITATIVE');
+										var $riskProfile = $modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
+												this.assessmentDisable || this.analysisType != 'QUALITATIVE').closest(".form-group");
 
 										if (this.analysisType == 'QUALITATIVE') {
+											$riskProfile.show();
+											$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", true).closest(".form-group").hide();
 											$qualitativeSection.show()
-											$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", true);
 										} else {
+											$riskProfile.hide();
 											$qualitativeSection.hide();
-											$modalBody.find("input[name='uncertainty']").prop("disabled", false);
+											$modalBody.find("input[name='uncertainty']").prop("disabled", false).closest(".form-group").show();
 										}
 
 										$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType + "']").trigger("click");

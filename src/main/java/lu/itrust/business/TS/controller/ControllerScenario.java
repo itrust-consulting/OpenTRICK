@@ -207,6 +207,7 @@ public class ControllerScenario {
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
 		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));

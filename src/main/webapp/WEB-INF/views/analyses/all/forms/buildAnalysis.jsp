@@ -17,10 +17,10 @@
 			<div class="modal-body" style="padding-top: 2px;">
 				<ul class="nav nav-tabs" role="tablist" style="margin-top: 0px;">
 					<li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab"><spring:message code="label.menu.build.analyis.default" text="Default" /></a></li>
-					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
+					<li><a href="#group_2" data-toggle="tab" data-helper-content='<spring:message code="help.analysis.advance" />' ><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
 					<li class="col-sm-8 pull-right" id="build-analysis-modal-error"></li>
 				</ul>
-				<form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 618px;">
+				<form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 610px;">
 					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 						<div class="form-group">
 							<label for="type" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.analysis.type"/>' ><spring:message code="label.analysis.type" text="Type" /></label>
@@ -80,7 +80,7 @@
 								<input name="name" class="form-control" required="required">
 							</div>
 
-							<label for="version" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.analysis.version" />' ><spring:message code="label.analysis.version" text="Version" /></label>
+							<label for="version" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.analysis.version" />' data-helper-placement='auto bottom'><spring:message code="label.analysis.version" text="Version" /></label>
 							<div class="col-sm-4">
 								<input name="version" class="form-control" type="text" value="0.1" required="required" />
 							</div>
@@ -100,7 +100,6 @@
 							</div>
 						</div>
 						<fieldset id='analysis_qualitative' style="display: none;">
-							<hr>
 							<div class="form-group">
 								<label for="impacts" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.analysis.impacts" />' > <spring:message code="label.analysis.impacts" text="Impacts" /></label>
 								<div class="col-sm-10">
@@ -124,7 +123,7 @@
 						</fieldset>
 					</div>
 					<div id="group_2" class="tab-pane" style="padding-top: 10px;">
-						<span data-helper-placement='auto left' data-helper-content='<spring:message code="help.analysis.advance" />' style="margin-top: -12px; display: block;" class="pull-right"></span>
+						<!-- <span data-helper-placement='auto left'  style="margin-top: -12px; display: block;" class="pull-right"></span> -->
 						<div class="col-sm-4">
 							<h4 data-helper-content='<spring:message code="help.analysis.advance.customers" />' >
 								<spring:message code="label.analysis.customers" text="Customers" />

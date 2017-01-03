@@ -587,7 +587,7 @@ function AssessmentExtendedParameterEditor(element) {
 
 	AssessmentFieldEditor.call(this, element);
 
-	if (this.analysisType == "QUANTITATIVE") {
+	if (application.analysisType == "QUANTITATIVE") {
 		this.dataListName = undefined;
 
 		this.acromyms = [];
@@ -644,7 +644,7 @@ function AssessmentImpactFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
 
-	if (this.analysisType == "QUANTITATIVE") {
+	if (application.analysisType == "QUANTITATIVE") {
 		AssessmentImpactFieldEditor.prototype.LoadData = function() {
 			var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
 					"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
@@ -676,7 +676,7 @@ AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 function AssessmentProbaFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
-	if (this.analysisType == "QUANTITATIVE") {
+	if (application.analysisType == "QUANTITATIVE") {
 		AssessmentProbaFieldEditor.prototype.LoadData = function() {
 			this.dataListName = "dataList-parameter-probability";
 			var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",

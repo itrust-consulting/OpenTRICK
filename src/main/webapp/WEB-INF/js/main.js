@@ -675,7 +675,7 @@ function generateHelper($selection, container) {
 		container = "body";
 	$selection
 			.each(function() {
-				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<a href='#' data-trigger='hover focus' class='label label-primary label-as-badge'><i class='fa fa-info'/></a>");
+				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='label label-primary label-as-badge'><i class='fa fa-info'/></span>");
 				if (title == "" || title == undefined) {
 					title = $this.attr("title");
 					if (title == "" || title == undefined)
@@ -685,9 +685,9 @@ function generateHelper($selection, container) {
 				if (placement == undefined || placement == "")
 					placement = "auto right";
 
-				$helper.attr("data-content", title).attr("data-placement", placement).popover({
-					container : container
-				}).appendTo($this);
+				$helper.attr("data-content", title).attr("data-placement", placement).appendTo($this).popover({
+					'container' : container
+				});
 			});
 	return false;
 }
