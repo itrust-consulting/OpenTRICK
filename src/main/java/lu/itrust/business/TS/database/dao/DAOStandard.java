@@ -54,4 +54,6 @@ public interface DAOStandard {
 	public int getNextVersion(String label);
 
 	public boolean isUsed(Standard standard);
+
+	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis);
 }

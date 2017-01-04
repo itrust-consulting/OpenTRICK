@@ -223,4 +223,9 @@ public class ServiceStandardImpl implements ServiceStandard {
 		return daoStandard.isUsed(standard);
 	}
 
+	@Override
+	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis) {
+		return daoStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis);
+	}
+
 }

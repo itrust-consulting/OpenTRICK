@@ -103,7 +103,7 @@ function loadMeasureData(id) {
 }
 
 function backupDescriptionHeight() {
-	var $description = $("#tabMeasureEdition #description");
+	var $description = $("#tab-measure-edition #description");
 	if ($description.length) {
 		var height = $description.outerHeight(), defaultHeight = application["measure-description-default-size"];
 		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
@@ -118,12 +118,12 @@ function backupDescriptionHeight() {
 }
 
 function restoreDescriptionHeight() {
-	var $description = $("#tabMeasureEdition #description");
+	var $description = $("#tab-measure-edition #description");
 	if ($description.length) {
 		application["measure-description-default-size"] = $description.outerHeight();
 		var height = application["measure-description-size"];
 		if (height != undefined) {
-			$("#tabMeasureEdition #description").css({
+			$("#tab-measure-edition #description").css({
 				"height" : height
 			});
 		}
@@ -132,14 +132,14 @@ function restoreDescriptionHeight() {
 }
 
 function updateMeasureUI() {
-	var $container = $("#tabMeasureEdition div.list-group:visible");
+	var $container = $("#tab-measure-edition div.list-group:visible");
 	$measure = $(".list-group-item.active", $container), id = $measure.attr('data-trick-id');
 	if ($container.length) {
 		if (!$measure.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
 			updateScroll($measure);
 		loadMeasureData(id);
 	} else {
-		var $selector = $("#tabMeasureEdition select[name='chapter']:visible>option:first");
+		var $selector = $("#tab-measure-edition select[name='chapter']:visible>option:first");
 		if ($selector.length)
 			$selector.parent().trigger("change");
 		else
@@ -148,9 +148,9 @@ function updateMeasureUI() {
 }
 
 function updateMeasureNavigation() {
-	var $currentChapter = $("#tabMeasureEdition select[name='chapter']:visible>option:selected"), $currentMeasure = $("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active"), $previousChatper = $(
-			"#tabMeasureEdition [data-trick-nav='previous-chapter']").parent(), $nextChapter = $("#tabMeasureEdition [data-trick-nav='next-chapter']").parent(), $previousMeasure = $(
-			"#tabMeasureEdition [data-trick-nav='previous-measure']").parent(), $nextMeasure = $("#tabMeasureEdition [data-trick-nav='next-measure']").parent();
+	var $currentChapter = $("#tab-measure-edition select[name='chapter']:visible>option:selected"), $currentMeasure = $("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active"), $previousChatper = $(
+			"#tab-measure-edition [data-trick-nav='previous-chapter']").parent(), $nextChapter = $("#tab-measure-edition [data-trick-nav='next-chapter']").parent(), $previousMeasure = $(
+			"#tab-measure-edition [data-trick-nav='previous-measure']").parent(), $nextMeasure = $("#tab-measure-edition [data-trick-nav='next-measure']").parent();
 	if ($currentChapter.next(":first").length)
 		$nextChapter.removeClass("disabled");
 	else
@@ -185,7 +185,7 @@ function changeMeasure(e) {
 }
 
 function updateMeasureView() {
-	var $section = $("#tabMeasureEdition");
+	var $section = $("#tab-measure-edition");
 	if ($section.is(":visible")) {
 		if (!application["measure-view-init"])
 			initilisateMeasureView();
@@ -223,7 +223,7 @@ function sortMeasureChapterByReference($chapter) {
 function updateMeasureNavigationControl(measure) {
 	if (measure.reference == undefined)
 		return false;
-	var $tabSection = $("#tabMeasureEdition"), $measureContainer = $("div[data-trick-id='" + measure.idStandard + "'][data-trick-content='measure']", $tabSection), $chapterSelector = $(
+	var $tabSection = $("#tab-measure-edition"), $measureContainer = $("div[data-trick-id='" + measure.idStandard + "'][data-trick-content='measure']", $tabSection), $chapterSelector = $(
 			"div[data-trick-id='" + measure.idStandard + "'][data-trick-content='chapter'] select[name='chapter']", $tabSection), chapter = extractChapter(measure.reference), $selectedMeasure = $("[data-trick-reference][data-trick-level][data-trick-id='"
 			+ measure.id + "']");
 	if ($selectedMeasure.length) {
@@ -248,7 +248,7 @@ function updateMeasureNavigationControl(measure) {
 }
 
 function removeFromMeasureNavigation(idStandard, idMeasure) {
-	var $tabSection = $("#tabMeasureEdition"), $measure = $("div[data-trick-id='" + idStandard
+	var $tabSection = $("#tab-measure-edition"), $measure = $("div[data-trick-id='" + idStandard
 			+ "'][data-trick-content='measure'] [data-trick-reference][data-trick-level][data-trick-id='" + idMeasure + "']", $tabSection), $chapter = $measure
 			.closest("[data-trick-chapter-name]");
 	if ($("[data-trick-reference][data-trick-level]", $chapter).length == 1) {
@@ -263,44 +263,44 @@ function removeFromMeasureNavigation(idStandard, idMeasure) {
 
 function initilisateMeasureView() {
 
-	var $nav = $("#tabMeasureEdition ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateMeasureNavigation), $returnAnalysis = $("a[data-base-url]",
-			$nav), $standardSelector = $("select[name='standard']"), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']"), $chapterSelector = $("#tabMeasureEdition select[name='chapter']");
+	var $nav = $("#tab-measure-edition ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateMeasureNavigation), $returnAnalysis = $("a[data-base-url]",
+			$nav), $standardSelector = $("select[name='standard']"), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']"), $chapterSelector = $("#tab-measure-edition select[name='chapter']");
 
 	$previousChatper.on("click", function() {
-		$("#tabMeasureEdition select[name='chapter']:visible>option:selected").prev(":last").prop('selected', true).parent().change();
+		$("#tab-measure-edition select[name='chapter']:visible>option:selected").prev(":last").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$nextChapter.on("click", function() {
-		$("#tabMeasureEdition select[name='chapter']:visible>option:selected").next(":first").prop('selected', true).parent().change();
+		$("#tab-measure-edition select[name='chapter']:visible>option:selected").next(":first").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$previousMeasure.on("click", function() {
-		$("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").prev(":visible:last")
+		$("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").prev(":visible:last")
 				.click();
 		return false;
 	});
 
 	$nextMeasure.on("click", function() {
-		$("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").next(":visible:first")
+		$("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active").next(":visible:first")
 				.click();
 		return false;
 	});
 
 	$standardSelector.on('change', function(e) {
-		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id!='" + this.value + "']:visible").hide();
-		$("#tabMeasureEdition div[data-trick-standard-name][data-trick-id='" + this.value + "']:hidden").show().find("select[name='chapter']").trigger("change");
+		$("#tab-measure-edition div[data-trick-standard-name][data-trick-id!='" + this.value + "']:visible").hide();
+		$("#tab-measure-edition div[data-trick-standard-name][data-trick-id='" + this.value + "']:hidden").show().find("select[name='chapter']").trigger("change");
 		return false;
 	});
 
-	$("#tabMeasureEdition div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
+	$("#tab-measure-edition div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
 
 	$chapterSelector
 			.on(
 					'change',
 					function(e) {
-						var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), $measuresContainer = $("#tabMeasureEdition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='"
+						var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), $measuresContainer = $("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='"
 								+ standardId + "']:visible");
 						$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + this.value + "']:visible").hide();
 						$measuresContainer.find("div.list-group[data-trick-chapter-name='" + this.value + "']:hidden").show();

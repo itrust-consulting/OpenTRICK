@@ -7,7 +7,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane"  id="tabAsset">
+<div class="tab-pane"  id="tab-asset">
 	<div class="section" id="section_asset" >
 		<div class="page-header tab-content-header">
 			<div class="container">

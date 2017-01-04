@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div id="profile" class="tab-pane active">
+<div id="tab-profile" class="tab-pane active">
 	<div class="section" id="section_profile">
 		<span id="profileInfo" hidden="hidden"></span>
 		<div style="margin: 0 auto; max-width: 650px;">

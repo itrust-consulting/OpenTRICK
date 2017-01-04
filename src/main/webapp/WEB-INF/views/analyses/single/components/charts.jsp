@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:if test="${type=='QUANTITATIVE'}">
-	<div class="tab-pane trick-chart-tab" id="tabChartAsset" data-update-required="true" data-trigger="loadChartAsset">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-asset" data-update-required="true" data-trigger="loadChartAsset">
 		<div id="chart_asset" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">
@@ -22,7 +22,7 @@
 			<div id="chart_ale_asset_type" class="col-xs-12"></div>
 		</div>
 	</div>
-	<div class="tab-pane trick-chart-tab" id="tabChartScenario" data-update-required="true" data-trigger="loadChartScenario">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-scenario" data-update-required="true" data-trigger="loadChartScenario">
 		<div id="chart_scenario" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">
@@ -39,7 +39,7 @@
 		</div>
 	</div>
 </c:if>
-<div class="tab-pane trick-chart-tab" id="tabChartCompliance" data-update-required="true" data-trigger="compliances">
+<div class="tab-pane trick-chart-tab" id="tab-chart-compliance" data-update-required="true" data-trigger="compliances">
 	<div id="chart_compliance" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
@@ -54,7 +54,7 @@
 	</div>
 </div>
 <c:if test="${type=='QUANTITATIVE'}">
-	<div class="tab-pane trick-chart-tab" id="tabChartEvolution" data-update-required="true" data-trigger="loadChartEvolution">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-evolution" data-update-required="true" data-trigger="loadChartEvolution">
 		<div id="chart_evolution" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">
@@ -75,7 +75,7 @@
 	
 		</div>
 	</div>
-	<div class="tab-pane trick-chart-tab" id="tabChartBudget" data-update-required="true" data-trigger="loadChartBudget">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-budget" data-update-required="true" data-trigger="loadChartBudget">
 		<div id="chart_budget" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">
@@ -95,7 +95,7 @@
 			</c:if>
 		</div>
 	</div>
-	<div class="tab-pane trick-chart-tab" id="tabChartParameterEvolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-parameter-evolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
 		<div id="chart_parameterevolution" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">
@@ -109,7 +109,7 @@
 			<div id="chart_parameterevolution_body" class="col-xs-12"></div>
 		</div>
 	</div>
-	<div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByAssetType" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-asset-type" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
 		<div id="chart_aleevolutionbyassettype" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">
@@ -123,7 +123,7 @@
 			<div id="chart_aleevolutionbyassettype_body" class="col-xs-12"></div>
 		</div>
 	</div>
-	<div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByScenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
+	<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-scenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
 		<div id="chart_aleevolutionbyscenario" class="container">
 			<div class="page-header tab-content-header">
 				<div class="container">

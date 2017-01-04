@@ -58,7 +58,6 @@
 				<jsp:include page="./components/standards/standard/standards.jsp" />
 				<jsp:include page="./components/standards/edition/home.jsp" />
 				<c:if test="${!isProfile}">
-					
 					<jsp:include page="./components/soa/home.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 					<jsp:include page="./components/actionPlan/section.jsp" />

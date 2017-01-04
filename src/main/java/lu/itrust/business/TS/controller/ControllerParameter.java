@@ -24,6 +24,7 @@ import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 
@@ -61,16 +62,39 @@ public class ControllerParameter {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Extended/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Quantitative/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception {
+	public String quantitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<IParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
 		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
 		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,idAnalysis));
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		return "analyses/single/components/parameters/extended";
+		model.addAttribute("type", AnalysisType.QUANTITATIVE);
+		return "analyses/single/components/parameters/quantitative/home";
+	}
+	
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Qualitative/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String qualitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<IParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME,idAnalysis));
+		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
+		model.addAttribute("type", AnalysisType.QUALITATIVE);
+		return "analyses/single/components/parameters/qualitative/home";
 	}
 
 	/**

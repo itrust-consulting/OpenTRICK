@@ -37,7 +37,7 @@
 		</div>
 	</div>
 	<ul class="nav nav-pills bordered-bottom" id="menu_asset_assessment">
-		<li><a href="#" onclick="return switchTab('tabAsset')"><span class="fa fa-home"></span> <spring:message code="label.menu.analysis.asset" /></a></li>
+		<li><a href="#" onclick="return switchTab('tab-asset')"><span class="fa fa-home"></span> <spring:message code="label.menu.analysis.asset" /></a></li>
 		<c:choose>
 			<c:when test="${type == 'QUALITATIVE'}">
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${impactScaleMenu} <span class="caret"></span></a>

@@ -15,7 +15,7 @@
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
-<div id="tabSOA" class="tab-pane">
+<div id="tab-soa" class="tab-pane">
 	<div class="section" id="section_soa" style="z-index: 3">
 		<div class="page-header tab-content-header">
 			<div class="container">

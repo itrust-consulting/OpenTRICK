@@ -762,7 +762,7 @@ $(document)
 
 						if ($option.length) {
 							var updateOption = function() {
-								var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills");
+								var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills:visible");
 								var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 								if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
 									$option.fadeOut(function() {

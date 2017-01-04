@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div id="tabMeasureEdition" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="updateMeasureView">
+<div id="tab-measure-edition" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="updateMeasureView">
 	<div class="max-height">
 		<div class="col-md-2 max-height" style="z-index: 1" role="left-menu">
 			<div class="form-group">

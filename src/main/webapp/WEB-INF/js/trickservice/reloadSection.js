@@ -56,12 +56,11 @@ function reloadSection(section, subSection, refreshOnly) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + controller,
-				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					if (subSection != null && subSection != undefined)
 						section += "_" + subSection;
-					$newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html"));
+					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + section + "']", content);
 					if ($newSection.length) {
 						var smartUpdate = new SectionSmartUpdate(section, $newSection);
 						if (smartUpdate.Update()) {
@@ -69,7 +68,7 @@ function reloadSection(section, subSection, refreshOnly) {
 							fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
 						}
 					} else {
-						var $tabsSection = $(doc).find(".tab-pane");
+						var $tabsSection = $(content).find(".tab-pane");
 						for (var i = 0; i < $tabsSection.length; i++)
 							$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
 					}
@@ -112,8 +111,8 @@ function findControllerBySection(section, subSection) {
 		"section_soa" : "/Analysis/Standard/SOA",
 		"section_ids" : "/Admin/IDS/Section",
 		"section_kb_scale_type" : "/KnowledgeBase/ScaleType",
-		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
-		"section_parameter_probability" : "/Analysis/Parameter/Probability/Section",
+		"section_qualitative_parameter" : "/Analysis/Parameter/Qualitative/Section",
+		"section_quantitative_parameter" : "/Analysis/Parameter/Quantitative/Section",
 		"section_parameter_impact" : "/Analysis/Parameter/Impact/Section"
 	};
 

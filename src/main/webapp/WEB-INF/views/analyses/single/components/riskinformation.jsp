@@ -11,7 +11,7 @@
 </c:if>
 <c:set var="chapterRegex">^\d(\.0)*$</c:set>
 <c:forEach items="${riskInformationSplited.keySet()}" var="categoryRiskInformation">
-	<div class="tab-pane" id="tabRiskInformation_${categoryRiskInformation}">
+	<div class="tab-pane" id="tab-risk-information-${fn:toLowerCase(categoryRiskInformation)}">
 		<div class="page-header tab-content-header table-condensed">
 			<div class="container">
 				<div class="row-fluid">

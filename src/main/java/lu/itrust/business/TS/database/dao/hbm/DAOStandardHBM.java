@@ -102,7 +102,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@Override
 	public boolean existsByNameAndVersion(String label, Integer version) {
-		return  (boolean) getSession().createQuery("select count(*)>0 from Standard where label = :label and version = :version").setParameter("label", label)
+		return (boolean) getSession().createQuery("select count(*)>0 from Standard where label = :label and version = :version").setParameter("label", label)
 				.setParameter("version", version).getSingleResult();
 	}
 
@@ -262,6 +262,13 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@Override
 	public boolean isUsed(Standard standard) {
 		return (boolean) getSession().createQuery("select count(*)>0 from AnalysisStandard where standard = :standard").setParameter("standard", standard).getSingleResult();
+	}
+
+	@Override
+	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis) {
+		return getSession().createQuery(
+				"Select standard From Standard standard where standard.type<> :type and standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId) order by standard.label",
+				Standard.class).setParameter("type", StandardType.MATURITY).setParameter("analysisId", idAnalysis).getResultList();
 	}
 
 }

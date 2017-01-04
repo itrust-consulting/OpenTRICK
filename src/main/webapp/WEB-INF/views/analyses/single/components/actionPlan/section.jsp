@@ -12,7 +12,7 @@
 </c:if>
 <c:set var="language" value="${locale.language}" scope="request" />
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane" id="tabActionPlan">
+<div class="tab-pane" id="tab-action-plan">
 	<div class="section" id="section_actionplans">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 		<div class="page-header tab-content-header">

@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="tab-pane" id="tab_ids">
+<div class="tab-pane" id="tab-ids">
 	<div class="section" id="section_ids">
 		<ul class="nav nav-pills bordered-bottom" id="menu_ids">
 			<li><a href="#" onclick="return newIDS();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>

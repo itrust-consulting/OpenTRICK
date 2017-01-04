@@ -19,16 +19,15 @@
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
-				<li class="active"><a href="#tab_status" data-toggle="tab"><spring:message code="label.menu.installation.status" text="Status" /></a></li>
-				<li><a href="#tab_user" data-toggle="tab"><spring:message code="menu.admin.user" text="User" /></a></li>
-				<li><a href="#tab_ids" data-toggle="tab"><spring:message code="menu.admin.ids" text="IDS" /></a></li>
-				<li><a href="#tab_customer" data-toggle="tab"><spring:message code="menu.knowledgebase.customers" text="Customers" /></a></li>
-				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.title" text="All Analyses" /></a></li>
-				<li><a href="#tab_tsSetting" data-toggle="tab"><spring:message code="label.settings" text="Settings" /></a></li>
-				<li><a href="#tab_log" data-toggle="tab"><spring:message code="label.logs" text="Logs" /></a></li>
+				<li class="active"><a href="#tab-status" data-toggle="tab"><spring:message code="label.menu.installation.status" text="Status" /></a></li>
+				<li><a href="#tab-user" data-toggle="tab"><spring:message code="menu.admin.user" text="User" /></a></li>
+				<li><a href="#tab-ids" data-toggle="tab"><spring:message code="menu.admin.ids" text="IDS" /></a></li>
+				<li><a href="#tab-customer" data-toggle="tab"><spring:message code="menu.knowledgebase.customers" text="Customers" /></a></li>
+				<li><a href="#tab-analyses" data-toggle="tab"><spring:message code="label.analysis.title" text="All Analyses" /></a></li>
+				<li><a href="#tab-ts-setting" data-toggle="tab"><spring:message code="label.settings" text="Settings" /></a></li>
+				<li><a href="#tab-log" data-toggle="tab"><spring:message code="label.logs" text="Logs" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
-				
 			</ul>
 			<jsp:include page="../template/successErrors.jsp" />
 			<div class="tab-content" id="tab-container">

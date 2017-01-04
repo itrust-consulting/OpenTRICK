@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="tab-pane" id="tab_tsSetting">
+<div class="tab-pane" id="tab-ts-setting">
 	<div class="section" id="section_ts_setting">
 		<c:forEach items="${tsSettings}" var="tsSetting">
 			<form action="#" id="${tsSetting.name}" class="form-horizontal col-lg-12">

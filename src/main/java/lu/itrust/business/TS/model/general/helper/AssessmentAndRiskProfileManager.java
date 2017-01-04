@@ -52,6 +52,21 @@ public class AssessmentAndRiskProfileManager {
 
 	private DAOScenario daoScenario;
 
+	public AssessmentAndRiskProfileManager initialise(DAOAnalysis daoAnalysis, DAOAsset daoAsset, DAOAssessment daoAssessment, DAORiskProfile daoRiskProfile,
+			DAOScenario daoScenario) {
+		if (this.daoAnalysis == null)
+			setDaoAnalysis(daoAnalysis);
+		if (this.daoAssessment == null)
+			setDaoAssessment(daoAssessment);
+		if (this.daoAsset == null)
+			setDaoAsset(daoAsset);
+		if (this.daoScenario == null)
+			setDaoScenario(daoScenario);
+		if (this.daoRiskProfile == null)
+			setDaoRiskProfile(daoRiskProfile);
+		return this;
+	}
+
 	@Transactional
 	public void build(Asset asset, int idAnalysis) {
 		Analysis analysis = daoAnalysis.get(idAnalysis);

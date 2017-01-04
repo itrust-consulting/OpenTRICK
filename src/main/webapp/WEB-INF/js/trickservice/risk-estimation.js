@@ -108,21 +108,21 @@ function loadAssessmentData(id) {
 }
 
 function updateAssessmentUI() {
-	var $assessment = $("#tabRiskEstimation div.list-group:visible>.list-group-item.active");
+	var $assessment = $("#tab-risk-estimation div.list-group:visible>.list-group-item.active");
 	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
 		updateScroll($assessment);
 	loadAssessmentData($assessment.attr("data-trick-id"));
 }
 
 function refreshEstimation(type){
-	var $current = $("#tabRiskEstimation div[data-trick-content='"+type+"'] div.list-group > a.list-group-item.active");
+	var $current = $("#tab-risk-estimation div[data-trick-content='"+type+"'] div.list-group > a.list-group-item.active");
 	if(!$current.length)
-		$current = $("#tabRiskEstimation div[data-trick-content='"+type+"'] div.list-group > a.list-group-item:first");
+		$current = $("#tab-risk-estimation div[data-trick-content='"+type+"'] div.list-group > a.list-group-item:first");
 	$current.trigger("click");
 }
 
 function updateEstimationSelect(type, elements, status) {
-	var $selections = $("select[name='" + type + "']>option[data-trick-type][data-trick-selected!='" + status + "'],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id][data-trick-selected!='" + status + "']", "#tabRiskEstimation").filter(function () {
+	var $selections = $("select[name='" + type + "']>option[data-trick-type][data-trick-selected!='" + status + "'],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id][data-trick-selected!='" + status + "']", "#tab-risk-estimation").filter(function () {
 		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
 	}).attr("data-trick-selected", status);
 	if (status == "true")
@@ -134,9 +134,9 @@ function updateEstimationSelect(type, elements, status) {
 }
 
 function updateEstimationIteam(type,item){
-	var $selector = $("select[name='"+type+"']","#tabRiskEstimation"), $option =  $("option[data-trick-type][value='"+item.id+"']", $selector), $link = undefined;
+	var $selector = $("select[name='"+type+"']","#tab-risk-estimation"), $option =  $("option[data-trick-type][value='"+item.id+"']", $selector), $link = undefined;
 	if($option.length)
-		$link = $("div[data-trick-content='"+type+"'] a[data-trick-type][data-trick-id='"+item.id+"'][data-trick-selected!='" + status + "']", "#tabRiskEstimation");
+		$link = $("div[data-trick-content='"+type+"'] a[data-trick-type][data-trick-id='"+item.id+"'][data-trick-selected!='" + status + "']", "#tab-risk-estimation");
 	else{
 		$option=$("<option/>");
 		$link=$("<a href='#' class='list-group-item' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' />");
@@ -167,7 +167,7 @@ function updateEstimationIteam(type,item){
 	}
 	
 	if(!$option.parent().length){
-		$link.appendTo("div[data-trick-content='"+type+"']>div.list-group","#tabRiskEstimation").on("click",changeAssessment);
+		$link.appendTo("div[data-trick-content='"+type+"']>div.list-group","#tab-risk-estimation").on("click",changeAssessment);
 		$option.appendTo($selector);
 	}
 
@@ -177,7 +177,7 @@ function updateEstimationIteam(type,item){
 }
 
 function removeEstimation(type, elements){
-	var $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tabRiskEstimation").filter(function () {
+	var $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tab-risk-estimation").filter(function () {
 		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
 	}).remove();
 	refreshEstimation(type);
@@ -195,7 +195,7 @@ function riskEstimationUpdate() {
 }
 
 function updateRiskEstimationNavigation() {
-	var $tabSection = $("#tabRiskEstimation") , $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active",$tabSection);
+	var $tabSection = $("#tab-risk-estimation") , $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active",$tabSection);
 
 	if (activeSelector == undefined)
 		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario" ? "asset" : "scenario";
@@ -242,7 +242,7 @@ function AssessmentHelder() {
 	this.invalidate = true;
 	this.updateLocked = false;
 	this.names = ["asset", "scenario"];
-	this.$tabSection = $("#tabRiskEstimation");
+	this.$tabSection = $("#tab-risk-estimation");
 	this.section = "div[data-view='estimation-ui']";
 	this.asset = $("select[name='asset']", this.$tabSection);
 	this.scenario = $("select[name='scenario']", this.$tabSection);

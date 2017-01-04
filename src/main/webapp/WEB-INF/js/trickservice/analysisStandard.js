@@ -18,6 +18,11 @@ $(document).ready(function() {
 			$("body").addClass("modal-open");
 		$deleteModal.find("#deletestandardbuttonYes").off("click.delete")
 	});
+	
+	$("#measure-collection-selector").on("change",function(){
+		$("[id^='section_standard_'][id!='"+this.value+"']:visible").hide();
+		$("#"+this.value).show();
+	}).trigger("change");
 
 });
 

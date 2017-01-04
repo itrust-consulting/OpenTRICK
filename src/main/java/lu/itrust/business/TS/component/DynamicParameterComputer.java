@@ -11,7 +11,11 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOAssessmentHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOAssetHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOIDSHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAORiskProfileHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -29,7 +33,7 @@ import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 @Component
 @Transactional
 public class DynamicParameterComputer {
-	
+
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
@@ -38,18 +42,23 @@ public class DynamicParameterComputer {
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentManager;
-	
+
 	@Autowired
 	private DAOIDS daoIDS;
 
 	public DynamicParameterComputer() {
 	}
 
-	public DynamicParameterComputer(Session session, AssessmentAndRiskProfileManager assessmentManager) {
-		this.daoAnalysis = new DAOAnalysisHBM(session);
+	public DynamicParameterComputer(Session session, AssessmentAndRiskProfileManager assessmentAndRiskProfileManager) {
+		this(session, new DAOAnalysisHBM(session), assessmentAndRiskProfileManager);
+	}
+
+	public DynamicParameterComputer(Session session, DAOAnalysis daoAnalysis, AssessmentAndRiskProfileManager assessmentAndRiskProfileManager) {
+		this.assessmentManager = assessmentAndRiskProfileManager.initialise(daoAnalysis, new DAOAssetHBM(session), new DAOAssessmentHBM(session), new DAORiskProfileHBM(session),
+				new DAOScenarioHBM(session));
+		this.daoAnalysis = daoAnalysis;
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
 		this.daoIDS = new DAOIDSHBM(session);
-		this.assessmentManager = assessmentManager;
 	}
 
 	/**
@@ -92,8 +101,8 @@ public class DynamicParameterComputer {
 				analysis.getIdentifier(), analysis.getVersion());
 
 		// Get parameters
-		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME,"p0"));
-		
+		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
+
 		/**
 		 * The maximum timestamp for all notifications to consider. Points to
 		 * NOW.
@@ -119,7 +128,7 @@ public class DynamicParameterComputer {
 				// within TRICK service,
 				// we will set a value nevertheless to ease the work for a
 				// database maintainer. :-)
-				analysis.add(parameter = new DynamicParameter(parameterName,String.format("dynamic:%s", parameterName)));
+				analysis.add(parameter = new DynamicParameter(parameterName, String.format("dynamic:%s", parameterName)));
 			}
 
 			// Remove entry from parameter map so that we know it has been
@@ -133,16 +142,16 @@ public class DynamicParameterComputer {
 			// max() function in his formula
 			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
 		}
-		
+
 		/*
-		 * This is problematic if there are two reporting sources:
-		 * one deletes the dynamic parameters of the other.
+		 * This is problematic if there are two reporting sources: one deletes
+		 * the dynamic parameters of the other.
 		 * 
-		// Remove all parameters which are no longer needed
-		// (these are all parameters which have not been removed from 'dynamicParameters')
-		for (DynamicParameter dynamicParameter : dynamicParameters.values())
-			daoParameter.delete(dynamicParameter);
-		*/
+		 * // Remove all parameters which are no longer needed // (these are all
+		 * parameters which have not been removed from 'dynamicParameters') for
+		 * (DynamicParameter dynamicParameter : dynamicParameters.values())
+		 * daoParameter.delete(dynamicParameter);
+		 */
 
 		// Update assessment to reflect the new values of the dynamic parameters
 		assessmentManager.updateAssessment(analysis, null);

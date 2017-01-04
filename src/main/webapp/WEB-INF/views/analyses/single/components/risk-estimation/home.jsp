@@ -10,7 +10,7 @@
 <spring:message code="label.all" var="allText" />
 <spring:message code='label.title.assets' var="assetText" />
 <spring:message code="label.title.risk_estimation.scenario" var="scenarioText" />
-<div id="tabRiskEstimation" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="riskEstimationUpdate">
+<div id="tab-risk-estimation" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="riskEstimationUpdate">
 	<div class="max-height">
 		<div class="col-md-2 max-height" style="z-index: 1" role="left-menu">
 			<div class="affixMenu max-height">

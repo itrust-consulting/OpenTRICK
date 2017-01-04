@@ -9,7 +9,7 @@
 </c:if>
 <c:set var="langue" value="${fn:toUpperCase(locale)}" />
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane" id="tab_kb_scale_type">
+<div class="tab-pane" id="tab-scale-type">
 	<div class='section row' id='section_kb_scale_type'>
 		<ul class="nav nav-pills bordered-bottom" id="menu_kb_scale_type" style="margin-bottom: 10px;">
 			<li><a href="#tab_kb_scale_type" onclick="return addScaleType()"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>

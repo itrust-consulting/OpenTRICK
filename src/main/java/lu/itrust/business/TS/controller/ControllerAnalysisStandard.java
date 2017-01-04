@@ -654,7 +654,9 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String getAvailableStandards(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		model.addAttribute("availableStandards", serviceStandard.getAllNotInAnalysis((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS)));
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		model.addAttribute("availableStandards", serviceAnalysis.getAnalysisTypeById(idAnalysis) == AnalysisType.QUANTITATIVE ? serviceStandard.getAllNotInAnalysis(idAnalysis)
+				: serviceStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis));
 		return "analyses/single/components/standards/standard/form/import";
 	}
 
@@ -674,18 +676,15 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
 			Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
-
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			Measure measure = null;
 			AnalysisStandard analysisStandard = null;
 			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 			Object implementationRate = null;
-
-			if (standard.getType() == StandardType.MATURITY) {
+			if (standard.getType() == StandardType.MATURITY && analysis.getType() == AnalysisType.QUANTITATIVE) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
 				implementationRate = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
@@ -1011,9 +1010,9 @@ public class ControllerAnalysisStandard {
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
 			serviceMeasure.saveOrUpdate(measure);
-			
+
 			result.put("id", measure.getId());
-			
+
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

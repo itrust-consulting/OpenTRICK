@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="tab-pane active" id="tab_status">
+<div class="tab-pane active" id="tab-status">
 	<div class="section" id="section_status">
 		<table class="table table-condensed">
 			<thead>

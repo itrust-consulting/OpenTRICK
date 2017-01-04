@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="tab-pane active" id="tabHistory">
+<div class="tab-pane active" id="tab-history">
 	<div class="section" id="section_history">
 		<div class="page-header tab-content-header">
 			<div class="container">

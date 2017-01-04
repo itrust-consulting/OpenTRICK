@@ -8,7 +8,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane" id="tabSummary">
+<div class="tab-pane" id="tab-summary">
 	<div class="section" id="section_summary">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
 		<div class="page-header tab-content-header">

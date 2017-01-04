@@ -423,7 +423,7 @@ public class ControllerEditField {
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				if ("value".equals(fieldEditor.getFieldName())) {
-					parameter.setValue(parameter.getValue() * 1000);
+					parameter.setValue(parameter.getValue());
 					List<LikelihoodParameter> parameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
 					ParameterManager.ComputeLikehoodValue(parameters);
 					serviceLikelihoodParameter.saveOrUpdate(parameters);

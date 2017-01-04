@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="tab-pane" id="tab_analyses">
+<div class="tab-pane" id="tab-analyses">
 	<div class="section" id="section_profile_analysis">
 		<jsp:include page="../../template/successErrors.jsp" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_analysis">

@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="tab-pane" id="tab_user">
+<div class="tab-pane" id="tab-user">
 	<div class="section" id="section_user">
 		<c:if test="${!empty users}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_user">

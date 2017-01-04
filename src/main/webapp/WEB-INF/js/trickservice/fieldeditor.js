@@ -113,8 +113,8 @@ function FieldEditor(element, validator) {
 				var dataList = $element.attr("data-trick-list-value");
 				if (dataList) {
 					this.fieldEditor.setAttribute("list", dataList);
-					if (width < 60)
-						width = 100;
+					if (width < 80)
+						width = '80';
 				}
 			}
 			$fieldEditor = $(this.fieldEditor)
@@ -141,7 +141,9 @@ function FieldEditor(element, validator) {
 					$option.attr("title", this.chooseTitle[i]);
 				$option.appendTo($fieldEditor);
 			}
-
+			width = $td.outerWidth();
+			if(width<80)
+				width = '80';
 		}
 
 		this.backupData.width = $td.width();
@@ -548,7 +550,7 @@ function AssessmentFieldEditor(element) {
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
-							if ($("#tabRiskEstimation").is(":visible")) {
+							if ($("#tab-risk-estimation").is(":visible")) {
 								application["estimation-helper"].tryUpdate(that.classId);
 								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
 							} else {
@@ -629,8 +631,8 @@ function AssessmentExtendedParameterEditor(element) {
 			dataList.setAttribute("id", this.dataListName);
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
-				option.setAttribute("value", this.acromyms[i]);
-				option.innerText = this.acromyms[i] + " (" + this.choose[i] + ")";
+				option.setAttribute("value", this.choose[i]);
+				option.innerText = this.choose[i] + " (" + this.acromyms[i] + ")";
 				dataList.appendChild(option);
 			}
 			$(dataList).hide().appendTo("#widgets");
@@ -759,9 +761,9 @@ function editField(element, controller, id, field, type) {
 			controller = FieldEditor.prototype.__findControllor(element);
 		if (controller == "LikelihoodParameter" || controller == "ImpactParameter") {
 			if (application.analysisType == "QUANTITATIVE")
-				fieldEditor = new ExtendedFieldEditor("section_parameter_extended", element);
+				fieldEditor = new ExtendedFieldEditor("section_quantitative_parameter", element);
 			else if (controller == "LikelihoodParameter")
-				fieldEditor = new ExtendedFieldEditor("section_parameter_probability", element);
+				fieldEditor = new ExtendedFieldEditor("section_qualitative_parameter", element);
 			else
 				fieldEditor = new ExtendedFieldEditor("section_parameter_impact", element);
 		} else if (controller == "Assessment") {

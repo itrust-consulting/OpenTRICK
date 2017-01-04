@@ -14,15 +14,15 @@
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
-				<li class="active"><a href="#profile" data-toggle="tab"><spring:message code="label.menu.profile" text="My Profile" /></a></li>
-				<li><a href="#sqlite" data-toggle="tab"><spring:message code="label.menu.sqlite" text="My sqlites" /></a></li>
-				<li><a href="#report" data-toggle="tab"><spring:message code="label.menu.report" text="My reports" /></a></li>
+				<li class="active"><a href="#tab-profile" data-toggle="tab"><spring:message code="label.menu.profile" text="My Profile" /></a></li>
+				<li><a href="#tab-sqlite" data-toggle="tab"><spring:message code="label.menu.sqlite" text="My sqlites" /></a></li>
+				<li><a href="#tab-report" data-toggle="tab"><spring:message code="label.menu.report" text="My reports" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="profile.jsp" />
-				<div id="sqlite" class="tab-pane" data-update-required="true" data-trigger="loadUserSqlite" data-scroll-trigger="userSqliteScrolling">
+				<div id="tab-sqlite" class="tab-pane" data-update-required="true" data-trigger="loadUserSqlite" data-scroll-trigger="userSqliteScrolling">
 					<div class="col-md-3">
 						<div data-spy="affix" class="col-md-2">
 							<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message
@@ -91,7 +91,7 @@
 					</div>
 					<div class="col-md-9" id="section_sqlite"></div>
 				</div>
-				<div id="report" class="tab-pane" data-update-required="true" data-trigger="loadUserReport" data-scroll-trigger="userReportScrolling">
+				<div id="tab-report" class="tab-pane" data-update-required="true" data-trigger="loadUserReport" data-scroll-trigger="userReportScrolling">
 					<div class="col-md-3">
 						<div data-spy="affix" class="col-md-2">
 							<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message

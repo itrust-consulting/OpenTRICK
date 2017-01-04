@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane" id="tabParameterImpact">
+<div class="tab-pane" id="tab-parameter-impact">
 	<div class='section row' id='section_parameter_impact'>
 		<div class="page-header tab-content-header">
 			<div class="container">

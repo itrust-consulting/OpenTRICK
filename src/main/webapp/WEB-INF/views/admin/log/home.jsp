@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div id="tab_log" class="tab-pane" data-update-required="true" data-trigger="loadSystemLog" data-scroll-trigger="loadSystemLogScrolling">
+<div id="tab-log" class="tab-pane" data-update-required="true" data-trigger="loadSystemLog" data-scroll-trigger="loadSystemLogScrolling">
 	<div class="col-xs-3">
 		<div data-spy="affix" class="col-xs-2">
 			<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message

@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="tab-pane" id="tab_language">
+<div class="tab-pane" id="tab-language">
 	<div class="section" id="section_language">
 		<ul class="nav nav-pills bordered-bottom" id="menu_language">
 			<li><a href="#" onclick="return newLanguage();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.language" text="Add" /> </a></li>

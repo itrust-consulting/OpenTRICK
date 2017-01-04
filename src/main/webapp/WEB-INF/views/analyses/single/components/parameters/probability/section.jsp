@@ -6,15 +6,7 @@
 <div class="${type=='QUANTITATIVE' ? 'col-md-6' : 'col-lg-6' }">
 	<fieldset id="Scale_Probability">
 		<legend>
-			<c:choose>
-				<c:when test="${type == 'QUANTITATIVE'}">
-					<spring:message code="label.parameter.extended.probability" />
-				</c:when>
-				<c:otherwise>
-					<spring:message code="label.title.parameter.probability" />
-				</c:otherwise>
-			</c:choose>
-
+			<spring:message code="label.parameter.extended.probability" />
 		</legend>
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
@@ -48,11 +40,11 @@
 							</c:set>
 							<td data-trick-field="value" data-trick-field-type="double"
 								${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
-								data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
-							<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
+								data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" /></td>
+							<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" /></td>
 							<td class="textaligncenter"><c:choose>
 									<c:when test="${status.index!=length}">
-										<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" minFractionDigits="2" />
+										<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" />
 									</c:when>
 									<c:otherwise>
 										<span style="font-size: 17px;">+&#8734;</span>

@@ -22,18 +22,18 @@
 			<jsp:include page="../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
-				<li class="active"><a href="#tab_customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>
-				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
+				<li class="active"><a href="#tab-customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>
+				<li><a href="#tab-language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
 
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.knowledgebase.standards_measures"
 							text="Standards-measures" /><span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
-						<li id="control_tab_measure" style="display: none;"><a href="#tab_measure" data-toggle="tab"><spring:message code="label.menu.knowledgebase.measures" text="Measures" /></a></li>
+						<li><a href="#tab-standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
+						<li id="control_tab_measure" style="display: none;"><a href="#tab-measure" data-toggle="tab"><spring:message code="label.menu.knowledgebase.measures" text="Measures" /></a></li>
 					</ul></li>
 
-				<li><a href="#tab_kb_scale_type" data-toggle="tab"> <spring:message code="label.menu.knowledgebase.impacts" text="Impacts" /></a></li>
-				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
+				<li><a href="#tab-scale-type" data-toggle="tab"> <spring:message code="label.menu.knowledgebase.impacts" text="Impacts" /></a></li>
+				<li><a href="#tab-analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>

@@ -36,6 +36,8 @@ public interface ServiceStandard {
 	public List<Standard> getAllFromAnalysis(Analysis analysis);
 
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis);
+	
+	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis);
 
 	public List<Standard> getAllNotBoundToAnalysis();
 	
@@ -52,5 +54,7 @@ public interface ServiceStandard {
 	public boolean belongToAnalysis(Integer idStandard, int analysis);
 
 	public boolean isUsed(Standard tmpStandard);
+
+	
 
 }

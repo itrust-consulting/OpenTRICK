@@ -406,11 +406,14 @@ public class ImportAnalysis {
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
 
+			AssessmentAndRiskProfileManager assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
+
 			// Update values of dynamic parameters
-			new DynamicParameterComputer(session, new AssessmentAndRiskProfileManager()).computeForAnalysis(this.analysis);
+			if (this.analysis.getType() == AnalysisType.QUANTITATIVE)
+				new DynamicParameterComputer(session,daoAnalysis, assessmentAndRiskProfileManager).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
-			new AssessmentAndRiskProfileManager().updateRiskDendencies(analysis, factory);
+			assessmentAndRiskProfileManager.updateRiskDendencies(analysis, factory);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
@@ -1564,6 +1567,9 @@ public class ImportAnalysis {
 	 */
 	private void importMaturityMeasures() throws Exception {
 
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			return;
+
 		System.out.println("Import maturity measures");
 
 		// ****************************************************************
@@ -1864,6 +1870,9 @@ public class ImportAnalysis {
 	private void importMaturityParameters() throws Exception {
 
 		System.out.println("Import Maturity Parameters");
+
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			return;
 
 		// ****************************************************************
 		// * initialise variables

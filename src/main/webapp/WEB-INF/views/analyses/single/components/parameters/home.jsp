@@ -4,12 +4,14 @@
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitParameters(parameters)" var="mappedParameters" scope="request" />
 <c:choose>
 	<c:when test="${type=='QUALITATIVE' }">
-		
 		<jsp:include page="impact/home.jsp" />
-		<jsp:include page="probability/home.jsp" />
+		<!-- probability and various -->
+		<jsp:include page="qualitative/home.jsp" />
 	</c:when>
 	<c:otherwise>
-		<jsp:include page="extended.jsp" />
+		<jsp:include page="quantitative/home.jsp" />
+		<c:if test="${hasMaturity}">
+			<jsp:include page="maturity/home.jsp" />
+		</c:if>
 	</c:otherwise>
 </c:choose>
-<jsp:include page="others.jsp" />
