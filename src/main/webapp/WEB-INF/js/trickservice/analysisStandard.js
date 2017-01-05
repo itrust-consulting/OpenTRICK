@@ -52,12 +52,12 @@ function manageStandard() {
 						if (response["error"] != undefined)
 							showError($(".modal-body", $standardModal)[0], response["error"]);
 						else {
-							var forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
-							if (!forms.length)
+							var $forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
+							if (!$forms.length)
 								showError($("#error-standard-modal", $standardModal)[0],
 										MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 							else
-								$("#section_manage_standards").replaceWith(forms);
+								$("#section_manage_standards").replaceWith($forms);
 
 							var $tabs = $standardModal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $standardModal.find(".modal-footer button[name='cancel']"), $backBtn = $standardModal
 									.find(".modal-footer a.btn"), $saveBtn = $standardModal.find(".modal-footer button[name='save']");

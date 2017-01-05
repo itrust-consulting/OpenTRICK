@@ -40,13 +40,13 @@
 			<tbody>
 				<c:forEach items="${phases}" var="phase">
 					<c:if test="${phase.number>0}">
-						<tr data-trick-id='${phase.id}' onclick="selectElement(this)" data-trick-class="Phase" ${not empty previousEndDate and phase.beginDate < previousEndDate? "class='warning'":"class='success'"}>
+						<tr data-trick-id='${phase.id}' data-trick-index='${phase.number}' onclick="selectElement(this)" data-trick-class="Phase" ${not empty previousEndDate and phase.beginDate < previousEndDate? "class='warning'":"class='success'"}>
 							<c:if test="${isEditable}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 							</c:if>
-							<td><spring:message text="${phase.number}" /></td>
-							<td data-trick-field="beginDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.beginDate}" /></td>
-							<td data-trick-field="endDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.endDate}" /></td>
+							<td data-trick-field='number'><spring:message text="${phase.number}" /></td>
+							<td data-trick-field="beginDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><fmt:formatDate value="${phase.beginDate}" pattern="YYYY-MM-dd" /></td>
+							<td data-trick-field="endDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><fmt:formatDate value="${phase.endDate}" pattern="YYYY-MM-dd" /></td>
 						</tr>
 						<c:set var="previousEndDate" value="${phase.endDate}" />
 					</c:if>

@@ -378,7 +378,7 @@ ul#task-manager>li>li {
 	border-top: 1px solid #777;
 }
 
-.tooltip-inner,.popover-content {
+.tooltip-inner, .popover-content {
 	max-width: 800px;
 	white-space: pre-wrap;
 	word-break: normal;
@@ -487,9 +487,31 @@ datalist {
 }
 
 .label-as-badge {
-    border-radius: 1em;
-    margin-left: 5px;
-    font-size: 9.5px;
+	border-radius: 1em;
+	margin-left: 5px;
+	font-size: 9.5px;
+}
+
+.popover-danger {
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	color: #a94442;
+}
+
+.popover.top.popover-danger .arrow:AFTER {
+	border-top-color: #ebccd1;
+}
+
+.popover.bottom.popover-danger .arrow:AFTER {
+	border-bottom-color: #ebccd1;
+}
+
+.popover.left.popover-danger .arrow:AFTER {
+	border-left-color: #ebccd1;
+}
+
+.popover.right.popover-danger .arrow:AFTER {
+	border-right-color: #ebccd1;
 }
 
 @media ( min-width : 992px) {
@@ -514,19 +536,15 @@ datalist {
 	.affixNav {
 		height: 88%;
 	}
-
-	
 	@media ( min-height :300px) {
 		ul[data-trick-role='nav-estimation'], ul[data-trick-role="nav-measure"] {
 			position: fixed;
 			bottom: 42px;
 		}
-		
-		ul[data-trick-role='nav-estimation']>li>a, ul[data-trick-role="nav-measure"]>li>a{
+		ul[data-trick-role='nav-estimation']>li>a, ul[data-trick-role="nav-measure"]>li>a {
 			padding: 2px 15px;
 		}
 	}
-	
 	@media ( min-height :400px) {
 		.nav-chapter {
 			height: 36%;
@@ -537,13 +555,11 @@ datalist {
 			height: 55%;
 		}
 	}
-	
 	@media ( min-height :600px) {
 		.nav-chapter {
 			height: 60%;
 		}
 	}
-	
 	@media ( min-height :766px) {
 		.nav-chapter {
 			height: 65%;
@@ -554,7 +570,6 @@ datalist {
 			height: 71%;
 		}
 	}
-	
 	@media ( min-height :1200px) {
 		.nav-chapter {
 			height: 75%;

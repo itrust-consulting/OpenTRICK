@@ -4,7 +4,7 @@ function saveAssessmentData(e) {
 	var $assessmentUI = $("#estimation-ui"), $target = $(e.currentTarget), value = $target.val(), idScenario = $assessmentUI.attr('data-trick-scenario-id'), idAsset = $assessmentUI
 		.attr('data-trick-asset-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target.hasAttr("placeholder") ? $target
 			.attr("placeholder") : $target.attr("data-trick-value");
-	if (value == oldValue)
+	if (value == oldValue || value=='' && oldValue == $target.attr("title"))
 		$target.parent().removeClass('has-error').removeAttr("title");
 	else {
 		var $progress = $("#loading-indicator").show();
@@ -18,14 +18,19 @@ function saveAssessmentData(e) {
 					unknowError();
 				else {
 					var $parent = $target.parent();
-					if (response.error)
-						$parent.addClass("has-error").removeClass("has-success").attr("title", response.message);
+					if (response.error){
+						$parent.addClass("has-error").removeClass("has-success").popover({"content": response.message,'triger':'manual',"container":'body','placement':'auto', 'template' : application.errorTemplate}).attr('title',response.message).popover("show");
+						setTimeout(function() {
+							$parent.popover("destroy");
+						}, 5000);
+					}
 					else {
 						$parent.removeAttr("title").removeClass("has-error");
 						if ($target.attr("readonly"))
 							$target.removeClass("has-success");
 						else
 							$parent.addClass("has-success");
+						
 						var updated = false;
 						for (var i = 0; i < response.fields.length; i++) {
 							var field = response.fields[i], $element = $target;
@@ -56,9 +61,18 @@ function saveAssessmentData(e) {
 							else if ($target.tagName = 'SELECT')
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
-
+						
 						if (application.analysisType == "QUALITATIVE")
 							reloadSection("section_riskregister", undefined, true);
+						
+						setTimeout(function() {
+							
+							if ($target.attr("readonly"))
+								$target.removeClass("has-success");
+							else
+								$parent.removeClass("has-success");
+							
+						}, 3000);
 					}
 				}
 			},
@@ -649,6 +663,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 						application["standard-caching"] = standardCaching = {
 							standards: {},
 							measures: {},
+							phaseEndDate : {},
 							$standardSelector: $standardSelector,
 							$measureManager: $measureManager,
 							$selectedMeasures: $selectedMeasures,
@@ -709,7 +724,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$("<td />").text( measure.domain).appendTo($tr);
 										$("<td data-real-value='" + measure.status + "'>" + status.value + "</td>").attr("title", status.title).appendTo($tr);
 										$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
-										$("<td>" + measure.phase + "</td>").appendTo($tr);
+										$("<td title='"+this.phaseEndDate[measure.phase]+"'>" + measure.phase + "</td>").appendTo($tr);
 										$("<td />").text(measure.responsible).appendTo($tr);
 										$clone = $tr;
 									} else {
@@ -749,7 +764,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									$("<td />").text(measure.domain).appendTo($tr);
 									$("<td data-real-value='" + measure.status + "' >" + status.value + "</td>").attr("title", status.title).appendTo($tr);
 									$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
-									$("<td>" + measure.phase + "</td>").appendTo($tr);
+									$("<td title='"+this.phaseEndDate[measure.phase]+"' >" + measure.phase + "</td>").appendTo($tr);
 									$("<td />").text(measure.responsible).appendTo($tr);
 									if (this.measures[measure.id] != undefined) {
 										if (measure.status == 'NA')
@@ -803,7 +818,9 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 
 								return this;
 							},clear : function(standard){
-								delete this.standards[standard];
+								if(standard == undefined)
+									this.phaseEndDate = {};
+								else delete this.standards[standard];
 								return this;
 							}
 						};
@@ -818,6 +835,12 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					});
 
 					standardCaching.measures = [];
+					
+					if(!standardCaching.phaseEndDate.length){
+						$("#section_phase table>tbody>tr[data-trick-id][data-trick-index]").each(function(){
+							standardCaching.phaseEndDate[this.getAttribute("data-trick-index")] = $("td[data-trick-field='endDate']",this).text();
+						});
+					}
 
 					$("tbody>tr[data-trick-id]", $selectedMeasures).each(function () {
 						var idMeasure = $(this).attr("data-trick-id");

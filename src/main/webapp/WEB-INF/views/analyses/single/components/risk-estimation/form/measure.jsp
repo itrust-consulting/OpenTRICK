@@ -26,8 +26,8 @@
 				<div style="height: 580px; overflow-y: auto; overflow-x: hidden">
 					<div id="riskProfileMessageContainer"></div>
 					<div class="form-group">
-						<label class="label-control col-sm-4"><spring:message code="label.measure.collection" /></label>
-						<div class="col-sm-8">
+						<label class="label-control text-right col-sm-4" style="margin-top: 8px;"><spring:message code="label.analysis.standards" /></label>
+						<div class="col-sm-5">
 							<select name="standard" id="riskProfileStandardSelector" class="form-control">
 								<option disabled="disabled" value="-1" selected="selected"><spring:message code="label.action.choose" /></option>
 								<c:forEach items="${standards}" var="standard">
@@ -98,7 +98,7 @@
 									</c:otherwise>
 								</c:choose>
 								<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
-								<td>${measure.phase.number}</td>
+								<td title='<fmt:formatDate value="${measure.phase.endDate}" pattern="YYYY-MM-dd" />'>${measure.phase.number}</td>
 								<td><spring:message text="${measure.responsible}"/></td>
 						</c:forEach>
 					</tbody>

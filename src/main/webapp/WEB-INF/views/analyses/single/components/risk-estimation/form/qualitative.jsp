@@ -23,8 +23,8 @@
 <spring:message code='label.title.acro.raw' text='RAW' var="raw" />
 <spring:message code='label.title.acro.net' text='NET' var="net" />
 <spring:message code='label.title.acro.exp' text='EXP' var="exp" />
-<table class='table alert-success'>
-	<thead>
+<table class='table'>
+	<thead class='alert-primary'>
 		<tr>
 			<th width="15px" rowspan="2"></th>
 			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
@@ -54,6 +54,7 @@
 					<c:choose>
 						<c:when test="${empty riskProfile.rawProbaImpact.probability}">
 							<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
+								<option disabled="disabled" value="-1" selected="selected">NA</option>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.id}" title='<spring:message text="${parameter.description}"/>'><spring:message text="${parameter.level}" /></option>
 								</c:forEach>
@@ -82,6 +83,7 @@
 						<c:choose>
 							<c:when test="${empty impact}">
 								<select class="form-control" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
+									<option disabled="disabled" value="-1" selected="selected">NA</option>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
 										<option value="${parameter.id}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><spring:message text="${parameter.level}" /></option>
 									</c:forEach>
@@ -100,10 +102,10 @@
 					</div>
 				</td>
 			</c:forEach>
-			<td style="border-left: 2px solid window;"><input name="rawComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedRawImportance}"></td>
+			<td style="border-left: 2px solid #ddd;"><input name="rawComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedRawImportance}"></td>
 		</tr>
 		<!-- NET -->
-		<tr>
+		<tr class='alert-success'>
 			<td style="transform: rotate(270deg);">${net}</td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
@@ -128,6 +130,7 @@
 						<c:choose>
 							<c:when test="${empty impact}">
 								<select class="form-control" name="${impactName}" data-trick-value='0' data-trick-type='integer'>
+									<option disabled="disabled" value="-1" selected="selected">NA</option>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
 										<option value="${parameter.acronym}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><spring:message text="${parameter.level}" /></option>
 									</c:forEach>
@@ -146,7 +149,7 @@
 					</div></td>
 
 			</c:forEach>
-			<td style="border-left: 2px solid window;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+			<td style="border-left: 2px solid #ddd;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 		</tr>
 		<!-- EXP -->
 		<tr class="alert-info">
@@ -160,6 +163,7 @@
 					<c:choose>
 						<c:when test="${empty riskProfile.expProbaImpact.probability}">
 							<select class="form-control" name="riskProfile.expProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
+								<option disabled="disabled" value="-1" selected="selected">NA</option>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.id}" title='<spring:message text="${parameter.description}"/>'><spring:message text="${parameter.level}" /></option>
 								</c:forEach>
@@ -188,6 +192,7 @@
 						<c:choose>
 							<c:when test="${empty impact}">
 								<select class="form-control" name="riskProfile.expProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
+									<option disabled="disabled" value="-1" selected="selected">NA</option>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
 										<option value="${parameter.id}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><spring:message text="${parameter.level}" /></option>
 									</c:forEach>
@@ -206,7 +211,7 @@
 					</div>
 				</td>
 			</c:forEach>
-			<td style="border-left: 2px solid window;"><input name="expComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedExpImportance}"></td>
+			<td style="border-left: 2px solid #ddd;"><input name="expComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedExpImportance}"></td>
 		</tr>
 
 	</tbody>
@@ -309,13 +314,14 @@
 						</c:otherwise>
 					</c:choose>
 					<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
-					<td>${measure.phase.number}</td>
+					<td title='<fmt:formatDate value="${measure.phase.endDate}" pattern="YYYY-MM-dd" />' >${measure.phase.number}</td>
 					<td><spring:message text="${measure.responsible}"/></td>
 			</c:forEach>
 		</tbody>
 	</table>
-	<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}"
-		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
+	<spring:message code="info.analysis.estimation.action_plan.addition.field" var="actionPlanInfo"/>
+	<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlanInfo}"
+		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};" placeholder="${empty actionPlanContent? actionPlanInfo : actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 </div>
 <div class='form-group'>
 	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />

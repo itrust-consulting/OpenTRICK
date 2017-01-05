@@ -325,6 +325,7 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.impact_type.importing", "Import parameter type", 15));
 			//
 			importImpactParameterTypes();
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 18));
 			importImpactParameters();
 			// ****************************************************************
@@ -397,6 +398,9 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_measure.importing", "Import maturity measures", 80));
 			importMaturityMeasures();
 
+			if (measures != null)
+				analysis.getAnalysisStandards().addAll(analysisStandards.values());
+
 			// System.out.println("Saving Data to Database...");
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", 90));
@@ -410,7 +414,7 @@ public class ImportAnalysis {
 
 			// Update values of dynamic parameters
 			if (this.analysis.getType() == AnalysisType.QUANTITATIVE)
-				new DynamicParameterComputer(session,daoAnalysis, assessmentAndRiskProfileManager).computeForAnalysis(this.analysis);
+				new DynamicParameterComputer(session, daoAnalysis, assessmentAndRiskProfileManager).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
 			assessmentAndRiskProfileManager.updateRiskDendencies(analysis, factory);
@@ -1294,6 +1298,8 @@ public class ImportAnalysis {
 	}
 
 	private void importDynamicParameters() throws Exception {
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			return;
 		// Import dynamic parameters
 		ResultSet rs = null;
 		try {
@@ -1842,13 +1848,9 @@ public class ImportAnalysis {
 				// * add measure to standard
 				// ****************************************************************
 				((MaturityStandard) analysisStandard).addMeasure(maturityMeasure);
-
 				// add measure to measures map
 				measures.put(analysisStandard.getStandard().getLabel() + "_" + analysisStandard.getStandard().getVersion() + "_" + chapter, maturityMeasure);
 			}
-			// add analysis standards from map to the analysis
-			for (AnalysisStandard analysisStandard2 : analysisStandards.values())
-				analysis.add(analysisStandard2);
 		} finally {
 			// close result
 			if (rs != null)
@@ -2096,9 +2098,9 @@ public class ImportAnalysis {
 					// standard
 
 					if (standard.getType().equals(StandardType.NORMAL))
-					analysisStandards.put(standard, analysisStandard = new NormalStandard(standard));
+						analysisStandards.put(standard, analysisStandard = new NormalStandard(standard));
 					else
-					analysisStandards.put(standard, analysisStandard = new AssetStandard(standard));
+						analysisStandards.put(standard, analysisStandard = new AssetStandard(standard));
 
 				// ****************************************************************
 				// * Import measure to database
@@ -2571,7 +2573,7 @@ public class ImportAnalysis {
 	}
 
 	private void importRiskProfile() throws SQLException {
-		if (analysis.getType() != AnalysisType.QUALITATIVE)
+		if (analysis.getType() == AnalysisType.QUANTITATIVE)
 			return;
 		ResultSet resultSet = null;
 

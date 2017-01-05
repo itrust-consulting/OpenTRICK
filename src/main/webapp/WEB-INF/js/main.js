@@ -11,6 +11,7 @@ function Application() {
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
 	this.analysisType = '';
+	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 }
 
 if (!String.prototype.capitalize) {

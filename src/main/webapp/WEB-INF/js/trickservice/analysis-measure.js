@@ -17,9 +17,10 @@ function saveMeasureData(e) {
 						else {
 							var $parent = $target.parent();
 							if (response.error) {
-								$parent.addClass("has-error");
-								$parent.removeClass("has-success");
-								$parent.attr("title", response.message);
+								$parent.addClass("has-error").removeClass("has-success").popover({"content": response.message,'triger':'manual',"container":'body','placement':'auto', 'template' : application.errorTemplate}).attr('title',response.message).popover("show");
+								setTimeout(function() {
+									$parent.popover("destroy");
+								}, 5000);
 							} else {
 								$parent.removeAttr("title");
 								$parent.removeClass("has-error");
@@ -50,6 +51,10 @@ function saveMeasureData(e) {
 									$cost.parent().removeClass("has-error");
 
 								reloadMeasureRow(id, $("select[name='standard']").val());
+								
+								setTimeout(function() {
+									$parent.removeClass("has-success");
+								}, 3000);
 							}
 
 						}

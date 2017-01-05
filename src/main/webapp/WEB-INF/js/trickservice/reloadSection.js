@@ -162,6 +162,12 @@ function callbackBySection(section) {
 		},
 		"section_language" : function() {
 			rebuildMeasureLanguage();
+		}, "section_phase" : function(){
+			if (application["estimation-helper"]){//See risk-estimation
+				application["estimation-helper"].$tabSection.attr("data-update-required", application["estimation-helper"].invalidate = true);
+				if(application["standard-caching"])//See risk-estimation -> manage measure
+					application["standard-caching"].clear();
+			}
 		}
 
 	};

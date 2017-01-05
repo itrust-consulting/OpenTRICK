@@ -53,8 +53,8 @@
 				code="label.menu.analysis.risk_treatment_compliance" /><span class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.standards" /></li>
-			<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tab-measure-edition" data-toggle="tab"><spring:message code="label.measures" /></a></li>
-			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.measure_by_collection" /></a>
+			<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tab-measure-edition" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_measure" /></a></li>
+			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a>
 			<c:if test="${isProfile || isEditable}">
 				<li title='<spring:message code="label.title.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message code="label.menu.manage_standard" /></a></li>
 			</c:if>

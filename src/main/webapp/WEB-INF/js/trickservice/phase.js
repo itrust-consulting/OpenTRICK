@@ -286,12 +286,12 @@ function deletePhase(idPhase) {
 				if (response["success"] != undefined) {
 					setTimeout(function() {
 						reloadSection("section_phase");
-					}, 400);
+					}, 200);
 				} else if (response["error"] != undefined) {
 					setTimeout(function() {
 						$("#alert-dialog .modal-body").html(response["error"]);
 						$("#alert-dialog").modal("toggle");
-					}, 400);
+					}, 200);
 				} else
 					unknowError();
 				return false;
