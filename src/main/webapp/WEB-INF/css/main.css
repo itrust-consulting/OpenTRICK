@@ -243,7 +243,7 @@ td>pre {
 	border: none;
 	background-color: inherit;
 	color: inherit;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: Corbel, "Helvetica Neue", Helvetica, Arial, sans-serif;
 	padding: 0;
 	font-size: inherit;
 	margin: 0;
@@ -486,7 +486,10 @@ datalist {
 	height: 445px;
 }
 
-.label-as-badge {
+.helper {
+	padding: 1px 5px;
+	border: solid 1px #337ab7;
+	color: #337ab7;
 	border-radius: 1em;
 	margin-left: 5px;
 	font-size: 9.5px;

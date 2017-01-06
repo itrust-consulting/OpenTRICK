@@ -676,7 +676,7 @@ function generateHelper($selection, container) {
 		container = "body";
 	$selection
 			.each(function() {
-				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='label label-primary label-as-badge'><i class='fa fa-info'/></span>");
+				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");
 				if (title == "" || title == undefined) {
 					title = $this.attr("title");
 					if (title == "" || title == undefined)
