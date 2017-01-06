@@ -15,7 +15,7 @@
 	<div class="container">
 		<div class="navbar-header">
 			<a class="navbar-brand" id='main_menu_brand' href="${pageContext.request.contextPath}/Home"
-				style="background-image: url('<spring:url value="/images/brand.png" />'); width:186px; background-repeat: no-repeat;margin: 0 10px;"></a>
+				style="background-image: url('<spring:url value="/images/brand.png" />'); width:186px; background-repeat: no-repeat;margin: 0 10px; background-size:auto 52px;"></a>
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 				<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 			</button>
@@ -23,8 +23,8 @@
 		<sec:authorize access="authenticated">
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li ${menu.equals("Home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Home" id='main_menu_home'> <spring:message code="label.menu.home"
-								text="Home" /></a></li>
+					<%-- <li ${menu.equals("Home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Home" id='main_menu_home'> <spring:message code="label.menu.home"
+								text="Home" /></a></li> --%>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')">
 						<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a href="${pageContext.request.contextPath}/KnowledgeBase" id='main_menu_knowledgebase'> <spring:message
 									code="label.menu.analysis.knowledgebase" text="Knowledge base" /></a></li>
