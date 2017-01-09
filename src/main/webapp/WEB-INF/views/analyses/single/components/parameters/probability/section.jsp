@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<div class="${type=='QUANTITATIVE' ? 'col-md-6' : 'col-lg-6' }">
+<div class="col-md-6">
 	<fieldset id="Scale_Probability">
 		<legend>
 			<spring:message code="label.parameter.extended.probability" />
@@ -12,7 +12,14 @@
 			<thead>
 				<tr>
 					<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
-					<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+					<c:choose>
+						<c:when test="${type == 'QUALITATIVE'}">
+							<th class="textaligncenter"><spring:message code="label.parameter.label" /></th>
+						</c:when>
+						<c:otherwise>
+							<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+						</c:otherwise>
+					</c:choose>
 					<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
 					<c:if test="${type == 'QUANTITATIVE'}">
 						<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
@@ -30,8 +37,14 @@
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
 					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
 						<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-						<td data-trick-field="acronym" class="textaligncenter"><spring:message
-								text="${parameter.acronym}" /></td>
+						<c:choose>
+							<c:when test="${type == 'QUALITATIVE'}">
+								<td data-trick-field="label" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+							</c:when>
+							<c:otherwise>
+								<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+							</c:otherwise>
+						</c:choose>
 						<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 								text="${parameter.description}" /></td>
 						<c:if test="${type == 'QUANTITATIVE'}">

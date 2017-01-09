@@ -18,7 +18,7 @@ public abstract class Parameter implements IParameter {
 	private int id = -1;
 	
 	/** The SimpleParameter Description */
-	@Column(name = "dtLabel", nullable = false)
+	@Column(name = "dtDescription", nullable = false)
 	private String description = "";
 	
 	/** The SimpleParameter Value */

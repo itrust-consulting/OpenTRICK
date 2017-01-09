@@ -11,5 +11,7 @@ public interface IBoundedParameter extends ILevelParameter {
 	 * @return The Bounds values (from and to values)
 	 */
 	Bounds getBounds();
+	
+	String getLabel();
 
 }

@@ -154,4 +154,23 @@ public class ControllerParameter {
 		// load parameters of analysis
 		return serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME, idAnalysis);
 	}
+	
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Risk-acceptance/form", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String riskAcceptanceForm(Model model, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), level = serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis);
+		model.addAttribute("maxImportance", level*level);
+		model.addAttribute("parameters", serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME, idAnalysis));
+		return "analyses/single/components/parameters/form/riskAcceptance";
+	}
 }

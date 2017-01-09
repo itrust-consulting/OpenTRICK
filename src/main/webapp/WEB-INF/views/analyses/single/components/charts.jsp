@@ -17,9 +17,8 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_ale_asset" class="col-xs-12"></div>
-			<hr style="margin: 30px 0;" class="col-xs-12" />
-			<div id="chart_ale_asset_type" class="col-xs-12"></div>
+			<div id="chart_ale_asset" class="col-xs-6"></div>
+			<div id="chart_ale_asset_type" class="col-xs-6"></div>
 		</div>
 	</div>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-scenario" data-update-required="true" data-trigger="loadChartScenario">
@@ -33,9 +32,8 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_ale_scenario" class="col-xs-12"></div>
-			<hr style="margin: 30px 0;" class="col-xs-12" />
-			<div id="chart_ale_scenario_type" class="col-xs-12"></div>
+			<div id="chart_ale_scenario" class="col-xs-6"></div>
+			<div id="chart_ale_scenario_type" class="col-xs-6"></div>
 		</div>
 	</div>
 </c:if>
@@ -50,7 +48,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="chart_compliance_body" class="col-xs-12"></div>
+		<div id="chart_compliance_body" class="row"></div>
 	</div>
 </div>
 <c:if test="${type=='QUANTITATIVE'}">
@@ -65,12 +63,10 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_evolution_profitability_compliance_APPN" class="col-xs-12"></div>
+			<div id="chart_evolution_profitability_compliance_APPN" class="col-xs-6"></div>
 			<c:if test="${show_uncertainty}">
-				<hr style="margin: 30px 0;" class="col-xs-12" />
-				<div id="chart_evolution_profitability_compliance_APPO" class="col-xs-12"></div>
-				<hr style="margin: 30px 0;" class="col-xs-12" />
-				<div id="chart_evolution_profitability_compliance_APPP" class="col-xs-12"></div>
+				<div id="chart_evolution_profitability_compliance_APPO" class="col-xs-6"></div>
+				<div id="chart_evolution_profitability_compliance_APPP" class="col-xs-6"></div>
 			</c:if>
 	
 		</div>
@@ -86,12 +82,10 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_budget_APPN" class="col-xs-12"></div>
+			<div id="chart_budget_APPN" class="col-xs-6"></div>
 			<c:if test="${show_uncertainty}">
-				<hr style="margin: 30px 0;" class="col-xs-12" />
-				<div id="chart_budget_APPO" class="col-xs-12"></div>
-				<hr style="margin: 30px 0;" class="col-xs-12" />
-				<div id="chart_budget_APPP" class="col-xs-12"></div>
+				<div id="chart_budget_APPO" class="col-xs-6"></div>
+				<div id="chart_budget_APPP" class="col-xs-6"></div>
 			</c:if>
 		</div>
 	</div>
@@ -106,7 +100,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_parameterevolution_body" class="col-xs-12"></div>
+			<div id="chart_parameterevolution_body" class="row"></div>
 		</div>
 	</div>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-asset-type" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
@@ -120,7 +114,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_aleevolutionbyassettype_body" class="col-xs-12"></div>
+			<div id="chart_aleevolutionbyassettype_body" class="row"></div>
 		</div>
 	</div>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-scenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
@@ -134,7 +128,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="chart_aleevolutionbyscenario_body" class="col-xs-12"></div>
+			<div id="chart_aleevolutionbyscenario_body" class="row"></div>
 		</div>
 	</div>
 </c:if>

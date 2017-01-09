@@ -170,4 +170,9 @@ public class ServiceLikelihoodParameterImpl implements ServiceLikelihoodParamete
 		daoLikelihoodParameter.saveOrUpdate(entities);
 	}
 
+	@Override
+	public Integer findMaxLevelByIdAnalysis(Integer idAnalysis) {
+		return daoLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis);
+	}
+
 }

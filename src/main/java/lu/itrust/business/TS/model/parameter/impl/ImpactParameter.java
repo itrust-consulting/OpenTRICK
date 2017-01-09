@@ -70,6 +70,9 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	/** Extended SimpleParameter From And To values */
 	@Embedded
 	private Bounds bounds = null;
+	
+	@Column(name = "dtLabel", nullable = false)
+	private String label = "";
 
 	/**
 	 * 
@@ -171,6 +174,22 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	public String getTypeName() {
 		return type.getName();
 	}
+	
+	/**
+	 * @return the label
+	 */
+	@Override
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
 	/**
 	 * clone: <br>
@@ -242,5 +261,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 		}
 
 	}
+
+	
 
 }

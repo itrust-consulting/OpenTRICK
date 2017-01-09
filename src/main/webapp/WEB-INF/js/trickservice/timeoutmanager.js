@@ -127,9 +127,9 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 
 	}();
 
-	SessionManager.start();
+	/*SessionManager.start();
 
 	$(document).ajaxStart(function() {
 		SessionManager.extend();
-	});
+	});*/
 });

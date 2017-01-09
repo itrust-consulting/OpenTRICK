@@ -36,6 +36,9 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	/** Extended SimpleParameter From And To values */
 	@Embedded
 	private Bounds bounds = null;
+	
+	@Column(name = "dtLabel", nullable = false)
+	private String label = "";
 
 	/**
 	 * 
@@ -123,6 +126,22 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	@Override
 	public String getGroup() {
 		return Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD;
+	}
+	
+	/**
+	 * @return the label
+	 */
+	@Override
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	/**

@@ -115,17 +115,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	visibility: hidden;
 }
 
-/**  table width */
-.panelbodydefinition {
-	height: 600px;
-	overflow: auto;
-}
-
-.autofitpanelbodydefinition {
-	max-height: 600px;
-	overflow: auto;
-}
-
 .textaligncenter {
 	text-align: center;
 }
@@ -486,6 +475,36 @@ datalist {
 	height: 445px;
 }
 
+.outline {
+	background-color: transparent;
+	color: inherit;
+	transition: all .25s;
+}
+
+.btn-primary.outline {
+	color: #428bca;
+}
+
+.btn-success.outline {
+	color: #5cb85c;
+}
+
+.btn-info.outline {
+	color: #5bc0de;
+}
+
+.btn-warning.outline {
+	color: #f0ad4e;
+}
+
+.btn-danger.outline {
+	color: #d9534f;
+}
+
+.btn-primary.outline:hover, .btn-success.outline:hover, .btn-info.outline:hover, .btn-warning.outline:hover, .btn-danger.outline:hover {
+	color: #fff;
+}
+
 .helper {
 	padding: 0px 4px;
 	border: solid 1px #337ab7;
@@ -515,6 +534,22 @@ datalist {
 
 .popover.right.popover-danger .arrow:AFTER {
 	border-right-color: #ebccd1;
+}
+
+.dropdown-header {
+	padding: 2px 14px;
+}
+
+#main_menu_brand {
+	background-image: url('/trickservice/images/brand-gray.png');
+	width: 186px;
+	background-repeat: no-repeat;
+	margin: 1px 5px 0 0;
+	background-size: auto 49px;
+}
+
+#main_menu_brand:HOVER {
+	background-image: url('/trickservice/images/brand.png');
 }
 
 @media ( min-width : 992px) {

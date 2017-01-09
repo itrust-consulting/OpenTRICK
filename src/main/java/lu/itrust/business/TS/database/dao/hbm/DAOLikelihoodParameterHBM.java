@@ -220,13 +220,21 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LikelihoodParameter> findByAnalysisId(Integer idAnalysis) {
-		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis order by parameter.level asc")
-		.setParameter("idAnalysis", idAnalysis).getResultList();
+		return getSession()
+				.createQuery(
+						"Select parameter From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis order by parameter.level asc")
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override
 	public void saveOrUpdate(List<LikelihoodParameter> entities) {
 		entities.stream().forEach(entity -> saveOrUpdate(entity));
+	}
+
+	@Override
+	public Integer findMaxLevelByIdAnalysis(Integer idAnalysis) {
+		return getSession().createQuery("Select max(parameter.level) From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis",
+				Integer.class).setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 }

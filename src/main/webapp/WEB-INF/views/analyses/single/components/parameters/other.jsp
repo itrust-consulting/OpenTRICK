@@ -74,7 +74,6 @@
 				</thead>
 				<tbody>
 					<tr data-trick-callback="reloadSection('section_riskregister');" data-trick-class="SimpleParameter">
-
 						<c:forEach items="${mappedParameters['CSSF']}" var="parameter">
 							<c:choose>
 								<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
@@ -104,4 +103,39 @@
 			</table>
 		</fieldset>
 	</div>
+
+	<div class="col-md-6">
+		<fieldset>
+			<legend>
+				<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+			</legend>
+			<c:choose>
+				<c:when test="${empty mappedParameters['RISK_ACCEPTANCE']}">
+					<button class='btn btn-primary outline' onclick="return manageRiskAcceptance()">
+						<spring:message code='label.action.add' />
+					</button>
+				</c:when>
+				<c:otherwise>
+					<table class="table table-hover table-condensed">
+						<thead>
+							<tr>
+								<th class="textaligncenter"><spring:message code="label.level" /></th>
+								<th class="textaligncenter"><spring:message code="label.description" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
+								<tr data-trick-class="RiskAcceptanceParameter" data-trick-id="${parameter.id}">
+									<td data-trick-field="value" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+									<spring:message text="${parameter.description}" var="color"/>
+									<td style="background-color: #${color}; width: 65px;" data-trick-field='color' data-trick-default-value='${color}'></td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</c:otherwise>
+			</c:choose>
+		</fieldset>
+	</div>
+
 </c:if>

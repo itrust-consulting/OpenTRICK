@@ -14,4 +14,6 @@ import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
  */
 public interface DAOLikelihoodParameter extends TemplateDAOService<LikelihoodParameter, Integer> {
 	List<String> findAcronymByAnalysisId(Integer idAnalysis);
+
+	Integer findMaxLevelByIdAnalysis(Integer idAnalysis);
 }

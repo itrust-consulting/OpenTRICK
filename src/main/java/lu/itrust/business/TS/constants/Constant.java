@@ -259,7 +259,7 @@ public class Constant {
 	public final static int PHASE_NOT_USABLE = 0;
 	public final static int PHASE_DEFAULT = 1;
 
-	/** SimpleParameter Type Identifiers */
+	/** Parameter Type Identifiers */
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML = 1;
 	public final static int PARAMETERTYPE_TYPE_PROPABILITY = 2;
 	public final static int PARAMETERTYPE_TYPE_IMPACT = 3;
@@ -268,12 +268,10 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
 	public final static int PARAMETERTYPE_TYPE_CSSF = 7;
 	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 8;
-	public final static int PARAMETERTYPE_TYPE_IMPACT_REP = 9;
-	public final static int PARAMETERTYPE_TYPE_IMPACT_OPE = 10;
-	public final static int PARAMETERTYPE_TYPE_IMPACT_LEG = 11;
+	public final static int PARAMETERTYPE_TYPE_RISK_ACCEPTANCE = 9;
 	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC };
 
-	/** SimpleParameter Type Names */
+	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_NAME = "IMPACT";
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME = "IMPSCALE";
@@ -282,9 +280,7 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
 	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
-	public final static String PARAMETERTYPE_TYPE_IMPACT_REP_NAME = "IMPACT_REP";
-	public final static String PARAMETERTYPE_TYPE_IMPACT_OPE_NAME = "IMPACT_OPE";
-	public final static String PARAMETERTYPE_TYPE_IMPACT_LEG_NAME = "IMPACT_LEG";
+	public final static String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
 
 	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETERTYPE_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME };
 

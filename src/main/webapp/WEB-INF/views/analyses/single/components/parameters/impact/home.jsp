@@ -27,16 +27,15 @@
 						<thead>
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.label" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
 							</tr>
 						</thead>
 						<tbody>
 							<c:forEach items="${mappedParameters[impactName]}" var="parameter">
 								<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
-									<td data-trick-field="level"  class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-									<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message
-											text="${parameter.acronym}" /></td>
+									<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+									<td data-trick-field="label" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 									<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
 								</tr>

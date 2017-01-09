@@ -105,11 +105,11 @@
 				</table>
 			</div>
 			<div class="modal-footer">
-				<button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">
-					<spring:message code="label.action.close" />
-				</button>
 				<button type="button" name="save" class="btn btn-primary">
 					<spring:message code="label.action.save" />
+				</button>
+				<button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.close" />
 				</button>
 			</div>
 		</div>

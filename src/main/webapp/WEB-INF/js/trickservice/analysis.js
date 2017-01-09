@@ -317,9 +317,9 @@ function compliances() {
 			var $complianceBody = $("#chart_compliance_body").empty();
 			$.each(response.standards, function(key, data) {
 				if ($complianceBody.children().length)
-					$complianceBody.append("<hr class='col-xs-12' style='margin: 30px 0;'> <div id='chart_compliance_" + key + "'></div>");
+					$complianceBody.append("<div class='col-xs-3' id='chart_compliance_" + key + "'></div>");
 				else
-					$complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
+					$complianceBody.append("<div class='col-xs-3' id='chart_compliance_" + key + "'></div>");
 				$('div[id="chart_compliance_' + key + '"]').loadOrUpdateChart(data[0]);
 			});
 		},
@@ -456,7 +456,7 @@ function displayChart(id, response) {
 			$element.empty();
 			for (var i = 0; i < response.length; i++) {
 				if (i > 0)
-					$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
+					$("<hr  style='margin: 30px 0;'>").appendTo($element);
 				$("<div/>").appendTo($element)
 			}
 		}
@@ -466,6 +466,27 @@ function displayChart(id, response) {
 			$(divSelector.get(i)).loadOrUpdateChart(response[i]);
 	} else
 		$element.loadOrUpdateChart(response);
+}
+
+function manageRiskAcceptance(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url : context + "/Analysis/Parameter/Risk-acceptance/form",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
+			if(!$content.length)
+				showError("Error data cannot be loaded");
+			else {
+				$content.appendTo("#widgets").modal("show")
+			}
+		},
+		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+	});
+	return false;
 }
 
 function loadChartAsset() {
