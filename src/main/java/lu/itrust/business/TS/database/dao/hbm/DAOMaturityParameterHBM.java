@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -148,7 +149,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<? extends MaturityParameter> entities) {
+	public void delete(Collection<? extends MaturityParameter> entities) {
 		entities.forEach(parameter -> delete(parameter));
 	}
 

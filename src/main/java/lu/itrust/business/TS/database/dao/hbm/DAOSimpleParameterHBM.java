@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -191,7 +192,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 * lu.itrust.business.TS.database.TemplateDAOService#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<? extends SimpleParameter> entities) {
+	public void delete(Collection<? extends SimpleParameter> entities) {
 		entities.forEach(parameter -> delete(parameter));
 	}
 

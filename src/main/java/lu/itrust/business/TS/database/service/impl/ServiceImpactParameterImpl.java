@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +122,7 @@ public class ServiceImpactParameterImpl implements ServiceImpactParameter {
 	 */
 	@Transactional
 	@Override
-	public void delete(List<? extends ImpactParameter> entities) {
+	public void delete(Collection<? extends ImpactParameter> entities) {
 		daoImpactParameter.delete(entities);
 	}
 

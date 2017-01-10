@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,7 +139,7 @@ public class ServiceLikelihoodParameterImpl implements ServiceLikelihoodParamete
 	 */
 	@Transactional
 	@Override
-	public void delete(List<? extends LikelihoodParameter> entities) {
+	public void delete(Collection<? extends LikelihoodParameter> entities) {
 		daoLikelihoodParameter.delete(entities);
 	}
 

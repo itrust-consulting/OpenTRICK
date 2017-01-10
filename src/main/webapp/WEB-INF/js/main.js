@@ -312,6 +312,20 @@ function resolveMessage(code, text, params) {
 	application.localesMessages[generateMessageUniqueCode(code, params)] = text;
 }
 
+function showNotifcation(type, message, url) {
+	$.notify({
+		message : message,
+		url : url
+	}, {
+		type : type,
+		z_index : 1068,
+		offset : {
+			x: 0,
+			y: 53
+		}
+	});
+}
+
 /**
  * MessageResolver
  * 

@@ -29,11 +29,11 @@
 	<div class="page-header tab-content-header">
 		<div class="container">
 			<div class="row-fluid">
-				<h3 align="center">
-					<select id='measure-collection-selector' class="form-control" style="width: auto;min-width: 18%; font-size: 16px; padding-top: 5px;">
+				<h3>
+					<select id='measure-collection-selector' class="form-control center-block" style="width: auto;min-width: 18%; font-size: 14px; padding-top: 5px;">
 						<c:forEach items="${standards}" var="standard" varStatus="varStatus">
-							<option value="section_standard_${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message code='label.index.standard'
-									arguments="${standard.label}" /></option>
+							<option value="section_standard_${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message
+									text="${standard.label}" /></option>
 							<c:if test="${varStatus.index==0 }">
 								<c:set var="firstStandard" value="${standard}"/>
 							</c:if>

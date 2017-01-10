@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,7 +140,7 @@ public class ServiceDynamicParameterImpl implements ServiceDynamicParameter {
 	 */
 	@Transactional
 	@Override
-	public void delete(List<? extends DynamicParameter> entities) {
+	public void delete(Collection<? extends DynamicParameter> entities) {
 		daoDynamicParameter.delete(entities);
 	}
 

@@ -5,6 +5,7 @@
 <script src="<spring:url value="/js/jquery-2.2.4.min.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
 <sec:authorize access="authenticated">
+	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js" />"></script>
 	<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
 	<script src="<spring:url value="/js/dom-parser.js" />"></script>
 	<script src="<spring:url value="/js/naturalSort.js" />"></script>

@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.database;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -114,7 +115,7 @@ public interface TemplateDAOService<T, ID extends Serializable> {
 	 * @throws IllegalArgumentException
 	 *             in case the given {@link Iterable} is (@literal null}.
 	 */
-	void delete(List<? extends T> entities);
+	void delete(Collection<? extends T> entities);
 
 	/**
 	 * Deletes all entities managed by the repository.

@@ -38,6 +38,11 @@ $(document).ready(function() {
 		lang : {
 			decimalPoint : ',',
 			thousandsSep : ' '
+		},
+		chart : {
+			style : {
+				fontFamily : 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif'
+			}
 		}
 	});
 
@@ -127,11 +132,12 @@ function findAnalysisLocale() {
 }
 
 function reloadAssetScenario() {
-	if($("#section_asset:visible"))
+	if ($("#section_asset:visible"))
 		reloadSection("section_asset")
-	else if($("#section_scenario"))
+	else if ($("#section_scenario"))
 		reloadSection("section_scenario");
-	else reloadSection(["section_asset","section_scenario", undefined, true]);
+	else
+		reloadSection([ "section_asset", "section_scenario", undefined, true ]);
 }
 
 function isEditable() {
@@ -215,14 +221,18 @@ function reloadMeasureRow(idMeasure, standard) {
 					if ($checked.length)
 						$newRow.find("input[type='checkbox']").prop("checked", true).change();
 
-					if (application["measure-view-init"]) {//See analysis-measure
+					if (application["measure-view-init"]) {// See
+						// analysis-measure
 						if ($("#measure-ui[data-trick-id='" + idMeasure + "']:hidden").length)
-							$("#tabMeasureEdition").attr("data-update-required",  application["measure-view-invalidate"] = true);
+							$("#tabMeasureEdition").attr("data-update-required", application["measure-view-invalidate"] = true);
 					}
 
-					if (application["estimation-helper"]){//See risk-estimation
+					if (application["estimation-helper"]) {// See
+						// risk-estimation
 						application["estimation-helper"].$tabSection.attr("data-update-required", application["estimation-helper"].invalidate = true);
-						if(application["standard-caching"])//See risk-estimation -> manage measure
+						if (application["standard-caching"])// See
+							// risk-estimation
+							// -> manage measure
 							application["standard-caching"].clear(standard);
 					}
 				}
@@ -468,24 +478,87 @@ function displayChart(id, response) {
 		$element.loadOrUpdateChart(response);
 }
 
-function manageRiskAcceptance(){
+function manageRiskAcceptance() {
 	var $progress = $("#loading-indicator").show();
-	$.ajax({
-		url : context + "/Analysis/Parameter/Risk-acceptance/form",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
-			if(!$content.length)
-				showError("Error data cannot be loaded");
-			else {
-				$content.appendTo("#widgets").modal("show")
-			}
-		},
-		error : unknowError
-	}).complete(function() {
-		$progress.hide();
-	});
+	$
+			.ajax(
+					{
+						url : context + "/Analysis/Parameter/Risk-acceptance/form",
+						type : "get",
+						contentType : "application/json;charset=UTF-8",
+						success : function(response, textStatus, jqXHR) {
+							var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
+							if (!$content.length)
+								showError("Error data cannot be loaded");
+							else {
+								var actionDelete = function() {
+									$(this).closest("tr").remove();
+								};
+								$("button[name='delete']", $content).on("click", actionDelete);
+								$("button[name='add']", $content)
+										.on(
+												"click",
+												function() {
+													var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
+															"<span class='range-text'>0</span>").appendTo($div), $range = $(
+															"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='description' type='color' value='#fada91' class='form-control'>");
+													$removeBtn.appendTo($("<td/>").appendTo($tr));
+													$div.appendTo($("<td />").appendTo($tr));
+													$inputColor.appendTo($("<td />").appendTo($tr));
+													$trParent.before($tr);
+													$removeBtn.on("click", actionDelete);
+													$range.on("input change", function() {
+														$rangeInfo.text(this.value);
+														this.setAttribute("title", this.value);
+													});
+												});
+								
+								$("input[type='range']", $content).on("input change",function(){
+									$(".range-text",this.parentElement).text(this.value);
+									this.setAttribute("title", this.value);
+								});
+
+								$("button[name='save']", $content).on("click", function() {
+									$progress.show();
+									var $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
+									$("tr[data-trick-id]", $table).each(function() {
+										var $this = $(this);
+										data.push({
+											id : $this.attr("data-trick-id"),
+											value : $("input[name='value']", $this).val(),
+											description : $("input[name='description']", $this).val()
+										});
+									});
+
+									$.ajax({
+										url : context + "/Analysis/Parameter/Risk-acceptance/Save",
+										type : "post",
+										data : JSON.stringify(data),
+										contentType : "application/json;charset=UTF-8",
+										success : function(response, textStatus, jqXHR) {
+											if (response.error)
+												showNotifcation('danger', response.error);
+											else if (response.success) {
+												$content.modal("hide");
+												showNotifcation('success', response.success);
+											} else
+												unknowError();
+										},
+										error : unknowError
+									}).complete(function() {
+										$progress.hide();
+									});
+								});
+
+								$content.appendTo("#widgets").modal("show").on("hidden.bs.modal", function() {
+									$content.remove();
+								});
+							}
+						},
+						error : unknowError
+					}).complete(function() {
+				$progress.hide();
+			});
 	return false;
 }
 

@@ -552,6 +552,28 @@ datalist {
 	background-image: url('/trickservice/images/brand.png');
 }
 
+.range-group {
+	width: 100%;
+	display: inline-block;
+}
+
+.range-group .range-text {
+	min-width: 15%;
+	display: inline-block;
+	text-align: center;
+	padding: 6px 12px;
+	border: 1px solid #9d9d9d;
+	border-radius: 4px;
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+.range-group .range-input {
+	width: 70%;
+	display: inline-block;
+	vertical-align: middle;
+}
+
 @media ( min-width : 992px) {
 	li.back-btn-bottom {
 		display: none;

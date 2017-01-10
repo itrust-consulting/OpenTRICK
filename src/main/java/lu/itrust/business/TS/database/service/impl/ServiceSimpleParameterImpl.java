@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,7 +181,7 @@ public class ServiceSimpleParameterImpl implements lu.itrust.business.TS.databas
 	 */
 	@Transactional
 	@Override
-	public void delete(List<? extends SimpleParameter> entities) {
+	public void delete(Collection<? extends SimpleParameter> entities) {
 		daoSimpleParameter.delete(entities);
 	}
 

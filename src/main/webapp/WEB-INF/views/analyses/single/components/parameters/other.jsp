@@ -107,34 +107,39 @@
 	<div class="col-md-6">
 		<fieldset>
 			<legend>
-				<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+				<c:choose>
+					<c:when test="${isEditable}">
+						<span class="col-xs-10"> <spring:message code="label.title.parameter.risk.acceptance.threshold" />
+						</span>
+						<span class="col-xs-2">
+							<button class='btn btn-link btn-xs' onclick="return manageRiskAcceptance()">
+								<spring:message code='label.action.manage' />
+							</button>
+						</span>
+					</c:when>
+					<c:otherwise>
+						<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+					</c:otherwise>
+				</c:choose>
+
 			</legend>
-			<c:choose>
-				<c:when test="${empty mappedParameters['RISK_ACCEPTANCE']}">
-					<button class='btn btn-primary outline' onclick="return manageRiskAcceptance()">
-						<spring:message code='label.action.add' />
-					</button>
-				</c:when>
-				<c:otherwise>
-					<table class="table table-hover table-condensed">
-						<thead>
-							<tr>
-								<th class="textaligncenter"><spring:message code="label.level" /></th>
-								<th class="textaligncenter"><spring:message code="label.description" /></th>
-							</tr>
-						</thead>
-						<tbody>
-							<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
-								<tr data-trick-class="RiskAcceptanceParameter" data-trick-id="${parameter.id}">
-									<td data-trick-field="value" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
-									<spring:message text="${parameter.description}" var="color"/>
-									<td style="background-color: #${color}; width: 65px;" data-trick-field='color' data-trick-default-value='${color}'></td>
-								</tr>
-							</c:forEach>
-						</tbody>
-					</table>
-				</c:otherwise>
-			</c:choose>
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+						<th style="" class="textaligncenter"><spring:message code="label.description" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
+						<tr data-trick-class="SimpleParameter" data-trick-id="${parameter.id}">
+							<td class='textaligncenter' data-trick-field="value"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+							<spring:message text="${parameter.description}" var="color" />
+							<td style="background-color: ${color}; width: 50%" data-trick-field='color' data-trick-default-value='${color}'></td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
 		</fieldset>
 	</div>
 

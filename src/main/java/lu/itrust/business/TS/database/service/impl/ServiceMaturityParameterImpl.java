@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,7 +178,7 @@ public class ServiceMaturityParameterImpl implements ServiceMaturityParameter {
 	 */
 	@Transactional
 	@Override
-	public void delete(List<? extends MaturityParameter> entities) {
+	public void delete(Collection<? extends MaturityParameter> entities) {
 		daoMaturiyParameter.delete(entities);
 	}
 

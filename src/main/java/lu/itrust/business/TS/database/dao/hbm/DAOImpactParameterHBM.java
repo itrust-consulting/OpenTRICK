@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -168,7 +169,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	 * lu.itrust.business.TS.database.TemplateDAOService#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<? extends ImpactParameter> entities) {
+	public void delete(Collection<? extends ImpactParameter> entities) {
 		entities.forEach(parameter -> delete(parameter));
 	}
 

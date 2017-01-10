@@ -8,6 +8,17 @@ $(document).ready(function() {
 		analyses : [],
 		size : $versions.length
 	};
+	
+	Highcharts.setOptions({
+		lang : {
+			decimalPoint : ',',
+			thousandsSep : ' '
+		},chart: {
+	        style: {
+	            fontFamily: 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif'
+	        }
+	    }
+	});
 
 	application.shownScrollTop = false;
 

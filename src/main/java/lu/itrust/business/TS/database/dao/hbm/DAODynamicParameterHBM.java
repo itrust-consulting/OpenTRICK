@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -190,7 +191,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	 * lu.itrust.business.TS.database.TemplateDAOService#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<? extends DynamicParameter> entities) {
+	public void delete(Collection<? extends DynamicParameter> entities) {
 		entities.forEach(parameter -> delete(parameter));
 	}
 
