@@ -181,7 +181,6 @@ function callbackBySection(section) {
 function SectionSmartUpdate(sectionName, data) {
 	this.sectionName = sectionName;
 	this.data = data;
-
 };
 
 SectionSmartUpdate.prototype = {

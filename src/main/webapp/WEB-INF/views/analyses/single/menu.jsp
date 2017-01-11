@@ -53,11 +53,11 @@
 				code="label.menu.analysis.risk_treatment_compliance" /><span class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.standards" /></li>
-			<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tab-measure-edition" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_measure" /></a></li>
-			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a>
-			<c:if test="${isProfile || isEditable}">
-				<li title='<spring:message code="label.title.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message code="label.menu.manage_standard" /></a></li>
-			</c:if>
+			<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tab-measure-edition" data-toggle="tab"><spring:message
+						code="label.menu.analysis.view_by_measure" /></a></li>
+			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a> <c:if test="${isProfile || isEditable}">
+					<li title='<spring:message code="label.title.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message code="label.menu.manage_standard" /></a></li>
+				</c:if>
 			<li class="divider"></li>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.implementation" /></li>
 			<li><a href="#tab-phase" data-toggle="tab"> <spring:message code="label.menu.analysis.phase" /></a></li>
@@ -83,14 +83,20 @@
 					<li><a href="#tab-chart-scenario" data-toggle="tab"> <spring:message code="label.chart.scenario" /></a></li>
 				</c:if>
 				<li><a href="#tab-chart-compliance" data-toggle="tab"> <spring:message code="label.chart.compliance" /></a></li>
-				<c:if test="${type=='QUANTITATIVE'}">
-					<li><a href="#tab-chart-evolution" data-toggle="tab"> <spring:message code="label.chart.evolution" /></a></li>
-					<li><a href="#tab-chart-budget" data-toggle="tab"> <spring:message code="label.chart.budget" /></a></li>
-					<li><a href="#tab-chart-parameter-evolution" data-toggle="tab"> <spring:message code="label.title.chart.dynamic" /></a></li>
-					<li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution" /></a></li>
-					<li><a href="#tab-chart-ale-evolution-by-scenario" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution_by_asset_type" /></a></li>
-					<li class="divider"></li>
-				</c:if>
+				<c:choose>
+					<c:when test="${type=='QUANTITATIVE'}">
+						<li><a href="#tab-chart-evolution" data-toggle="tab"> <spring:message code="label.chart.evolution" /></a></li>
+						<li><a href="#tab-chart-budget" data-toggle="tab"> <spring:message code="label.chart.budget" /></a></li>
+						<li><a href="#tab-chart-parameter-evolution" data-toggle="tab"> <spring:message code="label.title.chart.dynamic" /></a></li>
+						<li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution" /></a></li>
+						<li><a href="#tab-chart-ale-evolution-by-scenario" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution_by_asset_type" /></a></li>
+						<li class="divider"></li>
+					</c:when>
+					<c:otherwise>
+						<li><a href="#tab-chart-heat-map" data-toggle="tab"> <spring:message code="label.chart.risk_acceptance_heat_map" /></a></li>
+					</c:otherwise>
+				</c:choose>
+
 				<li class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
 				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>

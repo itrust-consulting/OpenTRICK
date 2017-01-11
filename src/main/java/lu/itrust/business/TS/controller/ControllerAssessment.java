@@ -26,8 +26,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -74,6 +76,9 @@ public class ControllerAssessment {
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
+	private ChartGenerator chartGenerator;
+
+	@Autowired
 	private ServiceMeasure serviceMeasure;
 
 	@RequestMapping(value = "/Asset/{idAsset}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -101,10 +106,10 @@ public class ControllerAssessment {
 			Scenario scenario = analysis.findScenario(idScenario);
 			if (scenario != null) {
 				Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
-				if (assessment!=null && assessment.isSelected()) 
+				if (assessment != null && assessment.isSelected())
 					loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 				model.addAttribute("scenario", scenario);
-			}	
+			}
 		}
 		model.addAttribute("asset", asset);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
@@ -278,6 +283,13 @@ public class ControllerAssessment {
 		riskProfile.getMeasures().addAll(measures.values());
 		serviceRiskProfile.saveOrUpdate(riskProfile);
 		return JsonMessage.Success(messageSource.getMessage("success.save.risk_profile", null, "Risk profile has been successfully save", locale));
+	}
+
+	@RequestMapping(value = "/Chart/Risk-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Chart riskHeatMapChart(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.generateRiskHeatMap(idAnalysis);
 	}
 
 	private Comparator<? super Assessment> assessmentAssetComparator() {

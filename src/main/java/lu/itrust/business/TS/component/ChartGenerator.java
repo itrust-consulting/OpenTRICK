@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
+import lu.itrust.business.TS.component.chartJS.Chart;
+import lu.itrust.business.TS.component.chartJS.ColorBound;
+import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -48,6 +51,7 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.rrf.RRF;
@@ -1531,6 +1535,63 @@ public class ChartGenerator {
 			}
 		}
 		return result;
+	}
+
+	public Chart generateRiskHeatMap(Integer idAnalysis) {
+		Analysis analysis = daoAnalysis.get(idAnalysis);
+		ValueFactory factory = new ValueFactory(analysis.getParameters());
+		Map<Integer, Integer> importanceByCount = new LinkedHashMap<>();
+		for (Assessment assessment : analysis.getSelectedAssessments()) {
+			Integer importance = factory.findImportance(assessment), value = importanceByCount.get(importance);
+			if (importance == 0)
+				continue;
+			else if (value == null)
+				value = 0;
+			importanceByCount.put(importance, ++value);
+		}
+
+		String type = factory.getImpacts().keySet().stream().findAny().orElse(null);
+
+		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
+
+		List<? extends IParameter> simpleParameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
+
+		simpleParameters.sort((p1, p2) -> {
+			return Integer.compare(p1.getValue().intValue(), p2.getValue().intValue());
+		});
+
+		List<ColorBound> colorBounds = new ArrayList<>(simpleParameters.size());
+
+		for (int i = 0; i < simpleParameters.size(); i++) {
+			IParameter parameter = simpleParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getDescription(), 0, parameter.getValue().intValue()));
+			else if ((i + 1) == simpleParameters.size())
+				colorBounds.add(new ColorBound(parameter.getDescription(), parameter.getValue().intValue(), probabilities.size() * probabilities.size()));
+			else
+				colorBounds.add(new ColorBound(parameter.getDescription(), parameter.getValue().intValue(), simpleParameters.get(i+1).getValue().intValue()));
+		}
+
+		Chart chart = new Chart();
+
+		probabilities.stream().filter(probability -> probability.getLevel() > 0).forEach(probability -> {
+			chart.getLabels().add(probability.getLevel() + " " + probability.getLabel());
+		});
+
+		impacts.stream().filter(impact -> impact.getLevel() > 0).forEach(impact -> {
+			Dataset dataset = new Dataset();
+			dataset.setLabel(impact.getLevel() + " " + impact.getLabel());
+			for (int i = 1; i < probabilities.size(); i++) {
+				Integer importance = impact.getLevel() * i, count = importanceByCount.get(importance);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny()
+						.ifPresent(colorBound -> dataset.getBackgroundColor().add(colorBound.getColor()));
+				dataset.getData().add(count == null ? "" : count);
+			}
+			
+			chart.getDatasets().add(dataset);
+		});
+
+		return chart;
 	}
 
 	/**

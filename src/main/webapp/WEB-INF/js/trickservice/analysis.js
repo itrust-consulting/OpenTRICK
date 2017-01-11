@@ -255,6 +255,49 @@ function reloadMeasureAndCompliance(standard, idMeasure) {
 	return false;
 }
 
+function riskHeatMap() {
+	var $tabSection = $("#tab-chart-heat-map");
+	if ($tabSection.is(":visible")) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Assessment/Chart/Risk-heat-map",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				window.riskHeatMap = new Chart(document.getElementById("risk_acceptance_heat_map_canvas").getContext("2d"), {
+					type : 'heatmap',
+					data : response,
+					options : {
+						scales : {
+							yAxes : [ {
+								scaleLabel : {
+									display : true,
+									labelString : 'Impact',
+									fontSize : 16
+								}
+							} ],
+							xAxes : [ {
+								scaleLabel : {
+									display : true,
+									labelString : 'Probability',
+									fontSize : 16,
+									padding: 20
+					
+								}
+							} ]
+						}
+					}
+				});
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		$tabSection.attr("data-update-required", "true");
+
+}
+
 function updateMeasureEffience(reference) {
 	if (!application.hasMaturity)
 		return;
@@ -512,9 +555,9 @@ function manageRiskAcceptance() {
 														this.setAttribute("title", this.value);
 													});
 												});
-								
-								$("input[type='range']", $content).on("input change",function(){
-									$(".range-text",this.parentElement).text(this.value);
+
+								$("input[type='range']", $content).on("input change", function() {
+									$(".range-text", this.parentElement).text(this.value);
 									this.setAttribute("title", this.value);
 								});
 
@@ -541,6 +584,8 @@ function manageRiskAcceptance() {
 											else if (response.success) {
 												$content.modal("hide");
 												showNotifcation('success', response.success);
+												reloadSection([ "section_qualitative_parameter" ]);
+												riskHeatMap();
 											} else
 												unknowError();
 										},

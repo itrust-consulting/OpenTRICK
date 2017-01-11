@@ -51,6 +51,21 @@
 		<div id="chart_compliance_body" class="row"></div>
 	</div>
 </div>
+
+<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="riskHeatMap">
+	<div id="risk_acceptance_heat_map">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<spring:message code="label.title.risk_acceptance.heat_map" />
+					</h3>
+				</div>
+			</div>
+		</div>
+		<canvas id="risk_acceptance_heat_map_canvas" style="max-height: 900px;max-width:1200px; margin-left: auto; margin-right: auto;"></canvas>
+	</div>
+</div>
 <c:if test="${type=='QUANTITATIVE'}">
 	<div class="tab-pane trick-chart-tab" id="tab-chart-evolution" data-update-required="true" data-trigger="loadChartEvolution">
 		<div id="chart_evolution" class="container">

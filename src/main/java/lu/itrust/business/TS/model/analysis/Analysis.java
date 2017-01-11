@@ -644,7 +644,7 @@ public class Analysis implements Cloneable {
 		return assessmentMap;
 	}
 
-	public List<Asset> findAssessmentBySelected() {
+	public List<Asset> findSelectedAsset() {
 		List<Asset> assets = new LinkedList<Asset>();
 		for (Asset asset : this.assets) {
 			if (asset.isSelected())

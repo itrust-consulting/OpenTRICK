@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 
 import java.security.Principal;
 import java.util.LinkedList;
@@ -34,6 +35,7 @@ import lu.itrust.business.TS.database.service.ServiceParameterType;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
@@ -108,8 +110,10 @@ public class ControllerParameter {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<IParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
 		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME, idAnalysis));
 		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, idAnalysis));
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
+		model.addAttribute("isEditable",!OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE)).isReadOnly());
 		model.addAttribute("type", AnalysisType.QUALITATIVE);
 		return "analyses/single/components/parameters/qualitative/home";
 	}

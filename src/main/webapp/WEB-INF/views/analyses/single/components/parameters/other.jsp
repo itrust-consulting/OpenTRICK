@@ -109,11 +109,10 @@
 			<legend>
 				<c:choose>
 					<c:when test="${isEditable}">
-						<span class="col-xs-10"> <spring:message code="label.title.parameter.risk.acceptance.threshold" />
-						</span>
-						<span class="col-xs-2">
-							<button class='btn btn-link btn-xs' onclick="return manageRiskAcceptance()">
-								<spring:message code='label.action.manage' />
+						<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+						<span class="pull-right">
+							<button class='btn btn-xs btn-link' onclick="return manageRiskAcceptance()" style="font-size: 15px">
+								<i class="fa fa-cog" aria-hidden="true"></i> <spring:message code='label.action.manage' />
 							</button>
 						</span>
 					</c:when>

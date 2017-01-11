@@ -315,7 +315,7 @@ public class AssessmentAndRiskProfileManager {
 	 */
 	@Transactional
 	public void updateAssetALE(Analysis analysis, ValueFactory factory) {
-		List<Asset> assets = analysis.findAssessmentBySelected();
+		List<Asset> assets = analysis.findSelectedAsset();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
 		try {
 			if (factory == null)
