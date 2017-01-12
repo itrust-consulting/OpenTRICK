@@ -3,8 +3,6 @@
  */
 package lu.itrust.business.TS.component.chartJS;
 
-import com.gargoylesoftware.htmlunit.javascript.host.Console;
-
 /**
  * @author eomar
  *

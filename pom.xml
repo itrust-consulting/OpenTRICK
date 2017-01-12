@@ -436,6 +436,7 @@
 						**/WEB-INF/js/naturalSort.js,
 						**/WEB-INF/js/jquery.fileDownload.js,
 						**/WEB-INF/js/trickservice/*.js,
+						**/WEB-INF/js/chartjs/Chart.bundle.min.js,
 						**/WEB-INF/js/highcharts/themes/*.js,
 						**/WEB-INF/js/bootstrap/bootbox.js,
 						**/WEB-INF/js/bootstrap/bootstrap-tooltip.js,
@@ -529,6 +530,31 @@
 
 							<jsSourceExcludes>
 								<jsSourceExclude>WEB-INF/js/bootstrap/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>minify-js-chartjs</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<jsSourceDir>WEB-INF/js/chartjs</jsSourceDir>
+
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/js/chartjs/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>

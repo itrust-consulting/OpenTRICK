@@ -332,23 +332,19 @@ function FieldEditor(element, validator) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
-							var callback = that.callback;
-							that.Restore();
-							if (callback != null && callback != undefined)
-								setTimeout(callback, 0);
+							that.UpdateUI();
+							if (that.callback != null && that.callback != undefined)
+								setTimeout(that.callback, 1);
 						} else if (response["error"] != undefined) {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").modal("toggle");
-						} else {
-							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-							$("#alert-dialog").modal("toggle");
-						}
+							showNotifcation("danger",response["error"]);
+						} else 
+							showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-						$("#alert-dialog").modal("toggle");
+						showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					}
 				});
 			} else {
@@ -378,7 +374,7 @@ function FieldEditor(element, validator) {
 		if (rollback) {
 			$element.text(this.defaultValue);
 			if ($td.parent().attr("data-force-callback"))
-				setTimeout(this.callback, 0);
+				setTimeout(this.callback, 1);
 		} else {
 			var value = this.GetValue();
 			if (this.choose.length && this.chooseTranslate.length) {
@@ -428,6 +424,8 @@ function ExtendedFieldEditor(section, element) {
 						if (response["success"] != undefined) {
 							try {
 								that.UpdateUI();
+								if (that.callback != null && that.callback != undefined)
+									setTimeout(that.callback, 1);
 							} finally {
 								if (that.fieldName == "value") {
 									updateAssessmentAle(true);
@@ -435,19 +433,14 @@ function ExtendedFieldEditor(section, element) {
 									reloadSection([ that.section, "section_asset", "section_scenario" ]);
 								}
 							}
-						} else if (response["error"] != undefined) {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").modal("toggle");
-						} else {
-							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-							$("#alert-dialog").modal("toggle");
-						}
-						return true;
+						} else if (response["error"] != undefined)
+							showNotifcation("danger",MessageResolver("error.unknown.save.data", response["error"]));
+						else 
+							showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-						$("#alert-dialog").modal("show");
+						showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					}
 				});
 			} else {
@@ -660,10 +653,10 @@ function AssessmentImpactFieldEditor(element) {
 		};
 	} else {
 		AssessmentImpactFieldEditor.prototype.LoadData = function() {
-			var name = this.element.getAttribute("data-trick-field"), id = "#Scale_Impact_" + name, $acronyms = $("td[data-trick-field='acronym']", id), $values = $(
+			var name = this.element.getAttribute("data-trick-field"), id = "#Scale_Impact_" + name, $acronyms = $("td[data-trick-acronym-value]", id), $values = $(
 					"td[data-trick-field='level']", id), $title = $("td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
-				this.choose[i] = $acronyms[i].innerText;
+				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
 				this.chooseTranslate[i] = $values[i].innerText;
 				this.chooseTitle[i] = $title[i].innerText;
 			}
@@ -692,10 +685,10 @@ function AssessmentProbaFieldEditor(element) {
 		};
 	} else {
 		AssessmentProbaFieldEditor.prototype.LoadData = function() {
-			var id = "#Scale_Probability", $acronyms = $("td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='level']", id), $title = $(
+			var id = "#Scale_Probability", $acronyms = $("td[data-trick-acronym-value]", id), $values = $("td[data-trick-field='level']", id), $title = $(
 					"td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
-				this.choose[i] = $acronyms[i].innerText;
+				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
 				this.chooseTranslate[i] = $values[i].innerText;
 				this.chooseTitle[i] = $title[i].innerText;
 			}

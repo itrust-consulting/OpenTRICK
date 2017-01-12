@@ -39,7 +39,7 @@
 						<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 						<c:choose>
 							<c:when test="${type == 'QUALITATIVE'}">
-								<td data-trick-field="label" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+								<td data-trick-field="label" data-trick-field-type="string" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="success textaligncenter" data-trick-callback='loadRiskHeatMap()' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							</c:when>
 							<c:otherwise>
 								<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>

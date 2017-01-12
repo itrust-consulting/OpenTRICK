@@ -467,6 +467,7 @@ public class Constant {
 	public static final String VALUE_POTENTIALITY = "value_potentiality";
 	public static final String ACRO_POTENTIALITY = "acro_potentiality";
 	public static final String NAME_POTENTIALITY = "name_potentiality";
+	public static final String LABEL_POTENTIALITY = "label_potentiality";
 	public static final String VALUE_FROM_POTENTIALITY = "value_from_potentiality";
 	public static final String VALUE_TO_POTENTIALITY = "value_to_potentiality";
 
@@ -475,6 +476,7 @@ public class Constant {
 	public static final String VALUE_IMPACT = "value_impact";
 	public static final String ACRO_IMPACT = "acro_impact";
 	public static final String NAME_IMPACT = "name_impact";
+	public static final String LABEL_IMPACT = "label_impact";
 	public static final String VALUE_FROM_IMPACT = "value_from_impact";
 	public static final String VALUE_TO_IMPACT = "value_to_impact";
 

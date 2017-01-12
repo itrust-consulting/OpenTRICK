@@ -33,6 +33,11 @@ $(document).ready(function() {
 		disableEditMode();
 		$tabOption.hide();
 	});
+	
+	Chart.defaults.global.defaultFontColor="#333";
+	Chart.defaults.global.defaultFontFamily='Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
+	Chart.defaults.global.defaultFontSize=13;
+	
 
 	Highcharts.setOptions({
 		lang : {
@@ -255,7 +260,7 @@ function reloadMeasureAndCompliance(standard, idMeasure) {
 	return false;
 }
 
-function riskHeatMap() {
+function loadRiskHeatMap() {
 	var $tabSection = $("#tab-chart-heat-map");
 	if ($tabSection.is(":visible")) {
 		var $progress = $("#loading-indicator").show();
@@ -273,16 +278,16 @@ function riskHeatMap() {
 								scaleLabel : {
 									display : true,
 									labelString : 'Impact',
-									fontSize : 16
+									fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
+									fontSize : 22,
 								}
 							} ],
 							xAxes : [ {
 								scaleLabel : {
 									display : true,
 									labelString : 'Probability',
-									fontSize : 16,
-									padding: 20
-					
+									fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
+									fontSize : 22,
 								}
 							} ]
 						}
@@ -294,7 +299,8 @@ function riskHeatMap() {
 			$progress.hide();
 		});
 	} else
-		$tabSection.attr("data-update-required", "true");
+		$tabSection.attr("data-update-required", true);
+	return false;
 
 }
 
@@ -584,8 +590,8 @@ function manageRiskAcceptance() {
 											else if (response.success) {
 												$content.modal("hide");
 												showNotifcation('success', response.success);
-												reloadSection([ "section_qualitative_parameter" ]);
-												riskHeatMap();
+												reloadSection(["section_qualitative_parameter"]);
+												loadRiskHeatMap();
 											} else
 												unknowError();
 										},

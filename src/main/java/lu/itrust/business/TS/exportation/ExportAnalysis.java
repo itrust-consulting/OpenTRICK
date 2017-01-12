@@ -34,6 +34,7 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
@@ -996,25 +997,25 @@ public class ExportAnalysis {
 	private void exportProbabilityAndImpactParameter() throws Exception {
 		// Export all extended parameters of type IMPACT, PROBABILITY and
 		// SEVERITY
-
-		for (IBoundedParameter impactParameter : this.analysis.getBoundedParamters()) {
+		for (IBoundedParameter boundedParameter : this.analysis.getBoundedParamters()) {
 			// Determine insert query
 			String query = null;
-			if (impactParameter instanceof LikelihoodParameter)
-				query = DatabaseHandler.generateInsertQuery("potentiality", 7);
-			else if (impactParameter instanceof ImpactParameter)
-				query = DatabaseHandler.generateInsertQuery("impact", 8);
+			if (boundedParameter instanceof LikelihoodParameter)
+				query = DatabaseHandler.generateInsertQuery("potentiality", 8);
+			else if (boundedParameter instanceof ImpactParameter)
+				query = DatabaseHandler.generateInsertQuery("impact", 9);
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
-			if (impactParameter instanceof ImpactParameter)
-				queryParameters.add(impactParameter.getTypeName());
-			queryParameters.add(impactParameter.getLevel());
-			queryParameters.add(impactParameter.getDescription());
-			queryParameters.add(impactParameter.getAcronym());
-			queryParameters.add(impactParameter.getValue());
-			queryParameters.add(impactParameter.getBounds().getFrom());
-			queryParameters.add(impactParameter.getBounds().getTo());
+			if (boundedParameter instanceof ImpactParameter)
+				queryParameters.add(boundedParameter.getTypeName());
+			queryParameters.add(boundedParameter.getLevel());
+			queryParameters.add(boundedParameter.getLabel());
+			queryParameters.add(boundedParameter.getDescription());
+			queryParameters.add(boundedParameter.getAcronym());
+			queryParameters.add(boundedParameter.getValue());
+			queryParameters.add(boundedParameter.getBounds().getFrom());
+			queryParameters.add(boundedParameter.getBounds().getTo());
 			// Execute query
 			sqlite.query(query, queryParameters);
 		}
@@ -1177,6 +1178,8 @@ public class ExportAnalysis {
 		// ****************************************************************
 		exportSimpleParameters();
 
+		exportRiskAcceptanceParameters();
+
 		// ****************************************************************
 		// * export extended parameters
 		// ****************************************************************
@@ -1193,6 +1196,30 @@ public class ExportAnalysis {
 		// * export maturity parameters
 		// ****************************************************************
 		exportMaturityParameters();
+	}
+
+	private void exportRiskAcceptanceParameters() throws SQLException {
+		if (analysis.getType() == AnalysisType.QUANTITATIVE)
+			return;
+		List<Object> params = new ArrayList<Object>();
+		String query = "", unionQuery = " UNION SELECT ?,?", baseQuery = "INSERT INTO risk_acceptance SELECT ? as level, ? as color";
+		List<? extends IParameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
+		for (IParameter parameter : parameters) {
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 2 > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
+			params.add(parameter.getValue().intValue());
+			params.add(parameter.getDescription());
+		}
+
+		if (!query.isEmpty())
+			sqlite.query(query, params);
+
 	}
 
 	private void exportImpactType() throws SQLException {

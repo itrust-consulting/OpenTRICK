@@ -20,7 +20,7 @@
 						<thead>
 							<tr>
 								<th width="15%"><spring:message code="label.action" /></th>
-								<th width="60%"><spring:message code="label.parameter.level" /></th>
+								<th width="60%"><spring:message code="label.importance.threshold" /></th>
 								<th><spring:message code="label.color" /></th>
 							</tr>
 						</thead>

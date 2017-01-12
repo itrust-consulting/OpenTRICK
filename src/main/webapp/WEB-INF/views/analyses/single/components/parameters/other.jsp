@@ -125,8 +125,8 @@
 			<table class="table table-hover table-condensed">
 				<thead>
 					<tr>
-						<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
-						<th style="" class="textaligncenter"><spring:message code="label.description" /></th>
+						<th class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
+						<th style="" class="textaligncenter"><spring:message code="label.color" /></th>
 					</tr>
 				</thead>
 				<tbody>

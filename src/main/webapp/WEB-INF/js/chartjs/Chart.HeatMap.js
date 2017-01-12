@@ -25,11 +25,10 @@ Chart.HeatMapPlugin = Chart.PluginBase.extend({
 			var meta = chartInstance.getDatasetMeta(i);
 			if (!meta.hidden) {
 				meta.data.forEach(function(element, index) {
-					// Draw the text in black, with the specified font
 					ctx.fillStyle = '#fff';
-                    ctx.textAlign = 'center';
- 					ctx.textBaseline = 'middle';
-					ctx.font = Chart.helpers.fontString(20,"normal", "Corbel,'Lucida Grande', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif");
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+					ctx.font = Chart.helpers.fontString(22,"normal",Chart.defaults.global.defaultFontFamily);
 					var dataString = dataset.data[index].toString(), position = element.tooltipPosition();
 					ctx.fillText(dataString, position.x, position.y);
 				});
@@ -41,16 +40,14 @@ Chart.HeatMapPlugin = Chart.PluginBase.extend({
 Chart.plugins.register(new Chart.HeatMapPlugin());
 
 Chart.defaults.heatmap = {
-	radiusScale : 0.1,
-	paddingScale : 0.1,
+	radiusScale : 0.025,
+	paddingScale : 0.025,
 	hover : {
 		mode : 'single'
 	},
-
 	legend : {
 		display : false
 	},
-
 	scales : {
 		xAxes : [ {
 			type : 'category',
@@ -73,16 +70,14 @@ Chart.defaults.heatmap = {
 			}
 		} ]
 	},
-	
+
 	tooltips : {
 		callbacks : {
 			title : function(tooltipItems, data) {
-				return data.labels[tooltipItems[0].index];
+				return data.labels[tooltipItems[0].index]+" : "+data.yLabels[tooltipItems[0].datasetIndex];
 			},
 			label : function(tooltipItem, data) {
-				var datasetLabel = data.datasets[tooltipItem.datasetIndex].label || '';
-				var dataPoint = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-				return datasetLabel + ': ' + dataPoint;
+				return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 			}
 		}
 	}
@@ -92,10 +87,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 	dataElementType : Chart.elements.Rectangle,
 
 	update : function(reset) {
-		var me = this;
-		var meta = me.getMeta();
-		var boxes = meta.data;
-
+		var me = this, meta = me.getMeta(), boxes = meta.data;
 		// Update Boxes
 		helpers.each(boxes, function(box, index) {
 			me.updateElement(box, index, reset);
@@ -134,13 +126,15 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		}
 
 		// Apply padding
-		var horizontalPadding = paddingScale * boxWidth;
-		var verticalPadding = paddingScale * boxHeight;
+		var horizontalPadding = paddingScale * boxWidth *.25;
+		var verticalPadding = paddingScale * boxHeight * .5;
 		boxWidth = boxWidth - horizontalPadding;
 		boxHeight = boxHeight - verticalPadding;
+
 		y = y + verticalPadding / 2;
+
 		x = x + horizontalPadding / 2;
-		
+
 		var cornerRadius = boxWidth * radiusScale;
 		helpers.extend(box, {
 			// Utility

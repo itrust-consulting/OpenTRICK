@@ -368,6 +368,7 @@ public class ControllerAnalysisCreate {
 				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 			} else {
+				analysisForm.getScale().setLevel(analysisForm.getScale().getLevel() + 1);
 				generateLikelihoodParameters(analysis, mappingParameters, 12, analysisForm.getScale().getLevel());
 				analysisForm.getImpacts().forEach(generateImpactParameters(analysis, mappingParameters, analysisForm.getScale()));
 			}

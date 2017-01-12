@@ -62,8 +62,10 @@ function saveAssessmentData(e) {
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
 						
-						if (application.analysisType == "QUALITATIVE")
+						if (application.analysisType == "QUALITATIVE"){
 							reloadSection("section_riskregister", undefined, true);
+							loadRiskHeatMap();
+						}
 						
 						setTimeout(function() {
 							
@@ -340,8 +342,10 @@ AssessmentHelder.prototype = {
 			if ($content.attr("data-trick-content") == $section.attr("data-trick-content") && $content.attr("data-trick-asset-id") == idAsset && $content.attr("data-trick-scenario-id") == idScenario) {
 				if (this.smartUpdate($content))
 					$section.replaceWith($content);
-			} else
+			}else
 				$section.replaceWith($content);
+			if($section.attr("data-trick-asset-id")!=idAsset || $section.attr("data-trick-scenario-id")!=idScenario)
+				fixTableHeader($("table",$section.attr("data-trick-asset-id",idAsset).attr("data-trick-scenario-id",idScenario)));
 			this.invalidate = false;
 		} else
 			unknowError();
@@ -361,41 +365,47 @@ AssessmentHelder.prototype = {
 		return this;
 	},
 	smartUpdate: function (assessments) {
-		var $section = $(this.section), tableDestTrs = $("tbody tr", $section);
-		if (!(tableDestTrs.length && $("td", tableDestTrs[0]).length == $("tbody>tr:first>td", assessments).length))
-			return true;
-		for (var i = 0; i < tableDestTrs.length; i++) {
-			var trickId = $(tableDestTrs[i]).attr("data-trick-id");
-			if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
-				var $tr = $(assessments).find("tbody tr.panel-footer");
-				if ($tr.length)
-					$(tableDestTrs[i]).replaceWith($tr);
-				else
-					$(tableDestTrs[i]).appendTo($("tbody", $section));
-			} else {
-				var $tr = $(assessments).find("tbody tr[data-trick-id='" + trickId + "']");
-				if (!$tr.length)
-					$(tableDestTrs[i]).remove();
-				else
-					$(tableDestTrs[i]).replaceWith($tr);
+		try {
+			var $section = $(this.section), tableDestTrs = $("tbody tr", $section);
+			if (!(tableDestTrs.length && $("td", tableDestTrs[0]).length == $("tbody>tr:first>td", assessments).length))
+				return true;
+		
+			for (var i = 0; i < tableDestTrs.length; i++) {
+				var trickId = $(tableDestTrs[i]).attr("data-trick-id");
+				if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
+					var $tr = $("tbody tr.panel-footer",assessments);
+					if ($tr.length)
+						$(tableDestTrs[i]).replaceWith($tr);
+					else
+						$(tableDestTrs[i]).appendTo($("tbody", $section));
+				} else {
+					var $tr = $("tbody tr[data-trick-id='" + trickId + "']",assessments);
+					if (!$tr.length)
+						$(tableDestTrs[i]).remove();
+					else
+						$(tableDestTrs[i]).replaceWith($tr);
+				}
 			}
-		}
-		var $tbody = $("tbody", $section), $footer = $("tbody tr.panel-footer", $section), tableSourceTrs = $("tbody tr[data-trick-id]", assessments);
-		if (!$footer.length) {
-			$footer = $("tbody tr.panel-footer", assessments);
-			if ($footer.length)
-				$footer.appendTo($tbody);
-		}
-		for (var i = 0; i < tableSourceTrs.length; i++) {
-			var trickId = $(tableSourceTrs[i]).attr("data-trick-id"), $tr = $("tbody tr[data-trick-id='" + trickId + "']", $section);
-			if (!$tr.length) {
+			var $tbody = $("tbody", $section), $footer = $("tbody tr.panel-footer", $section), tableSourceTrs = $("tbody tr[data-trick-id]", assessments)
+			if (!$footer.length) {
+				$footer = $("tbody tr.panel-footer", assessments);
 				if ($footer.length)
-					$tr.before($footer);
-				else
-					$tr.appendTo($tbody);
+					$footer.appendTo($tbody);
 			}
+			for (var i = 0; i < tableSourceTrs.length; i++) {
+				var trickId = $(tableSourceTrs[i]).attr("data-trick-id"), $tr = $("tbody tr[data-trick-id='" + trickId + "']", $section);
+				if (!$tr.length) {
+					if ($footer.length)
+						$(tableSourceTrs[i]).before($footer);
+					else
+						$(tableSourceTrs[i]).appendTo($tbody);
+				}
+			}
+			return false;
+		} catch (e) {
+			console.log(e);
+			return true;
 		}
-		return false;
 	}, reload: function (id) {
 		if(id == undefined)
 			id = "-1";

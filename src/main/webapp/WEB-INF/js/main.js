@@ -47,8 +47,15 @@ function checkExtention(value, extention, button) {
 }
 
 function showDialog(dialog, message) {
-	var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
-	return $dialog.modal("show");
+	switch (dialog) {
+	case "#info-dialog":
+		return showNotifcation("info", message);
+	case "#alert-dialog":
+		return showNotifcation("danger", message);
+	default:
+		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
+		return $dialog.modal("show");
+	}
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
@@ -320,8 +327,8 @@ function showNotifcation(type, message, url) {
 		type : type,
 		z_index : 1068,
 		offset : {
-			x: 0,
-			y: 53
+			x : 0,
+			y : 53
 		}
 	});
 }

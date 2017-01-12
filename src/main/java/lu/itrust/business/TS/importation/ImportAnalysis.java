@@ -1367,8 +1367,11 @@ public class ImportAnalysis {
 				// * create instance of extended parameter
 				// ****************************************************************
 				ImpactParameter impactParameter = new ImpactParameter();
-				if (!isCompability1X())
+				if (!isCompability1X()) {
 					impactParameter.setType(impactTypes.get(getString(rs, "type").toUpperCase()));
+					if (analysis.getType() == AnalysisType.QUALITATIVE)
+						impactParameter.setLabel(getString(rs, Constant.LABEL_IMPACT, ""));
+				}
 				impactParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
 				impactParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
 				impactParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
@@ -2398,7 +2401,7 @@ public class ImportAnalysis {
 			query = "SELECT * FROM potentiality";
 			// execute query
 			rs = sqlite.query(query, null);
-			likelihoodParameters = new ArrayList<>(11);
+			likelihoodParameters = new ArrayList<>();
 			// retrieve results
 			while (rs.next()) {
 
@@ -2410,6 +2413,8 @@ public class ImportAnalysis {
 				// * create instance
 				// ****************************************************************
 				LikelihoodParameter likelihoodParameter = new LikelihoodParameter();
+				if (!isCompability1X() && analysis.getType() == AnalysisType.QUALITATIVE)
+					likelihoodParameter.setLabel(getString(rs, Constant.LABEL_POTENTIALITY, ""));
 				likelihoodParameter.setDescription(rs.getString(Constant.NAME_POTENTIALITY));
 				likelihoodParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
 				likelihoodParameter.setAcronym(rs.getString(Constant.ACRO_POTENTIALITY));
@@ -3046,6 +3051,20 @@ public class ImportAnalysis {
 				// ****************************************************************
 				this.analysis.add(simpleParameter);
 			}
+
+			if (!isCompability1X() && analysis.getType() == AnalysisType.QUALITATIVE) {
+				// close result
+				rs.close();
+				parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
+				if (parameterType == null)
+					daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME));
+				rs = sqlite.query("SELECT level, color from risk_acceptance");
+				if (rs != null) {
+					while (rs.next())
+						this.analysis.add(new SimpleParameter(parameterType, getStringOrEmpty(rs, "color"), rs.getDouble("level")));
+				}
+			}
+
 		} finally {
 			// close result
 			if (rs != null)

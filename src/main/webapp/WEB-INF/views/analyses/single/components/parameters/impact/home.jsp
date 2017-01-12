@@ -35,7 +35,7 @@
 							<c:forEach items="${mappedParameters[impactName]}" var="parameter">
 								<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 									<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-									<td data-trick-field="label" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+									<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);" data-trick-callback='loadRiskHeatMap()'><spring:message text="${parameter.label}" /></td>
 									<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
 								</tr>

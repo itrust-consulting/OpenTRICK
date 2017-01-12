@@ -80,7 +80,7 @@ function reloadSection(section, subSection, refreshOnly) {
 					return false;
 				},
 				error : unknowError
-			}).complete(function(){
+			}).complete(function() {
 				$progress.hide();
 			});
 		} else {
@@ -134,16 +134,20 @@ function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
 			reloadSection("section_scenario", undefined, true);
-			if (application.analysisType == "QUALITATIVE")
+			if (application.analysisType == "QUALITATIVE") {
 				reloadSection("section_riskregister", undefined, true);
-			chartALE();
+				loadRiskHeatMap();
+			} else
+				chartALE();
 			return false;
 		},
 		"section_scenario" : function() {
 			reloadSection("section_asset", undefined, true);
-			if (application.analysisType == "QUALITATIVE")
+			if (application.analysisType == "QUALITATIVE") {
 				reloadSection("section_riskregister", undefined, true);
-			chartALE();
+				loadRiskHeatMap();
+			} else
+				chartALE();
 			return false;
 		},
 		"section_actionplans" : function() {
@@ -162,10 +166,12 @@ function callbackBySection(section) {
 		},
 		"section_language" : function() {
 			rebuildMeasureLanguage();
-		}, "section_phase" : function(){
-			if (application["estimation-helper"]){//See risk-estimation
+		},
+		"section_phase" : function() {
+			if (application["estimation-helper"]) {// See risk-estimation
 				application["estimation-helper"].$tabSection.attr("data-update-required", application["estimation-helper"].invalidate = true);
-				if(application["standard-caching"])//See risk-estimation -> manage measure
+				if (application["standard-caching"])// See risk-estimation ->
+					// manage measure
 					application["standard-caching"].clear();
 			}
 		}

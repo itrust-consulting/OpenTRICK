@@ -52,7 +52,7 @@
 	</div>
 </div>
 
-<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="riskHeatMap">
+<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="loadRiskHeatMap">
 	<div id="risk_acceptance_heat_map">
 		<div class="page-header tab-content-header">
 			<div class="container">
