@@ -25,10 +25,15 @@ Chart.HeatMapPlugin = Chart.PluginBase.extend({
 			var meta = chartInstance.getDatasetMeta(i);
 			if (!meta.hidden) {
 				meta.data.forEach(function(element, index) {
+					var fontSize = 20;
+					if (dataset.data.length < 6)
+						fontSize = 30;
+					else if (dataset.data.length < 3)
+						fontSize = 40;
 					ctx.fillStyle = '#fff';
 					ctx.textAlign = 'center';
 					ctx.textBaseline = 'middle';
-					ctx.font = Chart.helpers.fontString(22,"normal",Chart.defaults.global.defaultFontFamily);
+					ctx.font = Chart.helpers.fontString(fontSize, "normal", Chart.defaults.global.defaultFontFamily);
 					var dataString = dataset.data[index].toString(), position = element.tooltipPosition();
 					ctx.fillText(dataString, position.x, position.y);
 				});
@@ -42,9 +47,6 @@ Chart.plugins.register(new Chart.HeatMapPlugin());
 Chart.defaults.heatmap = {
 	radiusScale : 0.025,
 	paddingScale : 0.025,
-	hover : {
-		mode : 'single'
-	},
 	legend : {
 		display : false
 	},
@@ -74,7 +76,7 @@ Chart.defaults.heatmap = {
 	tooltips : {
 		callbacks : {
 			title : function(tooltipItems, data) {
-				return data.labels[tooltipItems[0].index]+" : "+data.yLabels[tooltipItems[0].datasetIndex];
+				return data.labels[tooltipItems[0].index] + " : " + data.yLabels[tooltipItems[0].datasetIndex];
 			},
 			label : function(tooltipItem, data) {
 				return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
@@ -108,7 +110,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		var x = xScale.getPixelForValue(data, index, datasetIndex);
 		var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
 
-		var boxWidth = 0;
+		var boxWidth = 0.0;
 		if (dataset.data.length > 1) {
 			var x0 = xScale.getPixelForValue(dataset.data[0], 0, datasetIndex);
 			var x1 = xScale.getPixelForValue(dataset.data[1], 1, datasetIndex);
@@ -117,23 +119,24 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 			boxWidth = xScale.width;
 		}
 
-		var boxHeight = 0;
+		var boxHeight = 0.0;
 		if (me.chart.data.datasets.length > 1) {
 			// We only support 'category' scales on the y-axis for now
 			boxHeight = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
 		} else {
 			boxHeight = yScale.height;
 		}
-
 		// Apply padding
-		var horizontalPadding = paddingScale * boxWidth *.25;
-		var verticalPadding = paddingScale * boxHeight * .5;
+
+		var verticalPadding = 2,horizontalPadding = 3;
+		
 		boxWidth = boxWidth - horizontalPadding;
+		
 		boxHeight = boxHeight - verticalPadding;
 
-		y = y + verticalPadding / 2;
+		y = y + verticalPadding / 2.0;
 
-		x = x + horizontalPadding / 2;
+		x = x + horizontalPadding / 2.0;
 
 		var cornerRadius = boxWidth * radiusScale;
 		helpers.extend(box, {
@@ -147,7 +150,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 			// Desired view properties
 			_model : {
 				// Position
-				x : x + boxWidth / 2,
+				x : x + boxWidth / 2.0,
 				y : y,
 
 				// Appearance
@@ -164,7 +167,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 
 			// Override to draw rounded rectangles without any borders
 			draw : function() {
-				var ctx = this._chart.ctx, vm = this._view, leftX = vm.x - (vm.width) / 2;
+				var ctx = this._chart.ctx, vm = this._view, leftX = vm.x - (vm.width) / 2.0;
 				ctx.fillStyle = vm.backgroundColor;
 				helpers.drawRoundedRectangle(ctx, leftX, vm.y, vm.width, vm.height, vm.cornerRadius);
 				ctx.fill();
@@ -175,7 +178,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 				var vm = this._view;
 				return {
 					x : vm.x,
-					y : vm.y + vm.height / 2
+					y : vm.y + vm.height / 2.0
 				};
 			}
 		});

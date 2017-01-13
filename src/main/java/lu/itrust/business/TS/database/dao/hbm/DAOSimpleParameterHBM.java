@@ -171,7 +171,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 */
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From ImpactParameter where id = :id").setParameter("id", id).executeUpdate();
+		getSession().createQuery("Delete From SimpleParameter where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	/*
@@ -203,7 +203,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 */
 	@Override
 	public void deleteAll() {
-		getSession().createQuery("Delete From ImpactParameter").executeUpdate();
+		getSession().createQuery("Delete From SimpleParameter").executeUpdate();
 	}
 
 	/*

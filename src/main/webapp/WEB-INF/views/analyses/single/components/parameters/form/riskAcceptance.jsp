@@ -5,8 +5,9 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="modalRiskAcceptanceForm" tabindex="-1" role="dialog" data-aria-labelledby="riskAcceptanceForm" style="z-index: 1042" data-aria-hidden="true" data-backdrop="static" data-keyboard="true" >
-	<div class="modal-dialog">
+<div class="modal fade" id="modalRiskAcceptanceForm" tabindex="-1" role="dialog" data-aria-labelledby="riskAcceptanceForm" style="z-index: 1042" data-aria-hidden="true"
+	data-backdrop="static" data-keyboard="true">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -15,32 +16,38 @@
 				</h4>
 			</div>
 			<div class="modal-body" style="padding-top: 5px;">
-				<form name="risk_acceptance_form" class="form-horizontal" id="risk_acceptance_form" method="post" style="height: 400px;overflow-y:auto;overflow-x:hide;">
+				<form name="risk_acceptance_form" class="form-horizontal" id="risk_acceptance_form" method="post" style="height: 600px; overflow-y: auto; overflow-x: hide;">
 					<table class='table table-hover table-condensed' data-trick-size='${fn:length(parameters)}'>
 						<thead>
 							<tr>
-								<th width="15%"><spring:message code="label.action" /></th>
-								<th width="60%"><spring:message code="label.importance.threshold" /></th>
-								<th><spring:message code="label.color" /></th>
+								<th><spring:message code="label.action" /></th>
+								<th style="width: 15%" class="textaligncenter"><spring:message code="label.parameter.label" /></th>
+								<th style="width: 25%" class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
+								<th style="width: 45%" class="textaligncenter"><spring:message code="label.description" /></th>
+								<th style="width: 15%" class="textaligncenter"><spring:message code="label.color" /></th>
 							</tr>
 						</thead>
 						<tbody>
 							<c:forEach items="${parameters}" var="parameter">
 								<tr data-trick-id='${parameter.id}'>
-									<td><button class='btn btn-danger outline' name="delete"><i class='fa fa-remove'></i></button></td>
+									<td><button class='btn btn-danger outline' name="delete">
+											<i class='fa fa-remove'></i>
+										</button></td>
+									<td><input type="text" class='form-control' name="label" value="${parameter.label}"></td>
 									<td>
 										<div class="range-group">
-											<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" var="value"/>
-											<span class='range-text'>${value}</span>
-											<input class="range-input" name="value" type="range" value="${value}" min='1' max='${maxImportance}'>
+											<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" var="value" />
+											<span class='range-text'>${value}</span> <input class="range-input" name="value" type="range" value="${value}" min='1' max='${maxImportance}'>
 										</div>
-										
 									</td>
-									<td><input type="color" class='form-control' name="description" value="${parameter.description}"></td>
+									<td><textarea rows="1" class="form-control"><spring:message text="${parameter.description}"/></textarea></td>
+									<td><input type="color" class='form-control' name="color" value="${parameter.color}"></td>
 								</tr>
 							</c:forEach>
 							<tr data-trick-max-value='${maxImportance}' class='panel-footer'>
-								<td colspan="3" align="center"><button class="btn btn-xs btn-primary" type="button" name="add"><i class='fa fa-plus'></i></button></td>
+								<td colspan="5" align="center"><button class="btn btn-xs btn-primary" type="button" name="add">
+										<i class='fa fa-plus'></i>
+									</button></td>
 							</tr>
 						</tbody>
 					</table>

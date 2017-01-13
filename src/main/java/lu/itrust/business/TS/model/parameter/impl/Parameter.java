@@ -27,6 +27,17 @@ public abstract class Parameter implements IParameter {
 
 	public Parameter() {
 	}
+	
+	/**
+	 * @param value
+	 * @param description
+	 */
+	public Parameter(double value, String description) {
+		this.value = value;
+		this.description = description;
+	}
+
+
 
 	@Override
 	public String getDescription() {

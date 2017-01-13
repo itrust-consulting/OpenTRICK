@@ -8,6 +8,8 @@ public class Chart {
 	private List<String> labels = new LinkedList<String>();
 	
 	private List<Dataset> datasets = new LinkedList<>();
+	
+	private List<Legend> legends = new LinkedList<>();
 	/**
 	 * @return the labels
 	 */
@@ -31,5 +33,17 @@ public class Chart {
 	 */
 	public void setDatasets(List<Dataset> datasets) {
 		this.datasets = datasets;
+	}
+	/**
+	 * @return the legends
+	 */
+	public List<Legend> getLegends() {
+		return legends;
+	}
+	/**
+	 * @param legends the legends to set
+	 */
+	public void setLegends(List<Legend> legends) {
+		this.legends = legends;
 	}
 }

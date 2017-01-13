@@ -77,6 +77,7 @@ import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.Parameter;
+import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.TS.model.parameter.value.IValue;
@@ -3058,10 +3059,11 @@ public class ImportAnalysis {
 				parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
 				if (parameterType == null)
 					daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME));
-				rs = sqlite.query("SELECT level, color from risk_acceptance");
+				rs = sqlite.query("SELECT label, level, color, description from risk_acceptance");
 				if (rs != null) {
 					while (rs.next())
-						this.analysis.add(new SimpleParameter(parameterType, getStringOrEmpty(rs, "color"), rs.getDouble("level")));
+						this.analysis.add(new RiskAcceptanceParameter(getStringOrEmpty(rs, "label"), rs.getDouble("level"), getStringOrEmpty(rs, "color"),
+								getStringOrEmpty(rs, "description")));
 				}
 			}
 

@@ -100,7 +100,9 @@
 			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
 			<script type="text/javascript">
 				<!-- 
-					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}}; 
+					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}};
+					resolveMessage("label.title.impact", "<spring:message code='label.title.impact' />");
+					resolveMessage("label.title.likelihood", "<spring:message code='label.title.likelihood' />");
 				-->
 			</script>
 		</c:if>

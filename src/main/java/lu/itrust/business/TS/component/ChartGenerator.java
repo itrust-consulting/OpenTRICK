@@ -21,10 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.component.chartJS.ColorBound;
 import lu.itrust.business.TS.component.chartJS.Dataset;
+import lu.itrust.business.TS.component.chartJS.Legend;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -54,6 +56,7 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.rrf.RRFAsset;
 import lu.itrust.business.TS.model.rrf.RRFAssetType;
@@ -317,7 +320,7 @@ public class ChartGenerator {
 				"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
 				"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
 
-		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6}}");
 		chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
 		if (aleCharts.length == 1)
 			buildSingleALESerie(chart, aleCharts[0]);
@@ -446,7 +449,7 @@ public class ChartGenerator {
 						+ "\"}",
 				"\"pane\": {\"size\": \"100%\"}", "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\",\"layout\": \"vertical\",  \"y\": 70 }");
 
-		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6, }}");
 
 		if (measureChartDatas.length > 0) {
 
@@ -628,8 +631,7 @@ public class ChartGenerator {
 
 		series += "]";
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}").replaceAll("\r|\n",
-				" ");
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -657,7 +659,7 @@ public class ChartGenerator {
 
 		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\",\"useHTML\":true}";
 
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6}}";
 
 		if (summaries.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "}";
@@ -767,8 +769,7 @@ public class ChartGenerator {
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}").replaceAll("\r|\n",
-				" ");
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 	}
 
 	private boolean isStandardInActionPlan(String standard, List<ActionPlanEntry> actionplans) {
@@ -806,7 +807,7 @@ public class ChartGenerator {
 
 		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
 
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6}}";
 
 		if (summaries.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "}";
@@ -1554,40 +1555,39 @@ public class ChartGenerator {
 
 		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
 
-		List<? extends IParameter> simpleParameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
+		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
 
-		simpleParameters.sort((p1, p2) -> {
-			return Integer.compare(p1.getValue().intValue(), p2.getValue().intValue());
-		});
-
-		List<ColorBound> colorBounds = new ArrayList<>(simpleParameters.size());
-
-		for (int i = 0; i < simpleParameters.size(); i++) {
-			IParameter parameter = simpleParameters.get(i);
-			if (colorBounds.isEmpty())
-				colorBounds.add(new ColorBound(parameter.getDescription(), 0, parameter.getValue().intValue()));
-			else if ((i + 1) == simpleParameters.size())
-				colorBounds.add(new ColorBound(parameter.getDescription(), parameter.getValue().intValue(), probabilities.size() * probabilities.size()));
-			else
-				colorBounds.add(new ColorBound(parameter.getDescription(), parameter.getValue().intValue(), simpleParameters.get(i+1).getValue().intValue()));
-		}
+		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 
 		Chart chart = new Chart();
 
+		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
+			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), 0, parameter.getValue().intValue()));
+			else if ((i + 1) == riskAcceptanceParameters.size())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getValue().intValue(), probabilities.size() * probabilities.size()));
+			else
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getValue().intValue(), riskAcceptanceParameters.get(i + 1).getValue().intValue()));
+
+			chart.getLegends().add(new Legend(parameter.getLabel(), parameter.getColor()));
+
+		}
+
 		probabilities.stream().filter(probability -> probability.getLevel() > 0).forEach(probability -> {
-			chart.getLabels().add(probability.getLevel() + " " + probability.getLabel());
+			chart.getLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
 		});
 
 		impacts.stream().filter(impact -> impact.getLevel() > 0).forEach(impact -> {
 			Dataset dataset = new Dataset();
-			dataset.setLabel(impact.getLevel() + " " + impact.getLabel());
+			dataset.setLabel(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 			for (int i = 1; i < probabilities.size(); i++) {
 				Integer importance = impact.getLevel() * i, count = importanceByCount.get(importance);
 				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny()
 						.ifPresent(colorBound -> dataset.getBackgroundColor().add(colorBound.getColor()));
 				dataset.getData().add(count == null ? "" : count);
 			}
-			
+
 			chart.getDatasets().add(dataset);
 		});
 

@@ -33,11 +33,10 @@ $(document).ready(function() {
 		disableEditMode();
 		$tabOption.hide();
 	});
-	
-	Chart.defaults.global.defaultFontColor="#333";
-	Chart.defaults.global.defaultFontFamily='Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
-	Chart.defaults.global.defaultFontSize=13;
-	
+
+	Chart.defaults.global.defaultFontColor = "#333";
+	Chart.defaults.global.defaultFontFamily = 'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
+	Chart.defaults.global.defaultFontSize = 13;
 
 	Highcharts.setOptions({
 		lang : {
@@ -269,6 +268,8 @@ function loadRiskHeatMap() {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
+				if (window.riskHeatMap != undefined)
+					window.riskHeatMap.destroy();
 				window.riskHeatMap = new Chart(document.getElementById("risk_acceptance_heat_map_canvas").getContext("2d"), {
 					type : 'heatmap',
 					data : response,
@@ -277,7 +278,7 @@ function loadRiskHeatMap() {
 							yAxes : [ {
 								scaleLabel : {
 									display : true,
-									labelString : 'Impact',
+									labelString : MessageResolver("label.title.impact","Impact"),
 									fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
 									fontSize : 22,
 								}
@@ -285,11 +286,33 @@ function loadRiskHeatMap() {
 							xAxes : [ {
 								scaleLabel : {
 									display : true,
-									labelString : 'Probability',
+									labelString : MessageResolver("label.title.likelihood","Probability"),
 									fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
 									fontSize : 22,
 								}
 							} ]
+						},
+						tooltips : {
+							enabled : false
+						},
+						legend : {
+							display : true,
+							position : 'bottom',
+							onClick : function() {
+								return false;
+							},
+							labels : {
+								generateLabels : function(chart) {
+									var data = chart.data;
+									
+									return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
+										return {
+											text : legend.label,
+											fillStyle : legend.color
+										};
+									}, this) : [];
+								}
+							}
 						}
 					}
 				});
@@ -550,9 +573,11 @@ function manageRiskAcceptance() {
 												function() {
 													var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
 															"<span class='range-text'>0</span>").appendTo($div), $range = $(
-															"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='description' type='color' value='#fada91' class='form-control'>");
+															"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control'>");
 													$removeBtn.appendTo($("<td/>").appendTo($tr));
+													$("<td><input name='label' class='form-control'></td>").appendTo($tr);
 													$div.appendTo($("<td />").appendTo($tr));
+													$("<td><textarea name='description' class='form-control' rows='1' /></td>").appendTo($tr);
 													$inputColor.appendTo($("<td />").appendTo($tr));
 													$trParent.before($tr);
 													$removeBtn.on("click", actionDelete);
@@ -575,7 +600,9 @@ function manageRiskAcceptance() {
 										data.push({
 											id : $this.attr("data-trick-id"),
 											value : $("input[name='value']", $this).val(),
-											description : $("input[name='description']", $this).val()
+											label : $("input[name='label']", $this).val(),
+											description : $("textarea[name='description']", $this).val(),
+											color : $("input[name='color']", $this).val()
 										});
 									});
 
@@ -590,7 +617,7 @@ function manageRiskAcceptance() {
 											else if (response.success) {
 												$content.modal("hide");
 												showNotifcation('success', response.success);
-												reloadSection(["section_qualitative_parameter"]);
+												reloadSection([ "section_qualitative_parameter" ]);
 												loadRiskHeatMap();
 											} else
 												unknowError();

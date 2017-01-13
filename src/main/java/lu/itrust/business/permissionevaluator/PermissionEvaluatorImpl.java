@@ -26,6 +26,7 @@ import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
@@ -85,7 +86,10 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Autowired
 	private ServiceDynamicParameter serviceDynamicParameter;
-
+	
+	@Autowired
+	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
+	
 	@Autowired
 	private ServicePhase servicePhase;
 
@@ -216,11 +220,17 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
+			
+			case "RiskAcceptanceParameter" :
+				if(!serviceRiskAcceptanceParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
 			case "History": {
 				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
+			
 			case "RiskRegister": {
 				if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
 					return false;
@@ -236,7 +246,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			default:
 				return false;
 			}
-
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);

@@ -57,6 +57,7 @@ import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -1276,7 +1277,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
 	@Cascade(CascadeType.ALL)
-	@OrderBy("level,type")
+	@OrderBy("type,level")
 	@SuppressWarnings("unchecked")
 	public List<ImpactParameter> getImpactParameters() {
 		List<ImpactParameter> impacts = (List<ImpactParameter>) parameters.get(Constant.PARAMETER_CATEGORY_IMPACT);
@@ -1391,10 +1392,20 @@ public class Analysis implements Cloneable {
 	}
 
 	public MaturityStandard getMaturityStandard() {
-		for (AnalysisStandard standard : analysisStandards)
-			if (standard.getStandard().getClass().isAssignableFrom(MaturityStandard.class))
-				return (MaturityStandard) standard;
-		return null;
+		return (MaturityStandard) analysisStandards.stream().filter(analysisStandard -> analysisStandard instanceof MaturityStandard).findAny().orElse(null);
+	}
+
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis")
+	@Access(AccessType.PROPERTY)
+	@Cascade(CascadeType.ALL)
+	@OrderBy("value,color, label, description")
+	@SuppressWarnings("unchecked")
+	public List<RiskAcceptanceParameter> getRiskAcceptanceParameters() {
+		List<RiskAcceptanceParameter> parameters = (List<RiskAcceptanceParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE);
+		if (parameters == null)
+			this.parameters.put(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE, parameters = new ArrayList<>());
+		return parameters;
 	}
 
 	/**
@@ -2063,6 +2074,10 @@ public class Analysis implements Cloneable {
 
 	public void setSimpleParameters(List<SimpleParameter> parameters) {
 		this.parameters.put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters);
+	}
+
+	public void setRiskAcceptanceParameters(List<RiskAcceptanceParameter> parameters) {
+		this.parameters.put(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE, parameters);
 	}
 
 	/**

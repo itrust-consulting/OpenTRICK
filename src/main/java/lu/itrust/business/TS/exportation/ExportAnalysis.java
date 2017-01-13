@@ -34,12 +34,12 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
-import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -1202,18 +1202,20 @@ public class ExportAnalysis {
 		if (analysis.getType() == AnalysisType.QUANTITATIVE)
 			return;
 		List<Object> params = new ArrayList<Object>();
-		String query = "", unionQuery = " UNION SELECT ?,?", baseQuery = "INSERT INTO risk_acceptance SELECT ? as level, ? as color";
-		List<? extends IParameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
-		for (IParameter parameter : parameters) {
+		String query = "", unionQuery = " UNION SELECT ?,?", baseQuery = "INSERT INTO risk_acceptance SELECT ? as label, ? as level, ? as color, ? as description";
+		List<RiskAcceptanceParameter> parameters = analysis.getRiskAcceptanceParameters();
+		for (RiskAcceptanceParameter parameter : parameters) {
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 2 > 999) {
+			else if (params.size() + 4 > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
 			} else
 				query += unionQuery;
+			params.add(parameter.getLabel());
 			params.add(parameter.getValue().intValue());
+			params.add(parameter.getColor());
 			params.add(parameter.getDescription());
 		}
 

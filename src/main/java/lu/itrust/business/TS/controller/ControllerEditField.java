@@ -49,6 +49,7 @@ import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScenario;
@@ -74,6 +75,7 @@ import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -151,6 +153,9 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceRiskInformation serviceRiskInformation;
+	
+	@Autowired
+	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
 	@Autowired
 	private ServicePhase servicePhase;
@@ -320,6 +325,49 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
+	
+	
+	
+	
+	/**
+	 * parameter: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/RiskAcceptanceParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskAcceptanceParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String riskAcceptanceParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
+			throws Exception {
+		try {
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			// get parameter object
+			RiskAcceptanceParameter simpleParameter = serviceRiskAcceptanceParameter.findOne(elementID, idAnalysis);
+			// create field
+			Field field = FindField(RiskAcceptanceParameter.class, fieldEditor.getFieldName());
+			// set field data
+			if (SetFieldData(field, simpleParameter, fieldEditor)) {
+				// update field
+				serviceRiskAcceptanceParameter.saveOrUpdate(simpleParameter);
+				// return success message
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
+			} else
+				// return error message
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return error
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+		}
+	}
+	
 
 	/**
 	 * Impact: <br>
