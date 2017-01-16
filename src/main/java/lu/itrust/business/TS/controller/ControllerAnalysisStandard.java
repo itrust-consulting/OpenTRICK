@@ -1082,24 +1082,26 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Measures", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object loadMeasureByStandard(@RequestParam("idStandard") Integer idStandard, Principal principal, HttpSession session, Locale locale) {
-		return serviceMeasure.getAllFromAnalysisAndStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard).stream().map(measure -> {
-			MeasureForm measureForm = new MeasureForm();
-			MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage());
-			measureForm.setId(measure.getId());
-			measureForm.setIdStandard(idStandard);
-			measureForm.setReference(measure.getMeasureDescription().getReference());
-			measureForm.setLevel(measure.getMeasureDescription().getLevel());
-			measureForm.setComputable(measure.getMeasureDescription().isComputable());
-			measureForm.setImplementationRate((int) measure.getImplementationRateValue(Collections.emptyList()));
-			measureForm.setStatus(measure.getStatus());
-			measureForm.setPhase(measure.getPhase().getNumber());
-			measureForm.setResponsible(measure.getResponsible());
-			if (descriptionText != null) {
-				measureForm.setDomain(descriptionText.getDomain());
-				measureForm.setDescription(descriptionText.getDescription());
-			}
-			return measureForm;
-		}).collect(Collectors.toList());
+		return serviceMeasure.getAllFromAnalysisAndStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard).stream()
+				.filter(measure -> !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && measure.getImplementationRateValue(Collections.emptyList()) < 100)
+				.map(measure -> {
+					MeasureForm measureForm = new MeasureForm();
+					MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+					measureForm.setId(measure.getId());
+					measureForm.setIdStandard(idStandard);
+					measureForm.setReference(measure.getMeasureDescription().getReference());
+					measureForm.setLevel(measure.getMeasureDescription().getLevel());
+					measureForm.setComputable(measure.getMeasureDescription().isComputable());
+					measureForm.setImplementationRate((int) measure.getImplementationRateValue(Collections.emptyList()));
+					measureForm.setStatus(measure.getStatus());
+					measureForm.setPhase(measure.getPhase().getNumber());
+					measureForm.setResponsible(measure.getResponsible());
+					if (descriptionText != null) {
+						measureForm.setDomain(descriptionText.getDomain());
+						measureForm.setDescription(descriptionText.getDescription());
+					}
+					return measureForm;
+				}).collect(Collectors.toList());
 	}
 
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

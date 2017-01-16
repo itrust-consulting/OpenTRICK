@@ -132,8 +132,6 @@ public class ChartGenerator {
 	@Value("${app.settings.ale.chart.single.content.max.size}")
 	private int aleChartSingleMaxSize;
 
-	private String exporting = "\"exporting\":{\"sourceWidth\":1500,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
-
 	/**
 	 * aleByAsset: <br>
 	 * Description
@@ -449,7 +447,7 @@ public class ChartGenerator {
 						+ "\"}",
 				"\"pane\": {\"size\": \"100%\"}", "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\",\"layout\": \"vertical\",  \"y\": 70 }");
 
-		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6, }}");
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6}}");
 
 		if (measureChartDatas.length > 0) {
 
@@ -906,7 +904,7 @@ public class ChartGenerator {
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ", " + exporting + "}").replaceAll("\r|\n",
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n",
 				" ");
 	}
 
@@ -1351,8 +1349,7 @@ public class ChartGenerator {
 				+ JSONObject.escape(messageSource.getMessage("label.parameter.value", null, "Value", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 
-		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", "
-				+ exporting + "}").replaceAll("\r|\n", " ");
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + "}").replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -1496,8 +1493,7 @@ public class ChartGenerator {
 				+ JSONObject.escape(messageSource.getMessage("report.assessment.ale", null, "ALE (k\u20AC/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 
-		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", "
-				+ exporting + "}").replaceAll("\r|\n", " ");
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + "}").replaceAll("\r|\n", " ");
 	}
 
 	private <TAggregator> List<String> generateNotableEventsJson(Function<Assessment, TAggregator> aggregator, TAggregator key, long timeEnd, double currentAle, double nextAle,

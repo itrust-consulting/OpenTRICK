@@ -598,11 +598,12 @@ datalist {
 		height: 88%;
 	}
 	@media ( min-height :300px) {
-		ul[data-trick-role='nav-estimation'], ul[data-trick-role="nav-measure"] {
+		div[data-trick-role='add-asset-scenario'], ul[data-trick-role="nav-measure"] {
 			position: fixed;
 			bottom: 42px;
 		}
-		ul[data-trick-role='nav-estimation']>li>a, ul[data-trick-role="nav-measure"]>li>a {
+		
+		ul[data-trick-role="nav-measure"]>li>a {
 			padding: 2px 15px;
 		}
 	}

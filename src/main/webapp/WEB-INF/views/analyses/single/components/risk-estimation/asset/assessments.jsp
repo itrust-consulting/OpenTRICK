@@ -32,7 +32,7 @@
 	<div class="page-header tab-content-header">
 		<div class="container">
 			<div class="row-fluid">
-				<h3 role="title"><spring:message code="label.assessment.for.asset" arguments="${asset.name}" /></h3>
+			 	<h3 role="title"><spring:message code="label.assessment.for.asset" arguments="${asset.name}" /></h3>
 			</div>
 		</div>
 	</div>

@@ -34,9 +34,9 @@
 		<ul class="dropdown-menu">
 			<c:if test="${!isProfile}">
 				<li class="dropdown-header"><spring:message code="label.menu.analysis.qualitative_analysis" /></li>
-				<li><a href="#tab-risk-information-threat" data-toggle="tab"><spring:message code="label.menu.analysis.threat" /></a></li>
-				<li><a href="#tab-risk-information-vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
 				<li><a href="#tab-risk-information-risk" data-toggle="tab"><spring:message code="label.menu.analysis.risk" /></a></li>
+				<li><a href="#tab-risk-information-vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
+				<li><a href="#tab-risk-information-threat" data-toggle="tab"><spring:message code="label.menu.analysis.threat" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.quantitative_analysis" /></li>
@@ -53,9 +53,10 @@
 				code="label.menu.analysis.risk_treatment_compliance" /><span class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.standards" /></li>
+			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a> 
 			<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tab-measure-edition" data-toggle="tab"><spring:message
 						code="label.menu.analysis.view_by_measure" /></a></li>
-			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a> <c:if test="${isProfile || isEditable}">
+			<c:if test="${isProfile || isEditable}">
 					<li title='<spring:message code="label.title.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message code="label.menu.manage_standard" /></a></li>
 				</c:if>
 			<li class="divider"></li>

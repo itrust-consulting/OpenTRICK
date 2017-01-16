@@ -76,19 +76,22 @@
 						<c:forEach items="${assets}" var="asset">
 							<spring:message text="${asset.name}" var="assetName" />
 							<spring:message text="${asset.assetType.type}" var="assetTypeName" />
-							<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-selected='${asset.selected}' data-trick-type='${assetTypeName}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${asset.selected? '' : 'none'}"
-								class="list-group-item">${assetName}</a>
+							<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-selected='${asset.selected}' data-trick-type='${assetTypeName}'
+								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${asset.selected? '' : 'none'}" class="list-group-item">${assetName}</a>
 						</c:forEach>
 					</div>
 				</div>
-
-				<spring:url value="?open=${open.readOnly?'read-only' : 'edit'}" var="returnUrl" />
-				<ul class="nav nav-pills" style="font-size: 20px; bottom: 30px;" data-trick-role='nav-estimation'>
-					<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
-					<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
-					<li><a accesskey="H" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
-					<li><a accesskey="G" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
-				</ul>
+				<c:if test="${isEditable}">
+					<div data-trick-role='add-asset-scenario' class='btn-group' style="bottom: 35px; text-align: center;">
+						<span class="btn btn-default disabled"><i class="fa fa-plus"> <spring:message code='label.action.add' /></i></span>
+						<button class='btn btn-default' name="add-scenario">
+							<spring:message code='label.scenario' />
+						</button>
+						<button class='btn btn-default' name="add-asset">
+							<spring:message code='label.asset' />
+						</button>
+					</div>
+				</c:if>
 			</div>
 		</div>
 		<jsp:include page="asset/home.jsp" />
