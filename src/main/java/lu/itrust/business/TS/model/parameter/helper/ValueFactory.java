@@ -291,8 +291,11 @@ public class ValueFactory {
 	 * @see IValue#maxByLevel(IValue, IValue)
 	 */
 	public int findImportance(String proba, List<? extends IValue> impacts) {
-		IValue impact = impacts == null ? null : impacts.stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
-		return impact == null ? 0 : impact.getLevel() * findExpLevel(proba);
+		return findImpactLevel(impacts) * findExpLevel(proba);
+	}
+
+	public int findImpactLevel(List<? extends IValue> impacts) {
+		return impacts == null ? 0 : impacts.stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel).orElse(0);
 	}
 
 	public IValue findMaxImpactByLevel(Map<String, Value> impacts) {
@@ -385,7 +388,8 @@ public class ValueFactory {
 	}
 
 	/**
-	 * @param impacts the impacts to set
+	 * @param impacts
+	 *            the impacts to set
 	 */
 	public void setImpacts(Map<String, List<IImpactParameter>> impacts) {
 		this.impacts = impacts;
@@ -399,7 +403,8 @@ public class ValueFactory {
 	}
 
 	/**
-	 * @param probabilities the probabilities to set
+	 * @param probabilities
+	 *            the probabilities to set
 	 */
 	public void setProbabilities(Map<String, List<IProbabilityParameter>> probabilities) {
 		this.probabilities = probabilities;

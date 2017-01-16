@@ -82,13 +82,12 @@
 					</div>
 				</div>
 				<c:if test="${isEditable}">
-					<div data-trick-role='add-asset-scenario' class='btn-group' style="bottom: 35px; text-align: center;">
-						<span class="btn btn-default disabled"><i class="fa fa-plus"> <spring:message code='label.action.add' /></i></span>
+					<div data-trick-role='add-asset-scenario' class='btn-group' style="bottom: 35px; margin-top: 10px;">
 						<button class='btn btn-default' name="add-scenario">
-							<spring:message code='label.scenario' />
+							<i class="fa fa-plus"></i> <spring:message code='label.scenario' />
 						</button>
 						<button class='btn btn-default' name="add-asset">
-							<spring:message code='label.asset' />
+							<i class="fa fa-plus"></i> <spring:message code='label.asset' />
 						</button>
 					</div>
 				</c:if>

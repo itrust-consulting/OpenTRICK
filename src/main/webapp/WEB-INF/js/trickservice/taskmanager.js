@@ -96,7 +96,7 @@ function TaskManager(title) {
 			setTimeout(function() {
 				progressBar.Destroy();
 				instance.Remove(taskId);
-			}, 10000);
+			}, 5000);
 		});
 		this.UpdateUI();
 		return progressBar;
@@ -144,7 +144,7 @@ function TaskManager(title) {
 				} else {
 					setTimeout(function() {
 						instance.Remove(taskId);
-					}, 10000);
+					}, 5000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
 						if (reponse.asyncCallback.args != null && reponse.asyncCallback.args.length)
 							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);

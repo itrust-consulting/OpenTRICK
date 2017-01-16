@@ -51,99 +51,132 @@
 		<div id="chart_compliance_body" class="row"></div>
 	</div>
 </div>
+<c:choose>
+	<c:when test="${type=='QUALITATIVE'}">
+		<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="loadRiskHeatMap">
+			<div id="risk_acceptance_heat_map">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<spring:message code="label.title.risk_acceptance.heat_map" />
+							</h3>
+						</div>
+					</div>
+				</div>
+				<div class='col-sm-8'>
+					<canvas id="risk_acceptance_heat_map_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+				</div>
+				<div class='col-sm-4'>
+					<fieldset>
+						<legend>
+							<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+						</legend>
+						<table class="table table-hover table-condensed">
+							<thead>
+								<tr>
+									<th><spring:message code="label.importance.threshold" /></th>
+									<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
+									<th style="width: 50%" ><spring:message code="label.description" /></th>
+									<th><spring:message code="label.color" /></th>
+								</tr>
+							</thead>
+							<tbody >
+								<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
+									<tr align="center" >
+										<td><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+										<td><spring:message text="${parameter.label}" /></td>
+										<spring:message text="${parameter.color}" var="color" />
+										<td><spring:message text="${parameter.description}" /></td>
+										<td style="background-color: ${color};"></td>
+									</tr>
+								</c:forEach>
+							</tbody>
+						</table>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+	</c:when>
+	<c:otherwise>
+		<div class="tab-pane trick-chart-tab" id="tab-chart-evolution" data-update-required="true" data-trigger="loadChartEvolution">
+			<div id="chart_evolution" class="container">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<spring:message code="label.title.chart.evolution.profitability.compliance" />
+							</h3>
+						</div>
+					</div>
+				</div>
+				<div id="chart_evolution_profitability_compliance_APPN" class="col-xs-6"></div>
+				<c:if test="${show_uncertainty}">
+					<div id="chart_evolution_profitability_compliance_APPO" class="col-xs-6"></div>
+					<div id="chart_evolution_profitability_compliance_APPP" class="col-xs-6"></div>
+				</c:if>
 
-<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="loadRiskHeatMap">
-	<div id="risk_acceptance_heat_map">
-		<div class="page-header tab-content-header">
-			<div class="container">
-				<div class="row-fluid">
-					<h3>
-						<spring:message code="label.title.risk_acceptance.heat_map" />
-					</h3>
-				</div>
 			</div>
 		</div>
-		<canvas id="risk_acceptance_heat_map_canvas" style="max-height: 900px;max-width:1200px; margin-left: auto; margin-right: auto;"></canvas>
-	</div>
-</div>
-<c:if test="${type=='QUANTITATIVE'}">
-	<div class="tab-pane trick-chart-tab" id="tab-chart-evolution" data-update-required="true" data-trigger="loadChartEvolution">
-		<div id="chart_evolution" class="container">
-			<div class="page-header tab-content-header">
-				<div class="container">
-					<div class="row-fluid">
-						<h3>
-							<spring:message code="label.title.chart.evolution.profitability.compliance" />
-						</h3>
+		<div class="tab-pane trick-chart-tab" id="tab-chart-budget" data-update-required="true" data-trigger="loadChartBudget">
+			<div id="chart_budget" class="container">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<spring:message code="label.title.chart.budget" />
+							</h3>
+						</div>
 					</div>
 				</div>
+				<div id="chart_budget_APPN" class="col-xs-6"></div>
+				<c:if test="${show_uncertainty}">
+					<div id="chart_budget_APPO" class="col-xs-6"></div>
+					<div id="chart_budget_APPP" class="col-xs-6"></div>
+				</c:if>
 			</div>
-			<div id="chart_evolution_profitability_compliance_APPN" class="col-xs-6"></div>
-			<c:if test="${show_uncertainty}">
-				<div id="chart_evolution_profitability_compliance_APPO" class="col-xs-6"></div>
-				<div id="chart_evolution_profitability_compliance_APPP" class="col-xs-6"></div>
-			</c:if>
-	
 		</div>
-	</div>
-	<div class="tab-pane trick-chart-tab" id="tab-chart-budget" data-update-required="true" data-trigger="loadChartBudget">
-		<div id="chart_budget" class="container">
-			<div class="page-header tab-content-header">
-				<div class="container">
-					<div class="row-fluid">
-						<h3>
-							<spring:message code="label.title.chart.budget" />
-						</h3>
+		<div class="tab-pane trick-chart-tab" id="tab-chart-parameter-evolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
+			<div id="chart_parameterevolution" class="container">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<fmt:message key="label.title.chart.dynamic" />
+							</h3>
+						</div>
 					</div>
 				</div>
+				<div id="chart_parameterevolution_body" class="row"></div>
 			</div>
-			<div id="chart_budget_APPN" class="col-xs-6"></div>
-			<c:if test="${show_uncertainty}">
-				<div id="chart_budget_APPO" class="col-xs-6"></div>
-				<div id="chart_budget_APPP" class="col-xs-6"></div>
-			</c:if>
 		</div>
-	</div>
-	<div class="tab-pane trick-chart-tab" id="tab-chart-parameter-evolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
-		<div id="chart_parameterevolution" class="container">
-			<div class="page-header tab-content-header">
-				<div class="container">
-					<div class="row-fluid">
-						<h3>
-							<fmt:message key="label.title.chart.dynamic" />
-						</h3>
+		<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-asset-type" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
+			<div id="chart_aleevolutionbyassettype" class="container">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<fmt:message key="label.title.chart.aleevolution" />
+							</h3>
+						</div>
 					</div>
 				</div>
+				<div id="chart_aleevolutionbyassettype_body" class="row"></div>
 			</div>
-			<div id="chart_parameterevolution_body" class="row"></div>
 		</div>
-	</div>
-	<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-asset-type" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
-		<div id="chart_aleevolutionbyassettype" class="container">
-			<div class="page-header tab-content-header">
-				<div class="container">
-					<div class="row-fluid">
-						<h3>
-							<fmt:message key="label.title.chart.aleevolution" />
-						</h3>
+		<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-scenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
+			<div id="chart_aleevolutionbyscenario" class="container">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<fmt:message key="label.title.chart.aleevolution_by_asset_type" />
+							</h3>
+						</div>
 					</div>
 				</div>
+				<div id="chart_aleevolutionbyscenario_body" class="row"></div>
 			</div>
-			<div id="chart_aleevolutionbyassettype_body" class="row"></div>
 		</div>
-	</div>
-	<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-scenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
-		<div id="chart_aleevolutionbyscenario" class="container">
-			<div class="page-header tab-content-header">
-				<div class="container">
-					<div class="row-fluid">
-						<h3>
-							<fmt:message key="label.title.chart.aleevolution_by_asset_type" />
-						</h3>
-					</div>
-				</div>
-			</div>
-			<div id="chart_aleevolutionbyscenario_body" class="row"></div>
-		</div>
-	</div>
-</c:if>
+	</c:otherwise>
+</c:choose>

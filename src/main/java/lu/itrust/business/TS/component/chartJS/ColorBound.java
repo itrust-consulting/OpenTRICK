@@ -10,13 +10,18 @@ package lu.itrust.business.TS.component.chartJS;
 public class ColorBound {
 
 	private String color;
+	
+	private String label;
 
 	private int min;
 
 	private int max;
+	
+	private int count;
 
-	public ColorBound(String color, int min, int max) {
+	public ColorBound(String color, String label, int min, int max) {
 		setColor(color);
+		setLabel(label);
 		setMin(min);
 		setMax(max);
 	}
@@ -69,6 +74,34 @@ public class ColorBound {
 	public boolean isAccepted(int value) {
 		return value>= min && value <= max;
 
+	}
+
+	/**
+	 * @return the count
+	 */
+	public int getCount() {
+		return count;
+	}
+
+	/**
+	 * @param count the count to set
+	 */
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 }

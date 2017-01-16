@@ -128,7 +128,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		}
 		// Apply padding
 
-		var verticalPadding = 2,horizontalPadding = 3;
+		var verticalPadding = 1.9,horizontalPadding = 2.9;
 		
 		boxWidth = boxWidth - horizontalPadding;
 		

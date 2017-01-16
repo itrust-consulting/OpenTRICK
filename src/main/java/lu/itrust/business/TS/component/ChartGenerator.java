@@ -904,8 +904,7 @@ public class ChartGenerator {
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n",
-				" ");
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 	}
 
 	public String rrfByScenario(int idScenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
@@ -1349,7 +1348,8 @@ public class ChartGenerator {
 				+ JSONObject.escape(messageSource.getMessage("label.parameter.value", null, "Value", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 
-		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + "}").replaceAll("\r|\n", " ");
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + "}")
+				.replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -1493,7 +1493,8 @@ public class ChartGenerator {
 				+ JSONObject.escape(messageSource.getMessage("report.assessment.ale", null, "ALE (k\u20AC/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 
-		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + "}").replaceAll("\r|\n", " ");
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + "}")
+				.replaceAll("\r|\n", " ");
 	}
 
 	private <TAggregator> List<String> generateNotableEventsJson(Function<Assessment, TAggregator> aggregator, TAggregator key, long timeEnd, double currentAle, double nextAle,
@@ -1537,14 +1538,16 @@ public class ChartGenerator {
 	public Chart generateRiskHeatMap(Integer idAnalysis) {
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		ValueFactory factory = new ValueFactory(analysis.getParameters());
-		Map<Integer, Integer> importanceByCount = new LinkedHashMap<>();
+		Map<String, Integer> importanceByCount = new LinkedHashMap<>();
 		for (Assessment assessment : analysis.getSelectedAssessments()) {
-			Integer importance = factory.findImportance(assessment), value = importanceByCount.get(importance);
-			if (importance == 0)
+			Integer impact = factory.findImpactLevel(assessment.getImpacts()), probability = factory.findProbLevel(assessment.getLikelihood());
+			if (impact == 0 || probability == 0)
 				continue;
-			else if (value == null)
+			String key = String.format("%d-%d", impact, probability);
+			Integer value = importanceByCount.get(key);
+			if (value == null)
 				value = 0;
-			importanceByCount.put(importance, ++value);
+			importanceByCount.put(key, ++value);
 		}
 
 		String type = factory.getImpacts().keySet().stream().findAny().orElse(null);
@@ -1560,13 +1563,10 @@ public class ChartGenerator {
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
-				colorBounds.add(new ColorBound(parameter.getColor(), 0, parameter.getValue().intValue()));
-			else if ((i + 1) == riskAcceptanceParameters.size())
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getValue().intValue(), probabilities.size() * probabilities.size()));
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
 			else
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getValue().intValue(), riskAcceptanceParameters.get(i + 1).getValue().intValue()));
-
-			chart.getLegends().add(new Legend(parameter.getLabel(), parameter.getColor()));
+				colorBounds.add(
+						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 
 		}
 
@@ -1578,14 +1578,19 @@ public class ChartGenerator {
 			Dataset dataset = new Dataset();
 			dataset.setLabel(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 			for (int i = 1; i < probabilities.size(); i++) {
-				Integer importance = impact.getLevel() * i, count = importanceByCount.get(importance);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny()
-						.ifPresent(colorBound -> dataset.getBackgroundColor().add(colorBound.getColor()));
+				Integer importance = impact.getLevel() * i, count = importanceByCount.get(String.format("%d-%d", impact.getLevel(), i));
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> {
+					if (count != null)
+						colorBound.setCount(colorBound.getCount() + count);
+					dataset.getBackgroundColor().add(colorBound.getColor());
+				});
+
 				dataset.getData().add(count == null ? "" : count);
 			}
-
 			chart.getDatasets().add(dataset);
 		});
+
+		colorBounds.forEach(colorBound -> chart.getLegends().add(new Legend(colorBound.getCount() + " " + colorBound.getLabel(), colorBound.getColor())));
 
 		return chart;
 	}

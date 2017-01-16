@@ -125,8 +125,8 @@
 			<table class="table table-hover table-condensed">
 				<thead>
 					<tr>
-						<th style="width: 20%" class="textaligncenter"><spring:message code="label.parameter.label" /></th>
 						<th class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
+						<th style="width: 20%" class="textaligncenter"><spring:message code="label.parameter.label" /></th>
 						<th style="width: 50%" class="textaligncenter"><spring:message code="label.description" /></th>
 						<th class="textaligncenter"><spring:message code="label.color" /></th>
 					</tr>
@@ -134,8 +134,8 @@
 				<tbody>
 					<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
 						<tr data-trick-class="RiskAcceptanceParameter" data-trick-id="${parameter.id}" ${isEditable? 'ondblclick="return manageRiskAcceptance()"':''}  data-trick-callback='loadRiskHeatMap()'>
-							<td class='textaligncenter success' data-trick-field='label' data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.label}"/></td>
 							<td class='textaligncenter' data-trick-field="value"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+							<td class='textaligncenter success' data-trick-field='label' data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.label}"/></td>
 							<spring:message text="${parameter.color}" var="color" />
 							<td class='textaligncenter success' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.description}" /></td>
 							<td style="background-color: ${color};" data-trick-field='color'></td>

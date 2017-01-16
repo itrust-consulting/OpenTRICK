@@ -1202,7 +1202,7 @@ public class ExportAnalysis {
 		if (analysis.getType() == AnalysisType.QUANTITATIVE)
 			return;
 		List<Object> params = new ArrayList<Object>();
-		String query = "", unionQuery = " UNION SELECT ?,?", baseQuery = "INSERT INTO risk_acceptance SELECT ? as label, ? as level, ? as color, ? as description";
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?", baseQuery = "INSERT INTO risk_acceptance SELECT ? as label, ? as level, ? as color, ? as description";
 		List<RiskAcceptanceParameter> parameters = analysis.getRiskAcceptanceParameters();
 		for (RiskAcceptanceParameter parameter : parameters) {
 			if (query.isEmpty())
