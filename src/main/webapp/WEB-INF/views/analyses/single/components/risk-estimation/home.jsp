@@ -14,6 +14,15 @@
 	<div class="max-height">
 		<div class="col-md-2 max-height" style="z-index: 1" role="left-menu">
 			<div class="affixMenu max-height">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<spring:message code="label.title.risk_estimation" />
+							</h3>
+						</div>
+					</div>
+				</div>
 				<div class="form-group input-group">
 					<span class="input-group-addon">${assetText}</span> <select name="asset" class="form-control">
 						<option value='-1' title="${allText}">${allText}</option>
@@ -84,10 +93,12 @@
 				<c:if test="${isEditable}">
 					<div data-trick-role='add-asset-scenario' class='btn-group' style="bottom: 35px; margin-top: 10px;">
 						<button class='btn btn-default' name="add-scenario">
-							<i class="fa fa-plus"></i> <spring:message code='label.scenario' />
+							<i class="fa fa-plus"></i>
+							<spring:message code='label.scenario' />
 						</button>
 						<button class='btn btn-default' name="add-asset">
-							<i class="fa fa-plus"></i> <spring:message code='label.asset' />
+							<i class="fa fa-plus"></i>
+							<spring:message code='label.asset' />
 						</button>
 					</div>
 				</c:if>

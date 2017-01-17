@@ -26,7 +26,16 @@
 <spring:message text="${assessment.owner}" var="owner" />
 <spring:message text="${riskProfile.identifier}" var="identifier" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
-<div class='form-horizontal'>
+<div class="page-header tab-content-header">
+	<div class="container">
+		<div class="row-fluid">
+			<h3>
+				<spring:message text="${asset.name} - ${scenario.name}" />
+			</h3>
+		</div>
+	</div>
+</div>
+<div class='form-horizontal' style="border-bottom: 1px solid #efefef;">
 	<div class='col-sm-4'>
 		<div class="form-group">
 			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label> <strong class='col-xs-6 form-control-static'><spring:message
@@ -50,6 +59,7 @@
 			</div>
 		</div>
 	</div>
+	<div class="clearfix"></div>
 </div>
 <table class='table'>
 	<thead class='alert-primary'>
@@ -308,7 +318,9 @@
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
 	<ul class='nav nav-pills' style="padding-left: 0;" id="menu_estimation_action_plan">
 		<li class='form-horizontal' style="margin-right: 25px;"><div class='form-group'>
-				<span class="control-label col-xs-4"><spring:message code="label.risk_register.strategy" /></span><div class='col-xs-8'>${strategyForm}</div></div></li>
+				<span class="control-label col-xs-4"><spring:message code="label.risk_register.strategy" /></span>
+				<div class='col-xs-8'>${strategyForm}</div>
+			</div></li>
 		<li style="padding-left: 0; margin-right: 15px; padding-top: 6px;">${actionPlan}</li>
 		<c:if test="${isEditable}">
 			<li><a href="#" data-action='manage' onclick="return false" style="padding: 6px 10px;"><i class="fa fa-plus" aria-hidden="true"></i> <spring:message

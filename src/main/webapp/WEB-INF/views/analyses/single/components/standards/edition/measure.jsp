@@ -8,18 +8,28 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <fmt:setLocale value="fr" scope="session" />
 <div id="measure-ui" class='col-md-10 trick-ui' data-trick-id='${selectedMeasure.id}'>
+	<div class="page-header tab-content-header">
+		<div class="container">
+			<div class="row-fluid">
+				<h3>
+					<c:choose>
+						<c:when test="${isLinkedToProject and not empty selectedMeasure.ticket}">
+							<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,selectedMeasure.ticket)"
+								var="ticketLink" />
+							<a href="${ticketLink}" target="_titck_ts" class='btn-link'><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' /> <i
+								class="fa fa-external-link" aria-hidden="true"></i></a>
+						</c:when>
+						<c:otherwise>
+							<spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' />
+						</c:otherwise>
+					</c:choose>
+				</h3>
+			</div>
+		</div>
+	</div>
 	<c:if test="${not empty selectedMeasure }">
 		<c:set var="rowSize" value="${isMaturity? 9 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">
-			<legend>
-				<c:choose>
-					<c:when test="${isLinkedToProject and not empty selectedMeasure.ticket}">
-						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,selectedMeasure.ticket)" var="ticketLink" />
-						<a href="${ticketLink}" target="_titck_ts" class='btn-link'><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' />  <i class="fa fa-external-link" aria-hidden="true"></i></a>
-					</c:when>
-					<c:otherwise><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' /></c:otherwise>
-				</c:choose>
-			</legend>
 			<spring:message text="${fn:trim(measureDescriptionText.description)}" var="description" />
 			<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
 		</fieldset>
@@ -81,7 +91,8 @@
 							<th title='<spring:message code="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.iw" /></th>
 							<th title='<spring:message code="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.ew" /></th>
 							<th title='<spring:message code="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.inv" /></th>
-							<th title='<spring:message code="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message code="label.title.measure.lt" /></th>
+							<th title='<spring:message code="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message
+									code="label.title.measure.lt" /></th>
 							<th title='<spring:message code="label.title.measure.im" />' style="width: 1%; min-width: 60px;"><spring:message code="label.internal" /></th>
 							<th title='<spring:message code="label.title.measure.em" />' style="width: 1%; min-width: 60px;"><spring:message code="label.external" /></th>
 							<th title='<spring:message code="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message code="label.recurrent" /></th>
@@ -169,8 +180,8 @@
 									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
 											<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" class="form-control numeric" disabled="disabled">
 										</div></td>
-									<td><div class="input-group" >
-											<span class="input-group-addon">${metricKEuro}</span><input name="cost" readonly="readonly" class="form-control numeric"  disabled="disabled" >
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricKEuro}</span><input name="cost" readonly="readonly" class="form-control numeric" disabled="disabled">
 										</div></td>
 									<td><select name='phase' class="form-control" style="padding-left: 6px; padding-right: 6px" disabled="disabled"></select></td>
 									<td><spring:message text="${selectedMeasure.responsible}" var="responsible" /> <input name="responsible" class="form-control" disabled="disabled"></td>
@@ -199,8 +210,12 @@
 				<label class='label-control'>${todo}</label>
 				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
 				<c:choose>
-					<c:when test="${showTodo}"><textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea></c:when>
-					<c:otherwise><textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled" ></textarea></c:otherwise>
+					<c:when test="${showTodo}">
+						<textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea>
+					</c:when>
+					<c:otherwise>
+						<textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled"></textarea>
+					</c:otherwise>
 				</c:choose>
 			</div>
 		</fieldset>

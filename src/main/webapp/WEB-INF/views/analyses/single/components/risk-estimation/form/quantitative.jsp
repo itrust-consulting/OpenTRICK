@@ -8,6 +8,15 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
+<div class="page-header tab-content-header">
+	<div class="container">
+		<div class="row-fluid">
+			<h3>
+				<spring:message text="${asset.name} - ${scenario.name}" />
+			</h3>
+		</div>
+	</div>
+</div>
 <div class="form-group">
 	<table class='table'>
 		<thead>
@@ -73,7 +82,8 @@
 							</c:when>
 							<c:otherwise>
 								<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="probaValue" />
-								<input name="likelihood" class="form-control" value="${probaValue}" list="likelihoodList" title="${likelihood.variable}" placeholder="${probaValue}" data-trick-type='string'>
+								<input name="likelihood" class="form-control" value="${probaValue}" list="likelihoodList" title="${likelihood.variable}" placeholder="${probaValue}"
+									data-trick-type='string'>
 							</c:otherwise>
 						</c:choose>
 

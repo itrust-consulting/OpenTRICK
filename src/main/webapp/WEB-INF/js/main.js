@@ -776,7 +776,7 @@ $(document)
 						var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
 						$window.on("resize.window", function() {
 							$tabContainer.css({
-								"margin-top" : $tabNav.height() + 12
+								"margin-top" : $tabNav.height() + 2
 							// default margin-top is 50px and default $tabNav
 							// size is 38px
 							});

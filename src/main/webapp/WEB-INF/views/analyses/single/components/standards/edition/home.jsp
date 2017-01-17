@@ -8,6 +8,15 @@
 <div id="tab-measure-edition" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="updateMeasureView">
 	<div class="max-height">
 		<div class="col-md-2 max-height" style="z-index: 1" role="left-menu">
+			<div class="page-header tab-content-header">
+				<div class="container">
+					<div class="row-fluid">
+						<h3>
+							<spring:message code="label.title.analysis.measures_by_chapter" />
+						</h3>
+					</div>
+				</div>
+			</div>
 			<div class="form-group">
 				<select name="standard" class="form-control">
 					<c:forEach items="${standards}" var="standard">
@@ -37,9 +46,10 @@
 							<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
 								<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 								<spring:message text="${measureDescriptionText.domain}" var="domain" />
-								<spring:message text="${measure.measureDescription.reference}" var="reference"/>
-								<a href="#" title="${domain}" data-trick-level="${measure.measureDescription.level}" data-trick-reference='${reference}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
-									data-trick-id='${measure.id}'>${reference} - ${domain}</a>
+								<spring:message text="${measure.measureDescription.reference}" var="reference" />
+								<a href="#" title="${domain}" data-trick-level="${measure.measureDescription.level}" data-trick-reference='${reference}'
+									style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}" data-trick-id='${measure.id}'>${reference}
+									- ${domain}</a>
 							</c:forEach>
 						</div>
 					</c:forEach>

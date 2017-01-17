@@ -37,7 +37,7 @@ body {
 
 #wrap>.container {
 	min-height: 100%;
-	margin-top: 50px;
+	margin-top: 40px;
 }
 
 .container .credit {
@@ -290,9 +290,15 @@ a[role="changeUILanguage"]:hover {
 }
 
 .tab-content-header {
-	margin-top: 0px;
+	margin: 0px 0px 9px;
 }
 
+.tab-content-header .row-fluid *:FIRST-CHILD:NOT(.fa) {
+	margin-bottom: 2px;
+	margin-top: 2px;
+}
+
+}
 .tab-content-header h1, .tab-content-header h2, .tab-content-header h3, .tab-content-header h4, .tab-content-header h5, .tab-content-header h6 {
 	margin-top: 10px;
 }
@@ -542,10 +548,10 @@ datalist {
 
 #main_menu_brand {
 	background-image: url('/trickservice/images/brand-gray.png');
-	width: 186px;
+	width: 150px;
 	background-repeat: no-repeat;
 	margin: 1px 5px 0 0;
-	background-size: auto 49px;
+	background-size: auto 39px;
 }
 
 #main_menu_brand:HOVER {
@@ -579,12 +585,7 @@ datalist {
 	li.back-btn-bottom {
 		display: none;
 	}
-	.back-btn-top {
-		margin-top: 10px;
-		display: block;
-		position: fixed;
-		right: 5px;
-	}
+	
 	.max-height {
 		height: 100%;
 	}
@@ -600,7 +601,7 @@ datalist {
 	@media ( min-height :300px) {
 		div[data-trick-role='add-asset-scenario'], ul[data-trick-role="nav-measure"] {
 			position: fixed;
-			bottom: 42px;
+			bottom: 32px;
 		}
 		ul[data-trick-role="nav-measure"]>li>a {
 			padding: 2px 15px;
