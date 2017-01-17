@@ -328,7 +328,7 @@ function showNotifcation(type, message, url) {
 		z_index : 1068,
 		offset : {
 			x : 0,
-			y : 53
+			y : 43
 		}
 	});
 }
