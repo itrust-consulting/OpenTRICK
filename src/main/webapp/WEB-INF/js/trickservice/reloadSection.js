@@ -136,7 +136,7 @@ function callbackBySection(section) {
 			reloadSection("section_scenario", undefined, true);
 			if (application.analysisType == "QUALITATIVE") {
 				reloadSection("section_riskregister", undefined, true);
-				loadRiskHeatMap();
+				reloadRiskHeatMapSection();
 			} else
 				chartALE();
 			return false;
@@ -145,7 +145,7 @@ function callbackBySection(section) {
 			reloadSection("section_asset", undefined, true);
 			if (application.analysisType == "QUALITATIVE") {
 				reloadSection("section_riskregister", undefined, true);
-				loadRiskHeatMap();
+				reloadRiskHeatMapSection();
 			} else
 				chartALE();
 			return false;
@@ -174,6 +174,9 @@ function callbackBySection(section) {
 					// manage measure
 					application["standard-caching"].clear();
 			}
+		},
+		"section_qualitative_parameter" : function() {
+			reloadRiskHeatMapSection(true);//load Heat map + rebuild table.
 		}
 
 	};

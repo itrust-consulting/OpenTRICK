@@ -28,11 +28,14 @@
 	${fn:replace(probabilityScaleTitle,"'", "\\'" )}
 </c:set>
 <fmt:setLocale value="fr" scope="session" />
-<div class="section col-md-10 trick-ui" id="section_asset_assessment" data-view='estimation-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='-1' data-trick-content='asset'>
+<div class="section col-md-10 trick-ui" id="section_asset_assessment" data-view='estimation-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='-1'
+	data-trick-content='asset'>
 	<div class="page-header tab-content-header">
 		<div class="container">
 			<div class="row-fluid">
-			 	<h3 role="title"><spring:message code="label.assessment.for.asset" arguments="${asset.name}" /></h3>
+				<h3 role="title">
+					<spring:message code="label.assessment.for.asset" arguments="${asset.name}" />
+				</h3>
 			</div>
 		</div>
 	</div>
@@ -119,23 +122,34 @@
 									<c:choose>
 										<c:when test="${empty impact}">
 											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<spring:message text="${impactType.acronym}"/>0'
-												onclick="return editField(this);">0</td>
+												onclick="return editField(this);"><spring:message code='label.status.na' /></td>
 										</c:when>
 										<c:otherwise>
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<spring:message text="${impact.variable}"/>'
-												onclick="return editField(this);">${impact.level}</td>
+											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<spring:message text="${impact.variable}"/>' onclick="return editField(this);">
+												<c:choose>
+													<c:when test="${impact.level == 0}">
+														<spring:message code='label.status.na' />
+													</c:when>
+													<c:otherwise>${impact.level}</c:otherwise>
+												</c:choose>
+											</td>
 										</c:otherwise>
 									</c:choose>
 								</c:forEach>
 								<c:choose>
 									<c:when test="${empty likelihood}">
 										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" title='${likelihood}' onclick="return editField(this);"><spring:message code='label.status.na' /></td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);"
-											title='<spring:message text="${likelihood.variable}"/>'><spring:message
-												text="${likelihood.level}" /></td>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);" title='<spring:message text="${likelihood.variable}"/>'>
+											<c:choose>
+												<c:when test="${likelihood.level == 0}">
+													<spring:message code='label.status.na' />
+												</c:when>
+												<c:otherwise>${likelihood.level}</c:otherwise>
+											</c:choose>
+										</td>
 									</c:otherwise>
 								</c:choose>
 							</c:when>
@@ -179,8 +193,10 @@
 							</c:otherwise>
 						</c:choose>
 						<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
-						<td onclick="return editField(this.firstChild);" class="success"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${assessment.comment}" /></pre></td>
-						<td onclick="return editField(this.firstChild);" class="success"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${assessment.hiddenComment}" /></pre></td>
+						<td onclick="return editField(this);" class="success" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
+								text="${assessment.comment}" /></td>
+						<td onclick="return editField(this);" class="success" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message
+								text="${assessment.hiddenComment}" /></td>
 					</tr>
 				</c:forEach>
 				<c:if test="${type == 'QUANTITATIVE'}">

@@ -602,7 +602,6 @@ datalist {
 			position: fixed;
 			bottom: 42px;
 		}
-		
 		ul[data-trick-role="nav-measure"]>li>a {
 			padding: 2px 15px;
 		}

@@ -259,70 +259,91 @@ function reloadMeasureAndCompliance(standard, idMeasure) {
 	return false;
 }
 
-function loadRiskHeatMap() {
+function reloadRiskHeatMapSection(tableChange) {
 	var $tabSection = $("#tab-chart-heat-map");
 	if ($tabSection.is(":visible")) {
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : context + "/Analysis/Assessment/Chart/Risk-heat-map",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (window.riskHeatMap != undefined)
-					window.riskHeatMap.destroy();
-				window.riskHeatMap = new Chart(document.getElementById("risk_acceptance_heat_map_canvas").getContext("2d"), {
-					type : 'heatmap',
-					data : response,
-					options : {
-						scales : {
-							yAxes : [ {
-								scaleLabel : {
-									display : true,
-									labelString : MessageResolver("label.title.impact","Impact"),
-									fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
-									fontSize : 22,
-								}
-							} ],
-							xAxes : [ {
-								scaleLabel : {
-									display : true,
-									labelString : MessageResolver("label.title.likelihood","Probability"),
-									fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
-									fontSize : 22,
-								}
-							} ]
+		loadRiskHeatMap();
+		if (tableChange) {
+			var $tbody = $("#tab-chart-heat-map table>tbody"), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
+			if ($trs.length) {
+				$tbody.empty();
+				$trs.each(function() {
+					var $this = $(this).removeAttributes();
+					$("td[data-trick-field!='color']", $this).removeAttributes();
+					$("td[data-trick-field]", $this).removeAttr("data-trick-field");
+					$this.attr("style", "text-align:center");
+					$this.appendTo($tbody);
+				});
+			}
+			$tabSection.attr("data-parameters", false);
+		}
+	} else if (tableChange)
+		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
+	else
+		$tabSection.attr("data-update-required", true);
+	return false;
+}
+
+function loadRiskHeatMap() {
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url : context + "/Analysis/Assessment/Chart/Risk-heat-map",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (window.riskHeatMap != undefined)
+				window.riskHeatMap.destroy();
+			window.riskHeatMap = new Chart(document.getElementById("risk_acceptance_heat_map_canvas").getContext("2d"), {
+				type : 'heatmap',
+				data : response,
+				options : {
+					scales : {
+						yAxes : [ {
+							scaleLabel : {
+								display : true,
+								labelString : MessageResolver("label.title.impact", "Impact"),
+								fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
+								fontSize : 22,
+							}
+						} ],
+						xAxes : [ {
+							scaleLabel : {
+								display : true,
+								labelString : MessageResolver("label.title.likelihood", "Probability"),
+								fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
+								fontSize : 22,
+							}
+						} ]
+					},
+					tooltips : {
+						enabled : false
+					},
+					legend : {
+						display : true,
+						position : 'bottom',
+						onClick : function() {
+							return false;
 						},
-						tooltips : {
-							enabled : false
-						},
-						legend : {
-							display : true,
-							position : 'bottom',
-							onClick : function() {
-								return false;
-							},
-							labels : {
-								generateLabels : function(chart) {
-									var data = chart.data;
-									
-									return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
-										return {
-											text : legend.label,
-											fillStyle : legend.color
-										};
-									}, this) : [];
-								}
+						labels : {
+							generateLabels : function(chart) {
+								var data = chart.data;
+
+								return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
+									return {
+										text : legend.label,
+										fillStyle : legend.color
+									};
+								}, this) : [];
 							}
 						}
 					}
-				});
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.hide();
-		});
-	} else
-		$tabSection.attr("data-update-required", true);
+				}
+			});
+		},
+		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+	});
 	return false;
 
 }
@@ -617,8 +638,7 @@ function manageRiskAcceptance() {
 											else if (response.success) {
 												$content.modal("hide");
 												showNotifcation('success', response.success);
-												reloadSection([ "section_qualitative_parameter" ]);
-												loadRiskHeatMap();
+												reloadSection("section_qualitative_parameter");
 											} else
 												unknowError();
 										},

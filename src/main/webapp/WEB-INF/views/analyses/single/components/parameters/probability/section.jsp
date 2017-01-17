@@ -29,17 +29,29 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr data-trick-class="LikelihoodParameter" hidden="true">
-					<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
-					<td data-trick-field="value" colspan="3">0</td>
-				</tr>
+				<c:if test="${type == 'QUANTITATIVE'}">
+					<tr data-trick-class="LikelihoodParameter" hidden="true">
+						<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
+						<td data-trick-field="value" colspan="3">0</td>
+					</tr>
+				</c:if>
 				<c:set var="length" value="${mappedParameters['PROBA'].size()-1}" />
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
-					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
-						<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}" ${type == 'QUALITATIVE' and parameter.level==0? 'style="display:none"':''}>
+						<td data-trick-field="level" class="textaligncenter">
+							<c:choose>
+								<c:when test="${parameter.level==0}">
+									<spring:message code='label.status.na' />
+								</c:when>
+								<c:otherwise>
+									<spring:message text="${parameter.level}" />
+								</c:otherwise>
+							</c:choose>
+						</td>
 						<c:choose>
 							<c:when test="${type == 'QUALITATIVE'}">
-								<td data-trick-field="label" data-trick-field-type="string" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="success textaligncenter" data-trick-callback='loadRiskHeatMap()' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+								<td data-trick-field="label" data-trick-field-type="string" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="success textaligncenter"
+									data-trick-callback='loadRiskHeatMap()' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							</c:when>
 							<c:otherwise>
 								<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>

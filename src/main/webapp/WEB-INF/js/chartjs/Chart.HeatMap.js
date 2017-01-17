@@ -30,7 +30,7 @@ Chart.HeatMapPlugin = Chart.PluginBase.extend({
 						fontSize = 30;
 					else if (dataset.data.length < 3)
 						fontSize = 40;
-					ctx.fillStyle = '#fff';
+					ctx.fillStyle = '#333';
 					ctx.textAlign = 'center';
 					ctx.textBaseline = 'middle';
 					ctx.font = Chart.helpers.fontString(fontSize, "normal", Chart.defaults.global.defaultFontFamily);

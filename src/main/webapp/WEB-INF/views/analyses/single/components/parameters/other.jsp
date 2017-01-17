@@ -111,8 +111,9 @@
 					<c:when test="${isEditable}">
 						<spring:message code="label.title.parameter.risk.acceptance.threshold" />
 						<span class="pull-right">
-							<button class='btn btn-xs btn-link' onclick="return manageRiskAcceptance()" style="font-size: 15px">
-								<i class="fa fa-cog" aria-hidden="true"></i> <spring:message code='label.action.manage' />
+							<button class='btn btn-xs btn-link' onclick="return manageRiskAcceptance(true)" style="font-size: 15px">
+								<i class="fa fa-cog" aria-hidden="true"></i>
+								<spring:message code='label.action.manage' />
 							</button>
 						</span>
 					</c:when>
@@ -122,7 +123,7 @@
 				</c:choose>
 
 			</legend>
-			<table class="table table-hover table-condensed">
+			<table class="table table-hover table-condensed" id="table_parameter_risk_acceptance">
 				<thead>
 					<tr>
 						<th class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
@@ -132,15 +133,28 @@
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
-						<tr data-trick-class="RiskAcceptanceParameter" data-trick-id="${parameter.id}" ${isEditable? 'ondblclick="return manageRiskAcceptance()"':''}  data-trick-callback='loadRiskHeatMap()'>
-							<td class='textaligncenter' data-trick-field="value"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
-							<td class='textaligncenter success' data-trick-field='label' data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.label}"/></td>
-							<spring:message text="${parameter.color}" var="color" />
-							<td class='textaligncenter success' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.description}" /></td>
-							<td style="background-color: ${color};" data-trick-field='color'></td>
-						</tr>
-					</c:forEach>
+					<c:choose>
+						<c:when test="${empty mappedParameters['RISK_ACCEPTANCE']}">
+							<tr class='warning'>
+								<td colspan="4"><spring:message code='info.risk_acceptance.current.empty'/></td>
+							</tr>
+						</c:when>
+						<c:otherwise>
+							<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
+								<tr data-trick-class="RiskAcceptanceParameter" data-trick-id="${parameter.id}" ${isEditable? 'ondblclick="return manageRiskAcceptance()"':''}
+									data-trick-callback='reloadRiskHeatMapSection()'>
+									<td class='textaligncenter' data-trick-field="value"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+									<td class='textaligncenter success' data-trick-field='label' data-trick-field-type='string' onclick="return editField(this);"><spring:message
+											text="${parameter.label}" /></td>
+									<spring:message text="${parameter.color}" var="color" />
+									<td class='textaligncenter success' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message
+											text="${parameter.description}" /></td>
+									<td style="background-color: ${color};" data-trick-field='color'></td>
+								</tr>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
+
 				</tbody>
 			</table>
 		</fieldset>

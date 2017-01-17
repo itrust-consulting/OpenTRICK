@@ -53,7 +53,7 @@
 </div>
 <c:choose>
 	<c:when test="${type=='QUALITATIVE'}">
-		<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="loadRiskHeatMap">
+		<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="reloadRiskHeatMapSection" data-parameters='true'>
 			<div id="risk_acceptance_heat_map">
 				<div class="page-header tab-content-header">
 					<div class="container">
@@ -81,16 +81,8 @@
 									<th><spring:message code="label.color" /></th>
 								</tr>
 							</thead>
-							<tbody >
-								<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
-									<tr align="center" >
-										<td><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
-										<td><spring:message text="${parameter.label}" /></td>
-										<spring:message text="${parameter.color}" var="color" />
-										<td><spring:message text="${parameter.description}" /></td>
-										<td style="background-color: ${color};"></td>
-									</tr>
-								</c:forEach>
+							<tbody>
+								<tr class='warning'><td colspan="4"><spring:message code='info.risk_acceptance.empty'/></td></tr>
 							</tbody>
 						</table>
 					</fieldset>
