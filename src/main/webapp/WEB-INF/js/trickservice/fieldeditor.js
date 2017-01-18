@@ -546,10 +546,9 @@ function AssessmentFieldEditor(element) {
 							if ($("#tab-risk-estimation").is(":visible")) {
 								application["estimation-helper"].tryUpdate(that.classId);
 								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
-							} else {
-								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
 								riskEstimationUpdate();
-							}
+							} else
+								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
 							chartALE();
 						} else {
 							that.Rollback();
@@ -645,8 +644,8 @@ function AssessmentImpactFieldEditor(element) {
 					"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
 			this.dataListName = "dataList-parameter-impact-" + name.toLowerCase();
 			for (var i = 0; i < $values.length; i++) {
-				this.acromyms[i] = $acronyms[i].innerText;
-				this.choose[i] = $values[i].innerText;
+				this.acromyms[i] = $acronyms[i].innerText.trim();
+				this.choose[i] = $values[i].innerText.trim();
 			}
 			this.__generateDataList();
 			return this.choose.length;
@@ -657,8 +656,8 @@ function AssessmentImpactFieldEditor(element) {
 					"td[data-trick-field='level']", id), $title = $("td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
 				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
-				this.chooseTranslate[i] = $values[i].innerText;
-				this.chooseTitle[i] = $title[i].innerText;
+				this.chooseTranslate[i] = $values[i].innerText.trim();
+				this.chooseTitle[i] = $title[i].innerText.trim();
 			}
 			return this.choose.length;
 		};
@@ -677,8 +676,8 @@ function AssessmentProbaFieldEditor(element) {
 			var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",
 					"#Scale_Probability,#DynamicParameters");
 			for (var i = 0; i < $values.length; i++) {
-				this.acromyms[i] = $acronyms[i].innerText;
-				this.choose[i] = $values[i].innerText;
+				this.acromyms[i] = $acronyms[i].innerText.trim();
+				this.choose[i] = $values[i].innerText.trim();
 			}
 			this.__generateDataList();
 			return this.choose.length;
@@ -689,8 +688,8 @@ function AssessmentProbaFieldEditor(element) {
 					"td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
 				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
-				this.chooseTranslate[i] = $values[i].innerText;
-				this.chooseTitle[i] = $title[i].innerText;
+				this.chooseTranslate[i] = $values[i].innerText.trim();
+				this.chooseTitle[i] = $title[i].innerText.trim();
 			}
 			return this.choose.length;
 		};

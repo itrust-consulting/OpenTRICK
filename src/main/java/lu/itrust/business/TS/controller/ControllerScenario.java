@@ -302,7 +302,7 @@ public class ControllerScenario {
 					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", locale));
 					return results;
 				}
-				
+
 				serviceScenario.saveOrUpdate(scenario);
 
 				if (scenario.isSelected())
@@ -435,20 +435,19 @@ public class ControllerScenario {
 				returnvalue.setDescription(description);
 			}
 
+			JsonNode assetTypesValues = jsonNode.get("assetTypes");
+
+			if (assetTypesValues == null)
+				throw new TrickException("error.scenario.asset_types.empty", "Asset types cannot be found");
+
 			for (AssetType assetType : assetTypes) {
-
-				AssetTypeValue atv = null;
-
-				int value = 0;
-				if (jsonNode.get(assetType.getType()) != null)
-					value = jsonNode.get(assetType.getType()).asInt();
-				atv = returnvalue.retrieveAssetTypeValue(assetType);
-
+				JsonNode assetTypeValue = assetTypesValues.get(assetType.getId() + "");
+				int value = assetTypeValue == null ? 0 : assetTypeValue.asInt();
+				AssetTypeValue atv = returnvalue.retrieveAssetTypeValue(assetType);
 				if (atv != null)
 					atv.setValue(value);
 				else
 					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
-
 			}
 
 			if (!cssf) {

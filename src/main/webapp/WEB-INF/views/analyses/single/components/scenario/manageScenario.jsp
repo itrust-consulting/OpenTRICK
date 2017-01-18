@@ -84,7 +84,7 @@
 												<tr>
 													<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
 														<td align="center"><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1"
-															name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
+															name="assetTypes['${assetTypeValue.assetType.id}']" /></td>
 													</c:forEach>
 												</tr>
 											</tbody>
@@ -100,7 +100,7 @@
 											<tbody>
 												<tr>
 													<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
-														<td align="center"><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
+														<td align="center"><input type="checkbox" value="1" name="assetTypes['<spring:message text="${assetType.id}" />']" /></td>
 													</c:forEach>
 												</tr>
 											</tbody>

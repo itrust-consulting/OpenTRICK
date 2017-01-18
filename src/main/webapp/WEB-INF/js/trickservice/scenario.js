@@ -92,9 +92,9 @@ function saveScenario(form) {
 				if (!$(".label-danger",$scenarioModal).length) {
 					$scenarioModal.modal("hide");
 					reloadSection("section_scenario");
-					var types = ["Busi","Compl","Fin","HW","IV","Info","Net","SW","Serv","Staff"], type = "";
-					for (let assetType of types) {
-						if(scenario[assetType]=='1')
+					var type = "";
+					for (var assetType in scenario.assetTypes) {
+						if(scenario.assetTypes[assetType]=='1')
 							type+= (type.length == 0? '' : ';')+assetType;
 					}
 					scenario.type = type;
@@ -192,8 +192,18 @@ function deleteScenario(scenarioId) {
 }
 
 function serializeScenario($form) {
-	var data = $form.serializeJSON(), total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
-	+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);
+	try {
+			var data = $form.serializeJSON(), total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
+	+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']),assetTypes = {};
+	
+	for (var field in data) {
+		if(field.startsWith("assetTypes[")){
+			assetTypes[field.replace("assetTypes['","").replace("']","")] = parseInt(data[field]|"0");
+			delete data[field];
+		}
+	}
+	
+	data["assetTypes"] = assetTypes;
 	
 	data["scenarioType"] = {
 		"id" : parseInt(data["scenarioType"], 0),
@@ -205,6 +215,10 @@ function serializeScenario($form) {
 	if (source == 0)
 		throw "error.scenario.threat.source";
 	return  data;
+	} catch (e) {
+		console.log(e);
+		return {};
+	}
 }
 
 function clearScenarioFormData() {

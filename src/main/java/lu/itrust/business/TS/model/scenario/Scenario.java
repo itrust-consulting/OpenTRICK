@@ -168,7 +168,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Description
 	 */
-	@Column(name = "dtDescription", nullable = false, length=16777216)
+	@Column(name = "dtDescription", nullable = false, length = 16777216)
 	public String getDescription() {
 		return description;
 	}
@@ -502,11 +502,11 @@ public class Scenario extends SecurityCriteria {
 		this.assetTypeValues = assetTypeValues;
 	}
 
-	public String assetTypeString() {
+	public String assetTypeId() {
 		String value = "";
 		for (AssetTypeValue assetTypeValue : assetTypeValues) {
 			if (assetTypeValue.getValue() > 0)
-				value += (value.isEmpty() ? "" : ";") + assetTypeValue.getAssetType().getType();
+				value += (value.isEmpty() ? "" : ";") + assetTypeValue.getAssetType().getId();
 		}
 		return value;
 

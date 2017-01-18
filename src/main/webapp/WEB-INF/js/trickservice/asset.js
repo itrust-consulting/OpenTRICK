@@ -187,7 +187,7 @@ function saveAsset(form) {
 				$assetModal.modal("hide");
 				reloadSection("section_asset");
 				data.id = response.id;
-				data['type'] = data["assetType"].type;
+				data['type'] = data["assetType"].id;
 				updateEstimationIteam("asset",data);
 			}
 		},

@@ -28,17 +28,17 @@
 						<option value='-1' title="${allText}">${allText}</option>
 						<c:forEach items="${assets}" var="asset" varStatus="assetStatus">
 							<spring:message text='${asset.name}' var="assetName" />
-							<spring:message text="${asset.assetType.type}" var="assetTypeName" />
+							<spring:message text="${asset.assetType.id}" var="assetTypeId" />
 							<c:choose>
 								<c:when test="${not asset.selected}">
-									<option value="${asset.id}" hidden="hidden" data-trick-type='${assetTypeName}' data-trick-selected='false' title="${assetName}">${assetName}</option>
+									<option value="${asset.id}" hidden="hidden" data-trick-type='${assetTypeId}' data-trick-selected='false' title="${assetName}">${assetName}</option>
 								</c:when>
 								<c:when test="${empty currentAssetType}">
-									<c:set var="currentAssetType" value="${assetTypeName}" />
-									<option value="${asset.id}" data-trick-type='${assetTypeName}' data-trick-selected='true' title='${assetName}' selected='selected'>${assetName}</option>
+									<c:set var="currentAssetType" value="${assetTypeId}" />
+									<option value="${asset.id}" data-trick-type='${assetTypeId}' data-trick-selected='true' title='${assetName}' selected='selected'>${assetName}</option>
 								</c:when>
 								<c:otherwise>
-									<option value="${asset.id}" data-trick-type='${assetTypeName}' data-trick-selected='true' title="${assetName}">${assetName}</option>
+									<option value="${asset.id}" data-trick-type='${assetTypeId}' data-trick-selected='true' title="${assetName}">${assetName}</option>
 								</c:otherwise>
 							</c:choose>
 
@@ -50,13 +50,13 @@
 						<option value='-1' title="${allText}">${allText}</option>
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
-							<spring:message text="${scenario.assetTypeString()}" var="scenarioAssetTypeNames" />
+							<spring:message text="${scenario.assetTypeId()}" var="scenarioAssetTypeIds" />
 							<c:choose>
 								<c:when test="${scenario.selected}">
-									<option value="${scenario.id}" data-trick-selected='true' title="${scenarioName}" data-trick-type='${scenarioAssetTypeNames}'>${scenarioName}</option>
+									<option value="${scenario.id}" data-trick-selected='true' title="${scenarioName}" data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
 								</c:when>
 								<c:otherwise>
-									<option value="${scenario.id}" hidden="hidden" data-trick-selected='false' title="${scenarioName}" data-trick-type='${scenarioAssetTypeNames}'>${scenarioName}</option>
+									<option value="${scenario.id}" hidden="hidden" data-trick-selected='false' title="${scenarioName}" data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
 								</c:otherwise>
 							</c:choose>
 
@@ -70,9 +70,9 @@
 							data-trick-id='-1'>${scenarioText}</a>
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
-							<spring:message text="${scenario.assetTypeString()}" var="scenarioAssetTypeNames" />
-							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-type='${scenarioAssetTypeNames}'
-								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${scenario.selected and not empty currentAssetType and scenarioAssetTypeNames.contains(currentAssetType)?'':'none'};"
+							<spring:message text="${scenario.assetTypeId()}" var="scenarioAssetTypeIds" />
+							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-type='${scenarioAssetTypeIds}'
+								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'none'};"
 								class="list-group-item">${scenarioName}</a>
 						</c:forEach>
 					</div>
@@ -84,8 +84,8 @@
 							data-trick-id='-1'>${assetText}</a>
 						<c:forEach items="${assets}" var="asset">
 							<spring:message text="${asset.name}" var="assetName" />
-							<spring:message text="${asset.assetType.type}" var="assetTypeName" />
-							<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-selected='${asset.selected}' data-trick-type='${assetTypeName}'
+							<spring:message text="${asset.assetType.id}" var="assetTypeId" />
+							<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-selected='${asset.selected}' data-trick-type='${assetTypeId}'
 								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${asset.selected? '' : 'none'}" class="list-group-item">${assetName}</a>
 						</c:forEach>
 					</div>

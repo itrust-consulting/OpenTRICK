@@ -326,16 +326,19 @@ AssessmentHelder.prototype = {
 		}
 		return this;
 	}, updateTableViewContent: function ($section, idAsset, idScenario, content) {
-		var $content = $(this.section, new DOMParser().parseFromString(content, "text/html"));
+		var $content = $(this.section, new DOMParser().parseFromString(content, "text/html")), isFullUpdate = true;
 		if ($content.length) {
 			this.$tabSection.attr("data-update-required", false);
-			if ($content.attr("data-trick-content") == $section.attr("data-trick-content") && $content.attr("data-trick-asset-id") == idAsset && $content.attr("data-trick-scenario-id") == idScenario) {
-				if (this.smartUpdate($content))
-					$section.replaceWith($content);
+			if ($content.attr("data-trick-content") == $section.attr("data-trick-content") && $section.attr("data-trick-asset-id") == idAsset && $section.attr("data-trick-scenario-id") == idScenario) {
+				if (isFullUpdate = this.smartUpdate($content))
+					$section.replaceWith($content).length > 0;
 			}else
-				$section.replaceWith($content);
-			if($section.attr("data-trick-asset-id")!=idAsset || $section.attr("data-trick-scenario-id")!=idScenario)
-				fixTableHeader($("table",$section.attr("data-trick-asset-id",idAsset).attr("data-trick-scenario-id",idScenario)));
+				$section.replaceWith($content).length > 0;
+				
+			if(isFullUpdate){
+				$section.attr('data-trick-asset-id',idAsset).attr('data-trick-scenario-id',idScenario);
+				fixTableHeader($("table",$content))
+			}
 			this.invalidate = false;
 		} else
 			unknowError();

@@ -131,7 +131,6 @@
 						<c:choose>
 							<c:when test="${empty impact}">
 								<select class="form-control" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
-									<option disabled="disabled" value="-1" selected="selected">NA</option>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
 										<option value="${parameter.id}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><c:choose>
 												<c:when test="${parameter.level == 0}">
@@ -191,7 +190,6 @@
 						<c:choose>
 							<c:when test="${empty impact}">
 								<select class="form-control" name="${impactName}" data-trick-value='0' data-trick-type='integer'>
-									<option disabled="disabled" value="-1" selected="selected">NA</option>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
 										<option value="${parameter.acronym}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><c:choose>
 												<c:when test="${parameter.level == 0}">
@@ -232,7 +230,6 @@
 					<c:choose>
 						<c:when test="${empty riskProfile.expProbaImpact.probability}">
 							<select class="form-control" name="riskProfile.expProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
-								<option disabled="disabled" value="-1" selected="selected">NA</option>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.id}" title='<spring:message text="${parameter.description}"/>'><c:choose>
 											<c:when test="${parameter.level == 0}">
@@ -270,7 +267,6 @@
 						<c:choose>
 							<c:when test="${empty impact}">
 								<select class="form-control" name="riskProfile.expProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
-									<option disabled="disabled" value="-1" selected="selected">NA</option>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
 										<option value="${parameter.id}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><c:choose>
 												<c:when test="${parameter.level == 0}">
@@ -299,7 +295,6 @@
 			</c:forEach>
 			<td style="border-left: 2px solid #ddd;"><input name="expComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedExpImportance}"></td>
 		</tr>
-
 	</tbody>
 </table>
 <div class='form-group'>
