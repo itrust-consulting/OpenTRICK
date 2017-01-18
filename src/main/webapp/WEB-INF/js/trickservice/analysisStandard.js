@@ -18,10 +18,10 @@ $(document).ready(function() {
 			$("body").addClass("modal-open");
 		$deleteModal.find("#deletestandardbuttonYes").off("click.delete")
 	});
-	
-	$("#measure-collection-selector").on("change",function(){
-		$("[id^='section_standard_'][id!='"+this.value+"']:visible").hide();
-		$("#"+this.value).show();
+
+	$("#measure-collection-selector").on("change", function() {
+		$("[id^='section_standard_'][id!='" + this.value + "']:visible").hide();
+		$("#" + this.value).show();
 	}).trigger("change");
 
 });
@@ -291,112 +291,113 @@ function editMeasure(element, idStandard, idMeasure) {
 }
 
 function manageMeasure(url) {
-	$
-			.ajax({
-				url : url,
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
-					var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
-					if ($content.length) {
-						if ($("#modalMeasureForm").length)
-							$("#modalMeasureForm").replaceWith($content);
-						else
-							$content.appendTo($("#widgets"));
-						$content.find("#measure_form_tabs").tab();
-						var $assetTab = $content.find("#tab_asset");
-						if ($assetTab.length) {
-
-							var onSelectedAsset = function(asset) {
-								var $asset = $(asset), id = $asset.attr("data-trick-id");
-								$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($asset);
-								$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']")).attr("data-trick-selected", true);
-								if (application.analysisType == "QUANTITATIVE") {
-									var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
-											+ id
-											+ '" ><input type="text" class="slider" id="asset_slider_'
-											+ id
-											+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="property_asset_'
-											+ id
-											+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>'), $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="'
-											+ id
-											+ '"><input type="text" id="property_asset_'
-											+ id
-											+ '_value" style="min-width: 50px;" readonly="readonly" class="form-control" value="0" name="' + id + '"></td>');
-
-									$header.appendTo($content.find("#slidersTitle"));
-									$data.appendTo($content.find("#sliders"));
-									$value.appendTo($content.find("#values"));
-									$data.find(".slider").slider().on('slide', function(event) {
-										$value.find("input").val(event.value);
-									});
-								}
-							};
-
-							var onDeselectedAsset = function(asset) {
-								var $asset = $(asset);
-								$asset.find("input").remove();
-								$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']")).attr("data-trick-selected", false);
-								if (application.analysisType == "QUANTITATIVE")
-									$content.find('[data-trick-class="MeasureAssetValue"][data-trick-asset-id="' + $asset.attr("data-trick-id") + '"]').remove();
-							};
-
-							$assetTab.find("li[data-trick-type]").each(function() {
-								$(this).on("click", function() {
-									if ($(this).attr("data-trick-selected") == "true")
-										onDeselectedAsset(this);
-									else
-										onSelectedAsset(this);
-								});
-							});
-
-							var updateAssetUI = function(selected) {
-								if (selected === 'ALL')
-									$assetTab.find("li[data-trick-type]").show();
-								else {
-									$assetTab.find("li[data-trick-type='" + selected + "']").show();
-									$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
-								}
-							};
-
-							updateAssetUI($assetTab.find("#assettypes").val());
-
-							$assetTab.find("#assettypes").on("change", function() {
-								updateAssetUI($(this).val());
-							});
-						}
-
-						if (application.analysisType == "QUANTITATIVE") {
-							$content.find(".slider").slider({
-								reversed : true
-							}).each(function() {
-								$(this).on("change", function(event) {
-									$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
-								});
-							});
-						}
-						new Modal($content).Show();
-					} else if (response["error"] != undefined) {
-						$("#info-dialog .modal-body").text(response["error"]);
-						$("#info-dialog").modal("show");
-					} else
-						unknowError()
-				},
-				error : unknowError
-			});
+	$.ajax({
+		url : url,
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
+			if ($content.length) {
+				$content.appendTo($("#widgets"));
+				setupMeasureManager($content).modal("show").on("hidden.bs.modal", function() {
+					$content.remove();
+				});
+			} else if (response["error"] != undefined)
+				showDialog("#info-dialog", response["error"]);
+			else
+				unknowError()
+		},
+		error : unknowError
+	});
 	return false;
 }
 
-function saveMeasure() {
-	var data = {}, $modalMeasureForm = $("#modalMeasureForm"), $form = $("#measure_form", $modalMeasureForm), $genearal = $("#tab_general", $form), properties = $(
-			"#tab_properties #values", $form).serializeJSON(), $assetTab = $("#tab_asset", $form);
+function setupMeasureManager($content) {
+	$content.find("#measure_form_tabs").tab();
+	var $assetTab = $content.find("#tab_asset");
+	if ($assetTab.length) {
+		var onSelectedAsset = function(asset) {
+			var $asset = $(asset), id = $asset.attr("data-trick-id");
+			$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($asset);
+			$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']")).attr("data-trick-selected", true);
+			if (application.analysisType == "QUANTITATIVE") {
+				var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
+						+ id
+						+ '" ><input type="text" class="slider" id="asset_slider_'
+						+ id
+						+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="property_asset_'
+						+ id
+						+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>'), $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="'
+						+ id
+						+ '"><input type="text" id="property_asset_'
+						+ id
+						+ '_value" style="min-width: 50px;" readonly="readonly" class="form-control" value="0" name="'
+						+ id
+						+ '"></td>');
+
+				$header.appendTo($content.find("#slidersTitle"));
+				$data.appendTo($content.find("#sliders"));
+				$value.appendTo($content.find("#values"));
+				$data.find(".slider").slider().on('slide', function(event) {
+					$value.find("input").val(event.value);
+				});
+			}
+		};
+
+		var onDeselectedAsset = function(asset) {
+			var $asset = $(asset);
+			$asset.find("input").remove();
+			$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']")).attr("data-trick-selected", false);
+			if (application.analysisType == "QUANTITATIVE")
+				$content.find('[data-trick-class="MeasureAssetValue"][data-trick-asset-id="' + $asset.attr("data-trick-id") + '"]').remove();
+		};
+
+		$assetTab.find("li[data-trick-type]").each(function() {
+			$(this).on("click", function() {
+				if ($(this).attr("data-trick-selected") == "true")
+					onDeselectedAsset(this);
+				else
+					onSelectedAsset(this);
+			});
+		});
+
+		var updateAssetUI = function(selected) {
+			if (selected === 'ALL')
+				$assetTab.find("li[data-trick-type]").show();
+			else {
+				$assetTab.find("li[data-trick-type='" + selected + "']").show();
+				$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
+			}
+		};
+
+		updateAssetUI($assetTab.find("#assettypes").val());
+
+		$assetTab.find("#assettypes").on("change", function() {
+			updateAssetUI($(this).val());
+		});
+	}
+
+	if (application.analysisType == "QUANTITATIVE") {
+		$content.find(".slider").slider({
+			reversed : true
+		}).each(function() {
+			$(this).on("change", function(event) {
+				$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
+			});
+		});
+	}
+	return $content;
+}
+
+function saveMeasure(form, callback) {
+	var data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
+			.serializeJSON(), $assetTab = $("#tab_asset", $form);
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
 	$(".label-danger", $modalMeasureForm).remove();
-	data.id = $form.find("#id").val();
+	data.id = $("#id",$form).val();
 	data.idStandard = $("#idStandard", $form).val();
 	data.assetValues = [];
-
 	if ($assetTab.length) {
 		data.type = "ASSET";
 		if (application.analysisType == "QUANTITATIVE") {
@@ -450,7 +451,9 @@ function saveMeasure() {
 				}
 			}
 			if (response.id != undefined) {
-				$modalMeasureForm.modal("hide");
+				if(!callback)
+					$modalMeasureForm.modal("hide");
+				else callback();
 				if (data.id > 0)
 					reloadMeasureRow(data.id, data.idStandard);
 				else
@@ -525,10 +528,9 @@ function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
 				var $errorModal = $("#alert-dialog");
 				if ($errorModal.is(":hidden")) {
 					if (response["error"] != undefined)
-						$(".modal-body", $errorModal).text(response["error"]);
+						showDialog("#alert-dialog",response["error"]);
 					else
-						$("#alert-dialog", $errorModal).text(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
-					$errorModal.modal("show");
+						showDialog("#alert-dialog", MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
 				}
 			} else {
 				$("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + idStandard).remove();

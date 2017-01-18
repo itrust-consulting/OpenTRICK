@@ -757,7 +757,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 								return this;
 							},
 							updateStandardUI: function (standard) {
-								var measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text();
+								var that = this, measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text(), isCustomed = $("option:selected", this.$standardSelector).attr("data-trick-custom"), $btnAddMeasure = $("button[name='add-measure']",this.$measureManager);
 								for (var idMeasure in measures) {
 									var measure = measures[idMeasure], $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"),
 										$button = $("<button class='btn btn-xs'></button>"), status = application.measureStatus[measure.status];
@@ -787,6 +787,29 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 
 									$tr.appendTo($tbody);
 								}
+								if(isCustomed=="true"){
+									$btnAddMeasure.show().unbind("click").on("click",function(){
+										$progress.show();
+										$.ajax(
+												{
+													url: context + "/Analysis/Standard/" + standard + "/Measure/New",
+													contentType: "application/json;charset=UTF-8",
+													success: function (response) {
+														var $container = $(new DOMParser().parseFromString(response, "text/html")).find("#measure-form-container"), $modal =  that.$measureManager;
+														if($container.length){
+															$("#measure-form-container", $modal).replaceWith($container);
+															$(".modal-body",$modal).attr('style',"padding-top:5px");
+															$("div[id^='risk-profile-measure-manager-']",$modal).hide();
+															$("div[id^='measure-form-']", $modal).show();
+														}else showDialog("#alert-dialog",MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+													}, error: unknowError
+												}).complete(function () {
+													$progress.hide();
+												});
+										return false;
+									});
+								}else $btnAddMeasure.hide().unbind("click");
+								
 								return this;
 							},
 							clearStandardMeasureUI: function () {
@@ -825,6 +848,11 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									this.phaseEndDate = {};
 								else delete this.standards[standard];
 								return this;
+							},reloadStandard : function() {
+								$("button[name='back']:first",this.$measureManager).trigger("click");
+								this.clear(this.$standardSelector.val());
+								this.$standardSelector.trigger("change");
+								return this;
 							}
 						};
 					} else standardCaching.update($standardSelector, $measureManager, $selectedMeasures, $standardMeasures, $messageContainer);
@@ -852,6 +880,18 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 
 					$('a[data-toggle="tab"]', $measureManager).on('shown.bs.tab', function (e) {
 						forceCloseToolTips();
+					});
+					
+					$("button[name='back']",$measureManager).on("click",function(){
+						$("div[id^='measure-form-']", $measureManager).hide();
+						$("div[id^='risk-profile-measure-manager-']",$measureManager).show();
+						$(".modal-body",$measureManager).removeAttr('style');
+					});
+					
+					$("button[name='save-measure']",$measureManager).on("click",function(){
+						saveMeasure($("form",$measureManager),function(){
+							standardCaching.reloadStandard();
+						});
 					});
 
 					$measureManager.modal("show").on("hide.bs.modal", function () {
