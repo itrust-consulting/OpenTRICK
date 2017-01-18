@@ -27,7 +27,7 @@
 				<li><a href="#tab-ts-setting" data-toggle="tab"><spring:message code="label.settings" text="Settings" /></a></li>
 				<li><a href="#tab-log" data-toggle="tab"><spring:message code="label.logs" text="Logs" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
-					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
+					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<jsp:include page="../template/successErrors.jsp" />
 			<div class="tab-content" id="tab-container">

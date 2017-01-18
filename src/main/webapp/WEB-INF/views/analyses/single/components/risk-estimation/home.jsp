@@ -91,7 +91,7 @@
 					</div>
 				</div>
 				<c:if test="${isEditable}">
-					<div data-trick-role='add-asset-scenario' class='btn-group' style="bottom: 35px; margin-top: 10px;">
+					<div data-trick-role='add-asset-scenario' class='btn-group hidden-xs hidden-sm'>
 						<button class='btn btn-default' name="add-scenario">
 							<i class="fa fa-plus"></i>
 							<spring:message code='label.scenario' />

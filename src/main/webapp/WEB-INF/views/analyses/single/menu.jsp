@@ -104,9 +104,9 @@
 			</ul></li>
 	</c:if>
 	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-danger"
-		title='<spring:message code="label.action.close.analysis" />' style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
+		title='<spring:message code="label.action.close.analysis" />' style="padding-bottom: 6px; padding-top: 6px"><i class="fa fa-sign-out fa-2x"></i></a></li>
 	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown" title='<spring:message code="label.actions" />'
-		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
+		style="padding-bottom: 6px; padding-top: 6px"><i class="fa fa-cog fa-2x"></i></a>
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">
 				<li class="dropdown-header"><spring:message code="label.title.computation" /></li>
@@ -176,5 +176,5 @@
 			</c:if>
 		</ul></li>
 	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<spring:message code="label.options" />' class="dropdown-toggle"
-		data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
+		data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 </ul>

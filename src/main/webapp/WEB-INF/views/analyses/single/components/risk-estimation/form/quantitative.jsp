@@ -8,7 +8,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
-<div class="page-header tab-content-header">
+<div class="page-header tab-content-header hidden-xs">
 	<div class="container">
 		<div class="row-fluid">
 			<h3>

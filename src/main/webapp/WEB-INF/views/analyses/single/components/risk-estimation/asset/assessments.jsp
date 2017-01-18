@@ -30,7 +30,7 @@
 <fmt:setLocale value="fr" scope="session" />
 <div class="section col-md-10 trick-ui" id="section_asset_assessment" data-view='estimation-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='-1'
 	data-trick-content='asset'>
-	<div class="page-header tab-content-header">
+	<div class="page-header tab-content-header hidden-xs">
 		<div class="container">
 			<div class="row-fluid">
 				<h3 role="title">

@@ -55,7 +55,7 @@
 					</c:forEach>
 				</div>
 			</c:forEach>
-			<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-measure'>
+			<ul class="nav nav-pills hidden-xs hidden-sm" style="font-size: 20px;" data-trick-role='nav-measure'>
 				<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i>
 				</a></li>
 				<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>

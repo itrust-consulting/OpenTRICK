@@ -26,7 +26,7 @@
 <spring:message text="${assessment.owner}" var="owner" />
 <spring:message text="${riskProfile.identifier}" var="identifier" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
-<div class="page-header tab-content-header">
+<div class="page-header tab-content-header hidden-xs">
 	<div class="container">
 		<div class="row-fluid">
 			<h3>

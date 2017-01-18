@@ -8,7 +8,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <fmt:setLocale value="fr" scope="session" />
 <div id="measure-ui" class='col-md-10 trick-ui' data-trick-id='${selectedMeasure.id}'>
-	<div class="page-header tab-content-header">
+	<div class="page-header tab-content-header hidden-xs">
 		<div class="container">
 			<div class="row-fluid">
 				<h3>
