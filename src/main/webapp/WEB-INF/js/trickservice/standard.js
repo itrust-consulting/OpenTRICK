@@ -1,5 +1,3 @@
-var progressBar = undefined;
-
 function saveStandard(form) {
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	$.ajax({
@@ -58,7 +56,7 @@ function deleteStandard(idStandard, name) {
 		name = $("#section_kb_standard tbody tr[data-trick-id='" + (idStandard = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
-	$("#deletestandardbuttonYes").one("click", function() {
+	$("#deletestandardbuttonYes").unbind("click.delete").one("click.delete", function() {
 		$("#deleteStandardModel").modal('hide');
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -108,25 +106,23 @@ function uploadImportStandardFile() {
 		error : unknowError
 	}).complete(function() {
 		$progress.hide();
-	})
+	});
 	return false;
 }
 
 function importNewStandard() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
-	if (progressBar != undefined)
-		progressBar.Destroy();
 	$("#updateStandardNotification").empty();
-	var $uploadFile = $("#upload-file-info");
+	var $uploadFile = $("#upload-file-info"), $progress = $("#loading-indicator");
 	if (!$uploadFile.length)
 		return false;
 	else if ($uploadFile.val() == "") {
 		$("#updateStandardNotification").text(MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
 		return false;
-	}
-	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
-	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
+	} else
+		$("#uploadStandardModal").modal("hide");
+	$progress.show();
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/Import",
 		type : 'POST',
@@ -135,40 +131,17 @@ function importNewStandard() {
 		contentType : false,
 		processData : false,
 		success : function(response, textStatus, jqXHR) {
-			if (response.flag != undefined) {
-				progressBar = new ProgressBar();
-				progressBar.Initialise();
-				$(progressBar.progress).appendTo($("#uploadStandard_form").parent());
-				callback = {
-					failed : function() {
-						setTimeout(function() {
-							progressBar.Destroy();
-						}, 2000);
-					},
-					success : function() {
-
-						reloadSection('section_kb_standard');
-						setTimeout(function() {
-							progressBar.Destroy();
-							$("#uploadStandardModal").modal("hide");
-						}, 2000);
-					}
-				};
-				progressBar.OnComplete(callback.success);
-				updateStatus(progressBar, response.taskID, callback, response);
-			} else {
-				var $view = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
-				if ($view.length) {
-					$("#uploadStandardModal").replaceWith($view);
-					$("#uploadStandardModal .modal-footer .btn").prop("disabled", false);
-					$("#uploadStandardModal .modal-header .close").prop("disabled", false);
-				} else {
-					$("#updateStandardNotification").text(MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
-				}
-			}
+			if (response.success)
+				application["taskManager"].SetTitle(MessageResolver("label.title.import.norm", "Import a new standard")).Start();
+			else if (response.error)
+				showDialog("#alert-dialog", response.error);
+			else
+				showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 		},
 		error : unknowError
 
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }

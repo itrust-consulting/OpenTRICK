@@ -3,8 +3,10 @@
  */
 package lu.itrust.business.TS.model.parameter.impl;
 
-import static lu.itrust.business.TS.constants.Constant.*;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
@@ -15,6 +17,7 @@ import lu.itrust.business.TS.model.parameter.IRiskAcceptanceParameter;
  *
  */
 @Entity
+@AttributeOverride(name = "description", column = @Column(name = "dtDescription", length = 2048, nullable = false))
 public class RiskAcceptanceParameter extends Parameter implements IRiskAcceptanceParameter {
 
 	@Column(name = "dtColor", nullable = false)

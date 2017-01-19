@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -698,7 +699,7 @@ public class ControllerRRF {
 		for (int i = 0; i < totalCol; i++) {
 			XSSFCell cell = row.getCell(i);
 			if (cell == null)
-				row.createCell(i, i < 1 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
+				row.createCell(i, i < 1 ? CellType.STRING : CellType.NUMERIC);
 		}
 		int colIndex = 0;
 		row.getCell(colIndex).setCellValue(reference);
@@ -767,7 +768,7 @@ public class ControllerRRF {
 			for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++) {
 				XSSFCell cell = row.getCell(i);
 				if (cell == null)
-					row.createCell(i, i < 1 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
+					row.createCell(i, i < 1 ? CellType.STRING : CellType.NUMERIC);
 			}
 			colIndex = 0;
 			row.getCell(colIndex).setCellValue(scenario.getName());

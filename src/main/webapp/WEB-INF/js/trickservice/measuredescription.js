@@ -74,7 +74,7 @@ function newMeasure(idStandard) {
 		return false;
 	if (idStandard == null || idStandard == undefined)
 		idStandard = $("#idStandard", "#section_kb_measure").val();
-	var $modal = $("#addMeasureModel");
+	var $modal = $("#addMeasureModel"),$progress = $("#loading-indicator").show();
 	$(".label-danger", $modal).remove();
 
 	$("#addmeasurebutton", $modal).prop("disabled", false);
@@ -90,7 +90,6 @@ function newMeasure(idStandard) {
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
 		type : "get",
-		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $("#measurelanguageselect", new DOMParser().parseFromString(response, "text/html"));
@@ -110,6 +109,8 @@ function newMeasure(idStandard) {
 			return false;
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 
 	return false;
@@ -235,7 +236,8 @@ function deleteMeasure(force) {
 				+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]);
 	}
 	$deleteModal.find(".modal-body").html(message);
-	$deleteModal.find("#deletemeasurebuttonYes").one("click", function() {
+	$deleteModal.find("#deletemeasurebuttonYes").unbind("click.delete").one("click.delete", function() {
+		$deleteModal.modal("hide");
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : url,

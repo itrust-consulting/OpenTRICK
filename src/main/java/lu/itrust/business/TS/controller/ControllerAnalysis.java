@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -1074,7 +1074,7 @@ public class ControllerAnalysis {
 
 			for (int i = 0; i < colCount; i++) {
 				if (row.getCell(i) == null)
-					row.createCell(i, Cell.CELL_TYPE_STRING);
+					row.createCell(i, CellType.STRING);
 			}
 			addActionPLanHeader(row, analysis.getType(), locale);
 			for (ActionPlanEntry actionPlanEntry : analysis.getActionPlan(ActionPlanMode.APPN)) {
@@ -1109,7 +1109,7 @@ public class ControllerAnalysis {
 			Locale locale) {
 		for (int i = 0; i < colCount; i++) {
 			if (row.getCell(i) == null)
-				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
+				row.createCell(i, i < 7 ? CellType.STRING : CellType.NUMERIC);
 		}
 		int colIndex = 0;
 		Measure measure = actionPlanEntry.getMeasure();

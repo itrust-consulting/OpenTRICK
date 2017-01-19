@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -265,7 +265,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		int size = 16 + types.size() * 3;
 		for (int i = 0; i < size; i++) {
 			if (row.getCell(i) == null)
-				row.createCell(i, Cell.CELL_TYPE_STRING);
+				row.createCell(i, CellType.STRING);
 		}
 		// setCellString(row, 0, title);
 		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, size - 1));
@@ -322,9 +322,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			row1 = sheet.createRow(1);
 		for (int i = 0; i < rowCount; i++) {
 			if (row.getCell(i) == null)
-				row.createCell(i, Cell.CELL_TYPE_STRING);
+				row.createCell(i, CellType.STRING);
 			if (row1.getCell(i) == null)
-				row1.createCell(i, Cell.CELL_TYPE_STRING);
+				row1.createCell(i, CellType.STRING);
 		}
 
 		int size = types.size() + 2, netIndex = 6 + types.size(), expIndex = netIndex + types.size() + 2, index = expIndex + types.size() + 2;
@@ -590,14 +590,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	private void setCellInt(XSSFRow row, int index, int value) {
 		XSSFCell cell = row.getCell(index);
 		if (cell == null)
-			cell = row.createCell(index, Cell.CELL_TYPE_NUMERIC);
+			cell = row.createCell(index, CellType.NUMERIC);
 		cell.setCellValue(value);
 	}
 
 	private void setCellString(XSSFRow row, int index, String value) {
 		XSSFCell cell = row.getCell(index);
 		if (cell == null)
-			cell = row.createCell(index, Cell.CELL_TYPE_STRING);
+			cell = row.createCell(index, CellType.STRING);
 		cell.setCellValue(value);
 	}
 

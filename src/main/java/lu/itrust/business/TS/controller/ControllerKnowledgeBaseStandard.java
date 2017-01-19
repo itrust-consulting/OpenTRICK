@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -256,7 +256,7 @@ public class ControllerKnowledgeBaseStandard {
 			// errors
 		} catch (Exception e) {
 			// return errors
-			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("standard", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -302,7 +302,7 @@ public class ControllerKnowledgeBaseStandard {
 		}
 	}
 
-	@RequestMapping(value="/Template", method = RequestMethod.GET)
+	@RequestMapping(value = "/Template", method = RequestMethod.GET)
 	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		File templateFile = new File(request.getServletContext().getRealPath(template));
 		if (!(templateFile.exists() && templateFile.isFile()))
@@ -337,18 +337,17 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8,method=RequestMethod.POST)
-	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-			executor.execute(worker);
-			return "redirect:/Task/Status/" + worker.getId();
-		}
-		attributes.addFlashAttribute("errors", messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
-		return "redirect:/KnowledgeBase/Standard/Upload";
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
+
 	}
 
 	/**
@@ -408,22 +407,22 @@ public class ControllerKnowledgeBaseStandard {
 
 			// standard name
 			cell = sheet.getRow(row).getCell(namecol);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 			cell.setCellValue(standard.getLabel());
 
 			// standard version
 			cell = sheet.getRow(row).getCell(versioncol);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 			cell.setCellValue(standard.getVersion());
 
 			// standard description
 			cell = sheet.getRow(row).getCell(desccol);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 			cell.setCellValue(standard.getDescription());
 
 			// standard computable
 			cell = sheet.getRow(row).getCell(computablecol);
-			cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+			cell.setCellType(CellType.BOOLEAN);
 			cell.setCellValue(standard.isComputable());
 
 			/**
@@ -534,19 +533,19 @@ public class ControllerKnowledgeBaseStandard {
 				cell = sheetrow.getCell(levelcol);
 				if (cell == null)
 					cell = sheetrow.createCell(levelcol);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellType(CellType.NUMERIC);
 				cell.setCellValue(measuredescription.getLevel());
 
 				cell = sheet.getRow(row).getCell(referencecol);
 				if (cell == null)
 					cell = sheetrow.createCell(referencecol);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellType(CellType.STRING);
 				cell.setCellValue(measuredescription.getReference());
 
 				cell = sheet.getRow(row).getCell(computablecol);
 				if (cell == null)
 					cell = sheetrow.createCell(computablecol);
-				cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+				cell.setCellType(CellType.BOOLEAN);
 				cell.setCellValue(measuredescription.isComputable());
 
 				int domaincol = computablecol + 1;
@@ -569,7 +568,7 @@ public class ControllerKnowledgeBaseStandard {
 					cell = sheet.getRow(row).getCell(domaincol);
 					if (cell == null)
 						cell = sheetrow.createCell(domaincol);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 					cell.setCellValue(domain);
 					// System.out.println("Domaincol: "+domaincol);
 					domaincol++;
@@ -578,7 +577,7 @@ public class ControllerKnowledgeBaseStandard {
 					cell = sheet.getRow(row).getCell(descriptioncol);
 					if (cell == null)
 						cell = sheetrow.createCell(descriptioncol);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 					cell.setCellValue(description);
 					// System.out.println("Desccol: "+descriptioncol);
 					descriptioncol++;
@@ -859,7 +858,8 @@ public class ControllerKnowledgeBaseStandard {
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, jsonNode, locale)) {
 				if (isNew)
 					measureManager.createNewMeasureForAllAnalyses(measureDescription);
-				else serviceMeasureDescription.saveOrUpdate(measureDescription);
+				else
+					serviceMeasureDescription.saveOrUpdate(measureDescription);
 			}
 
 			// System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
@@ -871,7 +871,7 @@ public class ControllerKnowledgeBaseStandard {
 		catch (Exception e) {
 
 			// return errors
-			errors.put("measuredescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("measuredescription", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -1044,7 +1044,7 @@ public class ControllerKnowledgeBaseStandard {
 		} catch (Exception e) {
 
 			// return error message
-			errors.put("measureDescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("measureDescription", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}
@@ -1133,7 +1133,7 @@ public class ControllerKnowledgeBaseStandard {
 
 		} catch (Exception e) {
 			// return error
-			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("standard", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}

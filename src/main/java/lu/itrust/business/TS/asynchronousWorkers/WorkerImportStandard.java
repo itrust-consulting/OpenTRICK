@@ -119,7 +119,7 @@ public class WorkerImportStandard implements Worker {
 			transaction.commit();
 
 			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
-			
+
 			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_standard"));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**
@@ -215,7 +215,7 @@ public class WorkerImportStandard implements Worker {
 			newstandard = null;
 
 			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
-			
+
 			getStandard();
 
 			if (newstandard != null) {
@@ -225,8 +225,19 @@ public class WorkerImportStandard implements Worker {
 			} else
 				throw new TrickException("error.import.norm.malformedExcelFile", "The Excel file containing Standard to import is malformed. Please check its content!");
 		} finally {
-			if (fileToOpen != null)
-				fileToOpen.close();
+			try {
+				if (fileToOpen != null)
+					fileToOpen.close();
+			} catch (Exception e1) {
+				TrickLogManager.Persist(e1);
+			}
+
+			try {
+				if (workbook != null)
+					workbook.close();
+			} catch (Exception e) {
+				TrickLogManager.Persist(e);
+			}
 		}
 
 	}
@@ -282,16 +293,14 @@ public class WorkerImportStandard implements Worker {
 									else
 										newstandard.setVersion(Integer.valueOf(sheet.getRow(indexRow).getCell(startColSheet + 1).getStringCellValue()));
 									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
-									newstandard.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
+									newstandard.setComputable(getBooleanOrDefault(sheet, indexRow, startColSheet + 3, null));
 									if (sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue().equals(Constant.STANDARD_MATURITY))
 										newstandard.setType(StandardType.MATURITY);
 									else
 										newstandard.setType(StandardType.NORMAL);
 									daoStandard.save(newstandard);
-									serviceTaskFeedback.send(id, new MessageHandler("info.import.norm",
-											new Object[] { newstandard.getLabel(), newstandard.getVersion() },
-											String.format("Import standard %s, version %d.", newstandard.getLabel(), newstandard.getVersion()),
-											10));
+									serviceTaskFeedback.send(id, new MessageHandler("info.import.norm", new Object[] { newstandard.getLabel(), newstandard.getVersion() },
+											String.format("Import standard %s, version %d.", newstandard.getLabel(), newstandard.getVersion()), 10));
 								}
 							}
 					}
@@ -316,7 +325,7 @@ public class WorkerImportStandard implements Worker {
 		String domain = "";
 		String description = "";
 		Language lang;
-		Pattern pattern;
+		Pattern pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
 		Matcher matcher;
 
 		MeasureDescription measureDescription = null;
@@ -344,22 +353,21 @@ public class WorkerImportStandard implements Worker {
 									measureDescription.setStandard(newstandard);
 									daoMeasureDescription.save(measureDescription);
 								}
-								
+
 								if (sheet.getRow(indexRow).getCell(0).getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
 									measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
 								else
 									measureDescription.setLevel(Integer.valueOf(sheet.getRow(indexRow).getCell(0).getStringCellValue()));
 
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
-								System.out.println(measureDescription.getReference());
-								measureDescription.setComputable(sheet.getRow(indexRow).getCell(2).getBooleanCellValue());
+
+								measureDescription.setComputable(getBooleanOrDefault(sheet, indexRow, 2, false));
 
 								if (startColSheet + 3 <= endColSheet) {
 
 									measureDescriptionTexts = new ArrayList<>();
 
 									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
-										pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
 										XSSFCell cell = sheet.getRow(startRowSheet).getCell(indexCol);
 										if (cell == null)
 											continue;
@@ -433,6 +441,19 @@ public class WorkerImportStandard implements Worker {
 					return;
 				}
 			}
+		}
+	}
+
+	private boolean getBooleanOrDefault(XSSFSheet sheet, int row, int col, Boolean defaultValue) {
+		try {
+			XSSFCell cell = sheet.getRow(row).getCell(col);
+			return cell.getCellType() == XSSFCell.CELL_TYPE_BOOLEAN ? cell.getBooleanCellValue()
+					: cell.getCellType() == XSSFCell.CELL_TYPE_STRING ? Boolean.parseBoolean(cell.getStringCellValue())
+							: cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC ? cell.getNumericCellValue() != 0 : defaultValue;
+		} catch (Exception e) {
+			throw new TrickException("error.import.standard.not_boolean",
+					String.format("A boolean value was expected at, sheet: %s, row: %d, col: %d", sheet.getSheetName(), row + 1, col + 1), sheet.getSheetName(), (row + 1) + "",
+					(col + 1) + "");
 		}
 	}
 

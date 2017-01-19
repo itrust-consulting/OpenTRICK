@@ -76,7 +76,7 @@
 			</div>
 			<div id="deleteStandardBody" class="modal-body">Your question here...</div>
 			<div class="modal-footer">
-				<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
+				<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
 					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
 				<button id="deletestandardbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">

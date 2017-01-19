@@ -4,7 +4,6 @@
 package lu.itrust.TS.controller;
 
 import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.ANALYSIS_ID;
-import static lu.itrust.TS.helper.TestMethod.redirectedUrlMatch;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.getString;
 import static lu.itrust.TS.helper.TestSharingData.getStringValue;
@@ -24,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.List;
@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.TS.helper.TestConstant;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
@@ -246,6 +247,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
 						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.errors.asset").exists());
+
 	}
 
 	@Test(dependsOnMethods = { "test_05_CheckUpdateCustomerAndLanguage", "test_03_LoadData", "test_03_LoadData" })
@@ -257,6 +259,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 						.param("author", "Admin Admin").param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION)
 						.param("comment", "comment").param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID))
 						.param("type", AnalysisType.QUANTITATIVE.name()).param("profile", idProfile + ""))
+
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -417,13 +420,21 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Resource resource = resourceLoader.getResource(importStandard);
 		isTrue(resource.exists(), "Resource cannot be found");
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		String idTask = this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
-				.andExpect(status().isFound()).andExpect(redirectedUrlMatch("/Task/Status/\\d+")).andReturn().getModelAndView().getViewName().replace("redirect:/Task/Status/", "");
+		this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
-			worker = workersPoolManager.get(idTask);
+		for (int i = 0; i < 3000; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 instanceof WorkerImportStandard) {
+					worker = worker2;
+					break;
+				}
+			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}

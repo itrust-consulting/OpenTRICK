@@ -22,8 +22,9 @@ import java.util.stream.Collectors;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xwpf.usermodel.BreakType;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -143,7 +144,7 @@ public class ExportAnalysisReport {
 
 	private XWPFRun addCellNumber(XWPFTableCell cell, String number, boolean isBold) {
 		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TableParagraphTS");
+		paragraph.setStyle("TabText2");
 		paragraph.setAlignment(ParagraphAlignment.RIGHT);
 		XWPFRun run = paragraph.createRun();
 		run.setBold(isBold);
@@ -163,7 +164,7 @@ public class ExportAnalysisReport {
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
 				paragraph = cell.addParagraph();
-			paragraph.setStyle("TableParagraphTS");
+			paragraph.setStyle("TabText2");
 			paragraph.createRun().setText(texts[i]);
 		}
 		return paragraph;
@@ -902,11 +903,9 @@ public class ExportAnalysisReport {
 					addCellParagraph(row.getCell(4), assessment.getOwner());
 					addCellParagraph(row.getCell(5), assessment.getComment());
 				}
-				paragraph.setStyle("Figure");
-				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 				paragraph.createRun().setText(getMessage("report.assessment.table.caption", new Object[] { ale.getAssetName() },
 						String.format("Risk estimation for the asset %s", ale.getAssetName()), locale));
-				paragraph.setStyle("CaptionTab");
+				paragraph.setStyle("Caption");
 			}
 			assessementsmap.clear();
 			ales.clear();
@@ -1026,7 +1025,7 @@ public class ExportAnalysisReport {
 				if (xssfSheet.getRow(rowIndex) == null)
 					xssfSheet.createRow(rowIndex);
 				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j, Cell.CELL_TYPE_NUMERIC);
+					xssfSheet.getRow(rowIndex).createCell(j, CellType.NUMERIC);
 			}
 			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
@@ -1065,7 +1064,7 @@ public class ExportAnalysisReport {
 			if (xssfSheet.getRow(rowCount).getCell(0) == null)
 				xssfSheet.getRow(rowCount).createCell(0);
 			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1, Cell.CELL_TYPE_NUMERIC);
+				xssfSheet.getRow(rowCount).createCell(1, CellType.NUMERIC);
 			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
 			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 		}
@@ -1087,7 +1086,7 @@ public class ExportAnalysisReport {
 					if (xssfSheet.getRow(rowCount) == null)
 						xssfSheet.createRow(rowCount);
 					if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-						xssfSheet.getRow(rowCount).createCell(columnIndex, Cell.CELL_TYPE_NUMERIC);
+						xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
 					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 				}
 				columnIndex++;
@@ -1372,6 +1371,10 @@ public class ExportAnalysisReport {
 					isFirst = false;
 				else
 					paragraph = document.createParagraph();
+				
+				paragraph.createRun().addBreak(BreakType.PAGE);
+				
+				paragraph = document.createParagraph();
 
 				paragraph.setStyle("TSMeasureTitle");
 
