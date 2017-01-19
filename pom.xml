@@ -5,8 +5,8 @@
 	<version>2.0 beta</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.springframework.version>4.3.4.RELEASE</org.springframework.version>
-		<org.springframework.security.version>4.2.0.RELEASE</org.springframework.security.version>
+		<org.springframework.version>4.3.5.RELEASE</org.springframework.version>
+		<org.springframework.security.version>4.2.1.RELEASE</org.springframework.security.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.apache.poi.version>3.15</org.apache.poi.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -137,7 +137,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>5.2.5.Final</version>
+			<version>5.2.6.Final</version>
 		</dependency>
 
 		<dependency>

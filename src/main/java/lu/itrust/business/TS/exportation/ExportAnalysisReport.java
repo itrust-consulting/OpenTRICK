@@ -33,6 +33,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.springframework.context.MessageSource;
 
@@ -129,6 +130,8 @@ public class ExportAnalysisReport {
 
 	private int nonApplicableMeasure27002 = 0;
 
+	private List<XWPFParagraph> paragraphsToDelete = new LinkedList<>();
+
 	public ExportAnalysisReport() {
 	}
 
@@ -144,7 +147,7 @@ public class ExportAnalysisReport {
 
 	private XWPFRun addCellNumber(XWPFTableCell cell, String number, boolean isBold) {
 		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TabText2");
+		paragraph.setStyle("TabText1");
 		paragraph.setAlignment(ParagraphAlignment.RIGHT);
 		XWPFRun run = paragraph.createRun();
 		run.setBold(isBold);
@@ -164,7 +167,7 @@ public class ExportAnalysisReport {
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
 				paragraph = cell.addParagraph();
-			paragraph.setStyle("TabText2");
+			paragraph.setStyle("TabText1");
 			paragraph.createRun().setText(texts[i]);
 		}
 		return paragraph;
@@ -263,6 +266,19 @@ public class ExportAnalysisReport {
 
 			updateProperties();
 
+			paragraphsToDelete.forEach(paragraph -> {
+				int index = 0, find = -1;
+				for (CTP ctp : document.getDocument().getBody().getPArray()) {
+					if (ctp.equals(paragraph.getCTP())) {
+						find = index;
+						break;
+					} else
+						index++;
+				}
+				document.getDocument().getBody().removeP(find);
+
+			});
+
 			document.write(outputStream = new FileOutputStream(workFile));
 
 			outputStream.flush();
@@ -333,10 +349,6 @@ public class ExportAnalysisReport {
 		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
-
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
 			// initialise table with 1 row and 1 column after the paragraph
 			// cursor
 
@@ -391,6 +403,9 @@ public class ExportAnalysisReport {
 				addCellNumber(row.getCell(12), entry.getMeasure().getResponsible());
 			}
 		}
+
+		if (paragraph != null)
+			paragraphsToDelete.add(paragraph);
 	}
 
 	private void generateActionPlanSummary() throws Exception {
@@ -403,15 +418,12 @@ public class ExportAnalysisReport {
 		if (paragraph == null)
 			return;
 
-		// run = paragraph.getRuns().get(0);
-
 		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
 
-		while (!paragraph.getRuns().isEmpty())
-			paragraph.removeRun(0);
-
-		if (summary.isEmpty())
+		if (summary.isEmpty()) {
+			paragraphsToDelete.add(paragraph);
 			return;
+		}
 
 		// initialise table with 1 row and 1 column after the paragraph
 		// cursor
@@ -673,6 +685,7 @@ public class ExportAnalysisReport {
 			}
 			rownumber++;
 		}
+		paragraphsToDelete.add(paragraph);
 
 	}
 
@@ -931,9 +944,6 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null) {
 
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSAsset");
@@ -966,6 +976,8 @@ public class ExportAnalysisReport {
 				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
 				addCellParagraph(row.getCell(5), asset.getComment());
 			}
+
+			paragraphsToDelete.add(paragraph);
 		}
 	}
 
@@ -1175,19 +1187,9 @@ public class ExportAnalysisReport {
 		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 
 		if (paragraph != null && parameters.size() > 0) {
-
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
-			// initialise table with 1 row and 1 column after the paragraph
-			// cursor
-
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
 			table.setStyleID("TableTS" + parmetertype);
-
 			// set header
-
 			row = table.getRow(0);
 			MergeCell(row, 0, 6, null);
 			row.getCell(0).setText(getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
@@ -1213,7 +1215,7 @@ public class ExportAnalysisReport {
 			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
 			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
-			int countrow = 0, length = parameters.size()-1;
+			int countrow = 0, length = parameters.size() - 1;
 			// set data
 			for (IBoundedParameter parameter : parameters) {
 				row = table.createRow();
@@ -1247,6 +1249,9 @@ public class ExportAnalysisReport {
 				countrow++;
 			}
 		}
+
+		if (paragraph != null)
+			paragraphsToDelete.add(paragraph);
 	}
 
 	private void generateGraphics() throws OpenXML4JException, IOException {
@@ -1309,9 +1314,6 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && iteminformations.size() > 0) {
 
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
 			// initialise table with 1 row and 1 column after the paragraph
 			// cursor
 
@@ -1336,6 +1338,9 @@ public class ExportAnalysisReport {
 				addCellParagraph(row.getCell(1), iteminfo.getValue());
 			}
 		}
+
+		if (paragraph != null)
+			paragraphsToDelete.add(paragraph);
 	}
 
 	private void generateMeasures() {
@@ -1371,9 +1376,9 @@ public class ExportAnalysisReport {
 					isFirst = false;
 				else
 					paragraph = document.createParagraph();
-				
+
 				paragraph.createRun().addBreak(BreakType.PAGE);
-				
+
 				paragraph = document.createParagraph();
 
 				paragraph.setStyle("TSMeasureTitle");
@@ -1381,10 +1386,6 @@ public class ExportAnalysisReport {
 				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
 
 				paragraph = document.createParagraph();
-
-				paragraph.setStyle("Figure");
-
-				paragraph.setIndentationLeft(0);
 
 				paragraph.setAlignment(ParagraphAlignment.CENTER);
 
@@ -1501,9 +1502,6 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && scenarios.size() > 0) {
 
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSScenario");
@@ -1531,6 +1529,9 @@ public class ExportAnalysisReport {
 				addCellParagraph(row.getCell(2), scenario.getDescription());
 			}
 		}
+
+		if (paragraph != null)
+			paragraphsToDelete.add(paragraph);
 	}
 
 	private void generateThreats() {
@@ -1549,9 +1550,6 @@ public class ExportAnalysisReport {
 			List<RiskInformation> elements = riskmapping.get(key);
 
 			if (paragraph != null && elements.size() > 0) {
-
-				while (!paragraph.getRuns().isEmpty())
-					paragraph.removeRun(0);
 
 				RiskInformation previouselement = null;
 
@@ -1614,6 +1612,9 @@ public class ExportAnalysisReport {
 					}
 				}
 			}
+
+			if (paragraph != null)
+				paragraphsToDelete.add(paragraph);
 		}
 	}
 

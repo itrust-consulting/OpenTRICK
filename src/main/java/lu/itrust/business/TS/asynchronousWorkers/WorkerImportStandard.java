@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
@@ -447,7 +448,7 @@ public class WorkerImportStandard implements Worker {
 	private boolean getBooleanOrDefault(XSSFSheet sheet, int row, int col, Boolean defaultValue) {
 		try {
 			XSSFCell cell = sheet.getRow(row).getCell(col);
-			return cell.getCellType() == XSSFCell.CELL_TYPE_BOOLEAN ? cell.getBooleanCellValue()
+			return cell.getCellType() == CellType.BOOLEAN.ordinal() ? cell.getBooleanCellValue()
 					: cell.getCellType() == XSSFCell.CELL_TYPE_STRING ? Boolean.parseBoolean(cell.getStringCellValue())
 							: cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC ? cell.getNumericCellValue() != 0 : defaultValue;
 		} catch (Exception e) {
