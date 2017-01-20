@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
@@ -250,6 +249,7 @@ public class WorkerImportStandard implements Worker {
 	 * workbook and get information of the Standard to import
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public void getStandard() throws Exception {
 
 		XSSFSheet sheet = null;
@@ -317,6 +317,7 @@ public class WorkerImportStandard implements Worker {
 	 * workbook and get information of the measures to import
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public void getMeasures() throws Exception {
 		XSSFSheet sheet = null;
 		XSSFTable table = null;
@@ -445,10 +446,11 @@ public class WorkerImportStandard implements Worker {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private boolean getBooleanOrDefault(XSSFSheet sheet, int row, int col, Boolean defaultValue) {
 		try {
 			XSSFCell cell = sheet.getRow(row).getCell(col);
-			return cell.getCellType() == CellType.BOOLEAN.ordinal() ? cell.getBooleanCellValue()
+			return cell.getCellType() == XSSFCell.CELL_TYPE_BOOLEAN ? cell.getBooleanCellValue()
 					: cell.getCellType() == XSSFCell.CELL_TYPE_STRING ? Boolean.parseBoolean(cell.getStringCellValue())
 							: cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC ? cell.getNumericCellValue() != 0 : defaultValue;
 		} catch (Exception e) {

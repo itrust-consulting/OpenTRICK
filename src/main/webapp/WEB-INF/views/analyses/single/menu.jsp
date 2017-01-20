@@ -127,9 +127,9 @@
 					<c:if test="${not empty soas}">
 						<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>
 					</c:if>
+					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:choose>
 						<c:when test="${type=='QUALITATIVE'}">
-							<li class='disabled'><a><spring:message code="label.word_report" /> (coming soon)</a></li>
 							<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
 							</a></li>
 							<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
@@ -137,9 +137,6 @@
 							<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','RAW')"> <spring:message code="label.raw_risk_sheet" />
 							</a></li>
 						</c:when>
-						<c:otherwise>
-							<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
-						</c:otherwise>
 					</c:choose>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
 					<li class="divider"></li>

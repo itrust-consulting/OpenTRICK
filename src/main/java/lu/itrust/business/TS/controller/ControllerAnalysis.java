@@ -87,7 +87,9 @@ import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.ExportAnalysisReport;
+import lu.itrust.business.TS.exportation.AbstractWordExporter;
+import lu.itrust.business.TS.exportation.ExportQualitativeReport;
+import lu.itrust.business.TS.exportation.ExportQuantitativeReport;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
@@ -185,11 +187,17 @@ public class ControllerAnalysis {
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
 
-	@Value("${app.settings.report.french.template.name}")
-	private String frenchReportName;
+	@Value("${app.settings.report.quantitative.french.template.name}")
+	private String frenchQuantitativeReportName;
 
-	@Value("${app.settings.report.english.template.name}")
-	private String englishReportName;
+	@Value("${app.settings.report.quantitative.english.template.name}")
+	private String englishQuantitativeReportName;
+
+	@Value("${app.settings.report.qualitative.french.template.name}")
+	private String frenchQualitativeReportName;
+
+	@Value("${app.settings.report.qualitative.english.template.name}")
+	private String englishQualitativeReportName;
 
 	/**
 	 * displayAll: <br>
@@ -263,8 +271,8 @@ public class ControllerAnalysis {
 			Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards());
 			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 			model.addAttribute("soaThreshold", analysis.getParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
-			model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled)
-					.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()))));
+			model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(
+					Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()))));
 			model.addAttribute("measuresByStandard", measuresByStandard);
 			model.addAttribute("show_uncertainty", analysis.isUncertainty());
 			model.addAttribute("type", analysis.getType());
@@ -273,9 +281,10 @@ public class ControllerAnalysis {
 			if (analysis.getType() == AnalysisType.QUALITATIVE)
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
 			if (hasMaturity)
-				model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
-						analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
-			
+				model.addAttribute("effectImpl27002",
+						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
+								analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
+
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
@@ -947,15 +956,18 @@ public class ControllerAnalysis {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
-			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
+			AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(analysisId);
+			AbstractWordExporter exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
+					? new ExportQuantitativeReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
+					: new ExportQualitativeReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
-				exportAnalysisReport.setReportName(frenchReportName);
+				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE? frenchQuantitativeReportName : frenchQualitativeReportName );
 				break;
 			default:
 				locale = Locale.ENGLISH;
-				exportAnalysisReport.setReportName(englishReportName);
+				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? englishQuantitativeReportName : englishQualitativeReportName );
 			}
 			Worker worker = new WorkerExportWordReport(analysisId, principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))

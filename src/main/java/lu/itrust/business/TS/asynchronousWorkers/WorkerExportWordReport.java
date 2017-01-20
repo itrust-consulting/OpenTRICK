@@ -20,7 +20,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.ExportAnalysisReport;
+import lu.itrust.business.TS.exportation.AbstractWordExporter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -54,22 +54,22 @@ public class WorkerExportWordReport implements Worker {
 
 	private SessionFactory sessionFactory;
 
-	private ExportAnalysisReport exportAnalysisReport;
+	private AbstractWordExporter wordExporter;
 
 	/**
 	 * @param idAnalysis
 	 * @param username
 	 * @param serviceTaskFeedback
 	 * @param sessionFactory
-	 * @param exportAnalysisReport
+	 * @param wordExporter
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportAnalysisReport exportAnalysisReport,
+	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, AbstractWordExporter wordExporter,
 			WorkersPoolManager workersPoolManager) {
 		this.idAnalysis = idAnalysis;
 		this.username = username;
 		this.sessionFactory = sessionFactory;
-		this.exportAnalysisReport = exportAnalysisReport;
+		this.wordExporter = wordExporter;
 		this.workersPoolManager = workersPoolManager;
 	}
 
@@ -86,6 +86,7 @@ public class WorkerExportWordReport implements Worker {
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
 			}
+			
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -95,15 +96,16 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
 			else if (!analysis.hasData())
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
-			exportAnalysisReport.setMaxProgress(98);
-			exportAnalysisReport.setIdTask(id);
-			exportAnalysisReport.exportToWordDocument(analysis);
+			wordExporter.setMaxProgress(98);
+			wordExporter.setIdTask(id);
+			wordExporter.exportToWordDocument(analysis);
 			saveWordDocument(session);
 		} catch (TrickException e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+			wordExporter.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
+			e.printStackTrace();
 		} catch (Exception e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
+			wordExporter.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
 			TrickLogManager.Persist(e);
 		} finally {
 			try {
@@ -127,14 +129,14 @@ public class WorkerExportWordReport implements Worker {
 			}
 		}
 
-		if (exportAnalysisReport.getDocument() != null) {
+		if (wordExporter.getDocument() != null) {
 			try {
-				exportAnalysisReport.getDocument().close();
+				wordExporter.getDocument().close();
 			} catch (IOException e) {
 			}
 		}
 
-		File workFile = exportAnalysisReport.getWorkFile();
+		File workFile = wordExporter.getWorkFile();
 
 		if (workFile != null && workFile.exists()) {
 			if (!workFile.delete())
@@ -145,17 +147,17 @@ public class WorkerExportWordReport implements Worker {
 	private void saveWordDocument(Session session) throws Exception {
 		try {
 			User user = new DAOUserHBM(session).get(username);
-			Analysis analysis = exportAnalysisReport.getAnalysis();
-			File file = exportAnalysisReport.getWorkFile();
+			Analysis analysis = wordExporter.getAnalysis();
+			File file = wordExporter.getWorkFile();
 			WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
 					FileCopyUtils.copyToByteArray(file));
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));
+			wordExporter.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport", report.getId()));
-			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
+			wordExporter.getServiceTaskFeedback().send(id, messageHandler);
 			/**
 			 * Log
 			 */

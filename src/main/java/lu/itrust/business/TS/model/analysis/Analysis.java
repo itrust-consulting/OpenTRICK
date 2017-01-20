@@ -33,6 +33,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -1112,9 +1113,22 @@ public class Analysis implements Cloneable {
 	public Map<Asset, List<Assessment>> getAssessmentByAsset() {
 		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
 		assessments.forEach(assessment -> {
-			List<Assessment> assessments = mapping.get(assessment.getScenario());
+			List<Assessment> assessments = mapping.get(assessment.getAsset());
 			if (assessments == null)
 				mapping.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+		return mapping;
+	}
+
+	public Map<Asset, List<Assessment>> findSelectedAssessmentByAsset() {
+		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
+		assessments.stream().filter(Assessment::isSelected).sorted((a1, a2) -> {
+			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
+		}).forEach(assessment -> {
+			List<Assessment> assessments = mapping.get(assessment.getAsset());
+			if (assessments == null)
+				mapping.put(assessment.getAsset(), assessments = new LinkedList<Assessment>());
 			assessments.add(assessment);
 		});
 		return mapping;
