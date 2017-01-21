@@ -49,7 +49,7 @@
 							<spring:message var="impactName" text="${impactType.name}" />
 							<li><a href="#" onclick='return displayParameters("#Scale_Impact_${impactName}")'><spring:message
 										code="label.title.parameter.extended.impact.${fn:toLowerCase(impactName)}"
-										text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[language]}" /></a></li>
+										text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[langue].name}" /></a></li>
 						</c:forEach>
 					</ul></li>
 				<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
@@ -79,8 +79,8 @@
 					<tr>
 						<c:forEach items="${impactTypes}" var="impactType">
 							<spring:message code="label.title.assessment.impact_${fn:toLowerCase(impactType.name)}"
-								text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue]}" var="impactTitle" />
-							<th style="width: 2%" title='${impactTitle}'><spring:message code="label.assessment.impact_${fn:toLowerCase(impactType.name)}" text="${impactType.sortName}" /></th>
+								text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue].name}" var="impactTitle" />
+							<th style="width: 2%" title='${impactTitle}'><spring:message code="label.assessment.impact_${fn:toLowerCase(impactType.name)}" text="${impactType.getShortName(langue)}" /></th>
 						</c:forEach>
 					</tr>
 				</c:when>

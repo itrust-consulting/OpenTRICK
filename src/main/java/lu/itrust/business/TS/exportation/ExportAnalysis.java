@@ -44,6 +44,7 @@ import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.TS.model.scale.Translation;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -1226,11 +1227,11 @@ public class ExportAnalysis {
 
 	private void exportImpactType() throws SQLException {
 		List<Object> params = new ArrayList<Object>();
-		String query = "", unionQuery = " UNION SELECT ?,?,?", baseQuery = "INSERT INTO impact_type SELECT ? as name, ? as acronym,? as translation";
+		String query = "", unionQuery = " UNION SELECT ?,?,?", baseQuery = "INSERT INTO impact_type SELECT ? as name, ? as acronym,? as translation, ? as short_name";
 		for (ScaleType scaleType : scaleTypes) {
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 3 > 999) {
+			else if (params.size() + 4 > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
@@ -1238,13 +1239,14 @@ public class ExportAnalysis {
 				query += unionQuery;
 			params.add(scaleType.getName());
 			params.add(scaleType.getAcronym());
-			String translate = scaleType.get(analysis.getLanguage().getAlpha2());
+			Translation translate = scaleType.get(analysis.getLanguage().getAlpha2());
 			if (translate == null) {
 				translate = scaleType.get("EN");
 				if (translate == null)
-					translate = scaleType.getDisplayName();
+					translate = new Translation(scaleType.getDisplayName(), scaleType.getShortName());
 			}
-			params.add(translate);
+			params.add(translate.getName());
+			params.add(translate.getShortName());
 		}
 
 		if (!query.isEmpty())

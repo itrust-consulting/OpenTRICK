@@ -299,10 +299,14 @@ public class Constant {
 	 * @see #ASSESSMENT_IMPACT_NAMES
 	 */
 	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational", "Reputational" };
+	
+	public final static String[] DEFAULT_IMPACT_TYPE_SHORT_NAMES = { "Fin.", "Leg.", "Op.", "Rep." };
 
 	public static final String DEFAULT_IMPACT_NAME = PARAMETERTYPE_TYPE_IMPACT_NAME;
 
 	public static final String DEFAULT_IMPACT_TRANSLATE = "Impact";
+	
+	public static final String DEFAULT_IMPACT_SHORT_NAME = "Imp.";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";

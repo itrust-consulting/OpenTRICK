@@ -84,6 +84,7 @@ import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.TS.model.scale.Translation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -588,11 +589,11 @@ public class ImportAnalysis {
 		setDaoScaleType(new DAOScaleTypeHBM(session));
 	}
 
-	private void addImpactType(String name, String translate, String prefix) {
+	private void addImpactType(String name, String translate, String shortName, String prefix) {
 		ScaleType type = daoScaleType.findOne(name);
 		if (type == null) {
 			type = new ScaleType(name, generateAcronym(name, prefix + name.substring(0, 1).toLowerCase()));
-			type.put(this.analysis.getLanguage().getAlpha2(), translate);
+			type.put(this.analysis.getLanguage().getAlpha2(), new Translation(translate, shortName));
 			daoScaleType.saveOrUpdate(type);
 		}
 		impactTypes.put(type.getName(), type);
@@ -1420,10 +1421,10 @@ public class ImportAnalysis {
 			if (resultSet == null) {
 				setCompability1X(true);
 				if (analysis.getType() == AnalysisType.QUANTITATIVE)
-					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, "");
+					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, Constant.DEFAULT_IMPACT_SHORT_NAME, "");
 				else {
 					for (int i = 0; i < Constant.DEFAULT_IMPACT_TYPE_NAMES.length; i++)
-						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], "i");
+						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], Constant.DEFAULT_IMPACT_TYPE_SHORT_NAMES[i], "i");
 				}
 			} else {
 				while (resultSet.next()) {
@@ -1431,7 +1432,7 @@ public class ImportAnalysis {
 					ScaleType type = daoScaleType.findOne(name);
 					if (type == null) {
 						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym.toLowerCase()));
-						type.put(this.analysis.getLanguage().getAlpha2(), resultSet.getString("translation"));
+						type.put(this.analysis.getLanguage().getAlpha2(), new Translation(resultSet.getString("translation"), resultSet.getString("shortName")));
 						daoScaleType.saveOrUpdate(type);
 					}
 					impactTypes.put(type.getName(), type);

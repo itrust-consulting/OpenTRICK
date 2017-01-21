@@ -73,9 +73,9 @@
 		<tr>
 			<c:forEach items="${impactTypes}" var="impactType">
 				<spring:message code="label.title.assessment.impact_${fn:toLowerCase(impactType.name)}"
-					text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue]}" var="impactTitle" />
+					text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue].name}" var="impactTitle" />
 				<th title='${impactTitle}' style="text-align: center; min-width: 90px;"><spring:message code="label.impact.${fn:toLowerCase(impactType.name)}"
-						text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue]}" /></th>
+						text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue].name}" /></th>
 			</c:forEach>
 		</tr>
 	</thead>

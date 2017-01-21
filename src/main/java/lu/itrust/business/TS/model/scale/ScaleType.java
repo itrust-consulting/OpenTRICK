@@ -32,10 +32,9 @@ public class ScaleType extends AbstractParameterType {
 
 	@ElementCollection
 	@MapKeyColumn(name = "dtLocale")
-	@Column(name = "dtTranslate")
 	@Cascade(CascadeType.ALL)
 	@CollectionTable(name = "ScaleTypeTranslations", joinColumns = @JoinColumn(name = "fiScaleType"))
-	private Map<String, String> translations = new LinkedHashMap<>();
+	private Map<String, Translation> translations = new LinkedHashMap<>();
 
 	/**
 	 * 
@@ -66,7 +65,7 @@ public class ScaleType extends AbstractParameterType {
 	/**
 	 * @return the translations
 	 */
-	public Map<String, String> getTranslations() {
+	public Map<String, Translation> getTranslations() {
 		return translations;
 	}
 
@@ -74,7 +73,7 @@ public class ScaleType extends AbstractParameterType {
 	 * @param translations
 	 *            the translations to set
 	 */
-	public void setTranslations(Map<String, String> translations) {
+	public void setTranslations(Map<String, Translation> translations) {
 		this.translations = translations;
 	}
 
@@ -83,7 +82,7 @@ public class ScaleType extends AbstractParameterType {
 	 * @return
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
-	public String get(String key) {
+	public Translation get(String key) {
 		return translations.get(key);
 	}
 
@@ -93,7 +92,7 @@ public class ScaleType extends AbstractParameterType {
 	 * @return
 	 * @see java.util.Map#put(java.lang.Object, java.lang.Object)
 	 */
-	public String put(String key, String value) {
+	public Translation put(String key, Translation value) {
 		return translations.put(key, value);
 	}
 
@@ -101,7 +100,7 @@ public class ScaleType extends AbstractParameterType {
 	 * @param action
 	 * @see java.util.Map#forEach(java.util.function.BiConsumer)
 	 */
-	public void forEach(BiConsumer<? super String, ? super String> action) {
+	public void forEach(BiConsumer<? super String, ? super Translation> action) {
 		translations.forEach(action);
 	}
 
@@ -114,8 +113,18 @@ public class ScaleType extends AbstractParameterType {
 		return StringUtils.capitalize(name.toLowerCase());
 	}
 
-	public String getSortName() {
-		return StringUtils.capitalize(name.length() > 3 ? acronym.length() < 3 ? name.substring(0, 3).toLowerCase() : acronym.toLowerCase() : acronym.toLowerCase());
+	public String getTranslate(String key) {
+		Translation translation = get(key);
+		return translation == null ? null : translation.getName();
+	}
+
+	public String getShortName(String key) {
+		Translation translation = get(key);
+		return translation == null ? getShortName() : translation.getShortName();
+	}
+
+	public String getShortName() {
+		return StringUtils.capitalize(name.length() > 3 ? name.substring(0, 3).toLowerCase() + "." : name);
 	}
 
 }

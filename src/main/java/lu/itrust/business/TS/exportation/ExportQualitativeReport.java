@@ -30,6 +30,7 @@ import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.TS.model.scale.Translation;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -374,6 +375,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		XWPFParagraph paragraphOrigin = null;
 		XWPFTable table = null;
 		XWPFTableRow row = null;
+		String language = locale.getLanguage().toUpperCase();
 		paragraphOrigin = findTableAnchor("<Assessment>");
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
@@ -393,11 +395,11 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 					row.addNewTableCell();
 				row.getCell(colIndex++).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
 				for (ScaleType scaleType : scaleTypes)
-					setCellText(row.getCell(colIndex++), scaleType.getSortName(), ParagraphAlignment.CENTER);
+					setCellText(row.getCell(colIndex++), scaleType.getShortName(language), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
 				row.getCell(colIndex++).setText(getMessage("report.assessment.owner", null, "Owner", locale));
 				row.getCell(colIndex++).setText(getMessage("report.assessment.comment", null, "Comment", locale));
-				
+
 				for (Assessment assessment : assessementsByAsset.get(asset)) {
 					row = table.createRow();
 					while (row.getTableCells().size() < colLength)
@@ -485,7 +487,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 	@Override
 	protected void generateExtendedParameters(String type) throws Exception {
 		XWPFParagraph paragraph = null;
-		String parmetertype = "";
+		String parmetertype = "", languuage = locale.getLanguage().toUpperCase();
 		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 			parmetertype = "Impact";
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
@@ -500,8 +502,8 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			else {
 				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().collect(Collectors.groupingBy(ImpactParameter::getType));
 				for (ScaleType scaleType : impacts.keySet()) {
-					String title = scaleType.get(locale.getLanguage());
-					buildImpactProbabilityTable(paragraph, title == null ? scaleType.getDisplayName() : title, parmetertype, impacts.get(scaleType));
+					Translation title = scaleType.get(languuage);
+					buildImpactProbabilityTable(paragraph, title == null ? scaleType.getDisplayName() : title.getName(), parmetertype, impacts.get(scaleType));
 				}
 			}
 			paragraphsToDelete.add(paragraph);

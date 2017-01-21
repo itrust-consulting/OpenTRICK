@@ -21,14 +21,20 @@
 		<table class="table table-hover">
 			<thead>
 				<tr>
-					<th width="1%" rowspan="2"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'kb_scale_type')"></th>
-					<th rowspan="2"><spring:message code="label.scale.name" text="Name" /></th>
-					<th rowspan="2"><spring:message code="label.scale.acronym" text="Acronym" /></th>
-					<th colspan="${empty languages? 1 : languages.size()}" style="text-align: center;"><spring:message code="label.scale.translantions" text="Tanslantions" /></th>
+					<th width="1%" rowspan="3"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'kb_scale_type')"></th>
+					<th rowspan="3"><spring:message code="label.scale.name" text="Name" /></th>
+					<th rowspan="3"><spring:message code="label.scale.acronym" text="Acronym" /></th>
+					<th colspan="${empty languages? 1 : languages.size()*2}" style="text-align: center;"><spring:message code="label.scale.translantions" text="Tanslantions" /></th>
 				</tr>
 				<tr>
 					<c:forEach items="${languages}" var="language">
-						<th><spring:message text="${language.alpha2 == langue? language.name : language.altName}" /></th>
+						<th colspan="2" style="text-align: center;" ><spring:message text="${language.alpha2 == langue? language.name : language.altName}" /></th>
+					</c:forEach>
+				</tr>
+				<tr>
+					<c:forEach items="${languages}" var="language">
+						<th><spring:message code='label.translation'/></th>
+						<th><spring:message code='label.translation.short' /></th>
 					</c:forEach>
 				</tr>
 			</thead>
@@ -39,7 +45,8 @@
 						<td data-field-name="name"><spring:message text="${scaleType.name}" /></td>
 						<td data-field-name="acronym"><spring:message text="${scaleType.acronym}" /></td>
 						<c:forEach items="${languages}" var="language" >
-							<td><spring:message text="${scaleType.translations[language.alpha2]}" /></td>
+							<td><spring:message text="${scaleType.translations[language.alpha2].name}" /></td>
+							<td><spring:message text="${scaleType.translations[language.alpha2].shortName}" /></td>
 						</c:forEach>
 					</tr>
 				</c:forEach>

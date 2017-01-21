@@ -368,7 +368,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.probability", "Probability (P)"));
 		for (ScaleType scaleType : types)
 			row.getCell(index++).setCellValue(getMessage("label.impact." + scaleType.getName().toLowerCase(),
-					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2) : scaleType.getDisplayName()));
+					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()));
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.importance", "Importance"));
 	}
 
@@ -502,7 +502,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		int index = 1;
 		for (ScaleType scaleType : types)
 			getCell(row, index++).setText(getMessage("label.impact." + scaleType.getName().toLowerCase(),
-					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2) : scaleType.getDisplayName()));
+					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()));
 		row = table.getRow(2);
 		if (probaImpact.getProbability() == null)
 			getCell(row, 0).setText("0");

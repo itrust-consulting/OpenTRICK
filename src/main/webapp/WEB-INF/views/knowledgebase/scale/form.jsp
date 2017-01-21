@@ -50,8 +50,11 @@
 							<div class="form-group">
 								<label for="translations['${alpha2}']" class="col-sm-2 control-label"> <spring:message text="${locale == fn:toLowerCase(alpha2)? language.name : language.altName}" />
 								</label>
-								<div class="col-sm-10">
-									<input name="translations['${alpha2}']" id="scale_type_translations_${alpha2}" class="form-control" value="${empty scaleType? '': scaleType.translations[alpha2]}" required="required" />
+								<div class="col-sm-5">
+									<input name="translations['${alpha2}'].name" id="scale_type_translations_${alpha2}_name" class="form-control" value="${empty scaleType? '': scaleType.translations[alpha2].name}" required="required" placeholder='<spring:message code='label.translation'/>' />
+								</div>
+								<div class="col-sm-5">
+									<input name="translations['${alpha2}'].shortName" id="scale_type_translations_${alpha2}_shortName" class="form-control" value="${empty scaleType? '': scaleType.translations[alpha2].shortName}" placeholder='<spring:message code='label.translation.short'/>' required="required" />
 								</div>
 							</div>
 
