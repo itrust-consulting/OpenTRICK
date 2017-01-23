@@ -4,11 +4,20 @@
 package lu.itrust.business.TS.exportation;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -20,6 +29,7 @@ import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.chartJS.Chart;
+import lu.itrust.business.TS.component.chartJS.ColorBound;
 import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -30,12 +40,15 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scale.Translation;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -43,6 +56,8 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  *
  */
 public class ExportQualitativeReport extends AbstractWordExporter {
+
+	private List<ColorBound> colorBounds = Collections.emptyList();
 
 	public ExportQualitativeReport(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String realPath) {
 		setMessageSource(messageSource);
@@ -588,16 +603,150 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 	}
 
 	private void generateRiskByAssetGraphic(ReportExcelSheet reportExcelSheet) {
+
+		Map<Asset, List<Assessment>> assessmentByAsset = analysis.findSelectedAssessmentByAsset();
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFRow row = getRow(xssfSheet, 0);
+		for (int i = 0; i < colorBounds.size(); i++) {
+			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
+			cell.setCellValue(colorBounds.get(i).getLabel());
+			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
+			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
+			style.setFillBackgroundColor(color.getIndex());
+			cell.setCellStyle(style);
+		}
+
+		int rowIndex = 1;
+
+		for (Entry<Asset, List<Assessment>> entry : assessmentByAsset.entrySet()) {
+			clearColorBoundCount();
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+
+			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
+				continue;
+
+			row = getRow(xssfSheet, rowIndex++);
+			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getName());
+			for (int i = 0; i < colorBounds.size(); i++) {
+				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
+				if (colorBounds.get(i).getCount() > 0)
+					cell.setCellValue(colorBounds.get(i).getCount());
+			}
+		}
+
 	}
 
 	private void generateRiskByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
+		Map<AssetType, List<Assessment>> assessmentByAssetType = analysis.getAssessments().stream().filter(Assessment::isSelected)
+				.collect(Collectors.groupingBy(assessment -> assessment.getAsset().getAssetType()));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFRow row = getRow(xssfSheet, 0);
+		for (int i = 0; i < colorBounds.size(); i++) {
+			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
+			cell.setCellValue(colorBounds.get(i).getLabel());
+			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
+			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
+			style.setFillBackgroundColor(color.getIndex());
+			cell.setCellStyle(style);
+		}
+
+		int rowIndex = 1;
+
+		for (Entry<AssetType, List<Assessment>> entry : assessmentByAssetType.entrySet()) {
+			clearColorBoundCount();
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+
+			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
+				continue;
+
+			row = getRow(xssfSheet, rowIndex++);
+			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getType());
+			for (int i = 0; i < colorBounds.size(); i++) {
+				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
+				if (colorBounds.get(i).getCount() > 0)
+					cell.setCellValue(colorBounds.get(i).getCount());
+			}
+		}
+
 	}
 
 	private void generateRiskByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
+		Map<Scenario, List<Assessment>> assessmentByAsset = analysis.getAssessments().stream().filter(Assessment::isSelected)
+				.collect(Collectors.groupingBy(assessment -> assessment.getScenario()));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFRow row = getRow(xssfSheet, 0);
+		for (int i = 0; i < colorBounds.size(); i++) {
+			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
+			cell.setCellValue(colorBounds.get(i).getLabel());
+			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
+			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
+			style.setFillBackgroundColor(color.getIndex());
+			cell.setCellStyle(style);
+		}
+
+		int rowIndex = 1;
+
+		for (Entry<Scenario, List<Assessment>> entry : assessmentByAsset.entrySet()) {
+			clearColorBoundCount();
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+
+			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
+				continue;
+
+			row = getRow(xssfSheet, rowIndex++);
+			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getName());
+			for (int i = 0; i < colorBounds.size(); i++) {
+				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
+				if (colorBounds.get(i).getCount() > 0)
+					cell.setCellValue(colorBounds.get(i).getCount());
+			}
+		}
 
 	}
 
 	private void generateRiskByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
+
+		Map<ScenarioType, List<Assessment>> assessmentByScenarioType = analysis.getAssessments().stream().filter(Assessment::isSelected)
+				.collect(Collectors.groupingBy(assessment -> assessment.getScenario().getType()));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFRow row = getRow(xssfSheet, 0);
+		for (int i = 0; i < colorBounds.size(); i++) {
+			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
+			cell.setCellValue(colorBounds.get(i).getLabel());
+			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
+			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
+			style.setFillBackgroundColor(color.getIndex());
+			cell.setCellStyle(style);
+		}
+
+		int rowIndex = 1;
+
+		for (Entry<ScenarioType, List<Assessment>> entry : assessmentByScenarioType.entrySet()) {
+			clearColorBoundCount();
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+
+			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
+				continue;
+			row = getRow(xssfSheet, rowIndex++);
+			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getName());
+			for (int i = 0; i < colorBounds.size(); i++) {
+				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
+				if (colorBounds.get(i).getCount() > 0)
+					cell.setCellValue(colorBounds.get(i).getCount());
+			}
+		}
 
 	}
 
@@ -646,6 +795,16 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		Chart chart = ChartGenerator.generateRiskHeatMap(analysis, valueFactory);
 		generateRiskHeatMap(chart, "<risk-heat-map-summary>");
 		generateRiskHeatMap(chart, "<risk-heat-map>");
+		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
+		colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
+		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
+			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else
+				colorBounds.add(
+						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+		}
 	}
 
 	private void generateRiskHeatMap(Chart chart, String anchor) {
@@ -663,10 +822,13 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				run.setColor(legend.getColor().substring(1));
 				paragraph.createRun().addTab();
 			});
+
+			paragraph.setAlignment(ParagraphAlignment.CENTER);
+
 			table = document.insertNewTbl(paragraphOriginal.getCTP().newCursor());
 			table.setStyleID("TableTSRiskHeatMap");
 			// set header
-			row = table.getRow(rowIndex);
+			row = table.getRow(rowIndex++);
 			for (int i = 1; i < chart.getLabels().size() + 2; i++)
 				row.addNewTableCell();
 			row.getCell(0).setText(getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
@@ -683,7 +845,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				for (int j = 0; j < dataset.getData().size(); j++) {
 					cell = row.getCell(j + 2);
 					cell.setVerticalAlignment(XWPFVertAlign.CENTER);
-					Object data = dataset.getData().get(i);
+					Object data = dataset.getData().get(j);
 					if (data instanceof Integer)
 						addCellParagraph(cell, data.toString()).setAlignment(ParagraphAlignment.CENTER);
 					cell.setColor(dataset.getBackgroundColor().get(j).substring(1));
@@ -693,7 +855,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			if (row == null)
 				row = table.createRow();
 			for (int i = 0; i < chart.getLabels().size(); i++) {
-				XWPFTableCell cell = row.getCell(i + 1);
+				XWPFTableCell cell = row.getCell(i + 2);
 				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
 				addCellParagraph(cell, chart.getLabels().get(i)).setAlignment(ParagraphAlignment.CENTER);
 			}
@@ -706,6 +868,24 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		if (paragraphOriginal != null)
 			paragraphsToDelete.add(paragraphOriginal);
 
+	}
+
+	private XSSFRow getRow(XSSFSheet xssfSheet, int index) {
+		XSSFRow row = xssfSheet.getRow(index);
+		if (row == null)
+			row = xssfSheet.createRow(index);
+		return row;
+	}
+
+	private XSSFCell getCell(XSSFRow row, int index, CellType cellType) {
+		XSSFCell cell = row.getCell(index);
+		if (cell == null)
+			cell = row.createCell(index, cellType);
+		return cell;
+	}
+
+	private void clearColorBoundCount() {
+		colorBounds.forEach(color -> color.setCount(0));
 	}
 
 }
