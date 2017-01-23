@@ -320,7 +320,7 @@ function loadRiskHeatMap() {
 					},
 					legend : {
 						display : true,
-						position : 'bottom',
+						position : 'top',
 						onClick : function() {
 							return false;
 						},

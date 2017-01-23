@@ -40,7 +40,7 @@
 											<span class='range-text'>${value}</span> <input class="range-input" name="value" type="range" value="${value}" min='1' max='${maxImportance}'>
 										</div>
 									</td>
-									<td><textarea rows="1" class="form-control"><spring:message text="${parameter.description}"/></textarea></td>
+									<td><textarea rows="1" class="form-control" name="description"><spring:message text="${parameter.description}"/></textarea></td>
 									<td><input type="color" class='form-control' name="color" value="${parameter.color}"></td>
 								</tr>
 							</c:forEach>

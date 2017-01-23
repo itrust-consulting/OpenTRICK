@@ -1536,8 +1536,12 @@ public class ChartGenerator {
 	}
 
 	public Chart generateRiskHeatMap(Integer idAnalysis) {
-		Analysis analysis = daoAnalysis.get(idAnalysis);
-		ValueFactory factory = new ValueFactory(analysis.getParameters());
+		return generateRiskHeatMap(daoAnalysis.get(idAnalysis), null);
+	}
+
+	public static Chart generateRiskHeatMap(Analysis analysis, ValueFactory factory) {
+		if (factory == null)
+			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Integer> importanceByCount = new LinkedHashMap<>();
 		for (Assessment assessment : analysis.getSelectedAssessments()) {
 			Integer impact = factory.findImpactLevel(assessment.getImpacts()), probability = factory.findProbLevel(assessment.getLikelihood());
@@ -1570,21 +1574,22 @@ public class ChartGenerator {
 
 		}
 
-		probabilities.stream().filter(probability -> probability.getLevel() > 0).forEach(probability -> {
+		probabilities.stream().filter(probability -> probability.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
 			chart.getLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
 		});
 
-		impacts.stream().filter(impact -> impact.getLevel() > 0).forEach(impact -> {
+		impacts.stream().filter(impact -> impact.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
 			Dataset dataset = new Dataset();
 			dataset.setLabel(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 			for (int i = 1; i < probabilities.size(); i++) {
 				Integer importance = impact.getLevel() * i, count = importanceByCount.get(String.format("%d-%d", impact.getLevel(), i));
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> {
+				ColorBound colorBound = colorBounds.stream().filter(color -> color.isAccepted(importance)).findAny().orElse(null);
+				if (colorBound != null) {
 					if (count != null)
 						colorBound.setCount(colorBound.getCount() + count);
 					dataset.getBackgroundColor().add(colorBound.getColor());
-				});
-
+				} else
+					dataset.getBackgroundColor().add("#000000");
 				dataset.getData().add(count == null ? "" : count);
 			}
 			chart.getDatasets().add(dataset);

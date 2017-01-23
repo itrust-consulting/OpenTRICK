@@ -84,10 +84,10 @@ function reloadSection(section, subSection, refreshOnly) {
 				$progress.hide();
 			});
 		} else {
-			var $tab = $section.closest(".tab-pane");
-			$tab.attr("data-update-required", true);
-			$tab.attr("data-trigger", 'reloadSection');
-			$tab.attr("data-parameters", [ section, subSection, refreshOnly ]);
+			var $container = section.startsWith("section_standard_") ? $("#measure-collection-selector>option[value='" + section + "']") : $section.closest(".tab-pane");
+			$container.attr("data-update-required", true);
+			$container.attr("data-trigger", 'reloadSection');
+			$container.attr("data-parameters", [ section, subSection, refreshOnly ]);
 		}
 	}
 	return false;
@@ -176,7 +176,7 @@ function callbackBySection(section) {
 			}
 		},
 		"section_qualitative_parameter" : function() {
-			reloadRiskHeatMapSection(true);//load Heat map + rebuild table.
+			reloadRiskHeatMapSection(true);// load Heat map + rebuild table.
 		}
 
 	};

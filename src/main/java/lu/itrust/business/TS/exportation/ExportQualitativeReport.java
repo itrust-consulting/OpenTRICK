@@ -14,9 +14,13 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.chartJS.Chart;
+import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
@@ -28,6 +32,7 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scale.Translation;
@@ -560,35 +565,147 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 					serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27002", "Printing compliance 27002 excel sheet", increase(2)));// 74%
 				generateComplianceGraphic(reportExcelSheet);
 				break;
-			case "ALEByScenarioType":
+			case "RiskByScenarioType":
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario.type", "Printing ALE by scenario type excel sheet", increase(3)));// 77%
-				// generateALEByScenarioTypeGraphic(reportExcelSheet);
+				generateRiskByScenarioTypeGraphic(reportExcelSheet);
 				break;
-			case "ALEByScenario":
+			case "RiskByScenario":
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario", "Printing ALE by scenario excel sheet", increase(5)));// 82%
-				// generateALEByScenarioGraphic(reportExcelSheet);
+				generateRiskByScenarioGraphic(reportExcelSheet);
 				break;
-			case "ALEByAssetType":
+			case "RiskByAssetType":
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset.type", "Printing ALE by asset type excel sheet", increase(2)));// 84%
-				// generateALEByAssetTypeGraphic(reportExcelSheet);
+				generateRiskByAssetTypeGraphic(reportExcelSheet);
 				break;
-			case "ALEByAsset":
+			case "RiskByAsset":
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset", "Printing ALE by asset excel sheet", increase(5)));// 89%
-				// generateALEByAssetGraphic(reportExcelSheet);
-				break;
-			case "EvolutionOfProfitability":
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.printing.chart.data.evolution.of.profitability", "Printing evolution of profitability  excel sheet", increase(7)));// 96%
-				// generateEvolutionOfProfitabilityGraphic(reportExcelSheet);
-				break;
-			case "Budget":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.budget", "Printing budget excel sheet", increase(2)));// 98%
-				// generateBudgetGraphic(reportExcelSheet);
+				generateRiskByAssetGraphic(reportExcelSheet);
 				break;
 			}
 		} finally {
 			reportExcelSheet.save();
 		}
+	}
+
+	private void generateRiskByAssetGraphic(ReportExcelSheet reportExcelSheet) {
+	}
+
+	private void generateRiskByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
+	}
+
+	private void generateRiskByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
+
+	}
+
+	private void generateRiskByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
+
+	}
+
+	@Override
+	protected void generateOtherData() {
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.risk_heat.map", "Printing risk heat map", increase(3)));
+		generateRiskHeatMap();
+
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.risk_acceptance", "Printing risk acceptance table", increase(2)));
+		generateRiskAcceptance();
+	}
+
+	private void generateRiskAcceptance() {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+		paragraph = findTableAnchor("<risk-acceptance>");
+		if (paragraph != null) {
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+			table.setStyleID("TableTSRiskAcceptance");
+			// set header
+			row = table.getRow(0);
+			for (int i = 1; i < 2; i++)
+				row.addNewTableCell();
+			// set header
+			table.getRow(0).getCell(0).setText(getMessage("report.risk_acceptance.title.level", null, "Risk level", locale));
+			table.getRow(0).getCell(1).setText(getMessage("report.risk_acceptance.title.acceptance.criteria", null, "Risk acceptance criteria", locale));
+			// set data
+			for (RiskAcceptanceParameter parameter : analysis.getRiskAcceptanceParameters()) {
+				row = table.createRow();
+				XWPFTableCell cell = row.getCell(0);
+				addCellParagraph(cell, parameter.getLabel()).setAlignment(ParagraphAlignment.CENTER);
+				addCellParagraph(cell, getMessage("report.risk_acceptance.importance_threshold.value", new Object[] { parameter.getValue().intValue() },
+						"Importance threshold: " + parameter.getValue().intValue(), locale), true);
+				addCellParagraph(row.getCell(1), parameter.getDescription());
+				if (!parameter.getColor().isEmpty())
+					cell.setColor(parameter.getColor().substring(1));
+			}
+		}
+
+		if (paragraph != null)
+			paragraphsToDelete.add(paragraph);
+	}
+
+	private void generateRiskHeatMap() {
+		Chart chart = ChartGenerator.generateRiskHeatMap(analysis, valueFactory);
+		generateRiskHeatMap(chart, "<risk-heat-map-summary>");
+		generateRiskHeatMap(chart, "<risk-heat-map>");
+	}
+
+	private void generateRiskHeatMap(Chart chart, String anchor) {
+		XWPFParagraph paragraphOriginal = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+		int rowIndex = 0;
+		paragraphOriginal = findTableAnchor(anchor);
+		if (paragraphOriginal != null) {
+			XWPFParagraph paragraph = document.insertNewParagraph(paragraphOriginal.getCTP().newCursor());
+			paragraph.setStyle("TabText1");
+			chart.getLegends().forEach(legend -> {
+				XWPFRun run = paragraph.createRun();
+				run.setText(legend.getLabel());
+				run.setColor(legend.getColor().substring(1));
+				paragraph.createRun().addTab();
+			});
+			table = document.insertNewTbl(paragraphOriginal.getCTP().newCursor());
+			table.setStyleID("TableTSRiskHeatMap");
+			// set header
+			row = table.getRow(rowIndex);
+			for (int i = 1; i < chart.getLabels().size() + 2; i++)
+				row.addNewTableCell();
+			row.getCell(0).setText(getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
+			for (int i = 0; i < chart.getDatasets().size(); i++) {
+				Dataset dataset = chart.getDatasets().get(i);
+				if (i > 0) {
+					row = table.getRow(rowIndex++);
+					if (row == null)
+						row = table.createRow();
+				}
+				XWPFTableCell cell = row.getCell(1);
+				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
+				addCellParagraph(cell, dataset.getLabel()).setAlignment(ParagraphAlignment.CENTER);
+				for (int j = 0; j < dataset.getData().size(); j++) {
+					cell = row.getCell(j + 2);
+					cell.setVerticalAlignment(XWPFVertAlign.CENTER);
+					Object data = dataset.getData().get(i);
+					if (data instanceof Integer)
+						addCellParagraph(cell, data.toString()).setAlignment(ParagraphAlignment.CENTER);
+					cell.setColor(dataset.getBackgroundColor().get(j).substring(1));
+				}
+			}
+			row = table.getRow(rowIndex++);
+			if (row == null)
+				row = table.createRow();
+			for (int i = 0; i < chart.getLabels().size(); i++) {
+				XWPFTableCell cell = row.getCell(i + 1);
+				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
+				addCellParagraph(cell, chart.getLabels().get(i)).setAlignment(ParagraphAlignment.CENTER);
+			}
+			row = table.getRow(rowIndex);
+			if (row == null)
+				row = table.createRow();
+			row.getCell(0).setText(getMessage("report.risk_heat_map.title.impact", null, "Impact", locale));
+		}
+
+		if (paragraphOriginal != null)
+			paragraphsToDelete.add(paragraphOriginal);
+
 	}
 
 }

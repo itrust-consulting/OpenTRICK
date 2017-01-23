@@ -46,16 +46,81 @@ function checkExtention(value, extention, button) {
 	return match;
 }
 
-function showDialog(dialog, message) {
+function triggerCaller($target) {
+	try {
+		if ($target.attr("data-update-required") == "true") {
+			var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
+			if (parameters == undefined)
+				window[trigger].apply();
+			else
+				window[trigger].apply(null, parameters.split(","));
+			$target.attr("data-update-required", "false");
+		}
+	} catch (e) {
+		console.log(e);
+	}
+}
+
+function callBackCaller($target) {
+	try {
+		var callback = $target.attr("data-callback");
+		if (window[callback] != undefined) {
+			var data = $target.attr("data-callback-data");
+			if (data == undefined)
+				window[callback].apply();
+			else
+				window[callback].apply(null, data.split(","));
+		}
+	} catch (e) {
+		console.log(e);
+	}
+}
+
+function showDialog(dialog, message, title, url) {
 	switch (dialog) {
+	case "#success-dialog":
+	case "success-dialog":
+	case "success":
+		return showNotifcation("success", message, "glyphicon glyphicon-ok-sign", title, url);
 	case "#info-dialog":
-		return showNotifcation("info", message);
+	case "info-dialog":
+	case "info":
+		return showNotifcation("info", message, "glyphicon glyphicon-info-sign", title, url);
+	case "#warning-dialog":
+	case "warning-dialog":
+	case "warning":
+		return showNotifcation("warning", message, "glyphicon glyphicon-exclamation-sign", title, url);
 	case "#alert-dialog":
-		return showNotifcation("danger", message);
+	case "#danger-dialog":
+	case "alert-dialog":
+	case "danger-dialog":
+	case "danger":
+	case "alert":
+		return showNotifcation("danger", message, "glyphicon glyphicon-warning-sign", title, url);
 	default:
 		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
 	}
+}
+
+function showNotifcation(type, message, icon, url, title) {
+	$.notify({
+		title : title,
+		icon : icon,
+		message : message,
+		url : url
+	}, {
+		type : type,
+		z_index : 1068,
+		offset : {
+			x : 0,
+			y : 35
+		},
+		placement : {
+			from : "bottom",
+			align : "right"
+		},
+	});
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
@@ -317,20 +382,6 @@ function generateMessageUniqueCode(code, params) {
 
 function resolveMessage(code, text, params) {
 	application.localesMessages[generateMessageUniqueCode(code, params)] = text;
-}
-
-function showNotifcation(type, message, url) {
-	$.notify({
-		message : message,
-		url : url
-	}, {
-		type : type,
-		z_index : 1068,
-		offset : {
-			x : 0,
-			y : 43
-		}
-	});
 }
 
 /**
@@ -858,22 +909,10 @@ $(document)
 								}, 20);
 							}
 
-							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
-							if (window[callback] != undefined) {
-								var data = $target.attr("data-callback-data");
-								if (data == undefined)
-									window[callback].apply();
-								else
-									window[callback].apply(null, data.split(","));
-							}
-							if ($target.attr("data-update-required") == "true") {
-								var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
-								if (parameters == undefined)
-									window[trigger].apply();
-								else
-									window[trigger].apply(null, parameters.split(","));
-								$target.attr("data-update-required", "false");
-							}
+							var hash = e.target.getAttribute("href"), $target = $(hash);
+							
+							callBackCaller($target);
+							triggerCaller($target);
 
 							if (!application["no-update-hash"])
 								window.location.hash = $target.attr("id");

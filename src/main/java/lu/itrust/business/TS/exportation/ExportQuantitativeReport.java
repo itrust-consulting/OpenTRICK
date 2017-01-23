@@ -946,4 +946,9 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		}
 	}
 
+	@Override
+	protected void generateOtherData() {
+
+	}
+
 }

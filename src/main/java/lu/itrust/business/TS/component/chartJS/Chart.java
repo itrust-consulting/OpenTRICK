@@ -1,15 +1,15 @@
 package lu.itrust.business.TS.component.chartJS;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Chart {
 	
-	private List<String> labels = new LinkedList<String>();
+	private List<String> labels = new ArrayList<>();
 	
-	private List<Dataset> datasets = new LinkedList<>();
+	private List<Dataset> datasets = new ArrayList<>();
 	
-	private List<Legend> legends = new LinkedList<>();
+	private List<Legend> legends = new ArrayList<>();
 	/**
 	 * @return the labels
 	 */

@@ -53,7 +53,7 @@ Chart.defaults.heatmap = {
 	scales : {
 		xAxes : [ {
 			type : 'category',
-			position : 'top',
+			position : 'bottom',
 			gridLines : {
 				display : false,
 				offsetGridLines : true,

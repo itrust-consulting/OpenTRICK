@@ -21,7 +21,7 @@ $(document).ready(function() {
 
 	$("#measure-collection-selector").on("change", function() {
 		$("[id^='section_standard_'][id!='" + this.value + "']:visible").hide();
-		$("#" + this.value).show();
+		triggerCaller($("#" + this.value).show());
 	}).trigger("change");
 
 });

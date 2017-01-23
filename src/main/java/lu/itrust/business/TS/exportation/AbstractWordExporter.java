@@ -194,12 +194,14 @@ public abstract class AbstractWordExporter {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.probabilty", "Printing probabilty table", increase(5)));// 40%
 
 			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+			
+			generateOtherData();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.action.plan", "Printing action plan table", increase(5)));// 45%
-
+			
 			generateActionPlan();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.summary", "Printing summary table", increase(10)));// 55%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.summary", "Printing summary table", increase(5)));// 55%
 
 			generateActionPlanSummary();
 
@@ -238,6 +240,8 @@ public abstract class AbstractWordExporter {
 				outputStream.close();
 		}
 	}
+
+	protected abstract void generateOtherData();
 
 	/**
 	 * getAnalysis: <br>

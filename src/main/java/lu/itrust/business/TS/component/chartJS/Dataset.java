@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.component.chartJS;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,9 +14,9 @@ public class Dataset {
 	
 	private String label;
 	
-	private List<Object> data = new LinkedList<>();
+	private List<Object> data = new ArrayList<>();
 	
-	private List<String> backgroundColor =  new LinkedList<>();
+	private List<String> backgroundColor =  new ArrayList<>();
 
 	/**
 	 * @return the backgroundColor
