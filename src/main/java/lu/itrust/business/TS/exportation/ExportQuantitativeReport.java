@@ -84,26 +84,26 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			for (int i = 1; i < 13; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
-			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Stds", locale));
-			row.getCell(2).setText(getMessage("report.action_plan.reference", null, "Ref.", locale));
-			row.getCell(3).setText(getMessage("report.action_plan.description", null, "Description", locale));
-			row.getCell(4).setText(getMessage("report.action_plan.ale", null, "ALE", locale));
-			row.getCell(5).setText(getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
-			row.getCell(6).setText(getMessage("report.action_plan.cost", null, "CS", locale));
-			row.getCell(7).setText(getMessage("report.action_plan.rosi", null, "ROSI", locale));
-			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
-			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
-			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV", locale));
-			row.getCell(11).setText(getMessage("report.measure.phase", null, "P", locale));
-			row.getCell(12).setText(getMessage("report.measure.responsable", null, "Resp.", locale));
-			int nr = 0;
+			setCellText(row.getCell(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
+			setCellText(row.getCell(1), getMessage("report.action_plan.norm", null, "Stds", locale));
+			setCellText(row.getCell(2), getMessage("report.action_plan.reference", null, "Ref.", locale));
+			setCellText(row.getCell(3), getMessage("report.action_plan.description", null, "Description", locale));
+			setCellText(row.getCell(4), getMessage("report.action_plan.ale", null, "ALE", locale));
+			setCellText(row.getCell(5), getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
+			setCellText(row.getCell(6), getMessage("report.action_plan.cost", null, "CS", locale));
+			setCellText(row.getCell(7), getMessage("report.action_plan.rosi", null, "ROSI", locale));
+			setCellText(row.getCell(8), getMessage("report.action_plan.internal.workload", null, "IS", locale));
+			setCellText(row.getCell(9), getMessage("report.action_plan.external.workload", null, "ES", locale));
+			setCellText(row.getCell(10), getMessage("report.action_plan.investment", null, "INV", locale));
+			setCellText(row.getCell(11), getMessage("report.measure.phase", null, "P", locale));
+			setCellText(row.getCell(12), getMessage("report.measure.responsable", null, "Resp.", locale));
+			int nr = 1;
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
 				row = table.createRow();
-				row.getCell(0).setText("" + (++nr));
-				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
-				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
+				setCellText(row.getCell(0), "" + (nr++));
+				setCellText(row.getCell(1), entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
+				setCellText(row.getCell(2), entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
 				addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + (locale == Locale.FRENCH ? "\u00A0:" : ":"));
 				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
@@ -174,12 +174,12 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			switch (rownumber) {
 			case 0: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
+				setCellText(row.getCell(cellnumber), getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
 				for (SummaryStage stage : summary) {
 					XWPFTableCell cell = row.getCell(++cellnumber);
 					if (cell == null)
 						cell = row.addNewTableCell();
-					cell.setText(stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
+					setCellText(cell, stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
 							: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
 				}
 				break;
@@ -187,10 +187,10 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 1:
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("1	" + getMessage("report.summary_stage.phase_duration", null, "Phase duration", locale));
+				setCellText(row.getCell(0), "1	" + getMessage("report.summary_stage.phase_duration", null, "Phase duration", locale));
 				break;
 			case 2: {
-				row.getCell(0).setText("1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
+				setCellText(row.getCell(0), "1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 				for (int i = 1; i < summary.size(); i++) {
 					addCellParagraph(row.getCell(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getBeginDate()));
@@ -198,7 +198,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				break;
 			}
 			case 3: {
-				row.getCell(0).setText("1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
+				setCellText(row.getCell(0), "1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph(row.getCell(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
@@ -207,18 +207,20 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 4:
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("2	" + getMessage("report.summary_stage.compliance", null, "Compliance", locale));
+				setCellText(row.getCell(0), "2	" + getMessage("report.summary_stage.compliance", null, "Compliance", locale));
 				break;
 			case 5: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("2.1	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
+				setCellText(row.getCell(cellnumber),
+						"2.1	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getSingleConformance("27001") == null ? 0 : stage.getSingleConformance("27001") * 100));
 				break;
 			}
 			case 6: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("2.2	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
+				setCellText(row.getCell(cellnumber),
+						"2.2	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getSingleConformance("27002") == null ? 0 : stage.getSingleConformance("27002") * 100));
 				break;
@@ -226,7 +228,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 7: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(
+				setCellText(row.getCell(cellnumber),
 						"2.3	" + getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27001" }, "Non-compliant measures of the 27001", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), stage.getNotCompliantMeasure27001Count() + "");
@@ -235,7 +237,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 8: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(
+				setCellText(row.getCell(cellnumber),
 						"2.4	" + getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27002" }, "Non-compliant measures of the 27002", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), stage.getNotCompliantMeasure27002Count() + "");
@@ -244,58 +246,59 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 9:
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("3	" + getMessage("report.summary_stage.evolution_of_implemented_measure", null, "Evolution of implemented measures", locale));
+				setCellText(row.getCell(0), "3	" + getMessage("report.summary_stage.evolution_of_implemented_measure", null, "Evolution of implemented measures", locale));
 				break;
 			case 10: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("3.1	" + getMessage("report.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase", locale));
+				setCellText(row.getCell(cellnumber), "3.1	" + getMessage("report.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), "" + stage.getMeasureCount());
 				break;
 			}
 			case 11: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("3.2	" + getMessage("report.summary_stage.implementted_measures", null, "Implemented measures (number)...", locale));
+				setCellText(row.getCell(cellnumber), "3.2	" + getMessage("report.summary_stage.implementted_measures", null, "Implemented measures (number)...", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), "" + stage.getImplementedMeasuresCount());
 				break;
 			}
 			case 12: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("4	" + getMessage("report.summary_stage.profitability", null, "Profitability", locale));
+				setCellText(row.getCell(0), "4	" + getMessage("report.summary_stage.profitability", null, "Profitability", locale));
 				break;
 			}
 			case 13: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.1	" + getMessage("report.summary_stage.ale_at_end", null, "ALE (k€/y)... at end", locale));
+				setCellText(row.getCell(cellnumber), "4.1	" + getMessage("report.summary_stage.ale_at_end", null, "ALE (k€/y)... at end", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getTotalALE() * 0.001));
 				break;
 			}
 			case 14: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.2	" + getMessage("report.summary_stage.risk_reduction", null, "Risk reduction (k€/y)", locale));
+				setCellText(row.getCell(cellnumber), "4.2	" + getMessage("report.summary_stage.risk_reduction", null, "Risk reduction (k€/y)", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getDeltaALE() * 0.001));
 				break;
 			}
 			case 15: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.3	" + getMessage("report.summary_stage.average_yearly_cost_of_phase", null, "Average yearly cost of phase (k€/y)", locale));
+				setCellText(row.getCell(cellnumber),
+						"4.3	" + getMessage("report.summary_stage.average_yearly_cost_of_phase", null, "Average yearly cost of phase (k€/y)", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getCostOfMeasures() * 0.001));
 				break;
 			}
 			case 16: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.3	" + getMessage("report.summary_stage.rosi", null, "ROSI (k€/y)", locale));
+				setCellText(row.getCell(cellnumber), "4.3	" + getMessage("report.summary_stage.rosi", null, "ROSI (k€/y)", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getROSI() * 0.001));
 				break;
 			}
 			case 17: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.4	" + getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
+				setCellText(row.getCell(cellnumber), "4.4	" + getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
 				DecimalFormat format = (DecimalFormat) numberFormat.clone();
 				format.setMaximumFractionDigits(2);
 				for (SummaryStage stage : summary)
@@ -304,20 +307,20 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			}
 			case 18: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
+				setCellText(row.getCell(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
 				// mrege columns
 				break;
 			}
 
 			case 19: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
+				setCellText(row.getCell(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
 				// mrege columns
 				break;
 			}
 			case 20: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalWorkload()));
@@ -326,7 +329,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			}
 			case 21: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
@@ -335,7 +338,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			}
 			case 22: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
@@ -345,7 +348,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 23: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getImplementCostOfPhase() * 0.001), true);
@@ -355,13 +358,13 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 24: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
+				setCellText(row.getCell(0), "5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
 				break;
 			}
 
 			case 25: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
@@ -370,7 +373,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			}
 			case 26: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
@@ -379,7 +382,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			}
 			case 27: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentInvestment() * 0.001));
@@ -389,7 +392,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			case 28: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001), true);
@@ -398,7 +401,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			}
 			case 29: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getTotalCostofStage() * 0.001), true);
@@ -481,18 +484,18 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				row = table.getRow(0);
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				setCellText(row.getCell(0), getMessage("report.assessment.scenarios", null, "Scenarios", locale));
 				setCellText(row.getCell(1), getMessage("report.assessment.impact.financial", null, "Fin.", locale), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(2), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
-				row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
-				row.getCell(4).setText(getMessage("report.assessment.owner", null, "Owner", locale));
-				row.getCell(5).setText(getMessage("report.assessment.comment", null, "Comment", locale));
+				setCellText(row.getCell(3), getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
+				setCellText(row.getCell(4), getMessage("report.assessment.owner", null, "Owner", locale));
+				setCellText(row.getCell(5), getMessage("report.assessment.comment", null, "Comment", locale));
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				for (Assessment assessment : assessmentsofasset) {
 					row = table.createRow();
 					while (row.getTableCells().size() < 6)
 						row.addNewTableCell();
-					row.getCell(0).setText(assessment.getScenario().getName());
+					setCellText(row.getCell(0), assessment.getScenario().getName());
 					IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
 					if (impact == null)
 						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
@@ -526,19 +529,19 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			for (int i = 1; i < 6; i++)
 				row.addNewTableCell();
 			// set header
-			table.getRow(0).getCell(0).setText(getMessage("report.asset.title.number.row", null, "Nr", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.asset.title.name", null, "Name", locale));
-			table.getRow(0).getCell(2).setText(getMessage("report.asset.title.type", null, "Type", locale));
-			table.getRow(0).getCell(3).setText(getMessage("report.asset.title.value", null, "Value(k€)", locale));
-			table.getRow(0).getCell(4).setText(getMessage("report.asset.title.ale", null, "ALE(k€)", locale));
-			table.getRow(0).getCell(5).setText(getMessage("report.asset.title.comment", null, "Comment", locale));
-			int number = 0;
+			setCellText(row.getCell(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
+			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale));
+			setCellText(row.getCell(2), getMessage("report.asset.title.type", null, "Type", locale));
+			setCellText(row.getCell(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
+			setCellText(row.getCell(4), getMessage("report.asset.title.ale", null, "ALE(k€)", locale));
+			setCellText(row.getCell(5), getMessage("report.asset.title.comment", null, "Comment", locale));
+			int number = 1;
 			// set data
 			for (Asset asset : assets) {
 				row = table.createRow();
-				row.getCell(0).setText("" + ++number);
-				row.getCell(1).setText(asset.getName());
-				row.getCell(2).setText(asset.getAssetType().getType());
+				setCellText(row.getCell(0), "" + (number++));
+				setCellText(row.getCell(1), asset.getName());
+				setCellText(row.getCell(2), getDisplayName(asset.getAssetType()));
 				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
 				row.getCell(4).setColor(LIGHT_CELL_COLOR);
 				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
@@ -645,17 +648,17 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				else
 					row.addNewTableCell().setColor(HEADER_COLOR);
 			}
-			row.getCell(0).setText(getMessage("report.parameter.level", null, "Level", locale));
-			row.getCell(1).setText(getMessage("report.parameter.acronym", null, "Acro", locale));
-			row.getCell(2).setText(getMessage("report.parameter.qualification", null, "Qualification", locale));
+			setCellText(row.getCell(0), getMessage("report.parameter.level", null, "Level", locale));
+			setCellText(row.getCell(1), getMessage("report.parameter.acronym", null, "Acro", locale));
+			setCellText(row.getCell(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
 
 			if (parmetertype.equals("Proba"))
-				row.getCell(3).setText(getMessage("report.parameter.proba.value", null, "Value (/y)", locale));
+				setCellText(row.getCell(3), getMessage("report.parameter.proba.value", null, "Value (/y)", locale));
 			else
-				row.getCell(3).setText(getMessage("report.parameter.value", null, "Value (k€/y)", locale));
+				setCellText(row.getCell(3), getMessage("report.parameter.value", null, "Value (k€/y)", locale));
 
-			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
-			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
+			setCellText(row.getCell(4), getMessage("report.parameter.value.from", null, "Value From", locale));
+			setCellText(row.getCell(5), getMessage("report.parameter.value.to", null, "Value To", locale));
 
 			int countrow = 0, length = parameters.size() - 1;
 			// set data
@@ -664,9 +667,9 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-				row.getCell(0).setText("" + parameter.getLevel());
-				row.getCell(1).setText(parameter.getAcronym());
-				row.getCell(2).setText(parameter.getDescription());
+				setCellText(row.getCell(0), "" + parameter.getLevel());
+				setCellText(row.getCell(1), parameter.getAcronym());
+				setCellText(row.getCell(2), parameter.getDescription());
 				Double value = 0.;
 				value = parameter.getValue();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
@@ -948,7 +951,6 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 	@Override
 	protected void generateOtherData() {
-
 	}
 
 }

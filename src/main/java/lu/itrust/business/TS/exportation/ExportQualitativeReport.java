@@ -12,12 +12,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -28,6 +31,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.component.chartJS.ColorBound;
 import lu.itrust.business.TS.component.chartJS.Dataset;
@@ -40,15 +44,12 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scale.Translation;
-import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -95,24 +96,24 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			for (int i = 1; i < 11; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
-			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Stds", locale));
-			row.getCell(2).setText(getMessage("report.action_plan.reference", null, "Ref.", locale));
-			row.getCell(3).setText(getMessage("report.action_plan.description", null, "Description", locale));
-			row.getCell(4).setText(getMessage("report.action_plan.risk_count", null, "NR", locale));
-			row.getCell(5).setText(getMessage("report.action_plan.cost", null, "CS", locale));
-			row.getCell(6).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
-			row.getCell(7).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
-			row.getCell(8).setText(getMessage("report.action_plan.investment", null, "INV", locale));
-			row.getCell(9).setText(getMessage("report.measure.phase", null, "P", locale));
-			row.getCell(10).setText(getMessage("report.measure.responsable", null, "Resp.", locale));
-			int nr = 0;
+			setCellText(row.getCell(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
+			setCellText(row.getCell(1), getMessage("report.action_plan.norm", null, "Stds", locale));
+			setCellText(row.getCell(2), getMessage("report.action_plan.reference", null, "Ref.", locale));
+			setCellText(row.getCell(3), getMessage("report.action_plan.description", null, "Description", locale));
+			setCellText(row.getCell(4), getMessage("report.action_plan.risk_count", null, "NR", locale));
+			setCellText(row.getCell(5), getMessage("report.action_plan.cost", null, "CS", locale));
+			setCellText(row.getCell(6), getMessage("report.action_plan.internal.workload", null, "IS", locale));
+			setCellText(row.getCell(7), getMessage("report.action_plan.external.workload", null, "ES", locale));
+			setCellText(row.getCell(8), getMessage("report.action_plan.investment", null, "INV", locale));
+			setCellText(row.getCell(9), getMessage("report.measure.phase", null, "P", locale));
+			setCellText(row.getCell(10), getMessage("report.measure.responsable", null, "Resp.", locale));
+			int nr = 1;
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
 				row = table.createRow();
-				row.getCell(0).setText("" + (++nr));
-				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
-				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
+				setCellText(row.getCell(0), "" + (nr++));
+				setCellText(row.getCell(1), entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
+				setCellText(row.getCell(2), entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
 				addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + (locale == Locale.FRENCH ? "\u00A0:" : ":"));
 				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
@@ -187,12 +188,12 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			switch (rownumber) {
 			case 0: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
+				setCellText(row.getCell(cellnumber), getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
 				for (SummaryStage stage : summary) {
 					XWPFTableCell cell = row.getCell(++cellnumber);
 					if (cell == null)
 						cell = row.addNewTableCell();
-					cell.setText(stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
+					setCellText(cell, stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
 							: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
 				}
 				break;
@@ -200,10 +201,10 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 1:
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("1	" + getMessage("report.summary_stage.phase_duration", null, "Phase duration", locale));
+				setCellText(row.getCell(0), "1	" + getMessage("report.summary_stage.phase_duration", null, "Phase duration", locale));
 				break;
 			case 2: {
-				row.getCell(0).setText("1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
+				setCellText(row.getCell(0), "1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 				for (int i = 1; i < summary.size(); i++) {
 					addCellParagraph(row.getCell(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getBeginDate()));
@@ -211,7 +212,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				break;
 			}
 			case 3: {
-				row.getCell(0).setText("1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
+				setCellText(row.getCell(0), "1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph(row.getCell(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
@@ -220,18 +221,20 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 4:
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("2	" + getMessage("report.summary_stage.compliance", null, "Compliance", locale));
+				setCellText(row.getCell(0), "2	" + getMessage("report.summary_stage.compliance", null, "Compliance", locale));
 				break;
 			case 5: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("2.1	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
+				setCellText(row.getCell(cellnumber),
+						"2.1	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getSingleConformance("27001") == null ? 0 : stage.getSingleConformance("27001") * 100));
 				break;
 			}
 			case 6: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("2.2	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
+				setCellText(row.getCell(cellnumber),
+						"2.2	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getSingleConformance("27002") == null ? 0 : stage.getSingleConformance("27002") * 100));
 				break;
@@ -239,7 +242,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 7: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(
+				setCellText(row.getCell(cellnumber),
 						"2.3	" + getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27001" }, "Non-compliant measures of the 27001", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), stage.getNotCompliantMeasure27001Count() + "");
@@ -248,7 +251,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 8: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(
+				setCellText(row.getCell(cellnumber),
 						"2.4	" + getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27002" }, "Non-compliant measures of the 27002", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), stage.getNotCompliantMeasure27002Count() + "");
@@ -257,38 +260,38 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 9:
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("3	" + getMessage("report.summary_stage.evolution_of_implemented_measure", null, "Evolution of implemented measures", locale));
+				setCellText(row.getCell(0), "3	" + getMessage("report.summary_stage.evolution_of_implemented_measure", null, "Evolution of implemented measures", locale));
 				break;
 			case 10: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("3.1	" + getMessage("report.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase", locale));
+				setCellText(row.getCell(cellnumber), "3.1	" + getMessage("report.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), "" + stage.getMeasureCount());
 				break;
 			}
 			case 11: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("3.2	" + getMessage("report.summary_stage.implementted_measures", null, "Implemented measures (number)...", locale));
+				setCellText(row.getCell(cellnumber), "3.2	" + getMessage("report.summary_stage.implementted_measures", null, "Implemented measures (number)...", locale));
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), "" + stage.getImplementedMeasuresCount());
 				break;
 			}
 			case 12: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
+				setCellText(row.getCell(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
 				// mrege columns
 				break;
 			}
 
 			case 13: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
+				setCellText(row.getCell(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
 				// mrege columns
 				break;
 			}
 			case 14: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalWorkload()));
@@ -297,7 +300,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			}
 			case 15: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
@@ -306,7 +309,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			}
 			case 16: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
@@ -316,7 +319,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 17: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getImplementCostOfPhase() * 0.001), true);
@@ -326,13 +329,13 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 18: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
+				setCellText(row.getCell(0), "5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
 				break;
 			}
 
 			case 19: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
@@ -341,7 +344,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			}
 			case 20: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
@@ -350,7 +353,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			}
 			case 21: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentInvestment() * 0.001));
@@ -360,7 +363,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			case 22: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001), true);
@@ -369,7 +372,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			}
 			case 23: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
+				setCellText(row.getCell(cellnumber), "5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getTotalCostofStage() * 0.001), true);
@@ -413,19 +416,19 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				row = table.getRow(0);
 				while (row.getTableCells().size() < colLength)
 					row.addNewTableCell();
-				row.getCell(colIndex++).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale));
 				for (ScaleType scaleType : scaleTypes)
 					setCellText(row.getCell(colIndex++), scaleType.getShortName(language), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
-				row.getCell(colIndex++).setText(getMessage("report.assessment.owner", null, "Owner", locale));
-				row.getCell(colIndex++).setText(getMessage("report.assessment.comment", null, "Comment", locale));
+				setCellText(row.getCell(colIndex++), getMessage("report.assessment.owner", null, "Owner", locale));
+				setCellText(row.getCell(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
 
 				for (Assessment assessment : assessementsByAsset.get(asset)) {
 					row = table.createRow();
 					while (row.getTableCells().size() < colLength)
 						row.addNewTableCell();
 					colIndex = 0;
-					row.getCell(colIndex++).setText(assessment.getScenario().getName());
+					setCellText(row.getCell(colIndex++), assessment.getScenario().getName());
 					for (ScaleType scaleType : scaleTypes) {
 						IValue impact = assessment.getImpact(scaleType.getName());
 						setCellText(row.getCell(colIndex++), impact == null || impact.getLevel() == 0 ? getMessage("label.status.na", null, "na", locale) : impact.getLevel() + "",
@@ -475,20 +478,20 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				row.addNewTableCell();
 
 			// set header
-			table.getRow(0).getCell(0).setText(getMessage("report.asset.title.number.row", null, "Nr", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.asset.title.name", null, "Name", locale));
-			table.getRow(0).getCell(2).setText(getMessage("report.asset.title.type", null, "Type", locale));
-			table.getRow(0).getCell(3).setText(getMessage("report.asset.title.value", null, "Value(k€)", locale));
-			table.getRow(0).getCell(4).setText(getMessage("report.asset.title.comment", null, "Comment", locale));
+			setCellText(row.getCell(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
+			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale));
+			setCellText(row.getCell(2), getMessage("report.asset.title.type", null, "Type", locale));
+			setCellText(row.getCell(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
+			setCellText(row.getCell(4), getMessage("report.asset.title.comment", null, "Comment", locale));
 
-			int number = 0;
+			int number = 1;
 
 			// set data
 			for (Asset asset : assets) {
 				row = table.createRow();
-				row.getCell(0).setText("" + ++number);
-				row.getCell(1).setText(asset.getName());
-				row.getCell(2).setText(asset.getAssetType().getType());
+				setCellText(row.getCell(0), "" + (number++));
+				setCellText(row.getCell(1), asset.getName());
+				setCellText(row.getCell(2), asset.getAssetType().getType());
 				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
 				addCellParagraph(row.getCell(4), asset.getComment());
 			}
@@ -546,17 +549,19 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			else
 				row.addNewTableCell().setColor(HEADER_COLOR);
 		}
-		row.getCell(0).setText(getMessage("report.parameter.level", null, "Level", locale));
-		row.getCell(1).setText(getMessage("report.parameter.label", null, "Label", locale));
-		row.getCell(2).setText(getMessage("report.parameter.qualification", null, "Qualification", locale));
+		setCellText(row.getCell(0), getMessage("report.parameter.level", null, "Level", locale));
+		setCellText(row.getCell(1), getMessage("report.parameter.label", null, "Label", locale));
+		setCellText(row.getCell(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
 		// set data
 		for (IBoundedParameter parameter : parameters) {
+			if (parameter.getLevel() == 0)
+				continue;
 			row = table.createRow();
 			while (row.getTableCells().size() < 3)
 				row.addNewTableCell();
-			row.getCell(0).setText("" + parameter.getLevel());
-			row.getCell(1).setText(parameter.getLabel());
-			row.getCell(2).setText(parameter.getDescription());
+			setCellText(row.getCell(0), "" + parameter.getLevel());
+			setCellText(row.getCell(1), parameter.getLabel());
+			setCellText(row.getCell(2), parameter.getDescription());
 
 		}
 	}
@@ -603,151 +608,32 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 	}
 
 	private void generateRiskByAssetGraphic(ReportExcelSheet reportExcelSheet) {
-
-		Map<Asset, List<Assessment>> assessmentByAsset = analysis.findSelectedAssessmentByAsset();
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		XSSFRow row = getRow(xssfSheet, 0);
-		for (int i = 0; i < colorBounds.size(); i++) {
-			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
-			cell.setCellValue(colorBounds.get(i).getLabel());
-			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
-			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
-			style.setFillBackgroundColor(color.getIndex());
-			cell.setCellStyle(style);
-		}
-
-		int rowIndex = 1;
-
-		for (Entry<Asset, List<Assessment>> entry : assessmentByAsset.entrySet()) {
-			clearColorBoundCount();
-			entry.getValue().forEach(assessment -> {
-				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
-			});
-
-			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
-				continue;
-
-			row = getRow(xssfSheet, rowIndex++);
-			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getName());
-			for (int i = 0; i < colorBounds.size(); i++) {
-				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
-				if (colorBounds.get(i).getCount() > 0)
-					cell.setCellValue(colorBounds.get(i).getCount());
-			}
-		}
-
+		Map<String, List<Assessment>> assessmentByAsset = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
+			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
+		}).collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
+		generateRiskGraphic(reportExcelSheet, assessmentByAsset);
 	}
 
 	private void generateRiskByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
-		Map<AssetType, List<Assessment>> assessmentByAssetType = analysis.getAssessments().stream().filter(Assessment::isSelected)
-				.collect(Collectors.groupingBy(assessment -> assessment.getAsset().getAssetType()));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		XSSFRow row = getRow(xssfSheet, 0);
-		for (int i = 0; i < colorBounds.size(); i++) {
-			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
-			cell.setCellValue(colorBounds.get(i).getLabel());
-			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
-			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
-			style.setFillBackgroundColor(color.getIndex());
-			cell.setCellStyle(style);
-		}
-
-		int rowIndex = 1;
-
-		for (Entry<AssetType, List<Assessment>> entry : assessmentByAssetType.entrySet()) {
-			clearColorBoundCount();
-			entry.getValue().forEach(assessment -> {
-				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
-			});
-
-			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
-				continue;
-
-			row = getRow(xssfSheet, rowIndex++);
-			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getType());
-			for (int i = 0; i < colorBounds.size(); i++) {
-				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
-				if (colorBounds.get(i).getCount() > 0)
-					cell.setCellValue(colorBounds.get(i).getCount());
-			}
-		}
-
+		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
+			return NaturalOrderComparator.compareTo(getDisplayName(a1.getAsset().getAssetType()), getDisplayName(a2.getAsset().getAssetType()));
+		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getAsset().getAssetType())));
+		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
 	private void generateRiskByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
-		Map<Scenario, List<Assessment>> assessmentByAsset = analysis.getAssessments().stream().filter(Assessment::isSelected)
-				.collect(Collectors.groupingBy(assessment -> assessment.getScenario()));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		XSSFRow row = getRow(xssfSheet, 0);
-		for (int i = 0; i < colorBounds.size(); i++) {
-			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
-			cell.setCellValue(colorBounds.get(i).getLabel());
-			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
-			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
-			style.setFillBackgroundColor(color.getIndex());
-			cell.setCellStyle(style);
-		}
+		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
+			return NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
+		}).collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
 
-		int rowIndex = 1;
-
-		for (Entry<Scenario, List<Assessment>> entry : assessmentByAsset.entrySet()) {
-			clearColorBoundCount();
-			entry.getValue().forEach(assessment -> {
-				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
-			});
-
-			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
-				continue;
-
-			row = getRow(xssfSheet, rowIndex++);
-			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getName());
-			for (int i = 0; i < colorBounds.size(); i++) {
-				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
-				if (colorBounds.get(i).getCount() > 0)
-					cell.setCellValue(colorBounds.get(i).getCount());
-			}
-		}
-
+		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
 	private void generateRiskByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
-
-		Map<ScenarioType, List<Assessment>> assessmentByScenarioType = analysis.getAssessments().stream().filter(Assessment::isSelected)
-				.collect(Collectors.groupingBy(assessment -> assessment.getScenario().getType()));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		XSSFRow row = getRow(xssfSheet, 0);
-		for (int i = 0; i < colorBounds.size(); i++) {
-			XSSFCell cell = getCell(row, i + 1, CellType.STRING);
-			cell.setCellValue(colorBounds.get(i).getLabel());
-			XSSFColor color = new XSSFColor(java.awt.Color.decode(colorBounds.get(i).getColor()));
-			CellStyle style = reportExcelSheet.getXssfWorkbook().createCellStyle();
-			style.setFillBackgroundColor(color.getIndex());
-			cell.setCellStyle(style);
-		}
-
-		int rowIndex = 1;
-
-		for (Entry<ScenarioType, List<Assessment>> entry : assessmentByScenarioType.entrySet()) {
-			clearColorBoundCount();
-			entry.getValue().forEach(assessment -> {
-				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
-			});
-
-			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
-				continue;
-			row = getRow(xssfSheet, rowIndex++);
-			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey().getName());
-			for (int i = 0; i < colorBounds.size(); i++) {
-				XSSFCell cell = getCell(row, i + 1, CellType.NUMERIC);
-				if (colorBounds.get(i).getCount() > 0)
-					cell.setCellValue(colorBounds.get(i).getCount());
-			}
-		}
-
+		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
+			return NaturalOrderComparator.compareTo(getDisplayName(a1.getScenario().getType()), getDisplayName(a2.getScenario().getType()));
+		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getScenario().getType())));
+		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
 	@Override
@@ -831,7 +717,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			row = table.getRow(rowIndex++);
 			for (int i = 1; i < chart.getLabels().size() + 2; i++)
 				row.addNewTableCell();
-			row.getCell(0).setText(getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
+			setCellText(row.getCell(0), getMessage("report.risk_heat_map.title.impact", null, "Impact", locale));
 			for (int i = 0; i < chart.getDatasets().size(); i++) {
 				Dataset dataset = chart.getDatasets().get(i);
 				if (i > 0) {
@@ -842,12 +728,15 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				XWPFTableCell cell = row.getCell(1);
 				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
 				addCellParagraph(cell, dataset.getLabel()).setAlignment(ParagraphAlignment.CENTER);
+				cell.setColor(LIGHT_CELL_COLOR);
 				for (int j = 0; j < dataset.getData().size(); j++) {
 					cell = row.getCell(j + 2);
 					cell.setVerticalAlignment(XWPFVertAlign.CENTER);
 					Object data = dataset.getData().get(j);
 					if (data instanceof Integer)
 						addCellParagraph(cell, data.toString()).setAlignment(ParagraphAlignment.CENTER);
+					else
+						addCellParagraph(cell, "").setAlignment(ParagraphAlignment.CENTER);
 					cell.setColor(dataset.getBackgroundColor().get(j).substring(1));
 				}
 			}
@@ -858,16 +747,46 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				XWPFTableCell cell = row.getCell(i + 2);
 				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
 				addCellParagraph(cell, chart.getLabels().get(i)).setAlignment(ParagraphAlignment.CENTER);
+				cell.setColor(LIGHT_CELL_COLOR);
 			}
+
 			row = table.getRow(rowIndex);
 			if (row == null)
 				row = table.createRow();
-			row.getCell(0).setText(getMessage("report.risk_heat_map.title.impact", null, "Impact", locale));
+			setCellText(row.getCell(0), getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
 		}
 
 		if (paragraphOriginal != null)
 			paragraphsToDelete.add(paragraphOriginal);
 
+	}
+
+	private void generateRiskGraphic(ReportExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessmentByAsset) {
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFRow row = getRow(xssfSheet, 1), colors = getRow(xssfSheet, 0);
+		for (int i = 0; i < colorBounds.size(); i++) {
+			XSSFCell cell = getCell(row, i + 1, CellType.STRING), color = getCell(colors, i + 1, CellType.STRING);
+			cell.setCellValue(colorBounds.get(i).getLabel());
+			color.setCellValue(colorBounds.get(i).getColor().substring(1));
+		}
+
+		int rowIndex = 2;
+
+		for (Entry<String, List<Assessment>> entry : assessmentByAsset.entrySet()) {
+			clearColorBoundCount();
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
+				continue;
+			row = getRow(xssfSheet, rowIndex++);
+			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey());
+			for (int i = 0; i < colorBounds.size(); i++) {
+				if (colorBounds.get(i).getCount() > 0)
+					getCell(row, i + 1, CellType.NUMERIC).setCellValue(colorBounds.get(i).getCount());
+			}
+		}
 	}
 
 	private XSSFRow getRow(XSSFSheet xssfSheet, int index) {
@@ -885,7 +804,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 	}
 
 	private void clearColorBoundCount() {
-		colorBounds.forEach(color -> color.setCount(0));
+		colorBounds.parallelStream().forEach(color -> color.setCount(0));
 	}
 
 }

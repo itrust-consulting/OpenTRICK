@@ -43,6 +43,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
@@ -52,6 +53,7 @@ import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
@@ -59,58 +61,60 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 
 public abstract class AbstractWordExporter {
 
+	public static final String DEFAULT_PARAGRAHP_STYLE = "TabText1";
+
 	protected static final String HEADER_COLOR = "CCC0D9";
-	
+
 	protected static final String SUB_HEADER_COLOR = "E5DFEC";
-	
+
 	private static final String _27001_NA_MEASURES = "27001_NA_MEASURES";
-	
+
 	private static final String _27002_NA_MEASURES = "27002_NA_MEASURES";
-	
+
 	private static final String DEFAULT_CELL_COLOR = "FFFFFF";
-	
+
 	private static final String MAX_IMPL = "MAX_IMPL";
-	
+
 	private static final String SUPER_HEAD_COLOR = HEADER_COLOR;
-	
+
 	protected static final String LIGHT_CELL_COLOR = SUB_HEADER_COLOR;
-	
+
 	private static final String ZERO_COST_COLOR = "e6b8b7";
-	
+
 	protected Analysis analysis = null;
-	
+
 	protected XWPFDocument document = null;
-	
+
 	protected ValueFactory valueFactory = null;
-	
+
 	protected String idTask;
-	
+
 	protected DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-	
+
 	protected Locale locale = null;
-	
+
 	protected DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-	
+
 	protected List<XWPFParagraph> paragraphsToDelete = new LinkedList<>();
-	
+
 	protected ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	private String contextPath;
-	
+
 	private int maxProgress;
-	
+
 	private MessageSource messageSource;
-	
+
 	private int minProgress;
-	
+
 	private int nonApplicableMeasure27001 = 0;
-	
+
 	private int nonApplicableMeasure27002 = 0;
-	
+
 	private int progress;
-	
+
 	private String reportName;
-	
+
 	private File workFile;
 
 	/**
@@ -126,13 +130,13 @@ public abstract class AbstractWordExporter {
 	 */
 	public void exportToWordDocument(Analysis analysis) throws Exception {
 		InputStream inputStream = null;
-		
+
 		OutputStream outputStream = null;
-		
+
 		try {
-			
+
 			setAnalysis(analysis);
-			
+
 			switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
@@ -143,15 +147,15 @@ public abstract class AbstractWordExporter {
 			}
 
 			kEuroFormat.setMaximumFractionDigits(1);
-			
+
 			numberFormat.setMaximumFractionDigits(0);
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", increase(1)));// 1%
 			workFile = new File(
 					String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			if (!workFile.exists())
 				workFile.createNewFile();
-			
+
 			valueFactory = new ValueFactory(analysis.getParameters());
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.load.word.template", "Loading word template", increase(2)));// 3%
@@ -194,11 +198,11 @@ public abstract class AbstractWordExporter {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.probabilty", "Printing probabilty table", increase(5)));// 40%
 
 			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
-			
+
 			generateOtherData();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.action.plan", "Printing action plan table", increase(5)));// 45%
-			
+
 			generateActionPlan();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.summary", "Printing summary table", increase(5)));// 55%
@@ -378,7 +382,7 @@ public abstract class AbstractWordExporter {
 
 	protected XWPFRun addCellNumber(XWPFTableCell cell, String number, boolean isBold) {
 		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TabText1");
+		paragraph.setStyle(AbstractWordExporter.DEFAULT_PARAGRAHP_STYLE);
 		paragraph.setAlignment(ParagraphAlignment.RIGHT);
 		XWPFRun run = paragraph.createRun();
 		run.setBold(isBold);
@@ -398,7 +402,7 @@ public abstract class AbstractWordExporter {
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
 				paragraph = cell.addParagraph();
-			paragraph.setStyle("TabText1");
+			paragraph.setStyle(AbstractWordExporter.DEFAULT_PARAGRAHP_STYLE);
 			paragraph.createRun().setText(texts[i]);
 		}
 		return paragraph;
@@ -428,8 +432,7 @@ public abstract class AbstractWordExporter {
 	protected abstract void generateAssessements();
 
 	protected abstract void generateAssets(String name, List<Asset> assets);
-	
-	
+
 	@SuppressWarnings("unchecked")
 	protected void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
@@ -494,7 +497,14 @@ public abstract class AbstractWordExporter {
 
 	protected void setCellText(XWPFTableCell cell, String text, ParagraphAlignment alignment) {
 		cell.setText(text == null ? "" : text);
-		cell.getParagraphs().get(0).setAlignment(alignment);
+		XWPFParagraph paragraph = cell.getParagraphs().get(0);
+		paragraph.setStyle(AbstractWordExporter.DEFAULT_PARAGRAHP_STYLE);
+		if (alignment != null)
+			paragraph.setAlignment(alignment);
+	}
+
+	protected void setCellText(XWPFTableCell cell, String text) {
+		setCellText(cell, text, null);
 	}
 
 	protected abstract void writeChart(ReportExcelSheet reportExcelSheet) throws Exception;
@@ -506,7 +516,7 @@ public abstract class AbstractWordExporter {
 
 	private void generateGraphics() throws Exception {
 		for (PackagePart packagePart : this.document.getPackage().getParts())
-			if (packagePart.getPartName().getExtension().contains("xls")) 
+			if (packagePart.getPartName().getExtension().contains("xls"))
 				writeChart(new ReportExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath)));
 	}
 
@@ -537,13 +547,14 @@ public abstract class AbstractWordExporter {
 			for (int i = 1; i < 2; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText(getMessage("report.scope.title.description", null, "Description", locale));
-			row.getCell(1).setText(getMessage("report.scope.title.value", null, "Value", locale));
+			setCellText(row.getCell(0), getMessage("report.scope.title.description", null, "Description", locale));
+
+			setCellText(row.getCell(1), getMessage("report.scope.title.value", null, "Value", locale));
 
 			// set data
 			for (ItemInformation iteminfo : iteminformations) {
 				row = table.createRow();
-				row.getCell(0).setText(getMessage("report.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
+				setCellText(row.getCell(0), getMessage("report.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
 				addCellParagraph(row.getCell(1), iteminfo.getValue());
 			}
 		}
@@ -607,22 +618,22 @@ public abstract class AbstractWordExporter {
 				while (row.getTableCells().size() < 16)
 					row.createCell();
 
-				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
-				row.getCell(1).setText(getMessage("report.measure.domain", null, "Domain", locale));
-				row.getCell(2).setText(getMessage("report.measure.status", null, "ST", locale));
-				row.getCell(3).setText(getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
-				row.getCell(4).setText(getMessage("report.measure.internal.workload", null, "IS(md)", locale));
-				row.getCell(5).setText(getMessage("report.measure.external.workload", null, "ES(md)", locale));
-				row.getCell(6).setText(getMessage("report.measure.investment", null, "INV(k€)", locale));
-				row.getCell(7).setText(getMessage("report.measure.life_time", null, "LT(y)", locale));
-				row.getCell(8).setText(getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
-				row.getCell(9).setText(getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
-				row.getCell(10).setText(getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
-				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
-				row.getCell(12).setText(getMessage("report.measure.phase", null, "P", locale));
-				row.getCell(13).setText(getMessage("report.measure.responsible", null, "Resp.", locale));
-				row.getCell(14).setText(getMessage("report.measure.to_do", null, "To Do", locale));
-				row.getCell(15).setText(getMessage("report.measure.comment", null, "Comment", locale));
+				setCellText(row.getCell(0), getMessage("report.measure.reference", null, "Ref.", locale));
+				setCellText(row.getCell(1), getMessage("report.measure.domain", null, "Domain", locale));
+				setCellText(row.getCell(2), getMessage("report.measure.status", null, "ST", locale));
+				setCellText(row.getCell(3), getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
+				setCellText(row.getCell(4), getMessage("report.measure.internal.workload", null, "IS(md)", locale));
+				setCellText(row.getCell(5), getMessage("report.measure.external.workload", null, "ES(md)", locale));
+				setCellText(row.getCell(6), getMessage("report.measure.investment", null, "INV(k€)", locale));
+				setCellText(row.getCell(7), getMessage("report.measure.life_time", null, "LT(y)", locale));
+				setCellText(row.getCell(8), getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
+				setCellText(row.getCell(9), getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
+				setCellText(row.getCell(10), getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
+				setCellText(row.getCell(11), getMessage("report.measure.cost", null, "CS(k€)", locale));
+				setCellText(row.getCell(12), getMessage("report.measure.phase", null, "P", locale));
+				setCellText(row.getCell(13), getMessage("report.measure.responsible", null, "Resp.", locale));
+				setCellText(row.getCell(14), getMessage("report.measure.to_do", null, "To Do", locale));
+				setCellText(row.getCell(15), getMessage("report.measure.comment", null, "Comment", locale));
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
@@ -630,9 +641,9 @@ public abstract class AbstractWordExporter {
 					row = table.createRow();
 					while (row.getTableCells().size() < 2)
 						row.createCell();
-					row.getCell(0).setText(measure.getMeasureDescription().getReference());
+					setCellText(row.getCell(0), measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
-					row.getCell(1).setText(description == null ? "" : description.getDomain());
+					setCellText(row.getCell(1), description == null ? "" : description.getDomain());
 					if (!measure.getMeasureDescription().isComputable()) {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
@@ -640,7 +651,7 @@ public abstract class AbstractWordExporter {
 					} else {
 						while (row.getTableCells().size() < 16)
 							row.createCell();
-						row.getCell(2).setText(getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
+						setCellText(row.getCell(2), getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
 						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
@@ -706,17 +717,16 @@ public abstract class AbstractWordExporter {
 				row.addNewTableCell();
 
 			// set header
-			table.getRow(0).getCell(0).setText(getMessage("report.scenario.title.number.row", null, "Nr", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.scenario.title.name", null, "Name", locale));
-			table.getRow(0).getCell(2).setText(getMessage("report.scenario.title.description", null, "Description", locale));
+			setCellText(row.getCell(0), getMessage("report.scenario.title.number.row", null, "Nr", locale));
+			setCellText(row.getCell(1), getMessage("report.scenario.title.name", null, "Name", locale));
+			setCellText(row.getCell(2), getMessage("report.scenario.title.description", null, "Description", locale));
 
-			int number = 0;
+			int number = 1;
 
 			// set data
 			for (Scenario scenario : scenarios) {
 				row = table.createRow();
-				number++;
-				row.getCell(0).setText("" + number);
+				setCellText(row.getCell(0), "" + (number++));
 				addCellParagraph(row.getCell(1), scenario.getName());
 				addCellParagraph(row.getCell(2), scenario.getDescription());
 			}
@@ -760,46 +770,47 @@ public abstract class AbstractWordExporter {
 
 						// set header
 						row = table.getRow(0);
-						row.getCell(0).setText(getMessage(String.format("report.risk_information.title.%s", "id"), null, "Id", locale));
+						setCellText(row.getCell(0), getMessage(String.format("report.risk_information.title.%s", "id"), null, "Id", locale));
 						row.addNewTableCell();
-						table.getRow(0).getCell(1).setText(getMessage(String.format("report.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
+						setCellText(row.getCell(1), getMessage(String.format("report.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
 						if (riskinfo.getCategory().equals("Threat")) {
 							row.addNewTableCell();
-							row.getCell(2).setText(getMessage(String.format("report.risk_information.title.%s", "acro"), null, "Acro", locale));
+							setCellText(row.getCell(2), getMessage(String.format("report.risk_information.title.%s", "acro"), null, "Acro", locale));
 							row.addNewTableCell();
 							setCellText(row.getCell(3), getMessage(String.format("report.risk_information.title.%s", "expo"), null, "Expo.", locale), ParagraphAlignment.CENTER);
 							row.addNewTableCell();
-							row.getCell(4).setText(getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
+							setCellText(row.getCell(4), getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
 							row.addNewTableCell();
-							row.getCell(5).setText(getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
+							setCellText(row.getCell(5), getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
 						} else {
 							row.addNewTableCell();
 							setCellText(row.getCell(2), getMessage(String.format("report.risk_information.title.%s", "expo"), null, "Expo.", locale), ParagraphAlignment.CENTER);
 							row.addNewTableCell();
-							row.getCell(3).setText(getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
+							setCellText(row.getCell(3), getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
 							row.addNewTableCell();
-							row.getCell(4).setText(getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
+							setCellText(row.getCell(4), getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
 						}
 					}
 
 					previouselement = riskinfo;
 					row = table.createRow();
-					row.getCell(0).setText(riskinfo.getChapter());
-					row.getCell(1).setText(getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")),
-							null, riskinfo.getLabel(), locale));
+					setCellText(row.getCell(0), riskinfo.getChapter());
+					setCellText(row.getCell(1),
+							getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
+									riskinfo.getLabel(), locale));
 					String color = riskinfo.getChapter().matches("\\d(\\.0){2}") ? HEADER_COLOR : HEADER_COLOR;
 					if (riskinfo.getCategory().equals("Threat")) {
 						for (int i = 0; i < 3; i++)
 							row.getCell(i).setColor(color);
-						row.getCell(2).setText(riskinfo.getAcronym());
+						setCellText(row.getCell(2), riskinfo.getAcronym());
 						setCellText(row.getCell(3), riskinfo.getExposed(), ParagraphAlignment.CENTER);
-						row.getCell(4).setText(getValueOrEmpty(riskinfo.getOwner()));
+						setCellText(row.getCell(4), getValueOrEmpty(riskinfo.getOwner()));
 						addCellParagraph(row.getCell(5), riskinfo.getComment());
 					} else {
 						for (int i = 0; i < 2; i++)
 							row.getCell(i).setColor(color);
 						setCellText(row.getCell(2), riskinfo.getExposed(), ParagraphAlignment.CENTER);
-						row.getCell(3).setText(getValueOrEmpty(riskinfo.getOwner()));
+						setCellText(row.getCell(3), getValueOrEmpty(riskinfo.getOwner()));
 						addCellParagraph(row.getCell(4), riskinfo.getComment());
 					}
 				}
@@ -845,6 +856,14 @@ public abstract class AbstractWordExporter {
 		document.getProperties().getCoreProperties().setCategory(analysis.getCustomer().getOrganisation());
 		document.getProperties().getCoreProperties().setCreator(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
 		document.enforceUpdateFields();
+	}
+
+	protected String getDisplayName(ScenarioType type) {
+		return getMessage("label.scenario.type." + type.getName().toLowerCase(), null, type.getName(), locale);
+	}
+
+	protected String getDisplayName(AssetType type) {
+		return getMessage("label.asset_type." + type.getType().toLowerCase(), null, type.getType(), locale);
 	}
 
 	public static void MergeCell(XWPFTableRow row, int begin, int size, String color) {
