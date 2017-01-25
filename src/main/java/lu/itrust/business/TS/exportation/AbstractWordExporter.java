@@ -88,6 +88,8 @@ public abstract class AbstractWordExporter {
 	protected ValueFactory valueFactory = null;
 
 	protected String idTask;
+	
+	protected String languageAlpha2 = null;
 
 	protected DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
@@ -140,10 +142,12 @@ public abstract class AbstractWordExporter {
 			switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
+				languageAlpha2 = "FR";
 				break;
 			case "eng":
 			default:
 				locale = Locale.ENGLISH;
+				languageAlpha2 = "EN";
 			}
 
 			kEuroFormat.setMaximumFractionDigits(1);

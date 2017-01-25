@@ -10,17 +10,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -398,7 +394,6 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		XWPFParagraph paragraphOrigin = null;
 		XWPFTable table = null;
 		XWPFTableRow row = null;
-		String language = locale.getLanguage().toUpperCase();
 		paragraphOrigin = findTableAnchor("<Assessment>");
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
@@ -418,7 +413,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 					row.addNewTableCell();
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale));
 				for (ScaleType scaleType : scaleTypes)
-					setCellText(row.getCell(colIndex++), scaleType.getShortName(language), ParagraphAlignment.CENTER);
+					setCellText(row.getCell(colIndex++), scaleType.getShortName(languageAlpha2), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.owner", null, "Owner", locale));
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
@@ -524,14 +519,35 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 						analysis.getLikelihoodParameters());
 			else {
 				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().collect(Collectors.groupingBy(ImpactParameter::getType));
+				generateImpactList(impacts.keySet());
 				for (ScaleType scaleType : impacts.keySet()) {
 					Translation title = scaleType.get(languuage);
 					buildImpactProbabilityTable(paragraph, title == null ? scaleType.getDisplayName() : title.getName(), parmetertype, impacts.get(scaleType));
 				}
+
 			}
 			paragraphsToDelete.add(paragraph);
 		}
 
+	}
+
+	private void generateImpactList(Set<ScaleType> impacts) {
+		
+		XWPFParagraph paragraph = findTableAnchor("<impact-list>");
+		if (paragraph == null)
+			return;
+		String style = "BulletL1";
+		while (!paragraph.getRuns().isEmpty())
+			paragraph.removeRun(0);
+		boolean isFirst = true;
+		for (ScaleType scaleType : impacts) {
+			if (!isFirst) 
+				paragraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
+			else
+				isFirst = false;
+			paragraph.setStyle(style);
+			paragraph.createRun().setText(scaleType.getTranslate(languageAlpha2));
+		}
 	}
 
 	private void buildImpactProbabilityTable(XWPFParagraph paragraph, String title, String type, List<? extends IBoundedParameter> parameters) {
