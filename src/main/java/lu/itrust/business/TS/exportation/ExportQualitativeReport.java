@@ -24,6 +24,9 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STShd;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
@@ -532,7 +535,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 	}
 
 	private void generateImpactList(Set<ScaleType> impacts) {
-		
+
 		XWPFParagraph paragraph = findTableAnchor("<impact-list>");
 		if (paragraph == null)
 			return;
@@ -541,7 +544,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			paragraph.removeRun(0);
 		boolean isFirst = true;
 		for (ScaleType scaleType : impacts) {
-			if (!isFirst) 
+			if (!isFirst)
 				paragraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
 			else
 				isFirst = false;
@@ -602,19 +605,19 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				generateComplianceGraphic(reportExcelSheet);
 				break;
 			case "RiskByScenarioType":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario.type", "Printing ALE by scenario type excel sheet", increase(3)));// 77%
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.scenario.type", "Printing risk by scenario type excel sheet", increase(3)));// 77%
 				generateRiskByScenarioTypeGraphic(reportExcelSheet);
 				break;
 			case "RiskByScenario":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario", "Printing ALE by scenario excel sheet", increase(5)));// 82%
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.scenario", "Printing risk by scenario excel sheet", increase(5)));// 82%
 				generateRiskByScenarioGraphic(reportExcelSheet);
 				break;
 			case "RiskByAssetType":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset.type", "Printing ALE by asset type excel sheet", increase(2)));// 84%
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.asset.type", "Printing risk by asset type excel sheet", increase(2)));// 84%
 				generateRiskByAssetTypeGraphic(reportExcelSheet);
 				break;
 			case "RiskByAsset":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset", "Printing ALE by asset excel sheet", increase(5)));// 89%
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.asset", "Printing risk by asset excel sheet", increase(5)));// 89%
 				generateRiskByAssetGraphic(reportExcelSheet);
 				break;
 			}
@@ -721,7 +724,11 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			chart.getLegends().forEach(legend -> {
 				XWPFRun run = paragraph.createRun();
 				run.setText(legend.getLabel());
-				run.setColor(legend.getColor().substring(1));
+				CTRPr pr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
+				CTShd cTShd = pr.isSetShd() ? pr.getShd() : pr.addNewShd();
+				cTShd.setVal(STShd.CLEAR);
+				cTShd.setColor("auto");
+				cTShd.setFill(legend.getColor().substring(1));
 				paragraph.createRun().addTab();
 			});
 

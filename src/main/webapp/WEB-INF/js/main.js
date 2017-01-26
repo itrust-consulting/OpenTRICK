@@ -103,8 +103,35 @@ function showDialog(dialog, message, title, url) {
 	}
 }
 
+function showStaticDialog(dialog, message, title, url) {
+	switch (dialog) {
+	case "#success-dialog":
+	case "success-dialog":
+	case "success":
+		return showStaticNotifcation("success", message, "glyphicon glyphicon-ok-sign", title, url);
+	case "#info-dialog":
+	case "info-dialog":
+	case "info":
+		return showStaticNotifcation("info", message, "glyphicon glyphicon-info-sign", title, url);
+	case "#warning-dialog":
+	case "warning-dialog":
+	case "warning":
+		return showStaticNotifcation("warning", message, "glyphicon glyphicon-exclamation-sign", title, url);
+	case "#alert-dialog":
+	case "#danger-dialog":
+	case "alert-dialog":
+	case "danger-dialog":
+	case "danger":
+	case "alert":
+		return showStaticNotifcation("danger", message, "glyphicon glyphicon-warning-sign", title, url);
+	default:
+		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
+		return $dialog.modal("show");
+	}
+}
+
 function showNotifcation(type, message, icon, url, title) {
-	$.notify({
+	return $.notify({
 		title : title,
 		icon : icon,
 		message : message,
@@ -112,6 +139,27 @@ function showNotifcation(type, message, icon, url, title) {
 	}, {
 		type : type,
 		z_index : 1068,
+		offset : {
+			x : 0,
+			y : 35
+		},
+		placement : {
+			from : "bottom",
+			align : "right"
+		},
+	});
+}
+
+function showStaticNotifcation(type, message, icon, url, title) {
+	return $.notify({
+		title : title,
+		icon : icon,
+		message : message,
+		url : url
+	}, {
+		type : type,
+		z_index : 1068,
+		delay : -1,
 		offset : {
 			x : 0,
 			y : 35
@@ -769,8 +817,42 @@ $(document)
 		.ready(
 				function() {
 					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
+
 					$(document).ajaxSend(function(e, xhr, options) {
 						xhr.setRequestHeader(header, token);
+					}).idle({
+						onIdle : function() {
+							application['sessionNotification'] = showStaticDialog("warning", "Your session will be expire in 2 min.");
+							var counter = 120;
+							application['sessionTimerId'] = setInterval(function() {
+								application['sessionNotification'].update({
+									"message" : "Your session will be expire in " + (--counter) + " seconds."
+								})
+								if(counter < 1)
+									clearTimeout(application['sessionTimerId']);
+							}, 1000);
+							
+							application['sessionNotification'].onClose = function(){
+								clearTimeout(application['sessionTimerId']);
+							}
+						},
+						onRefreshSession : function() {
+							$.get(context + '/IsAuthenticate', function(isAuthenticated) {
+								if (isAuthenticated === false)
+									$(document).trigger("session.timeout");
+							});
+						},
+						onSessionTimeout : function() {
+							showStaticDialog("danger", "Your session has been expired");
+							setTimeout(function() {
+								$.get(context + '/IsAuthenticate', function(isAuthenticated) {
+									if (isAuthenticated === false)
+										location.reload();
+									else
+										showStaticDialog("danger", "it seems, you have many tabs opened using TS! Session timeout tracker is now disabled");
+								});
+							}, 5000);
+						}
 					});
 
 					// prevent perform click while a menu is disabled
@@ -910,7 +992,7 @@ $(document)
 							}
 
 							var hash = e.target.getAttribute("href"), $target = $(hash);
-							
+
 							callBackCaller($target);
 							triggerCaller($target);
 

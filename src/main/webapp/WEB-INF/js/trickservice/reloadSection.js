@@ -84,7 +84,7 @@ function reloadSection(section, subSection, refreshOnly) {
 				$progress.hide();
 			});
 		} else {
-			var $container = section.startsWith("section_standard_") ? $("#measure-collection-selector>option[value='" + section + "']") : $section.closest(".tab-pane");
+			var $container = section.startsWith("section_standard_") ?  $section : $section.closest(".tab-pane");
 			$container.attr("data-update-required", true);
 			$container.attr("data-trigger", 'reloadSection');
 			$container.attr("data-parameters", [ section, subSection, refreshOnly ]);

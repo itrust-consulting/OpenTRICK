@@ -10,6 +10,7 @@
 	<script src="<spring:url value="/js/dom-parser.js" />"></script>
 	<script src="<spring:url value="/js/naturalSort.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
+	<script src="<spring:url value="/js/jquery.idle.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/timeoutmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
