@@ -256,7 +256,7 @@ SectionSmartUpdate.prototype = {
 				$("tfoot", $src).appendTo($parent);
 			}
 
-			var $checked = $("td:first-child>input:checked", $tbody);
+			var $checked = $("td:first-child>input", $tbody);
 			if ($checked.length)
 				$checked.change();
 			if (indexColnum >= 0) {

@@ -12,6 +12,117 @@ function Application() {
 	this.shownScrollTop = true;
 	this.analysisType = '';
 	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
+	this.timeoutSetting = {
+		idle : 720000,
+		sessionTimeout : 900000,
+		refreshTime : 300000,
+		idleRefreshTime : 180000,
+	}
+	this.notification = {
+		z_index : 1068,
+		offset : {
+			x : 0,
+			y : 35
+		},
+		placement : {
+			from : "bottom",
+			align : "right"
+		},
+		delay : 3000
+	}
+}
+
+/**
+ * Analysis rights / user permissions
+ */
+
+var ANALYSIS_RIGHT = {
+	ALL : {
+		value : 0,
+		name : "ALL"
+	},
+	EXPORT : {
+		value : 1,
+		name : "EXPORT"
+	},
+	MODIFY : {
+		value : 2,
+		name : "MODIFY"
+	},
+	READ : {
+		value : 3,
+		name : "READ"
+	}
+};
+
+/**
+ * Open mode
+ */
+var OPEN_MODE = {
+	READ : {
+		value : "read-only",
+		name : "READ"
+	},
+	READ_ESTIMATION : {
+		value : "read-only-estimation",
+		name : "READ_ESTIMATION"
+	},
+	EDIT : {
+		value : "edit",
+		name : "EDIT"
+	},
+	EDIT_ESTIMATION : {
+		value : "edit-estimation",
+		name : "EDIT_ESTIMATION"
+	},
+	EDIT_MEASURE : {
+		value : "edit-measure",
+		name : "EDIT_MEASURE"
+	},
+	isReadOnly : function() {
+		return application.openMode && application.openMode.value.startsWith("read-only");
+	},
+	valueOf : function(value) {
+		for ( var key in OPEN_MODE) {
+			if (key == "valueOf")
+				continue;
+			else if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
+				return OPEN_MODE[key];
+		}
+		return undefined;
+	}
+}
+
+var NOTIFICATION_TYPE = {
+	ERROR : {
+		type : "danger",
+		icon : "glyphicon glyphicon-warning-sign",
+		names : [ "error", "#alert-dialog", "#danger-dialog", "alert-dialog", "danger-dialog", "danger", "alert" ]
+	},
+	WARNING : {
+		type : "warning",
+		icon : "glyphicon glyphicon-exclamation-sign",
+		names : [ "#warning-dialog", "warning-dialog", "warning" ]
+	},
+	INFO : {
+		type : "info",
+		icon : "glyphicon glyphicon-info-sign",
+		names : [ "#info-dialog", "info-dialog", "info" ]
+	},
+	SUCCESS : {
+		type : "success",
+		icon : "glyphicon glyphicon-ok-sign",
+		names : [ "#success-dialog", "success-dialog", "success" ]
+	},
+	valueOf : function(value) {
+		for ( var key in NOTIFICATION_TYPE) {
+			if (key == "valueOf")
+				continue;
+			else if (NOTIFICATION_TYPE[key] == value || NOTIFICATION_TYPE[key].type == value || NOTIFICATION_TYPE[key].names.indexOf(value) != -1)
+				return NOTIFICATION_TYPE[key];
+		}
+		return undefined;
+	}
 }
 
 if (!String.prototype.capitalize) {
@@ -77,56 +188,22 @@ function callBackCaller($target) {
 }
 
 function showDialog(dialog, message, title, url) {
-	switch (dialog) {
-	case "#success-dialog":
-	case "success-dialog":
-	case "success":
-		return showNotifcation("success", message, "glyphicon glyphicon-ok-sign", title, url);
-	case "#info-dialog":
-	case "info-dialog":
-	case "info":
-		return showNotifcation("info", message, "glyphicon glyphicon-info-sign", title, url);
-	case "#warning-dialog":
-	case "warning-dialog":
-	case "warning":
-		return showNotifcation("warning", message, "glyphicon glyphicon-exclamation-sign", title, url);
-	case "#alert-dialog":
-	case "#danger-dialog":
-	case "alert-dialog":
-	case "danger-dialog":
-	case "danger":
-	case "alert":
-		return showNotifcation("danger", message, "glyphicon glyphicon-warning-sign", title, url);
-	default:
+	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
+	if (notificationType == undefined) {
 		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
+	} else {
+		return showNotifcation(notificationType.type, message, notificationType.icon, title, url);
 	}
 }
 
 function showStaticDialog(dialog, message, title, url) {
-	switch (dialog) {
-	case "#success-dialog":
-	case "success-dialog":
-	case "success":
-		return showStaticNotifcation("success", message, "glyphicon glyphicon-ok-sign", title, url);
-	case "#info-dialog":
-	case "info-dialog":
-	case "info":
-		return showStaticNotifcation("info", message, "glyphicon glyphicon-info-sign", title, url);
-	case "#warning-dialog":
-	case "warning-dialog":
-	case "warning":
-		return showStaticNotifcation("warning", message, "glyphicon glyphicon-exclamation-sign", title, url);
-	case "#alert-dialog":
-	case "#danger-dialog":
-	case "alert-dialog":
-	case "danger-dialog":
-	case "danger":
-	case "alert":
-		return showStaticNotifcation("danger", message, "glyphicon glyphicon-warning-sign", title, url);
-	default:
+	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
+	if (notificationType == undefined) {
 		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
+	} else {
+		return showStaticNotifcation(notificationType.type, message, notificationType.icon, title, url);
 	}
 }
 
@@ -138,15 +215,10 @@ function showNotifcation(type, message, icon, url, title) {
 		url : url
 	}, {
 		type : type,
-		z_index : 1068,
-		offset : {
-			x : 0,
-			y : 35
-		},
-		placement : {
-			from : "bottom",
-			align : "right"
-		},
+		z_index : application.notification.z_index,
+		offset : application.notification.offset,
+		placement : application.notification.placement,
+		delay : application.notification.delay
 	});
 }
 
@@ -158,16 +230,10 @@ function showStaticNotifcation(type, message, icon, url, title) {
 		url : url
 	}, {
 		type : type,
-		z_index : 1068,
-		delay : -1,
-		offset : {
-			x : 0,
-			y : 35
-		},
-		placement : {
-			from : "bottom",
-			align : "right"
-		},
+		z_index : application.notification.z_index,
+		offset : application.notification.offset,
+		placement : application.notification.placement,
+		delay : -1
 	});
 }
 
@@ -319,64 +385,6 @@ $.fn.serializeJSON = function() {
 	});
 	return json;
 };
-
-/**
- * Analysis rights / user permissions
- */
-
-var ANALYSIS_RIGHT = {
-	ALL : {
-		value : 0,
-		name : "ALL"
-	},
-	EXPORT : {
-		value : 1,
-		name : "EXPORT"
-	},
-	MODIFY : {
-		value : 2,
-		name : "MODIFY"
-	},
-	READ : {
-		value : 3,
-		name : "READ"
-	}
-};
-
-/**
- * Open mode
- */
-var OPEN_MODE = {
-	READ : {
-		value : "read-only",
-		name : "READ"
-	},
-	READ_ESTIMATION : {
-		value : "read-only-estimation",
-		name : "READ_ESTIMATION"
-	},
-	EDIT : {
-		value : "edit",
-		name : "EDIT"
-	},
-	EDIT_ESTIMATION : {
-		value : "edit-estimation",
-		name : "EDIT_ESTIMATION"
-	},
-	EDIT_MEASURE : {
-		value : "edit-measure",
-		name : "EDIT_MEASURE"
-	},
-	isReadOnly : function() {
-		return application.openMode && application.openMode.value.startsWith("read-only");
-	},
-	valueOf : function(value) {
-		for ( var key in OPEN_MODE)
-			if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
-				return OPEN_MODE[key];
-		return undefined;
-	}
-}
 
 function permissionError() {
 	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
@@ -779,7 +787,42 @@ function closeToolTips() {
 		$(application["settings-open-tooltip"]).tooltip("hide");
 		delete application["settings-open-tooltip"];
 	}
+}
 
+function displayTimeoutNotification(notification, message, title) {
+	if (application['sessionNotification']) {
+		application['sessionNotification'].update({
+			type : notification.type,
+			icon : notification.icon,
+			message : message
+		});
+	} else {
+		application['sessionNotification'] = $.notify({
+			title : title,
+			icon : notification.icon,
+			message : message,
+		}, {
+			type : notification.type,
+			z_index : application.notification.z_index,
+			offset : application.notification.offset,
+			placement : application.notification.placement,
+			delay : -1,
+			onClose : function() {
+				clearTimeout(application['sessionTimerId']);
+				delete application['sessionNotification'];
+			}
+		});
+	}
+}
+
+function displayTimeoutWarning(counter) {
+	var message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0}");
+	displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", counter))
+	application['sessionTimerId'] = setInterval(function() {
+		displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", (--counter)))
+		if (counter < 1)
+			clearTimeout(application['sessionTimerId']);
+	}, 1000);
 }
 
 function forceCloseToolTips() {
@@ -819,41 +862,45 @@ $(document)
 					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
 
 					$(document).ajaxSend(function(e, xhr, options) {
+						if (options.url !== (context + '/IsAuthenticate'))
+							$(document).trigger("session:resquest:send");
 						xhr.setRequestHeader(header, token);
-					}).idle({
-						onIdle : function() {
-							application['sessionNotification'] = showStaticDialog("warning", "Your session will be expire in 2 min.");
-							var counter = 120;
-							application['sessionTimerId'] = setInterval(function() {
-								application['sessionNotification'].update({
-									"message" : "Your session will be expire in " + (--counter) + " seconds."
-								})
-								if(counter < 1)
-									clearTimeout(application['sessionTimerId']);
-							}, 1000);
-							
-							application['sessionNotification'].onClose = function(){
-								clearTimeout(application['sessionTimerId']);
-							}
-						},
-						onRefreshSession : function() {
-							$.get(context + '/IsAuthenticate', function(isAuthenticated) {
-								if (isAuthenticated === false)
-									$(document).trigger("session.timeout");
+					}).idle(
+							{
+								idle : application.timeoutSetting.idle,
+								sessionTimeout : application.timeoutSetting.sessionTimeout,
+								refreshTime : application.timeoutSetting.refreshTime,
+								idleRefreshTime : application.timeoutSetting.idleRefreshTime,
+								onIdle : function() {
+									displayTimeoutWarning((application.timeoutSetting.sessionTimeout - application.timeoutSetting.idle) / 1000);
+								},
+								onRefreshSession : function() {
+									$.get(context + '/IsAuthenticate', function(isAuthenticated) {
+										if (isAuthenticated === false)
+											$(document).trigger("session.timeout");
+									});
+								},
+								onSessionTimeout : function() {
+									displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expired",
+											"Your session has been expired, you will be redirected to the login page in few seconds."));
+									setTimeout(function() {
+										$.get(context + '/IsAuthenticate', function(isAuthenticated) {
+											if (isAuthenticated === false)
+												location.reload();
+											else
+												displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expire.monitor",
+														"It seems you have many tabs opened on TS, Session timeout monitoring is not supported that, it is now disabled."));
+										});
+									}, 5000);
+								},
+								onActive : function() {
+									if (application['sessionNotification']) {
+										application['sessionNotification'].close();
+										// delete
+										// application['sessionNotification'];
+									}
+								}
 							});
-						},
-						onSessionTimeout : function() {
-							showStaticDialog("danger", "Your session has been expired");
-							setTimeout(function() {
-								$.get(context + '/IsAuthenticate', function(isAuthenticated) {
-									if (isAuthenticated === false)
-										location.reload();
-									else
-										showStaticDialog("danger", "it seems, you have many tabs opened using TS! Session timeout tracker is now disabled");
-								});
-							}, 5000);
-						}
-					});
 
 					// prevent perform click while a menu is disabled
 					$("ul.nav li>a").on("click", function(e) {

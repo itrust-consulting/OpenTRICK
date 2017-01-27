@@ -50,7 +50,7 @@
   </filter>
     
   <session-config>
-  	<session-timeout>720</session-timeout>
+  	<session-timeout>15</session-timeout>
   	<cookie-config>
 		<name>TS_SESSION_ID</name> 
   		<path>/</path>

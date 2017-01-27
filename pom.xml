@@ -432,6 +432,7 @@
 						**/WEB-INF/css/datepicker.css,
 						**/WEB-INF/css/select2-bootstrap.css,
 						**/WEB-INF/js/main.js,
+						**/WEB-INF/js/jquery-ui.min.js
 						**/WEB-INF/js/dom-parser.js,
 						**/WEB-INF/js/naturalSort.js,
 						**/WEB-INF/js/jquery.fileDownload.js,

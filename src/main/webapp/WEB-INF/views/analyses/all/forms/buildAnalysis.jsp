@@ -107,7 +107,7 @@
 										<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile" /></option>
 										<c:forEach items="${impacts}" var="impact">
 											<option value="${impact.id}"><spring:message code="label.impact.type.${fn:toLowerCase(impact.name)}"
-													text="${empty impact.translations[locale]? impact.displayName :  impact.translations[locale]}" /></option>
+													text="${empty impact.translations[locale]? impact.displayName :  impact.translations[locale].name}" /></option>
 										</c:forEach>
 									</select>
 								</div>

@@ -29,7 +29,7 @@
 			sessionTimeout : 90000,
 			refreshTime : 30000,
 			idleRefreshTime : 18000,
-			events : 'mousemove keydown mousedown touchstart', // events that
+			events : 'mousemove keydown mousedown touchstart session:resquest:send', // events that
 																// will trigger
 																// the idle
 																// resetter
@@ -60,6 +60,7 @@
 		});
 
 		$(this).on("session:timeout", {}, function(event) {
+			idle = false;
 			settings.timeoutEnabled = false
 			$(this).trigger("idle:stop");
 		});
@@ -70,7 +71,6 @@
 				settings.onActive.call();
 				idle = false;
 			}
-			
 			if (settings.timeoutEnabled) {
 				var dateTime = new Date();
 				if (idleRefreshReseting || !refreshing && dateTime.getTime() - lastRefresh.getTime() >= settings.refreshTime) {

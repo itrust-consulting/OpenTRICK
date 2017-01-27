@@ -12,7 +12,6 @@
 	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
 	<script src="<spring:url value="/js/jquery.idle.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/timeoutmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/login.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>
@@ -32,7 +31,9 @@
 		resolveMessage("error.forbidden", "<spring:message code='error.forbidden' htmlEscape='false'/>");
 		resolveMessage("error.unknown.occurred", "<spring:message code='error.unknown.occurred' />");
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
-		
+		resolveMessage("error.session.expired", "<spring:message code='error.session.expired' />");
+		resolveMessage("error.session.expire.monitor", "<spring:message code='error.session.expire.monitor' />");
+		resolveMessage("info.session.expire.in.x.seconds", "<spring:message code='info.session.expire.in.x.seconds' />");
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>

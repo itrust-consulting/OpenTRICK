@@ -61,8 +61,7 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
-		return String.format("{\"message\":\"%s\"}",
-				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
+		return String.format("{\"message\":\"%s\"}", messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
@@ -93,7 +92,7 @@ public class ControllerHome {
 		}
 	}
 
-	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/IsAuthenticate", method = { RequestMethod.GET, RequestMethod.POST }, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
 		if (principal == null)
 			return false;

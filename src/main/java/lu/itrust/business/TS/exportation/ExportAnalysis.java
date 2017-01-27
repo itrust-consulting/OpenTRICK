@@ -1227,7 +1227,7 @@ public class ExportAnalysis {
 
 	private void exportImpactType() throws SQLException {
 		List<Object> params = new ArrayList<Object>();
-		String query = "", unionQuery = " UNION SELECT ?,?,?", baseQuery = "INSERT INTO impact_type SELECT ? as name, ? as acronym,? as translation, ? as short_name";
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?", baseQuery = "INSERT INTO impact_type SELECT ? as name, ? as acronym,? as translation, ? as short_name";
 		for (ScaleType scaleType : scaleTypes) {
 			if (query.isEmpty())
 				query = baseQuery;
