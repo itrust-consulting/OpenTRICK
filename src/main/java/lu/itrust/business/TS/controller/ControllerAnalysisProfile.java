@@ -3,8 +3,8 @@
  */
 package lu.itrust.business.TS.controller;
 
-
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
@@ -163,6 +166,30 @@ public class ControllerAnalysisProfile {
 		}
 		return errors;
 
+	}
+
+	// *****************************************************************
+	// * set default profile
+	// *****************************************************************
+	@RequestMapping(value = "/SetDefaultProfile/{analysisId}", method = RequestMethod.POST)
+	@PreAuthorize(ROLE_MIN_CONSULTANT)
+	public @ResponseBody boolean setDefaultProfile(@PathVariable("analysisId") Integer analysisId, @RequestBody AnalysisType analysisType, Principal principal, HttpSession session)
+			throws Exception {
+		Analysis analysis = serviceAnalysis.get(analysisId);
+		Analysis currentProfileanalysis = serviceAnalysis.getDefaultProfile(analysisType);
+		if (analysis == null || !analysis.isProfile()) {
+			System.out.println("Bad analysis for default profile");
+			return false;
+		}
+		analysis.setDefaultProfile(true);
+		serviceAnalysis.saveOrUpdate(analysis);
+		if (currentProfileanalysis != null) {
+			if (currentProfileanalysis.getId() != analysisId) {
+				currentProfileanalysis.setDefaultProfile(false);
+				serviceAnalysis.saveOrUpdate(currentProfileanalysis);
+			}
+		}
+		return true;
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)

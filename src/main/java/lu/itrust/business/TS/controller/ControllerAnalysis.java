@@ -9,7 +9,6 @@ import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_ANALYSIS_NA
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
 import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_SINGLE_NAME;
-import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
@@ -636,34 +635,6 @@ public class ControllerAnalysis {
 	}
 
 	// *****************************************************************
-	// * set default profile
-	// *****************************************************************
-
-	@RequestMapping(value = "/SetDefaultProfile/{analysisId}", method = RequestMethod.POST)
-	@PreAuthorize(ROLE_MIN_CONSULTANT)
-	public @ResponseBody boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
-
-		Analysis analysis = serviceAnalysis.get(analysisId);
-
-		Analysis currentProfileanalysis = serviceAnalysis.getDefaultProfile();
-
-		if (analysis == null || !analysis.isProfile()) {
-			System.out.println("Bad analysis for default profile");
-			return false;
-		}
-
-		analysis.setDefaultProfile(true);
-		serviceAnalysis.saveOrUpdate(analysis);
-		if (currentProfileanalysis != null) {
-			if (currentProfileanalysis.getId() != analysisId) {
-				currentProfileanalysis.setDefaultProfile(false);
-				serviceAnalysis.saveOrUpdate(currentProfileanalysis);
-			}
-		}
-		return true;
-	}
-
-	// *****************************************************************
 	// * delete analysis
 	// *****************************************************************
 
@@ -678,13 +649,11 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
-			throws Exception {
+	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes,
+			Principal principal, HttpSession session, Locale locale) throws Exception {
 		try {
 
-			Analysis analysis = serviceAnalysis.getDefaultProfile();
-
-			if (analysis != null && analysis.getId() == analysisId)
+			if (serviceAnalysis.isDefaultProfile(analysisId))
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			customDelete.deleteAnalysis(analysisId, principal.getName());
@@ -963,11 +932,11 @@ public class ControllerAnalysis {
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
-				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE? frenchQuantitativeReportName : frenchQualitativeReportName );
+				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? frenchQuantitativeReportName : frenchQualitativeReportName);
 				break;
 			default:
 				locale = Locale.ENGLISH;
-				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? englishQuantitativeReportName : englishQualitativeReportName );
+				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? englishQuantitativeReportName : englishQualitativeReportName);
 			}
 			Worker worker = new WorkerExportWordReport(analysisId, principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))

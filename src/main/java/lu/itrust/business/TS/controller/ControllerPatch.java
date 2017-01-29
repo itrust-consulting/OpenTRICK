@@ -32,6 +32,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
@@ -178,10 +179,13 @@ public class ControllerPatch {
 	@RequestMapping(value = "/Update/Analyses/Risk-item-information", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateRiskInformationAndRiskItem(Principal principal, Locale locale) {
 		try {
-			Analysis profile = serviceAnalysis.getDefaultProfile();
-			if (profile == null)
-				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			if(profile.getItemInformations().isEmpty())
+			Analysis profile = serviceAnalysis.getDefaultProfile(AnalysisType.QUANTITATIVE);
+			if (profile == null) {
+				profile = serviceAnalysis.getDefaultProfile(AnalysisType.QUALITATIVE);
+				if (profile == null)
+					return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			}
+			if (profile.getItemInformations().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.default.profile.no_item_information", null, "Default profile does not contain item information", locale));
 			List<Analysis> analyses = serviceAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(1, 30);
 			while (!analyses.isEmpty()) {

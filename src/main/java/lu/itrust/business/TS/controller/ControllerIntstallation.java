@@ -2,6 +2,8 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,21 +51,24 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
-	
+
 	@Autowired
 	private TaskExecutor executor;
 
 	@Value("${app.settings.version}")
 	private String version;
-	
-	@Value("${app.settings.default.profile.sqlite.path}")
-	private String defaultProfileSqlitePath;
+
+	@Value("${app.settings.default.profile.quantitative.sqlite.path}")
+	private String defaultProfileQuantitativeSqlitePath;
+
+	@Value("${app.settings.default.profile.qualitative.sqlite.path}")
+	private String defaultProfileQualitativeSqlitePath;
 
 	/**
 	 * installTS: <br>
@@ -76,20 +81,23 @@ public class ControllerIntstallation {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/Install", method= RequestMethod.POST)
+	@RequestMapping(value = "/Install", method = RequestMethod.POST)
 	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-		
-		String fileName = request.getServletContext().getRealPath(defaultProfileSqlitePath);
 
 		installProfileCustomer(errors, locale);
 
-		if(!errors.isEmpty())
+		if (!errors.isEmpty())
 			return errors;
-		
-		installDefaultProfile(fileName, principal, errors, locale);
-		
+
+		List<String> fileNames = new LinkedList<>();
+
+		fileNames.add(request.getServletContext().getRealPath(defaultProfileQuantitativeSqlitePath));
+		fileNames.add(request.getServletContext().getRealPath(defaultProfileQualitativeSqlitePath));
+
+		installDefaultProfile(fileNames, principal, errors, locale);
+
 		return errors;
 
 	}
@@ -139,7 +147,7 @@ public class ControllerIntstallation {
 	 * @param locale
 	 * @return
 	 */
-	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors, Locale locale) {
+	private boolean installDefaultProfile(List<String> fileNames, Principal principal, Map<String, String> errors, Locale locale) {
 
 		try {
 
@@ -160,8 +168,8 @@ public class ControllerIntstallation {
 				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
-			Worker worker = new WorkerTSInstallation(version,workersPoolManager,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
-			if(!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
+			Worker worker = new WorkerTSInstallation(version, workersPoolManager, sessionFactory, serviceTaskFeedback, fileNames, customer.getId(), principal.getName());
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 				return false;
 			}

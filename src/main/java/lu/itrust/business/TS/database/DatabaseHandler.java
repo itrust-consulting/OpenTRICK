@@ -27,21 +27,14 @@ public class DatabaseHandler {
 	/** The connection to the Database */
 	private Connection con = null;
 
+	/** Savepoint used for a Transaction to Rollback to */
+	private Savepoint sp = null;
+
 	/**
 	 * PreparedStatment for the prepared statments to query the database (secure
 	 * query)
 	 */
 	private PreparedStatement st = null;
-
-	/** Savepoint used for a Transaction to Rollback to */
-	private Savepoint sp = null;
-
-	/***********************************************************************************************
-	 * Constructor
-	 **********************************************************************************************/
-
-	protected DatabaseHandler() {
-	}
 
 	/**
 	 * DatabaseHandler: <br>
@@ -113,176 +106,79 @@ public class DatabaseHandler {
 	}
 
 	/***********************************************************************************************
+	 * Constructor
+	 **********************************************************************************************/
+
+	protected DatabaseHandler() {
+	}
+
+	/***********************************************************************************************
 	 * Methods
 	 **********************************************************************************************/
 
 	/**
-	 * generateInsertQuery: <br>
-	 * This method builds a INSERT Query with a given number (paramNumber) of
-	 * place holders to add parameters to a given SQL Table.
+	 * beginTransaction: <br>
+	 * Start a MySQL Transaction, set a SavePoint and set Autocommit to False.
 	 * 
-	 * @param table
-	 *            The MySQL or Sqlite Table
-	 * @param paramNumber
-	 *            The Number of Parameters (Place Holders)
+	 * @return The status if it worked
 	 */
-	public static final String generateInsertQuery(String table, int paramNumber) {
+	public boolean beginTransaction() {
+
+		System.out.println("Begin Transaction...");
 
 		// ****************************************************************
-		// * initialise variables
+		// * initialise return value
 		// ****************************************************************
-		String query = "";
+		boolean res = false;
 
-		// check if at least 1 parameter -> YES
-		if (paramNumber > 0) {
-
-			// ****************************************************************
-			// * build query
-			// ****************************************************************
-
-			// build first part of query
-			query = "INSERT INTO " + table + " VALUES(";
-
-			// parse parameters and add number of ? parameters
-			for (int index = 1; index <= paramNumber; index++) {
-
-				// check if last parameter -> YES
-				if (index == paramNumber) {
-
-					// set last part of query
-					query += "?)";
-				} else {
-					// check if last part of query -> NO
-
-					// set next parameter
-					query += "?,";
-				}
-			}
-		}
-
-		// ****************************************************************
-		// * return built query
-		// ****************************************************************
-		return query;
-	}
-
-
-	/**
-	 * query: <br>
-	 * - Creates a Prepared Statment - Uses "params" List to set Query
-	 * Parameters into Query Place Holders - Executes the Query - Returns the
-	 * Query Result
-	 * 
-	 * @param query
-	 *            The SQL Structured Query
-	 * @param params
-	 *            The List of parameters (any Value Type)
-	 * 
-	 * @return The Result of the executed Query
-	 * 
-	 * @throws SQLException
-	 */
-	public ResultSet query(String query, List<Object> params) throws SQLException {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		ResultSet res = null;
-		Boolean queryres = false;
-
-		// ****************************************************************
-		// * create prepared statment of the given query
-		// ****************************************************************
-		st = con.prepareStatement(query);
-
-		// check if params exist -> YES
-		if (params != null) {
-
-			// ****************************************************************
-			// * parse all parameters and add them to the prepared statment
-			// ****************************************************************
-
-			// parse params list
-			for (int i = 1; i < params.size() + 1; i++) {
-
-				// ****************************************************************
-				// * add object type as parameter (type independent)
-				// ****************************************************************
-				st.setObject(i, params.get(i - 1));
-			}
-		}
-
-		// ****************************************************************
-		// * execute prepared statment query
-		// ****************************************************************
-		queryres = st.execute();
-
-		// check if query was successfully executed -> YES
-		if (queryres == true) {
-
-			// ****************************************************************
-			// * set the result in from of resultset
-			// ****************************************************************
-			res = st.getResultSet();
-		}
-
-		// ****************************************************************
-		// * return the result
-		// ****************************************************************
-		return res;
-	}
-
-	/**
-	 * query: <br>
-	 * - Creates a Prepared Statment - Uses "params" List to set Query
-	 * Parameters into Query Place Holders - Executes the Query - Returns the
-	 * Query Result
-	 * 
-	 * @param query
-	 *            The SQL Structured Query
-	 * @param params
-	 *            The List of parameters (any Value Type)
-	 * 
-	 * @return The Result of the executed Query
-	 * 
-	 * @throws SQLException
-	 */
-	public ResultSet query(String query) {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		ResultSet res = null;
 		try {
-			Boolean queryres = false;
 
 			// ****************************************************************
-			// * create prepared statment of the given query
+			// * change the Autocommit to false (to enable transaction)
 			// ****************************************************************
-			st = con.prepareStatement(query);
+			con.setAutoCommit(false);
 
 			// ****************************************************************
-			// * execute prepared statment query
+			// * create a savepoint to rollback to in case of an error
 			// ****************************************************************
-			queryres = st.execute();
+			sp = con.setSavepoint("savepoint");
 
-			// check if query was successfully executed -> YES
-			if (queryres == true) {
+			// ****************************************************************
+			// return status if autocommit was really set to false
+			// ****************************************************************
+
+			// check if autocommit is false -> YES
+			if (con.getAutoCommit() == false) {
 
 				// ****************************************************************
-				// * set the result in from of resultset
+				// * return status
 				// ****************************************************************
-				res = st.getResultSet();
+				res = true;
+			} else {
+
+				// check if autocommit is false -> NO
+
+				// ****************************************************************
+				// * return status
+				// ****************************************************************
+				res = false;
 			}
-		} catch (SQLException e) {
-			TrickLogManager.Persist(e);
-		}
 
-		// ****************************************************************
-		// * return the result
-		// ****************************************************************
-		return res;
+			// ****************************************************************
+			// * return result
+			// ****************************************************************
+			return res;
+
+		} catch (Exception e) {
+
+			// error text
+			System.out.println("Erro: Could not create transaction");
+
+			// return false
+			return res;
+		}
 	}
+
 
 	/**
 	 * close: <br>
@@ -297,6 +193,54 @@ public class DatabaseHandler {
 		// ****************************************************************
 		if (con != null && !con.isClosed())
 			con.close();
+	}
+
+	/**
+	 * commit: <br>
+	 * Performs a Commit at the End of a Transaction and Sets Autocommit to back
+	 * to True.
+	 * 
+	 * @return The Autocommit Status
+	 */
+	public boolean commit() {
+
+		System.out.println("Commit Transaction...");
+
+		// ****************************************************************
+		// * initialise return variable
+		// ****************************************************************
+		boolean res = false;
+
+		try {
+
+			// commit a transaction
+			con.commit();
+
+			// release savepoint
+			con.releaseSavepoint(sp);
+
+			// set autocommit to true (end transaction)
+			con.setAutoCommit(true);
+
+			// return autocommit status
+			if (con.getAutoCommit() == true) {
+				res = true;
+			} else {
+				res = false;
+			}
+
+			// ****************************************************************
+			// * return result
+			// ****************************************************************
+			return res;
+		} catch (Exception e) {
+
+			// error text
+			System.out.println("Error: Could not commit transaction changes");
+
+			// return status
+			return res;
+		}
 	}
 
 	/**
@@ -384,66 +328,120 @@ public class DatabaseHandler {
 	}
 
 	/**
-	 * beginTransaction: <br>
-	 * Start a MySQL Transaction, set a SavePoint and set Autocommit to False.
+	 * query: <br>
+	 * - Creates a Prepared Statment - Uses "params" List to set Query
+	 * Parameters into Query Place Holders - Executes the Query - Returns the
+	 * Query Result
 	 * 
-	 * @return The status if it worked
+	 * @param query
+	 *            The SQL Structured Query
+	 * @param params
+	 *            The List of parameters (any Value Type)
+	 * 
+	 * @return The Result of the executed Query
+	 * 
+	 * @throws SQLException
 	 */
-	public boolean beginTransaction() {
-
-		System.out.println("Begin Transaction...");
+	public ResultSet query(String query) {
 
 		// ****************************************************************
-		// * initialise return value
+		// * initialise variables
 		// ****************************************************************
-		boolean res = false;
-
+		ResultSet res = null;
 		try {
+			Boolean queryres = false;
 
 			// ****************************************************************
-			// * change the Autocommit to false (to enable transaction)
+			// * create prepared statment of the given query
 			// ****************************************************************
-			con.setAutoCommit(false);
+			st = con.prepareStatement(query);
 
 			// ****************************************************************
-			// * create a savepoint to rollback to in case of an error
+			// * execute prepared statment query
 			// ****************************************************************
-			sp = con.setSavepoint("savepoint");
+			queryres = st.execute();
 
-			// ****************************************************************
-			// return status if autocommit was really set to false
-			// ****************************************************************
-
-			// check if autocommit is false -> YES
-			if (con.getAutoCommit() == false) {
+			// check if query was successfully executed -> YES
+			if (queryres == true) {
 
 				// ****************************************************************
-				// * return status
+				// * set the result in from of resultset
 				// ****************************************************************
-				res = true;
-			} else {
-
-				// check if autocommit is false -> NO
-
-				// ****************************************************************
-				// * return status
-				// ****************************************************************
-				res = false;
+				res = st.getResultSet();
 			}
-
-			// ****************************************************************
-			// * return result
-			// ****************************************************************
-			return res;
-
-		} catch (Exception e) {
-
-			// error text
-			System.out.println("Erro: Could not create transaction");
-
-			// return false
-			return res;
+		} catch (SQLException e) {
+			TrickLogManager.Persist(e);
 		}
+
+		// ****************************************************************
+		// * return the result
+		// ****************************************************************
+		return res;
+	}
+
+	/**
+	 * query: <br>
+	 * - Creates a Prepared Statment - Uses "params" List to set Query
+	 * Parameters into Query Place Holders - Executes the Query - Returns the
+	 * Query Result
+	 * 
+	 * @param query
+	 *            The SQL Structured Query
+	 * @param params
+	 *            The List of parameters (any Value Type)
+	 * 
+	 * @return The Result of the executed Query
+	 * 
+	 * @throws SQLException
+	 */
+	public ResultSet query(String query, List<Object> params) throws SQLException {
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		ResultSet res = null;
+		Boolean queryres = false;
+
+		// ****************************************************************
+		// * create prepared statment of the given query
+		// ****************************************************************
+		st = con.prepareStatement(query);
+
+		// check if params exist -> YES
+		if (params != null) {
+
+			// ****************************************************************
+			// * parse all parameters and add them to the prepared statment
+			// ****************************************************************
+
+			// parse params list
+			for (int i = 1; i < params.size() + 1; i++) {
+
+				// ****************************************************************
+				// * add object type as parameter (type independent)
+				// ****************************************************************
+				st.setObject(i, params.get(i - 1));
+			}
+		}
+
+		// ****************************************************************
+		// * execute prepared statment query
+		// ****************************************************************
+		queryres = st.execute();
+
+		// check if query was successfully executed -> YES
+		if (queryres == true) {
+
+			// ****************************************************************
+			// * set the result in from of resultset
+			// ****************************************************************
+			res = st.getResultSet();
+		}
+
+		// ****************************************************************
+		// * return the result
+		// ****************************************************************
+		return res;
 	}
 
 	/**
@@ -494,50 +492,52 @@ public class DatabaseHandler {
 	}
 
 	/**
-	 * commit: <br>
-	 * Performs a Commit at the End of a Transaction and Sets Autocommit to back
-	 * to True.
+	 * generateInsertQuery: <br>
+	 * This method builds a INSERT Query with a given number (paramNumber) of
+	 * place holders to add parameters to a given SQL Table.
 	 * 
-	 * @return The Autocommit Status
+	 * @param table
+	 *            The MySQL or Sqlite Table
+	 * @param paramNumber
+	 *            The Number of Parameters (Place Holders)
 	 */
-	public boolean commit() {
-
-		System.out.println("Commit Transaction...");
+	public static final String generateInsertQuery(String table, int paramNumber) {
 
 		// ****************************************************************
-		// * initialise return variable
+		// * initialise variables
 		// ****************************************************************
-		boolean res = false;
+		String query = "";
 
-		try {
+		// check if at least 1 parameter -> YES
+		if (paramNumber > 0) {
 
-			// commit a transaction
-			con.commit();
+			// ****************************************************************
+			// * build query
+			// ****************************************************************
 
-			// release savepoint
-			con.releaseSavepoint(sp);
+			// build first part of query
+			query = "INSERT INTO " + table + " VALUES(";
 
-			// set autocommit to true (end transaction)
-			con.setAutoCommit(true);
+			// parse parameters and add number of ? parameters
+			for (int index = 1; index <= paramNumber; index++) {
 
-			// return autocommit status
-			if (con.getAutoCommit() == true) {
-				res = true;
-			} else {
-				res = false;
+				// check if last parameter -> YES
+				if (index == paramNumber) {
+
+					// set last part of query
+					query += "?)";
+				} else {
+					// check if last part of query -> NO
+
+					// set next parameter
+					query += "?,";
+				}
 			}
-
-			// ****************************************************************
-			// * return result
-			// ****************************************************************
-			return res;
-		} catch (Exception e) {
-
-			// error text
-			System.out.println("Error: Could not commit transaction changes");
-
-			// return status
-			return res;
 		}
+
+		// ****************************************************************
+		// * return built query
+		// ****************************************************************
+		return query;
 	}
 }

@@ -184,6 +184,12 @@ public class ImportAnalysis {
 	/** Map of Standards */
 	private Map<String, Standard> standards = null;
 
+	private int maxProgress = 0;
+
+	private int progress = 0;
+
+	private int globalProgress = 0;
+
 	/***********************************************************************************************
 	 * Constructor
 	 **********************************************************************************************/
@@ -290,71 +296,72 @@ public class ImportAnalysis {
 			// * Histories. Creates Analysis Entries into the Database
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", 0));
+			MessageHandler messageHandler = new MessageHandler("info.analysis.importing", "Importing", increase(1));
+
+			serviceTaskFeedback.send(idTask, messageHandler);
 			importAnalyses();
 
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", 1));
+			messageHandler.update("info.risk_information.importing", "Importing risk information", increase(1));
 			importRiskInformation();
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", 5));
+			messageHandler.update("info.risk_information.importing", "Import item information", increase(4));
 			importItemInformation();
 
 			// ****************************************************************
 			// * import simple parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", 10));
+			messageHandler.update("info.simple_parameters.importing", "Import simple parameters", increase(6));
 			importSimpleParameters();
 
 			// ****************************************************************
 			// * import dynamic parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.dynamic_parameters.importing", "Import dynamic parameters", 12));
+			messageHandler.update("info.dynamic_parameters.importing", "Import dynamic parameters", increase(2));// 12%
 			importDynamicParameters();
 
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.impact_type.importing", "Import parameter type", 15));
-			//
+			messageHandler.update("info.impact_type.importing", "Import parameter type", increase(3));// 15%
 			importImpactParameterTypes();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 18));
+			messageHandler.update("info.extended_parameters.importing", "Import extended parameters", increase(3));// 18%
 			importImpactParameters();
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 20));
+			messageHandler.update("info.extended_parameters.importing", "Import extended parameters", increase(2));// 20%
 			importProbabilities();
 
 			// ****************************************************************
 			// * import maturity parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", 23));
+			messageHandler.update("info.maturity_parameters.importing", "Import maturity parameters", increase(3));// 23%
 			importMaturityParameters();
 
 			// ****************************************************************
 			// * import assets
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset.importing", "Import assets", 25));
+			messageHandler.update("info.asset.importing", "Import assets", increase(10));// 25%
 			importAssets();
 
 			// ****************************************************************
 			// * import scenarios
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", 35));
+			messageHandler.update("info.scenario.importing", "Import scenarios", increase(5));// 35%
 			importScenarios();
 
 			// Update value factory
@@ -364,23 +371,23 @@ public class ImportAnalysis {
 			// * import assessments
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", 40));
+			messageHandler.update("info.assessments.importing", "Import assessments", increase(5));// 40%
 			importAssessments();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", 45));
+			messageHandler.update("info.risk_profile.importing", "Import risk profile", increase(10));// 45%
 			importRiskProfile();
 
 			// ****************************************************************
 			// * import phases
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.phase.importing", "Import phases", 55));
+			messageHandler.update("info.phase.importing", "Import phases", increase(5));// 55%
 			importPhases();
 
 			// ****************************************************************
 			// * import AnalysisStandard measures
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.norm_measures.importing", "Analysis normal measures", 60));
+			messageHandler.update("info.norm_measures.importing", "Analysis normal measures", increase(10));// 60%
 			importNormalMeasures();
 
 			importRiskProfileMeasures();
@@ -388,7 +395,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * import asset type values
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", 70));
+			messageHandler.update("info.asset_type_value.importing", "Import asset type values", increase(10));// 70%
 			importAssetTypeValues();
 
 			importAssetValues();
@@ -397,7 +404,7 @@ public class ImportAnalysis {
 			// * import maturity measures
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_measure.importing", "Import maturity measures", 80));
+			messageHandler.update("info.maturity_measure.importing", "Import maturity measures", increase(10));// 80%
 			importMaturityMeasures();
 
 			if (measures != null)
@@ -405,7 +412,7 @@ public class ImportAnalysis {
 
 			// System.out.println("Saving Data to Database...");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", 90));
+			messageHandler.update("import.saving.analysis", "Saving Data to Database", increase(5));// 90%
 
 			System.out.println("Saving Analysis Data...");
 
@@ -423,10 +430,10 @@ public class ImportAnalysis {
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			messageHandler.update("info.commit.transcation", "Commit transaction", increase(5));// 95%
 			if (session != null) {
 				session.getTransaction().commit();
-				serviceTaskFeedback.send(idTask, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100));
+				messageHandler.update("success.saving.analysis", "Analysis has been successfully saved", increase(5));// 100%
 			}
 			System.out.println("Import Done!");
 
@@ -821,7 +828,10 @@ public class ImportAnalysis {
 		if (!versions.isEmpty())
 			Collections.sort(versions, comparator);
 
-		this.analysis.setVersion(this.analysis.getLastHistory().getVersion());
+		if (this.analysis.getHistories().isEmpty())
+			this.analysis.setVersion("1.0.0");
+		else
+			this.analysis.setVersion(this.analysis.getLastHistory().getVersion());
 
 		// ****************************************************************
 		// * Parse all history entries except last one
@@ -3287,6 +3297,60 @@ public class ImportAnalysis {
 		} catch (SQLException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * @return the maxProgress
+	 */
+	public int getMaxProgress() {
+		return maxProgress;
+	}
+
+	/**
+	 * @param maxProgress
+	 *            the maxProgress to set
+	 */
+	public void setMaxProgress(int maxProgress) {
+		this.maxProgress = maxProgress;
+	}
+
+	/**
+	 * @return the progress
+	 */
+	public int getProgress() {
+		return progress;
+	}
+
+	/**
+	 * @param progress
+	 *            the progress to set
+	 */
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	/**
+	 * @return the globalProgress
+	 */
+	public int getGlobalProgress() {
+		return globalProgress;
+	}
+
+	/**
+	 * @param globalProgress
+	 *            the globalProgress to set
+	 */
+	public void setGlobalProgress(int globalProgress) {
+		this.globalProgress = globalProgress;
+	}
+
+	public int increase(int value) {
+		if (!(value < 0 || value > 100)) {
+			progress += value;
+			if (progress > 100)
+				setProgress(100);
+		}
+		return (int) (globalProgress + (maxProgress - globalProgress) * 0.01 * progress);
 	}
 
 }

@@ -527,15 +527,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Analysis getDefaultProfile() {
-		return (Analysis) getSession().createQuery("Select analysis From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true").uniqueResultOptional()
-				.orElse(null);
+	public Analysis getDefaultProfile(AnalysisType analysisType) {
+		return (Analysis) getSession()
+				.createQuery("Select analysis From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type")
+				.setParameter("type", analysisType).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public int getDefaultProfileId() {
-		return (int) getSession().createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true").uniqueResultOptional()
+	public int getDefaultProfileId(AnalysisType analysisType) {
+		return (int) getSession().createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type").setParameter("type", analysisType).uniqueResultOptional()
 				.orElse(-1);
 	}
 
@@ -755,7 +756,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isProfile(Integer analysisid) {
-		return (boolean) getSession().createQuery("Select analysis.profile From Analysis analysis where analysis.id = :identifier").setParameter("identifier", analysisid)
+		return (boolean) getSession().createQuery("Select analysis.profile From Analysis analysis where analysis.id = :analysisid").setParameter("analysisid", analysisid)
 				.uniqueResultOptional().orElse(false);
 
 	}
@@ -852,5 +853,26 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			getSession().delete(tmpstandard);
 		}
 
+	}
+
+	@Override
+	public boolean hasDefault(AnalysisType analysisType) {
+		return getSession()
+				.createQuery("Select count(analysis) > 0 From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type",
+						Boolean.class)
+				.setParameter("type", analysisType).uniqueResultOptional().orElse(false);
+	}
+
+	@Override
+	public List<Analysis> getDefaultProfiles() {
+		return getSession().createQuery("Select analysis From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true", Analysis.class).getResultList();
+	}
+
+	@Override
+	public boolean isDefaultProfile(int analysisId) {
+		return getSession()
+				.createQuery("Select count(analysis) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.defaultProfile = true and analysis.profile = true",
+						Boolean.class)
+				.setParameter("idAnalysis", analysisId).uniqueResultOptional().orElse(false);
 	}
 }

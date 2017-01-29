@@ -4,6 +4,8 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -18,8 +20,11 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -29,6 +34,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 
 	private String currentVersion;
 
+	private AnalysisType analysisType;
 
 	@Override
 	public void run() {
@@ -37,9 +43,9 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		super.run();
 	}
 
-	public WorkerTSInstallation(String version, WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String ownerUsername)
-			throws IOException {
-		super(workersPoolManager,sessionFactory, serviceTaskFeedback, filename, customerId, ownerUsername);
+	public WorkerTSInstallation(String version, WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback,
+			List<String> fileNames, int customerId, String ownerUsername) throws IOException {
+		super(workersPoolManager, sessionFactory, serviceTaskFeedback, fileNames, customerId, ownerUsername);
 		setCurrentVersion(version);
 		setCanDeleteFile(false);
 	}
@@ -49,20 +55,15 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		Session session = null;
 		try {
 			super.OnStarted();
-			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profile", 1));
+			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profiles", 1));
 			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
-			Analysis analysis = daoAnalysis.getDefaultProfile();
-			if (analysis != null) {
+			List<Analysis> analyses = daoAnalysis.getDefaultProfiles();
+			if (!analyses.isEmpty()) {
 				session.beginTransaction();
-				daoAnalysis.delete(analysis);
+				analyses.forEach(analysis -> daoAnalysis.delete(analysis));
 				session.getTransaction().commit();
 			}
-			analysis = new Analysis();
-			analysis.setProfile(true);
-			analysis.setDefaultProfile(true);
-			analysis.setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
-			getImportAnalysis().setAnalysis(analysis);
 		} catch (Exception e) {
 			if (session != null && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
@@ -71,6 +72,24 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			if (session != null && session.isOpen())
 				session.close();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport#process(
+	 * java.lang.String, org.hibernate.Session,
+	 * lu.itrust.business.TS.usermanagement.User,
+	 * lu.itrust.business.TS.model.general.Customer)
+	 */
+	@Override
+	protected void process(int index, String fileName, Session session, User user, Customer customer) throws ClassNotFoundException, SQLException, Exception {
+		Analysis analysis = new Analysis();
+		analysis.setProfile(true);
+		analysis.setDefaultProfile(true);
+		getImportAnalysis().setAnalysis(analysis);
+		super.process(index, fileName, session, user, customer);
 	}
 
 	/*
@@ -143,6 +162,21 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 
 	public void setCurrentVersion(String currentVersion) {
 		this.currentVersion = currentVersion;
+	}
+
+	/**
+	 * @return the analysisType
+	 */
+	public AnalysisType getAnalysisType() {
+		return analysisType;
+	}
+
+	/**
+	 * @param analysisType
+	 *            the analysisType to set
+	 */
+	public void setAnalysisType(AnalysisType analysisType) {
+		this.analysisType = analysisType;
 	}
 
 }

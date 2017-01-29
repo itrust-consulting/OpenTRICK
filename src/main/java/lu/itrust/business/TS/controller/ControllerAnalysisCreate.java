@@ -47,6 +47,7 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
@@ -144,6 +145,9 @@ public class ControllerAnalysisCreate {
 
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+
+	@Autowired
+	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -363,10 +367,15 @@ public class ControllerAnalysisCreate {
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
 			if (analysisForm.getImpacts().isEmpty()) {
+				
+				mappingParameters.putAll(serviceRiskAcceptanceParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+				
 				mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+				
 			} else {
 				analysisForm.getScale().setLevel(analysisForm.getScale().getLevel() + 1);
 				generateLikelihoodParameters(analysis, mappingParameters, 12, analysisForm.getScale().getLevel());

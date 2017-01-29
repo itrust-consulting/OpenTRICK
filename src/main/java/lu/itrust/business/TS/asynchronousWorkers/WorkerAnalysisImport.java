@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -35,7 +37,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 
 	private int customerId;
 
-	private String fileName;
+	private List<String> fileNames;
 
 	private String username;
 
@@ -43,30 +45,27 @@ public class WorkerAnalysisImport extends WorkerImpl {
 
 	private MessageHandler messageHandler;
 
-
-	public WorkerAnalysisImport(WorkersPoolManager workersPoolManager,SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String userName) throws IOException {
+	public WorkerAnalysisImport(WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, List<String> filenames,
+			int customerId, String userName) throws IOException {
 		super(workersPoolManager, sessionFactory);
 		setUsername(userName);
 		setCustomerId(customerId);
-		setFileName(filename);
+		setFileNames(filenames);
 		setImportAnalysis(new ImportAnalysis());
 		setSessionFactory(sessionFactory);
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
-	public WorkerAnalysisImport(WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, File importFile, int customerId, String userName) throws IOException {
+	public WorkerAnalysisImport(WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, File importFile, int customerId,
+			String userName) throws IOException {
 		super(workersPoolManager, sessionFactory);
 		setUsername(userName);
 		setCustomerId(customerId);
-		setFileName(importFile.getCanonicalPath());
+		setFileNames(new LinkedList<>());
+		getFileNames().add(importFile.getCanonicalPath());
 		setImportAnalysis(new ImportAnalysis());
 		setSessionFactory(sessionFactory);
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
-	}
-
-	public void initialise(File importFile, int customerId) throws IOException {
-		setCustomerId(customerId);
-		setFileName(importFile.getCanonicalPath());
 	}
 
 	/*
@@ -108,29 +107,17 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				}
 			}
 			if (canDeleteFile) {
-				File file = new File(fileName);
-				if (file.exists()) {
-					if (!file.delete()) {
-						file.deleteOnExit();
+				fileNames.forEach(fileName -> {
+					File file = new File(fileName);
+					if (file.exists()) {
+						if (!file.delete()) {
+							file.deleteOnExit();
+						}
 					}
-				}
+				});
+
 			}
 		}
-	}
-
-	/**
-	 * @return the fileName
-	 */
-	public String getFileName() {
-		return fileName;
-	}
-
-	/**
-	 * @param fileName
-	 *            the fileName to set
-	 */
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
 	}
 
 	/**
@@ -198,7 +185,6 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	@Override
 	public void run() {
 		Session session = null;
-		DatabaseHandler DatabaseHandler = null;
 		try {
 			synchronized (this) {
 				if (getPoolManager() != null && !getPoolManager().exist(getId()))
@@ -209,7 +195,6 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				OnStarted();
 			}
 			setStarted(new Timestamp(System.currentTimeMillis()));
-			DatabaseHandler = new DatabaseHandler(fileName);
 			session = getSessionFactory().openSession();
 			User user = new DAOUserHBM(session).get(username);
 			if (user == null)
@@ -217,11 +202,10 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			Customer customer = new DAOCustomerHBM(session).get(customerId);
 			if (customer == null)
 				throw new TrickException("error.customer.not_exist", "Customer does not exist");
-			importAnalysis.updateAnalysis(customer, user);
-			importAnalysis.setIdTask(getId());
-			importAnalysis.setDatabaseHandler(DatabaseHandler);
-			if (importAnalysis.ImportAnAnalysis(session))
-				OnSuccess();
+			int index = 1;
+			for (String fileName : fileNames)
+				process(index++, fileName, session, user, customer);
+
 		} catch (TrickException e) {
 			try {
 				TrickLogManager.Persist(e);
@@ -259,22 +243,32 @@ public class WorkerAnalysisImport extends WorkerImpl {
 						}
 					}
 				}
-				
-				try {
-					if(DatabaseHandler!=null)
-						DatabaseHandler.close();
-				} catch (SQLException e) {
-				}
-			
-				if (canDeleteFile) {
-					File file = new File(fileName);
-					if (file.exists()) {
-						if (!file.delete())
-							file.deleteOnExit();
-					}
-				}
+
 			}
 
+		}
+	}
+
+	protected void process(int index, String fileName, Session session, User user, Customer customer) throws ClassNotFoundException, SQLException, Exception {
+		DatabaseHandler databaseHandler = null;
+		try {
+			databaseHandler = new DatabaseHandler(fileName);
+			importAnalysis.setProgress(0);
+			importAnalysis.setMaxProgress((int) (((double) index / (double) fileNames.size()) * 97));
+			importAnalysis.setGlobalProgress((int) (((double) (index - 1) / (double) fileNames.size()) * 95) + 2);
+			importAnalysis.updateAnalysis(customer, user);
+			importAnalysis.setIdTask(getId());
+			importAnalysis.setDatabaseHandler(databaseHandler);
+			if (importAnalysis.ImportAnAnalysis(session))
+				OnSuccess();
+		} finally {
+			if (databaseHandler != null)
+				databaseHandler.close();
+			if (canDeleteFile) {
+				File file = new File(fileName);
+				if (file.exists() && !file.delete())
+					file.deleteOnExit();
+			}
 		}
 	}
 
@@ -321,6 +315,21 @@ public class WorkerAnalysisImport extends WorkerImpl {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	/**
+	 * @return the fileNames
+	 */
+	public List<String> getFileNames() {
+		return fileNames;
+	}
+
+	/**
+	 * @param fileNames
+	 *            the fileNames to set
+	 */
+	public void setFileNames(List<String> fileNames) {
+		this.fileNames = fileNames;
 	}
 
 }

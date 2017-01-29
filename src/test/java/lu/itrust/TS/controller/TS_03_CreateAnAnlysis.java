@@ -114,7 +114,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		Customer customer = serviceCustomer.getFromContactPerson("me");
 		notNull(customer, "'me' customer cannot be found");
 		CUSTOMER_ID = customer.getId();
-		DEFAULT_PROFILE = serviceAnalysis.getDefaultProfileId();
+		DEFAULT_PROFILE = serviceAnalysis.getDefaultProfileId(AnalysisType.QUANTITATIVE);
 	}
 
 	@Test(timeOut = 120000, dependsOnMethods = "test_00_loadData")
@@ -203,7 +203,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 	public void test_09_GenerateScenrioAssetTypeValue() throws Exception {
 		List<AssetType> assetTypes = serviceAssetType.getAll();
 		for (AssetType assetType : assetTypes)
-			SCENARIO_ASSET_TYPE_VALUE += String.format(",\"%s\":%d", assetType.getType(), 1);
+			SCENARIO_ASSET_TYPE_VALUE += String.format(",\"%d\":%d", assetType.getId(), 1);
 	}
 
 	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
@@ -211,7 +211,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/Scenario/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.content(String.format(
-						"{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\"%s, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
+						"{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s, \"assetTypes\" : {%s}, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
 						"Scenario test", 1, false, "Test scenario", SCENARIO_ASSET_TYPE_VALUE)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 	}

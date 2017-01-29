@@ -42,6 +42,31 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
+function exportAnalysis(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	$.ajax({
+		url : context + "/Analysis/Export/" + analysisId,
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response["success"] != undefined) {
+				application["taskManager"].Start();
+			} else if (response["error"] != undefined) {
+				$("#alert-dialog .modal-body").html(response["error"]);
+				$("#alert-dialog").modal("toggle");
+			} else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function setAsDefaultProfile(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -51,8 +76,9 @@ function setAsDefaultProfile(analysisId) {
 	}
 
 	$.ajax({
-		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
+		url : context + "/AnalysisProfile/SetDefaultProfile/" + analysisId,
 		type : "POST",
+		data : "\"" + $("tr[data-trick-id='" + analysisId + "']", "#section_profile_analysis").attr('data-trick-type') + "\"",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			reloadSection("section_profile_analysis");
@@ -134,13 +160,13 @@ function deleteAnalysis(analysisId) {
 			success : function(response, textStatus, jqXHR) {
 				$("#deleteprogressbar").hide();
 				$("#deleteanalysisbuttonYes").prop("disabled", false);
-				$("#deleteAnalysisModel").modal('toggle');
-				if (response.success != undefined) {
+				$("#deleteAnalysisModel").modal('hide');
+				if (response.success != undefined)
 					reloadSection("section_profile_analysis");
-				} else if (response.error != undefined) {
-					$("#alert-dialog .modal-body").html(response.error);
-					$("#alert-dialog").modal("toggle");
-				}
+				else if (response.error != undefined)
+					showDialog("#alert-dialog", response.error);
+				else
+					unknowError();
 				return false;
 			},
 			error : unknowError

@@ -52,6 +52,7 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisRightForm;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
@@ -106,7 +107,7 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private ServiceIDS serviceIDS;
 
@@ -243,7 +244,7 @@ public class ControllerAdministration {
 
 		if (status != null) {
 
-			if (status.isInstalled() == false && serviceAnalysis.getDefaultProfile() != null)
+			if (!status.isInstalled() && serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE) && serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE))
 				status.setInstalled(true);
 
 			if (version.equals(status.getVersion()))
@@ -257,10 +258,10 @@ public class ControllerAdministration {
 
 		status = new TrickService(version, installed);
 
-		if (serviceAnalysis.getDefaultProfile() != null)
+		if (!(serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE) || serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE)))
 			status.setInstalled(true);
 
-		serviceTrickService.save(status);
+		serviceTrickService.saveOrUpdate(status);
 
 		return status;
 
@@ -704,7 +705,7 @@ public class ControllerAdministration {
 			else
 				user.setEmail(email);
 		}
-		
+
 		if (!principal.getName().equals(user.getLogin())) {
 
 			user.getRoles().forEach(role -> userRoles.add(role));
@@ -723,5 +724,5 @@ public class ControllerAdministration {
 		}
 		return user;
 	}
-	
+
 }

@@ -15,6 +15,8 @@
 						code="label.menu.analysis.set_default.profile" text="Set as default" /></a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-align-justify"></span> <spring:message
 						code="label.edit.info" text="Edit info" /></a></li>
+			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span
+							class="glyphicon glyphicon glyphicon-export"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
 			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>
@@ -23,6 +25,7 @@
 				<tr>
 					<th width="1%"></th>
 					<th width="50%"><spring:message code="label.analysis.label" text="Name"/></th>
+					<th width="5%"><spring:message code="label.analysis.type" text="Type" /></th>
 					<th><spring:message code="label.analysis.creation_date" text="Create date"/></th>
 					<th><spring:message code="label.analysis.owner" text="Owner" /></th>
 					<th><spring:message code="label.analysis.language" text="Language"/></th>
@@ -31,10 +34,11 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-empty="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
+					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-type="${analysis.type}" data-trick-rights-id="0" data-empty="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_profile_analysis','#menu_analysis');"></td>
 						<td><spring:message text="${analysis.label}"/></td>
-						<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
+						<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm"/></td>
 						<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}"/></td>
 						<td><spring:message text="${analysis.language.name}"/></td>
 						<td><spring:message code="label.yes_no.${fn:toLowerCase(analysis.defaultProfile)}" text="${analysis.defaultProfile?'Yes':'No'}" /></td>

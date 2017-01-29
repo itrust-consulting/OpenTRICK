@@ -81,9 +81,11 @@ public interface DAOAnalysis {
 
 	public List<Customer> getCustomersByIdAnalysis(String identifier);
 
-	public Analysis getDefaultProfile();
+	public Analysis getDefaultProfile(AnalysisType analysisType);
+	
+	public List<Analysis> getDefaultProfiles();
 
-	public int getDefaultProfileId();
+	public int getDefaultProfileId(AnalysisType analysisType);
 
 	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID);
 
@@ -191,5 +193,9 @@ public interface DAOAnalysis {
 	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username);
 
 	public AnalysisType getAnalysisTypeById(int idAnalysis);
+
+	public boolean hasDefault(AnalysisType analysisType);
+
+	public boolean isDefaultProfile(int analysisId);
 
 }

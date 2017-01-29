@@ -59,8 +59,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 */
 
 	@Override
-	public Analysis getDefaultProfile()  {
-		return daoAnalysis.getDefaultProfile();
+	public Analysis getDefaultProfile(AnalysisType analysisType)  {
+		return daoAnalysis.getDefaultProfile(analysisType);
 	}
 
 	/**
@@ -478,8 +478,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public int getDefaultProfileId() {
-		return daoAnalysis.getDefaultProfileId();
+	public int getDefaultProfileId(AnalysisType analysisType) {
+		return daoAnalysis.getDefaultProfileId(analysisType);
 	}
 
 	@Override
@@ -697,5 +697,20 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public AnalysisType getAnalysisTypeById(int idAnalysis) {
 		return daoAnalysis.getAnalysisTypeById(idAnalysis);
+	}
+
+	@Override
+	public boolean hasDefault(AnalysisType analysisType) {
+		return daoAnalysis.hasDefault(analysisType);
+	}
+
+	@Override
+	public List<Analysis> getDefaultProfiles() {
+		return daoAnalysis.getDefaultProfiles();
+	}
+
+	@Override
+	public boolean isDefaultProfile(int analysisId) {
+		return daoAnalysis.isDefaultProfile(analysisId);
 	}
 }

@@ -13,6 +13,7 @@ import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -114,10 +115,13 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	@Test
 	@Transactional(readOnly = true)
 	public void test_07_CheckAnalysisProfile() throws Exception {
-		Analysis analysis = serviceAnalysis.getDefaultProfile();
-		notNull(analysis, "Default Analysis profile cannot be found");
-		isTrue(analysis.isProfile(), "Analysis should be a profile");
-		isTrue(analysis.isDefaultProfile(), "Analysis should be default profile");
+		List<Analysis> analyses = serviceAnalysis.getDefaultProfiles();
+		notNull(analyses, "Default Analysis profile cannot be found");
+		analyses.forEach(analysis-> {
+			isTrue(analysis.isProfile(), "Analysis should be a profile");
+			isTrue(analysis.isDefaultProfile(), "Analysis should be default profile");
+		});
+	
 	}
 
 	@Test

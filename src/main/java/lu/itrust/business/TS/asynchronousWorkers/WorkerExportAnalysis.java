@@ -116,7 +116,7 @@ public class WorkerExportAnalysis implements Worker {
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis == null)
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
-			else if (!analysis.hasData())
+			else if (!(analysis.hasData() || analysis.isProfile()))
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null));
 			else {
 				sqlite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
