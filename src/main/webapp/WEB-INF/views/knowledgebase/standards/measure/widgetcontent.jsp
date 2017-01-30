@@ -47,9 +47,6 @@
 					</div>
 					<div id="measurelanguages"></div>
 				</form>
-				<div id="save-measure-progress-bar" class="progress progress-striped active" hidden="true" style="margin-bottom: -17px;">
-					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-				</div>
 			</div>
 			<div class="modal-footer">
 				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">

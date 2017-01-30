@@ -41,7 +41,7 @@ function switchCustomer(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (!isProfile("#" + section) || selectedAnalysis.length != 1)
 		return false;
-	var idAnalysis = selectedAnalysis[0];
+	var $progress = $("#loading-indicator").show(), idAnalysis = selectedAnalysis[0];
 	$.ajax({
 		url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer",
 		type : "get",
@@ -55,13 +55,14 @@ function switchCustomer(section) {
 					$content.appendTo("#widget");
 				$content.find(".modal-footer>button[name='save']").on("click", function() {
 					$content.find(".label").remove();
+					$progress.show();
 					$.ajax({
 						url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer/" + $content.find("select").val(),
 						type : "post",
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
 							if (response["success"] != undefined) {
-								adminCustomerChange($("#tab_analyses").find("select"));
+								adminCustomerChange($("#tab-analyses").find("select"));
 								$content.modal("hide");
 							} else if (response["error"] != undefined)
 								$("<label class='label label-danger' />").text(response["error"]).appendTo($content.find("select").parent());
@@ -69,6 +70,8 @@ function switchCustomer(section) {
 								unknowError();
 						},
 						error : unknowError
+					}).complete(function() {
+						$progress.hide();
 					});
 				});
 				$content.modal("show");
@@ -76,6 +79,8 @@ function switchCustomer(section) {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }
@@ -84,7 +89,7 @@ function switchOwner(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (!isProfile("#" + section) || selectedAnalysis.length != 1)
 		return false;
-	var idAnalysis = selectedAnalysis[0];
+	var $progress = $("#loading-indicator").show(), idAnalysis = selectedAnalysis[0];
 	$.ajax({
 		url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Owner",
 		type : "get",
@@ -101,13 +106,14 @@ function switchOwner(section) {
 						$content.appendTo($("#widget"));
 					$content.find(".modal-footer>button[name='save']").on("click", function() {
 						$content.find(".label").remove();
+						$progress.show();
 						$.ajax({
 							url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Owner/" + $content.find("select").val(),
 							type : "post",
 							contentType : "application/json;charset=UTF-8",
 							success : function(response, textStatus, jqXHR) {
 								if (response["success"] != undefined) {
-									$("#tab_analyses").find("select").change();
+									$("#tab-analyses").find("select").trigger("change");
 									$content.modal("hide");
 								} else if (response["error"] != undefined)
 									$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
@@ -115,6 +121,8 @@ function switchOwner(section) {
 									unknowError();
 							},
 							error : unknowError
+						}).complete(function() {
+							$progress.hide();
 						});
 					});
 					$content.modal("show");
@@ -123,6 +131,8 @@ function switchOwner(section) {
 			}
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }
@@ -301,33 +311,33 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	$(modal.modal).find("#deleteanalysisbuttonNo").click(function() {
 		modal.Destroy();
 	});
-	$(modal.modal).find("#deleteanalysisbuttonYes").click(function() {
-		$(modal.modal).find("#deleteprogressbar").show();
-		$(modal.modal).find(".btn").prop("disabled", true);
-		$.ajax({
-			url : context + "/Admin/Analysis/Delete",
-			type : "post",
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(selectedAnalysis),
-			success : function(response, textStatus, jqXHR) {
-				if (response === true)
-					$("#section_admin_analysis select").change();
-				else if (response === false) {
-					var error = new Modal($("#alert-dialog").clone())
-					if (selectedAnalysis.length == 1)
-						error.setBody(MessageResolver("failed.delete.analysis", "Analysis cannot be deleted!"));
-					else
-						error.setBody(MessageResolver("failed.delete.analyses", "Analyses cannot be deleted!"));
-					error.Show();
-				} else
-					unknowError();
+	$(modal.modal).find("#deleteanalysisbuttonYes").click(
+			function() {
+				var $progress = $("#loading-indicator").show()
+				$(modal.modal).find(".btn").prop("disabled", true);
+				$.ajax(
+						{
+							url : context + "/Admin/Analysis/Delete",
+							type : "post",
+							contentType : "application/json;charset=UTF-8",
+							data : JSON.stringify(selectedAnalysis),
+							success : function(response, textStatus, jqXHR) {
+								if (response === true)
+									$("#section_admin_analysis select").change();
+								else if (response === false)
+									showDialog("#alert-dialog", selectedAnalysis.length == 1 ? MessageResolver("failed.delete.analysis", "Analysis cannot be deleted!")
+											: MessageResolver("failed.delete.analyses", "Analyses cannot be deleted!"));
+								else
+									unknowError();
+								return false;
+							},
+							error : unknowError
+						}).complete(function() {
+					$progress.hide();
+				});
+				modal.Destroy();
 				return false;
-			},
-			error : unknowError
-		});
-		modal.Destroy();
-		return false;
-	});
+			});
 	$(modal.modal).find("#deleteanalysisbuttonYes").prop("disabled", false);
 	modal.Show();
 	return false;

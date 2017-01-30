@@ -804,7 +804,8 @@ function customAnalysis(element) {
 													});
 													setTimeout(function() {
 														modal.Destroy();
-														reloadSection("section_analysis");
+														$("select#nameSelectorFilter").val("ALL");
+														$("select#customerSelectorFilter").val($("form select[name='customer']", $modalBody).val()).trigger("change");
 													}, 1000);
 													$saveButton.unbind();
 												} else {

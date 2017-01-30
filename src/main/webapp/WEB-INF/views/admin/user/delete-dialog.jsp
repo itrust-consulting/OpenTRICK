@@ -9,17 +9,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<div class="modal-title">
-					<h4 class="col-md-6">
-						<spring:message code="label.title.delete.user" text="Delete user" />
-					</h4>
-					<div class="col-md-6">
-						<div class="progress progress-striped active" style="margin-bottom: 5px; margin-top: 8px;">
-							<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-						</div>
-					</div>
-					<div class="clearfix"></div>
-				</div>
+				<h4 class="modal-title"><spring:message code="label.title.delete.user" text="Delete user" /></h4>
 			</div>
 			<div class="modal-body">
 				<p>

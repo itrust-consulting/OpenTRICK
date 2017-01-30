@@ -167,9 +167,7 @@ function editSingleMeasure(measureId, idStandard) {
 }
 
 function saveMeasure() {
-	var $modal = $("#addMeasureModel"), $form = $("#measure_form", $modal), $progressBar = $("#save-measure-progress-bar", $modal), $buttonSubmit = $("#addmeasurebutton", $modal);
-	$buttonSubmit.prop("disabled", true);
-	$progressBar.show();
+	var $progress = $("#loading-indicator").show(), $modal = $("#addMeasureModel"), $form = $("#measure_form", $modal), $progressBar = $("#save-measure-progress-bar", $modal), $buttonSubmit = $("#addmeasurebutton", $modal);
 	$.ajax({
 		url : $form.prop("action"),
 		type : "post",
@@ -205,14 +203,13 @@ function saveMeasure() {
 				$modal.modal("hide");
 				var language = $("#languageselect", "#section_kb_measure").val(), idStandard = $("#idStandard", "#section_kb_measure").val();
 				showMeasures(idStandard, language, $("#measure_id", $form).val() < 1);
-			} else
-				$("#progress-dialog").modal("hide");
+			}
 			return false;
 		},
 		error : unknowError,
 		complete : function() {
 			$buttonSubmit.prop("disabled", false);
-			$progressBar.hide();
+			$progress.hide();
 		}
 	});
 
