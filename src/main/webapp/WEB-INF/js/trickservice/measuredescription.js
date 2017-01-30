@@ -27,7 +27,7 @@ function showTabMeasure(idStandard, idLanguage) {
 		$measureTab.show();
 	else
 		$measureTab.hide();
-	var $tab = $("#tab_measure"), $section = $("#section_kb_measure");
+	var $tab = $("#tab-measure"), $section = $("#section_kb_measure");
 	$tab.attr("data-update-required", !($section.attr("data-standard-id") == idStandard && $section.attr("data-language-id") == idLanguage));
 }
 

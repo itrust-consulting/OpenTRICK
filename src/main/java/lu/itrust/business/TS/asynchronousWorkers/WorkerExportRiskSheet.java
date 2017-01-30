@@ -304,9 +304,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			}
 
 			if (actionPlan.isEmpty())
-				setCellString(row, index++, estimation.getActionPlan());
+				setCellString(row, index++, estimation.getActionPlan() == null || estimation.getActionPlan().isEmpty() ? "" : estimation.getActionPlan());
 			else {
-				if (!estimation.getActionPlan().isEmpty())
+				if (!(estimation.getActionPlan() == null || estimation.getActionPlan().isEmpty()))
 					actionPlan.add(estimation.getActionPlan());
 				setCellString(row, index++, String.join("\n\r", actionPlan));
 			}

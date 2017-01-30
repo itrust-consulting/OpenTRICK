@@ -235,7 +235,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="saveScenario('scenario_form')">
+				<button type="button" class="btn btn-primary" onclick="return saveScenario('scenario_form')">
 					<spring:message code="label.action.save" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">

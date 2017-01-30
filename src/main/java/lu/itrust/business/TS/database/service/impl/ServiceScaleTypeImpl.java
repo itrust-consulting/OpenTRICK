@@ -164,4 +164,9 @@ public class ServiceScaleTypeImpl implements ServiceScaleType {
 	public List<ScaleType> findAllExpect(String... names) {
 		return daoScaleType.findAllExpect(names);
 	}
+
+	@Override
+	public ScaleType findOneByAnalysisId(Integer analysisId) {
+		return daoScaleType.findOneByAnalysisId(analysisId);
+	}
 }

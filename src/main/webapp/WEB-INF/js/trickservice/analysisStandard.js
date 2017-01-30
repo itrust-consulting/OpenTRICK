@@ -395,7 +395,7 @@ function saveMeasure(form, callback) {
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
 	$(".label-danger", $modalMeasureForm).remove();
-	data.id = $("#id",$form).val();
+	data.id = $("#id", $form).val();
 	data.idStandard = $("#idStandard", $form).val();
 	data.assetValues = [];
 	if ($assetTab.length) {
@@ -451,9 +451,10 @@ function saveMeasure(form, callback) {
 				}
 			}
 			if (response.id != undefined) {
-				if(!callback)
+				if (!callback)
 					$modalMeasureForm.modal("hide");
-				else callback();
+				else
+					callback();
 				if (data.id > 0)
 					reloadMeasureRow(data.id, data.idStandard);
 				else
@@ -525,15 +526,13 @@ function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if ((error = response["success"] == undefined)) {
-				var $errorModal = $("#alert-dialog");
-				if ($errorModal.is(":hidden")) {
-					if (response["error"] != undefined)
-						showDialog("#alert-dialog",response["error"]);
-					else
-						showDialog("#alert-dialog", MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
-				}
+				if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else
+					showDialog("#alert-dialog", MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
 			} else {
 				$("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + idStandard).remove();
+				forceUpdateMenu($("#section_standard_" + idStandard));
 				removeFromMeasureNavigation(idStandard, idMeasure);
 			}
 		},

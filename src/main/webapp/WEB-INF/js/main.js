@@ -772,19 +772,26 @@ function oldversionComparator(version1, version2) {
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
 	if (current != undefined) {
-		if (target === current)
+		if (target === current.$element[0])
 			return e;
-		else
-			$(current).tooltip("hide");
+		else if ($(current.$tip).is(":visible")) {
+			current.hide();
+			current.inState.click = false;
+		}
 	} else
-		$(".tooltip").remove();
-	application["settings-open-tooltip"] = target;
+		$(".tooltip.fade.in:visible").remove();
+	application["settings-open-tooltip"] = $(target).data("bs.tooltip");
 	return e;
+}
+
+function forceUpdateMenu($section){
+	if (!$("tbody>tr:first input[type='checkbox']", $section).trigger("change").length)
+		$("input[type='checkbox']:first", $section).trigger("change");
 }
 
 function closeToolTips() {
 	if (application["settings-open-tooltip"]) {
-		$(application["settings-open-tooltip"]).tooltip("hide");
+		application["settings-open-tooltip"].hide();
 		delete application["settings-open-tooltip"];
 	}
 }
@@ -828,7 +835,7 @@ function displayTimeoutWarning(counter) {
 function forceCloseToolTips() {
 	closeToolTips();
 	setTimeout(function() {
-		$(".tooltip.fade.top.in:visible").remove();
+		$(".tooltip.fade.in:visible").remove();
 	}, 100);
 }
 
@@ -891,7 +898,7 @@ $(document)
 												displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expire.monitor",
 														"It seems you have many tabs opened on TS, Session timeout monitoring is not supported that, it is now disabled."));
 										});
-									}, 5000);
+									}, 10000);
 								},
 								onActive : function() {
 									if (application['sessionNotification']) {

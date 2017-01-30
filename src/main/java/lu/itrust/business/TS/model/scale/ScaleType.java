@@ -115,7 +115,7 @@ public class ScaleType extends AbstractParameterType {
 
 	public String getTranslate(String key) {
 		Translation translation = get(key);
-		return translation == null ? null : translation.getName();
+		return translation == null ? getDisplayName() : translation.getName();
 	}
 
 	public String getShortName(String key) {

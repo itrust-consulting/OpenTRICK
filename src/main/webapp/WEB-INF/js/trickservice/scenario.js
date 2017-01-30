@@ -1,7 +1,7 @@
 function editScenario(rowTrickId, isAdd) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (isAdd) {
-			var selectedScenario = $("#section_scenario :checked");
+			var selectedScenario = $("#section_scenario:visible :checked");
 			if (selectedScenario.length != 0)
 				return false;
 			rowTrickId = undefined;
@@ -61,8 +61,8 @@ function editScenario(rowTrickId, isAdd) {
 
 function saveScenario(form) {
 	try {
-		var $progress = $("#loading-indicator").show(), $scenarioModal = $("#addScenarioModal"), $form = $("#"+form), scenario = serializeScenario($form);
-		$(".label-danger",$scenarioModal).remove();
+		var $progress = $("#loading-indicator").show(), $scenarioModal = $("#addScenarioModal"), $form = $("#" + form), scenario = serializeScenario($form);
+		$(".label-danger", $scenarioModal).remove();
 		$.ajax({
 			url : context + "/Analysis/Scenario/Save",
 			type : "post",
@@ -76,45 +76,47 @@ function saveScenario(form) {
 						$errorElement.appendTo($("#scenario_name", $scenarioModal).parent());
 						break;
 					case "scenarioType":
-						$errorElement.appendTo($("#scenario_scenariotype_id",$scenarioModal).parent());
+						$errorElement.appendTo($("#scenario_scenariotype_id", $scenarioModal).parent());
 						break;
 					case "description":
-						$errorElement.appendTo($("#scenario_description",$scenarioModal).parent());
+						$errorElement.appendTo($("#scenario_description", $scenarioModal).parent());
 						break;
 					case "selected":
-						$errorElement.appendTo($("#asset_selected",$scenarioModal).parent());
+						$errorElement.appendTo($("#asset_selected", $scenarioModal).parent());
 						break;
 					case "scenario":
 						$errorElement.appendTo($("#error_scenario_container"));
 						break;
 					}
 				}
-				if (!$(".label-danger",$scenarioModal).length) {
+				if (!$(".label-danger", $scenarioModal).length) {
 					$scenarioModal.modal("hide");
 					reloadSection("section_scenario");
 					var type = "";
-					for (var assetType in scenario.assetTypes) {
-						if(scenario.assetTypes[assetType]=='1')
-							type+= (type.length == 0? '' : ';')+assetType;
+					for ( var assetType in scenario.assetTypes) {
+						if (scenario.assetTypes[assetType] == '1')
+							type += (type.length == 0 ? '' : ';') + assetType;
 					}
 					scenario.type = type;
 					scenario.id = response.id;
-					updateEstimationIteam("scenario",scenario);
+					updateEstimationIteam("scenario", scenario);
 				} else
-					$("li:not(.active) a[href='#tab_scenario_general']",$scenarioModal).tab("show");
+					$("li:not(.active) a[href='#tab_scenario_general']", $scenarioModal).tab("show");
 				return false;
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		});
 	} catch (e) {
+		$progress.hide();
 		switch (e) {
 		case "error.scenario.control.characteristic":
 			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please check control characteristics, sum must be 1"))
 					.appendTo($("#error_scenario_container"));
 			break;
 		case "error.scenario.threat.source":
+
 			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please define a threat source")).appendTo($("#error_scenario_container"));
 			break;
 		default:
@@ -145,11 +147,10 @@ function deleteScenario(scenarioId) {
 						type : 'POST',
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
-							if (response["success"] != undefined){
+							if (response["success"] != undefined) {
 								hasChange |= $("tr[data-trick-id='" + rowTrickId + "']", "#section_scenario").remove().length > 0;
-								removeEstimation("scenario",[rowTrickId]);
-							}
-							else if (response["error"] != undefined) {
+								removeEstimation("scenario", [ rowTrickId ]);
+							} else if (response["error"] != undefined) {
 								$("#alert-dialog .modal-body").html(response["error"]);
 								$("#alert-dialog").modal("toggle");
 							} else {
@@ -159,7 +160,7 @@ function deleteScenario(scenarioId) {
 							return false;
 						},
 						error : unknowError
-					}).complete(function(){
+					}).complete(function() {
 						if (!selectedScenario.length) {
 							if (hasChange)
 								reloadSection("section_scenario");
@@ -192,33 +193,30 @@ function deleteScenario(scenarioId) {
 }
 
 function serializeScenario($form) {
-	try {
-			var data = $form.serializeJSON(), total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
-	+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']),assetTypes = {};
-	
-	for (var field in data) {
-		if(field.startsWith("assetTypes[")){
-			assetTypes[field.replace("assetTypes['","").replace("']","")] = parseInt(data[field]|"0");
+	var data = $form.serializeJSON(), assetTypes = {};
+
+	for ( var field in data) {
+		if (field.startsWith("assetTypes[")) {
+			assetTypes[field.replace("assetTypes['", "").replace("']", "")] = parseInt(data[field] | "0");
 			delete data[field];
 		}
 	}
-	
+
 	data["assetTypes"] = assetTypes;
-	
+
 	data["scenarioType"] = {
 		"id" : parseInt(data["scenarioType"], 0),
 		"type" : $("#scenario_scenariotype_id option:selected").text()
 	};
-
-	if (Math.abs(1 - total) > 0.001)
-		throw "error.scenario.control.characteristic";
-	if (source == 0)
-		throw "error.scenario.threat.source";
-	return  data;
-	} catch (e) {
-		console.log(e);
-		return {};
+	if (application.analysisType == "QUANTITATIVE") {
+		var total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
+				+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);
+		if (Math.abs(1 - total) > 0.001)
+			throw "error.scenario.control.characteristic";
+		if (source == 0)
+			throw "error.scenario.threat.source";
 	}
+	return data;
 }
 
 function clearScenarioFormData() {
@@ -247,7 +245,7 @@ function selectScenario(scenarioId, value) {
 				type : 'post',
 				success : function(reponse) {
 					reloadSection('section_scenario');
-					updateEstimationSelect("scenario",requiredUpdates,value);
+					updateEstimationSelect("scenario", requiredUpdates, value);
 					return false;
 				},
 				error : unknowError
@@ -261,7 +259,7 @@ function selectScenario(scenarioId, value) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_scenario");
-					updateEstimationSelect("scenario",[scenarioId],value);
+					updateEstimationSelect("scenario", [ scenarioId ], value);
 					return false;
 				},
 				error : unknowError

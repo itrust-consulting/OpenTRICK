@@ -116,7 +116,7 @@
 												<select class="form-control" name="assettypes" id="assettypes">
 													<option value="ALL"><spring:message code="label.all" text="All" /></option>
 													<c:forEach items="${assetTypes}" var="assetType">
-														<option value="${assetType.type}" ${assetType.type.equals(selectedAssetType)?"selected='selected'":"" }><spring:message text="${assetType.type}" /></option>
+														<option value="${assetType.type}" ${assetType.type.equals(selectedAssetType)?"selected='selected'":"" }><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" /></option>
 													</c:forEach>
 												</select>
 											</div>

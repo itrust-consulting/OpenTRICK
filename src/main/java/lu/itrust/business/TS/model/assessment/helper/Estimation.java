@@ -127,7 +127,7 @@ public class Estimation {
 	 * @see lu.itrust.business.TS.model.cssf.RiskProfile#getActionPlan()
 	 */
 	public String getActionPlan() {
-		return riskProfile.getActionPlan();
+		return riskProfile == null ? "" : riskProfile.getActionPlan();
 	}
 
 	/**

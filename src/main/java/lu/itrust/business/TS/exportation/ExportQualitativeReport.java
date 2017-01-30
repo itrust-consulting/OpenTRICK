@@ -706,6 +706,8 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
 				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
 			else
 				colorBounds.add(
 						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
@@ -720,7 +722,8 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		paragraphOriginal = findTableAnchor(anchor);
 		if (paragraphOriginal != null) {
 			XWPFParagraph paragraph = document.insertNewParagraph(paragraphOriginal.getCTP().newCursor());
-			paragraph.setStyle("TabText1");
+			paragraph.setStyle("BodyOfText");
+			int index[] = { chart.getLegends().size() };
 			chart.getLegends().forEach(legend -> {
 				XWPFRun run = paragraph.createRun();
 				run.setText(legend.getLabel());
@@ -729,7 +732,10 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				cTShd.setVal(STShd.CLEAR);
 				cTShd.setColor("auto");
 				cTShd.setFill(legend.getColor().substring(1));
-				paragraph.createRun().addTab();
+				if (--index[0] > 0) {
+					paragraph.createRun().addTab();
+					paragraph.createRun().addTab();
+				}
 			});
 
 			paragraph.setAlignment(ParagraphAlignment.CENTER);

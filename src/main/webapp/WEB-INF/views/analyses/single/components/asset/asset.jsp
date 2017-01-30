@@ -13,7 +13,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<spring:message code="label.title.asset" />
+						<spring:message code="label.title.assets" />
 					</h3>
 				</div>
 			</div>
@@ -49,8 +49,8 @@
 						</c:otherwise>
 					</c:choose>
 					<th style="width:3%"><spring:message code="label.row.index" /></th>
-					<th style="width:25%"><spring:message code="label.asset.name" /></th>
-					<th style="width:5%"><spring:message code="label.asset.type" /></th>
+					<th style="width:20%"><spring:message code="label.asset.name" /></th>
+					<th style="width:8%"><spring:message code="label.asset.type" /></th>
 					<th style="width:6%"><spring:message code="label.asset.value" /></th>
 					<c:if test="${type == 'QUANTITATIVE'}">
 						<c:choose>

@@ -225,14 +225,15 @@ public class ControllerParameter {
 			}
 
 			if (!riskAcceptanceParameters.isEmpty()) {
-				analysis.getParameters().get(Constant.PARAMETER_CATEGORY_SIMPLE).removeIf(parameter -> riskAcceptanceParameters.containsKey(parameter.getId()));
+				analysis.getParameters().get(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE).removeIf(parameter -> riskAcceptanceParameters.containsKey(parameter.getId()));
 				serviceRiskAcceptanceParameter.delete(riskAcceptanceParameters.values());
 			}
 			serviceAnalysis.saveOrUpdate(analysis);
 			return JsonMessage.Success(messageSource.getMessage("success.update.risk_acceptance", null, "Risk acceptance has been successfully updated", locale));
 		} catch (Exception e) {
+			e.printStackTrace();
 			TrickLogManager.Persist(e);
-			if(e instanceof TrickException)
+			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}

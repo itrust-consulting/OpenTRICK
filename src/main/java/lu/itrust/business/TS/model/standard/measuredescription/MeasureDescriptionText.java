@@ -101,7 +101,7 @@ public class MeasureDescriptionText implements Cloneable {
 	 * @throws TrickException
 	 */
 	public void setDomain(String domain) throws TrickException {
-		if (domain == null || domain.trim().isEmpty())
+		if (domain == null)
 			throw new TrickException("error.measure_description.domain", "Measure Domain cannot be empty!");
 		this.domain = domain;
 	}

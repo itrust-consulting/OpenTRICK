@@ -16,7 +16,7 @@ $(function() {
 		else
 			l_lang = "en";
 
-		if (!(l_lang=="en" || l_lang=="en-GB" || l_lang == "en-US"))
+		if (!(l_lang == "en" || l_lang == "en-GB" || l_lang == "en-US"))
 			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
 		$("#addPhaseModel").on("hidden.bs.modal", function() {
 			$("#addPhaseModel .label").remove();
@@ -274,7 +274,7 @@ function deletePhase(idPhase) {
 			return false;
 		idPhase = selectedScenario[0];
 	}
-	
+
 	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		var $progress = $("#loading-indicator").show();
@@ -283,21 +283,16 @@ function deletePhase(idPhase) {
 			contentType : "application/json;charset=UTF-8",
 			type : 'POST',
 			success : function(response, textStatus, jqXHR) {
-				if (response["success"] != undefined) {
-					setTimeout(function() {
-						reloadSection("section_phase");
-					}, 200);
-				} else if (response["error"] != undefined) {
-					setTimeout(function() {
-						$("#alert-dialog .modal-body").html(response["error"]);
-						$("#alert-dialog").modal("toggle");
-					}, 200);
-				} else
+				if (response["success"] != undefined)
+					reloadSection("section_phase");
+				else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else
 					unknowError();
 				return false;
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		});
 	});
@@ -307,11 +302,11 @@ function deletePhase(idPhase) {
 
 // phase
 
-function extractPhase(that,defaultPhase) {
-	if(that.choose.length)
+function extractPhase(that, defaultPhase) {
+	if (that.choose.length)
 		return false;
 	var $phases = $("#section_phase *[data-trick-class='Phase']>*:nth-child(2)");
-	if(defaultPhase)
+	if (defaultPhase)
 		that.choose.push("0");
 	for (var i = 0; i < $phases.length; i++)
 		that.choose.push($($phases[i]).text());

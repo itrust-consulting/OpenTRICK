@@ -113,7 +113,7 @@ function deleteAsset() {
 function editAsset(rowTrickId, isAdd) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (isAdd) {
-			var selectedScenario = $("#section_asset :checked");
+			var selectedScenario = $("#section_asset:visible :checked");
 			if (selectedScenario.length != 0)
 				return false;
 			rowTrickId = undefined;

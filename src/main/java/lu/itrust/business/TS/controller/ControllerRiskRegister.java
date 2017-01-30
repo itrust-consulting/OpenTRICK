@@ -36,6 +36,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -44,8 +45,10 @@ import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.scale.ScaleType;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -86,6 +89,9 @@ public class ControllerRiskRegister {
 
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+
+	@Autowired
+	private ServiceScaleType serviceScaleType;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -138,13 +144,21 @@ public class ControllerRiskRegister {
 	// *****************************************************************
 	// * compute risk register
 	// *****************************************************************
-	
+
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request,
 			Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<? extends IParameter> impacts = serviceImpactParameter.findByAnalysisId(analysisId), probabilities = serviceLikelihoodParameter.findByAnalysisId(analysisId);
+
+		ScaleType scaleType = serviceScaleType.findOneByAnalysisId(analysisId);
+
+		List<? extends IBoundedParameter> impacts = serviceImpactParameter.findByTypeAndAnalysisId(scaleType, analysisId),
+				probabilities = serviceLikelihoodParameter.findByAnalysisId(analysisId);
+
+		impacts.removeIf(parameter -> parameter.getLevel() == 0);
+
+		probabilities.removeIf(parameter -> parameter.getLevel() == 0);
 
 		model.addAttribute("parameters", serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, analysisId).stream()
 				.collect(Collectors.toMap(IParameter::getDescription, Function.identity())));

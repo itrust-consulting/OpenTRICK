@@ -5,7 +5,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="deleteUserModal" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteUser" role="dialog">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -29,7 +29,7 @@
 				<c:if test="${not empty analyses}">
 					<hr>
 				</c:if>
-				<form name="deleteUserForm" class="form form-horizontal" style="max-height: 350px; padding: 5px; overflow-y: auto; overflow-x: hidden;" action="#">
+				<form name="deleteUserForm" class="form form-horizontal" style="max-height: 450px; padding: 5px; overflow-y: auto; overflow-x: hidden;" action="#">
 					<input type="hidden" value='${user.id}' name="idUser">
 					<c:forEach items="${analyses}" var="analysis">
 						<div class="form-group">

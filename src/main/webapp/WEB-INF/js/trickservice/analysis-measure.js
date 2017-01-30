@@ -17,10 +17,19 @@ function saveMeasureData(e) {
 						else {
 							var $parent = $target.parent();
 							if (response.error) {
-								$parent.addClass("has-error").removeClass("has-success").popover({"content": response.message,'triger':'manual',"container":'body','placement':'auto', 'template' : application.errorTemplate}).attr('title',response.message).popover("show");
-								setTimeout(function() {
-									$parent.popover("destroy");
-								}, 5000);
+								$parent.on("show.bs.popover", function() {
+									var popover = $parent.data('bs.popover');
+									setTimeout(function() {
+										popover.destroy();
+									}, 3000);
+								});
+								$parent.addClass("has-error").removeClass("has-success").popover({
+									"content" : response.message,
+									'triger' : 'manual',
+									"container" : 'body',
+									'placement' : 'auto',
+									'template' : application.errorTemplate
+								}).attr('title', response.message).popover("show");
 							} else {
 								$parent.removeAttr("title");
 								$parent.removeClass("has-error");
@@ -51,7 +60,7 @@ function saveMeasureData(e) {
 									$cost.parent().removeClass("has-error");
 
 								reloadMeasureRow(id, $("select[name='standard']").val());
-								
+
 								setTimeout(function() {
 									$parent.removeClass("has-success");
 								}, 3000);
@@ -148,7 +157,7 @@ function updateMeasureUI() {
 		if ($selector.length)
 			$selector.parent().trigger("change");
 		else
-			loadMeasureData();//clean UI
+			loadMeasureData();// clean UI
 	}
 }
 

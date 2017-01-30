@@ -258,8 +258,7 @@ public class ControllerAdministration {
 
 		status = new TrickService(version, installed);
 
-		if (!(serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE) || serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE)))
-			status.setInstalled(true);
+		status.setInstalled(serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE) && serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE));
 
 		serviceTrickService.saveOrUpdate(status);
 

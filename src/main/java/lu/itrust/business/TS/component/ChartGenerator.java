@@ -1568,6 +1568,8 @@ public class ChartGenerator {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
 				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
 			else
 				colorBounds.add(
 						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));

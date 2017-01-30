@@ -19,10 +19,13 @@ function saveAssessmentData(e) {
 				else {
 					var $parent = $target.parent();
 					if (response.error){
+						$parent.on("show.bs.popover",function(){
+							var popover = $parent.data('bs.popover');
+							setTimeout(function() {
+								popover.destroy();
+							}, 3000);
+						});
 						$parent.addClass("has-error").removeClass("has-success").popover({"content": response.message,'triger':'manual',"container":'body','placement':'auto', 'template' : application.errorTemplate}).attr('title',response.message).popover("show");
-						setTimeout(function() {
-							$parent.popover("destroy");
-						}, 5000);
 					}
 					else {
 						$parent.removeAttr("title").removeClass("has-error");
@@ -481,6 +484,11 @@ AssessmentHelder.prototype = {
 								deleteEstimationMeasures(idAsset, idScenario,$assessmentUI,$progress);
 							}
 						});
+						
+						$("input[list]").each(function(){
+							generateDataList(this.getAttribute("list"));
+						});
+						
 					}
 
 					$("a[data-action='hide'],a[data-action='show']", $assessmentUI).on("click", toggleAdditionalActionPlan)
@@ -511,6 +519,21 @@ AssessmentHelder.prototype = {
 		}
 		return this;
 	}
+}
+
+function generateDataList(id){
+	if(document.getElementById(id)!=null)
+		return false;
+	var selector = id.endsWith("impact")? "#Scale_Impact" : "#Scale_Probability,#DynamicParameters", $acronyms = $("td[data-trick-field='acronym']", selector), $values = $("td[data-trick-field='value']",selector), dataList = document.createElement("datalist");
+	dataList.setAttribute("id", id);
+	for (var i = 0; i < $acronyms.length; i++) {
+		var option = document.createElement("option"), value = $values[i].innerText.trim();
+		option.setAttribute("value", value);
+		option.innerText = value + " (" + $acronyms[i].innerText.trim()+ ")";
+		dataList.appendChild(option);
+	}
+	$(dataList).hide().appendTo("#widgets");
+	
 }
 
 function displayParameters(name, title) {
@@ -800,6 +823,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 															$("#measure-form-container", $modal).replaceWith($container);
 															$(".modal-body",$modal).attr('style',"padding-top:5px");
 															$("div[id^='risk-profile-measure-manager-']",$modal).hide();
+															setupMeasureManager($container);
 															$("div[id^='measure-form-']", $modal).show();
 														}else showDialog("#alert-dialog",MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 													}, error: unknowError

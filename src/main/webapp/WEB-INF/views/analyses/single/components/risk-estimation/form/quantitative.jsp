@@ -54,7 +54,7 @@
 						<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
 						<c:choose>
 							<c:when test="${empty impact}">
-								<input name="IMPACT" class="form-control" value='0' list="impactList" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
+								<input name="IMPACT" class="form-control" value='0' list="dataList-parameter-impact" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
 							</c:when>
 							<c:otherwise>
 								<c:choose>
@@ -65,7 +65,7 @@
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
 									</c:otherwise>
 								</c:choose>
-								<input name="IMPACT" class="form-control" value="${impactValue}" list="impactList" placeholder="${impactValue}" data-trick-type='string' title="${impact.variable}">
+								<input name="IMPACT" class="form-control" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string' title="${impact.variable}">
 							</c:otherwise>
 						</c:choose>
 
@@ -78,11 +78,11 @@
 						<c:choose>
 							<c:when test="${empty likelihood}">
 								<spring:message text="${assessment.likelihood}" var="probaValue" />
-								<input name="likelihood" class="form-control" value="${probaValue}" list="likelihoodList" title="${probaValue}" placeholder="${probaValue}" data-trick-type='string'>
+								<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${probaValue}" placeholder="${probaValue}" data-trick-type='string'>
 							</c:when>
 							<c:otherwise>
 								<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="probaValue" />
-								<input name="likelihood" class="form-control" value="${probaValue}" list="likelihoodList" title="${likelihood.variable}" placeholder="${probaValue}"
+								<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${likelihood.variable}" placeholder="${probaValue}"
 									data-trick-type='string'>
 							</c:otherwise>
 						</c:choose>

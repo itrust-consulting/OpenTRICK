@@ -642,7 +642,7 @@ function AssessmentImpactFieldEditor(element) {
 		AssessmentImpactFieldEditor.prototype.LoadData = function() {
 			var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
 					"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
-			this.dataListName = "dataList-parameter-impact-" + name.toLowerCase();
+			this.dataListName = "dataList-parameter-impact";
 			for (var i = 0; i < $values.length; i++) {
 				this.acromyms[i] = $acronyms[i].innerText.trim();
 				this.choose[i] = $values[i].innerText.trim();

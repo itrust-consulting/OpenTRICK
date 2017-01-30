@@ -41,6 +41,8 @@ public interface ServiceScaleType {
 
 	void deleteAll();
 
+	ScaleType findOneByAnalysisId(Integer analysisId);
+
 	
 
 	
