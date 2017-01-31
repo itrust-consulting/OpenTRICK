@@ -6,7 +6,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:set var="canExport" value="${analysis.getRightsforUserString(login).right.ordinal()<2}" />
-<ul class="nav nav-tabs affix affix-top nav-analysis col-xs-12">
+<ul class="nav nav-tabs affix affix-top nav-analysis">
 	<c:if test="${!isProfile}">
 		<li class="active"><a href="#tab-history" data-toggle="tab"><spring:message code="label.menu.analysis.history" /></a></li>
 	</c:if>

@@ -237,33 +237,18 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 	/**
 	 * initAnalysis: <br>
-	 * Description
+	 * order measure by phase + initialise collection.
 	 * 
 	 * @param analysis
 	 * @param analysisStandards
 	 */
 	private void initAnalysis(Analysis analysis, List<AnalysisStandard> analysisStandards) {
-		/*
-		 * Hibernate.initialize(analysis);
-		 * Hibernate.initialize(analysis.getLanguage());
-		 * Hibernate.initialize(analysis.getHistories());
-		 * Hibernate.initialize(analysis.getAssets());
-		 * Hibernate.initialize(analysis.getScenarios());
-		 * Hibernate.initialize(analysis.getAssessments());
-		 * Hibernate.initialize(analysis.getItemInformations());
-		 * Hibernate.initialize(analysis.getRiskInformations());
-		 * Hibernate.initialize(analysis.getParameters());
-		 * Hibernate.initialize(analysis.getPhases());
-		 * Hibernate.initialize(analysis.getAnalysisStandards());
-		 */
-
 		for (Integer id : this.standards) {
 			for (AnalysisStandard aStandard : analysis.getAnalysisStandards()) {
 				if (aStandard.getId() == id)
 					analysisStandards.add(aStandard);
 			}
 		}
-
 	}
 
 	/**

@@ -21,7 +21,7 @@
 		<div class="container">
 			<jsp:include page="../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
-			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
+			<ul class="nav nav-tabs affix affix-top nav-tab">
 				<li class="active"><a href="#tab-customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>
 				<li><a href="#tab-language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
 

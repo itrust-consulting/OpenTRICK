@@ -2,7 +2,6 @@ package lu.itrust.business.TS.model.actionplan.helper;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -182,10 +181,12 @@ public class ActionPlanComputation {
 		// NO: use
 		// only the standards given
 		if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+
 			if (standards == null || standards.isEmpty())
 				this.standards = this.analysis.getAnalysisStandards();
 			else
-				this.standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> standards.contains(analysisStandard)).collect(Collectors.toList());
+				this.standards = standards;
+
 			if (this.standards.stream().anyMatch(analysisStandard -> analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable())) {
 				if (!this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002))) {
 					AnalysisStandard analysisStandard = analysis.getAnalysisStandardByLabel(Constant.STANDARD_27002);
@@ -243,13 +244,6 @@ public class ActionPlanComputation {
 			factory = new ValueFactory(this.analysis.getExpressionParameters());
 
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
-
-			Collections.sort(phases, new Comparator<Phase>() {
-				@Override
-				public int compare(Phase o1, Phase o2) {
-					return Integer.compare(o1.getNumber(), o2.getNumber());
-				}
-			});
 
 			// send feedback
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans",
@@ -335,11 +329,8 @@ public class ActionPlanComputation {
 
 		computeSummary(actionPlanType.getActionPlanMode());
 
-		analysis.getSummaries().forEach(summary -> {
-			summary.getConformances().forEach(conformance -> {
-				conformance.setAnalysisStandard(analysisStandards.get(conformance.getAnalysisStandard().getId()));
-			});
-		});
+		analysis.getSummaries().forEach(
+				summary -> summary.getConformances().forEach(conformance -> conformance.setAnalysisStandard(analysisStandards.get(conformance.getAnalysisStandard().getId()))));
 
 		return 95;
 	}
@@ -529,6 +520,7 @@ public class ActionPlanComputation {
 					this.phases.add(measure.getPhase());
 			}
 		});
+		phases.sort((o1, o2) -> Integer.compare(o1.getNumber(), o2.getNumber()));
 	}
 
 	/**
@@ -942,7 +934,7 @@ public class ActionPlanComputation {
 
 		// parse all phases
 		for (Phase phase : phases) {
-
+			
 			// ****************************************************************
 			// * check if TMAList is empty -> YES: for the first time, the
 			// TMAList is empty, so
@@ -1035,7 +1027,7 @@ public class ActionPlanComputation {
 				// ****************************************************************
 
 				// check if first element is not null
-				if (tmpactionPlan.get(0) != null) {
+				if (!tmpactionPlan.isEmpty()) {
 
 					// ****************************************************************
 					// * start with the first element to check if it is the
@@ -1927,9 +1919,8 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		// * clear List
 		// ****************************************************************
-		if (usedMeasures != null) {
+		if (usedMeasures != null)
 			usedMeasures.clear();
-		}
 
 		// ****************************************************************
 		// * generate TMAListEntries
@@ -1940,30 +1931,23 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		// parse all standards
-		for (int nC = 0; nC < analysis.getAnalysisStandards().size(); nC++) {
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
 
-			// initialise standard
-
-			AnalysisStandard anlysisStandard = analysis.getAnalysisStandard(nC);
-
-			if (!standards.contains(anlysisStandard))
+			if (!standards.contains(analysisStandard))
 				continue;
-
+			
 			// ****************************************************************
 			// * check if not Maturity standard -> NO
 			// ****************************************************************
-			if (anlysisStandard instanceof NormalStandard) {
+			if (analysisStandard instanceof NormalStandard) {
 
 				// store standard as it's real type
-				NormalStandard normalStandard = (NormalStandard) anlysisStandard;
+				NormalStandard normalStandard = (NormalStandard) analysisStandard;
 
 				// ****************************************************************
 				// * parse all measures of the current standard
 				// ****************************************************************
-				for (int mC = 0; mC < normalStandard.getMeasures().size(); mC++) {
-
-					// temporary store the measure
-					NormalMeasure normalMeasure = normalStandard.getMeasure(mC);
+				for (NormalMeasure normalMeasure : normalStandard.getExendedMeasures()) {
 
 					// ****************************************************************
 					// * check conditions to add TMAListEntries to TMAList
@@ -2036,20 +2020,17 @@ public class ActionPlanComputation {
 						}
 					}
 				}
-			} else if (anlysisStandard instanceof AssetStandard) {
+			} else if (analysisStandard instanceof AssetStandard) {
 
 				AssetStandard assetStandard = null;
 
 				// store standard as it's real type
-				assetStandard = (AssetStandard) anlysisStandard;
+				assetStandard = (AssetStandard) analysisStandard;
 
 				// ****************************************************************
 				// * parse all measures of the current standard
 				// ****************************************************************
-				for (int mC = 0; mC < assetStandard.getMeasures().size(); mC++) {
-
-					// temporary store the measure
-					AssetMeasure assetMeasure = (AssetMeasure) assetStandard.getMeasure(mC);
+				for (AssetMeasure assetMeasure : assetStandard.getExendedMeasures()) {
 
 					// ****************************************************************
 					// * check conditions to add TMAListEntries to TMAList
@@ -2085,11 +2066,8 @@ public class ActionPlanComputation {
 		// * add maturity chapters to list of useful measures
 		// ****************************************************************
 
-		if (!isCssf && usedMeasures != null && maturitycomputation) {
-
+		if (!isCssf && usedMeasures != null && maturitycomputation)
 			addMaturityChaptersToUsedMeasures(analysis, factory, usedMeasures, phase, standards);
-		}
-
 		// return TMAList
 		return TMAList;
 
@@ -2129,7 +2107,6 @@ public class ActionPlanComputation {
 		TMA tmpTMA = null;
 		Assessment tmpAssessment = null;
 		MaturityStandard maturityStandard = null;
-		boolean measureFound = false;
 		String tmpReference = "";
 		int matLevel = 0;
 		double rrf = 0;
@@ -2192,31 +2169,10 @@ public class ActionPlanComputation {
 						// * check if measure is already on the list, if not:
 						// add it
 						// ****************************************************************
-
-						// add this to useful measures list if exists variable
-						// to check
-						measureFound = false;
-
-						// parse usedMeasures
-						for (int unml = 0; unml < usedMeasures.size(); unml++) {
-
-							// check if current measure exists in list -> YES
-							if (usedMeasures.get(unml).equals(measure)) {
-
-								// ****************************************************************
-								// * the measure exist
-								// ****************************************************************
-								measureFound = true;
-
-								// break out of loop
-								break;
-							}
-						}
-
 						// ****************************************************************
 						// * check if the measure was found, if not: add it
 						// ****************************************************************
-						if (measureFound == false) {
+						if (!usedMeasures.contains(measure)) {
 
 							// ****************************************************************
 							// * add to the list of measures
@@ -2684,8 +2640,8 @@ public class ActionPlanComputation {
 					// * Generate missing phase
 					// ****************************************************************
 
-					for (++phase; phase < ape.getMeasure().getPhase().getNumber(); phase++)
-						generateStageAndResetData(sumStage, tmpval, phase, apt, maintenances);
+					for (int phaseAux = phase + 1; phaseAux < ape.getMeasure().getPhase().getNumber(); phaseAux++)
+						generateStageAndResetData(sumStage, tmpval, phaseAux, apt, maintenances);
 
 					// ****************************************************************
 					// * update phase

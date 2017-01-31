@@ -18,7 +18,7 @@
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
-			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
+			<ul class="nav nav-tabs affix affix-top nav-tab">
 				<li class="active"><a href="#tab-status" data-toggle="tab"><spring:message code="label.menu.installation.status" text="Status" /></a></li>
 				<li><a href="#tab-user" data-toggle="tab"><spring:message code="menu.admin.user" text="User" /></a></li>
 				<li><a href="#tab-ids" data-toggle="tab"><spring:message code="menu.admin.ids" text="IDS" /></a></li>

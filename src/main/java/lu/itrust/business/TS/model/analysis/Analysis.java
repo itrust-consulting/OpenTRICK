@@ -751,10 +751,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public Phase findPhaseByNumber(int number) {
-		for (Phase phase : phases)
-			if (phase.getNumber() == number)
-				return phase;
-		return null;
+		return phases.stream().filter(phase -> phase.getNumber() == number).findAny().orElse(null);
 	}
 
 	public List<RiskProfile> findRiskProfileByAsset(Asset asset) {
@@ -1475,21 +1472,6 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * getPhaseByNumber: <br>
-	 * Description
-	 * 
-	 * @param number
-	 * @return
-	 */
-	public Phase getPhaseByNumber(int number) {
-		for (Phase phase : phases) {
-			if (phase.getNumber() == number)
-				return phase;
-		}
-		return null;
-	}
-
-	/**
 	 * getPhases: <br>
 	 * Description
 	 * 
@@ -1790,7 +1772,7 @@ public class Analysis implements Cloneable {
 
 				int phaseNumber = normalStandards.get(i).getMeasure(j).getPhase().getNumber();
 
-				if (this.getPhaseByNumber(phaseNumber) == null)
+				if (this.findPhaseByNumber(phaseNumber) == null)
 					this.add(normalStandards.get(i).getMeasure(j).getPhase());
 
 			}
@@ -1803,7 +1785,7 @@ public class Analysis implements Cloneable {
 
 				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
 
-				if (this.getPhaseByNumber(phaseNumber) == null)
+				if (this.findPhaseByNumber(phaseNumber) == null)
 					this.add(maturityStandard.getLevel1Measures().get(i).getPhase());
 
 			}

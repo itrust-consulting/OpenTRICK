@@ -48,7 +48,10 @@ body {
 	z-index: 1029;
 	background-color: white;
 	padding-top: 5px;
-	max-width: 97.5%;
+	width: 100%;
+	max-width: 100%;
+	margin-left: -20px;
+	padding-left: 20px;
 }
 
 .nav-analysis li.dropdown-submenu.active>a:HOVER {
@@ -290,10 +293,10 @@ a[role="changeUILanguage"]:hover {
 }
 
 .tab-content-header {
-	margin: 5px 0px 9px;
+	margin: -15px 0px 9px;
 }
 
-.tab-content-header .row-fluid *:FIRST-CHILD:NOT(.fa) {
+.tab-content-header .row-fluid *:FIRST-CHILD:NOT (.fa ) {
 	margin-bottom: 2px;
 	margin-top: 2px;
 }
@@ -547,7 +550,7 @@ datalist {
 }
 
 #main_menu_brand {
-	background-image: url('/trickservice/images/brand-gray.png');
+	background-image: url('/trickservice/images/brand-grey.png');
 	width: 150px;
 	background-repeat: no-repeat;
 	margin: 1px 5px 0 0;
@@ -582,10 +585,11 @@ datalist {
 }
 
 @media ( min-width : 992px) {
+
+	
 	li.back-btn-bottom {
 		display: none;
 	}
-	
 	.max-height {
 		height: 100%;
 	}
@@ -595,6 +599,11 @@ datalist {
 	*[role='left-menu']+*[class*='col-'] {
 		float: right;
 	}
+	
+	*[role='left-menu'].affixNav{
+		overflow-y: auto; 
+	}
+	
 	.affixNav {
 		height: 88%;
 	}
@@ -636,5 +645,12 @@ datalist {
 		.nav-chapter {
 			height: 75%;
 		}
+	}
+}
+
+@media ( min-width : 1510px){
+	.nav-analysis, .nav-tab{
+		margin-left: -25px;
+		padding-left: 25px;
 	}
 }

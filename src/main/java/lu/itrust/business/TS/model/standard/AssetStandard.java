@@ -70,6 +70,17 @@ public class AssetStandard extends AnalysisStandard {
 		}
 
 	}
+	
+	
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.standard.AnalysisStandard#getExendedMeasures()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AssetMeasure> getExendedMeasures() {
+		return (List<AssetMeasure>) super.getExendedMeasures();
+	}
 
 	/**
 	 * setMeasures: <br>

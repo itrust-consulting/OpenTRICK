@@ -194,7 +194,7 @@ public class ControllerPhase {
 
 					phase.setNumber(analysis.getPhases().size() + 1);
 
-					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
+					previousphase = analysis.findPhaseByNumber(phase.getNumber() - 1);
 
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
@@ -219,8 +219,8 @@ public class ControllerPhase {
 						}
 					}
 
-					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
-					nextphase = analysis.getPhaseByNumber(phase.getNumber() + 1);
+					previousphase = analysis.findPhaseByNumber(phase.getNumber() - 1);
+					nextphase = analysis.findPhaseByNumber(phase.getNumber() + 1);
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
 						errors.put("beginDate",

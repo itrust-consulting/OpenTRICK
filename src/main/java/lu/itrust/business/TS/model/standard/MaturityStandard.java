@@ -65,6 +65,17 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 			return MaturityMeasure.class.cast(getMeasures().get(index));
 		}
 	}
+	
+	
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.standard.AnalysisStandard#getExendedMeasures()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MaturityMeasure> getExendedMeasures() {
+		return (List<MaturityMeasure>) super.getExendedMeasures();
+	}
 
 	/**
 	 * getLevel1Measures: <br>

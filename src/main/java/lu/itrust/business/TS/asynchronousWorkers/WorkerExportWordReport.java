@@ -103,7 +103,6 @@ public class WorkerExportWordReport implements Worker {
 		} catch (TrickException e) {
 			wordExporter.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
-			e.printStackTrace();
 		} catch (Exception e) {
 			wordExporter.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
 			TrickLogManager.Persist(e);

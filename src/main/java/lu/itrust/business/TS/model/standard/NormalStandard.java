@@ -67,6 +67,18 @@ public class NormalStandard extends AnalysisStandard {
 		}
 
 	}
+	
+	
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.standard.AnalysisStandard#getMeasures()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormalMeasure> getExendedMeasures() {
+		// TODO Auto-generated method stub
+		return (List<NormalMeasure>) super.getExendedMeasures();
+	}
 
 	/**
 	 * setMeasures: <br>

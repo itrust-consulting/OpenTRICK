@@ -26,8 +26,7 @@
 							<select class='form-control' name='customer' id='customer-selector'>
 								<option value="-"><spring:message code='label.action.choose' text='Choose...' /></option>
 								<c:forEach var="currentCustomer" items="${customers}">
-									<option value="${currentCustomer.id}"><spring:message
-											text='${currentCustomer.organisation}' /></option>
+									<option value="${currentCustomer.id}"><spring:message text='${currentCustomer.organisation}' /></option>
 								</c:forEach>
 							</select>
 						</div>
@@ -36,7 +35,8 @@
 					<c:forEach var="index" begin="1" end="10" step="1">
 						<div data-role='form-container' ${index>1? 'hidden class="panel panel-info"' : 'class="panel panel-primary"'}>
 							<div class='panel-heading' style="padding-top: 20px;">
-								<button data-control="${index}" title="<spring:message code='label.action.remove' text='Remove'/>" class="pull-right btn btn-xs btn-${index == 1? 'primary':'info'}" disabled="disabled" style="margin-top: -19px; margin-right: -14px; margin-bottom: 5px;">
+								<button data-control="${index}" title="<spring:message code='label.action.remove' text='Remove'/>" class="pull-right btn btn-xs btn-${index == 1? 'primary':'info'}"
+									disabled="disabled" style="margin-top: -19px; margin-right: -14px; margin-bottom: 5px;">
 									<i class="fa fa-times" aria-hidden="true"></i>
 								</button>
 								<div class='form-group' id='analysis_${index}'>
@@ -102,9 +102,9 @@
 		<jsp:include page="../../template/footer.jsp" />
 		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="../../template/scripts.jsp" />
-		<script src="<spring:url value="/js/trickservice/risk-evolution.js" />"></script>
 		<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
 		<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
+		<script src="<spring:url value="/js/trickservice/risk-evolution.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
