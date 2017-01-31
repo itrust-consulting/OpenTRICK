@@ -233,7 +233,7 @@ function deleteAnalysis(analysisId) {
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
 		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 		$("button[data-action='delete']", $modal).one("click", function() {
-			var $progress = $("#loading-indicator").show(), $buttons = $(".btn", $modal).prop("disabled", true);
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "POST",
@@ -247,10 +247,9 @@ function deleteAnalysis(analysisId) {
 				},
 				error : unknowError
 			}).complete(function() {
-				$buttons.prop("disabled", false);
-				$modal.modal("hide");
 				$progress.hide();
 			});
+			$modal.modal("hide");
 			return false;
 		});
 
@@ -386,9 +385,9 @@ function customAnalysis(element) {
 										"label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector = $("#selector-analysis",
 										$modalBody), $impacts = $("select[name='impacts']", $modalBody), $impactValue = $("input#scale_level", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2"), $qualitativeSection = $(
 										"#analysis_qualitative", $modalBody);
-								
-								generateHelper($("[data-helper-content]",$modalBody),"#buildAnalysisModal");
-								
+
+								generateHelper($("[data-helper-content]", $modalBody), "#buildAnalysisModal");
+
 								// load data from database and manage caching
 
 								analysesCaching = {

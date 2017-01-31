@@ -420,9 +420,9 @@ function compliances() {
 			var $complianceBody = $("#chart_compliance_body").empty();
 			$.each(response.standards, function(key, data) {
 				if ($complianceBody.children().length)
-					$complianceBody.append("<div class='col-xs-3' id='chart_compliance_" + key + "'></div>");
+					$complianceBody.append("<div class='col-xs-4' id='chart_compliance_" + key + "'></div>");
 				else
-					$complianceBody.append("<div class='col-xs-3' id='chart_compliance_" + key + "'></div>");
+					$complianceBody.append("<div class='col-xs-4' id='chart_compliance_" + key + "'></div>");
 				$('div[id="chart_compliance_' + key + '"]').loadOrUpdateChart(data[0]);
 			});
 		},
