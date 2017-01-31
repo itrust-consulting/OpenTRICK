@@ -162,7 +162,7 @@ public class ChartGenerator {
 				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			String result = "";
-			int multiplicator = ales.size() / distribution.getDivisor();
+			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
@@ -194,7 +194,9 @@ public class ChartGenerator {
 			for (Assessment assessment : assessments) {
 				ALE ale = mappedALEs.get(assessment.getAsset().getAssetType().getId());
 				if (ale == null) {
-					mappedALEs.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+					mappedALEs.put(assessment.getAsset().getAssetType().getId(),
+							ale = new ALE(messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getType().toLowerCase(), null,
+									assessment.getAsset().getAssetType().getType(), locale), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
@@ -205,7 +207,7 @@ public class ChartGenerator {
 				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			String result = "";
-			int multiplicator = ales.size() / distribution.getDivisor();
+			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
@@ -238,7 +240,9 @@ public class ChartGenerator {
 			for (Assessment assessment : assessments) {
 				ALE ale = mappedALEs.get(assessment.getScenario().getType().getValue());
 				if (ale == null) {
-					mappedALEs.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
+					mappedALEs.put(assessment.getScenario().getType().getValue(),
+							ale = new ALE(messageSource.getMessage("label.scenario.type." + assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(), null,
+									assessment.getScenario().getType().getName(), locale), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
@@ -249,7 +253,7 @@ public class ChartGenerator {
 				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			String result = "";
-			int multiplicator = ales.size() / distribution.getDivisor();
+			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
@@ -293,7 +297,7 @@ public class ChartGenerator {
 				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			String result = "";
-			int multiplicator = ales.size() / distribution.getDivisor();
+			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
@@ -929,7 +933,7 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			Map<String, Object> rrfs = computeRRFByScenario(scenario, measures, idAnalysis);
+			Map<String, Object> rrfs = computeRRFByScenario(scenario, measures, idAnalysis, locale);
 
 			double biggestrrf = 0.;
 
@@ -1028,7 +1032,7 @@ public class ChartGenerator {
 
 				List<AssetType> assetTypes = daoAssetType.getAll();
 
-				Map<String, RRFAssetType> rrfs = computeRRFByNormalMeasure((NormalMeasure) measure, assetTypes, scenarios, idAnalysis);
+				Map<String, RRFAssetType> rrfs = computeRRFByNormalMeasure((NormalMeasure) measure, assetTypes, scenarios, idAnalysis, locale);
 
 				for (String key : rrfs.keySet())
 					for (RRFMeasure mes : rrfs.get(key).getRrfMeasures())
@@ -1135,11 +1139,12 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
+	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis, Locale locale)
+			throws Exception {
 		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
-			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
+			RRFAssetType rrfAssetType = new RRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getType().toLowerCase(), null, assetType.getType(), locale));
 			for (Scenario scenario : scenarios) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 
@@ -1198,7 +1203,7 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis) throws Exception {
+	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis, Locale locale) throws Exception {
 		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
 		if (scenario.getAssetTypeValues().size() == 0)
@@ -1208,13 +1213,12 @@ public class ChartGenerator {
 		for (Measure measure : measures) {
 
 			for (AssetTypeValue atv : scenario.getAssetTypeValues()) {
-
-				RRFAssetType rrfAssetType = (RRFAssetType) rrfs.get(atv.getAssetType().getType());
+				String key = messageSource.getMessage("label.asset_type." + atv.getAssetType().getType().toLowerCase(), null, atv.getAssetType().getType(), locale);
+				RRFAssetType rrfAssetType = (RRFAssetType) rrfs.get(key);
 				if (rrfAssetType == null) {
-					rrfAssetType = new RRFAssetType(atv.getAssetType().getType());
+					rrfAssetType = new RRFAssetType(key);
 					rrfs.put(rrfAssetType.getLabel(), rrfAssetType);
 				}
-
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 				if (measure instanceof NormalMeasure) {
 
@@ -1253,7 +1257,7 @@ public class ChartGenerator {
 						}
 						rrfAssetType.getRrfMeasures().add(rrfMeasure);
 					} else
-						rrfs.remove(atv.getAssetType().getType());
+						rrfs.remove(key);
 				}
 			}
 		}
