@@ -42,8 +42,10 @@
 			onShow : function() {
 			}, // callback function to be executed when window is visible
 			onRefreshSession : function() {
-			},
+			},//callback function to be executed when refreshing session
 			onSessionTimeout : function() {
+			},//callback function to be executed when session is expired
+			onIdleRefreshTime : function(){
 			},
 			keepTracking : true, // set it to false if you want to track only
 									// the first time
@@ -114,6 +116,7 @@
 		idleRefreshTimout = function(settings) {
 			return setTimeout(function() {
 				idleRefreshReseting = true;
+				settings.onIdleRefreshTime.call();
 				lastId = resetTimeout(lastId,settings);
 			}, settings.idleRefreshTime);
 		}

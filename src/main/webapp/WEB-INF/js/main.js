@@ -28,7 +28,7 @@ function Application() {
 			from : "bottom",
 			align : "right"
 		},
-		delay : 3000
+		delay : 5000
 	}
 }
 
@@ -784,7 +784,7 @@ function toggleToolTip(e) {
 	return e;
 }
 
-function forceUpdateMenu($section){
+function forceUpdateMenu($section) {
 	if (!$("tbody>tr:first input[type='checkbox']", $section).trigger("change").length)
 		$("input[type='checkbox']:first", $section).trigger("change");
 }
@@ -823,11 +823,11 @@ function displayTimeoutNotification(notification, message, title) {
 }
 
 function displayTimeoutWarning(counter) {
-	var message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0}");
+	var message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0} seconds");
 	displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", counter))
 	application['sessionTimerId'] = setInterval(function() {
 		displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", (--counter)))
-		if (counter < 1)
+		if (counter < 2)
 			clearTimeout(application['sessionTimerId']);
 	}, 1000);
 }
@@ -903,9 +903,11 @@ $(document)
 								onActive : function() {
 									if (application['sessionNotification']) {
 										application['sessionNotification'].close();
-										// delete
-										// application['sessionNotification'];
 									}
+								},
+								onIdleRefreshTime : function() {
+									showDialog("info", MessageResolver("info.session.expire.in.x.minutes", "Your session will be expired in {0} minute(s)").replace("{0}",
+											application.timeoutSetting.sessionTimeout / 60000))
 								}
 							});
 

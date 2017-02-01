@@ -34,6 +34,7 @@
 		resolveMessage("error.session.expired", "<spring:message code='error.session.expired' />");
 		resolveMessage("error.session.expire.monitor", "<spring:message code='error.session.expire.monitor' />");
 		resolveMessage("info.session.expire.in.x.seconds", "<spring:message code='info.session.expire.in.x.seconds' />");
+		resolveMessage("info.session.expire.in.x.minutes", "<spring:message code='info.session.expire.in.x.minutes' />");
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>
