@@ -607,7 +607,7 @@ datalist {
 	.affixNav {
 		height: 88%;
 	}
-	@media ( min-height :300px) {
+	@media ( min-height :320px) {
 		div[data-trick-role='add-asset-scenario'], ul[data-trick-role="nav-measure"] {
 			position: fixed;
 			bottom: 32px;
@@ -616,34 +616,28 @@ datalist {
 			padding: 2px 15px;
 		}
 	}
-	@media ( min-height :400px) {
+	
+	@media ( min-height :480px) {
 		.nav-chapter {
-			height: 36%;
+			height: calc( 100% - 315px);
 		}
 	}
-	@media ( min-height :500px) {
+	
+	@media ( min-height :768px) {
 		.nav-chapter {
-			height: 55%;
+			height: calc( 100% - 305px);
 		}
 	}
-	@media ( min-height :600px) {
+	
+	@media ( min-height :992px) {
 		.nav-chapter {
-			height: 60%;
+			height: calc( 100% - 290px);
 		}
 	}
-	@media ( min-height :766px) {
+	
+	@media ( min-height :1008px) {
 		.nav-chapter {
-			height: 65%;
-		}
-	}
-	@media ( min-height :900px) {
-		.nav-chapter {
-			height: 71%;
-		}
-	}
-	@media ( min-height :1200px) {
-		.nav-chapter {
-			height: 75%;
+			height: calc( 100% - 280px);
 		}
 	}
 }
