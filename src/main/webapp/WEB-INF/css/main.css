@@ -549,18 +549,6 @@ datalist {
 	padding: 2px 14px;
 }
 
-#main_menu_brand {
-	background-image: url('/trickservice/images/brand-grey.png');
-	width: 150px;
-	background-repeat: no-repeat;
-	margin: 1px 5px 0 0;
-	background-size: auto 39px;
-}
-
-#main_menu_brand:HOVER {
-	background-image: url('/trickservice/images/brand.png');
-}
-
 .range-group {
 	width: 100%;
 	display: inline-block;
