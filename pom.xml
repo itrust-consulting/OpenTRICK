@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.0 rc1</version>
+	<version>2.0</version>
 	<packaging>war</packaging>
 	<properties>
 		<org.springframework.version>4.3.5.RELEASE</org.springframework.version>
@@ -428,24 +428,15 @@
 				<version>3.0.0</version>
 				<configuration>
 					<warSourceExcludes>
-						**/WEB-INF/css/main.css,
-						**/WEB-INF/css/datepicker.css,
-						**/WEB-INF/css/select2-bootstrap.css,
-						**/WEB-INF/js/main.js,
-						**/WEB-INF/js/jquery-ui.min.js
-						**/WEB-INF/js/dom-parser.js,
-						**/WEB-INF/js/naturalSort.js,
-						**/WEB-INF/js/jquery.fileDownload.js,
+						**/WEB-INF/css/*.css,
+						**/WEB-INF/js/*.js,
 						**/WEB-INF/js/trickservice/*.js,
-						**/WEB-INF/js/chartjs/Chart.bundle.min.js,
+						**/WEB-INF/js/chartjs/*.js,
 						**/WEB-INF/js/highcharts/themes/*.js,
-						**/WEB-INF/js/bootstrap/bootbox.js,
-						**/WEB-INF/js/bootstrap/bootstrap-tooltip.js,
-						**/WEB-INF/js/bootstrap/bootstrap-datepicker.js.js
-						**/WEB-INF/js/bootstrap/locales/*.js,
-						**/WEB-INF/js/bootstrap/stickyTableHeaders.js,
-						**/WEB-INF/js/bootstrap/typeahead.bundle.js
+						**/WEB-INF/js/bootstrap/*.js,
+						**/WEB-INF/js/bootstrap/locales/*.js
 					</warSourceExcludes>
+					<packagingExcludes>css</packagingExcludes>
 					<packagingExcludes>**/WEB-INF/tmp/*</packagingExcludes>
 				</configuration>
 			</plugin>

@@ -10,10 +10,23 @@
 <meta name="_csrf" content="${_csrf.token}" />
 <meta name="_csrf_header" content="${_csrf.headerName}" />
 <meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />
-<meta content="<spring:message code="label.risk_analysis" text="Analysis de risque"/>" name="description" />
+<meta content="<spring:message code="label.risk_analysis" text="Risk analysis"/>" name="description" />
 <meta content="width=device-width" name="viewport" />
 <link href=<spring:url value="/images/favicon.ico" /> rel="shortcut icon" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
+<style>
+#main_menu_brand {
+	background-image: url('<spring:url value="/images/brand-grey.png" />');
+	width: 150px;
+	background-repeat: no-repeat;
+	margin: 1px 5px 0 0;
+	background-size: auto 39px;
+}
+
+#main_menu_brand:HOVER {
+	background-image: url('<spring:url value="/images/brand.png" />');
+}
+</style>
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/font-awesome.min.css" />' />
