@@ -53,8 +53,8 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public AssetType getByName(String assetTypeName)  {
-		return (AssetType) getSession().createQuery("From AssetType where type= :type").setParameter("type", assetTypeName).uniqueResultOptional().orElse(null);
+	public AssetType getByName(String name)  {
+		return (AssetType) getSession().createQuery("From AssetType where name= :name").setParameter("name", name).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AssetType> getAll()  {
-		return (List<AssetType>) getSession().createQuery("From AssetType order by type").getResultList();
+		return (List<AssetType>) getSession().createQuery("From AssetType order by name").getResultList();
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AssetType> getAllFromAnalysis(Integer idAnalysis)  {
-		String query = "Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc";
+		String query = "Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.name asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 

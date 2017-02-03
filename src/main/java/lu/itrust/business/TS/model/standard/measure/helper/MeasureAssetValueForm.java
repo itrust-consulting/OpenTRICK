@@ -52,7 +52,7 @@ public class MeasureAssetValueForm {
 	public MeasureAssetValueForm(MeasureAssetValue assetValue) {
 		this.id = assetValue.getAsset().getId();
 		this.name = assetValue.getAsset().getName();
-		this.type = assetValue.getAsset().getAssetType().getType();
+		this.type = assetValue.getAsset().getAssetType().getName();
 		this.value = assetValue.getValue();
 	}
 

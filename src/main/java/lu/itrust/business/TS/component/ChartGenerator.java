@@ -195,8 +195,8 @@ public class ChartGenerator {
 				ALE ale = mappedALEs.get(assessment.getAsset().getAssetType().getId());
 				if (ale == null) {
 					mappedALEs.put(assessment.getAsset().getAssetType().getId(),
-							ale = new ALE(messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getType().toLowerCase(), null,
-									assessment.getAsset().getAssetType().getType(), locale), 0));
+							ale = new ALE(messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
+									assessment.getAsset().getAssetType().getName(), locale), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
@@ -1144,7 +1144,7 @@ public class ChartGenerator {
 		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
-			RRFAssetType rrfAssetType = new RRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getType().toLowerCase(), null, assetType.getType(), locale));
+			RRFAssetType rrfAssetType = new RRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale));
 			for (Scenario scenario : scenarios) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 
@@ -1213,7 +1213,7 @@ public class ChartGenerator {
 		for (Measure measure : measures) {
 
 			for (AssetTypeValue atv : scenario.getAssetTypeValues()) {
-				String key = messageSource.getMessage("label.asset_type." + atv.getAssetType().getType().toLowerCase(), null, atv.getAssetType().getType(), locale);
+				String key = messageSource.getMessage("label.asset_type." + atv.getAssetType().getName().toLowerCase(), null, atv.getAssetType().getName(), locale);
 				RRFAssetType rrfAssetType = (RRFAssetType) rrfs.get(key);
 				if (rrfAssetType == null) {
 					rrfAssetType = new RRFAssetType(key);
@@ -1366,7 +1366,7 @@ public class ChartGenerator {
 	public String aleEvolutionOfAllAssetTypes(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final List<Assessment> assessments = analysis.getAssessments();
-		return aleEvolution(analysis, assessments, locale, a -> a.getAsset().getAssetType(), t -> t.getType(),
+		return aleEvolution(analysis, assessments, locale, a -> a.getAsset().getAssetType(), t -> t.getName(),
 				messageSource.getMessage("label.title.chart.aleevolution", null, "ALE Evolution", locale));
 	}
 
@@ -1382,7 +1382,7 @@ public class ChartGenerator {
 	 */
 	public String aleEvolutionofAllScenarios(int idAnalysis, String assetType, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getType().equals(assetType)).collect(Collectors.toList());
+		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getName().equals(assetType)).collect(Collectors.toList());
 		return aleEvolution(analysis, assessments, locale, a -> a.getScenario(), s -> s.getName(),
 				messageSource.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType }, "ALE Evolution of '{0}' assets", locale));
 	}
@@ -1415,7 +1415,7 @@ public class ChartGenerator {
 		final List<String> graphs = new ArrayList<>();
 		for (AssetType assetType : assessmentsByAssetType.keySet())
 			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(), s -> s.getName(), messageSource
-					.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType.getType() }, "ALE Evolution of all {0}-type assets", locale)));
+					.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType.getName() }, "ALE Evolution of all {0}-type assets", locale)));
 		return "[" + String.join(", ", graphs) + "]";
 	}
 

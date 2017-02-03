@@ -867,7 +867,7 @@ public abstract class AbstractWordExporter {
 	}
 
 	protected String getDisplayName(AssetType type) {
-		return getMessage("label.asset_type." + type.getType().toLowerCase(), null, type.getType(), locale);
+		return getMessage("label.asset_type." + type.getName().toLowerCase(), null, type.getName(), locale);
 	}
 
 	public static void MergeCell(XWPFTableRow row, int begin, int size, String color) {

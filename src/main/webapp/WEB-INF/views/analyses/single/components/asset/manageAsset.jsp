@@ -41,7 +41,7 @@
 									<c:when test="${!empty(assettypes)}">
 										<option value='-1'><spring:message code="label.asset.type.select" /></option>
 										<c:forEach items="${assettypes}" var="assettype">
-											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}><spring:message code="label.asset_type.${fn:toLowerCase(assettype.type)}" /></option>
+											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}><spring:message code="label.asset_type.${fn:toLowerCase(assettype.name)}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>

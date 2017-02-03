@@ -1022,7 +1022,7 @@ public class ControllerEditField {
 						else {
 							AssetTypeValue assetData = null;
 							for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues()) {
-								if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
+								if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getName())) {
 									assetData = assetTypeValue;
 									break;
 								}

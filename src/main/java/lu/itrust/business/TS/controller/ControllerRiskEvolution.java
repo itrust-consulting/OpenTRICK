@@ -138,7 +138,7 @@ public class ControllerRiskEvolution {
 			for (Assessment assessment : assessments) {
 				ALE ale = mappedALEs.get(assessment.getAsset().getAssetType().getId());
 				if (ale == null) {
-					mappedALEs.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+					mappedALEs.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getName(), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());

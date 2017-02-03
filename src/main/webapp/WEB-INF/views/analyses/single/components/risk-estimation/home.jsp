@@ -50,7 +50,7 @@
 						<option value='-1' title="${allText}">${allText}</option>
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
-							<spring:message text="${scenario.assetTypeId()}" var="scenarioAssetTypeIds" />
+							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
 							<c:choose>
 								<c:when test="${scenario.selected}">
 									<option value="${scenario.id}" data-trick-selected='true' title="${scenarioName}" data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
@@ -70,7 +70,7 @@
 							data-trick-id='-1'>${scenarioText}</a>
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
-							<spring:message text="${scenario.assetTypeId()}" var="scenarioAssetTypeIds" />
+							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
 							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-type='${scenarioAssetTypeIds}'
 								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'none'};"
 								class="list-group-item">${scenarioName}</a>

@@ -489,7 +489,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				row = table.createRow();
 				setCellText(row.getCell(0), "" + (number++));
 				setCellText(row.getCell(1), asset.getName());
-				setCellText(row.getCell(2), asset.getAssetType().getType());
+				setCellText(row.getCell(2), asset.getAssetType().getName());
 				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
 				addCellParagraph(row.getCell(4), asset.getComment());
 			}

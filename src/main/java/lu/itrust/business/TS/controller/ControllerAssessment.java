@@ -298,7 +298,7 @@ public class ControllerAssessment {
 			if (compare == 0) {
 				compare = Double.compare(a1.getAsset().getValue(), a2.getAsset().getValue());
 				if (compare == 0) {
-					compare = a1.getAsset().getAssetType().getType().compareTo(a2.getAsset().getAssetType().getType());
+					compare = a1.getAsset().getAssetType().getName().compareTo(a2.getAsset().getAssetType().getName());
 					if (compare == 0)
 						compare = a1.getAsset().getName().compareTo(a2.getAsset().getName());
 				}

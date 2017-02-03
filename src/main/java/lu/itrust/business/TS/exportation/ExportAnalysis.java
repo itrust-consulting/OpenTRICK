@@ -1284,7 +1284,7 @@ public class ExportAnalysis {
 			// add parameters
 			params.clear();
 			params.add(assetType.getId());
-			params.add(assetType.getType());
+			params.add(assetType.getName());
 
 			// System.out.println(rs.getInt(Constant.ASSETTYPE_MYSQL_ID));
 
@@ -2451,7 +2451,7 @@ public class ExportAnalysis {
 			for (int i = 0; i < assetTypeValueList.size(); i++) {
 
 				// key matches item in the list -> YES
-				if (assetTypeValueList.get(i).getAssetType().getType().equalsIgnoreCase(key)) {
+				if (assetTypeValueList.get(i).getAssetType().getName().equalsIgnoreCase(key)) {
 
 					// add the asset type value to the list of parameters
 					params.add(assetTypeValueList.get(i).getValue());

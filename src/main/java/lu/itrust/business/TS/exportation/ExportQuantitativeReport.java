@@ -785,7 +785,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
 			if (ale == null) {
-				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getName(), 0));
 				ales2.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());

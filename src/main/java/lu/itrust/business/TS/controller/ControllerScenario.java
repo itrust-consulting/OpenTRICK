@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -29,10 +31,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
+import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceScenario;
@@ -40,8 +44,8 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.model.asset.helper.AssetTypeValueComparator;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.OpenMode;
@@ -69,6 +73,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
@@ -225,9 +232,8 @@ public class ControllerScenario {
 	 */
 	@RequestMapping("/Add")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String add(Model model, HttpSession session, Principal principal) throws Exception {
-		loadFormData(model, session);
-		return "analyses/single/components/scenario/manageScenario";
+	public String add(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+		return loadFormData(null, model, (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale);
 	}
 
 	/**
@@ -241,13 +247,9 @@ public class ControllerScenario {
 	 */
 	@RequestMapping("/Edit/{elementID}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = loadFormData(model, session);
-		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
-		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
-		model.addAttribute("scenario", scenario);
-
-		return "analyses/single/components/scenario/manageScenario";
+	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return loadFormData(serviceScenario.getFromAnalysisById(idAnalysis, elementID), model, idAnalysis, locale);
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -443,11 +445,11 @@ public class ControllerScenario {
 			for (AssetType assetType : assetTypes) {
 				JsonNode assetTypeValue = assetTypesValues.get(assetType.getId() + "");
 				int value = assetTypeValue == null ? 0 : assetTypeValue.asInt();
-				AssetTypeValue atv = returnvalue.retrieveAssetTypeValue(assetType);
+				AssetTypeValue atv = returnvalue.findByAssetType(assetType);
 				if (atv != null)
 					atv.setValue(value);
 				else
-					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
+					returnvalue.add(new AssetTypeValue(assetType, value));
 			}
 
 			if (!cssf) {
@@ -490,15 +492,29 @@ public class ControllerScenario {
 
 	}
 
-	private Integer loadFormData(Model model, HttpSession session) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+	private String loadFormData(Scenario scenario, Model model, Integer idAnalysis, Locale locale) {
 		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 		if (type == AnalysisType.QUALITATIVE)
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
+		List<AssetType> assetTypes = serviceAssetType.getAll();
+		assetTypes.sort((a1, a2) -> NaturalOrderComparator.compareTo(messageSource.getMessage("label.asset_type." + a1.getName().toLowerCase(), null, locale),
+				messageSource.getMessage("label.asset_type." + a2.getName().toLowerCase(), null, locale)));
+		List<Asset> assets = serviceAsset.getAllFromAnalysis(idAnalysis);
+		assets.sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getName(), a2.getName()));
+		Map<Object, Integer> assetTypeValues = assetTypes.stream().collect(Collectors.toMap(Function.identity(), assetType -> 0)),
+				assetValues = assets.stream().collect(Collectors.toMap(Function.identity(), assetType -> 0));
+		if (!(scenario == null || scenario.getId() < 1)) {
+			if (scenario.isAssetLinked())
+				scenario.getLinkedAssets().forEach(asset -> assetValues.put(asset, 1));
+			else
+				scenario.getAssetTypeValues().forEach(assetTypeValue -> assetTypeValues.put(assetTypeValue.getAssetType(), assetTypeValue.getValue()));
+			model.addAttribute("scenario", scenario);
+		}
 		model.addAttribute("type", type);
-		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return idAnalysis;
+		model.addAttribute("assetTypeValues", assetTypeValues);
+		model.addAttribute("assetValues", assetValues);
+		return "analyses/single/components/scenario/manageScenario";
 	}
 }

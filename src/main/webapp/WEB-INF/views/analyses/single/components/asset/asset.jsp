@@ -79,7 +79,7 @@
 						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${asset.name}" /></td>
-						<td><spring:message code="label.asset_type.${fn:toLowerCase(asset.assetType.type)}" /></td>
+						<td><spring:message code="label.asset_type.${fn:toLowerCase(asset.assetType.name)}" /></td>
 						<td title='<fmt:formatNumber value="${fct:round(asset.value,0)}" /> &euro;'><fmt:formatNumber
 								value="${fct:round(asset.value*0.001,0)}" /></td>
 						<c:if test="${type == 'QUANTITATIVE'}">

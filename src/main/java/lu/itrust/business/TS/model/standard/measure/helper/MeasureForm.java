@@ -89,7 +89,7 @@ public class MeasureForm {
 				((NormalMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.assetValues = new ArrayList<MeasureAssetValueForm>(((NormalMeasure) measure).getAssetTypeValues().size());
 			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
-				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(), assetTypeValue.getAssetType().getType(), assetTypeValue.getValue()));
+				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(), assetTypeValue.getAssetType().getName(), assetTypeValue.getValue()));
 		} else if (measure instanceof AssetMeasure) {
 			if (analysisType == AnalysisType.QUANTITATIVE)
 				((AssetMeasure) measure).getMeasurePropertyList().copyTo(properties);

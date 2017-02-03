@@ -299,9 +299,9 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		assertEquals("Bad scenario internalThreat", 1, scenario.getInternalThreat());
 
 		serviceAssetType.getAll().forEach(assetType -> {
-			AssetTypeValue assetTypeValue = scenario.retrieveAssetTypeValue(assetType);
-			notNull(assetTypeValue, String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()));
-			assertEquals(String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()), 1, assetTypeValue.getValue());
+			AssetTypeValue assetTypeValue = scenario.findByAssetType(assetType);
+			notNull(assetTypeValue, String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getName()));
+			assertEquals(String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getName()), 1, assetTypeValue.getValue());
 		});
 
 	}

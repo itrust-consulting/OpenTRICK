@@ -14,7 +14,7 @@ import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * AssetType: <br>
- * Represents the Asset type of an Asset.
+ * Represents the Asset name of an Asset.
  * 
  * @author itrust consulting s.à r.l. : OEM, BJA, SME
  * @version 0.1
@@ -39,7 +39,7 @@ public class AssetType implements Serializable, Cloneable {
 
 	/** AssetType Type name */
 	@Column(name = "dtLabel", nullable = false, unique = true)
-	private String type = "";
+	private String name = "";
 
 	/***********************************************************************************************
 	 * Constructors
@@ -54,12 +54,12 @@ public class AssetType implements Serializable, Cloneable {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param type
+	 * @param name
 	 *            Type Name
 	 * @throws TrickException
 	 */
 	public AssetType(String type) throws TrickException {
-		setType(type);
+		setName(type);
 	}
 
 	/***********************************************************************************************
@@ -89,28 +89,28 @@ public class AssetType implements Serializable, Cloneable {
 
 	/**
 	 * getType: <br>
-	 * Returns the type field value.
+	 * Returns the name field value.
 	 * 
-	 * @return The value of the type field
+	 * @return The value of the name field
 	 */
-	public String getType() {
-		return type;
+	public String getName() {
+		return name;
 	}
 
 	/**
 	 * setType: <br>
-	 * Sets the Field "type" with a value.
+	 * Sets the Field "name" with a value.
 	 * 
-	 * @param type
-	 *            The Value to set the type field
+	 * @param name
+	 *            The Value to set the name field
 	 * @throws TrickException
 	 */
-	public void setType(String type) throws TrickException {
-		if (type == null)
-			throw new TrickException("error.assettype.type_null", "Asset type cannot be empty");
-		else if (!type.trim().matches(Constant.REGEXP_VALID_ASSET_TYPE))
-			throw new TrickException("error.assettype.type_no_meet", "Asset type: wrong type");
-		this.type = type.trim();
+	public void setName(String name) throws TrickException {
+		if (name == null)
+			throw new TrickException("error.assettype.type_null", "Asset name cannot be empty");
+		else if (!name.trim().matches(Constant.REGEXP_VALID_ASSET_TYPE))
+			throw new TrickException("error.assettype.type_no_meet", "Asset name: wrong name");
+		this.name = name.trim();
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class AssetType implements Serializable, Cloneable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + id;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -154,16 +154,16 @@ public class AssetType implements Serializable, Cloneable {
 		if (!(obj instanceof AssetType))
 			return false;
 		AssetType other = (AssetType) obj;
-		if (getType() == null) {
-			if (other.getType() != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!getType().equals(other.getType())) {
+		} else if (!getName().equals(other.getName())) {
 			return false;
 		}
 		return true;
 	}
 
-	public boolean isSame(String type) {
-		return this.type == null ? (type == null ? true : false) : this.type.equals(type);
+	public boolean isSame(String name) {
+		return this.name == null ? (name == null ? true : false) : this.name.equals(name);
 	}
 }

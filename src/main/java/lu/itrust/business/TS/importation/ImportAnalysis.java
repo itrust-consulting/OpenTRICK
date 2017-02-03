@@ -3239,7 +3239,7 @@ public class ImportAnalysis {
 			}
 
 			// add asset type values to scenario
-			scenario.addAssetTypeValue(new AssetTypeValue(assetType, rs.getInt(key)));
+			scenario.add(new AssetTypeValue(assetType, rs.getInt(key)));
 		}
 	}
 

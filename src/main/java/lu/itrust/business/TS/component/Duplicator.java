@@ -168,20 +168,20 @@ public class Duplicator {
 			for (RiskInformation riskInformation : analysis.getRiskInformations())
 				copy.getRiskInformations().add(riskInformation.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", (int) (minProgress + bound * 20)));
-
-			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
-			for (Scenario scenario : analysis.getScenarios()) {
-				scenarios.put(scenario.getId(), scenario.duplicate());
-				copy.getScenarios().add(scenarios.get(scenario.getId()));
-			}
-
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", (int) (minProgress + bound * 30)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", (int) (minProgress + bound * 20)));
 
 			copy.setAssets(new ArrayList<Asset>(analysis.getAssets().size()));
 			for (Asset asset : analysis.getAssets()) {
 				assets.put(asset.getId(), asset.duplicate());
 				copy.getAssets().add(assets.get(asset.getId()));
+			}
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", (int) (minProgress + bound * 30)));
+
+			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
+			for (Scenario scenario : analysis.getScenarios()) {
+				scenarios.put(scenario.getId(), scenario.duplicate(assets));
+				copy.getScenarios().add(scenarios.get(scenario.getId()));
 			}
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy estimations", (int) (minProgress + bound * 35)));
@@ -538,7 +538,7 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 55));
 			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
 			for (Scenario scenario : analysis.getScenarios())
-				copy.getScenarios().add(scenario.duplicate());
+				copy.getScenarios().add(scenario.duplicate(null));
 
 			// standards
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60));

@@ -367,15 +367,15 @@ public class ControllerAnalysisCreate {
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
 			if (analysisForm.getImpacts().isEmpty()) {
-				
+
 				mappingParameters.putAll(serviceRiskAcceptanceParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-				
+
 				mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-				
+
 			} else {
 				analysisForm.getScale().setLevel(analysisForm.getScale().getLevel() + 1);
 				generateLikelihoodParameters(analysis, mappingParameters, 12, analysisForm.getScale().getLevel());
@@ -394,7 +394,7 @@ public class ControllerAnalysisCreate {
 
 			Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() || assets.isEmpty() ? null : new LinkedHashMap<Integer, Scenario>(scenarios.size());
 			for (Scenario scenario : scenarios) {
-				Scenario duplication = scenario.duplicate();
+				Scenario duplication = scenario.duplicate(mappingAssets);
 				analysis.add(duplication);
 				if (mappingScenarios != null)
 					mappingScenarios.put(scenario.getId(), duplication);

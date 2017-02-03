@@ -31,7 +31,7 @@
 						</c:when>
 						<c:when test="${measureForm.type == 'NORMAL' }">
 							<c:forEach items="${measureForm.assetValues}" var="assetValue">
-								<th ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><spring:message text='${assetValue.name}' /></th>
+								<th ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><spring:message code='label.asset_type.${fn:toLowerCase(assetValue.name)}' /></th>
 							</c:forEach>
 						</c:when>
 					</c:choose>

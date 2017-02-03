@@ -21,6 +21,18 @@ function editScenario(rowTrickId, isAdd) {
 					unknowError();
 				else {
 					$("#addScenarioModal").replaceWith($modal);
+
+					$("#scenario_asset_linked", $modal).on("change", function() {
+						var $assetVlues = $("#scenario-asset-values", $modal), $assetTypeValues = $("#scenario-asset-type-values", $modal)
+						if (this.checked) {
+							$assetVlues.show();
+							$assetTypeValues.hide();
+						} else {
+							$assetVlues.hide();
+							$assetTypeValues.show();
+						}
+					}).trigger("change");
+
 					if (application.analysisType == "QUANTITATIVE") {
 						$modal.find(".slider").slider({
 							reversed : true

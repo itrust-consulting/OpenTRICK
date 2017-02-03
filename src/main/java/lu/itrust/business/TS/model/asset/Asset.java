@@ -35,7 +35,7 @@ public class Asset implements Cloneable {
 
 	/** Asset Identifier */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAsset")
 	private int id = -1;
 
@@ -54,11 +54,11 @@ public class Asset implements Cloneable {
 	private double value = 0;
 
 	/** The Asset Comment */
-	@Column(name = "dtComment", nullable = false, length=16777216)
+	@Column(name = "dtComment", nullable = false, length = 16777216)
 	private String comment = "";
 
 	/** The Asset Hidden Comment */
-	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
+	@Column(name = "dtHiddenComment", nullable = false, length = 16777216)
 	private String hiddenComment = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
@@ -148,7 +148,7 @@ public class Asset implements Cloneable {
 	 * @throws TrickException
 	 */
 	public void setAssetType(AssetType assetType) throws TrickException {
-		if (assetType == null || assetType.getType() == null || assetType.getType().trim().isEmpty())
+		if (assetType == null || assetType.getName() == null || assetType.getName().trim().isEmpty())
 			throw new TrickException("error.asset.assettype_null", "Asset type cannot be empty");
 		this.assetType = assetType;
 	}
@@ -261,8 +261,8 @@ public class Asset implements Cloneable {
 	}
 
 	/**
-	 * equals: This method checks if an object Asset equals another object Asset. Fields taken in
-	 * concideration: ID, name, assetType.<br>
+	 * equals: This method checks if an object Asset equals another object
+	 * Asset. Fields taken in concideration: ID, name, assetType.<br>
 	 * <br>
 	 * <b>NOTE:</b> This Method is auto generated
 	 * 
@@ -280,9 +280,9 @@ public class Asset implements Cloneable {
 			return false;
 		}
 		Asset other = (Asset) obj;
-		if (getId() > 0 && other.getId() > 0) 
+		if (getId() > 0 && other.getId() > 0)
 			return getId() == other.getId();
-		
+
 		if (getName() == null) {
 			if (other.getName() != null) {
 				return false;
@@ -300,8 +300,12 @@ public class Asset implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Asset clone() throws CloneNotSupportedException {
-		return (Asset) super.clone();
+	public Asset clone() {
+		try {
+			return (Asset) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.asset", "Asset cannot be copied");
+		}
 	}
 
 	/**
@@ -311,10 +315,14 @@ public class Asset implements Cloneable {
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public Asset duplicate() throws CloneNotSupportedException {
-		Asset asset = (Asset) super.clone();
-		asset.id = -1;
-		return asset;
+	public Asset duplicate() {
+		try {
+			Asset asset = (Asset) super.clone();
+			asset.id = -1;
+			return asset;
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.asset", "Asset cannot be copied");
+		}
 	}
 
 	/**
@@ -387,7 +395,7 @@ public class Asset implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Asset [id=" + id + ", name=" + name + ", assetType=" + assetType + ", value=" + value + ", comment=" + comment + ", hiddenComment=" + hiddenComment + ", selected=" + selected
-			+ ", ALEP=" + ALEP + ", ALE=" + ALE + ", ALEO=" + ALEO + "]";
+		return "Asset [id=" + id + ", name=" + name + ", assetType=" + assetType + ", value=" + value + ", comment=" + comment + ", hiddenComment=" + hiddenComment + ", selected="
+				+ selected + ", ALEP=" + ALEP + ", ALE=" + ALE + ", ALEO=" + ALEO + "]";
 	}
 }

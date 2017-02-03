@@ -15,8 +15,8 @@ import lu.itrust.business.TS.model.asset.AssetType;
 
 /**
  * AssetTypeValue: <br>
- * This class represents an AssetTypeValue and all its data. This class is used to store
- * AssetTypeValues of either Scenarios or Measures.
+ * This class represents an AssetTypeValue and all its data. This class is used
+ * to store AssetTypeValues of either Scenarios or Measures.
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
@@ -31,7 +31,7 @@ public class AssetTypeValue implements Cloneable {
 
 	/** assetTypeValue identifier, unsaved value = -1 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAssetTypeValue")
 	private int id = -1;
 
@@ -62,7 +62,7 @@ public class AssetTypeValue implements Cloneable {
 	 *            The Asset Type Object
 	 * @param value
 	 *            The Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public AssetTypeValue(AssetType assetType, int value) throws TrickException {
 		setAssetType(assetType);
@@ -92,7 +92,7 @@ public class AssetTypeValue implements Cloneable {
 	 * @throws TrickException
 	 */
 	public void setAssetType(AssetType assetType) throws TrickException {
-		if (assetType == null || assetType.getType() == null)
+		if (assetType == null || assetType.getName() == null)
 			throw new TrickException("error.assettypevalue.assettype_null", "Asset type value cannot be empty");
 		this.assetType = assetType;
 	}
@@ -128,8 +128,13 @@ public class AssetTypeValue implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public AssetTypeValue clone() throws CloneNotSupportedException {
-		return (AssetTypeValue) super.clone();
+	public AssetTypeValue clone() {
+		try {
+			return (AssetTypeValue) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.data", "Data cannot be copied");
+		}
+
 	}
 
 	/**
@@ -140,10 +145,14 @@ public class AssetTypeValue implements Cloneable {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	public AssetTypeValue duplicate() throws CloneNotSupportedException {
-		AssetTypeValue assetTypeValue = (AssetTypeValue) super.clone();
-		assetTypeValue.id = -1;
-		return assetTypeValue;
+	public AssetTypeValue duplicate() {
+		try {
+			AssetTypeValue assetTypeValue = (AssetTypeValue) super.clone();
+			assetTypeValue.id = -1;
+			return assetTypeValue;
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.data", "Data cannot be copied");
+		}
 	}
 
 	/**
@@ -195,9 +204,9 @@ public class AssetTypeValue implements Cloneable {
 			return false;
 		return true;
 	}
-	
-	public boolean hasSameType(String type){
-		return assetType == null? (type == null? true : false) : assetType.isSame(type);
+
+	public boolean hasSameType(String type) {
+		return assetType == null ? (type == null ? true : false) : assetType.isSame(type);
 	}
 
 }

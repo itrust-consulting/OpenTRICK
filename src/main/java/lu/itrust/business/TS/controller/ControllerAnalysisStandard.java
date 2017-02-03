@@ -824,7 +824,7 @@ public class ControllerAnalysisStandard {
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
 				for (AssetType assetType : assetTypes) {
 					if (!analysisAssetTypes.contains(assetType))
-						assetTypesMapping.put(assetType.getType(), false);
+						assetTypesMapping.put(assetType.getName(), false);
 					normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
 				}
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
@@ -897,7 +897,7 @@ public class ControllerAnalysisStandard {
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
 				for (AssetType assetType : assetTypes) {
 					if (!analysisAssetTypes.contains(assetType))
-						assetTypesMapping.put(assetType.getType(), false);
+						assetTypesMapping.put(assetType.getName(), false);
 					if (normalMeasure.getAssetTypeValueByAssetType(assetType) == null)
 						normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
 				}

@@ -245,7 +245,7 @@ public class ControllerRRF {
 				if (assetTypeValues.size() != size)
 					serviceMeasure.saveOrUpdate(measure);
 
-				model.addAttribute("assetTypes", assetTypeValues);
+				model.addAttribute("assetTypeValues", assetTypeValues);
 			}
 			if (measure instanceof AssetMeasure) {
 				AssetMeasure assetMeasure = (AssetMeasure) measure;
@@ -658,16 +658,16 @@ public class ControllerRRF {
 		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length, rowIndex = 0;
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (AssetType assetType : assetTypes)
-			row.getCell(++colIndex).setCellValue(assetType.getType());
+			row.getCell(++colIndex).setCellValue(assetType.getName());
 		measures.stream().forEach(measure -> measure.getAssetTypeValues()
-				.forEach(assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+				.forEach(assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
 		for (NormalMeasure measure : measures) {
 			row = sheet.getRow(++rowIndex);
 			if (row == null)
 				row = sheet.createRow(rowIndex);
 			colIndex = writingMeasureData(row, totalCol, categories, mappedValue, measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
 			for (AssetType assetType : assetTypes)
-				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(measure.getId() + "_" + assetType.getType(), 0));
+				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(measure.getId() + "_" + assetType.getName(), 0));
 
 		}
 	}
@@ -757,10 +757,10 @@ public class ControllerRRF {
 		row.getCell(++colIndex).setCellValue(RAW_EXTERNAL_THREAT);
 
 		for (AssetType assetType : assetTypes)
-			row.getCell(++colIndex).setCellValue(assetType.getType());
+			row.getCell(++colIndex).setCellValue(assetType.getName());
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
 		scenarios.stream().forEach(scenario -> scenario.getAssetTypeValues()
-				.forEach(assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+				.forEach(assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
 		for (Scenario scenario : scenarios) {
 			row = scenarioSheet.getRow(++rowIndex);
 			if (row == null)
@@ -782,7 +782,7 @@ public class ControllerRRF {
 			row.getCell(++colIndex).setCellValue(scenario.getInternalThreat());
 			row.getCell(++colIndex).setCellValue(scenario.getExternalThreat());
 			for (AssetType assetType : assetTypes)
-				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(scenario.getId() + "_" + assetType.getType(), 0));
+				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(scenario.getId() + "_" + assetType.getName(), 0));
 		}
 	}
 
@@ -901,7 +901,7 @@ public class ControllerRRF {
 
 	private void loadMeasureData(NormalMeasure measure, Row data, Integer referenceIndex, Map<Integer, String> cellIndexToFieldName) {
 		Map<String, AssetTypeValue> assetValues = measure.getAssetTypeValues().stream()
-				.collect(Collectors.toMap(assetValue -> assetValue.getAssetType().getType(), Function.identity()));
+				.collect(Collectors.toMap(assetValue -> assetValue.getAssetType().getName(), Function.identity()));
 		MeasureProperties properties = measure.getMeasurePropertyList();
 		for (Cell cell : data) {
 			if (cell.getColumnIndex() == referenceIndex)
@@ -1018,7 +1018,7 @@ public class ControllerRRF {
 
 	private void loadScenarioData(Scenario scenario, Row data, Integer nameIndex, Map<Integer, String> cellIndexToFieldName) {
 		Map<String, AssetTypeValue> assetTypeValues = scenario.getAssetTypeValues().stream()
-				.collect(Collectors.toMap(assetTypeValue -> assetTypeValue.getAssetType().getType(), Function.identity()));
+				.collect(Collectors.toMap(assetTypeValue -> assetTypeValue.getAssetType().getName(), Function.identity()));
 		for (Cell cell : data) {
 			if (cell.getColumnIndex() == nameIndex)
 				continue;

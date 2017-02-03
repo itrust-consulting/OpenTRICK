@@ -23,8 +23,8 @@
 					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
 					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
 					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
-					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-						<th class="text-center"><spring:message text='${assetType.assetType.type}' /></th>
+					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetTypeValue">
+						<th class="text-center"><spring:message code="label.asset_type.${fn:toLowerCase(assetTypeValue.assetType.name)}" /></th>
 					</c:forEach>
 				</tr>
 			</thead>
@@ -59,9 +59,9 @@
 						data-slider-max="1" data-slider-step="1" data-slider-value="${selectedScenario.externalThreat}" name="externalThreat" data-slider-orientation="vertical"
 						data-slider-selection="after" data-slider-tooltip="show"></td>
 
-					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-						<td class="" data-trick-class="AssetType"><input type="text" class="slider" id='scenario_<spring:message text="${assetType.assetType.type}"/>' value="${assetType.value}"
-							data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${assetType.value}" name='<spring:message text="${assetType.assetType.type}"/>'
+					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetTypeValue">
+						<td class="" data-trick-class="AssetType"><input type="text" class="slider" id='scenario_<spring:message text="${assetTypeValue.assetType.name}"/>' value="${assetTypeValue.value}"
+							data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${assetTypeValue.value}" name='<spring:message text="${assetTypeValue.assetType.name}"/>'
 							data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 					</c:forEach>
 				</tr>
@@ -84,9 +84,9 @@
 						value="${selectedScenario.internalThreat}"></td>
 					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_externalThreat_value"
 						value="${selectedScenario.externalThreat}"></td>
-					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-						<td class="" data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 40px;" id='scenario_<spring:message text="${assetType.assetType.type}"/>_value'
-							readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
+					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetTypeValue">
+						<td class="" data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 40px;" id='scenario_<spring:message text="${assetTypeValue.assetType.name}"/>_value'
+							readonly="readonly" class="form-control" value="${assetTypeValue.value}" name="<spring:message text="${assetTypeValue.assetType.name}" />"></td>
 					</c:forEach>
 				</tr>
 			</tbody>

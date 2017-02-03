@@ -32,6 +32,7 @@
 								<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
 							</div>
 						</div>
+
 						<div class="form-group">
 							<label for="scenarioType.id" class="col-sm-2 control-label"> <spring:message code="label.scenario.type" />
 							</label>
@@ -53,60 +54,73 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" />
-							</label>
-							<div class="col-sm-10">
-								<textarea name="description" class="form-control resize_vectical_only" rows="12" id="scenario_description"><spring:message
-										text="${empty(scenario)? '': scenario.description}" /></textarea>
-							</div>
-						</div>
-						<div class="form-group">
 							<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.selected" />
 							</label>
 							<div class="col-sm-8" align="center">
 								<input name="selected" id="scenario_selected" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
 							</div>
 						</div>
-						<div class="panel panel-primary">
-							<div class="panel-body">
-								<label class="col-sm-12 text-center"> <spring:message code="label.scenario.application.asset.types" /></label>
-								<table class="table">
-									<c:choose>
-										<c:when test="${!empty(scenario)}">
-											<thead>
-												<tr style="text-align: center;">
-													<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
-														<td><spring:message code="label.asset_type.${fn:toLowerCase(assettypevalue.assetType.type)}" /></td>
-													</c:forEach>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
-														<td align="center"><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1"
-															name="assetTypes['${assetTypeValue.assetType.id}']" /></td>
-													</c:forEach>
-												</tr>
-											</tbody>
-										</c:when>
-										<c:when test="${!empty(assetTypes)}">
-											<thead>
-												<tr style="text-align: center;">
-													<c:forEach items="${assetTypes}" var="assetType">
-														<td align="center"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
-													</c:forEach>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
-														<td align="center"><input type="checkbox" value="1" name="assetTypes['<spring:message text="${assetType.id}" />']" /></td>
-													</c:forEach>
-												</tr>
-											</tbody>
-										</c:when>
-									</c:choose>
-								</table>
+						<div class="form-group">
+							<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.asset_linked" />
+							</label>
+							<div class="col-sm-8" align="center">
+								<input name="assetLinked" id="scenario_asset_linked" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.assetLinked? 'checked' : ''} />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" />
+							</label>
+							<div class="col-sm-10">
+								<textarea name="description" class="form-control resize_vectical_only" rows="15" id="scenario_description"><spring:message
+										text="${empty(scenario)? '': scenario.description}" /></textarea>
+							</div>
+						</div>
+						<div id='scenario-asset-type-values' class='form-group' ${not empty scenario and scenario.assetLinked? 'hidden' : ''  } >
+							<label class="col-sm-2 control-label"><spring:message code="label.scenario.application.asset.types" /></label>
+							<spring:message var="typeChooseText" code='label.asset_type.choose.multi' />
+							<div class="col-sm-10">
+								<c:choose>
+									<c:when test="${!empty(scenario)}">
+										<select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
+											<option value="-1">${typeChooseText}</option>
+											<c:forEach items="${assetTypeValues.keySet()}" var="assetType" varStatus="status">
+												<option ${assetTypeValues[assetType] > 0 ? 'selected' : ''} value="${assetType.id}"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.name)}" /></option>
+											</c:forEach>
+										</select>
+									</c:when>
+									<c:when test="${!empty(assetTypeValues)}">
+										<select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
+											<option value="-1">${typeChooseText}</option>
+											<c:forEach items="${assetTypeValues.keySet()}" var="assetType" varStatus="status">
+												<option value="${assetType.id}"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.name)}" /></option>
+											</c:forEach>
+										</select>
+									</c:when>
+								</c:choose>
+							</div>
+						</div>
+						<div class='form-group' id='scenario-asset-values' ${not empty scenario and scenario.assetLinked? '' : 'hidden'  }>
+							<label class="col-sm-2 control-label"><spring:message code="label.scenario.linked.asset" /></label>
+							<spring:message var="assetChooseText" code='label.asset.choose.multi' />
+							<div class="col-sm-10">
+								<c:choose>
+									<c:when test="${!empty(scenario)}">
+										<select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">
+											<option value="-1">${assetChooseText}</option>
+											<c:forEach items="${assetValues.keySet()}" var="asset" varStatus="status">
+												<option ${assetValues[asset] > 0 ? 'selected' : ''} value="${asset.id}"><spring:message text="${asset.name}" /></option>
+											</c:forEach>
+										</select>
+									</c:when>
+									<c:when test="${!empty(assetValues)}">
+										<select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">
+											<option value="-1">${assetChooseText}</option>
+											<c:forEach items="${assetValues.keySet()}" var="asset" varStatus="status">
+												<option value="${asset.id}"><spring:message text="${asset.name}" /></option>
+											</c:forEach>
+										</select>
+									</c:when>
+								</c:choose>
 							</div>
 						</div>
 					</div>

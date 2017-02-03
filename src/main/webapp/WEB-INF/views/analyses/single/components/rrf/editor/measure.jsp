@@ -26,9 +26,9 @@
 			<th class="warning text-center"><spring:message code="label.rrf.measure.environmental" /></th>
 			<th class="warning text-center"><spring:message code="label.rrf.measure.internal_threat" /></th>
 			<th class="warning text-center"><spring:message code="label.rrf.measure.external_threat" /></th>
-			<c:if test="${!empty(assetTypes)}">
-				<c:forEach items="${assetTypes}" var="assetType">
-					<th class="text-center"><spring:message code='label.asset_type.${fn:toLowerCase(assetType.assetType.type)}' /></th>
+			<c:if test="${!empty(assetTypeValues)}">
+				<c:forEach items="${assetTypeValues}" var="assetTypeValue">
+					<th class="text-center"><spring:message code='label.asset_type.${fn:toLowerCase(assetTypeValue.assetType.name)}' /></th>
 				</c:forEach>
 			</c:if>
 			<c:if test="${!empty(assets)}">
@@ -70,10 +70,10 @@
 				data-slider-value="${internalThreat}" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 			<td class="warning"><input type="text" class="slider" id="measure_externalThreat" value="${externalThreat}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
 				data-slider-value="${externalThreat}" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<c:if test="${!empty(assetTypes)}">
-				<c:forEach items="${assetTypes}" var="assetType">
-					<td data-trick-class="AssetType"><input type="text" class="slider" id='measure_<spring:message text="${assetType.assetType.type}"/>' value="${assetType.value}"
-						data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetType.value}" name=<spring:message text="${assetType.assetType.type}"/>
+			<c:if test="${!empty(assetTypeValues)}">
+				<c:forEach items="${assetTypeValues}" var="assetTypeValue">
+					<td data-trick-class="AssetType"><input type="text" class="slider" id='measure_<spring:message text="${assetTypeValue.assetType.name}"/>' value="${assetTypeValue.value}"
+						data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetTypeValue.value}" name=<spring:message text="${assetTypeValue.assetType.name}"/>
 						data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 				</c:forEach>
 			</c:if>
@@ -115,10 +115,10 @@
 				name="internalThreat"></td>
 			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_externalThreat_value" value="${externalThreat}"
 				name="externalThreat"></td>
-			<c:if test="${!empty(assetTypes)}">
-				<c:forEach items="${assetTypes}" var="assetType">
-					<td data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 46px" id='measure_<spring:message text="${assetType.assetType.type}"/>_value'
-						style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
+			<c:if test="${!empty(assetTypeValues)}">
+				<c:forEach items="${assetTypeValues}" var="assetTypeValue">
+					<td data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 46px" id='measure_<spring:message text="${assetTypeValue.assetType.name}"/>_value'
+						style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetTypeValue.assetType.name}" />"></td>
 				</c:forEach>
 			</c:if>
 			<c:if test="${!empty(assets)}">

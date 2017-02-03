@@ -8,6 +8,6 @@ public class AssetTypeValueComparator implements Comparator<AssetTypeValue> {
 
 	@Override
 	public int compare(AssetTypeValue o1, AssetTypeValue o2) {
-		return o1.getAssetType().getType().compareTo(o2.getAssetType().getType());
+		return o1.getAssetType().getName().compareTo(o2.getAssetType().getName());
 	}
 }

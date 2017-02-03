@@ -199,7 +199,7 @@ public class CustomDelete {
 	@Transactional
 	public void deleteDuplicationAssetTypeValue(List<Scenario> scenarios) throws Exception {
 		for (Scenario scenario : scenarios) {
-			List<AssetTypeValue> assetTypeValues = scenario.deleteAssetTypeDuplication();
+			List<AssetTypeValue> assetTypeValues = scenario.deleteDuplicatedAndUnsed();
 			daoScenario.saveOrUpdate(scenario);
 			daoAssetTypeValue.delete(assetTypeValues);
 		}
