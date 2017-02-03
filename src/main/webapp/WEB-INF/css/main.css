@@ -141,7 +141,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 .cellwidth_650 {
 	width: 500px;
 	overflow: hidden;
-	o-text-overflow: ellipsis;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	line-height: 1.5;
@@ -293,15 +292,14 @@ a[role="changeUILanguage"]:hover {
 }
 
 .tab-content-header {
-	margin: -15px 0px 9px;
+	margin: -0px 0px 9px;
 }
 
-.tab-content-header .row-fluid *:FIRST-CHILD:NOT (.fa ) {
+.tab-content-header .row-fluid *:FIRST-CHILD:NOT(.fa ) {
 	margin-bottom: 2px;
 	margin-top: 2px;
 }
 
-}
 .tab-content-header h1, .tab-content-header h2, .tab-content-header h3, .tab-content-header h4, .tab-content-header h5, .tab-content-header h6 {
 	margin-top: 10px;
 }
@@ -574,7 +572,6 @@ datalist {
 
 @media ( min-width : 992px) {
 
-	
 	li.back-btn-bottom {
 		display: none;
 	}

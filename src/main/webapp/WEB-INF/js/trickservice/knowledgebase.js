@@ -20,7 +20,7 @@ function editSingleAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	$("#editAnalysisModel .progress").hide();
+	var $progress = $("#loading-indicator").show();
 	$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 	$.ajax({
 		url : context + "/Analysis/Edit/" + analysisId,
@@ -38,6 +38,8 @@ function editSingleAnalysis(analysisId) {
 			}
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 }
@@ -49,6 +51,7 @@ function exportAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/Export/" + analysisId,
 		type : "get",
@@ -63,6 +66,8 @@ function exportAnalysis(analysisId) {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 }
@@ -74,7 +79,7 @@ function setAsDefaultProfile(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/AnalysisProfile/SetDefaultProfile/" + analysisId,
 		type : "POST",
@@ -84,6 +89,8 @@ function setAsDefaultProfile(analysisId) {
 			reloadSection("section_profile_analysis");
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 
@@ -96,11 +103,13 @@ function selectAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
+	$("#loading-indicator").show();
 	window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + OPEN_MODE.EDIT.value + "");
+	return false;
 }
 
 function saveAnalysis(form, reloadaction) {
-	$("#editAnalysisModel .progress").show();
+	var $progress = $("#loading-indicator").show();
 	$("#editAnalysisModel #editAnalysisButton").prop("disabled", true);
 	$.ajax({
 		url : context + "/Analysis/Save",
@@ -108,7 +117,6 @@ function saveAnalysis(form, reloadaction) {
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			$("#editAnalysisModel .progress").hide();
 			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 			var alert = $("#editAnalysisModel .label-danger");
 			if (alert.length)
@@ -133,9 +141,10 @@ function saveAnalysis(form, reloadaction) {
 				$("#editAnalysisModel").modal("hide");
 				reloadSection("section_profile_analysis");
 			}
-			return false;
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 }
@@ -148,34 +157,28 @@ function deleteAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-
-	$("#deleteanalysisbuttonYes").click(function() {
-		$("#deleteAnalysisModel .modal-header > .close").hide();
-		$("#deleteprogressbar").show();
-		$("#deleteanalysisbuttonYes").prop("disabled", true);
+	$("#deleteanalysisbuttonYes").unbind();
+	$("#deleteanalysisbuttonYes").one("click",function() {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Delete/" + analysisId,
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				$("#deleteprogressbar").hide();
-				$("#deleteanalysisbuttonYes").prop("disabled", false);
-				$("#deleteAnalysisModel").modal('hide');
 				if (response.success != undefined)
 					reloadSection("section_profile_analysis");
 				else if (response.error != undefined)
 					showDialog("#alert-dialog", response.error);
 				else
 					unknowError();
-				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
-		$("#deleteanalysisbuttonYes").unbind();
+		$("#deleteAnalysisModel").modal('hide');
 		return false;
 	});
-	$("#deleteanalysisbuttonYes").prop("disabled", false);
-	$("#deleteAnalysisModel .modal-header > .close").show();
 	$("#deleteAnalysisModel").modal('show');
 	return false;
 }
