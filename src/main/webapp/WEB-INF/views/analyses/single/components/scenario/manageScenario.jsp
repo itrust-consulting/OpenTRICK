@@ -26,13 +26,25 @@
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
 					<div id="tab_scenario_general" class="tab-pane active" style="padding-top: 17px;">
 						<div class="form-group">
+							<label for="type" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.asset_linked"/>'><spring:message
+									code="label.scenario.applicable.to" /></label>
+							<div class="col-sm-10" align="center">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-default ${empty(scenario) or not scenario.assetLinked? 'active':''}"><spring:message code="label.scenario.apply.to.asset_type" /><input
+										${empty(scenario) or not scenario.assetLinked? 'checked':''} name="assetLinked" type="radio" value="false"></label> <label
+										class="btn btn-default ${empty(scenario) or not scenario.assetLinked? '':'active'}"><spring:message code="label.scenario.apply.to.asset" /><input
+										${empty(scenario) or not scenario.assetLinked? '':'checked'} name="assetLinked" type="radio" value="true"></label>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
 							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scenario.name" />
 							</label>
 							<div class="col-sm-10">
 								<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
 							</div>
 						</div>
-
 						<div class="form-group">
 							<label for="scenarioType.id" class="col-sm-2 control-label"> <spring:message code="label.scenario.type" />
 							</label>
@@ -54,17 +66,15 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.selected" />
+							<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.status" />
 							</label>
-							<div class="col-sm-8" align="center">
-								<input name="selected" id="scenario_selected" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.asset_linked" />
-							</label>
-							<div class="col-sm-8" align="center">
-								<input name="assetLinked" id="scenario_asset_linked" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.assetLinked? 'checked' : ''} />
+							<div class="col-sm-10" align="center">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-default ${empty(scenario) or scenario.selected ? 'active' : ''}"><spring:message code="label.action.select" /><input
+										${empty(scenario) or scenario.selected ? 'checked' : ''} name=selected type="radio" value="true"></label> <label
+										class="btn btn-default ${empty(scenario) or scenario.selected ? '' : 'active'} "><spring:message code="label.action.unselect" /><input
+										${empty(scenario) or scenario.selected ? '' : 'checked'} name="selected" type="radio" value="false"></label>
+								</div>
 							</div>
 						</div>
 						<div class="form-group">
@@ -75,7 +85,7 @@
 										text="${empty(scenario)? '': scenario.description}" /></textarea>
 							</div>
 						</div>
-						<div id='scenario-asset-type-values' class='form-group' ${not empty scenario and scenario.assetLinked? 'hidden' : ''  } >
+						<div id='scenario-asset-type-values' class='form-group' ${not empty scenario and scenario.assetLinked? 'hidden' : ''  }>
 							<label class="col-sm-2 control-label"><spring:message code="label.scenario.application.asset.types" /></label>
 							<spring:message var="typeChooseText" code='label.asset_type.choose.multi' />
 							<div class="col-sm-10">
@@ -100,7 +110,7 @@
 							</div>
 						</div>
 						<div class='form-group' id='scenario-asset-values' ${not empty scenario and scenario.assetLinked? '' : 'hidden'  }>
-							<label class="col-sm-2 control-label"><spring:message code="label.scenario.linked.asset" /></label>
+							<label class="col-sm-2 control-label"><spring:message code="label.scenario.applicable.asset" /></label>
 							<spring:message var="assetChooseText" code='label.asset.choose.multi' />
 							<div class="col-sm-10">
 								<c:choose>

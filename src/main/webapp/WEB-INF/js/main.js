@@ -362,12 +362,10 @@ $.fn.serializeJSON = function() {
 		var val;
 		if (!this.name)
 			return;
-
 		if ('radio' === this.type) {
 			if (json[this.name]) {
 				return;
 			}
-
 			json[this.name] = this.checked ? this.value : '';
 		} else if ('checkbox' === this.type) {
 			val = json[this.name];
@@ -379,9 +377,14 @@ $.fn.serializeJSON = function() {
 			} else {
 				json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
 			}
-		} else {
+		} else if("select-multiple" === this.type) {
+			json[this.name] = Array.prototype.filter.call(this.options, (option)=> {
+		        return option.selected;
+		    }).map((option)=> {
+		        return option.value;
+		    });
+		}else
 			json[this.name] = this.value;
-		}
 	});
 	return json;
 };

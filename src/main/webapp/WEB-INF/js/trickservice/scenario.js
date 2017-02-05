@@ -22,14 +22,16 @@ function editScenario(rowTrickId, isAdd) {
 				else {
 					$("#addScenarioModal").replaceWith($modal);
 
-					$("#scenario_asset_linked", $modal).on("change", function() {
-						var $assetVlues = $("#scenario-asset-values", $modal), $assetTypeValues = $("#scenario-asset-type-values", $modal)
+					$("input[name='assetLinked'][type='radio']", $modal).on("change", function() {
 						if (this.checked) {
-							$assetVlues.show();
-							$assetTypeValues.hide();
-						} else {
-							$assetVlues.hide();
-							$assetTypeValues.show();
+							var $assetVlues = $("#scenario-asset-values", $modal), $assetTypeValues = $("#scenario-asset-type-values", $modal)
+							if (this.value == "true") {
+								$assetVlues.show();
+								$assetTypeValues.hide();
+							} else {
+								$assetVlues.hide();
+								$assetTypeValues.show();
+							}
 						}
 					}).trigger("change");
 
@@ -205,21 +207,17 @@ function deleteScenario(scenarioId) {
 }
 
 function serializeScenario($form) {
-	var data = $form.serializeJSON(), assetTypes = {};
+	var data = $form.serializeJSON();
 
-	for ( var field in data) {
-		if (field.startsWith("assetTypes[")) {
-			assetTypes[field.replace("assetTypes['", "").replace("']", "")] = parseInt(data[field] | "0");
-			delete data[field];
-		}
-	}
-
-	data["assetTypes"] = assetTypes;
+	if (data["assetLinked"] === "true")
+		data["assetTypeValues"] = [];
+	else
+		data["assetValues"] = [];
 
 	data["scenarioType"] = {
-		"id" : parseInt(data["scenarioType"], 0),
-		"type" : $("#scenario_scenariotype_id option:selected").text()
+		"id" : parseInt(data["scenarioType"], 0)
 	};
+	
 	if (application.analysisType == "QUANTITATIVE") {
 		var total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
 				+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);

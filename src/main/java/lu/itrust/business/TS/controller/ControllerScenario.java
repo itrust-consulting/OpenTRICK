@@ -38,6 +38,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.TrickException;
@@ -94,6 +95,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
+
+	@Autowired
+	private ServiceAssetTypeValue serviceAssetTypeValue;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
@@ -293,7 +297,7 @@ public class ControllerScenario {
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-			List<AssetType> assetTypes = serviceAssetType.getAll();
+			Map<Integer,AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getId, Function.identity()));
 
 			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
 
@@ -305,7 +309,17 @@ public class ControllerScenario {
 					return results;
 				}
 
+				List<AssetTypeValue> assetTypeValues = new LinkedList<>();
+
+				if (scenario.isAssetLinked()) {
+					assetTypeValues.addAll(scenario.getAssetTypeValues());
+					scenario.getAssetTypeValues().clear();
+				}
+
 				serviceScenario.saveOrUpdate(scenario);
+
+				if (!assetTypeValues.isEmpty())
+					serviceAssetTypeValue.delete(assetTypeValues);
 
 				if (scenario.isSelected())
 					assessmentAndRiskProfileManager.selectScenario(scenario);
@@ -380,7 +394,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private Scenario buildScenario(Map<String, Object> errors, List<AssetType> assetTypes, String source, Locale locale, boolean cssf) {
+	private Scenario buildScenario(Map<String, Object> errors, Map<Integer, AssetType> assetTypes, String source, Locale locale, boolean cssf) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -428,6 +442,7 @@ public class ControllerScenario {
 			else {
 				returnvalue.setName(name);
 				returnvalue.setSelected(jsonNode.get("selected").asBoolean());
+				returnvalue.setAssetLinked(jsonNode.get("assetLinked").asBoolean());
 			}
 
 			error = validator.validate(returnvalue, "description", description);
@@ -437,20 +452,25 @@ public class ControllerScenario {
 				returnvalue.setDescription(description);
 			}
 
-			JsonNode assetTypesValues = jsonNode.get("assetTypes");
+			JsonNode assetTypesValues = jsonNode.get("assetTypeValues");
 
 			if (assetTypesValues == null)
 				throw new TrickException("error.scenario.asset_types.empty", "Asset types cannot be found");
+			
+			returnvalue.getAssetTypeValues().forEach(assetTypeValue -> assetTypeValue.setValue(0));
 
-			for (AssetType assetType : assetTypes) {
-				JsonNode assetTypeValue = assetTypesValues.get(assetType.getId() + "");
-				int value = assetTypeValue == null ? 0 : assetTypeValue.asInt();
-				AssetTypeValue atv = returnvalue.findByAssetType(assetType);
-				if (atv != null)
-					atv.setValue(value);
-				else
-					returnvalue.add(new AssetTypeValue(assetType, value));
-			}
+			for (JsonNode assetTypeNoe : assetTypesValues)
+				returnvalue.addApplicable(assetTypes.get(assetTypeNoe.asInt(-1)));
+
+			returnvalue.getLinkedAssets().clear();
+
+			JsonNode assetValues = jsonNode.get("assetValues");
+
+			if (assetValues == null)
+				throw new TrickException("error.scenario.assets.empty", "Asset values cannot be found");
+
+			for (JsonNode assetNode : assetValues)
+				returnvalue.addApplicable(serviceAsset.get(assetNode.asInt(-1)));
 
 			if (!cssf) {
 				returnvalue.setAccidental(jsonNode.get("accidental").asInt());

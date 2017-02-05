@@ -345,7 +345,7 @@ public class Scenario extends SecurityCriteria {
 	/**
 	 * @return the assetLinked
 	 */
-	@Column(name="dtAssetLinked")
+	@Column(name = "dtAssetLinked")
 	public boolean isAssetLinked() {
 		return assetLinked;
 	}
@@ -526,7 +526,7 @@ public class Scenario extends SecurityCriteria {
 	 * @param linkedAssets
 	 *            the linkedAssets to set
 	 */
-	
+
 	public void setLinkedAssets(List<Asset> linkedAssets) {
 		this.linkedAssets = linkedAssets;
 	}
@@ -627,6 +627,26 @@ public class Scenario extends SecurityCriteria {
 		if (value < 0 || value > 4)
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
 		return value == 0 ? 0 : 4;
+	}
+
+	public void addApplicable(AssetType assetType) {
+		if (isAssetLinked())
+			return;
+		AssetTypeValue assetTypeValue = findByAssetType(assetType);
+		if (assetTypeValue == null)
+			getAssetTypeValues().add(new AssetTypeValue(assetType, 1));
+		else
+			assetTypeValue.setValue(1);
+	}
+
+	public void addApplicable(Asset asset) {
+		if (asset == null)
+			return;
+		if (!isAssetLinked())
+			addApplicable(asset.getAssetType());
+		else if (!getLinkedAssets().contains(asset))
+			getLinkedAssets().add(asset);
+
 	}
 
 }

@@ -50,8 +50,9 @@ body {
 	padding-top: 5px;
 	width: 100%;
 	max-width: 100%;
-	margin-left: -20px;
-	padding-left: 20px;
+	left: 0px;
+	right: 0px;
+	padding-left: 15px;
 }
 
 .nav-analysis li.dropdown-submenu.active>a:HOVER {
@@ -292,10 +293,10 @@ a[role="changeUILanguage"]:hover {
 }
 
 .tab-content-header {
-	margin: -0px 0px 9px;
+	margin: 0px 0px 9px;
 }
 
-.tab-content-header .row-fluid *:FIRST-CHILD:NOT(.fa ) {
+.tab-content-header .row-fluid *:FIRST-CHILD:NOT (.fa ){
 	margin-bottom: 2px;
 	margin-top: 2px;
 }
@@ -571,7 +572,6 @@ datalist {
 }
 
 @media ( min-width : 992px) {
-
 	li.back-btn-bottom {
 		display: none;
 	}
@@ -584,11 +584,9 @@ datalist {
 	*[role='left-menu']+*[class*='col-'] {
 		float: right;
 	}
-	
-	*[role='left-menu'].affixNav{
-		overflow-y: auto; 
+	*[role='left-menu'].affixNav {
+		overflow-y: auto;
 	}
-	
 	.affixNav {
 		height: 88%;
 	}
@@ -601,35 +599,24 @@ datalist {
 			padding: 2px 15px;
 		}
 	}
-	
 	@media ( min-height :480px) {
 		.nav-chapter {
-			height: calc( 100% - 315px);
+			height: calc(100% - 315px);
 		}
 	}
-	
 	@media ( min-height :768px) {
 		.nav-chapter {
-			height: calc( 100% - 305px);
+			height: calc(100% - 305px);
 		}
 	}
-	
 	@media ( min-height :992px) {
 		.nav-chapter {
-			height: calc( 100% - 290px);
+			height: calc(100% - 290px);
 		}
 	}
-	
 	@media ( min-height :1008px) {
 		.nav-chapter {
-			height: calc( 100% - 280px);
+			height: calc(100% - 280px);
 		}
-	}
-}
-
-@media ( min-width : 1510px){
-	.nav-analysis, .nav-tab{
-		margin-left: -25px;
-		padding-left: 25px;
 	}
 }
