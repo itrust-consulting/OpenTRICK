@@ -105,14 +105,14 @@ function saveScenario(form) {
 				if (!$(".label-danger", $scenarioModal).length) {
 					$scenarioModal.modal("hide");
 					reloadSection("section_scenario");
-					if(!application.isProfile){
+					if (!application.isProfile) {
 						scenario.id = response.id;
-						
-						if(scenario.assetLinked)
-							delete scenario['assetTypeValues']
-						else delete scenario['assetValues']
-						
+						if (scenario.assetLinked)
+							delete scenario['assetTypeValues'];
+						else
+							delete scenario['assetValues'];
 						updateEstimationIteam("scenario", scenario);
+
 					}
 				} else
 					$("li:not(.active) a[href='#tab_scenario_general']", $scenarioModal).tab("show");
@@ -163,7 +163,7 @@ function deleteScenario(scenarioId) {
 						success : function(response, textStatus, jqXHR) {
 							if (response["success"] != undefined) {
 								hasChange |= $("tr[data-trick-id='" + rowTrickId + "']", "#section_scenario").remove().length > 0;
-								if(!application.isProfile)
+								if (!application.isProfile)
 									removeEstimation("scenario", [ rowTrickId ]);
 							} else if (response["error"] != undefined)
 								showDialog("#alert-dialog", response["error"]);
@@ -245,22 +245,24 @@ function selectScenario(scenarioId, value) {
 				if (value != selected)
 					requiredUpdates.push(selectedItem[i]);
 			}
-			var $progress = $("#loading-indicator").show();
-			$.ajax({
-				url : context + "/Analysis/Scenario/Select",
-				contentType : "application/json;charset=UTF-8",
-				data : JSON.stringify(requiredUpdates, null, 2),
-				type : 'post',
-				success : function(reponse) {
-					reloadSection('section_scenario');
-					if(!application.isProfile)
-						updateEstimationSelect("scenario", requiredUpdates, value);
-					return false;
-				},
-				error : unknowError
-			}).complete(function() {
-				$progress.hide();
-			})
+			if (requiredUpdates.length) {
+				var $progress = $("#loading-indicator").show();
+				$.ajax({
+					url : context + "/Analysis/Scenario/Select",
+					contentType : "application/json;charset=UTF-8",
+					data : JSON.stringify(requiredUpdates, null, 2),
+					type : 'post',
+					success : function(reponse) {
+						reloadSection('section_scenario');
+						if (!application.isProfile)
+							updateEstimationSelect("scenario", requiredUpdates, value);
+						return false;
+					},
+					error : unknowError
+				}).complete(function() {
+					$progress.hide();
+				});
+			}
 		} else {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
@@ -268,7 +270,7 @@ function selectScenario(scenarioId, value) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_scenario");
-					if(!application.isProfile)
+					if (!application.isProfile)
 						updateEstimationSelect("scenario", [ scenarioId ], value);
 					return false;
 				},

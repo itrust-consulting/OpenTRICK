@@ -155,12 +155,11 @@ function updateEstimationSelect(type, elements, status) {
 function updateEstimationIteam(type,item){
 	var $tabSection  = $("#tab-risk-estimation"), $selector = $("select[name='"+type+"']",$tabSection), $option =  $("option[data-trick-type][value='"+item.id+"']", $selector), $link = undefined;
 	if($option.length)
-		$link = $("div[data-trick-content='"+type+"'] a[data-trick-type][data-trick-id='"+item.id+"'][data-trick-selected!='" + status + "']", "#tab-risk-estimation");
+		$link = $("div[data-trick-content='"+type+"'] a[data-trick-type][data-trick-id='"+item.id+"'][data-trick-selected!='" + status + "']", $tabSection);
 	else{
 		$option=$("<option/>");
 		$link=$("<a href='#' class='list-group-item' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' />");
 	}
-	
 	for ( var key in item) {
 		switch (key) {
 		case "id":
@@ -194,7 +193,6 @@ function updateEstimationIteam(type,item){
 			}
 		}
 	}
-	
 	if(!$option.parent().length){
 		$link.appendTo("div[data-trick-content='"+type+"']>div.list-group",$tabSection).on("click",changeAssessment);
 		$option.appendTo($selector);
