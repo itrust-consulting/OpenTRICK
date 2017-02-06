@@ -548,6 +548,9 @@ datalist {
 	padding: 2px 14px;
 }
 
+table.rrf-values th{
+	min-width: 60px;
+}
 .range-group {
 	width: 100%;
 	display: inline-block;

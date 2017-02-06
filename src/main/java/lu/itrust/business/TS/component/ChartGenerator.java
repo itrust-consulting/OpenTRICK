@@ -1206,14 +1206,16 @@ public class ChartGenerator {
 	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis, Locale locale) throws Exception {
 		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
-		if (scenario.getAssetTypeValues().size() == 0)
+		List<AssetType> assetTypes = scenario.getAssetTypes();
+		if (assetTypes.isEmpty())
 			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!",
 					scenario.getName());
-
+		NumberFormat numberFormat = new DecimalFormat();
+		numberFormat.setMaximumFractionDigits(2);
+		Map<AssetType, Long> assetTypeMap = assetTypes.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 		for (Measure measure : measures) {
-
-			for (AssetTypeValue atv : scenario.getAssetTypeValues()) {
-				String key = messageSource.getMessage("label.asset_type." + atv.getAssetType().getName().toLowerCase(), null, atv.getAssetType().getName(), locale);
+			for (AssetType assetType : assetTypeMap.keySet()) {
+				String key = messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale);
 				RRFAssetType rrfAssetType = (RRFAssetType) rrfs.get(key);
 				if (rrfAssetType == null) {
 					rrfAssetType = new RRFAssetType(key);
@@ -1221,47 +1223,32 @@ public class ChartGenerator {
 				}
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 				if (measure instanceof NormalMeasure) {
-
 					NormalMeasure normalMeasure = (NormalMeasure) measure;
-
-					double val = RRF.calculateNormalMeasureRRF(scenario, atv.getAssetType(), parameter, normalMeasure);
-
-					NumberFormat nf = new DecimalFormat();
-
-					nf.setMaximumFractionDigits(2);
-
-					val = nf.parse(nf.format(val)).doubleValue();
-
-					rrfMeasure.setValue(val);
-
+					if (scenario.isAssetLinked()) {
+						Long count = assetTypeMap.get(assetType);
+						for (int i = 0; i < count; i++)
+							rrfMeasure.setValue(rrfMeasure.getValue()
+									+ numberFormat.parse(numberFormat.format(RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, normalMeasure))).doubleValue());
+					} else
+						rrfMeasure.setValue(numberFormat.parse(numberFormat.format(RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, normalMeasure))).doubleValue());
 					rrfAssetType.getRrfMeasures().add(rrfMeasure);
 
 				} else if (measure instanceof AssetMeasure) {
 
 					AssetMeasure assetMeasure = (AssetMeasure) measure;
 
-					List<MeasureAssetValue> mavs = assetMeasure.getMeasureAssetValueByAssetType(atv.getAssetType());
+					List<MeasureAssetValue> mavs = assetMeasure.getMeasureAssetValueByAssetType(assetType);
 
 					if (!mavs.isEmpty()) {
-
-						for (MeasureAssetValue mav : mavs) {
-
-							double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
-
-							NumberFormat nf = new DecimalFormat();
-							nf.setMaximumFractionDigits(2);
-
-							val = Double.valueOf(nf.format(val));
-
-							rrfMeasure.setValue(rrfMeasure.getValue() + val);
-						}
+						for (MeasureAssetValue measureAssetValue : mavs)
+							rrfMeasure.setValue(rrfMeasure.getValue()
+									+ Double.valueOf(numberFormat.format(RRF.calculateAssetMeasureRRF(scenario, measureAssetValue.getAsset(), parameter, (AssetMeasure) measure))));
 						rrfAssetType.getRrfMeasures().add(rrfMeasure);
 					} else
 						rrfs.remove(key);
 				}
 			}
 		}
-
 		return rrfs;
 	}
 

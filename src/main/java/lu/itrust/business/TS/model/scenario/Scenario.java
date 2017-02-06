@@ -649,4 +649,16 @@ public class Scenario extends SecurityCriteria {
 
 	}
 
+	@Transient
+	public List<AssetType> getAssetTypes() {
+		return isAssetLinked() ? getLinkedAssets().stream().map(Asset::getAssetType).collect(Collectors.toList())
+				: getAssetTypeValues().stream().map(AssetTypeValue::getAssetType).collect(Collectors.toList());
+	}
+
+	@Transient
+	public List<AssetType> getDistinctAssetTypes() {
+		return isAssetLinked() ? getLinkedAssets().stream().map(Asset::getAssetType).distinct().collect(Collectors.toList())
+				: getAssetTypeValues().stream().map(AssetTypeValue::getAssetType).distinct().collect(Collectors.toList());
+	}
+
 }

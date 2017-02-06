@@ -244,7 +244,7 @@ public class ControllerRRF {
 
 				if (assetTypeValues.size() != size)
 					serviceMeasure.saveOrUpdate(measure);
-
+				
 				model.addAttribute("assetTypeValues", assetTypeValues);
 			}
 			if (measure instanceof AssetMeasure) {
@@ -414,9 +414,7 @@ public class ControllerRRF {
 
 			if (assetTypeValues.size() != size)
 				serviceMeasure.saveOrUpdate(measure);
-
-			model.addAttribute("assetTypes", assetTypeValues);
-
+			model.addAttribute("assetTypeValues", assetTypeValues);
 		} else if (measure instanceof AssetMeasure) {
 			AssetMeasure assetMeasure = (AssetMeasure) measure;
 			model.addAttribute("standardid", assetMeasure.getAnalysisStandard().getStandard().getId());
