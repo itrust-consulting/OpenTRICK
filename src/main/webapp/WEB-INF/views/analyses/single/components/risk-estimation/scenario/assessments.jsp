@@ -192,9 +192,9 @@
 						</c:otherwise>
 					</c:choose>
 					<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
-					<td class="success" onclick="return editField(this.firstChild);" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
+					<td class="success" onclick="return editField(this);" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
 							text="${assessment.comment}" /></td>
-					<td class="success" onclick="return editField(this.firstChild);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
+					<td class="success" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
 							text="${assessment.hiddenComment}" /></td>
 				</tr>
 			</c:forEach>

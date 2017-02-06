@@ -532,6 +532,10 @@ function isSelected(sectionName) {
 	return $("#section_" + sectionName + " tbody tr[data-trick-selected='true'] td:first-child input:checked").length > 0;
 }
 
+function hasSelectedState(sectionName, state) {
+	return $("#section_" + sectionName + " tbody tr[data-trick-selected='" + state + "'] td:first-child input:checked").length > 0;
+}
+
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
 			application[appModalVar].modal).find("tbody tr td:first-child input");
