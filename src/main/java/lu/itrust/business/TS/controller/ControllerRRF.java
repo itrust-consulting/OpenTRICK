@@ -132,7 +132,7 @@ public class ControllerRRF {
 
 	private static final String PREVENTIVE = "preventive";
 
-	private static final int SCENARIO_RRF_DEFAULT_FIELD_COUNT = 20;
+	private static final int SCENARIO_RRF_DEFAULT_FIELD_COUNT = 10;
 
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
 
@@ -244,7 +244,7 @@ public class ControllerRRF {
 
 				if (assetTypeValues.size() != size)
 					serviceMeasure.saveOrUpdate(measure);
-				
+
 				model.addAttribute("assetTypeValues", assetTypeValues);
 			}
 			if (measure instanceof AssetMeasure) {
@@ -384,7 +384,7 @@ public class ControllerRRF {
 			return null;
 
 		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-		
+
 		if (measure instanceof NormalMeasure) {
 
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
@@ -595,7 +595,8 @@ public class ControllerRRF {
 			workbook = new XSSFWorkbook();
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 			writeAnalysisIdentifier(analysis, workbook);
-			writeScenario(analysis.getScenarios(), assetTypes, workbook, locale);
+			writeScenario(analysis.getScenarios(),
+					/* assetTypes, analysis.getAssets() , */ workbook, locale);
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
 				writeMeasure(analysis.getType() == AnalysisType.QUALITATIVE, analysisStandard, assetTypes, workbook, locale);
 			response.setContentType("xlsx");
@@ -730,7 +731,7 @@ public class ControllerRRF {
 		}
 	}
 
-	private void writeScenario(List<Scenario> scenarios, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
+	private void writeScenario(List<Scenario> scenarios, XSSFWorkbook workbook, Locale locale) {
 		if (scenarios.isEmpty())
 			return;
 		XSSFSheet scenarioSheet = workbook.createSheet(RAW_SCENARIOS);
@@ -754,11 +755,15 @@ public class ControllerRRF {
 		row.getCell(++colIndex).setCellValue(RAW_INTERNAL_THREAT);
 		row.getCell(++colIndex).setCellValue(RAW_EXTERNAL_THREAT);
 
-		for (AssetType assetType : assetTypes)
-			row.getCell(++colIndex).setCellValue(assetType.getName());
-		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
-		scenarios.stream().forEach(scenario -> scenario.getAssetTypeValues()
-				.forEach(assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
+		/*
+		 * for (AssetType assetType : assetTypes)
+		 * row.getCell(++colIndex).setCellValue(assetType.getName());
+		 * Map<String, Integer> mappedValue = new LinkedHashMap<String,
+		 * Integer>(); scenarios.stream().forEach(scenario ->
+		 * scenario.getAssetTypeValues() .forEach(assetypeValue ->
+		 * mappedValue.put(scenario.getId() + "_" +
+		 * assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
+		 */
 		for (Scenario scenario : scenarios) {
 			row = scenarioSheet.getRow(++rowIndex);
 			if (row == null)
@@ -779,8 +784,11 @@ public class ControllerRRF {
 			row.getCell(++colIndex).setCellValue(scenario.getEnvironmental());
 			row.getCell(++colIndex).setCellValue(scenario.getInternalThreat());
 			row.getCell(++colIndex).setCellValue(scenario.getExternalThreat());
-			for (AssetType assetType : assetTypes)
-				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(scenario.getId() + "_" + assetType.getName(), 0));
+			/*
+			 * for (AssetType assetType : assetTypes)
+			 * row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(
+			 * scenario.getId() + "_" + assetType.getName(), 0));
+			 */
 		}
 	}
 
@@ -1015,8 +1023,12 @@ public class ControllerRRF {
 	}
 
 	private void loadScenarioData(Scenario scenario, Row data, Integer nameIndex, Map<Integer, String> cellIndexToFieldName) {
-		Map<String, AssetTypeValue> assetTypeValues = scenario.getAssetTypeValues().stream()
-				.collect(Collectors.toMap(assetTypeValue -> assetTypeValue.getAssetType().getName(), Function.identity()));
+		/*
+		 * Map<String, AssetTypeValue> assetTypeValues =
+		 * scenario.getAssetTypeValues().stream()
+		 * .collect(Collectors.toMap(assetTypeValue ->
+		 * assetTypeValue.getAssetType().getName(), Function.identity()));
+		 */
 		for (Cell cell : data) {
 			if (cell.getColumnIndex() == nameIndex)
 				continue;
@@ -1024,39 +1036,40 @@ public class ControllerRRF {
 			if (nameField == null)
 				continue;
 			double value = cell.getNumericCellValue();
-			if (assetTypeValues.containsKey(nameField))
-				assetTypeValues.get(nameField).setValue((int) value);
-			else {
-				switch (nameField) {
-				case RAW_EXTERNAL_THREAT:
-					scenario.setExternalThreat((int) value);
-					break;
-				case RAW_INTERNAL_THREAT:
-					scenario.setInternalThreat((int) value);
-					break;
-				case RAW_ENVIRONMENTAL:
-					scenario.setEnvironmental((int) value);
-					break;
-				case RAW_ACCIDENTAL:
-					scenario.setAccidental((int) value);
-					break;
-				case RAW_INTENTIONAL:
-					scenario.setIntentional((int) value);
-					break;
-				case RAW_CORRECTIVE:
-					scenario.setCorrective(value);
-					break;
-				case RAW_LIMITATIVE:
-					scenario.setLimitative(value);
-					break;
-				case RAW_DETECTIVE:
-					scenario.setDetective(value);
-					break;
-				case RAW_PREVENTIVE:
-					scenario.setPreventive(value);
-					break;
-				}
+			/*
+			 * if (assetTypeValues.containsKey(nameField))
+			 * assetTypeValues.get(nameField).setValue((int) value); else {
+			 */
+			switch (nameField) {
+			case RAW_EXTERNAL_THREAT:
+				scenario.setExternalThreat((int) value);
+				break;
+			case RAW_INTERNAL_THREAT:
+				scenario.setInternalThreat((int) value);
+				break;
+			case RAW_ENVIRONMENTAL:
+				scenario.setEnvironmental((int) value);
+				break;
+			case RAW_ACCIDENTAL:
+				scenario.setAccidental((int) value);
+				break;
+			case RAW_INTENTIONAL:
+				scenario.setIntentional((int) value);
+				break;
+			case RAW_CORRECTIVE:
+				scenario.setCorrective(value);
+				break;
+			case RAW_LIMITATIVE:
+				scenario.setLimitative(value);
+				break;
+			case RAW_DETECTIVE:
+				scenario.setDetective(value);
+				break;
+			case RAW_PREVENTIVE:
+				scenario.setPreventive(value);
+				break;
 			}
+			/* } */
 		}
 	}
 

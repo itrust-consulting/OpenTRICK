@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -170,6 +171,8 @@ public class ImportAnalysis {
 	private Map<String, IProbabilityParameter> probabilities = null;
 
 	private Map<String, RiskProfile> riskProfiles = null;
+
+	private Map<Integer, List<Integer>> scenarioAssets = null;
 
 	/** Map of Scenarios */
 	private Map<Integer, Scenario> scenarios = null;
@@ -2684,6 +2687,26 @@ public class ImportAnalysis {
 
 	}
 
+	private void importScenarioAssets() throws SQLException {
+		ResultSet resultSet = null;
+		try {
+			resultSet = sqlite.query("Select * From threat_assets");
+			if (resultSet == null)
+				return;
+			scenarioAssets = new LinkedHashMap<>();
+			while (resultSet.next()) {
+				Integer idScenario = resultSet.getInt("id_threat"), idAsset = resultSet.getInt("id_asset");
+				List<Integer> assetIds = scenarioAssets.get(idScenario);
+				if (assetIds == null)
+					scenarioAssets.put(idScenario, assetIds = new LinkedList<>());
+				assetIds.add(idAsset);
+			}
+		} finally {
+			if (resultSet != null)
+				resultSet.close();
+		}
+	}
+
 	/**
 	 * importScenarios: <br>
 	 * <ul>
@@ -2705,6 +2728,8 @@ public class ImportAnalysis {
 		String query = "";
 		scenarios = new HashMap<Integer, Scenario>();
 		Scenario tempScenario = null;
+		Integer id = -1;
+		importScenarioAssets();
 
 		// ****************************************************************
 		// * Query sqlite for all scenario types
@@ -2739,7 +2764,7 @@ public class ImportAnalysis {
 			// build query
 			query = "SELECT * FROM threats";
 			// execute query
-			rs = sqlite.query(query, null);
+			rs = sqlite.query(query);
 			// Loop scenarios
 			while (rs.next()) {
 
@@ -2757,6 +2782,8 @@ public class ImportAnalysis {
 				} else {
 					tempScenario.setSelected(false);
 				}
+
+				tempScenario.setAssetLinked(getBoolean(rs, "linked_asset_threat"));
 				tempScenario.setDescription(rs.getString(Constant.THREAT_DESCRIPTION_THREAT));
 				tempScenario.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.THREAT_CONFIDENTIALITY));
 				tempScenario.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.THREAT_INTEGRITY));
@@ -2780,13 +2807,19 @@ public class ImportAnalysis {
 				setScenarioAssetValues(tempScenario, rs);
 
 				// store scenario to build assessment.
-				scenarios.put(rs.getInt(Constant.THREAT_ID_THREAT), tempScenario);
+				scenarios.put(id = rs.getInt(Constant.THREAT_ID_THREAT), tempScenario);
 
 				// ****************************************************************
 				// * add instance to list of scenarios
 				// ****************************************************************
+
 				this.analysis.add(tempScenario);
+				if (!tempScenario.isAssetLinked())
+					continue;
+				for (Integer idAsset : scenarioAssets.get(id))
+					tempScenario.addApplicable(assets.get(idAsset));
 			}
+
 		} finally {
 			// Close ResultSet
 			if (rs != null)
