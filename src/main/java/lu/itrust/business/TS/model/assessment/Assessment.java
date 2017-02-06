@@ -134,7 +134,7 @@ public class Assessment implements Cloneable {
 	public Assessment(Asset asset, Scenario scenario) throws TrickException {
 		setAsset(asset);
 		setScenario(scenario);
-		setSelected(asset.isSelected() && scenario.isSelected() && scenario.hasInfluenceOnAsset(asset.getAssetType()));
+		setSelected(asset.isSelected() && scenario.isSelected() && scenario.hasInfluenceOnAsset(asset));
 	}
 
 	public Assessment() {

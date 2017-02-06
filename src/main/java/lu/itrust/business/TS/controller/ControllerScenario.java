@@ -297,9 +297,9 @@ public class ControllerScenario {
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-			Map<Integer,AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getId, Function.identity()));
+			Map<Integer, AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getId, Function.identity()));
 
-			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
+			Scenario scenario = buildScenario(idAnalysis, errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
 
 			if (!errors.isEmpty())
 				return results;
@@ -326,12 +326,6 @@ public class ControllerScenario {
 				else
 					assessmentAndRiskProfileManager.unSelectScenario(scenario);
 
-			} else {
-				if (serviceScenario.exist(idAnalysis, scenario.getName())) {
-					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
-							String.format("Scenario (%s) already exists", scenario.getName()), locale));
-					return results;
-				}
 			}
 			assessmentAndRiskProfileManager.buildOnly(scenario, analysis);
 			serviceAnalysis.saveOrUpdate(analysis);
@@ -387,6 +381,8 @@ public class ControllerScenario {
 	 * buildScenario: <br>
 	 * Description
 	 * 
+	 * @param idAnalysis
+	 * 
 	 * @param errors
 	 * @param scenario
 	 * @param assetTypes
@@ -394,7 +390,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private Scenario buildScenario(Map<String, Object> errors, Map<Integer, AssetType> assetTypes, String source, Locale locale, boolean cssf) {
+	private Scenario buildScenario(Integer idAnalysis, Map<String, Object> errors, Map<Integer, AssetType> assetTypes, String source, Locale locale, boolean cssf) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -402,12 +398,12 @@ public class ControllerScenario {
 
 			int idScenario = jsonNode.get("id").asInt();
 
-			Scenario returnvalue = null;
+			Scenario scenario = null;
 
 			if (idScenario > 0) {
-				returnvalue = serviceScenario.get(idScenario);
+				scenario = serviceScenario.get(idScenario);
 			} else {
-				returnvalue = new Scenario();
+				scenario = new Scenario();
 			}
 
 			ValidatorField validator = serviceDataValidation.findByClass(Scenario.class);
@@ -426,9 +422,9 @@ public class ControllerScenario {
 				if (i == -1)
 					throw new TrickException("error.scenario_type.not_selected", "You need to select a scenario type");
 				scenarioType = ScenarioType.valueOf(i);
-				returnvalue.setType(scenarioType);
+				scenario.setType(scenarioType);
 				// set category according to value of scenario type
-				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
+				scenario.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
 
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -436,33 +432,35 @@ public class ControllerScenario {
 
 			String description = jsonNode.get("description").asText();
 
-			error = validator.validate(returnvalue, "name", name);
+			error = validator.validate(scenario, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
-				returnvalue.setName(name);
-				returnvalue.setSelected(jsonNode.get("selected").asBoolean());
-				returnvalue.setAssetLinked(jsonNode.get("assetLinked").asBoolean());
-			}
+			else if ((scenario.getId() > 0 && !scenario.getName().equals(name) || scenario.getId() < 0) && serviceScenario.exist(idAnalysis, name))
+				errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
+						String.format("Scenario (%s) already exists", scenario.getName()), locale));
+			else
+				scenario.setName(name);
 
-			error = validator.validate(returnvalue, "description", description);
+			scenario.setSelected(jsonNode.get("selected").asBoolean());
+			scenario.setAssetLinked(jsonNode.get("assetLinked").asBoolean());
+
+			error = validator.validate(scenario, "description", description);
 			if (error != null)
 				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
-				returnvalue.setDescription(description);
-			}
+			else
+				scenario.setDescription(description);
 
 			JsonNode assetTypesValues = jsonNode.get("assetTypeValues");
 
 			if (assetTypesValues == null)
 				throw new TrickException("error.scenario.asset_types.empty", "Asset types cannot be found");
-			
-			returnvalue.getAssetTypeValues().forEach(assetTypeValue -> assetTypeValue.setValue(0));
+
+			scenario.getAssetTypeValues().forEach(assetTypeValue -> assetTypeValue.setValue(0));
 
 			for (JsonNode assetTypeNoe : assetTypesValues)
-				returnvalue.addApplicable(assetTypes.get(assetTypeNoe.asInt(-1)));
+				scenario.addApplicable(assetTypes.get(assetTypeNoe.asInt(-1)));
 
-			returnvalue.getLinkedAssets().clear();
+			scenario.getLinkedAssets().clear();
 
 			JsonNode assetValues = jsonNode.get("assetValues");
 
@@ -470,37 +468,36 @@ public class ControllerScenario {
 				throw new TrickException("error.scenario.assets.empty", "Asset values cannot be found");
 
 			for (JsonNode assetNode : assetValues)
-				returnvalue.addApplicable(serviceAsset.get(assetNode.asInt(-1)));
+				scenario.addApplicable(serviceAsset.get(assetNode.asInt(-1)));
 
 			if (!cssf) {
-				returnvalue.setAccidental(jsonNode.get("accidental").asInt());
+				scenario.setAccidental(jsonNode.get("accidental").asInt());
 
-				returnvalue.setEnvironmental(jsonNode.get("environmental").asInt());
+				scenario.setEnvironmental(jsonNode.get("environmental").asInt());
 
-				returnvalue.setExternalThreat(jsonNode.get("externalThreat").asInt());
+				scenario.setExternalThreat(jsonNode.get("externalThreat").asInt());
 
-				returnvalue.setInternalThreat(jsonNode.get("internalThreat").asInt());
+				scenario.setInternalThreat(jsonNode.get("internalThreat").asInt());
 
-				returnvalue.setIntentional(jsonNode.get("intentional").asInt());
+				scenario.setIntentional(jsonNode.get("intentional").asInt());
 
-				returnvalue.setDetective(jsonNode.get("detective").asDouble());
+				scenario.setDetective(jsonNode.get("detective").asDouble());
 
-				returnvalue.setCorrective(jsonNode.get("corrective").asDouble());
+				scenario.setCorrective(jsonNode.get("corrective").asDouble());
 
-				returnvalue.setLimitative(jsonNode.get("limitative").asDouble());
+				scenario.setLimitative(jsonNode.get("limitative").asDouble());
 
-				returnvalue.setPreventive(jsonNode.get("preventive").asDouble());
+				scenario.setPreventive(jsonNode.get("preventive").asDouble());
 
-				if (!returnvalue.hasThreatSource())
+				if (!scenario.hasThreatSource())
 					throw new TrickException("error.scenario.threat.source", "Please define a threat source.");
-				if (!returnvalue.hasControlCharacteristics())
+				if (!scenario.hasControlCharacteristics())
 					throw new TrickException("error.scenario.control.characteristic", "Sum of the control characteristics must be equal to 1.");
 			}
 
-			return returnvalue;
+			return scenario;
 
 		} catch (TrickException e) {
-			// return error message
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {

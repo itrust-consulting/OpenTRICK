@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.security.Principal;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -86,7 +87,6 @@ public class ControllerAsset {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-
 
 	/**
 	 * select: <br>
@@ -242,7 +242,7 @@ public class ControllerAsset {
 			// create new asset object
 			Asset asset = new Asset();
 			// build asset
-			buildAsset(errors, asset, value, locale);
+			buildAsset(idAnalysis, errors, asset, value, locale);
 			if (!errors.isEmpty())
 				return results;
 			asset.setValue(asset.getValue() * 1000);
@@ -252,10 +252,6 @@ public class ControllerAsset {
 					return results;
 				}
 				serviceAsset.saveOrUpdate(asset);
-			} else if (serviceAsset.exist(idAnalysis, asset.getName())) {
-				errors.put("name",
-						messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
-				return results;
 			} else {
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				analysis.add(asset);
@@ -323,13 +319,15 @@ public class ControllerAsset {
 	 * buildAsset: <br>
 	 * Description
 	 * 
+	 * @param idAnalysis
+	 * 
 	 * @param errors
 	 * @param asset
 	 * @param source
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAsset(Map<String, Object> errors, Asset asset, String source, Locale locale) {
+	private boolean buildAsset(Integer idAnalysis, Map<String, Object> errors, Asset asset, String source, Locale locale) {
 		try {
 
 			// create json parser for the source
@@ -352,7 +350,7 @@ public class ControllerAsset {
 			JsonNode node = jsonNode.get("assetType");
 			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
 
-			double value = NumberFormat.getInstance(Locale.FRANCE).parse(jsonNode.get("value").asText()).doubleValue();
+			Double value = getDouble(jsonNode);
 
 			String error = null;
 
@@ -362,10 +360,13 @@ public class ControllerAsset {
 			error = validator.validate(asset, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
+			else if ((asset.getId() > 0 && !asset.getName().equals(name) || asset.getId() < 0) && serviceAsset.exist(idAnalysis, name))
+				errors.put("name",
+						messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
+			else
 				asset.setName(name);
-				asset.setSelected(jsonNode.get("selected").asBoolean());
-			}
+
+			asset.setSelected(jsonNode.get("selected").asBoolean());
 
 			error = validator.validate(asset, "assetType", assetType);
 			if (error != null)
@@ -394,5 +395,13 @@ public class ControllerAsset {
 
 		// return error message
 		return false;
+	}
+
+	private Double getDouble(JsonNode jsonNode) throws ParseException {
+		try {
+			return NumberFormat.getInstance(Locale.FRANCE).parse(jsonNode.get("value").asText()).doubleValue();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

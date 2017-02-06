@@ -105,7 +105,7 @@ public class AssessmentAndRiskProfileManager {
 		asset.setSelected(true);
 		List<Assessment> assessments = daoAssessment.getAllUnSelectedFromAsset(asset);
 		for (Assessment assessment : assessments) {
-			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset.getAssetType())) {
+			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset)) {
 				assessment.setSelected(true);
 				daoAssessment.saveOrUpdate(assessment);
 			}
@@ -133,7 +133,7 @@ public class AssessmentAndRiskProfileManager {
 		scenario.setSelected(true);
 		List<Assessment> assessments = daoAssessment.getAllUnselectedFromScenario(scenario);
 		for (Assessment assessment : assessments) {
-			if (assessment.getAsset().isSelected() && scenario.hasInfluenceOnAsset(assessment.getAsset().getAssetType())) {
+			if (assessment.getAsset().isSelected() && scenario.hasInfluenceOnAsset(assessment.getAsset())) {
 				assessment.setSelected(true);
 				daoAssessment.saveOrUpdate(assessment);
 			}
@@ -269,7 +269,7 @@ public class AssessmentAndRiskProfileManager {
 				for (Scenario scenario : analysis.getScenarios()) {
 					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.key(asset, scenario));
-					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
@@ -290,7 +290,7 @@ public class AssessmentAndRiskProfileManager {
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
 					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
-					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
@@ -353,7 +353,7 @@ public class AssessmentAndRiskProfileManager {
 				for (Scenario scenario : analysis.getScenarios()) {
 					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
-					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
@@ -371,7 +371,7 @@ public class AssessmentAndRiskProfileManager {
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
 					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
-					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
@@ -436,9 +436,9 @@ public class AssessmentAndRiskProfileManager {
 	private void createOrRemoveAssessment(Integer id, Asset asset, Scenario scenario, List<Assessment> assessments, Map<Integer, Assessment> mappedAssessments,
 			ValueFactory valueFactory) {
 		if (!mappedAssessments.containsKey(id)) {
-			if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
+			if (scenario.hasInfluenceOnAsset(asset))
 				generateAssessment(assessments, valueFactory, asset, scenario);
-		} else if (!scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+		} else if (!scenario.hasInfluenceOnAsset(asset)) {
 			Assessment assessment = mappedAssessments.get(id);
 			assessments.remove(assessment);
 			daoAssessment.delete(assessment);
@@ -459,7 +459,7 @@ public class AssessmentAndRiskProfileManager {
 	 */
 	private void createOrRemoveAssessmentAndRiskProfile(Assessment assessment, Scenario scenario, Asset asset, RiskProfile riskProfile, Analysis analysis,
 			ValueFactory valueFactory) {
-		if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+		if (scenario.hasInfluenceOnAsset(asset)) {
 			if (assessment == null) {
 				assessment = new Assessment(asset, scenario);
 				for (String impact : valueFactory.getImpactNames())

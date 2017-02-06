@@ -108,7 +108,8 @@
 	</c:if>
 	<script type="text/javascript">
 	<!--
-		application['analysisType'] = '${type}'
+		application['analysisType'] = '${type}';
+		application['isProfile'] = ${isProfile};
 		application['openMode'] = OPEN_MODE.valueOf('${open}');
 		application['isLinkedToProject'] = '${isLinkedToProject}';
 		application['hasMaturity'] = '${hasMaturity}';

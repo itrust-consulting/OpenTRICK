@@ -167,7 +167,7 @@ function saveAsset(form) {
 						$errorElement.appendTo($("#asset_assettype_id",$form).parent());
 						break;
 					case "value":
-						$errorElement.appendTo($("#asset_value",$form).parent());
+						$errorElement.appendTo($("#asset_value",$form).parent().parent());
 						break;
 					case "selected":
 						$errorElement.appendTo($("#asset_selected",$form).parent());

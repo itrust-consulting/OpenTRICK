@@ -35,6 +35,7 @@
 								</c:when>
 								<c:when test="${empty currentAssetType}">
 									<c:set var="currentAssetType" value="${assetTypeId}" />
+									<c:set var="currentAssetId">${asset.id}</c:set>
 									<option value="${asset.id}" data-trick-type='${assetTypeId}' data-trick-selected='true' title='${assetName}' selected='selected'>${assetName}</option>
 								</c:when>
 								<c:otherwise>
@@ -53,10 +54,11 @@
 							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
 							<c:choose>
 								<c:when test="${scenario.selected}">
-									<option value="${scenario.id}" data-trick-selected='true' title="${scenarioName}" data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
+									<option value="${scenario.id}" data-trick-selected='true' data-trick-linked='${scenario.assetLinked}' title="${scenarioName}" data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
 								</c:when>
 								<c:otherwise>
-									<option value="${scenario.id}" hidden="hidden" data-trick-selected='false' title="${scenarioName}" data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
+									<option value="${scenario.id}" hidden="hidden" data-trick-linked='${scenario.assetLinked}' data-trick-selected='false' title="${scenarioName}"
+										data-trick-type='${scenarioAssetTypeIds}'>${scenarioName}</option>
 								</c:otherwise>
 							</c:choose>
 
@@ -71,9 +73,16 @@
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
 							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
-							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-type='${scenarioAssetTypeIds}'
-								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'none'};"
-								class="list-group-item">${scenarioName}</a>
+							<c:choose>
+								<c:when test="${scenario.assetLinked}">
+									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetId and scenarioAssetTypeIds.contains(currentAssetId)?'':'display : none;'}" />
+								</c:when>
+								<c:otherwise>
+									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'display : none;'}" />
+								</c:otherwise>
+							</c:choose>
+							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-linked='${scenario.assetLinked}'
+								data-trick-type='${scenarioAssetTypeIds}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${displayScenario}" class="list-group-item">${scenarioName}</a>
 						</c:forEach>
 					</div>
 				</div>

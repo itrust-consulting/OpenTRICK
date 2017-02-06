@@ -175,6 +175,16 @@ function updateEstimationIteam(type,item){
 			$option.attr("data-trick-type",item[key]);
 			$link.attr("data-trick-type",item[key]);
 			break;
+		case "assetLinked":
+			$option.attr("data-trick-linked",item[key]);
+			$link.attr("data-trick-linked",item[key]);
+			break;
+		case "assetValues":
+		case "assetTypeValues":
+			var types = item[key].join(";");
+			$option.attr("data-trick-type",types);
+			$link.attr("data-trick-type",types);
+			break;
 		case "selected":
 			$option.attr("data-trick-selected",item[key]);
 			$link.attr("data-trick-selected",item[key]);
@@ -298,27 +308,43 @@ AssessmentHelder.prototype = {
 		});
 		return this;
 	}, updateContent: function () {
-		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']",this.$tabSection);
+		var $current = this.getCurrent(activeSelector).find("option:selected"), type = $current.attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']",this.$tabSection);
 		if(type == undefined){
 			if(this.getOther(activeSelector).find("option[data-trick-type]:visible").length)
 				this.getCurrent(activeSelector).trigger("change");
 		}
 		else {
 				if (activeSelector == "asset") {
+					var id = $current.val();
 					$elements.each(function () {
-						var $this = $(this), scenarioType = $this.attr("data-trick-type");
-						if (scenarioType && scenarioType.search(type) != -1)
-							$this.show();
-						else
-							$this.hide();
+						var $this = $(this), scenarioType = $this.attr("data-trick-type"), linked = $this.attr("data-trick-linked");
+						if(linked ==="true"){
+							if (scenarioType && scenarioType.search(id) != -1)
+								$this.show();
+							else
+								$this.hide();
+						}else {
+							if (scenarioType && scenarioType.search(type) != -1)
+								$this.show();
+							else
+								$this.hide();
+						}
 					});
 				} else {
+					var linked = $current.attr("data-trick-linked") === "true";
 					$elements.each(function () {
 						var $this = $(this);
-						if (type.search($this.attr("data-trick-type")) != -1)
-							$this.show();
-						else
-							$this.hide();
+						if(linked){
+							if (type.search($this.attr("data-trick-id")) != -1)
+								$this.show();
+							else
+								$this.hide();
+						}else {
+							if (type.search($this.attr("data-trick-type")) != -1)
+								$this.show();
+							else
+								$this.hide();
+						}
 					});
 			}
 				
