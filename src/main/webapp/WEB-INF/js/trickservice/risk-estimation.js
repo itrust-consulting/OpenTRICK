@@ -178,8 +178,10 @@ function updateEstimationIteam(type,item){
 		case "selected":
 			$option.attr("data-trick-selected",item[key]);
 			$link.attr("data-trick-selected",item[key]);
-			if(!asset[key]){
-				$option.hide()
+			if(asset[key])
+				$option.show();
+			else {
+				$option.hide();
 				$link.hide();
 			}
 		}
