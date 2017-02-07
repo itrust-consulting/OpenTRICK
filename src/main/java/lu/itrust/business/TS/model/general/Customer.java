@@ -186,7 +186,7 @@ public class Customer {
 	 */
 	public void setZIPCode(String ZIPCode) throws TrickException {
 		if (ZIPCode == null || ZIPCode.trim().isEmpty())
-			throw new TrickException("error.customer.zipcode.empty", "ZIPCode cannot be empty!");
+			throw new TrickException("error.customer.zip_code.empty", "ZIPCode cannot be empty!");
 		this.ZIPCode = ZIPCode;
 	}
 
@@ -258,7 +258,7 @@ public class Customer {
 	 */
 	public void setPhoneNumber(String telephoneNumber) throws TrickException {
 		if (telephoneNumber == null || telephoneNumber.trim().isEmpty())
-			throw new TrickException("error.customer.telephone_number.empty", "Telephone number cannot be empty");
+			throw new TrickException("error.customer.phone_number.empty", "Telephone number cannot be empty");
 		this.phoneNumber = telephoneNumber;
 	}
 

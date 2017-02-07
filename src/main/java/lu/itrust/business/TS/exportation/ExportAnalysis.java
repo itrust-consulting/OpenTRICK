@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
@@ -45,6 +47,7 @@ import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scale.Translation;
+import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -1340,48 +1343,92 @@ public class ExportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
-		String query = "";
+		List<Scenario> scenarios = new LinkedList<>();
+		// set Asset Type keys
+		final String[] keys = Constant.ASSET_TYPES.split(",");
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO threats SELECT ? as id_threat, ? as name_threat, ? as type_threat, ? as linked_asset_threat, ? as description_threat, ? as sel_threat, ? as serv, ? as info, ? as sw, ? as hw, ? as net, ? as staff, ? as iv, ? as busi, ? as fin, ? as compl, ? as confidentiality, ? as integrity, ? as availability, ? as d1, ? as d2 , ? as d3, ? as d4, ? as d5, ? as d6, ? as d61, ? as d62, ? as d63, ? as d64, ? as d7, ? as i1, ? as i2, ? as i3, ? as i4, ? as i5, ? as i6, ? as i7, ? as i8, ? as i81, ? as i82, ? as i83, ? as i84, ? as i9, ? as i10, ? as preventive, ? as detective, ? as limitative, ? as corrective, ? as intentional, ? as accidental, ? as environmental, ? as internal_threat, ? as external_threat";
 
 		// ****************************************************************
 		// * export scenarios
 		// ****************************************************************
 
 		// parse scenarios
-		for (int index = 0; index < this.analysis.getScenarios().size(); index++) {
+		for (Scenario scenario : this.analysis.getScenarios()) {
 
-			// build query
-			query = DatabaseHandler.generateInsertQuery("threats", 52);
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 53 > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
 
-			// add aprameters
-			params.clear();
-			params.add(this.analysis.getAScenario(index).getId());
-			params.add(this.analysis.getAScenario(index).getName());
-			params.add(this.analysis.getAScenario(index).getType().name());
-			params.add(this.analysis.getAScenario(index).getDescription());
-			if (this.analysis.getAScenario(index).isSelected()) {
+			params.add(scenario.getId());
+			params.add(scenario.getName());
+			params.add(scenario.getType().name());
+			params.add(scenario.isAssetLinked());
+			params.add(scenario.getDescription());
+
+			if (scenario.isSelected()) {
 				params.add(Constant.ASSET_SELECTED);
 			} else {
 				params.add(Constant.EMPTY_STRING);
 			}
 
-			// insert Asset Type values for the current scneario
-			insertScenarioAssetTypeValues(params, this.analysis.getAScenario(index).getAssetTypeValues());
-
+			if (scenario.isAssetLinked()) {
+				for (int i = 0; i < keys.length; i++)
+					params.add(0);
+				if (!scenario.getLinkedAssets().isEmpty())
+					scenarios.add(scenario);
+			} else {
+				for (String key : keys)
+					params.add(scenario.hasInfluenceOnCategory(key) ? 1 : 0);
+			}
 			// save Risk data
-			insertCategories(params, this.analysis.getAScenario(index));
-			params.add(this.analysis.getAScenario(index).getPreventive());
-			params.add(this.analysis.getAScenario(index).getDetective());
-			params.add(this.analysis.getAScenario(index).getLimitative());
-			params.add(this.analysis.getAScenario(index).getCorrective());
-			params.add(this.analysis.getAScenario(index).getIntentional());
-			params.add(this.analysis.getAScenario(index).getAccidental());
-			params.add(this.analysis.getAScenario(index).getEnvironmental());
-			params.add(this.analysis.getAScenario(index).getInternalThreat());
-			params.add(this.analysis.getAScenario(index).getExternalThreat());
-
-			// execute the query
-			sqlite.query(query, params);
+			insertCategories(params, scenario);
+			params.add(scenario.getPreventive());
+			params.add(scenario.getDetective());
+			params.add(scenario.getLimitative());
+			params.add(scenario.getCorrective());
+			params.add(scenario.getIntentional());
+			params.add(scenario.getAccidental());
+			params.add(scenario.getEnvironmental());
+			params.add(scenario.getInternalThreat());
+			params.add(scenario.getExternalThreat());
 		}
+
+		// execute the query
+		if (!query.isEmpty())
+			sqlite.query(query, params);
+
+		query = "";
+		unionQuery = " UNION SELECT ?,?";
+		baseQuery = "INSERT INTO threat_assets SELECT ? as id_threat, ? as id_asset";
+		params.clear();
+
+		for (Scenario scenario : scenarios) {
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 2 * scenario.getLinkedAssets().size() > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
+			int count = scenario.getLinkedAssets().size();
+			for (Asset asset : scenario.getLinkedAssets()) {
+				params.add(scenario.getId());
+				params.add(asset.getId());
+				if (--count > 0)
+					query += unionQuery;
+			}
+		}
+		// execute the query
+		if (!query.isEmpty())
+			sqlite.query(query, params);
+
 	}
 
 	/**
@@ -2422,45 +2469,10 @@ public class ExportAnalysis {
 	 * @throws TrickException
 	 */
 	private void insertCategories(List<Object> params, SecurityCriteria criteria) throws TrickException {
-
 		// parse all categories
 		for (String key : SecurityCriteria.getCategoryKeys())
-
 			// add data to the list of parameters
 			params.add(criteria.getCategoryValue(key));
-	}
-
-	/**
-	 * insertScenarioAssetTypeValues: <br>
-	 * Adds all Scenario Asset Type Values to a given SQL SimpleParameter List.
-	 * 
-	 * @param params
-	 *            The SQL SimpleParameter List
-	 * @param assetTypeValueList
-	 *            The List of Scenario Asset Type Values
-	 */
-	private void insertScenarioAssetTypeValues(List<Object> params, List<AssetTypeValue> assetTypeValueList) {
-
-		// set Asset Type keys
-		final String[] keys = Constant.ASSET_TYPES.split(",");
-
-		// parse all asset type keys
-		for (String key : keys) {
-
-			// find current key inside list
-			for (int i = 0; i < assetTypeValueList.size(); i++) {
-
-				// key matches item in the list -> YES
-				if (assetTypeValueList.get(i).getAssetType().getName().equalsIgnoreCase(key)) {
-
-					// add the asset type value to the list of parameters
-					params.add(assetTypeValueList.get(i).getValue());
-
-					// leave loop, only 1 item at a time
-					break;
-				}
-			}
-		}
 	}
 
 	/**

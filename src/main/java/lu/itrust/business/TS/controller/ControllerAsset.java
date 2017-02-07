@@ -239,20 +239,23 @@ public class ControllerAsset {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
-			// create new asset object
-			Asset asset = new Asset();
+			JsonNode assetNode = new ObjectMapper().readTree(value);
+			// read asset id node
+			int idAsset = getInt("id", assetNode);
+
+			Asset asset = idAsset > 1 ? serviceAsset.getFromAnalysisById(idAnalysis, idAsset) : new Asset();
+			if (asset == null) {
+				errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", locale));
+				return results;
+			}
 			// build asset
-			buildAsset(idAnalysis, errors, asset, value, locale);
+			buildAsset(assetNode, idAnalysis, errors, asset, locale);
 			if (!errors.isEmpty())
 				return results;
 			asset.setValue(asset.getValue() * 1000);
-			if (asset.getId() > 0) {
-				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
-					errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", locale));
-					return results;
-				}
+			if (asset.getId() > 0)
 				serviceAsset.saveOrUpdate(asset);
-			} else {
+			else {
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				analysis.add(asset);
 				serviceAnalysis.saveOrUpdate(analysis);
@@ -327,20 +330,9 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAsset(Integer idAnalysis, Map<String, Object> errors, Asset asset, String source, Locale locale) {
+	private boolean buildAsset(JsonNode jsonNode, Integer idAnalysis, Map<String, Object> errors, Asset asset, Locale locale) {
 		try {
-
-			// create json parser for the source
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-
-			// read asset id node
-			int id = jsonNode.get("id").asInt();
-
 			// check if asset is to be updated or created
-			if (id > 0)
-				asset.setId(id);
-
 			ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new AssetValidator());
@@ -348,6 +340,7 @@ public class ControllerAsset {
 			String name = jsonNode.get("name").asText();
 
 			JsonNode node = jsonNode.get("assetType");
+			
 			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
 
 			Double value = getDouble(jsonNode);
@@ -355,14 +348,14 @@ public class ControllerAsset {
 			String error = null;
 
 			asset.setComment(jsonNode.get("comment").asText());
+
 			asset.setHiddenComment(jsonNode.get("hiddenComment").asText());
 
 			error = validator.validate(asset, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if ((asset.getId() > 0 && !asset.getName().equals(name) || asset.getId() < 0) && serviceAsset.exist(idAnalysis, name))
-				errors.put("name",
-						messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
+				errors.put("name", messageSource.getMessage("error.asset.duplicate", null, String.format("Asset name is already in use", name), locale));
 			else
 				asset.setName(name);
 
@@ -379,7 +372,6 @@ public class ControllerAsset {
 				errors.put("value", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				asset.setValue(value);
-
 			// return success message
 			return true;
 
@@ -402,6 +394,14 @@ public class ControllerAsset {
 			return NumberFormat.getInstance(Locale.FRANCE).parse(jsonNode.get("value").asText()).doubleValue();
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	private int getInt(String fieldName, JsonNode jsonNode) {
+		try {
+			return jsonNode.get(fieldName).asInt(0);
+		} catch (Exception e) {
+			return 0;
 		}
 	}
 }

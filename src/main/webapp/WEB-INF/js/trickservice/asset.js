@@ -2,10 +2,8 @@
 function serializeAsset($form) {
 	var data = $form.serializeJSON();
 	data["assetType"] = {
-		"id" : parseInt(data["assetType"]),
-		"type" : $("#asset_assettype_id option:selected").text()
+		"id" : parseInt(data["assetType"])
 	};
-	data["selected"] = data["selected"] == "on";
 	return data;
 }
 

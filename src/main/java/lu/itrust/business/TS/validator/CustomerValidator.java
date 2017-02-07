@@ -40,9 +40,9 @@ public class CustomerValidator extends ValidatorFieldImpl implements Validator {
 				break;
 			case "ZIPCode":
 				if (candidate == null || !(candidate instanceof String))
-					return "error.customer.ZIPCode.unsupported::ZIP Code value is not supported";
+					return "error.customer.zip_code.unsupported::ZIP Code value is not supported";
 				else if (candidate.toString().trim().isEmpty())
-					return "error.customer.ZIPCode.empty::ZIP Code cannot be empty";
+					return "error.customer.zip_code.empty::ZIP Code cannot be empty";
 				break;
 			case "country":
 				if (candidate == null || !(candidate instanceof String))
@@ -56,15 +56,15 @@ public class CustomerValidator extends ValidatorFieldImpl implements Validator {
 				if (candidate == null || !(candidate instanceof String))
 					return "error.customer.contactPerson.unsupported::Contact Person value is not supported";
 				else if (candidate.toString().trim().isEmpty())
-					return "error.customer.contactPerson.empty::Contact Person cannot be empty";
+					return "error.customer.contact_person.empty::Contact Person cannot be empty";
 				else if (!candidate.toString().matches(Constant.REGEXP_VALID_NAME))
-					return "error.customer.contactPerson.invalid::Contact Person is not valid";
+					return "error.customer.contact_person.invalid::Contact Person is not valid";
 				break;
 			case "phoneNumber":
 				if (candidate == null || !(candidate instanceof String))
-					return "error.customer.phoneNumber.unsupported::Phone number value is not supported";
+					return "error.customer.phone_number.unsupported::Phone number value is not supported";
 				else if (candidate.toString().trim().isEmpty())
-					return "error.customer.phoneNumber.empty::Phone number cannot be empty";
+					return "error.customer.phone_number.empty::Phone number cannot be empty";
 				break;
 			case "email":
 				if (candidate == null || !(candidate instanceof String))
