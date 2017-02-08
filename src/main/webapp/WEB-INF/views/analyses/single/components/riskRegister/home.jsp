@@ -55,7 +55,7 @@
 					<c:set var="riskProfile" value="${estimation.riskProfile}" />
 					<tr data-trick-id='${riskProfile.id}'>
 						<td><spring:message text="${status.index+1}" /></td>
-						<td class="success" data-trick-id="${riskProfile.id}" data-trick-field=".identifier" onclick="return editField(this);" data-trick-class="RiskProfile"
+						<td class="editable" data-trick-id="${riskProfile.id}" data-trick-field=".identifier" onclick="return editField(this);" data-trick-class="RiskProfile"
 							data-trick-field-type="string"><spring:message text="${riskProfile.identifier}" /></td>
 						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(riskProfile.scenario.type.name,'-','_'))}" /></td>
 						<td><spring:message text="${riskProfile.scenario.name}" /></td>
@@ -72,10 +72,10 @@
 						<td class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
 						<td class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.importance}" maxFractionDigits="0" /></td>
 
-						<td class="success" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
+						<td class="editable" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
 							data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><spring:message
 								code="label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}" text="${accept}" /></td>
-						<td class="success" data-trick-id="${estimation.assessmentId}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="Assessment"
+						<td class="editable" data-trick-id="${estimation.assessmentId}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="Assessment"
 							data-trick-field-type="string"><spring:message text="${estimation.owner}" /></td>
 					</tr>
 				</c:forEach>

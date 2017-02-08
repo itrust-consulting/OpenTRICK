@@ -28,7 +28,7 @@
 				<c:forEach items="${itemInformations}" var="itemInformation">
 					<tr data-trick-class="ItemInformation" data-trick-id="${itemInformation.id}">
 						<td><spring:message code="label.item_information.${fn:trim(itemInformation.description)}" text ="${itemInformation.description}" /></td>
-						<td onclick="return editField(this.firstElementChild);" class="success"><pre data-trick-field="value" data-trick-content="text" data-trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
+						<td onclick="return editField(this);" class="editable" data-trick-field="value" data-trick-content="text" data-trick-field-type="string"><spring:message text="${itemInformation.value}" /></td>
 					</tr>
 				</c:forEach>
 			</tbody>

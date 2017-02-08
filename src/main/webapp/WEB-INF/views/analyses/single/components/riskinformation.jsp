@@ -95,15 +95,13 @@
 										<td><strong><spring:message code="${codeLabel}" /></strong></td>
 									</c:otherwise>
 								</c:choose>
-								<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
-								text="${risk_information.exposed}" /></td>
-								<td class="success" onclick="return editField(this);" data-trick-field="owner" 
-								data-trick-field-type="string" ><spring:message text="${risk_information.owner}" /></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre 
-								data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${risk_information.comment}" /></pre></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-content="text"
-										data-trick-field-type="string">
-										<spring:message text="${risk_information.hiddenComment}" /></pre></td>
+								<td class="editable" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
+										text="${risk_information.exposed}" /></td>
+								<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${risk_information.owner}" /></td>
+								<td class="editable" onclick="return editField(this);" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message
+										text="${risk_information.comment}" /></td>
+								<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
+										text="${risk_information.hiddenComment}" /></td>
 							</c:when>
 							<c:otherwise>
 								<td style="height: 32px;"><spring:message text="${risk_information.chapter}" /></td>
@@ -111,16 +109,13 @@
 								<c:if test="${categoryRiskInformation == 'Threat'}">
 									<td><spring:message text="${risk_information.acronym}" /></td>
 								</c:if>
-								<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
+								<td class="editable" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 										text="${risk_information.exposed}" /></td>
-								<td class="success" onclick="return editField(this);" 
-								data-trick-field="owner" data-trick-field-type="string" ><spring:message text="${risk_information.owner}" /></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre 
-								data-trick-field="comment" data-trick-content="text" data-trick-field-type="string" 
-								><spring:message text="${risk_information.comment}" /></pre></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre 
-								data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"
-								><spring:message text="${risk_information.hiddenComment}" /></pre></td>
+								<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${risk_information.owner}" /></td>
+								<td class="editable" onclick="return editField(this);" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message
+										text="${risk_information.comment}" /></td>
+								<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
+										text="${risk_information.hiddenComment}" /></td>
 							</c:otherwise>
 						</c:choose>
 					</tr>

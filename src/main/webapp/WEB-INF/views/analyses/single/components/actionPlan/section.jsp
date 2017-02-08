@@ -164,7 +164,7 @@
 										<td align="right" ${ape.measure.investment == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.investment}" maxFractionDigits="2" /> &euro;'>
 											<fmt:formatNumber value="${fct:round(ape.measure.investment*0.001,0)}" maxFractionDigits="0" />
 										</td>
-										<td align="right" class="success" data-trick-field="phase" data-trick-field-type="integer" onclick="return editField(this);" data-trick-callback-pre="extractPhase(this)"
+										<td align="right" class="editable" data-trick-field="phase" data-trick-field-type="integer" onclick="return editField(this);" data-trick-callback-pre="extractPhase(this)"
 											data-real-value='${ape.measure.phase.number}'><c:choose>
 												<c:when test="${ape.measure.phase.number == 0}">
 													NA

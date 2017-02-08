@@ -23,6 +23,7 @@
 						</div>
 					</div>
 				</div>
+
 				<div class="form-group input-group">
 					<span class="input-group-addon">${assetText}</span> <select name="asset" class="form-control">
 						<option value='-1' title="${allText}">${allText}</option>
@@ -65,52 +66,51 @@
 						</c:forEach>
 					</select>
 				</div>
+				<div class='nav-container-chapter max-height'>
+					<div class="form-group nav-chapter" data-trick-content='scenario'>
+						<div class='list-group'>
+							<a href="#" title="${scenarioText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item active" data-trick-id='-1'>${scenarioText}</a>
+							<c:forEach items="${scenarios}" var="scenario">
+								<spring:message text="${scenario.name}" var="scenarioName" />
+								<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
+								<c:choose>
+									<c:when test="${scenario.assetLinked}">
+										<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetId and scenarioAssetTypeIds.contains(currentAssetId)?'':'display : none;'}" />
+									</c:when>
+									<c:otherwise>
+										<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'display : none;'}" />
+									</c:otherwise>
+								</c:choose>
+								<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-linked='${scenario.assetLinked}'
+									data-trick-type='${scenarioAssetTypeIds}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${displayScenario}" class="list-group-item">${scenarioName}</a>
+							</c:forEach>
+						</div>
+					</div>
 
-				<div class="form-group nav-chapter" data-trick-content='scenario'>
-					<div class='list-group'>
-						<a href="#" title="${scenarioText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
-							data-trick-id='-1'>${scenarioText}</a>
-						<c:forEach items="${scenarios}" var="scenario">
-							<spring:message text="${scenario.name}" var="scenarioName" />
-							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
-							<c:choose>
-								<c:when test="${scenario.assetLinked}">
-									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetId and scenarioAssetTypeIds.contains(currentAssetId)?'':'display : none;'}" />
-								</c:when>
-								<c:otherwise>
-									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'display : none;'}" />
-								</c:otherwise>
-							</c:choose>
-							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-linked='${scenario.assetLinked}'
-								data-trick-type='${scenarioAssetTypeIds}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${displayScenario}" class="list-group-item">${scenarioName}</a>
-						</c:forEach>
+					<div class="form-group nav-chapter" style="display: none;" data-trick-content='asset'>
+						<div class='list-group'>
+							<a href="#" title="${assetText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item active" data-trick-id='-1'>${assetText}</a>
+							<c:forEach items="${assets}" var="asset">
+								<spring:message text="${asset.name}" var="assetName" />
+								<spring:message text="${asset.assetType.id}" var="assetTypeId" />
+								<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-selected='${asset.selected}' data-trick-type='${assetTypeId}'
+									style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${asset.selected? '' : 'none'}" class="list-group-item">${assetName}</a>
+							</c:forEach>
+						</div>
 					</div>
+					<c:if test="${isEditable}">
+						<div data-trick-role='add-asset-scenario' class='btn-group hidden-xs hidden-sm'>
+							<button class='btn btn-default' name="add-scenario">
+								<i class="fa fa-plus"></i>
+								<spring:message code='label.scenario' />
+							</button>
+							<button class='btn btn-default' name="add-asset">
+								<i class="fa fa-plus"></i>
+								<spring:message code='label.asset' />
+							</button>
+						</div>
+					</c:if>
 				</div>
-
-				<div class="form-group nav-chapter" style="display: none;" data-trick-content='asset'>
-					<div class='list-group'>
-						<a href="#" title="${assetText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
-							data-trick-id='-1'>${assetText}</a>
-						<c:forEach items="${assets}" var="asset">
-							<spring:message text="${asset.name}" var="assetName" />
-							<spring:message text="${asset.assetType.id}" var="assetTypeId" />
-							<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-selected='${asset.selected}' data-trick-type='${assetTypeId}'
-								style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${asset.selected? '' : 'none'}" class="list-group-item">${assetName}</a>
-						</c:forEach>
-					</div>
-				</div>
-				<c:if test="${isEditable}">
-					<div data-trick-role='add-asset-scenario' class='btn-group hidden-xs hidden-sm'>
-						<button class='btn btn-default' name="add-scenario">
-							<i class="fa fa-plus"></i>
-							<spring:message code='label.scenario' />
-						</button>
-						<button class='btn btn-default' name="add-asset">
-							<i class="fa fa-plus"></i>
-							<spring:message code='label.asset' />
-						</button>
-					</div>
-				</c:if>
 			</div>
 		</div>
 		<jsp:include page="asset/home.jsp" />

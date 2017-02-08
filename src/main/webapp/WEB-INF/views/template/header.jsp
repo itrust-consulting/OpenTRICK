@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<spring:theme code='theme.css.location' var="currentTheme" text="/css/themes/default.css"/>
 <head>
 <meta charset="utf-8" />
 <meta name="_csrf" content="${_csrf.token}" />
@@ -22,7 +23,6 @@
 	margin: 1px 5px 0 0;
 	background-size: auto 39px;
 }
-
 #main_menu_brand:HOVER {
 	background-image: url('<spring:url value="/images/brand.png" />');
 }
@@ -33,7 +33,7 @@
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-slider.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
+<link rel="stylesheet" href='<spring:url value="${currentTheme}" />' type="text/css" />
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';

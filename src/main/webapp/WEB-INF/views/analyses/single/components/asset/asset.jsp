@@ -66,7 +66,7 @@
 				<c:set var="totalAssetValue" value="0" />
 				<c:forEach items="${assets}" var="asset" varStatus="status">
 					<tr data-trick-id="${asset.id}" onclick="selectElement(this)" data-trick-selected="${asset.selected}" data-trick-class="Asset"
-						${asset.selected? asset.value < 1 ? 'class="warning"' : 'class="success"' : ''} ondblclick="return editAsset('${asset.id}');">
+						${asset.selected? asset.value < 1 ? 'class="warning"' : 'class="editable"' : ''} ondblclick="return editAsset('${asset.id}');">
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
 						<c:set var="selectClass" value="${asset.selected?'selected':'unselected'}" />

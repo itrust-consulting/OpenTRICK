@@ -40,17 +40,17 @@
 							<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}" data-trick-callback="updateMeasureEffience()">
 								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
 								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
-								<td class="success textaligncenter" data-trick-field="SMLLevel0" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								<td class="editable textaligncenter" data-trick-field="SMLLevel0" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" data-trick-field="SMLLevel1" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								<td class="editable textaligncenter" data-trick-field="SMLLevel1" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel1*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" data-trick-field="SMLLevel2" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								<td class="editable textaligncenter" data-trick-field="SMLLevel2" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel2*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" data-trick-field="SMLLevel3" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								<td class="editable textaligncenter" data-trick-field="SMLLevel3" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel3*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" data-trick-field="SMLLevel4" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								<td class="editable textaligncenter" data-trick-field="SMLLevel4" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel4*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" data-trick-field="SMLLevel5" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								<td class="editable textaligncenter" data-trick-field="SMLLevel5" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel5*100}" maxFractionDigits="0" /></td>
 							</tr>
 						</c:forEach>
@@ -78,7 +78,7 @@
 					<tbody>
 						<tr data-trick-class="SimpleParameter" data-trick-min-value='0' data-trick-max-value='100' data-trick-callback="updateMeasureEffience()">
 							<c:forEach items="${mappedParameters['MAXEFF']}" var="parameter">
-								<td data-trick-field="value" data-trick-field-type="double" data-trick-id="${parameter.id}" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber
+								<td data-trick-field="value" data-trick-field-type="double" data-trick-id="${parameter.id}" class="editable textaligncenter" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
 						</tr>
@@ -102,7 +102,7 @@
 						<c:forEach items="${mappedParameters['IMPSCALE']}" var="parameter">
 							<tr data-trick-class="SimpleParameter" data-trick-id="${parameter.id}">
 								<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}" /></td>
-								<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
+								<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value='0' data-trick-max-value='100' class="editable textaligncenter"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</tr>
 						</c:forEach>

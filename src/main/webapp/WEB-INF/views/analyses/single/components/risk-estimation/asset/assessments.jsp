@@ -121,11 +121,11 @@
 									<c:set var="impact" value="${assessment.getImpact(impactName)}" />
 									<c:choose>
 										<c:when test="${empty impact}">
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<spring:message text="${impactType.acronym}"/>0'
+											<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='<spring:message text="${impactType.acronym}"/>0'
 												onclick="return editField(this);"><spring:message code='label.status.na' /></td>
 										</c:when>
 										<c:otherwise>
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<spring:message text="${impact.variable}"/>' onclick="return editField(this);">
+											<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='<spring:message text="${impact.variable}"/>' onclick="return editField(this);">
 												<c:choose>
 													<c:when test="${impact.level == 0}">
 														<spring:message code='label.status.na' />
@@ -139,10 +139,10 @@
 								<c:choose>
 									<c:when test="${empty likelihood}">
 										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" title='${likelihood}' onclick="return editField(this);"><spring:message code='label.status.na' /></td>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);"><spring:message code='label.status.na' /></td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);" title='<spring:message text="${likelihood.variable}"/>'>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='<spring:message text="${likelihood.variable}"/>'>
 											<c:choose>
 												<c:when test="${likelihood.level == 0}">
 													<spring:message code='label.status.na' />
@@ -157,10 +157,10 @@
 								<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
 								<c:choose>
 									<c:when test="${empty impact}">
-										<td data-trick-field="IMPACT" data-trick-field-type="string" class="success" title='0 &euro;' onclick="return editField(this);">0</td>
+										<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" title='0 &euro;' onclick="return editField(this);">0</td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="IMPACT" data-trick-field-type="string" class="success" onclick="return editField(this);" title='${impact.variable}'><c:choose>
+										<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${impact.variable}'><c:choose>
 												<c:when test="${impact.real < 10000}">
 													<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" />
 												</c:when>
@@ -173,15 +173,15 @@
 								<c:choose>
 									<c:when test="${empty likelihood}">
 										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);"
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
 											title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,3)}" /></td>
 									</c:otherwise>
 								</c:choose>
 								<c:if test="${show_uncertainty}">
-									<td data-trick-field="uncertainty" data-trick-field-type="double" class="success" data-trick-min-value="1.0000000000001"
+									<td data-trick-field="uncertainty" data-trick-field-type="double" class="editable" data-trick-min-value="1.0000000000001"
 										data-real-value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />' onclick="return editField(this);"><fmt:formatNumber
 											value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
 									<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
@@ -192,10 +192,10 @@
 								</c:if>
 							</c:otherwise>
 						</c:choose>
-						<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
-						<td onclick="return editField(this);" class="success" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
+						<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
+						<td onclick="return editField(this);" class="editable" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
 								text="${assessment.comment}" /></td>
-						<td onclick="return editField(this);" class="success" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message
+						<td onclick="return editField(this);" class="editable" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message
 								text="${assessment.hiddenComment}" /></td>
 					</tr>
 				</c:forEach>

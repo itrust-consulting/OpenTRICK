@@ -50,21 +50,21 @@
 						</td>
 						<c:choose>
 							<c:when test="${type == 'QUALITATIVE'}">
-								<td data-trick-field="label" data-trick-field-type="string" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="success textaligncenter"
+								<td data-trick-field="label" data-trick-field-type="string" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="editable textaligncenter"
 									data-trick-callback='loadRiskHeatMap()' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							</c:when>
 							<c:otherwise>
 								<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
 							</c:otherwise>
 						</c:choose>
-						<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
+						<td data-trick-field="description" data-trick-field-type="string" class="editable textaligncenter" onclick="return editField(this);"><spring:message
 								text="${parameter.description}" /></td>
 						<c:if test="${type == 'QUANTITATIVE'}">
 							<c:set var="parameterValue">
 								<fmt:formatNumber value="${parameter.value}" />
 							</c:set>
 							<td data-trick-field="value" data-trick-field-type="double"
-								${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
+								${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="editable textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
 								data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" /></td>
 							<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" /></td>
 							<td class="textaligncenter"><c:choose>

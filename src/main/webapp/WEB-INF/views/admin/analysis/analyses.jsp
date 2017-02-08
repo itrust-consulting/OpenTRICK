@@ -63,8 +63,8 @@
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
 						<td><spring:message text="${analysis.identifier}" /></td>
 						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
-						<td><pre><spring:message text="${analysis.label}" /></pre></td>
-						<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
+						<td data-trick-content='text'><spring:message text="${analysis.label}" /></td>
+						<td><spring:message text="${analysis.lastHistory.comment}" /></td>
 						<td data-trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
 						<td><spring:message text="${analysis.creationDate}" /></td>
 						<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}" /></td>

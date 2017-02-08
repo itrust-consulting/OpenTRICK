@@ -553,9 +553,9 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 		var $item = $(items[i]);
 		$item.prop("checked", isChecked);
 		if (isChecked)
-			$item.parent().parent().addClass("info");
+			$item.parent().parent().addClass("selected");
 		else
-			$item.parent().parent().removeClass("info");
+			$item.parent().parent().removeClass("selected");
 	}
 	updateMenu(undefined, "#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
@@ -565,7 +565,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	if (sender) {
 		var $sender = $(sender);
 		if ($sender.is(":checked")) {
-			$sender.closest("tr").addClass("info")
+			$sender.closest("tr").addClass("selected")
 			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
 					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
 			if (multiSelectNotAllowed) {
@@ -575,11 +575,11 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 					if (sender == $item[0])
 						continue;
 					$item.prop("checked", false);
-					$item.closest("tr").removeClass("info");
+					$item.closest("tr").removeClass("selected");
 				}
 			}
 		} else
-			$sender.closest("tr").removeClass("info")
+			$sender.closest("tr").removeClass("selected")
 	}
 
 	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length, cachingChecker = {};

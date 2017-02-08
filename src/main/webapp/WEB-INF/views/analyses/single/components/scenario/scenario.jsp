@@ -59,7 +59,7 @@
 			<tfoot></tfoot>
 			<tbody>
 				<c:forEach items="${scenarios}" var="scenario" varStatus="status">
-					<tr data-trick-id="${scenario.id}" onclick="selectElement(this)" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="success"' : ''}
+					<tr data-trick-id="${scenario.id}" onclick="selectElement(this)" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="editable"' : ''}
 						data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 						<c:set var="selectClass" value="${scenario.selected?'selected':'unselected'}" />

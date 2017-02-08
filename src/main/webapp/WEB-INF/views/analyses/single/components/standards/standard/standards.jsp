@@ -132,11 +132,11 @@
 					<tbody>
 						<c:forEach items="${measuresByStandard.get(standard)}" var="measure">
 							<c:set var="css">
-								<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA' }">class="success"</c:if>
+								<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA' }">class="editable"</c:if>
 							</c:set>
 							<c:set var="todoCSS">
 								<c:choose>
-									<c:when test="${empty measure.toDo && fn:contains(css,'success')}">class="danger"</c:when>
+									<c:when test="${empty measure.toDo && fn:contains(css,'editable')}">class="danger"</c:when>
 									<c:otherwise>${css}</c:otherwise>
 								</c:choose>
 							</c:set>

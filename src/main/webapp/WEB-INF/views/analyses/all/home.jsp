@@ -116,7 +116,7 @@
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>
 								<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
-								<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
+								<td data-trick-content='text' ><spring:message text="${analysis.lastHistory.comment}" /></td>
 								<c:if test="${allowedTicketing}">
 									<th>
 										<c:choose>
