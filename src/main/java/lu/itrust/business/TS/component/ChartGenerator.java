@@ -1229,35 +1229,25 @@ public class ChartGenerator {
 			} else if (measure instanceof AssetMeasure) {
 				if (scenario.isAssetLinked()) {
 					for (Asset asset : scenario.getLinkedAssets())
-						computeRRFNormalMeasure(scenario, parameter, numberFormat, asset, findRRFAssetType(asset.getName(), rrfs),
+						computeRRFAssetMeasure(scenario, parameter, numberFormat, asset, findRRFAssetType(asset.getName(), rrfs),
 								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (AssetMeasure) measure);
 				} else {
-					for (AssetType assetType : scenario.getAssetTypes())
-						computeRRFNormalMeasure(scenario, parameter, numberFormat, assetType,
-								findRRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale), rrfs),
-								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (AssetMeasure) measure, rrfs);
+					AssetMeasure assetMeasure = (AssetMeasure) measure;
+					for (MeasureAssetValue measureAssetValue : assetMeasure.getMeasureAssetValues()) {
+						if (scenario.hasInfluenceOnAsset(measureAssetValue.getAsset()))
+							computeRRFAssetMeasure(scenario, parameter, numberFormat, measureAssetValue.getAsset(), findRRFAssetType(measureAssetValue.getAsset().getName(), rrfs),
+									new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), assetMeasure);
+					}
 				}
 			}
 		}
 		return rrfs;
 	}
 
-	private void computeRRFNormalMeasure(Scenario scenario, IParameter parameter, NumberFormat numberFormat, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
+	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, NumberFormat numberFormat, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
 			AssetMeasure measure) throws TrickException, ParseException {
 		rrfMeasure.setValue(numberFormat.parse(numberFormat.format(RRF.calculateAssetMeasureRRF(scenario, asset, parameter, measure))).doubleValue());
 		rrfAssetType.getRrfMeasures().add(rrfMeasure);
-	}
-
-	private void computeRRFNormalMeasure(Scenario scenario, IParameter parameter, NumberFormat numberFormat, AssetType assetType, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
-			AssetMeasure measure, Map<String, Object> rrfs) {
-		List<MeasureAssetValue> mavs = measure.getMeasureAssetValueByAssetType(assetType);
-		if (!mavs.isEmpty()) {
-			for (MeasureAssetValue measureAssetValue : mavs)
-				rrfMeasure.setValue(rrfMeasure.getValue()
-						+ Double.valueOf(numberFormat.format(RRF.calculateAssetMeasureRRF(scenario, measureAssetValue.getAsset(), parameter, (AssetMeasure) measure))));
-			rrfAssetType.getRrfMeasures().add(rrfMeasure);
-		} else
-			rrfs.remove(rrfAssetType.getLabel());
 	}
 
 	private RRFAssetType findRRFAssetType(String key, Map<String, Object> rrfs) {

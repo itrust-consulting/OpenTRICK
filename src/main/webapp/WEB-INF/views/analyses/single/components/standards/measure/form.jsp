@@ -116,7 +116,7 @@
 												<select class="form-control" name="assettypes" id="assettypes">
 													<option value="ALL"><spring:message code="label.all" text="All" /></option>
 													<c:forEach items="${assetTypes}" var="assetType">
-														<option value="${assetType.type}" ${assetType.type.equals(selectedAssetType)?"selected='selected'":"" }><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" /></option>
+														<option value="${assetType.name}" ${assetType.name.equals(selectedAssetType)?"selected='selected'":"" }><spring:message code="label.asset_type.${fn:toLowerCase(assetType.name)}" /></option>
 													</c:forEach>
 												</select>
 											</div>
@@ -133,7 +133,7 @@
 
 											<ul class="asset-measure" data-trick-type="available">
 												<c:forEach items="${availableAssets}" var="availableAsset">
-													<li data-trick-id="${availableAsset.id}" class="list-group-item" data-trick-selected="false" data-trick-type="${availableAsset.assetType.type}"><spring:message
+													<li data-trick-id="${availableAsset.id}" class="list-group-item" data-trick-selected="false" data-trick-type="${availableAsset.assetType.name}"><spring:message
 															text="${availableAsset.name}" /></li>
 												</c:forEach>
 											</ul>
