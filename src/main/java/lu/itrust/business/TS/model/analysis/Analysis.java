@@ -2655,4 +2655,8 @@ public class Analysis implements Cloneable {
 		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
 	}
 
+	public List<Scenario> removeFromScenario(Asset asset) {
+		return this.scenarios.stream().filter(scenario -> scenario.getLinkedAssets().remove(asset)).collect(Collectors.toList());
+	}
+
 }

@@ -143,9 +143,8 @@ public class CustomDelete {
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		else if (asset == null)
 			throw new TrickException("error.asset.not_found", "Asset cannot be found");
-
 		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(asset), analysis.removeRiskProfile(asset));
-
+		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
 		daoAsset.delete(asset);
 	}
 
