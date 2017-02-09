@@ -28,7 +28,7 @@
 					<c:choose>
 						<c:when test="${isEditable}">
 							<span class="input-group-btn">
-								<button class='btn btn-default' name="add-asset" style="padding-top: 5.5px; width: 95px; text-align: left;">
+								<button class='btn btn-cat-add' name="add-asset" style="padding-top: 5.5px; width: 95px; text-align: left;">
 									<i class="fa fa-plus"></i> ${assetText}
 								</button>
 							</span>
@@ -63,7 +63,7 @@
 					<c:choose>
 						<c:when test="${isEditable}">
 							<span class="input-group-btn">
-								<button class='btn btn-default' name="add-scenario" style="padding-top: 5.5px; width: 95px; text-align: left;">
+								<button class='btn btn-cat-add' name="add-scenario" style="padding-top: 5.5px; width: 95px; text-align: left;">
 									<i class="fa fa-plus"></i> ${scenarioText}
 								</button>
 							</span>

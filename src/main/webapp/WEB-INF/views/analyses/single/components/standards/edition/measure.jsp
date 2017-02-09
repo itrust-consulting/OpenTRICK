@@ -192,20 +192,20 @@
 				</table>
 			</div>
 			<c:if test="${not isMaturity}">
-				<div class='form-group'>
+				<div class='form-group form-group-fill'>
 					<spring:message code="label.measure.tocheck" var='tocheck' />
 					<spring:message text="${selectedMeasure.toCheck}" var="toCheckContent" />
-					<label class='label-control'>${tocheck}</label>
+					<label class='label-control form-group-fill'>${tocheck}</label>
 					<textarea rows="${rowSize}" class="form-control" name="toCheck" title="${tocheck}" style="resize: vertical;" placeholder="${toCheckContent}" data-trick-type='string'>${toCheckContent}</textarea>
 				</div>
 			</c:if>
-			<div class='form-group'>
+			<div class='form-group form-group-fill'>
 				<spring:message code="label.comment" var='comment' />
 				<spring:message text="${selectedMeasure.comment}" var="commentContent" />
 				<label class='label-control'>${comment}</label>
 				<textarea rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 			</div>
-			<div class='form-group'>
+			<div class='form-group form-group-fill'>
 				<spring:message code="label.measure.todo" var='todo' />
 				<label class='label-control'>${todo}</label>
 				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />

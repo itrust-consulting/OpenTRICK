@@ -33,9 +33,9 @@
 					</div>
 					<hr>
 					<c:forEach var="index" begin="1" end="10" step="1">
-						<div data-role='form-container' ${index>1? 'hidden class="panel panel-info"' : 'class="panel panel-primary"'}>
+						<div data-role='form-container' ${index>1? 'hidden class="panel panel-analysis-slave"' : 'class="panel panel-analysis-main"'}>
 							<div class='panel-heading' style="padding-top: 20px;">
-								<button data-control="${index}" title="<spring:message code='label.action.remove' text='Remove'/>" class="pull-right btn btn-xs btn-${index == 1? 'primary':'info'}"
+								<button data-control="${index}" title="<spring:message code='label.action.remove' text='Remove'/>" class="pull-right btn btn-xs btn-${index == 1? 'primary':'default'}"
 									disabled="disabled" style="margin-top: -19px; margin-right: -14px; margin-bottom: 5px;">
 									<i class="fa fa-times" aria-hidden="true"></i>
 								</button>

@@ -62,7 +62,7 @@
 	<div class="clearfix"></div>
 </div>
 <table class='table'>
-	<thead class='alert-primary'>
+	<thead>
 		<tr>
 			<th width="15px" rowspan="2"></th>
 			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
@@ -80,10 +80,10 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr class="alert-warning">
+		<tr class="form-group-raw">
 			<!-- RAW -->
 			<td style="transform: rotate(270deg);">${raw}</td>
-			<td style="border-right: 2px solid #ddd;">
+			<td class='form-estimation  form-estimation-right'>
 				<div class="input-group" align="right">
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
 							<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
@@ -157,12 +157,12 @@
 					</div>
 				</td>
 			</c:forEach>
-			<td style="border-left: 2px solid #ddd;"><input name="rawComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedRawImportance}"></td>
+			<td class='form-estimation  form-estimation-left'><input name="rawComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedRawImportance}"></td>
 		</tr>
 		<!-- NET -->
-		<tr class='alert-success'>
+		<tr class='form-group-net'>
 			<td style="transform: rotate(270deg);">${net}</td>
-			<td style="border-right: 2px solid #ddd;">
+			<td class='form-estimation  form-estimation-right'>
 				<div class="input-group" align="right">
 					<spring:message text="${assessment.likelihood}" var="likelihood" />
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='#Scale_Probability'>
@@ -216,12 +216,12 @@
 					</div></td>
 
 			</c:forEach>
-			<td style="border-left: 2px solid #ddd;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+			<td class='form-estimation  form-estimation-left'><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 		</tr>
 		<!-- EXP -->
-		<tr class="alert-info">
+		<tr class="form-group-exp">
 			<td style="transform: rotate(270deg);">${exp}</td>
-			<td style="border-right: 2px solid #ddd;">
+			<td class='form-estimation  form-estimation-right'>
 				<div class="input-group" align="right">
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
 							<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
@@ -293,17 +293,17 @@
 					</div>
 				</td>
 			</c:forEach>
-			<td style="border-left: 2px solid #ddd;"><input name="expComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedExpImportance}"></td>
+			<td class='form-estimation  form-estimation-left'><input name="expComputedImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedExpImportance}"></td>
 		</tr>
 	</tbody>
 </table>
-<div class='form-group'>
+<div class='form-group form-group-fill'>
 	<spring:message code="label.comment_argumentation" text="Comment / Argumentation" var='comment' />
 	<spring:message text="${assessment.comment}" var="commentContent" />
 	<label class='label-control'>${comment}</label>
 	<textarea class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
-<div class='form-group'>
+<div class='form-group form-group-fill'>
 	<spring:message code="label.risk_treatment" text="Risk treatment" var='riskTreatment' />
 	<spring:message text='${riskProfile.riskTreatment}' var="riskTreatmentContent" />
 	<label class='label-control'>${riskTreatment}</label>
@@ -389,7 +389,7 @@
 		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};"
 		placeholder="${empty actionPlanContent? actionPlanInfo : actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 </div>
-<div class='form-group'>
+<div class='form-group form-group-fill'>
 	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 	<label class='label-control'>${hiddenComment}</label>

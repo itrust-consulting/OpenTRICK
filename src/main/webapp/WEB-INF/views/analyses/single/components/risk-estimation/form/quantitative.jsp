@@ -128,13 +128,13 @@
 		</tbody>
 	</table>
 </div>
-<div class='form-group'>
+<div class='form-group form-group-fill'>
 	<spring:message code="label.comment" var='comment' />
 	<spring:message text="${assessment.comment}" var="commentContent" />
 	<label class='label-control'>${comment}</label>
 	<textarea rows="${rowLength}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
-<div class='form-group'>
+<div class='form-group form-group-fill'>
 	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 	<label class='label-control'>${hiddenComment}</label>
