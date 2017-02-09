@@ -55,13 +55,13 @@
 					</c:forEach>
 				</div>
 			</c:forEach>
-			<ul class="nav nav-pills hidden-xs hidden-sm" style="font-size: 20px;" data-trick-role='nav-measure'>
+			<%-- <ul class="nav nav-pills hidden-xs hidden-sm" style="font-size: 20px;" data-trick-role='nav-measure'>
 				<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i>
 				</a></li>
 				<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
 				<li><a accesskey="H" href="#" title='<spring:message code="label.action.next.measure" />' data-trick-nav='next-measure'><i class="fa fa-angle-right"></i> </a></li>
 				<li><a accesskey="G" href="#" title='<spring:message code="label.action.next.chapter" />' data-trick-nav='next-chapter'><i class="fa fa-angle-double-right"></i> </a></li>
-			</ul>
+			</ul> --%>
 		</div>
 		<jsp:include page="measure.jsp" />
 	</div>

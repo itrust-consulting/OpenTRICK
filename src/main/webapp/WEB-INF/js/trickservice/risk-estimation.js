@@ -1032,11 +1032,11 @@ function initialiseRiskEstimation() {
 	for (var i in helper.names)
 		application["estimation-helper"].getCurrent(helper.names[i]).on('change', updateSelector)
 		
-	$("[data-trick-role='add-asset-scenario'] button[name='add-scenario']",application["estimation-helper"].$tabSection).on("click",function(){
+	$("button[name='add-scenario']",application["estimation-helper"].$tabSection).on("click",function(){
 		return editScenario(undefined,true);
 	});
 	
-	$("[data-trick-role='add-asset-scenario'] button[name='add-asset']",application["estimation-helper"].$tabSection).on("click",function(){
+	$("button[name='add-asset']",application["estimation-helper"].$tabSection).on("click",function(){
 		return editAsset(undefined,true);
 	});
 }

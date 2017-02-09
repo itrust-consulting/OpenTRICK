@@ -543,43 +543,49 @@ tr.editable, td.editable,th.editable{
 	background-color: #eff5fb;
 }
 
-tr.selected  {
-	background-color: #bcd7f0;
-}
-
 table>tbody>tr.editable:HOVER, table>tbody>tr:HOVER>.editable{
 	background-color: #d7e3ef;
 }
 
-tr.selected, table>tbody>tr.selected:HOVER   {
+tr.selected, 
+table>tbody>tr.selected, 
+table>tbody>tr.selected.info, 
+table>tbody>tr.selected.succes, 
+table>tbody>tr.selected.warning, 
+table>tbody>tr.selected.danger,
+table>tbody>tr.selected.info,
+table>tbody>tr.selected.info td:not(.selected), 
+table>tbody>tr.selected.succes td:not(.selected), 
+table>tbody>tr.selected.warning td:not(.selected), 
+table>tbody>tr.selected.danger td:not(.selected),
+table>tbody>tr.selected.info td:not(.selected)
+{
 	background-color: #bcd7f0;
 }
 
+tr.selected:HOVER, 
+table>tbody>tr.selected:HOVER, 
+table>tbody>tr.selected.info:HOVER, 
+table>tbody>tr.selected.succes:HOVER, 
+table>tbody>tr.selected.warning:HOVER, 
+table>tbody>tr.selected.danger:HOVER,
+table>tbody>tr.selected.info:HOVER,
+table>tbody>tr.selected.info:HOVER td:not(.selected), 
+table>tbody>tr.selected.succes:HOVER td:not(.selected), 
+table>tbody>tr.selected.warning:HOVER td:not(.selected), 
+table>tbody>tr.selected.danger:HOVER td:not(.selected),
+table>tbody>tr.selected.info:HOVER td:not(.selected)
+{
+	background-color: #acd7f0;
+}
 
 td.selected, tr.selected>td.selected {
 	background-color: #eff5fb;
 }
 
- tr.warning.selected,  tr.warning.selected td {
-	background-color: #bcd7f0;
-}
-
-tr.danger.selected, tr.danger.selected>td {
-	background-color: #bcd7f0;
-}
-
-tr.warning>td.selected {
-	background-color: #fcf8e3;
-}
-
-tr.danger>td.selected {
-	background-color: #f2dede;
-}
-
 td.unselected {
 	background-color: window;
 }
-
 
 @media ( min-width : 992px) {
 	
@@ -598,20 +604,6 @@ td.unselected {
 		overflow-y: auto;
 	}
 	
-	.nav-container-chapter{
-		border-right: 1px #ddd solid;
-		border-radius: 0px 6px 0px 0px;
-		height: calc(100% - 20px);
-	}
-	
-	.nav-container-chapter .list-group-item:not(.active){
-		
-	}
-	
-	.nav-container-chapter .list-group-item:.active{
-		border-right: transparent;
-	}
-	
 	.affixNav {
 		height: 88%;
 	}
@@ -628,22 +620,22 @@ td.unselected {
 	}
 	@media ( min-height :480px) {
 		.nav-chapter {
-			height: calc(100% - 315px);
+			height: calc(100% - 285px);
 		}
 	}
 	@media ( min-height :768px) {
 		.nav-chapter {
-			height: calc(100% - 305px);
+			height: calc(100% - 275px);
 		}
 	}
 	@media ( min-height :992px) {
 		.nav-chapter {
-			height: calc(100% - 290px);
+			height: calc(100% - 260px);
 		}
 	}
 	@media ( min-height :1008px) {
 		.nav-chapter {
-			height: calc(100% - 280px);
+			height: calc(100% - 250px);
 		}
 	}
 }

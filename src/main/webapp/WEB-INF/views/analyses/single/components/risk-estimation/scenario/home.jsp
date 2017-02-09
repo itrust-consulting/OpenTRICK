@@ -12,7 +12,7 @@
 		<jsp:include page="assessments.jsp" />
 	</c:when>
 	<c:when test="${not empty assessment}">
-		<div id="estimation-ui" data-view='estimation-ui' class='col-md-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
+		<div id="estimation-ui" data-view='estimation-ui' class='col-lg-10 col-md-9 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
 			<c:choose>
 				<c:when test="${type == 'QUALITATIVE'}">
 					<jsp:include page="../form/qualitative.jsp" />
@@ -25,7 +25,7 @@
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div id="estimation-ui" data-view='estimation-ui' class='col-md-10 trick-ui' data-trick-content='scenario'></div>
+		<div id="estimation-ui" data-view='estimation-ui' class='col-lg-10 col-md-9 trick-ui' data-trick-content='scenario'></div>
 	</c:otherwise>
 </c:choose>
 
