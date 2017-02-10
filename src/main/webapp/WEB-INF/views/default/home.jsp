@@ -16,9 +16,9 @@
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<div class="content" id="content">
-				<div style="margin-top: 120px; display: block;">
+				<div style="margin-top: 100px; display: block;">
 					<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" />
-						style="height: 200px; margin-bottom: -110px;">
+						style="height: 350px; margin-bottom: -170px;">
 					<hr style="border-top-color: #3e3e3e; z-index: -1">
 				</div>
 				<div style="position: fixed; right: 40px; bottom: 35px;">

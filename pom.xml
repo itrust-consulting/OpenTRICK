@@ -429,6 +429,7 @@
 				<configuration>
 					<warSourceExcludes>
 						**/WEB-INF/css/*.css,
+						**/WEB-INF/css/themes/*.css,
 						**/WEB-INF/js/*.js,
 						**/WEB-INF/js/trickservice/*.js,
 						**/WEB-INF/js/chartjs/*.js,
@@ -436,8 +437,7 @@
 						**/WEB-INF/js/bootstrap/*.js,
 						**/WEB-INF/js/bootstrap/locales/*.js
 					</warSourceExcludes>
-					<packagingExcludes>css</packagingExcludes>
-					<packagingExcludes>**/WEB-INF/tmp/*</packagingExcludes>
+					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js</packagingExcludes>
 				</configuration>
 			</plugin>
 
@@ -478,6 +478,27 @@
 							</jsSourceIncludes>
 						</configuration>
 					</execution>
+					
+					<execution>
+						<id>minify-css-themes</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+							<charset>utf-8</charset>
+							<cssSourceDir>WEB-INF/css/themes</cssSourceDir>
+							<cssSourceIncludes>
+								<cssSourceInclude>*.css</cssSourceInclude>
+							</cssSourceIncludes>
+								<cssSourceExcludes>
+								<cssSourceExclude>WEB-INF/css/themes/*.min.css</cssSourceExclude>
+							</cssSourceExcludes>
+						</configuration>
+					</execution>
+					
 					<execution>
 						<id>minify-js-trickservie</id>
 						<phase>process-resources</phase>
@@ -613,6 +634,4 @@
 			<url>https://maven.atlassian.com/content/repositories/atlassian-public/</url>
 		</repository>
 	</repositories>
-	<!-- <dependencyManagement> <dependencies> <dependency> <groupId>org.codehaus.jackson</groupId> <artifactId>jackson-xc</artifactId> <version>1.9.13</version> </dependency> </dependencies> 
-		</dependencyManagement> -->
 </project>

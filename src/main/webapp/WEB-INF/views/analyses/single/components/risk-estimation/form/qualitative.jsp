@@ -311,8 +311,8 @@
 </div>
 <div class='form-group' id="section_estimation_action_plan">
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
-	<ul class='nav nav-pills' style="padding-left: 0;" id="menu_estimation_action_plan">
-		<li class='form-horizontal' style="margin-right: 25px;"><div class='form-group'>
+	<ul class='nav nav-pills' id="menu_estimation_action_plan">
+		<li class='form-horizontal' style="margin-right: 25px;padding-left: 10px;"><div class='form-group'>
 				<span class="control-label col-xs-4"><spring:message code="label.risk_register.strategy" /></span>
 				<div class='col-xs-8'>${strategyForm}</div>
 			</div></li>

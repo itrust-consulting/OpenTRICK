@@ -593,15 +593,41 @@ td.selected, tr.selected>td.selected {
 
 .form-group-fill{
 	background-color: #eff5fb;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
 }
 
 .panel-analysis-main{
-	background-color: #306696;
+	background-color: #2a6698;
+	color: #fff;
+}
+
+.panel-analysis-main .btn{
+	background-color: #2a6698;
+	border-color: #2a6698;
+	color: #fff;
+}
+
+.panel-analysis-main .btn:HOVER, .panel-analysis-main .btn:FOCUS {
+	background-color: #1676b6;
+	border-color: #1676b6;
 	color: #fff;
 }
 
 .panel-analysis-slave{
-	background-color: #3673a9;
+	background-color: #5290C7;
+	color: #fff;
+}
+
+.panel-analysis-slave .btn{
+	background-color: #5290C7;
+	border-color: #5290C7;
+	color: #fff;
+}
+
+.panel-analysis-slave .btn:HOVER, .panel-analysis-slave .btn:FOCUS {
+	background-color: #62a5d2;
+	border-color: #62a5d2;
 	color: #fff;
 }
 
@@ -619,6 +645,12 @@ td.selected, tr.selected>td.selected {
 
 .form-group-fill .label-control{
 	padding-left: 10px;
+	padding-top: 5px;
+}
+
+.form-group-fill .form-control{
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
 }
 
 td.unselected {
