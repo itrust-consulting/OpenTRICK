@@ -23,31 +23,33 @@
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<tr class="form-group-fill">
-						<th width="12.5%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
-						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
-						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-						<th width="12.5%" style="text-align: center;" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
-						<th width="12.5%" style="text-align: center;" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
-						<th width="12.5%" style="text-align: center;" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+						<th class="text-center" width="12.5%" ><spring:message code="label.risk_register.category" /></th>
+						<th class="text-center" width="12.5%" ><spring:message code="label.title.owner" text="Owner" /></th>
+						<th class="text-center" width="12.5%" ><spring:message code="label.title.impact" /></th>
+						<th class="text-center" width="12.5%" ><spring:message code="label.title.likelihood" /></th>
+						<th class="text-center" width="12.5%" ><spring:message code="label.title.uncertainty" /></th>
+						<th class='form-estimation form-estimation-left text-center' width="12.5%" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
+						<th class="text-center" width="12.5%"  title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
+						<th class="text-center" width="12.5%"  title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
 					</tr>
 				</c:when>
 				<c:otherwise>
 					<tr class="form-group-fill">
-						<th width="20%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
-						<th width="20%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-						<th width="20%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-						<th width="20%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-						<th width="20%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
+						<th class="text-center" width="20%"><spring:message code="label.risk_register.category" /></th>
+						<th class="text-center" width="20%"><spring:message code="label.title.owner" text="Owner" /></th>
+						<th class="text-center" width="20%"><spring:message code="label.title.impact" /></th>
+						<th class="text-center" width="20%"><spring:message code="label.title.likelihood" /></th>
+						<th class='form-estimation form-estimation-left text-center' width="20%"><spring:message code="label.title.ale" /></th>
 					</tr>
 				</c:otherwise>
 			</c:choose>
 		</thead>
 		<tbody>
 			<tr>
+				<spring:message text="${assessment.owner}" var="owner" />
 				<td class='form-estimation form-estimation-right text-center' ><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}"
 							text="${scenarioType}" /></strong></td>
+				<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 				<td>
 					<div class="input-group">
 						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Impact">k&euro;</button></span>
@@ -88,13 +90,11 @@
 
 					</div>
 				</td>
-				<spring:message text="${assessment.owner}" var="owner" />
 				<c:choose>
 					<c:when test="${show_uncertainty}">
 						<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
 						<td><input name="uncertainty" class="form-control numeric" data-trick-type='double' value='${uncertainty}' placeholder="${uncertainty}"></td>
-						<td class='form-estimation form-estimation-right'><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
-						<td>
+						<td class='form-estimation form-estimation-left'>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEO" class="form-control numeric" disabled="disabled"
 									value='<fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" />'>
@@ -114,8 +114,7 @@
 						</td>
 					</c:when>
 					<c:otherwise>
-						<td class='form-estimation form-estimation-right'><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
-						<td>
+						<td class='form-estimation form-estimation-left'>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
 									value='<fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" />'>
