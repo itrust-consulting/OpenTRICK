@@ -35,7 +35,7 @@
 		</div>
 	</div>
 </div>
-<div class='form-horizontal' style="border-bottom: 1px solid #efefef;">
+<div class='form-horizontal form-group-fill' style="border-bottom: 1px solid window">
 	<div class='col-sm-4'>
 		<div class="form-group">
 			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label> <strong class='col-xs-6 form-control-static'><spring:message
@@ -61,13 +61,13 @@
 	</div>
 	<div class="clearfix"></div>
 </div>
-<table class='table'>
+<table class='table form-group-fill'>
 	<thead>
 		<tr>
 			<th width="15px" rowspan="2"></th>
 			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
 			<th colspan="${impactTypes.size()}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-			<th rowspan="2" style="border-left: 2px solid window; width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"
+			<th class="form-estimation form-estimation-left" rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"
 					text="Importance" /></th>
 		</tr>
 		<tr>

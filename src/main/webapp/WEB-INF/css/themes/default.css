@@ -527,7 +527,7 @@ table.rrf-values th{
 	vertical-align: middle;
 }
 
-
+/*
 a.list-group-item.active,.list-group-item.active{
 	color: #fff;
 	background-color: #3c79AE;
@@ -545,7 +545,33 @@ a.list-group-item.active:FOCUS,.list-group-item.active:FOCUS,a.list-group-item.a
 	background-color: #216698;
 	border-color: #216698;
 	color: #fff;
+}*/
+
+.nav-chapter a.list-group-item {
+	border-radius: 0px;
+	border-width: 0px 1px 0px 0px;
+	color: #337ab7;
+	padding: 6px 12px;
 }
+
+.nav-chapter a.list-group-item:LAST-CHILD {
+	border-bottom: 1px #ddd solid;
+}
+
+.nav-chapter a.list-group-item:FIRST-CHILD {
+	border-top: 1px #ddd solid;
+}
+
+
+.nav-chapter a.list-group-item.active{
+	color: #333;
+	background-color: window;
+	border-color: #ddd;
+	border-style:solid none solid solid;
+	border-width: 1px 0px 1px 1px;
+	border-radius: 4px 0px 0px 4px;
+}
+
 
 tr.editable, td.editable,th.editable{
 	background-color: #eff5fb;
@@ -594,6 +620,14 @@ td.selected, tr.selected>td.selected {
 .form-group-fill{
 	background-color: #eff5fb;
 	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+tr.form-group-fill th:FIRST-CHILD{
+	border-top-left-radius: 4px;
+}
+
+tr.form-group-fill th:LAST-CHILD{
 	border-top-right-radius: 4px;
 }
 
@@ -653,6 +687,20 @@ td.selected, tr.selected>td.selected {
 	border-top-right-radius: 0px;
 }
 
+.form-group-fill .form-control-static{
+	background-color: window;
+	border-radius: 4px;
+}
+
+.form-horizontal.form-group-fill {
+	padding-top: 5px;
+}
+
+.form-horizontal.form-group-fill .form-control {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
 td.unselected {
 	background-color: window;
 }
@@ -677,7 +725,7 @@ td.unselected {
 }
 
 img.support-logo {
-	height: 65px;
+	height: 60px;
 }
 
 img.support-logo+img.support-logo{

@@ -135,6 +135,8 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 			return messageSource.getMessage(messages[0], null, locale);
 		else if (messages.length == 2)
 			return messageSource.getMessage(messages[0], null, messages[1], locale);
+		else if (messages[1].isEmpty())
+			return messageSource.getMessage(messages[0], null, messages[2], locale);
 		else
 			return messageSource.getMessage(messages[0], messages[1].split(";"), messages[2], locale);
 	}

@@ -56,6 +56,16 @@
 		<property name="fallbackToSystemLocale" value="false" />
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
+	
+	<bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
+        <property name="basenamePrefix" value="themes."/> 
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
+    <bean id="themeResolver" class="org.springframework.web.servlet.theme.CookieThemeResolver">
+        <property name="defaultThemeName" value="default"/>
+        <property name="cookieName" value="TS_THEME_NAME"/>
+    </bean>
 
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'lang' request parameter is sent; e.g. /?lang=de -->

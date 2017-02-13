@@ -30,9 +30,11 @@
 		</div>
 		<div style="color: white; text-align: center; width: 50%; margin: 0 auto; margin-top: 5px; float: left;">&copy; ${fn:replace(copyRight,'{0}',year)}</div>
 		<div class="pull-right" style="color: white; float: right; width: 25%; text-align: right; margin-top: 5px;">
-			<img alt="itrust consulting" src=<spring:url value="/images/support/itrust.png" /> style="height: 30px; margin-top: -6px; margin-right: 10px;background-color: white; padding: 0px 10px;"> v<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" />
+			<img alt="itrust consulting" src=<spring:url value="/images/support/itrust.png" />
+				style="height: 30px; margin-top: -8px; margin-right: 10px; padding: 0px 10px; margin-bottom: -8px;"> v
+			<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" />
 		</div>
-		
+
 	</div>
 </div>
 <jsp:include page="../template/alertDialog.jsp" />

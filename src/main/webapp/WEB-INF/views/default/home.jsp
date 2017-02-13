@@ -18,19 +18,21 @@
 			<div class="content" id="content">
 				<div style="margin-top: 100px; display: block;">
 					<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" />
-						style="height: 350px; margin-bottom: -170px;">
+						style="height: 250px; margin-bottom: -125px;">
 					<hr style="border-top-color: #3e3e3e; z-index: -1">
 				</div>
 				<div style="position: fixed; right: 40px; bottom: 35px;">
-					<strong style="border-bottom: 1px #3e3e3e solid; margin-bottom: 10px; float: right;"><spring:message code='label.entity.support'/></strong>
+					<strong style="float: right;"><spring:message code='label.entity.support' /></strong>
 					<div style="display: inline-block; clear: both; float: right;">
 						<img class="support-logo" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/diamonds.jpg" />> <img class="support-logo"
 							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/cockpitci.jpg" />> <img class="support-logo"
 							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/trespass.png" />> <img class="support-logo"
 							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/itea2.jpg" />> <img class="support-logo"
-							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/seventh_framework_programme.png" />> <img class="support-logo"
-							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/ministere_eco.jpg" /> class="support-logo"> <img class="support-logo"
-							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/eu.jpg" />>
+							alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/seventh_framework_programme.png" />>
+						<div style="border-top: 1px #3e3e3e solid; display: inline-block; padding-top: 10px;">
+							<img class="support-logo" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/ministere_eco.jpg" /> class="support-logo"> <img
+								class="support-logo" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/support/eu.jpg" />>
+						</div>
 					</div>
 				</div>
 			</div>

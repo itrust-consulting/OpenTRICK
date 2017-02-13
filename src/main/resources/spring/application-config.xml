@@ -73,9 +73,9 @@
 			<property name="paramName" value="lang" />
 		</bean>
 		
-		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
+		<!-- <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
             <property name="paramName" value="theme"/>
-        </bean>
+        </bean> -->
         
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />

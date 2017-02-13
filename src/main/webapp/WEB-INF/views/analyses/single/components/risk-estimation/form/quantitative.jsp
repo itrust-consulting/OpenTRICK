@@ -22,7 +22,7 @@
 		<thead>
 			<c:choose>
 				<c:when test="${show_uncertainty}">
-					<tr>
+					<tr class="form-group-fill">
 						<th width="12.5%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
 						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
@@ -34,7 +34,7 @@
 					</tr>
 				</c:when>
 				<c:otherwise>
-					<tr>
+					<tr class="form-group-fill">
 						<th width="20%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
 						<th width="20%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 						<th width="20%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
@@ -46,7 +46,7 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td style="border-right: 2px solid #ddd; text-align: center;"><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}"
+				<td class='form-estimation form-estimation-right text-center' ><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}"
 							text="${scenarioType}" /></strong></td>
 				<td>
 					<div class="input-group">
@@ -68,7 +68,6 @@
 								<input name="IMPACT" class="form-control" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string' title="${impact.variable}">
 							</c:otherwise>
 						</c:choose>
-
 					</div>
 				</td>
 				<td>
@@ -94,7 +93,7 @@
 					<c:when test="${show_uncertainty}">
 						<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
 						<td><input name="uncertainty" class="form-control numeric" data-trick-type='double' value='${uncertainty}' placeholder="${uncertainty}"></td>
-						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
+						<td class='form-estimation form-estimation-right'><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEO" class="form-control numeric" disabled="disabled"
@@ -115,7 +114,7 @@
 						</td>
 					</c:when>
 					<c:otherwise>
-						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
+						<td class='form-estimation form-estimation-right'><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
