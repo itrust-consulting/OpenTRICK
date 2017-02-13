@@ -17,6 +17,13 @@ public class Dataset {
 	private List<Object> data = new ArrayList<>();
 	
 	private List<String> backgroundColor =  new ArrayList<>();
+	
+	public Dataset() {
+	}
+
+	public Dataset(String label) {
+		setLabel(label);
+	}
 
 	/**
 	 * @return the backgroundColor

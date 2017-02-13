@@ -1,6 +1,6 @@
 var helpers = Chart.helpers;
 
-Chart.HeatMapPlugin = Chart.PluginBase.extend({
+Chart.plugins.register({
 	beforeInit : function(chart) {
 		if (chart.config.type === 'heatmap') {
 			// Keep the y-axis in sync with the datasets
@@ -41,8 +41,6 @@ Chart.HeatMapPlugin = Chart.PluginBase.extend({
 		});
 	}
 });
-
-Chart.plugins.register(new Chart.HeatMapPlugin());
 
 Chart.defaults.heatmap = {
 	radiusScale : 0.025,
@@ -128,10 +126,10 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		}
 		// Apply padding
 
-		var verticalPadding = 1.9,horizontalPadding = 2.9;
-		
+		var verticalPadding = 1.9, horizontalPadding = 2.9;
+
 		boxWidth = boxWidth - horizontalPadding;
-		
+
 		boxHeight = boxHeight - verticalPadding;
 
 		y = y + verticalPadding / 2.0;

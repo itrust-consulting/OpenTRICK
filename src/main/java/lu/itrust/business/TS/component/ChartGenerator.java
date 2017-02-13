@@ -35,8 +35,11 @@ import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAODynamicParameter;
+import lu.itrust.business.TS.database.dao.DAOImpactParameter;
+import lu.itrust.business.TS.database.dao.DAOLikelihoodParameter;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOPhase;
+import lu.itrust.business.TS.database.dao.DAORiskAcceptanceParameter;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOSimpleParameter;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
@@ -123,6 +126,15 @@ public class ChartGenerator {
 
 	@Autowired
 	private DynamicRiskComputer dynamicRiskComputer;
+
+	@Autowired
+	private DAOLikelihoodParameter daoLikelihoodParameter;
+
+	@Autowired
+	private DAORiskAcceptanceParameter daoRiskAcceptanceParameter;
+
+	@Autowired
+	private DAOImpactParameter daoImpactParameter;
 
 	@Value("${app.settings.ale.chart.content.size}")
 	private int aleChartSize;
@@ -1620,5 +1632,52 @@ public class ChartGenerator {
 			return String.format("%d d", Math.round(deltaTime / 86400.0));
 		else
 			return String.format("%d w", Math.round(deltaTime / 86400.0 / 7));
+	}
+
+	public Chart riskByAssetType(Integer idAnalysis, Locale locale) {
+		Map<String, List<Assessment>> assessmentByAssetType = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
+				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage("labe.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
+						assessment.getAsset().getAssetType().getName(), locale)));
+		return assessmentByAssetType.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByAssetType);
+	}
+
+	public Chart riskByAsset(Integer idAnalysis, Locale locale) {
+		Map<String, List<Assessment>> assessmentByAssetType = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
+				.collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
+		return assessmentByAssetType.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByAssetType);
+	}
+
+	private Chart generateAssessmenttRisk(Integer idAnalysis, Map<String, List<Assessment>> assessmentByAssetType) {
+		ValueFactory valueFactory = new ValueFactory(daoLikelihoodParameter.findByAnalysisId(idAnalysis));
+		valueFactory.add(daoImpactParameter.findByAnalysisId(idAnalysis));
+		List<RiskAcceptanceParameter> riskAcceptanceParameters = daoRiskAcceptanceParameter.findByAnalysisId(idAnalysis);
+		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
+		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
+			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(
+						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+		}
+		Chart chart = new Chart();
+		for (Entry<String, List<Assessment>> entry : assessmentByAssetType.entrySet()) {
+			colorBounds.parallelStream().forEach(color -> color.setCount(0));
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
+				continue;
+			Dataset dataset = new Dataset(entry.getKey());
+			colorBounds.forEach(colorBound -> {
+				dataset.getBackgroundColor().add(colorBound.getColor());
+				dataset.getData().add(colorBound.getCount());
+			});
+		}
+		colorBounds.forEach(colorBound -> chart.getLegends().add(new Legend(colorBound.getLabel(), colorBound.getColor())));
+		return chart;
 	}
 }

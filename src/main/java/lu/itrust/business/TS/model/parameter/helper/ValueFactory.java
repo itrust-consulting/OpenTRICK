@@ -43,6 +43,9 @@ public class ValueFactory {
 	private Map<String, Map<String, IProbabilityParameter>> probabilityMapper;
 
 	private Map<String, Map<String, IImpactParameter>> impactMapper;
+	
+	public ValueFactory() {
+	}
 
 	public ValueFactory(List<? extends IParameter> parameters) {
 		add(parameters);
