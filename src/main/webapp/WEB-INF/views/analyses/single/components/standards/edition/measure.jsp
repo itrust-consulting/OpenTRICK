@@ -79,23 +79,23 @@
 			<div class='form-group'>
 				<table class="table table-condensed">
 					<thead>
-						<tr>
+						<tr class="form-group-fill">
 							<th colspan="2" style="text-align: center;"><spring:message code="label.actual.status" /></th>
 							<th colspan="4" style="text-align: center;"><spring:message code="label.initial.setup" /></th>
 							<th colspan="3" style="text-align: center;"><spring:message code="label.maintenance" /></th>
 							<th colspan="3" style="text-align: center;"><spring:message code="label.planning" /></th>
 						</tr>
-						<tr>
+						<tr class="form-group-fill">
 							<th title='<spring:message code="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.status" /></th>
-							<th title='<spring:message code="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><spring:message code="label.implement" /></th>
+							<th title='<spring:message code="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 1px solid #ddd"><spring:message code="label.implement" /></th>
 							<th title='<spring:message code="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.iw" /></th>
 							<th title='<spring:message code="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.ew" /></th>
 							<th title='<spring:message code="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.inv" /></th>
-							<th title='<spring:message code="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message
+							<th title='<spring:message code="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 1px solid #ddd"><spring:message
 									code="label.title.measure.lt" /></th>
 							<th title='<spring:message code="label.title.measure.im" />' style="width: 1%; min-width: 60px;"><spring:message code="label.internal" /></th>
 							<th title='<spring:message code="label.title.measure.em" />' style="width: 1%; min-width: 60px;"><spring:message code="label.external" /></th>
-							<th title='<spring:message code="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message code="label.recurrent" /></th>
+							<th title='<spring:message code="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 1px solid #ddd"><spring:message code="label.recurrent" /></th>
 							<th title='<spring:message code="label.title.measure.cost" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.cost" /></th>
 							<th title='<spring:message code="label.title.measure.phase" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.phase" /></th>
 							<th title='<spring:message code="label.title.measure.responsible" />' style="width: 2%"><spring:message code="label.title.measure.responsible" /></th>
@@ -110,7 +110,7 @@
 											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}'>${statusAP}</option>
 											<option value='M' ${selectedMeasure.status=='M'?'selected' : ''} title='${titleStatusM}'>${statusM}</option>
 									</select></td>
-									<td style="border-right: 2px solid #ddd"><div class="input-group">
+									<td style="border-right: 1px solid #ddd"><div class="input-group">
 											<span class="input-group-addon">%</span> ${implementationRate}
 										</div></td>
 									<td><div class="input-group">
@@ -125,7 +125,7 @@
 											<span class="input-group-addon">${metricKEuro}</span><input name="investment" value="${kInvestment}" title="${investment}${metricEuro}" class="form-control numeric"
 												placeholder="${kInvestment}" data-trick-type='double'>
 										</div></td>
-									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+									<td style="border-right: 1px solid #ddd"><div class="input-group" align="right">
 											<span class="input-group-addon">${metricYear}</span><input name="lifetime" value="${lifetime}" class="form-control numeric" placeholder="${lifetime}"
 												data-trick-type='double'>
 										</div></td>
@@ -137,7 +137,7 @@
 											<span class="input-group-addon">${metricMd}</span><input name="externalMaintenance" value="${externalMaintenance}" class="form-control numeric"
 												placeholder="${externalMaintenance}" data-trick-type='double'>
 										</div></td>
-									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+									<td style="border-right: 1px solid #ddd"><div class="input-group" align="right">
 											<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" value="${kRecurrentInvestment}" title="${recurrentInvestment}${metricEuro}"
 												class="form-control numeric" placeholder="${kRecurrentInvestment}" data-trick-type='double'>
 										</div></td>
@@ -156,7 +156,7 @@
 							<c:otherwise>
 								<tr>
 									<td><select class='form-control' name="status" disabled="disabled"></select></td>
-									<td style="border-right: 2px solid #ddd"><div class="input-group">
+									<td style="border-right: 1px solid #ddd"><div class="input-group">
 											<span class="input-group-addon">%</span> <select class="form-control" disabled="disabled"></select>
 										</div></td>
 									<td><div class="input-group">
@@ -168,7 +168,7 @@
 									<td><div class="input-group">
 											<span class="input-group-addon">${metricKEuro}</span><input name="investment" class="form-control numeric" disabled="disabled">
 										</div></td>
-									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+									<td style="border-right: 1px solid #ddd"><div class="input-group" align="right">
 											<span class="input-group-addon">${metricYear}</span><input name="lifetime" class="form-control numeric" disabled="disabled">
 										</div></td>
 									<td><div class="input-group">
@@ -177,7 +177,7 @@
 									<td><div class="input-group">
 											<span class="input-group-addon">${metricMd}</span><input name="externalMaintenance" class="form-control numeric" disabled="disabled">
 										</div></td>
-									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+									<td style="border-right: 1px solid #ddd"><div class="input-group" align="right">
 											<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" class="form-control numeric" disabled="disabled">
 										</div></td>
 									<td><div class="input-group">

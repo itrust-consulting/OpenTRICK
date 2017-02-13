@@ -551,7 +551,7 @@ a.list-group-item.active:FOCUS,.list-group-item.active:FOCUS,a.list-group-item.a
 	border-radius: 0px;
 	border-width: 0px 1px 0px 0px;
 	color: #337ab7;
-	padding: 6px 12px;
+	padding: 7px 12px;
 }
 
 .nav-chapter a.list-group-item:LAST-CHILD {
