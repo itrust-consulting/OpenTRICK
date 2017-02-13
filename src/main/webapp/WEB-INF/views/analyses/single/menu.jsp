@@ -95,6 +95,7 @@
 					</c:when>
 					<c:otherwise>
 						<li><a href="#tab-chart-heat-map" data-toggle="tab"> <spring:message code="label.chart.risk_acceptance_heat_map" /></a></li>
+						<li><a href="#tab-chart-risk-asset" data-toggle="tab"> <spring:message code="label.chart.risk_acceptance_heat_map" /></a></li>
 					</c:otherwise>
 				</c:choose>
 

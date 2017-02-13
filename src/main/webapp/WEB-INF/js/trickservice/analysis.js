@@ -284,6 +284,31 @@ function reloadRiskHeatMapSection(tableChange) {
 	return false;
 }
 
+function reloadRiskAssetSection(tableChange){
+	var $tabSection = $("#tab-chart-risk-asset");
+	if ($tabSection.is(":visible")) {
+		loadRiskAssetChart();
+		if (tableChange) {
+			var $tbody = $("table>tbody", $tabSection), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
+			if ($trs.length) {
+				$tbody.empty();
+				$trs.each(function() {
+					var $this = $(this).removeAttributes();
+					$("td[data-trick-field!='color']", $this).removeAttributes();
+					$("td[data-trick-field]", $this).removeAttr("data-trick-field");
+					$this.attr("style", "text-align:center");
+					$this.appendTo($tbody);
+				});
+			}
+			$tabSection.attr("data-parameters", false);
+		}
+	} else if (tableChange)
+		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
+	else
+		$tabSection.attr("data-update-required", true);
+	return false;
+}
+
 function loadRiskHeatMap() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -338,6 +363,38 @@ function loadRiskHeatMap() {
 						}
 					}
 				}
+			});
+		},
+		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+	});
+	return false;
+
+}
+
+function loadRiskAssetChart() {
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url : context + "/Analysis/Asset/Chart/Risk",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (window.riskAsset != undefined)
+				window.riskAsset.destroy();
+			window.riskAsset = new Chart(document.getElementById("risk_acceptance_asset_canvas").getContext("2d"), {
+			    type: "bar",
+			    data: response,
+			    options: {
+			        scales: {
+			            xAxes: [{
+			                stacked: true
+			            }],
+			            yAxes: [{
+			                stacked: true
+			            }]
+			        }
+			    }
 			});
 		},
 		error : unknowError

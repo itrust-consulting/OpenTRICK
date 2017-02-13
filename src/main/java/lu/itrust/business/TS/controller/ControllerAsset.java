@@ -330,7 +330,7 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Chart/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Chart riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
@@ -349,7 +349,7 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Chart/Type/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Chart riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
