@@ -376,6 +376,41 @@ public class ControllerScenario {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}
+	
+	/**
+	 * aleByAsset: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Chart/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.riskByScenario(idAnalysis, locale);
+	}
+
+	/**
+	 * assetByALE: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Chart/Type/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.riskByScenarioType(idAnalysis, locale);
+	}
+
 
 	/**
 	 * buildScenario: <br>

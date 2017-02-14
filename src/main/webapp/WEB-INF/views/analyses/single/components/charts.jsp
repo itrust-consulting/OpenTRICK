@@ -53,6 +53,30 @@
 </div>
 <c:choose>
 	<c:when test="${type=='QUALITATIVE'}">
+		<c:set var="riskAcceptanceTablePlaceHolder">
+			<div class='col-sm-4'>
+				<fieldset>
+					<legend>
+						<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+					</legend>
+					<table class="table table-hover table-condensed">
+						<thead>
+							<tr>
+								<th><spring:message code="label.importance.threshold" /></th>
+								<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
+								<th style="width: 50%"><spring:message code="label.description" /></th>
+								<th><spring:message code="label.color" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class='warning'>
+								<td colspan="4"><spring:message code='info.risk_acceptance.empty' /></td>
+							</tr>
+						</tbody>
+					</table>
+				</fieldset>
+			</div>
+		</c:set>
 		<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="reloadRiskHeatMapSection" data-parameters='true'>
 			<div id="risk_acceptance_heat_map">
 				<div class="page-header tab-content-header">
@@ -67,98 +91,69 @@
 				<div class='col-sm-8'>
 					<canvas id="risk_acceptance_heat_map_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
 				</div>
-				<div class='col-sm-4'>
-					<fieldset>
-						<legend>
-							<spring:message code="label.title.parameter.risk.acceptance.threshold" />
-						</legend>
-						<table class="table table-hover table-condensed">
-							<thead>
-								<tr>
-									<th><spring:message code="label.importance.threshold" /></th>
-									<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
-									<th style="width: 50%" ><spring:message code="label.description" /></th>
-									<th><spring:message code="label.color" /></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class='warning'><td colspan="4"><spring:message code='info.risk_acceptance.empty'/></td></tr>
-							</tbody>
-						</table>
-					</fieldset>
-				</div>
+				${riskAcceptanceTablePlaceHolder}
 			</div>
 		</div>
 		<div class="tab-pane trick-chart-tab" id="tab-chart-risk-asset" data-update-required="true" data-trigger="reloadRiskAssetSection" data-parameters='true'>
-			<div id="risk_acceptance_heat_map">
+			<div id="risk_by_asset">
 				<div class="page-header tab-content-header">
 					<div class="container">
 						<div class="row-fluid">
 							<h3>
-								<spring:message code="label.title.risk_acceptance.asset" />
+								<spring:message code="label.title.risk_by.asset" />
 							</h3>
 						</div>
 					</div>
 				</div>
-				<div class='col-sm-8'>
-					<canvas id="risk_acceptance_asset_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
-				</div>
-				<div class='col-sm-4'>
-					<fieldset>
-						<legend>
-							<spring:message code="label.title.parameter.risk.acceptance.threshold" />
-						</legend>
-						<table class="table table-hover table-condensed">
-							<thead>
-								<tr>
-									<th><spring:message code="label.importance.threshold" /></th>
-									<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
-									<th style="width: 50%" ><spring:message code="label.description" /></th>
-									<th><spring:message code="label.color" /></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class='warning'><td colspan="4"><spring:message code='info.risk_acceptance.empty'/></td></tr>
-							</tbody>
-						</table>
-					</fieldset>
-				</div>
+				<div class='col-sm-8' id="risk_acceptance_assets"></div>
+				${riskAcceptanceTablePlaceHolder}
 			</div>
 		</div>
-		<div class="tab-pane trick-chart-tab" id="tab-chart-asset-type" data-update-required="true" data-trigger="reloadRiskAssetTypeSection" data-parameters='true'>
-			<div id="risk_acceptance_heat_map">
+		<div class="tab-pane trick-chart-tab" id="tab-chart-risk-asset-type" data-update-required="true" data-trigger="reloadRiskAssetTypeSection" data-parameters='true'>
+			<div id="risk_by_asset_type">
 				<div class="page-header tab-content-header">
 					<div class="container">
 						<div class="row-fluid">
 							<h3>
-								<spring:message code="label.title.risk_acceptance.asset_type" />
+								<spring:message code="label.title.risk_by.asset_type" />
 							</h3>
 						</div>
 					</div>
 				</div>
-				<div class='col-sm-8'>
-					<canvas id="risk_acceptance_asset_type_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+				<div class='col-sm-8' id="risk_acceptance_asset_types" ></div>
+				${riskAcceptanceTablePlaceHolder}
+			</div>
+		</div>
+
+		<div class="tab-pane trick-chart-tab" id="tab-chart-risk-scenario" data-update-required="true" data-trigger="reloadRiskScenarioSection" data-parameters='true'>
+			<div id="risk_by_scenario">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<spring:message code="label.title.risk_by.scenario" />
+							</h3>
+						</div>
+					</div>
 				</div>
-				<div class='col-sm-4'>
-					<fieldset>
-						<legend>
-							<spring:message code="label.title.parameter.risk.acceptance.threshold" />
-						</legend>
-						<table class="table table-hover table-condensed">
-							<thead>
-								<tr>
-									<th><spring:message code="label.importance.threshold" /></th>
-									<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
-									<th style="width: 50%" ><spring:message code="label.description" /></th>
-									<th><spring:message code="label.color" /></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class='warning'><td colspan="4"><spring:message code='info.risk_acceptance.empty'/></td></tr>
-							</tbody>
-						</table>
-					</fieldset>
+				<div class='col-sm-8' id="risk_acceptance_scenarios"></div>
+				${riskAcceptanceTablePlaceHolder}
+			</div>
+		</div>
+		<div class="tab-pane trick-chart-tab" id="tab-chart-risk-scenario-type" data-update-required="true" data-trigger="reloadRiskScenarioTypeSection" data-parameters='true'>
+			<div id="risk_by_scenario_type">
+				<div class="page-header tab-content-header">
+					<div class="container">
+						<div class="row-fluid">
+							<h3>
+								<spring:message code="label.title.risk_by.scenario_type" />
+							</h3>
+						</div>
+					</div>
 				</div>
+				<div class='col-sm-8' id="risk_acceptance_scenario_types">
+				</div>
+				${riskAcceptanceTablePlaceHolder}
 			</div>
 		</div>
 	</c:when>

@@ -3,42 +3,40 @@ var helpers = Chart.helpers;
 Chart.plugins.register({
 	beforeInit : function(chart) {
 		if (chart.config.type === 'heatmap') {
-			// Keep the y-axis in sync with the datasets
 			chart.data.yLabels = chart.data.datasets.map(function(ds) {
 				return ds.label;
 			});
 		}
 	},
-
 	beforeUpdate : function(chart) {
 		if (chart.config.type === 'heatmap') {
-			// Keep the y-axis in sync with the datasets
 			chart.data.yLabels = chart.data.datasets.map(function(ds) {
 				return ds.label;
 			});
 		}
 	},
 	afterDatasetsDraw : function(chartInstance, easing) {
-		// To only draw at the end of animation, check for easing === 1
-		var ctx = chartInstance.chart.ctx;
-		chartInstance.data.datasets.forEach(function(dataset, i) {
-			var meta = chartInstance.getDatasetMeta(i);
-			if (!meta.hidden) {
-				meta.data.forEach(function(element, index) {
-					var fontSize = 20;
-					if (dataset.data.length < 6)
-						fontSize = 30;
-					else if (dataset.data.length < 3)
-						fontSize = 40;
-					ctx.fillStyle = '#333';
-					ctx.textAlign = 'center';
-					ctx.textBaseline = 'middle';
-					ctx.font = Chart.helpers.fontString(fontSize, "normal", Chart.defaults.global.defaultFontFamily);
-					var dataString = dataset.data[index].toString(), position = element.tooltipPosition();
-					ctx.fillText(dataString, position.x, position.y);
-				});
-			}
-		});
+		if (chartInstance.chart.config.type === 'heatmap') {
+			var ctx = chartInstance.chart.ctx;
+			chartInstance.data.datasets.forEach(function(dataset, i) {
+				var meta = chartInstance.getDatasetMeta(i);
+				if (!meta.hidden) {
+					meta.data.forEach(function(element, index) {
+						var fontSize = 20;
+						if (dataset.data.length < 6)
+							fontSize = 30;
+						else if (dataset.data.length < 3)
+							fontSize = 40;
+						ctx.fillStyle = '#333';
+						ctx.textAlign = 'center';
+						ctx.textBaseline = 'middle';
+						ctx.font = Chart.helpers.fontString(fontSize, "normal", Chart.defaults.global.defaultFontFamily);
+						var dataString = dataset.data[index].toString(), position = element.tooltipPosition();
+						ctx.fillText(dataString, position.x, position.y);
+					});
+				}
+			});
+		}
 	}
 });
 

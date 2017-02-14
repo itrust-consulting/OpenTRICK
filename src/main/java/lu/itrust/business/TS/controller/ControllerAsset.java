@@ -36,7 +36,6 @@ import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
@@ -332,10 +331,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		// retrieve analysis id
+	public @ResponseBody Object riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		// generate chart of assets for this analysis
 		return chartGenerator.riskByAsset(idAnalysis, locale);
 	}
 
@@ -351,10 +348,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Type/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		// retrieve analysis id
+	public @ResponseBody Object riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		// generate chart of assets for this analysis
 		return chartGenerator.riskByAssetType(idAnalysis, locale);
 	}
 

@@ -1597,7 +1597,7 @@ public class ChartGenerator {
 		});
 
 		impacts.stream().filter(impact -> impact.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
-			Dataset dataset = new Dataset();
+			Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>());
 			dataset.setLabel(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 			for (int i = 1; i < probabilities.size(); i++) {
 				Integer importance = impact.getLevel() * i, count = importanceByCount.get(String.format("%d-%d", impact.getLevel(), i));
@@ -1634,20 +1634,33 @@ public class ChartGenerator {
 			return String.format("%d w", Math.round(deltaTime / 86400.0 / 7));
 	}
 
-	public Chart riskByAssetType(Integer idAnalysis, Locale locale) {
-		Map<String, List<Assessment>> assessmentByAssetType = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
-				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage("labe.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
-						assessment.getAsset().getAssetType().getName(), locale)));
-		return assessmentByAssetType.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByAssetType);
-	}
-
-	public Chart riskByAsset(Integer idAnalysis, Locale locale) {
-		Map<String, List<Assessment>> assessmentByAssetType = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
+	public Object riskByAsset(Integer idAnalysis, Locale locale) {
+		Map<String, List<Assessment>> assessmentByAssets = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
 				.collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
-		return assessmentByAssetType.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByAssetType);
+		return assessmentByAssets.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByAssets);
 	}
 
-	private Chart generateAssessmenttRisk(Integer idAnalysis, Map<String, List<Assessment>> assessmentByAssetType) {
+	public Object riskByAssetType(Integer idAnalysis, Locale locale) {
+		Map<String, List<Assessment>> assessmentByAssetTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
+				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
+						assessment.getAsset().getAssetType().getName(), locale)));
+		return assessmentByAssetTypes.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByAssetTypes);
+	}
+
+	public Object riskByScenario(Integer idAnalysis, Locale locale) {
+		Map<String, List<Assessment>> assessmentByScenarios = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
+				.collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
+		return assessmentByScenarios.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByScenarios);
+	}
+
+	public Object riskByScenarioType(Integer idAnalysis, Locale locale) {
+		Map<String, List<Assessment>> assessmentByScenarioTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream().collect(
+				Collectors.groupingBy(assessment -> messageSource.getMessage("label.scenario.type." + assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(),
+						null, assessment.getAsset().getAssetType().getName(), locale)));
+		return assessmentByScenarioTypes.isEmpty() ? new Chart() : generateAssessmenttRisk(idAnalysis, assessmentByScenarioTypes);
+	}
+
+	private List<Chart> generateAssessmenttRisk(Integer idAnalysis, Map<String, List<Assessment>> assessmentByAssetType) {
 		ValueFactory valueFactory = new ValueFactory(daoLikelihoodParameter.findByAnalysisId(idAnalysis));
 		valueFactory.add(daoImpactParameter.findByAnalysisId(idAnalysis));
 		List<RiskAcceptanceParameter> riskAcceptanceParameters = daoRiskAcceptanceParameter.findByAnalysisId(idAnalysis);
@@ -1662,22 +1675,37 @@ public class ChartGenerator {
 				colorBounds.add(
 						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
-		Chart chart = new Chart();
+
+		Distribution distribution = Distribution.Distribut(assessmentByAssetType.size(), aleChartSize, aleChartMaxSize);
+		int multiplicator = Math.floorDiv(assessmentByAssetType.size(), distribution.getDivisor()), index = 1;
+		List<Chart> charts = new ArrayList<>(multiplicator);
+		Map<String, Dataset<String>> datasets = new LinkedHashMap<>();
 		for (Entry<String, List<Assessment>> entry : assessmentByAssetType.entrySet()) {
 			colorBounds.parallelStream().forEach(color -> color.setCount(0));
 			entry.getValue().forEach(assessment -> {
 				int importance = valueFactory.findImportance(assessment);
 				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
 			});
-			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
-				continue;
-			Dataset dataset = new Dataset(entry.getKey());
-			colorBounds.forEach(colorBound -> {
-				dataset.getBackgroundColor().add(colorBound.getColor());
-				dataset.getData().add(colorBound.getCount());
-			});
+			if (charts.isEmpty() || (index++ % multiplicator) == 0) {
+				charts.add(new Chart());
+				datasets.clear();
+			}
+			Chart chart = charts.get(charts.size() - 1);
+			if (colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0)) {
+				chart.getLabels().add(entry.getKey());
+				colorBounds.forEach(colorBound -> {
+					Dataset<String> dataset = datasets.get(colorBound.getLabel());
+					if (dataset == null) {
+						datasets.put(colorBound.getLabel(), dataset = new Dataset<String>(colorBound.getLabel(), colorBound.getColor()));
+						chart.getDatasets().add(dataset);
+					}
+					while (dataset.getData().size() < chart.getLabels().size())
+						dataset.getData().add(0);
+					dataset.getData().set(chart.getLabels().size() - 1, colorBound.getCount());
+				});
+			}
 		}
-		colorBounds.forEach(colorBound -> chart.getLegends().add(new Legend(colorBound.getLabel(), colorBound.getColor())));
-		return chart;
+		return charts;
 	}
+
 }

@@ -1,12 +1,12 @@
-var el = null, table = null, taskController = function() {
+var el = null, table = null, taskController = function () {
 };
 
 var language = { // translated asynchronously below
-	"label.dynamicparameter.evolution" : "from {0} to {1}"
+	"label.dynamicparameter.evolution": "from {0} to {1}"
 };
 
-$(document).ready(function() {
-	for ( var key in language)
+$(document).ready(function () {
+	for (var key in language)
 		language[key] = MessageResolver(key, language[key]);
 
 	// ******************************************************************************************************************
@@ -22,14 +22,14 @@ $(document).ready(function() {
 	var $tabOption = $("#tabOption");
 
 	application["settings-fixed-header"] = {
-		fixedOffset : $(".nav-analysis"),
-		marginTop : application.fixedOffset,
-		scrollStartFixMulti : 0.99998
+		fixedOffset: $(".nav-analysis"),
+		marginTop: application.fixedOffset,
+		scrollStartFixMulti: 0.99998
 	};
 
 	fixTableHeader("table.table-fixed-header-analysis");
 
-	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		disableEditMode();
 		$tabOption.hide();
 	});
@@ -39,19 +39,19 @@ $(document).ready(function() {
 	Chart.defaults.global.defaultFontSize = 13;
 
 	Highcharts.setOptions({
-		lang : {
-			decimalPoint : ',',
-			thousandsSep : ' '
+		lang: {
+			decimalPoint: ',',
+			thousandsSep: ' '
 		},
-		chart : {
-			style : {
-				fontFamily : 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif'
+		chart: {
+			style: {
+				fontFamily: 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif'
 			}
 		}
 	});
 
 	// Periodically reload assessment values
-	window.setInterval(function() {
+	window.setInterval(function () {
 		reloadAssetScenario();
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
@@ -59,14 +59,14 @@ $(document).ready(function() {
 	}, 300000); // every 30s
 });
 
-$.fn.loadOrUpdateChart = function(parameters) {
+$.fn.loadOrUpdateChart = function (parameters) {
 	if (!parameters.tooltip) {
 		$.extend(true, parameters, {
-			tooltip : {
-				formatter : function() {
+			tooltip: {
+				formatter: function () {
 					var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
 					var str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name
-							+ ":</span>   <b>" + str_value + "</b>";
+						+ ":</span>   <b>" + str_value + "</b>";
 
 					if (this.series.options.metadata) {
 						var dataIndex = this.series.xAxis.categories.indexOf(this.x);
@@ -77,7 +77,7 @@ $.fn.loadOrUpdateChart = function(parameters) {
 						// being ignored
 						for (var i = 0; i < metadata.length; i++)
 							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: "
-									+ language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
+								+ language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
 					}
 					return str;
 				}
@@ -96,7 +96,7 @@ $.fn.loadOrUpdateChart = function(parameters) {
 	}
 
 	// Otherwise update only data
-	$.each(chart.series, function(i, series) {
+	$.each(chart.series, function (i, series) {
 		series.options.metadata = parameters.series[i].metadata;
 		series.setData(parameters.series[i].data);
 	});
@@ -141,7 +141,7 @@ function reloadAssetScenario() {
 	else if ($("#section_scenario"))
 		reloadSection("section_scenario");
 	else
-		reloadSection([ "section_asset", "section_scenario", undefined, true ]);
+		reloadSection(["section_asset", "section_scenario", undefined, true]);
 }
 
 function isEditable() {
@@ -150,14 +150,14 @@ function isEditable() {
 
 function updateSettings(element, entryKey) {
 	$.ajax({
-		url : context + "/Settings/Update",
-		type : 'post',
-		data : {
-			'key' : entryKey,
-			'value' : !$(element).hasClass('glyphicon-ok')
+		url: context + "/Settings/Update",
+		type: 'post',
+		data: {
+			'key': entryKey,
+			'value': !$(element).hasClass('glyphicon-ok')
 		},
-		async : false,
-		success : function(response, textStatus, jqXHR) {
+		async: false,
+		success: function (response, textStatus, jqXHR) {
 			if (response == undefined || response !== true)
 				unknowError();
 			else {
@@ -177,7 +177,7 @@ function updateSettings(element, entryKey) {
 			}
 			return true;
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }
@@ -185,19 +185,19 @@ function updateSettings(element, entryKey) {
 function updateMeasuresCost() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/Analysis/Standard/Update/Cost",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Standard/Update/Cost",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response.success == undefined)
 					unknowError()
 				else {
-					$("div[id^='section_standard_']").each(function() {
+					$("div[id^='section_standard_']").each(function () {
 						reloadSection(this.id);
 					});
 				}
 			},
-			error : unknowError
+			error: unknowError
 		});
 	} else
 		permissionError();
@@ -210,10 +210,10 @@ function reloadMeasureRow(idMeasure, standard) {
 	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				var $newRow = $("tr", $("<div/>").html(response));
 				if (!$newRow.length)
 					$currentRow.addClass("warning").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
@@ -241,13 +241,13 @@ function reloadMeasureRow(idMeasure, standard) {
 					}
 				}
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
 		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
-				MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
+			MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
 	return false;
 }
 
@@ -259,24 +259,27 @@ function reloadMeasureAndCompliance(standard, idMeasure) {
 	return false;
 }
 
+function reloadRiskAcceptanceTable($tabSection){
+	var $tbody = $("table>tbody",$tabSection), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
+	if ($trs.length) {
+		$tbody.empty();
+		$trs.each(function () {
+			var $this = $(this).removeAttributes();
+			$("td[data-trick-field!='color']", $this).removeAttributes();
+			$("td[data-trick-field]", $this).removeAttr("data-trick-field");
+			$this.attr("style", "text-align:center");
+			$this.appendTo($tbody);
+		});
+	}
+	$tabSection.attr("data-parameters", false);
+}
+
 function reloadRiskHeatMapSection(tableChange) {
 	var $tabSection = $("#tab-chart-heat-map");
 	if ($tabSection.is(":visible")) {
 		loadRiskHeatMap();
-		if (tableChange) {
-			var $tbody = $("#tab-chart-heat-map table>tbody"), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
-			if ($trs.length) {
-				$tbody.empty();
-				$trs.each(function() {
-					var $this = $(this).removeAttributes();
-					$("td[data-trick-field!='color']", $this).removeAttributes();
-					$("td[data-trick-field]", $this).removeAttr("data-trick-field");
-					$this.attr("style", "text-align:center");
-					$this.appendTo($tbody);
-				});
-			}
-			$tabSection.attr("data-parameters", false);
-		}
+		if (tableChange) 
+			reloadRiskAcceptanceTable($tabSection);
 	} else if (tableChange)
 		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
 	else
@@ -284,79 +287,115 @@ function reloadRiskHeatMapSection(tableChange) {
 	return false;
 }
 
-function reloadRiskAssetSection(tableChange){
+function reloadRiskAssetSection(tableChange) {
 	var $tabSection = $("#tab-chart-risk-asset");
 	if ($tabSection.is(":visible")) {
-		loadRiskAssetChart();
-		if (tableChange) {
-			var $tbody = $("table>tbody", $tabSection), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
-			if ($trs.length) {
-				$tbody.empty();
-				$trs.each(function() {
-					var $this = $(this).removeAttributes();
-					$("td[data-trick-field!='color']", $this).removeAttributes();
-					$("td[data-trick-field]", $this).removeAttr("data-trick-field");
-					$this.attr("style", "text-align:center");
-					$this.appendTo($tbody);
-				});
-			}
-			$tabSection.attr("data-parameters", false);
-		}
+		loadRiskChart(context + "/Analysis/Asset/Chart/Risk", "#risk_acceptance_assets", "risk_acceptance_asset_canvas");
+		if (tableChange) 
+			reloadRiskAcceptanceTable($tabSection);
 	} else if (tableChange)
 		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
 	else
 		$tabSection.attr("data-update-required", true);
+	return false;
+}
+
+function reloadRiskAssetTypeSection(tableChange) {
+	var $tabSection = $("#tab-chart-risk-asset-type");
+	if ($tabSection.is(":visible")) {
+		loadRiskChart(context + "/Analysis/Asset/Chart/Type/Risk", "#risk_acceptance_asset_types", "risk_acceptance_asset_types_canvas");
+		if (tableChange) 
+			reloadRiskAcceptanceTable($tabSection);
+	} else if (tableChange)
+		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
+	else
+		$tabSection.attr("data-update-required", true);
+	return false;
+}
+
+function reloadRiskScenarioSection(tableChange) {
+	var $tabSection = $("#tab-chart-risk-scenario");
+	if ($tabSection.is(":visible")) {
+		loadRiskChart(context + "/Analysis/Scenario/Chart/Risk", "#risk_acceptance_scenarios", "risk_acceptance_scenarios_canvas");
+		if (tableChange) 
+			reloadRiskAcceptanceTable($tabSection);
+	} else if (tableChange)
+		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
+	else
+		$tabSection.attr("data-update-required", true);
+	return false;
+}
+
+function reloadRiskScenarioTypeSection(tableChange) {
+	var $tabSection = $("#tab-chart-risk-scenario-type");
+	if ($tabSection.is(":visible")) {
+		loadRiskChart(context + "/Analysis/Scenario/Chart/Type/Risk", "#risk_acceptance_scenario_types", "risk_acceptance_scenario_types_canvas");
+		if (tableChange) 
+			reloadRiskAcceptanceTable($tabSection);
+	} else if (tableChange)
+		$tabSection.attr("data-update-required", true).attr("data-parameters", true);
+	else
+		$tabSection.attr("data-update-required", true);
+	return false;
+}
+
+
+function updateRiskChart(tableChange){
+	reloadRiskHeatMapSection(tableChange);
+	reloadRiskAssetSection(tableChange);
+	reloadRiskAssetTypeSection(tableChange);
+	reloadRiskScenarioSection(tableChange);
+	reloadRiskScenarioTypeSection(tableChange);
 	return false;
 }
 
 function loadRiskHeatMap() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/Assessment/Chart/Risk-heat-map",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Analysis/Assessment/Chart/Risk-heat-map",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (window.riskHeatMap != undefined)
 				window.riskHeatMap.destroy();
 			window.riskHeatMap = new Chart(document.getElementById("risk_acceptance_heat_map_canvas").getContext("2d"), {
-				type : 'heatmap',
-				data : response,
-				options : {
-					scales : {
-						yAxes : [ {
-							scaleLabel : {
-								display : true,
-								labelString : MessageResolver("label.title.impact", "Impact"),
-								fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
-								fontSize : 22,
+				type: 'heatmap',
+				data: response,
+				options: {
+					scales: {
+						yAxes: [{
+							scaleLabel: {
+								display: true,
+								labelString: MessageResolver("label.title.impact", "Impact"),
+								fontFamily: "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
+								fontSize: 22,
 							}
-						} ],
-						xAxes : [ {
-							scaleLabel : {
-								display : true,
-								labelString : MessageResolver("label.title.likelihood", "Probability"),
-								fontFamily : "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
-								fontSize : 22,
+						}],
+						xAxes: [{
+							scaleLabel: {
+								display: true,
+								labelString: MessageResolver("label.title.likelihood", "Probability"),
+								fontFamily: "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
+								fontSize: 22,
 							}
-						} ]
+						}]
 					},
-					tooltips : {
-						enabled : false
+					tooltips: {
+						enabled: false
 					},
-					legend : {
-						display : true,
-						position : 'top',
-						onClick : function() {
+					legend: {
+						display: true,
+						position: 'top',
+						onClick: function () {
 							return false;
 						},
-						labels : {
-							generateLabels : function(chart) {
+						labels: {
+							generateLabels: function (chart) {
 								var data = chart.data;
-
-								return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
+								return helpers.isArray(data.legends) ? data.legends.map(function (legend) {
 									return {
-										text : legend.label,
-										fillStyle : legend.color
+										text: legend.label,
+										fillStyle: legend.color
 									};
 								}, this) : [];
 							}
@@ -365,45 +404,71 @@ function loadRiskHeatMap() {
 				}
 			});
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
 
 }
 
-function loadRiskAssetChart() {
+function loadRiskChart(url, container, canvas) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/Asset/Chart/Risk",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			if (window.riskAsset != undefined)
-				window.riskAsset.destroy();
-			window.riskAsset = new Chart(document.getElementById("risk_acceptance_asset_canvas").getContext("2d"), {
-			    type: "bar",
-			    data: response,
-			    options: {
-			        scales: {
-			            xAxes: [{
-			                stacked: true
-			            }],
-			            yAxes: [{
-			                stacked: true
-			            }]
-			        }
-			    }
-			});
+		url: url,
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (window.riskAssets != undefined)
+				helpers.isArray(window.riskAssets) ? window.riskAssets.map(chart => chart.destroy) : window.riskAssets.destroy();
+			if (helpers.isArray(response)) {
+				window.riskAssets = [];
+				var $container = $(container).empty();
+				response.map(chart => {
+					var $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($container);
+					window.riskAssets.push(new Chart($canvas[0].getContext("2d"), {
+						type: "bar",
+						data: chart,
+						options: {
+							scales: {
+								xAxes: [{
+									stacked: true
+								}],
+								yAxes: [{
+									stacked: true
+								}]
+							}
+						}
+					}));
+
+				});
+			}
+			else {
+				$(container).html("<canvas id='"+canvas+"' style='max-width: 1000px; margin-left: auto; margin-right: auto;' />")
+				window.riskAssets = new Chart(document.getElementById(canvas).getContext("2d"), {
+					type: "bar",
+					data: response,
+					options: {
+						scales: {
+							xAxes: [{
+								stacked: true
+							}],
+							yAxes: [{
+								stacked: true
+							}]
+						}
+					}
+				});
+			}
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
 
 }
+
 
 function updateMeasureEffience(reference) {
 	if (!application.hasMaturity)
@@ -420,7 +485,7 @@ function updateMeasureEffience(reference) {
 			data = chapters;
 			delete application["parameter-27002-efficience"];
 		} else
-			$standard27002.find("tr[data-trick-computable='false'][data-trick-level='1']").each(function() {
+			$standard27002.find("tr[data-trick-computable='false'][data-trick-level='1']").each(function () {
 				data.push(this.getAttribute('data-trick-reference'))
 			});
 	} else {
@@ -429,13 +494,13 @@ function updateMeasureEffience(reference) {
 			delete application["parameter-27002-efficience"];
 		else {
 			var chapter = reference.split(".", 3)[1], parameters = application["parameter-27002-efficience"], $selector = $standard27002
-					.find("tr[data-trick-computable='false'][data-trick-level='1'][data-trick-reference='" + chapter + "']");
+				.find("tr[data-trick-computable='false'][data-trick-level='1'][data-trick-reference='" + chapter + "']");
 			if ($selector.length) {
 				if (updateRequired && triggerName == 'updateMeasureEffience') {
 					if (parameters && parameters.indexOf(chapter) == -1)
 						parameters.push(chapter);
 				} else
-					application["parameter-27002-efficience"] = [ chapter ];
+					application["parameter-27002-efficience"] = [chapter];
 			} else
 				$tabPane.attr("data-update-required", updateRequired).attr("data-trigger", triggerName);
 		}
@@ -445,19 +510,19 @@ function updateMeasureEffience(reference) {
 		return;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/Standard/Compute-efficience",
-		type : "post",
-		data : JSON.stringify(data),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Analysis/Standard/Compute-efficience",
+		type: "post",
+		data: JSON.stringify(data),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (typeof response === 'object') {
-				for ( var id in response)
+				for (var id in response)
 					$("tr[data-trick-id='" + id + "'][data-trick-computable='true'] td[data-trick-field='mer']", $standard27002).text(parseInt(response[id], 10));
 			} else
 				showDialog("#alert-dialog", MessageResolver("error.measure.mer.update", "Maturity-based effectiveness rate cannot be updated"));
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -468,14 +533,14 @@ function updateMeasureEffience(reference) {
 function compliances() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/Standard/Compliances",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Analysis/Standard/Compliances",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (response.standards == undefined || response.standards == null)
 				return;
 			var $complianceBody = $("#chart_compliance_body").empty();
-			$.each(response.standards, function(key, data) {
+			$.each(response.standards, function (key, data) {
 				if ($complianceBody.children().length)
 					$complianceBody.append("<div class='col-xs-4' id='chart_compliance_" + key + "'></div>");
 				else
@@ -483,8 +548,8 @@ function compliances() {
 				$('div[id="chart_compliance_' + key + '"]').loadOrUpdateChart(data[0]);
 			});
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -496,16 +561,16 @@ function compliance(standard) {
 	if ($('#chart_compliance_' + standard).is(":visible")) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Standard/" + standard + "/Compliance",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Standard/" + standard + "/Compliance",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
 				$('#chart_compliance_' + standard).loadOrUpdateChart(response);
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -519,16 +584,16 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	if ($('#chart_evolution_profitability_compliance_' + actionPlanType).is(":visible")) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_evolution_profitability_compliance_' + actionPlanType).loadOrUpdateChart(response);
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -542,16 +607,16 @@ function budgetByActionPlanType(actionPlanType) {
 	if ($('#chart_budget_' + actionPlanType).is(":visible")) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_budget_' + actionPlanType).loadOrUpdateChart(response);
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -604,6 +669,8 @@ function reloadCharts() {
 	loadChartDynamicParameterEvolution();
 	loadChartDynamicAleEvolutionByAssetType();
 	loadChartDynamicAleEvolutionByScenario();
+	if (application.analysisType == "QUALITATIVE")
+		updateRiskChart();
 	return false;
 };
 
@@ -631,89 +698,89 @@ function displayChart(id, response) {
 function manageRiskAcceptance() {
 	var $progress = $("#loading-indicator").show();
 	$
-			.ajax(
-					{
-						url : context + "/Analysis/Parameter/Risk-acceptance/form",
-						type : "get",
-						contentType : "application/json;charset=UTF-8",
-						success : function(response, textStatus, jqXHR) {
-							var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
-							if (!$content.length)
-								showError("Error data cannot be loaded");
-							else {
-								var actionDelete = function() {
-									$(this).closest("tr").remove();
-								};
-								$("button[name='delete']", $content).on("click", actionDelete);
-								$("button[name='add']", $content)
-										.on(
-												"click",
-												function() {
-													var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
-															"<span class='range-text'>0</span>").appendTo($div), $range = $(
-															"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control'>");
-													$removeBtn.appendTo($("<td/>").appendTo($tr));
-													$("<td><input name='label' class='form-control'></td>").appendTo($tr);
-													$div.appendTo($("<td />").appendTo($tr));
-													$("<td><textarea name='description' class='form-control' rows='1' /></td>").appendTo($tr);
-													$inputColor.appendTo($("<td />").appendTo($tr));
-													$trParent.before($tr);
-													$removeBtn.on("click", actionDelete);
-													$range.on("input change", function() {
-														$rangeInfo.text(this.value);
-														this.setAttribute("title", this.value);
-													});
-												});
+		.ajax(
+		{
+			url: context + "/Analysis/Parameter/Risk-acceptance/form",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
+				if (!$content.length)
+					showError("Error data cannot be loaded");
+				else {
+					var actionDelete = function () {
+						$(this).closest("tr").remove();
+					};
+					$("button[name='delete']", $content).on("click", actionDelete);
+					$("button[name='add']", $content)
+						.on(
+						"click",
+						function () {
+							var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
+								"<span class='range-text'>0</span>").appendTo($div), $range = $(
+									"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control'>");
+							$removeBtn.appendTo($("<td/>").appendTo($tr));
+							$("<td><input name='label' class='form-control'></td>").appendTo($tr);
+							$div.appendTo($("<td />").appendTo($tr));
+							$("<td><textarea name='description' class='form-control' rows='1' /></td>").appendTo($tr);
+							$inputColor.appendTo($("<td />").appendTo($tr));
+							$trParent.before($tr);
+							$removeBtn.on("click", actionDelete);
+							$range.on("input change", function () {
+								$rangeInfo.text(this.value);
+								this.setAttribute("title", this.value);
+							});
+						});
 
-								$("input[type='range']", $content).on("input change", function() {
-									$(".range-text", this.parentElement).text(this.value);
-									this.setAttribute("title", this.value);
-								});
+					$("input[type='range']", $content).on("input change", function () {
+						$(".range-text", this.parentElement).text(this.value);
+						this.setAttribute("title", this.value);
+					});
 
-								$("button[name='save']", $content).on("click", function() {
-									$progress.show();
-									var $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
-									$("tr[data-trick-id]", $table).each(function() {
-										var $this = $(this);
-										data.push({
-											id : $this.attr("data-trick-id"),
-											value : $("input[name='value']", $this).val(),
-											label : $("input[name='label']", $this).val(),
-											description : $("textarea[name='description']", $this).val(),
-											color : $("input[name='color']", $this).val()
-										});
-									});
+					$("button[name='save']", $content).on("click", function () {
+						$progress.show();
+						var $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
+						$("tr[data-trick-id]", $table).each(function () {
+							var $this = $(this);
+							data.push({
+								id: $this.attr("data-trick-id"),
+								value: $("input[name='value']", $this).val(),
+								label: $("input[name='label']", $this).val(),
+								description: $("textarea[name='description']", $this).val(),
+								color: $("input[name='color']", $this).val()
+							});
+						});
 
-									$.ajax({
-										url : context + "/Analysis/Parameter/Risk-acceptance/Save",
-										type : "post",
-										data : JSON.stringify(data),
-										contentType : "application/json;charset=UTF-8",
-										success : function(response, textStatus, jqXHR) {
-											if (response.error)
-												showNotifcation('danger', response.error);
-											else if (response.success) {
-												$content.modal("hide");
-												showNotifcation('success', response.success);
-												reloadSection("section_qualitative_parameter");
-											} else
-												unknowError();
-										},
-										error : unknowError
-									}).complete(function() {
-										$progress.hide();
-									});
-								});
+						$.ajax({
+							url: context + "/Analysis/Parameter/Risk-acceptance/Save",
+							type: "post",
+							data: JSON.stringify(data),
+							contentType: "application/json;charset=UTF-8",
+							success: function (response, textStatus, jqXHR) {
+								if (response.error)
+									showNotifcation('danger', response.error);
+								else if (response.success) {
+									$content.modal("hide");
+									showNotifcation('success', response.success);
+									reloadSection("section_qualitative_parameter");
+								} else
+									unknowError();
+							},
+							error: unknowError
+						}).complete(function () {
+							$progress.hide();
+						});
+					});
 
-								$content.appendTo("#widgets").modal("show").on("hidden.bs.modal", function() {
-									$content.remove();
-								});
-							}
-						},
-						error : unknowError
-					}).complete(function() {
-				$progress.hide();
-			});
+					$content.appendTo("#widgets").modal("show").on("hidden.bs.modal", function () {
+						$content.remove();
+					});
+				}
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
 	return false;
 }
 
@@ -723,14 +790,14 @@ function loadChartAsset() {
 		if ($('#chart_ale_asset').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Asset/Chart/Ale",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Asset/Chart/Ale",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					displayChart('#chart_ale_asset', response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -740,14 +807,14 @@ function loadChartAsset() {
 		if ($('#chart_ale_asset_type').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Asset/Chart/Type/Ale",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Asset/Chart/Type/Ale",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					displayChart('#chart_ale_asset_type', response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -760,14 +827,14 @@ function loadChartScenario() {
 		if ($('#chart_ale_scenario_type').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Scenario/Chart/Type/Ale",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Scenario/Chart/Type/Ale",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					displayChart('#chart_ale_scenario_type', response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -778,14 +845,14 @@ function loadChartScenario() {
 		if ($('#chart_ale_scenario').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Scenario/Chart/Ale",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Scenario/Chart/Ale",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					displayChart('#chart_ale_scenario', response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -798,15 +865,15 @@ function loadChartDynamicParameterEvolution() {
 		if ($('#chart_parameterevolution').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/ParameterEvolution",
-				type : "get",
-				async : true,
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
+				type: "get",
+				async: true,
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					$('#chart_parameterevolution').loadOrUpdateChart(response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -819,15 +886,15 @@ function loadChartDynamicAleEvolutionByAssetType() {
 		if ($('#chart_aleevolutionbyassettype').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				async : true,
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				async: true,
+				success: function (response, textStatus, jqXHR) {
 					displayChart('#chart_aleevolutionbyassettype', response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -840,15 +907,15 @@ function loadChartDynamicAleEvolutionByScenario() {
 		if ($('#chart_aleevolutionbyscenario').is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				async : true,
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				async: true,
+				success: function (response, textStatus, jqXHR) {
 					displayChart('#chart_aleevolutionbyscenario', response);
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		} else
@@ -871,14 +938,14 @@ function navToogled(section, parentMenu, navSelected) {
 	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']", parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	$("li[data-trick-nav-control]", parentMenu).each(function() {
+	$("li[data-trick-nav-control]", parentMenu).each(function () {
 		if (this.getAttribute("data-trick-nav-control") == navSelected)
 			this.classList.add("disabled");
 		else if (this.classList.contains('disabled'))
 			this.classList.remove("disabled");
 	});
 
-	$("[data-trick-nav-content]", section).each(function() {
+	$("[data-trick-nav-content]", section).each(function () {
 		var $this = $(this);
 		if (this.getAttribute("data-trick-nav-content") == navSelected)
 			$this.show();
@@ -893,7 +960,7 @@ function openTicket(section) {
 	if (!application.isLinkedToProject)
 		return false;
 	var measures = [];
-	$("tbody>tr input:checked", section).closest("tr").each(function() {
+	$("tbody>tr input:checked", section).closest("tr").each(function () {
 		if (this.getAttribute("data-is-linked") === "true")
 			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 	});
@@ -901,18 +968,18 @@ function openTicket(section) {
 	if (measures.length) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Standard/Ticketing/Open",
-			type : "POST",
-			async : false,
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(measures),
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Standard/Ticketing/Open",
+			type: "POST",
+			async: false,
+			contentType: "application/json;charset=UTF-8",
+			data: JSON.stringify(measures),
+			success: function (response, textStatus, jqXHR) {
 				var $modal = $("#modal-ticketing-view", new DOMParser().parseFromString(response, "text/html"));
 				if ($modal.length) {
 					$("#modal-ticketing-view").remove();
 					$modal.appendTo($("#widgets")).modal("show");
 					var $previous = $modal.find(".previous"), $next = $modal.find(".next"), $title = $modal.find(".modal-title");
-					$next.find("a").on("click", function() {
+					$next.find("a").on("click", function () {
 						if (!$next.hasClass("disabled")) {
 							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
 							if ($nextElement.length) {
@@ -927,7 +994,7 @@ function openTicket(section) {
 						return false;
 					});
 
-					$previous.find("a").on("click", function() {
+					$previous.find("a").on("click", function () {
 						if (!$previous.hasClass("disabled")) {
 							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
 							if ($prev.length) {
@@ -946,8 +1013,8 @@ function openTicket(section) {
 				else
 					unknowError();
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -959,7 +1026,7 @@ function linkToTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
 	var measures = [];
-	$("tbody>tr input:checked", section).closest("tr").each(function() {
+	$("tbody>tr input:checked", section).closest("tr").each(function () {
 		if (this.getAttribute("data-is-linked") === "false")
 			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 	});
@@ -967,120 +1034,120 @@ function linkToTicketingSystem(section) {
 	if (measures.length) {
 		var $progress = $("#loading-indicator").show();
 		$
-				.ajax(
-						{
-							url : context + "/Analysis/Standard/Ticketing/Link",
-							type : "POST",
-							contentType : "application/json;charset=UTF-8",
-							data : JSON.stringify(measures),
-							success : function(response, textStatus, jqXHR) {
-								if (response['error'])
-									showDialog("#alert-dialog", response['error']);
-								else {
-									var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
-									if (!$modal.length)
-										unknowError();
-									else {
-										$("#modal-ticketing-linker").remove();
-										$modal.appendTo($("#widgets")).modal("show");
-										var isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
-												.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = $tasks.length;
+			.ajax(
+			{
+				url: context + "/Analysis/Standard/Ticketing/Link",
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				data: JSON.stringify(measures),
+				success: function (response, textStatus, jqXHR) {
+					if (response['error'])
+						showDialog("#alert-dialog", response['error']);
+					else {
+						var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+						if (!$modal.length)
+							unknowError();
+						else {
+							$("#modal-ticketing-linker").remove();
+							$modal.appendTo($("#widgets")).modal("show");
+							var isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
+								.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = $tasks.length;
 
-										taskController = function() {
-											$view = $(this.getAttribute("href"));
-											if (!$view.is(":visible")) {
-												$taskViewer.find("fieldset:visible").hide();
-												$view.show();
-											}
-											return false;
-										}
-
-										$tasks.appendTo($taskViewer);
-
-										$taskContainer.find("a.list-group-item").on("click", taskController);
-
-										$modal.on("hidden.bs.modal", function() {
-											if (updateRequired)
-												reloadSection("section_actionplans");
-											$modal.remove();
-										}).on("show.bs.modal", function() {
-											$taskContainer.scrollTop();
-										}).on("shown.bs.modal", function() {
-											$taskContainer.on("scroll", function() {
-												if (!isFinished && ($taskContainer.scrollTop() + $taskContainer.innerHeight() >= $taskContainer[0].scrollHeight)) {
-													isFinished = true;
-													$.ajax({
-														url : context + "/Analysis/Standard/Ticketing/Load?startIndex=" + (size + 1),
-														type : "POST",
-														contentType : "application/json;charset=UTF-8",
-														data : JSON.stringify(measures),
-														success : function(response, textStatus, jqXHR) {
-															$subTaskContainer = $("#task-container", new DOMParser().parseFromString(response, "text/html"));
-															var $subTasks = $subTaskContainer.find("fieldset");
-															if (!(isFinished = $subTasks.length == 0)) {
-																size += $subTasks.length;
-																$subTasks.appendTo($taskViewer);
-																$subTaskContainer.find("a.list-group-item").appendTo($taskContainer).on("click", taskController);
-															}
-														}
-													});
-												}
-											});
-
-										});
-
-										$modal.find("#measure-container>fieldset").appendTo($measureViewer);
-										$modal.find("#measure-container>a.list-group-item").on("click", function() {
-											$view = $(this.getAttribute("href"));
-											if (!$view.is(":visible")) {
-												$measureViewer.find("fieldset:visible").hide();
-												$view.show();
-											}
-											return false;
-										});
-
-										$linker.on('click', function() {
-											var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
-											if ($measure.length && $ticket.length) {
-												$progress.show();
-												$linker.prop("disabled", true)
-												$.ajax({
-													url : context + "/Analysis/Standard/Ticketing/Link/Measure",
-													type : "POST",
-													contentType : "application/json;charset=UTF-8",
-													data : JSON.stringify({
-														"idMeasure" : $measure.attr("data-trick-id"),
-														"idTicket" : $ticket.attr("data-trick-id")
-													}),
-													success : function(response, textStatus, jqXHR) {
-														if (response.success) {
-															reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
-															$("#" + $measure.remove().attr("aria-controls")).remove();
-															$("#" + $ticket.remove().attr("aria-controls")).remove();
-															updateRequired = true;
-															if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
-																$modal.modal("hide");
-														} else if (response.error)
-															showDialog("#alert-dialog", response.error);
-														else
-															unknowError();
-													},
-													error : unknowError
-												}).complete(function() {
-													$linker.prop("disabled", false);
-													$progress.hide();
-												});
-											}
-											return false;
-										});
-
-									}
+							taskController = function () {
+								$view = $(this.getAttribute("href"));
+								if (!$view.is(":visible")) {
+									$taskViewer.find("fieldset:visible").hide();
+									$view.show();
 								}
-							},
-							error : unknowError
-						}).complete(function() {
-					$progress.hide();
-				});
+								return false;
+							}
+
+							$tasks.appendTo($taskViewer);
+
+							$taskContainer.find("a.list-group-item").on("click", taskController);
+
+							$modal.on("hidden.bs.modal", function () {
+								if (updateRequired)
+									reloadSection("section_actionplans");
+								$modal.remove();
+							}).on("show.bs.modal", function () {
+								$taskContainer.scrollTop();
+							}).on("shown.bs.modal", function () {
+								$taskContainer.on("scroll", function () {
+									if (!isFinished && ($taskContainer.scrollTop() + $taskContainer.innerHeight() >= $taskContainer[0].scrollHeight)) {
+										isFinished = true;
+										$.ajax({
+											url: context + "/Analysis/Standard/Ticketing/Load?startIndex=" + (size + 1),
+											type: "POST",
+											contentType: "application/json;charset=UTF-8",
+											data: JSON.stringify(measures),
+											success: function (response, textStatus, jqXHR) {
+												$subTaskContainer = $("#task-container", new DOMParser().parseFromString(response, "text/html"));
+												var $subTasks = $subTaskContainer.find("fieldset");
+												if (!(isFinished = $subTasks.length == 0)) {
+													size += $subTasks.length;
+													$subTasks.appendTo($taskViewer);
+													$subTaskContainer.find("a.list-group-item").appendTo($taskContainer).on("click", taskController);
+												}
+											}
+										});
+									}
+								});
+
+							});
+
+							$modal.find("#measure-container>fieldset").appendTo($measureViewer);
+							$modal.find("#measure-container>a.list-group-item").on("click", function () {
+								$view = $(this.getAttribute("href"));
+								if (!$view.is(":visible")) {
+									$measureViewer.find("fieldset:visible").hide();
+									$view.show();
+								}
+								return false;
+							});
+
+							$linker.on('click', function () {
+								var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
+								if ($measure.length && $ticket.length) {
+									$progress.show();
+									$linker.prop("disabled", true)
+									$.ajax({
+										url: context + "/Analysis/Standard/Ticketing/Link/Measure",
+										type: "POST",
+										contentType: "application/json;charset=UTF-8",
+										data: JSON.stringify({
+											"idMeasure": $measure.attr("data-trick-id"),
+											"idTicket": $ticket.attr("data-trick-id")
+										}),
+										success: function (response, textStatus, jqXHR) {
+											if (response.success) {
+												reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
+												$("#" + $measure.remove().attr("aria-controls")).remove();
+												$("#" + $ticket.remove().attr("aria-controls")).remove();
+												updateRequired = true;
+												if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
+													$modal.modal("hide");
+											} else if (response.error)
+												showDialog("#alert-dialog", response.error);
+											else
+												unknowError();
+										},
+										error: unknowError
+									}).complete(function () {
+										$linker.prop("disabled", false);
+										$progress.hide();
+									});
+								}
+								return false;
+							});
+
+						}
+					}
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
 	} else
 		showDialog("#info-dialog", MessageResolver("info.ticketing.link.no_action.required", "All selected measures are already related to tasks"));
 	return false;
@@ -1090,22 +1157,22 @@ function unLinkToTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
 	var measures = [];
-	$("tbody>tr input:checked", section).closest("tr").each(function() {
+	$("tbody>tr input:checked", section).closest("tr").each(function () {
 		if (this.getAttribute("data-is-linked") === "true")
 			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 	});
 	if (measures.length) {
 		var $confirm = $("#confirm-dialog"), $question = measures.length == 1 ? MessageResolver("confirm.unlink.measure", "Are you sure, you want to unlink this measure and task")
-				: MessageResolver("confirm.unlink.measures", "Are you sure, you want to unlink measures and tasks");
+			: MessageResolver("confirm.unlink.measures", "Are you sure, you want to unlink measures and tasks");
 		$confirm.find(".modal-body").text($question);
-		$(".btn-danger", $confirm).click(function() {
+		$(".btn-danger", $confirm).click(function () {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + "/Analysis/Standard/Ticketing/UnLink",
-				type : "POST",
-				contentType : "application/json;charset=UTF-8",
-				data : JSON.stringify(measures),
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/Analysis/Standard/Ticketing/UnLink",
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				data: JSON.stringify(measures),
+				success: function (response, textStatus, jqXHR) {
 					if (response.error)
 						showDialog("#alert-dialog", response.error);
 					else if (response.success) {
@@ -1114,10 +1181,10 @@ function unLinkToTicketingSystem(section) {
 						else {
 							showDialog("#info-dialog", response.success);
 							if (measures.length > 30)
-								reloadSection([ section.replace("#", ''), "section_actionplans" ]);
+								reloadSection([section.replace("#", ''), "section_actionplans"]);
 							else {
 								reloadSection("section_actionplans");
-								setTimeout(function() {
+								setTimeout(function () {
 									var idStandard = $(section).attr("data-trick-id");
 									for (var i = 0; i < measures.length; i++)
 										reloadMeasureRow(measures[i], idStandard);
@@ -1127,8 +1194,8 @@ function unLinkToTicketingSystem(section) {
 					} else
 						unknowError();
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		});
@@ -1143,11 +1210,11 @@ function updateOrGenereteTickets(data) {
 	if (data != undefined && (data.updates.length || data.news.length)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Standard/Ticketing/Generate",
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(data),
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Standard/Ticketing/Generate",
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			data: JSON.stringify(data),
+			success: function (response, textStatus, jqXHR) {
 				if (response.error)
 					showDialog("#alert-dialog", response.error);
 				else if (response.success)
@@ -1155,8 +1222,8 @@ function updateOrGenereteTickets(data) {
 				else
 					unknowError();
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	} else
@@ -1168,10 +1235,10 @@ function generateTickets(section) {
 	if (!application.isLinkedToProject)
 		return false;
 	var measures = {
-		updates : [],
-		news : []
+		updates: [],
+		news: []
 	};
-	$("tbody>tr input:checked", section).closest("tr").each(function() {
+	$("tbody>tr input:checked", section).closest("tr").each(function () {
 		if (this.getAttribute("data-is-linked") === "false")
 			measures.news.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 		else
@@ -1180,9 +1247,9 @@ function generateTickets(section) {
 
 	if (measures.updates.length) {
 		var $confirm = $("#confirm-dialog"), $question = measures.updates.length == 1 ? MessageResolver("confirm.update.ticket", "Are you sure, you want to update measure task")
-				: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", [ measures.updates.length ]);
+			: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", [measures.updates.length]);
 		$confirm.find(".modal-body").text($question);
-		$(".btn-danger", $confirm).click(function() {
+		$(".btn-danger", $confirm).click(function () {
 			$confirm.modal("hide");
 			updateOrGenereteTickets(measures);
 		});
@@ -1196,7 +1263,7 @@ function synchroniseWithTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
 	var measures = [];
-	$("tbody>tr input:checked", section).closest("tr").each(function() {
+	$("tbody>tr input:checked", section).closest("tr").each(function () {
 		if (this.getAttribute("data-is-linked") === "true")
 			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 	});
@@ -1204,86 +1271,86 @@ function synchroniseWithTicketingSystem(section) {
 	if (measures.length) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax(
-				{
-					url : context + "/Analysis/Standard/Ticketing/Synchronise",
-					type : "POST",
-					contentType : "application/json;charset=UTF-8",
-					data : JSON.stringify(measures),
-					success : function(response, textStatus, jqXHR) {
-						var $modal = $("#modal-ticketing-synchronise", new DOMParser().parseFromString(response, "text/html"));
-						if ($modal.length) {
-							$("#modal-ticketing-synchronise").remove();
-							$modal.appendTo($("#widgets")).modal("show");
-							var $previous = $modal.find(".previous"), $next = $modal.find(".next");
-							$previous.find("a").on("click", function() {
-								if (!$previous.hasClass("disabled")) {
-									var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
-									if ($prev.length) {
-										$current.hide();
-										if (!$prev.show().prev().length)
-											$previous.addClass("disabled")
-										if ($next.hasClass("disabled"))
-											$next.removeClass("disabled");
-									}
+			{
+				url: context + "/Analysis/Standard/Ticketing/Synchronise",
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				data: JSON.stringify(measures),
+				success: function (response, textStatus, jqXHR) {
+					var $modal = $("#modal-ticketing-synchronise", new DOMParser().parseFromString(response, "text/html"));
+					if ($modal.length) {
+						$("#modal-ticketing-synchronise").remove();
+						$modal.appendTo($("#widgets")).modal("show");
+						var $previous = $modal.find(".previous"), $next = $modal.find(".next");
+						$previous.find("a").on("click", function () {
+							if (!$previous.hasClass("disabled")) {
+								var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
+								if ($prev.length) {
+									$current.hide();
+									if (!$prev.show().prev().length)
+										$previous.addClass("disabled")
+									if ($next.hasClass("disabled"))
+										$next.removeClass("disabled");
 								}
-								return false;
-							});
+							}
+							return false;
+						});
 
-							$next.find("a").on("click", function() {
-								if (!$next.hasClass("disabled")) {
-									var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
-									if ($nextElement.length) {
-										$current.hide();
-										if (!$nextElement.show().next().length)
-											$next.addClass("disabled")
-										if ($previous.hasClass("disabled"))
-											$previous.removeClass("disabled");
-									}
+						$next.find("a").on("click", function () {
+							if (!$next.hasClass("disabled")) {
+								var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
+								if ($nextElement.length) {
+									$current.hide();
+									if (!$nextElement.show().next().length)
+										$next.addClass("disabled")
+									if ($previous.hasClass("disabled"))
+										$previous.removeClass("disabled");
 								}
-								return false;
-							});
+							}
+							return false;
+						});
 
-							$modal.find("select[name='implementationRate']").on(
-									"change",
-									function() {
-										var $this = $(this), $parent = $this.closest("fieldset"), idMeasure = $parent.attr("data-trick-id"), className = $this
-												.attr("data-trick-class"), type = className == "MaturityMeasure" ? "int" : "double";
-										$this.parent().removeClass("has-error has-success");
-										$.ajax({
-											url : context + "/Analysis/EditField/" + className + "/" + idMeasure,
-											type : "post",
-											data : '{"id":' + idMeasure + ', "fieldName":"implementationRate", "value":"' + defaultValueByType($this.val(), type, true)
-													+ '", "type": "' + type + '"}',
-											contentType : "application/json;charset=UTF-8",
-											success : function(response, textStatus, jqXHR) {
-												if (response["success"] != undefined) {
-													$this.parent().addClass("has-success");
-													reloadMeasureRow(idMeasure, $parent.attr("data-trick-parent-id"));
-												} else {
-													if (response["error"] != undefined)
-														showDialog("#alert-dialog", response["error"]);
-													else
-														showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-													$this.parent().addClass("has-error");
-												}
-												return true;
-											},
-											error : function(jqXHR, textStatus, errorThrown) {
+						$modal.find("select[name='implementationRate']").on(
+							"change",
+							function () {
+								var $this = $(this), $parent = $this.closest("fieldset"), idMeasure = $parent.attr("data-trick-id"), className = $this
+									.attr("data-trick-class"), type = className == "MaturityMeasure" ? "int" : "double";
+								$this.parent().removeClass("has-error has-success");
+								$.ajax({
+									url: context + "/Analysis/EditField/" + className + "/" + idMeasure,
+									type: "post",
+									data: '{"id":' + idMeasure + ', "fieldName":"implementationRate", "value":"' + defaultValueByType($this.val(), type, true)
+									+ '", "type": "' + type + '"}',
+									contentType: "application/json;charset=UTF-8",
+									success: function (response, textStatus, jqXHR) {
+										if (response["success"] != undefined) {
+											$this.parent().addClass("has-success");
+											reloadMeasureRow(idMeasure, $parent.attr("data-trick-parent-id"));
+										} else {
+											if (response["error"] != undefined)
+												showDialog("#alert-dialog", response["error"]);
+											else
 												showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-												$this.parent().addClass("has-error");
-											}
-										});
-									});
+											$this.parent().addClass("has-error");
+										}
+										return true;
+									},
+									error: function (jqXHR, textStatus, errorThrown) {
+										showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+										$this.parent().addClass("has-error");
+									}
+								});
+							});
 
-						} else if (response["error"])
-							showDialog("#alert-dialog", response['error']);
-						else
-							unknowError();
-					},
-					error : unknowError
-				}).complete(function() {
-			$progress.hide();
-		});
+					} else if (response["error"])
+						showDialog("#alert-dialog", response['error']);
+					else
+						unknowError();
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
 	} else
 		showDialog("#info-dialog", MessageResolver("info.ticketing.synchronise.no_action.required", "None of the selected measures is related to a task"));
 	return false;

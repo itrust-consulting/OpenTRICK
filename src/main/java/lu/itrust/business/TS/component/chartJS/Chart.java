@@ -3,47 +3,97 @@ package lu.itrust.business.TS.component.chartJS;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonInclude(value = Include.NON_EMPTY)
 public class Chart {
-	
+
 	private List<String> labels = new ArrayList<>();
-	
-	private List<Dataset> datasets = new ArrayList<>();
-	
+
+	private List<String> xLabels = new ArrayList<>();
+
+	private List<String> yLabels = new ArrayList<>();
+
+	private List<Dataset<?>> datasets = new ArrayList<>();
+
 	private List<Legend> legends = new ArrayList<>();
+
 	/**
 	 * @return the labels
 	 */
 	public List<String> getLabels() {
 		return labels;
 	}
+
 	/**
-	 * @param labels the labels to set
+	 * @param labels
+	 *            the labels to set
 	 */
 	public void setLabels(List<String> labels) {
 		this.labels = labels;
 	}
+
 	/**
 	 * @return the datasets
 	 */
-	public List<Dataset> getDatasets() {
+	public List<Dataset<?>> getDatasets() {
 		return datasets;
 	}
+
 	/**
-	 * @param datasets the datasets to set
+	 * @param datasets
+	 *            the datasets to set
 	 */
-	public void setDatasets(List<Dataset> datasets) {
+	public void setDatasets(List<Dataset<?>> datasets) {
 		this.datasets = datasets;
 	}
+
 	/**
 	 * @return the legends
 	 */
 	public List<Legend> getLegends() {
 		return legends;
 	}
+
 	/**
-	 * @param legends the legends to set
+	 * @param legends
+	 *            the legends to set
 	 */
 	public void setLegends(List<Legend> legends) {
 		this.legends = legends;
+	}
+
+	/**
+	 * @return the xlabels
+	 */
+	@JsonProperty("xLabels")
+	public List<String> getXLabels() {
+		return xLabels;
+	}
+
+	/**
+	 * @param xLabels
+	 *            the xLabels to set
+	 */
+	public void setXLabels(List<String> xLabels) {
+		this.xLabels = xLabels;
+	}
+
+	/**
+	 * @return the ylabels
+	 */
+	@JsonProperty("yLabels")
+	public List<String> getYLabels() {
+		return yLabels;
+	}
+
+	/**
+	 * @param yLabels
+	 *            the yLabels to set
+	 */
+	public void setYLabels(List<String> yLabels) {
+		this.yLabels = yLabels;
 	}
 }

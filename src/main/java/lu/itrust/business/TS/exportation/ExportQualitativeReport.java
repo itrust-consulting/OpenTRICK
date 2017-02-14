@@ -714,6 +714,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void generateRiskHeatMap(Chart chart, String anchor) {
 		XWPFParagraph paragraphOriginal = null;
 		XWPFTable table = null;
@@ -748,7 +749,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				row.addNewTableCell();
 			setCellText(row.getCell(0), getMessage("report.risk_heat_map.title.impact", null, "Impact", locale));
 			for (int i = 0; i < chart.getDatasets().size(); i++) {
-				Dataset dataset = chart.getDatasets().get(i);
+				Dataset<List<String>> dataset = (Dataset<List<String>>) chart.getDatasets().get(i);
 				if (i > 0) {
 					row = table.getRow(rowIndex++);
 					if (row == null)

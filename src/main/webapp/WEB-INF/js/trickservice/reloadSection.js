@@ -136,7 +136,7 @@ function callbackBySection(section) {
 			reloadSection("section_scenario", undefined, true);
 			if (application.analysisType == "QUALITATIVE") {
 				reloadSection("section_riskregister", undefined, true);
-				reloadRiskHeatMapSection();
+				updateRiskChart();
 			} else
 				chartALE();
 			return false;
@@ -145,7 +145,7 @@ function callbackBySection(section) {
 			reloadSection("section_asset", undefined, true);
 			if (application.analysisType == "QUALITATIVE") {
 				reloadSection("section_riskregister", undefined, true);
-				reloadRiskHeatMapSection();
+				updateRiskChart();
 			} else
 				chartALE();
 			return false;

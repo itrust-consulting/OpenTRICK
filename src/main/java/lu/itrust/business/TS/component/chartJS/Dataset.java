@@ -10,34 +10,38 @@ import java.util.List;
  * @author eomar
  *
  */
-public class Dataset {
+public class Dataset<T> {
 	
 	private String label;
 	
 	private List<Object> data = new ArrayList<>();
 	
-	private List<String> backgroundColor =  new ArrayList<>();
+	private T backgroundColor =  null;
 	
-	public Dataset() {
+	public Dataset(T backgroundColor) {
+		setBackgroundColor(backgroundColor);
 	}
 
-	public Dataset(String label) {
+	public Dataset(String label, T backgroundColor ) {
 		setLabel(label);
+		setBackgroundColor(backgroundColor);
 	}
 
 	/**
 	 * @return the backgroundColor
 	 */
-	public List<String> getBackgroundColor() {
+	public T getBackgroundColor() {
 		return backgroundColor;
 	}
 
 	/**
 	 * @param backgroundColor the backgroundColor to set
 	 */
-	public void setBackgroundColor(List<String> backgroundColor) {
+	public void setBackgroundColor(T backgroundColor) {
 		this.backgroundColor = backgroundColor;
 	}
+	
+	
 
 	/**
 	 * @return the data
