@@ -76,8 +76,8 @@ public class Assessment implements Cloneable {
 
 	@ManyToAny(metaDef = "VALUE_META_DEF", metaColumn = @Column(name = "dtValueType"))
 	@Cascade(CascadeType.ALL)
-	@JoinTable(name = "AssessmentImpacts", joinColumns = @JoinColumn(name = "fiAssessment"), inverseJoinColumns = @JoinColumn(name = "fiValue"), uniqueConstraints = @UniqueConstraint(columnNames = {
-			"fiAssessment", "fiValue" }))
+	@JoinTable(name = "AssessmentImpacts", joinColumns = @JoinColumn(name = "fiAssessment"), inverseJoinColumns = @JoinColumn(name = "fiValue"), uniqueConstraints = {
+			@UniqueConstraint(columnNames = { "fiAssessment", "dtValueType" }), @UniqueConstraint(columnNames = { "fiValue", "dtValueType" }) })
 	private List<IValue> impacts = new LinkedList<>();
 
 	@Transient
