@@ -630,7 +630,7 @@ public class Scenario extends SecurityCriteria {
 	}
 
 	public void addApplicable(AssetType assetType) {
-		if (isAssetLinked())
+		if (isAssetLinked() || assetType == null)
 			return;
 		AssetTypeValue assetTypeValue = findByAssetType(assetType);
 		if (assetTypeValue == null)

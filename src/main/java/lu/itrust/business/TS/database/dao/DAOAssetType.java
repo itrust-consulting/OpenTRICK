@@ -13,6 +13,7 @@ import lu.itrust.business.TS.model.asset.AssetType;
  * @since 16 janv. 2013
  */
 public interface DAOAssetType {
+	
 	public AssetType get(Integer id);
 
 	public AssetType getByName(String assetTypeName);

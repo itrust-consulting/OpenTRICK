@@ -26,10 +26,12 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
 
 /**
  * ControllerIntstallation.java: <br>
@@ -47,7 +49,13 @@ public class ControllerIntstallation {
 	private ServiceCustomer serviceCustomer;
 
 	@Autowired
+	private ServiceLanguage serviceLanguage;
+
+	@Autowired
 	private SessionFactory sessionFactory;
+
+	@Value("#{'${app.settings.default.languages}'.split(';')}")
+	private List<String> defaultLanguages;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -162,6 +170,9 @@ public class ControllerIntstallation {
 					return false;
 				}
 			}
+
+			installDefaultLanguage();
+
 			// owner
 			if (principal == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
@@ -182,8 +193,17 @@ public class ControllerIntstallation {
 			return false;
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			errors.put("error", e.getMessage());
+			errors.put("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			return false;
 		}
+	}
+
+	private void installDefaultLanguage() {
+		defaultLanguages.forEach(value -> {
+			String[] values = value.split(",");
+			if (values.length == 3 && !serviceLanguage.existsByAlpha3(values[0])) {
+				serviceLanguage.saveOrUpdate(new Language(values[0], values[1], values[2]));
+			}
+		});
 	}
 }

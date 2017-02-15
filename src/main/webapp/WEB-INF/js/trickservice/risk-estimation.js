@@ -68,6 +68,10 @@ function saveAssessmentData(e) {
 						if (application.analysisType == "QUALITATIVE"){
 							reloadSection("section_riskregister", undefined, true);
 							reloadRiskChart();
+						}else {
+							reloadSection("section_asset", undefined, true);
+							reloadSection("section_scenario", undefined, true);
+							chartALE();
 						}
 						
 						setTimeout(function() {
@@ -347,7 +351,7 @@ AssessmentHelder.prototype = {
 						}
 					});
 			}
-				
+			$elements.removeClass("last").filter(":visible:last").addClass("last");
 			if ($elements.filter(".active").is(":hidden"))
 				$elements.filter(":visible:first").click();
 			else

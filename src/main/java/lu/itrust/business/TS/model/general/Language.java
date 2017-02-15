@@ -27,7 +27,7 @@ public class Language {
 
 	/** The Language Identifier */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idLanguage")
 	private int id = -1;
 
@@ -46,6 +46,15 @@ public class Language {
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	public Language() {
+	}
+
+	public Language(String alpha3, String name, String altName) {
+		setAlpha3(alpha3);
+		setName(name);
+		setAltName(altName);
+	}
 
 	/**
 	 * getId: <br>
@@ -193,7 +202,7 @@ public class Language {
 
 	@Transient
 	public String getAlpha2() {
-		if(alpha3 == null|| alpha3.length()!=3)
+		if (alpha3 == null || alpha3.length() != 3)
 			return null;
 		return alpha3.substring(0, 2);
 	}

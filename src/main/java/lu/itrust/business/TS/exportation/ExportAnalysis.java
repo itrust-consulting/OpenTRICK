@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -1344,8 +1345,9 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		List<Scenario> scenarios = new LinkedList<>();
-		// set Asset Type keys
-		final String[] keys = Constant.ASSET_TYPES.split(",");
+
+		final String[] assetTypeNames = Constant.ASSET_TYPES.split(",");
+		final Map<String, AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getName, Function.identity()));
 		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
 				baseQuery = "INSERT INTO threats SELECT ? as id_threat, ? as name_threat, ? as type_threat, ? as linked_asset_threat, ? as description_threat, ? as sel_threat, ? as serv, ? as info, ? as sw, ? as hw, ? as net, ? as staff, ? as iv, ? as busi, ? as fin, ? as compl, ? as confidentiality, ? as integrity, ? as availability, ? as d1, ? as d2 , ? as d3, ? as d4, ? as d5, ? as d6, ? as d61, ? as d62, ? as d63, ? as d64, ? as d7, ? as i1, ? as i2, ? as i3, ? as i4, ? as i5, ? as i6, ? as i7, ? as i8, ? as i81, ? as i82, ? as i83, ? as i84, ? as i9, ? as i10, ? as preventive, ? as detective, ? as limitative, ? as corrective, ? as intentional, ? as accidental, ? as environmental, ? as internal_threat, ? as external_threat";
 
@@ -1378,13 +1380,13 @@ public class ExportAnalysis {
 			}
 
 			if (scenario.isAssetLinked()) {
-				for (int i = 0; i < keys.length; i++)
+				for (int i = 0; i < assetTypeNames.length; i++)
 					params.add(0);
 				if (!scenario.getLinkedAssets().isEmpty())
 					scenarios.add(scenario);
 			} else {
-				for (String key : keys)
-					params.add(scenario.hasInfluenceOnCategory(key) ? 1 : 0);
+				for (String key : assetTypeNames)
+					params.add(scenario.hasInfluenceOnAsset(assetTypes.get(key)) ? 1 : 0);
 			}
 			// save Risk data
 			insertCategories(params, scenario);
