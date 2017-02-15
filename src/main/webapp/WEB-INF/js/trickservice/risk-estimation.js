@@ -67,7 +67,7 @@ function saveAssessmentData(e) {
 						
 						if (application.analysisType == "QUALITATIVE"){
 							reloadSection("section_riskregister", undefined, true);
-							updateRiskChart();
+							reloadRiskChart();
 						}
 						
 						setTimeout(function() {

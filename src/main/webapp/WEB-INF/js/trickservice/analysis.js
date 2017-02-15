@@ -340,7 +340,7 @@ function reloadRiskScenarioTypeSection(tableChange) {
 }
 
 
-function updateRiskChart(tableChange){
+function reloadRiskChart(tableChange){
 	reloadRiskHeatMapSection(tableChange);
 	reloadRiskAssetSection(tableChange);
 	reloadRiskAssetTypeSection(tableChange);
@@ -670,7 +670,7 @@ function reloadCharts() {
 	loadChartDynamicAleEvolutionByAssetType();
 	loadChartDynamicAleEvolutionByScenario();
 	if (application.analysisType == "QUALITATIVE")
-		updateRiskChart();
+		reloadRiskChart();
 	return false;
 };
 
