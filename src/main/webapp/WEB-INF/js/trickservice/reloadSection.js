@@ -176,7 +176,7 @@ function callbackBySection(section) {
 			}
 		},
 		"section_qualitative_parameter" : function() {
-			reloadRiskHeatMapSection(true);// load Heat map + rebuild table.
+			reloadRiskChart(true)// load chart + rebuild tables.
 		}
 
 	};
