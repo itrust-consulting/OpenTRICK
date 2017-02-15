@@ -788,13 +788,53 @@ function loadChartAsset() {
 
 	if ($('#chart_ale_asset').length) {
 		if ($('#chart_ale_asset').is(":visible")) {
-			var $progress = $("#loading-indicator").show();
+			var $progress = $("#loading-indicator").show(), container ="#chart_ale_asset", canvas ="risk_ale_asset_canvas";
 			$.ajax({
 				url: context + "/Analysis/Asset/Chart/Ale",
 				type: "get",
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					displayChart('#chart_ale_asset', response);
+					if (window.ALEAssets != undefined)
+						helpers.isArray(window.ALEAssets) ? window.ALEAssets.map(chart => chart.destroy) : window.ALEAssets.destroy();
+					if (helpers.isArray(response)) {
+						window.ALEAssets = [];
+						var $container = $(container).empty();
+						response.map(chart => {
+							var $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($container);
+							window.ALEAssets.push(new Chart($canvas[0].getContext("2d"), {
+								type: "bar",
+								data: chart,
+								options: {
+									scales: {
+										xAxes: [{
+											stacked: true
+										}],
+										yAxes: [{
+											stacked: true
+										}]
+									}
+								}
+							}));
+
+						});
+					}
+					else {
+						$(container).html("<canvas id='"+canvas+"' style='max-width: 1000px; margin-left: auto; margin-right: auto;' />")
+						window.ALEAssets = new Chart(document.getElementById(canvas).getContext("2d"), {
+							type: "bar",
+							data: response,
+							options: {
+								scales: {
+									xAxes: [{
+										stacked: true
+									}],
+									yAxes: [{
+										stacked: true
+									}]
+								}
+							}
+						});
+					}
 				},
 				error: unknowError
 			}).complete(function () {

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(value = Include.NON_EMPTY)
 public class Chart {
 
+	private String title = null;
+	
 	private List<String> labels = new ArrayList<>();
 
 	private List<String> xLabels = new ArrayList<>();
@@ -19,6 +21,21 @@ public class Chart {
 	private List<Dataset<?>> datasets = new ArrayList<>();
 
 	private List<Legend> legends = new ArrayList<>();
+
+	/**
+	 * 
+	 */
+	public Chart() {
+	}
+
+	/**
+	 * @param title
+	 */
+	public Chart(String title) {
+		this.title = title;
+	}
+
+
 
 	/**
 	 * @return the labels
@@ -95,5 +112,19 @@ public class Chart {
 	 */
 	public void setYLabels(List<String> yLabels) {
 		this.yLabels = yLabels;
+	}
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * @param title the title to set
+	 */
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

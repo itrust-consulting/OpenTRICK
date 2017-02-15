@@ -122,7 +122,7 @@ public class ControllerRiskEvolution {
 			ales.sort(ALE.Comparator().reversed());
 			charts[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
 		}
-		return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), charts);
+		return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), charts);
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-asset-type", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -147,7 +147,7 @@ public class ControllerRiskEvolution {
 			ales.sort(ALE.Comparator().reversed());
 			charts[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
 		}
-		return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), charts);
+		return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), charts);
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-asset", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -174,7 +174,7 @@ public class ControllerRiskEvolution {
 		}
 
 		if (charts.length == 0 || charts[0].getAles().size() <= aleChartSingleMaxSize)
-			return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), charts);
+			return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), charts);
 		else {
 			String assetCharts = "";
 			List<ALE> ales = charts[0].getAles();
@@ -183,7 +183,7 @@ public class ControllerRiskEvolution {
 			for (int i = 0; i < multiplicator; i++) {
 				charts[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
 				assetCharts += String.format("%s%s", assetCharts.isEmpty() ? "" : ",",
-						chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
+						chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
 								String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), charts));
 			}
 			return "[" + assetCharts + "]";
@@ -214,7 +214,7 @@ public class ControllerRiskEvolution {
 		}
 
 		if (charts.length == 0 || charts[0].getAles().size() <= aleChartSingleMaxSize)
-			return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), charts);
+			return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), charts);
 		else {
 			String assetCharts = "";
 			List<ALE> ales = charts[0].getAles();
@@ -223,7 +223,7 @@ public class ControllerRiskEvolution {
 			for (int i = 0; i < multiplicator; i++) {
 				charts[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
 				assetCharts += String.format("%s%s", assetCharts.isEmpty() ? "" : ",",
-						chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
+						chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
 								String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), charts));
 			}
 			return "[" + assetCharts + "]";
@@ -274,7 +274,7 @@ public class ControllerRiskEvolution {
 		List<ALE> ales = new ArrayList<>(analyses.size());
 		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + "<br />" + analysis.getVersion(),
 				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
-		return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale) , ales);
+		return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale) , ales);
 	}
 
 }
