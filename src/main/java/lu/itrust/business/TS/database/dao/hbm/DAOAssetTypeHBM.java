@@ -63,10 +63,9 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#getAll()
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<AssetType> getAll()  {
-		return (List<AssetType>) getSession().createQuery("From AssetType order by name").getResultList();
+		return getSession().createQuery("From AssetType order by name",AssetType.class).getResultList();
 	}
 
 	/**

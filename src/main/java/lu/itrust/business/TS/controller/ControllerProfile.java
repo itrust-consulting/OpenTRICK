@@ -307,7 +307,7 @@ public class ControllerProfile {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + String.format("%s_%s_V%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
+				"attachment; filename=\"" + String.format("%s_%s_v%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());

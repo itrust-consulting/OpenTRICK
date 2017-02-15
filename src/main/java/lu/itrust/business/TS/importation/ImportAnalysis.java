@@ -2800,24 +2800,18 @@ public class ImportAnalysis {
 				tempScenario.setEnvironmental(rs.getInt(Constant.THREAT_ENVIRONMENTAL));
 				tempScenario.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
 				tempScenario.setInternalThreat(rs.getInt(Constant.THREAT_INTERNAL_THREAT));
-				String type = rs.getString("type_threat");
-				tempScenario.setType(ScenarioType.getByName(type));
-
-				// set scenario asset types
-				setScenarioAssetValues(tempScenario, rs);
-
+				tempScenario.setType(ScenarioType.getByName(rs.getString("type_threat")));
 				// store scenario to build assessment.
 				scenarios.put(id = rs.getInt(Constant.THREAT_ID_THREAT), tempScenario);
-
 				// ****************************************************************
 				// * add instance to list of scenarios
 				// ****************************************************************
-
 				this.analysis.add(tempScenario);
-				if (!tempScenario.isAssetLinked())
-					continue;
-				for (Integer idAsset : scenarioAssets.get(id))
-					tempScenario.addApplicable(assets.get(idAsset));
+				if (tempScenario.isAssetLinked()) {
+					for (Integer idAsset : scenarioAssets.get(id))
+						tempScenario.addApplicable(assets.get(idAsset));
+				} else
+					setScenarioAssetValues(tempScenario, rs);
 			}
 
 		} finally {

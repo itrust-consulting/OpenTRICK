@@ -296,11 +296,34 @@ a[role="changeUILanguage"]:hover {
 	margin: 0px 0px 9px;
 }
 
-.tab-content-header .row-fluid *:FIRST-CHILD:NOT (.fa ){
-	margin-bottom: 2px;
-	margin-top: 2px;
-}
+.tab-content-header
+ 
+.row-fluid
+ 
+*
+:FIRST-CHILD
+:NOT
+(
+.fa
+ 
+){
+margin-bottom
+:
+ 
+2
+px
+;
 
+	
+margin-top
+:
+ 
+2
+px
+;
+
+
+}
 .tab-content-header h1, .tab-content-header h2, .tab-content-header h3, .tab-content-header h4, .tab-content-header h5, .tab-content-header h6 {
 	margin-top: 10px;
 }
@@ -501,9 +524,10 @@ datalist {
 	padding: 2px 14px;
 }
 
-table.rrf-values th{
+table.rrf-values th {
 	min-width: 60px;
 }
+
 .range-group {
 	width: 100%;
 	display: inline-block;
@@ -527,26 +551,6 @@ table.rrf-values th{
 	vertical-align: middle;
 }
 
-/*
-a.list-group-item.active,.list-group-item.active{
-	color: #fff;
-	background-color: #3c79AE;
-	border-color: #3c79AE;
-}
-
-a.list-group-item:not(.active):HOVER,.list-group-item:not(.active):HOVER{
-	background-color: #e3edf7;
-	border-color: #e3edf7;
-	color: #1f334e;
-}
-
-
-a.list-group-item.active:FOCUS,.list-group-item.active:FOCUS,a.list-group-item.active:HOVER,.list-group-item.active:HOVER{
-	background-color: #216698;
-	border-color: #216698;
-	color: #fff;
-}*/
-
 .nav-chapter a.list-group-item {
 	border-radius: 0px;
 	border-width: 0px 1px 0px 0px;
@@ -554,62 +558,40 @@ a.list-group-item.active:FOCUS,.list-group-item.active:FOCUS,a.list-group-item.a
 	padding: 7px 12px;
 }
 
-.nav-chapter a.list-group-item:LAST-CHILD {
+.nav-chapter a.list-group-item:LAST-CHILD, .nav-chapter a.list-group-item.last{
 	border-bottom: 1px #ddd solid;
 }
 
-.nav-chapter a.list-group-item:FIRST-CHILD {
+.nav-chapter a.list-group-item:FIRST-CHILD{
 	border-top: 1px #ddd solid;
 }
 
-
-.nav-chapter a.list-group-item.active{
+.nav-chapter a.list-group-item.active {
 	color: #333;
 	background-color: window;
 	border-color: #ddd;
-	border-style:solid none solid solid;
+	border-style: solid none solid solid;
 	border-width: 1px 0px 1px 1px;
 	border-radius: 4px 0px 0px 4px;
 }
 
-
-tr.editable, td.editable,th.editable{
+tr.editable, td.editable, th.editable {
 	background-color: #eff5fb;
 }
 
-table>tbody>tr.editable:HOVER, table>tbody>tr:HOVER>.editable{
+table>tbody>tr.editable:HOVER, table>tbody>tr:HOVER>.editable {
 	background-color: #b5d4f3;
 }
 
-tr.selected, 
-table>tbody>tr.selected, 
-table>tbody>tr.selected.info, 
-table>tbody>tr.selected.succes, 
-table>tbody>tr.selected.warning, 
-table>tbody>tr.selected.danger,
-table>tbody>tr.selected.info,
-table>tbody>tr.selected.info td:not(.selected), 
-table>tbody>tr.selected.succes td:not(.selected), 
-table>tbody>tr.selected.warning td:not(.selected), 
-table>tbody>tr.selected.danger td:not(.selected),
-table>tbody>tr.selected.info td:not(.selected)
-{
+tr.selected, table>tbody>tr.selected, table>tbody>tr.selected.info, table>tbody>tr.selected.succes, table>tbody>tr.selected.warning, table>tbody>tr.selected.danger, table>tbody>tr.selected.info,
+	table>tbody>tr.selected.info td:not (.selected ), table>tbody>tr.selected.succes td:not (.selected ), table>tbody>tr.selected.warning td:not (.selected ), table>tbody>tr.selected.danger td:not
+	(.selected ), table>tbody>tr.selected.info td:not (.selected ) {
 	background-color: #c6def6;
 }
 
-tr.selected:HOVER, 
-table>tbody>tr.selected:HOVER, 
-table>tbody>tr.selected.info:HOVER, 
-table>tbody>tr.selected.succes:HOVER, 
-table>tbody>tr.selected.warning:HOVER, 
-table>tbody>tr.selected.danger:HOVER,
-table>tbody>tr.selected.info:HOVER,
-table>tbody>tr.selected.info:HOVER td:not(.selected), 
-table>tbody>tr.selected.succes:HOVER td:not(.selected), 
-table>tbody>tr.selected.warning:HOVER td:not(.selected), 
-table>tbody>tr.selected.danger:HOVER td:not(.selected),
-table>tbody>tr.selected.info:HOVER td:not(.selected)
-{
+tr.selected:HOVER, table>tbody>tr.selected:HOVER, table>tbody>tr.selected.info:HOVER, table>tbody>tr.selected.succes:HOVER, table>tbody>tr.selected.warning:HOVER, table>tbody>tr.selected.danger:HOVER,
+	table>tbody>tr.selected.info:HOVER, table>tbody>tr.selected.info:HOVER td:not (.selected ), table>tbody>tr.selected.succes:HOVER td:not (.selected ), table>tbody>tr.selected.warning:HOVER td:not
+	(.selected ), table>tbody>tr.selected.danger:HOVER td:not (.selected ), table>tbody>tr.selected.info:HOVER td:not (.selected ) {
 	background-color: #b5d4f3;
 }
 
@@ -617,26 +599,26 @@ td.selected, tr.selected>td.selected {
 	background-color: #eff5fb;
 }
 
-.form-group-fill{
+.form-group-fill {
 	background-color: #eff5fb;
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
 }
 
-tr.form-group-fill th:FIRST-CHILD{
+tr.form-group-fill th:FIRST-CHILD {
 	border-top-left-radius: 4px;
 }
 
-tr.form-group-fill th:LAST-CHILD{
+tr.form-group-fill th:LAST-CHILD {
 	border-top-right-radius: 4px;
 }
 
-.panel-analysis-main{
+.panel-analysis-main {
 	background-color: #2a6698;
 	color: #fff;
 }
 
-.panel-analysis-main .btn{
+.panel-analysis-main .btn {
 	background-color: #2a6698;
 	border-color: #2a6698;
 	color: #fff;
@@ -648,12 +630,12 @@ tr.form-group-fill th:LAST-CHILD{
 	color: #fff;
 }
 
-.panel-analysis-slave{
+.panel-analysis-slave {
 	background-color: #5290C7;
 	color: #fff;
 }
 
-.panel-analysis-slave .btn{
+.panel-analysis-slave .btn {
 	background-color: #5290C7;
 	border-color: #5290C7;
 	color: #fff;
@@ -665,29 +647,29 @@ tr.form-group-fill th:LAST-CHILD{
 	color: #fff;
 }
 
-.form-group-raw{
+.form-group-raw {
 	background-color: #a8bfdd;
 }
 
-.form-group-net{
+.form-group-net {
 	background-color: #b2cce5;
 }
 
-.form-group-exp{
+.form-group-exp {
 	background-color: #bcd7f0;
 }
 
-.form-group-fill .label-control{
+.form-group-fill .label-control {
 	padding-left: 10px;
 	padding-top: 5px;
 }
 
-.form-group-fill .form-control{
+.form-group-fill .form-control {
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;
 }
 
-.form-group-fill .form-control-static{
+.form-group-fill .form-control-static {
 	background-color: window;
 	border-radius: 4px;
 }
@@ -705,22 +687,22 @@ td.unselected {
 	background-color: window;
 }
 
-.btn-cat-add{
+.btn-cat-add {
 	background-color: #fff;
 	border-color: #ccc;
 }
 
-.btn-cat-add:FOCUS,.btn-cat-add:HOVER{
+.btn-cat-add:FOCUS, .btn-cat-add:HOVER {
 	background-color: #216698;
 	border-color: #216698;
 	color: #fff;
 }
 
-.form-estimation.form-estimation-left{
+.form-estimation.form-estimation-left {
 	border-left: 1px solid #fff;
 }
 
-.form-estimation.form-estimation-right{
+.form-estimation.form-estimation-right {
 	border-right: 1px solid #fff;
 }
 
@@ -728,31 +710,26 @@ img.support-logo {
 	height: 60px;
 }
 
-img.support-logo+img.support-logo{
+img.support-logo+img.support-logo {
 	margin-left: 15px;
 }
 
 @media ( min-width : 992px) {
-	
 	.max-height {
 		height: 100%;
 	}
-	
 	*[role='left-menu'], *[role='nav-tabs'] {
 		position: fixed;
 	}
-	
 	*[role='left-menu']+*[class*='col-'] {
 		float: right;
 	}
 	*[role='left-menu'].affixNav {
 		overflow-y: auto;
 	}
-	
 	.affixNav {
 		height: 88%;
 	}
-	
 	@media ( min-height :320px) {
 		div[data-trick-role='add-asset-scenario'], ul[data-trick-role="nav-measure"] {
 			position: fixed;
