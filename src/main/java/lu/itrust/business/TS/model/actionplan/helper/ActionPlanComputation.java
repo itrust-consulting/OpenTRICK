@@ -2824,10 +2824,10 @@ public class ActionPlanComputation {
 	 */
 	public static String extractMainChapter(String chapter) {
 		if ((chapter.toUpperCase().startsWith("A.")) || (chapter.toUpperCase().startsWith("M."))) {
-			String[] chapters = chapter.split("[.]");
+			String[] chapters = chapter.split("[.]",3);
 			return chapters[0] + "." + chapters[1];
 		}
-		return chapter.split(Constant.REGEX_SPLIT_REFERENCE)[0];
+		return chapter.split(Constant.REGEX_SPLIT_REFERENCE,2)[0];
 	}
 
 	/**

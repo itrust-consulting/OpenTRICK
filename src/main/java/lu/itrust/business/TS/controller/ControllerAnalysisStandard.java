@@ -52,6 +52,7 @@ import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -258,6 +259,8 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
 		model.addAttribute("valueFactory", factory);
 
@@ -305,6 +308,8 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("measuresByStandard", measuresByStandard);
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
+		
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
@@ -340,6 +345,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
@@ -399,23 +405,13 @@ public class ControllerAnalysisStandard {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/{standardid}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/{standardId}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String compliance(@PathVariable Integer standardid, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Chart compliance(@PathVariable Integer standardId, HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		try {
-			List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
-			for (AnalysisStandard standard : standards)
-				if (standard.getStandard().getId() == standardid)
-					return chartGenerator.compliance(idAnalysis, standard.getStandard().getLabel(), locale);
-			// return chart of either standard 27001 or 27002 or null
-			return null;
-		} catch (Exception e) {
-			// retrun error
-			TrickLogManager.Persist(e);
-			return null;
-		}
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == standardId)
+				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale)).findAny().orElse(new Chart());
 	}
 
 	/**
@@ -428,42 +424,11 @@ public class ControllerAnalysisStandard {
 	 */
 	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String compliances(HttpSession session, Principal principal, Locale locale) {
-
+	public @ResponseBody List<Chart> compliances(HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-		try {
-
-			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
-
-			String value = "{\"standards\":{";
-
-			for (AnalysisStandard analysisStandard : analysisStandards) {
-
-				value += "\"" + analysisStandard.getStandard().getId() + "\":[";
-
-				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), locale);
-
-				value += "],";
-			}
-
-			value = value.substring(0, value.length() - 1);
-
-			value += "}}";
-
-			// System.out.println(value);
-
-			// return chart of either standard 27001 or 27002 or null
-
-			return value;
-
-		} catch (Exception e) {
-
-			// retrun error
-			TrickLogManager.Persist(e);
-			return null;
-		}
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream()
+				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale)).collect(Collectors.toList());
 	}
 
 	/**

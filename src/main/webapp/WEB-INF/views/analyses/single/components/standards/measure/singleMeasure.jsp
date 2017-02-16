@@ -101,7 +101,8 @@
 				</c:choose></td>
 			<td ${popoverRef}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}'
-				data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"><c:choose>
+				data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
+				data-trick-field-type="string" onclick="return editField(this);"><c:choose>
 					<c:when test="${measure.status=='NA'}">
 						${statusNA}
 					</c:when>
@@ -120,8 +121,8 @@
 						onclick="return editField(this);">${implementationRateValue}</td>
 				</c:when>
 				<c:otherwise>
-					<td ${css} data-trick-field="implementationRate" data-trick-field-type="string" data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
-						${implementationRateAttr} title="${implementationRateValue} %" onclick="return editField(this);">${implementationRateValue}</td>
+					<td ${css} data-trick-field="implementationRate" ${implementationRateAttr} data-trick-field-type="string" data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
+						 title="${implementationRateValue} %" onclick="return editField(this);">${implementationRateValue}</td>
 					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
 						<td data-trick-field='mer'><c:choose>
 								<c:when test="${empty effectImpl27002}">0</c:when>

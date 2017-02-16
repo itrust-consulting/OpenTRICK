@@ -67,6 +67,7 @@ import lu.itrust.business.TS.model.rrf.RRFAssetType;
 import lu.itrust.business.TS.model.rrf.RRFMeasure;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
@@ -93,6 +94,9 @@ public class ChartGenerator {
 
 	@Value("${app.settings.ale.chart.content.size}")
 	private int aleChartSize;
+
+	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
+	private List<String> defaultColors;
 
 	@Autowired
 	private DAOActionPlan daoActionPlan;
@@ -172,13 +176,13 @@ public class ChartGenerator {
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
-			List<Chart>  charts = new ArrayList<>(multiplicator);
+			List<Chart> charts = new ArrayList<>(multiplicator);
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset",
-						new Integer[] { i + 1, multiplicator }, String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList));
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
+						String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList));
 			}
 			return charts;
 		} finally {
@@ -200,7 +204,7 @@ public class ChartGenerator {
 	 * @param locale
 	 * @return
 	 */
-	public String aleByAssetType(int idAnalysis, Locale locale) throws Exception {
+	public Object aleByAssetType(int idAnalysis, Locale locale) throws Exception {
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales = new LinkedList<ALE>();
@@ -216,20 +220,19 @@ public class ChartGenerator {
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
-
 			if (ales.size() <= aleChartSingleMaxSize)
-				return generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
+				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
-			String result = "";
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>(multiplicator);
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",") + generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type",
-						new Integer[] { i + 1, multiplicator }, String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, multiplicator },
+						String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList));
 			}
-			return String.format("[%s]", result);
+			return charts;
 		} finally {
 			assessments.clear();
 			mappedALEs.clear();
@@ -246,7 +249,7 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String aleByScenario(Integer idAnalysis, Locale locale) throws Exception {
+	public Object aleByScenario(Integer idAnalysis, Locale locale) throws Exception {
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales = new LinkedList<ALE>();
@@ -260,20 +263,19 @@ public class ChartGenerator {
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
-
 			if (ales.size() <= aleChartSingleMaxSize)
-				return generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
+				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
-			String result = "";
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>(multiplicator);
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",") + generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario",
-						new Integer[] { i + 1, multiplicator }, String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
+						String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList));
 			}
-			return String.format("[%s]", result);
+			return charts;
 		} finally {
 			assessments.clear();
 			mappedALEs.clear();
@@ -290,7 +292,7 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String aleByScenarioType(Integer idAnalysis, Locale locale) throws Exception {
+	public Object aleByScenarioType(Integer idAnalysis, Locale locale) throws Exception {
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales = new LinkedList<ALE>();
@@ -308,18 +310,19 @@ public class ChartGenerator {
 			Collections.sort(ales, new AssetComparatorByALE());
 
 			if (ales.size() <= aleChartSingleMaxSize)
-				return generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
+				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
-			String result = "";
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>(multiplicator);
 			for (int i = 0; i < multiplicator; i++) {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",") + generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type",
-						new Integer[] { i + 1, multiplicator }, String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, multiplicator },
+						String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList));
+				;
 			}
-			return String.format("[%s]", result);
+			return charts;
 		} finally {
 			assessments.clear();
 			mappedALEs.clear();
@@ -525,62 +528,38 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String compliance(int idAnalysis, String standard, Locale locale) throws Exception {
-
-		List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
+	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, Locale locale) {
 
 		ValueFactory factory = new ValueFactory(daoDynamicParameter.findByAnalysisId(idAnalysis));
 
-		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
+		Standard standard = analysisStandard.getStandard();
 
-		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
+		List<Measure> measures = analysisStandard.getMeasures().stream()
+				.filter(measure -> measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+				.collect(Collectors.toList());
 
-		String title = "\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard }, standard + " measure compliance", locale) + "\"}";
+		Chart chart = new Chart(standard.getId(),
+				messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale));
 
-		String pane = "\"pane\": {\"size\": \"100%\"}";
+		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(analysisStandard.getMeasures(), factory);
 
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
-
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+		chart.setLabels(measures.stream().map(measure -> ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference())).distinct()
+				.collect(Collectors.toList()));
 
 		if (previouscompliances.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "}";
+			return chart;
 
-		String series = "\"series\":[";
+		Dataset<String> dataset = new Dataset<String>(messageSource.getMessage("label.chart.series.current_level", null, "Current Level", locale), getColor(0));
 
-		String xAxis = "";
-
-		String yAxis = "\"yAxis\": {\"gridLineInterpolation\": \"polygon\" , \"lineWidth\":0,\"min\":0,\"max\":100, \"tickInterval\": 20, \"labels\":{ \"format\": \"{value}%\"} }";
-
-		String categories = "[";
-
-		String data = "[";
-
-		for (String key : previouscompliances.keySet()) {
+		for (String key : chart.getLabels()) {
 			Object[] compliance = previouscompliances.get(key);
-			categories += "\"" + key + "\",";
-			data += (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]) + ",";
+			dataset.getData().add(compliance == null ? 0 : Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
 		}
+		
+		if(!dataset.getData().isEmpty())
+			chart.getDatasets().add(dataset);
 
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			data = data.substring(0, data.length() - 1);
-		}
-
-		categories += "]";
-
-		data += "]";
-
-		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
-
-		String serie = "";
-
-		serie = "{\"name\":\"" + messageSource.getMessage("label.chart.series.current_level", null, "Current Level", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
-
-		series += serie;
-
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard, ActionPlanMode.APPN);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), ActionPlanMode.APPN);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
@@ -592,46 +571,22 @@ public class ChartGenerator {
 		List<Phase> phases = daoPhase.getAllFromAnalysisActionPlan(idAnalysis);
 
 		if (!actionPlanMeasures.isEmpty()) {
-
 			for (Phase phase : phases) {
-
 				if (phase.getNumber() == Constant.PHASE_NOT_USABLE)
 					continue;
-
-				Map<String, Object[]> compliances = null;
-
-				compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances, factory);
-
-				previouscompliances = compliances;
-
+				Map<String, Object[]> compliances = ComputeCompliance(analysisStandard.getMeasures(), phase, actionPlanMeasures, previouscompliances, factory);
 				if (compliances.size() == 0)
 					continue;
-
-				data = "[";
-
+				chart.getDatasets().add(dataset = new Dataset<String>(messageSource.getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase", locale),
+						getColor(chart.getDatasets().size())));
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
-					data += (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]) + ",";
+					dataset.getData().add(compliance == null ? 0 : Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
 				}
-
-				data = data.substring(0, data.length() - 1);
-
-				data += "]";
-
-				serie = "";
-
-				serie = "{\"name\":\"" + messageSource.getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber() + "\", \"data\":" + data
-						+ ",\"valueDecimals\": 0}";
-
-				series += "," + serie;
-
+				previouscompliances = compliances;
 			}
-
 		}
-
-		series += "]";
-
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
+		return chart;
 	}
 
 	/**
@@ -939,8 +894,7 @@ public class ChartGenerator {
 		return chart.toString();
 
 	}
-	
-	
+
 	public Chart generateALEJSChart(Locale locale, String title, ALEChart... aleCharts) {
 		Chart chart = new Chart(title);
 		if (aleCharts.length == 1)
@@ -949,7 +903,6 @@ public class ChartGenerator {
 			buildMulitALESeries(chart, aleCharts);
 		return chart;
 	}
-
 
 	public String generateALEJsonChart(Locale locale, String chartitle, List<ALE> ales) {
 		return generateALEJsonChart(locale, chartitle, new ALEChart(ales));
@@ -1333,9 +1286,11 @@ public class ChartGenerator {
 
 		Map<String, Dataset<String>> datasets = new LinkedHashMap<>(references.size());
 
+		int colorIndex = 0;
+
 		for (String category : references.keySet()) {
 			chart.getLabels().add(category);
-			Dataset<String> dataset = new Dataset<String>(category, "");
+			Dataset<String> dataset = new Dataset<String>(category, getColor(colorIndex++));
 			chart.getDatasets().add(dataset);
 			datasets.put(category, dataset);
 		}
@@ -1349,8 +1304,16 @@ public class ChartGenerator {
 
 	}
 
+	private String getColor(int i, String defaultValue) {
+		return defaultColors == null ? defaultValue : i < 0 ? defaultColors.get(0) : i >= defaultColors.size() ? defaultColors.get(i % defaultColors.size()) : defaultColors.get(i);
+	}
+
+	private String getColor(int i) {
+		return getColor(i, null);
+	}
+
 	private void buildSingleALESerie(Chart chart, ALEChart data) {
-		Dataset<String> dataset = new Dataset<String>("", "");
+		Dataset<String> dataset = new Dataset<String>("ALE", getColor(0, "#1071b3"));
 		for (ALE ale : data.getAles()) {
 			chart.getLabels().add(ale.getAssetName());
 			dataset.getData().add(ale.getValue());

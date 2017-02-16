@@ -12,6 +12,8 @@ public class Chart {
 
 	private String title = null;
 	
+	private Object trickId = null;
+	
 	private List<String> labels = new ArrayList<>();
 
 	private List<String> xLabels = new ArrayList<>();
@@ -34,8 +36,15 @@ public class Chart {
 	public Chart(String title) {
 		this.title = title;
 	}
-
-
+	
+	/**
+	 * @param trickId
+	 * @param title
+	 */
+	public Chart(Object trickId, String title) {
+		this.trickId = trickId;
+		this.title = title;
+	}
 
 	/**
 	 * @return the labels
@@ -126,5 +135,19 @@ public class Chart {
 	 */
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	/**
+	 * @return the trickId
+	 */
+	public Object getTrickId() {
+		return trickId;
+	}
+
+	/**
+	 * @param trickId the trickId to set
+	 */
+	public void setTrickId(Object trickId) {
+		this.trickId = trickId;
 	}
 }

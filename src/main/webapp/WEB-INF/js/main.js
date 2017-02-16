@@ -30,6 +30,8 @@ function Application() {
 		},
 		delay : 5000
 	}
+	this.currencyFormat = new Intl.NumberFormat("fr-FR", {style: "currency", currency: "EUR", maximumFractionDigits:0, minimumFractionDigits:0});
+	this.numberFormat = new Intl.NumberFormat("fr-FR");
 }
 
 /**
