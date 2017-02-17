@@ -62,8 +62,8 @@
 				</div>
 				<div class='clearfix'></div>
 			</fieldset>
-			<div class="col-lg-9 max-height">
-				<ul class="nav nav-tabs col-xs-12 nav-tab" role='nav-tabs'>
+			<div class="col-md-9 max-height">
+				<ul class="nav nav-tabs nav-tab risk-evolution col-xs-12" role='nav-tabs'>
 					<li class='active'><a id="headingTotalALE" role='tab' role='button' data-toggle='tab' href="#tabTotalALE"> <spring:message code='label.title.total_ale'
 								text="Total ALE" />
 					</a></li>
