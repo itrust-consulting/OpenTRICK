@@ -169,12 +169,20 @@
 						</div>
 					</div>
 				</div>
-				<div id="chart_evolution_profitability_compliance_APPN" class="col-xs-6"></div>
-				<c:if test="${show_uncertainty}">
-					<div id="chart_evolution_profitability_compliance_APPO" class="col-xs-6"></div>
-					<div id="chart_evolution_profitability_compliance_APPP" class="col-xs-6"></div>
-				</c:if>
-
+				<c:choose>
+					<c:when test="${show_uncertainty}">
+						<div id="chart_evolution_profitability_APPO" class="col-sm-6"></div>
+						<div id="chart_compliance_APPO" class="col-sm-6"></div>
+						<div id="chart_evolution_profitability_APPN" class="col-sm-6"></div>
+						<div id="chart_compliance_APPN" class="col-sm-6"></div>
+						<div id="chart_evolution_profitability_APPP" class="col-sm-6"></div>
+						<div id="chart_compliance_APPP" class="col-sm-6"></div>
+					</c:when>
+					<c:otherwise>
+						<div id="chart_evolution_profitability_APPN" class="col-sm-6"></div>
+						<div id="chart_compliance_APPN" class="col-sm-6"></div>
+					</c:otherwise>
+				</c:choose>
 			</div>
 		</div>
 		<div class="tab-pane trick-chart-tab" id="tab-chart-budget" data-update-required="true" data-trigger="loadChartBudget">
@@ -188,11 +196,21 @@
 						</div>
 					</div>
 				</div>
-				<div id="chart_budget_APPN" class="col-xs-6"></div>
-				<c:if test="${show_uncertainty}">
-					<div id="chart_budget_APPO" class="col-xs-6"></div>
-					<div id="chart_budget_APPP" class="col-xs-6"></div>
-				</c:if>
+				<c:choose>
+					<c:when test="${show_uncertainty}">
+						<div id="chart_budget_cost_APPO" class="col-sm-6"></div>
+						<div id="chart_budget_workload_APPO" class="col-sm-6"></div>
+						<div id="chart_budget_cost_APPN" class="col-sm-6"></div>
+						<div id="chart_budget_workload_APPN" class="col-sm-6"></div>
+						<div id="chart_budget_cost_APPP" class="col-sm-6"></div>
+						<div id="chart_budget_workload_APPP" class="col-sm-6"></div>
+					</c:when>
+					<c:otherwise>
+						<div id="chart_budget_cost_APPN" class="col-sm-6"></div>
+						<div id="chart_budget_workload_APPN" class="col-sm-6"></div>
+					</c:otherwise>
+				</c:choose>
+				
 			</div>
 		</div>
 		<div class="tab-pane trick-chart-tab" id="tab-chart-parameter-evolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">

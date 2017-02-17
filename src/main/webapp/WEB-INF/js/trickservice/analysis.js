@@ -47,7 +47,8 @@ $(document).ready(function () {
 		},
 		chart: {
 			style: {
-				fontFamily: 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif'
+				fontFamily: 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif',
+				fontSize: 13
 			}
 		}
 	});
@@ -114,8 +115,7 @@ function aleChartOption(title) {
 			text: title
 		},
 		legend: {
-			position: "right",
-			fontSize: 13
+			position: "right"
 		},
 		tooltips: {
 			callbacks: {
@@ -133,6 +133,132 @@ function aleChartOption(title) {
 				ticks: {
 					userCallback: function (value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
+					}
+				}
+			}]
+		}
+	};
+}
+
+function evolutionProfitabilityComplianceOption(id,title) {
+	return id.startsWith("chart_evolution_profitability_") ? {
+		title: {
+			display: title != undefined,
+			fontSize: 16,
+			text: title
+		},
+		legend: {
+			position: "bottom"
+		},
+		tooltips: {
+			callbacks: {
+				label: function (item, data) {
+					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
+				}
+			}
+		},
+		scales: {
+			xAxes: [{
+				stacked: true
+			}],
+			yAxes: [{
+				stacked: true,
+				ticks: {
+					userCallback: function (value, index, values) {
+						return application.currencyFormat.format(value.toString()).replace("€", "k€");
+					}
+				}
+			}]
+		}
+	} : {
+		title: {
+			display: title != undefined,
+			fontSize: 16,
+			text: title
+		},
+		legend: {
+			position: "bottom"
+		},
+		tooltips: {
+			callbacks: {
+				label: function (item, data) {
+					return application.percentageFormat.format(parseInt(item.yLabel)/100);
+				}
+			}
+		},
+		scales: {
+			ticks: {
+				beginAtZero: true,
+				max: 100
+			},
+			yAxes: [{
+				stacked: false,
+				ticks: {
+					userCallback: function (value, index, values) {
+						return application.percentageFormat.format(parseInt(value)/100);
+					}
+				}
+			}]
+		}
+	};
+}
+
+function budgetChartOption(id,title) {
+	return id.startsWith("chart_budget_cost_") ? {
+		title: {
+			display: title != undefined,
+			fontSize: 16,
+			text: title
+		},
+		legend: {
+			position: "bottom"
+		},
+		tooltips: {
+			callbacks: {
+				label: function (item, data) {
+					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
+				}
+			}
+		},
+		scales: {
+			xAxes: [{
+				stacked: true
+			}],
+			yAxes: [{
+				stacked: true,
+				ticks: {
+					userCallback: function (value, index, values) {
+						return application.currencyFormat.format(value.toString()).replace("€", "k€");
+					}
+				}
+			}]
+		}
+	} : {
+		title: {
+			display: title != undefined,
+			fontSize: 16,
+			text: title
+		},
+		legend: {
+			position: "bottom"
+		},
+		tooltips: {
+			callbacks: {
+				label: function (item, data) {
+					return application.numberFormat.format(item.yLabel);
+				}
+			}
+		},
+		scales: {
+			ticks: {
+				beginAtZero: true,
+				max: 100
+			},
+			yAxes: [{
+				stacked: true,
+				ticks: {
+					userCallback: function (value, index, values) {
+						return application.numberFormat.format(value);
 					}
 				}
 			}]
@@ -456,7 +582,7 @@ function loadRiskChart(url, name, container, canvas) {
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (window[name] != undefined)
-				helpers.isArray(window.riskAssets) ? window[name].map(chart => chart.destroy()) : window[name].destroy();
+				helpers.isArray(window[name]) ? window[name].map(chart => chart.destroy()) : window[name].destroy();
 			if (helpers.isArray(response)) {
 				window[name] = [];
 				var $container = $(container).empty();
@@ -640,48 +766,84 @@ function loadComplianceChart(url) {
 
 
 function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
-	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
-		return false;
-	if ($('#chart_evolution_profitability_compliance_' + actionPlanType).is(":visible")) {
-		var $progress = $("#loading-indicator").show();
+	var $section = $("#tab-chart-evolution");
+	if ($section.is(":visible")) {
+		var $progress = $("#loading-indicator").show(), name = "evolutionProfitabilityComplianceChart";
 		$.ajax({
 			url: context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				if (response.chart == undefined || response.chart == null)
-					return true;
-				$('#chart_evolution_profitability_compliance_' + actionPlanType).loadOrUpdateChart(response);
+				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				if (window[name] == undefined)
+					window[name] = new Map();
+				charts.map(chart => {
+					if (chart.datasets && chart.datasets.length) {
+						if (window[name].has(chart.trickId)) {
+							window[name].get(chart.trickId).config.data = chart;
+							window[name].get(chart.trickId).update();
+						} else {
+							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#"+chart.trickId);
+							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+								type: "bar",
+								data: chart,
+								options:  evolutionProfitabilityComplianceOption(chart.trickId, chart.title)
+							}));
+						}
+					} else if (window[name].has(chart.trickId)) {
+						window[name].get(chart.trickId).destroy();
+						window[name].delete(chart.trickId);
+						$("#" + chart.trickId).empty();
+					}
+				});
 			},
 			error: unknowError
 		}).complete(function () {
 			$progress.hide();
 		});
 	} else
-		$("#tab-chart-evolution").attr("data-update-required", "true");
+		$section.attr("data-update-required", "true");
 	return false;
 }
 
 function budgetByActionPlanType(actionPlanType) {
-	if (!$('#chart_budget_' + actionPlanType).length)
-		return false;
-	if ($('#chart_budget_' + actionPlanType).is(":visible")) {
-		var $progress = $("#loading-indicator").show();
+	var $section = $("#tab-chart-budget");
+	if ($section.is(":visible")) {
+		var $progress = $("#loading-indicator").show(),name = "budgetCharts";
 		$.ajax({
 			url: context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				if (response.chart == undefined || response.chart == null)
-					return true;
-				$('#chart_budget_' + actionPlanType).loadOrUpdateChart(response);
+				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				if (window[name] == undefined)
+					window[name] = new Map();
+				charts.map(chart => {
+					if (chart.datasets && chart.datasets.length) {
+						if (window[name].has(chart.trickId)) {
+							window[name].get(chart.trickId).config.data = chart;
+							window[name].get(chart.trickId).update();
+						} else {
+							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#"+chart.trickId);
+							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+								type: "bar",
+								data: chart,
+								options:  budgetChartOption(chart.trickId, chart.title)
+							}));
+						}
+					} else if (window[name].has(chart.trickId)) {
+						window[name].get(chart.trickId).destroy();
+						window[name].delete(chart.trickId);
+						$("#" + chart.trickId).empty();
+					}
+				});
 			},
 			error: unknowError
 		}).complete(function () {
 			$progress.hide();
 		});
 	} else
-		$("#tab-chart-budget").attr("data-update-required", "true");
+		$section.attr("data-update-required", "true");
 	return false;
 }
 
@@ -846,34 +1008,24 @@ function manageRiskAcceptance() {
 }
 
 function loadChartAsset() {
-	if ($('#chart_ale_asset').length) {
-		if ($('#chart_ale_asset').is(":visible"))
+	var $section = $("#tab-chart-asset");
+		if ($section.is(":visible")){
 			loadALEChart(context + "/Analysis/Asset/Chart/Ale", "aleAsset", "#chart_ale_asset", "risk_ale_asset_canvas");
-		else
-			$("#tab-chart-asset").attr("data-update-required", "true");
-	}
-	if ($('#chart_ale_asset_type').length) {
-		if ($('#chart_ale_asset_type').is(":visible"))
 			loadALEChart(context + "/Analysis/Asset/Chart/Type/Ale", "aleAssetType", "#chart_ale_asset_type", "risk_ale_asset_type_canvas");
+		}
 		else
-			$("#tab-chart-asset").attr("data-update-required", "true");
-	}
+			$section.attr("data-update-required", "true");
 	return false;
 }
 
 function loadChartScenario() {
-	if ($('#chart_ale_scenario_type').length) {
-		if ($('#chart_ale_scenario_type').is(":visible"))
+	var $section = $("#tab-chart-scenario");
+		if ($section.is(":visible")){
 			loadALEChart(context + "/Analysis/Scenario/Chart/Type/Ale", "aleScenarioType", "#chart_ale_scenario_type", "risk_ale_scenario_type_canvas");
-		else
-			$("#tab-chart-scenario").attr("data-update-required", "true");
-	}
-	if ($('#chart_ale_scenario').length) {
-		if ($('#chart_ale_scenario').is(":visible"))
 			loadALEChart(context + "/Analysis/Scenario/Chart/Ale", "aleScenario", "#chart_ale_scenario", "risk_ale_scenario_canvas");
+		}
 		else
-			$("#tab-chart-scenario").attr("data-update-required", "true");
-	}
+			$section.attr("data-update-required", "true");
 	return false;
 }
 
@@ -949,7 +1101,7 @@ function loadALEChart(url, name, container, canvas) {
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
 				if (window[name] != undefined)
-					helpers.isArray(window.window[name]) ? window[name].map(chart => chart.destroy()) : window[name].destroy();
+					helpers.isArray(window[name].destroy) ? window[name].map(chart => chart.destroy()) : window[name].destroy();
 				if (helpers.isArray(response)) {
 					window[name] = [];
 					var $container = $(container).empty();

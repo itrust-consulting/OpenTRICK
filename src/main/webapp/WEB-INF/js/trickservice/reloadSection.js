@@ -47,6 +47,8 @@ function reloadSection(section, subSection, refreshOnly) {
 		}
 	} else if (section == "section_standard")
 		location.reload();
+	else if(section == "section_chart")
+		reloadCharts();
 	else {
 		var $section = $("#" + section);
 		if ($section.is(":visible")) {

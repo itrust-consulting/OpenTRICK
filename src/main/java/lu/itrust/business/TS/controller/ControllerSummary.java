@@ -6,12 +6,10 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -22,14 +20,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
-import lu.itrust.business.TS.model.general.Phase;
 
 /**
  * @author eomar
@@ -101,30 +97,13 @@ public class ControllerSummary {
 	 */
 	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
-
+	public @ResponseBody Chart[] chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale)
+			throws Exception {
 		// retireve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-		// load all phases of analysis
-		List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
-
-		// load all summaries of analysis
-		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
-
-		for (SummaryStage stage : summaryStages) {
-			Hibernate.initialize(stage);
-			for (SummaryStandardConformance conformance : stage.getConformances()) {
-				Hibernate.initialize(conformance);
-				Hibernate.initialize(conformance.getAnalysisStandard().getStandard());
-			}
-		}
-
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
 		// generate chart
-		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), summaryStages, phases, actionPlanType,
-				customLocale != null ? customLocale : locale);
+		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS),
+				serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType), servicePhase.getAllFromAnalysis(idAnalysis), actionPlanType, locale);
 	}
 
 	/**
@@ -140,20 +119,11 @@ public class ControllerSummary {
 	 */
 	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
-
+	public @ResponseBody Chart[] chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-		// retrieve phases
-		List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
-
-		// retrieve summaries
-		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
-
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
 		// return chart
-		return chartGenerator.budget(summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
+		return chartGenerator.budget(serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType), servicePhase.getAllFromAnalysis(idAnalysis),
+				actionPlanType, locale);
 	}
 }

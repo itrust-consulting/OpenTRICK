@@ -99,7 +99,8 @@ $(document).ready(function() {
 		},
 		chart : {
 			style : {
-				fontFamily : 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif'
+				fontFamily : 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif',
+				fontSize: 13
 			}
 		}
 	});

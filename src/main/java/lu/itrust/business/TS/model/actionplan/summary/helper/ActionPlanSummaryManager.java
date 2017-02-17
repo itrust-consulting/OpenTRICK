@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.actionplan.summary.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,7 +90,7 @@ public class ActionPlanSummaryManager {
 
 	public static Map<String, List<String>> buildTable(List<SummaryStage> summaryStages, List<Phase> phases) {
 		if (summaryStages.isEmpty())
-			return null;
+			return Collections.emptyMap();
 		List<String> firstRows = generateHeader(summaryStages.get(0).getConformances());
 
 		Map<String, List<String>> summaries = new LinkedHashMap<String, List<String>>(firstRows.size());

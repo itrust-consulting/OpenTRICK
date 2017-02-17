@@ -102,6 +102,7 @@
 					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}};
 					resolveMessage("label.title.impact", "<spring:message code='label.title.impact' />");
 					resolveMessage("label.title.likelihood", "<spring:message code='label.title.likelihood' />");
+					
 				-->
 			</script>
 		</c:if>
@@ -114,6 +115,7 @@
 		application['isLinkedToProject'] = ${isLinkedToProject};
 		application['hasMaturity'] = ${hasMaturity};
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
+		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");
 		-->
 	</script>
 </body>
