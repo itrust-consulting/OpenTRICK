@@ -55,6 +55,12 @@ body {
 	padding-left: 15px;
 }
 
+.risk-evolution{
+	left: inherit;
+	right:inherit;
+	padding-left: 0;
+}
+
 .nav-analysis li.dropdown-submenu.active>a:HOVER {
 	cursor: pointer;
 }
