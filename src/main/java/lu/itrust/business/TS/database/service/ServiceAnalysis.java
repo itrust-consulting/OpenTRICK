@@ -94,8 +94,11 @@ public interface ServiceAnalysis {
 
 	public AnalysisType getAnalysisTypeById(int idAnalysis);
 
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, AnalysisType type,
+			List<AnalysisRight> rights);
+	
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights);
-
+	
 	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version);
 
 	public Analysis getByIdentifierAndVersion(String identifier, String version);
@@ -123,6 +126,8 @@ public interface ServiceAnalysis {
 	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID);
 
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
+
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, AnalysisType type, List<AnalysisRight> rights);
 
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights);
 
@@ -154,13 +159,13 @@ public interface ServiceAnalysis {
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer);
 
 	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter);
-
+	
 	public Analysis getProfileByName(String string);
-	
-	public String getProjectIdById(Integer idAnalysis);
 
-	public String getProjectIdByIdentifier(String identifier);
+	public String getProjectIdById(Integer idAnalysis);
 	
+	public String getProjectIdByIdentifier(String identifier);
+
 	public String getVersionOfAnalysis(Integer idAnalysis);
 
 	public boolean hasData(Integer idAnalysis);
@@ -184,5 +189,7 @@ public interface ServiceAnalysis {
 	public void save(Analysis analysis);
 
 	public void saveOrUpdate(Analysis analysis);
+
+	
 
 }

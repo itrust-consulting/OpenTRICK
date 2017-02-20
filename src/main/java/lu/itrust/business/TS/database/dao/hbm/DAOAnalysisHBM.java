@@ -429,12 +429,25 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.orElse(null);
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, AnalysisType type,
+			List<AnalysisRight> rights) {
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where "
+				+ "userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and "
+				+ "analysis.identifier = :identifier and analysis.type = :type and analysis.data = true and "
+				+ "analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc";
+		return getSession().createQuery(query, Analysis.class).setParameter("username", username).setParameterList("rights", rights).setParameter("identifier", identifier)
+				.setParameter("customer", id).setParameter("type", type).getResultList().stream().map(analysis -> new AnalysisBaseInfo((Analysis) analysis))
+				.collect(Collectors.toList());
+	}
+
 	@Override
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights) {
-		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.identifier = :identifier  and analysis.data = true and ";
-		query += "analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc";
-		return (List<AnalysisBaseInfo>) getSession().createQuery(query).setParameter("username", username).setParameterList("rights", rights).setParameter("identifier", identifier)
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where "
+				+ "userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and "
+				+ "analysis.identifier = :identifier  and analysis.data = true and "
+				+ "analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc";
+		return getSession().createQuery(query, Analysis.class).setParameter("username", username).setParameterList("rights", rights).setParameter("identifier", identifier)
 				.setParameter("customer", id).getResultList().stream().map(analysis -> new AnalysisBaseInfo((Analysis) analysis)).collect(Collectors.toList());
 	}
 
@@ -536,8 +549,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int getDefaultProfileId(AnalysisType analysisType) {
-		return (int) getSession().createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type").setParameter("type", analysisType).uniqueResultOptional()
-				.orElse(-1);
+		return (int) getSession()
+				.createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type")
+				.setParameter("type", analysisType).uniqueResultOptional().orElse(-1);
+	}
+
+	@Override
+	public List<Analysis> getDefaultProfiles() {
+		return getSession().createQuery("Select analysis From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true", Analysis.class).getResultList();
 	}
 
 	/**
@@ -555,26 +574,26 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.uniqueResultOptional().orElse(null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights) {
-		return getSession()
-				.createQuery(
-						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight where userAnalysisRight.user.login = :username and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights")
-				.setParameter("username", userName).setParameterList("rights", rights).getResultList();
+	public List<Analysis> getFromUserNameAndNotEmpty(String username, List<AnalysisRight> rights) {
+		return getSession().createQuery(
+				"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight where userAnalysisRight.user.login = :username and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights",
+				Analysis.class).setParameter("username", username).setParameterList("rights", rights).getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights) {
-		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
-		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and ";
-		query += "analysis.customer.id = :customer group by analysis.identifier order by analysis.label";
-		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameterList("rights", rights).setParameter("customer", id)
-				.getResultList();
-		for (Analysis analysis : analyses)
-			analysisBaseInfos.add(new AnalysisBaseInfo(analysis));
-		return analysisBaseInfos;
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, AnalysisType type, List<AnalysisRight> rights) {
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.type = :type and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label";
+		return getSession().createQuery(query, Analysis.class).setParameter("type", type).setParameter("username", username).setParameterList("rights", rights)
+				.setParameter("customer", id).getResultList().stream().map(analysis -> new AnalysisBaseInfo(analysis)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, List<AnalysisRight> rights) {
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label";
+		return getSession().createQuery(query, Analysis.class).setParameter("username", username).setParameterList("rights", rights).setParameter("customer", id).getResultList()
+				.stream().map(analysis -> new AnalysisBaseInfo(analysis)).collect(Collectors.toList());
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -723,6 +742,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	}
 
 	@Override
+	public boolean hasDefault(AnalysisType analysisType) {
+		return getSession()
+				.createQuery("Select count(analysis) > 0 From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type",
+						Boolean.class)
+				.setParameter("type", analysisType).uniqueResultOptional().orElse(false);
+	}
+
+	@Override
 	public boolean hasProject(int idAnalysis) {
 		String projectId = getProjectIdById(idAnalysis);
 		return projectId != null && !projectId.isEmpty();
@@ -745,6 +772,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public boolean isAnalysisUncertainty(Integer analysisID) {
 		String query = "Select analysis.uncertainty from Analysis as analysis where analysis.id= :id";
 		return (boolean) getSession().createQuery(query).setParameter("id", analysisID).uniqueResultOptional().orElse(false);
+	}
+
+	@Override
+	public boolean isDefaultProfile(int analysisId) {
+		return getSession()
+				.createQuery("Select count(analysis) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.defaultProfile = true and analysis.profile = true",
+						Boolean.class)
+				.setParameter("idAnalysis", analysisId).uniqueResultOptional().orElse(false);
 	}
 
 	/**
@@ -853,26 +888,5 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			getSession().delete(tmpstandard);
 		}
 
-	}
-
-	@Override
-	public boolean hasDefault(AnalysisType analysisType) {
-		return getSession()
-				.createQuery("Select count(analysis) > 0 From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type",
-						Boolean.class)
-				.setParameter("type", analysisType).uniqueResultOptional().orElse(false);
-	}
-
-	@Override
-	public List<Analysis> getDefaultProfiles() {
-		return getSession().createQuery("Select analysis From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true", Analysis.class).getResultList();
-	}
-
-	@Override
-	public boolean isDefaultProfile(int analysisId) {
-		return getSession()
-				.createQuery("Select count(analysis) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.defaultProfile = true and analysis.profile = true",
-						Boolean.class)
-				.setParameter("idAnalysis", analysisId).uniqueResultOptional().orElse(false);
 	}
 }

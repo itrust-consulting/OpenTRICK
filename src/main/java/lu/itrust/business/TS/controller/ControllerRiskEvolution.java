@@ -31,10 +31,12 @@ import lu.itrust.business.TS.component.ALEChart;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.ComplianceChartData;
 import lu.itrust.business.TS.component.Distribution;
+import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -75,6 +77,7 @@ public class ControllerRiskEvolution {
 	@RequestMapping
 	public String home(Principal principal, HttpSession session, Model model) throws Exception {
 		LoadUserAnalyses(session, principal, model);
+		model.addAttribute("types", AnalysisType.values());
 		return "analyses/risk-evolution/home";
 	}
 
@@ -83,10 +86,18 @@ public class ControllerRiskEvolution {
 	}
 
 	@RequestMapping(value = "/Chart/Total-ALE", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String loadTotalALE(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
+	public @ResponseBody Chart loadTotalALE(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
 			Locale locale) {
 		return computeTotalALE(loadAnalyses(principal, customerId, analysisIds), locale);
 	}
+	
+	@RequestMapping(value = "/Chart/Total-Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Chart loadTotalRisk(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
+			Locale locale) {
+		return computeTotalRisk(loadAnalyses(principal, customerId, analysisIds), locale);
+	}
+
+	
 
 	private List<Analysis> loadAnalyses(Principal principal, int customerId, List<Integer> analysisIds) {
 		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
@@ -101,7 +112,7 @@ public class ControllerRiskEvolution {
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-scenario-type", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String loadALEByScenarioType(Principal principal, @RequestParam(name = "customerId") int customerId,
+	public @ResponseBody Chart loadALEByScenarioType(Principal principal, @RequestParam(name = "customerId") int customerId,
 			@RequestParam(name = "analyses") List<Integer> analysisIds, Locale locale) {
 		int index = 0;
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
@@ -122,11 +133,11 @@ public class ControllerRiskEvolution {
 			ales.sort(ALE.Comparator().reversed());
 			charts[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
 		}
-		return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), charts);
+		return chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), charts);
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-asset-type", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String loadALEByAssetType(Principal principal, @RequestParam(name = "customerId") int customerId,
+	public @ResponseBody Chart loadALEByAssetType(Principal principal, @RequestParam(name = "customerId") int customerId,
 			@RequestParam(name = "analyses") List<Integer> analysisIds, Locale locale) {
 		int index = 0;
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
@@ -147,15 +158,15 @@ public class ControllerRiskEvolution {
 			ales.sort(ALE.Comparator().reversed());
 			charts[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
 		}
-		return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), charts);
+		return chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), charts);
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-asset", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String loadALEByAsset(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
-			Locale locale) {
+	public @ResponseBody List<Chart> loadALEByAsset(Principal principal, @RequestParam(name = "customerId") int customerId,
+			@RequestParam(name = "analyses") List<Integer> analysisIds, Locale locale) {
 		int index = 0;
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
-		ALEChart[] charts = new ALEChart[analyses.size()];
+		ALEChart[] chartData = new ALEChart[analyses.size()];
 		for (Analysis analysis : analyses) {
 			List<Assessment> assessments = analysis.getSelectedAssessments();
 			Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
@@ -170,32 +181,31 @@ public class ControllerRiskEvolution {
 			}
 
 			ales.sort(ALE.Comparator().reversed());
-			charts[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
+			chartData[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
 		}
 
-		if (charts.length == 0 || charts[0].getAles().size() <= aleChartSingleMaxSize)
-			return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), charts);
+		List<Chart> charts = new LinkedList<>();
+		if (chartData.length == 0 || chartData[0].getAles().size() <= aleChartSingleMaxSize)
+			charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), chartData));
 		else {
-			String assetCharts = "";
-			List<ALE> ales = charts[0].getAles();
+			List<ALE> ales = chartData[0].getAles();
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			int multiplicator = ales.size() / distribution.getDivisor();
 			for (int i = 0; i < multiplicator; i++) {
-				charts[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
-				assetCharts += String.format("%s%s", assetCharts.isEmpty() ? "" : ",",
-						chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
-								String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), charts));
+				chartData[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
+				charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
+						String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), chartData));
 			}
-			return "[" + assetCharts + "]";
 		}
+		return charts;
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-scenario", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String loadALEByScenario(Principal principal, @RequestParam(name = "customerId") int customerId,
+	public @ResponseBody List<Chart> loadALEByScenario(Principal principal, @RequestParam(name = "customerId") int customerId,
 			@RequestParam(name = "analyses") List<Integer> analysisIds, Locale locale) {
 		int index = 0;
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
-		ALEChart[] charts = new ALEChart[analyses.size()];
+		ALEChart[] chartData = new ALEChart[analyses.size()];
 		for (Analysis analysis : analyses) {
 			List<Assessment> assessments = analysis.getSelectedAssessments();
 			Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
@@ -210,71 +220,82 @@ public class ControllerRiskEvolution {
 			}
 
 			ales.sort(ALE.Comparator().reversed());
-			charts[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
+			chartData[index++] = new ALEChart(analysis.getLabel() + " - " + analysis.getVersion(), ales);
 		}
 
-		if (charts.length == 0 || charts[0].getAles().size() <= aleChartSingleMaxSize)
-			return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), charts);
+		List<Chart> charts = new LinkedList<>();
+		if (chartData.length == 0 || chartData[0].getAles().size() <= aleChartSingleMaxSize)
+			charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), chartData));
 		else {
-			String assetCharts = "";
-			List<ALE> ales = charts[0].getAles();
+			List<ALE> ales = chartData[0].getAles();
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			int multiplicator = ales.size() / distribution.getDivisor();
 			for (int i = 0; i < multiplicator; i++) {
-				charts[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
-				assetCharts += String.format("%s%s", assetCharts.isEmpty() ? "" : ",",
-						chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
-								String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), charts));
+				chartData[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
+				charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
+						String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), chartData));
 			}
-			return "[" + assetCharts + "]";
 		}
+		return charts;
 	}
 
 	@RequestMapping(value = "/Chart/Compliance", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object compliance(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
+	public @ResponseBody List<Chart> compliance(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
 			Locale locale) {
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
+		List<Chart> charts = new LinkedList<>();
 		if (analyses.isEmpty())
-			return chartGenerator.compliance(locale, new ComplianceChartData("27001", ""));
-		Map<String, List<ComplianceChartData>> complianceCharts = new LinkedHashMap<>(analyses.get(0).getAnalysisStandards().size());
-		String analysisName = analyses.get(0).getLabel() + " " + analyses.get(0).getVersion();
-		analyses.get(0).getAnalysisStandards().forEach(analysisStandard -> {
-			List<ComplianceChartData> charts = new LinkedList<>();
-			charts.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(), analysisName, analysisStandard.getMeasures(), analyses.get(0).getExpressionParameters()));
-			complianceCharts.put(analysisStandard.getStandard().getLabel(), charts);
+			charts.add(chartGenerator.compliance(locale, new ComplianceChartData("27001", null)));
+		else {
+			Map<String, List<ComplianceChartData>> complianceCharts = new LinkedHashMap<>(analyses.get(0).getAnalysisStandards().size());
+			String analysisName = analyses.get(0).getLabel() + " " + analyses.get(0).getVersion();
+			analyses.get(0).getAnalysisStandards().forEach(analysisStandard -> {
+				List<ComplianceChartData> data = new LinkedList<>();
+				data.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(), analysisName, analysisStandard.getMeasures(),
+						analyses.get(0).getExpressionParameters()));
+				complianceCharts.put(analysisStandard.getStandard().getLabel(), data);
+			});
 
-		});
-
-		for (int i = 1; i < analyses.size(); i++) {
-			Analysis analysis = analyses.get(i);
-			String name = analysis.getLabel() + " " + analysis.getVersion();
-			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-				List<ComplianceChartData> charts = complianceCharts.get(analysisStandard.getStandard().getLabel());
-				if (charts != null)
-					charts.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(),name, analysisStandard.getMeasures(), analysis.getExpressionParameters()));
+			for (int i = 1; i < analyses.size(); i++) {
+				Analysis analysis = analyses.get(i);
+				String name = analysis.getLabel() + " " + analysis.getVersion();
+				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+					List<ComplianceChartData> data = complianceCharts.get(analysisStandard.getStandard().getLabel());
+					if (data != null)
+						data.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(), name, analysisStandard.getMeasures(), analysis.getExpressionParameters()));
+				}
 			}
+
+			for (List<ComplianceChartData> chartDatas : complianceCharts.values())
+				charts.add(chartGenerator.compliance(locale, chartDatas.toArray(new ComplianceChartData[chartDatas.size()])));
 		}
-		String charts = "";
-		for (List<ComplianceChartData> chartDatas : complianceCharts.values())
-			charts += (charts.isEmpty() ? "" : ",") + chartGenerator.compliance(locale, chartDatas.toArray(new ComplianceChartData[chartDatas.size()]) );
-		return complianceCharts.size() > 1 ? "[" + charts + "]" : charts;
+		return charts;
 	}
 
-	@RequestMapping(value = "/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
-		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.READ));
+	@RequestMapping(value = "/Type/{type}/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable AnalysisType type, @PathVariable Integer id, Principal principal) {
+		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), type, AnalysisRight.highRightFrom(AnalysisRight.READ));
 	}
 
-	@RequestMapping(value = "/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id, @PathVariable String identifier, Principal principal) {
-		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisRight.highRightFrom(AnalysisRight.READ));
+	@RequestMapping(value = "/Type/{type}/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable AnalysisType type, @PathVariable Integer id, @PathVariable String identifier,
+			Principal principal) {
+		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, type,
+				AnalysisRight.highRightFrom(AnalysisRight.READ));
+	}
+
+	private Chart computeTotalALE(List<Analysis> analyses, Locale locale) {
+		List<ALE> ales = new ArrayList<>(analyses.size());
+		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + " " + analysis.getVersion(),
+				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
+		return chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale), ales);
 	}
 	
-	private String computeTotalALE(List<Analysis> analyses, Locale locale) {
+	private Chart computeTotalRisk(List<Analysis> analyses, Locale locale) {
 		List<ALE> ales = new ArrayList<>(analyses.size());
-		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + "<br />" + analysis.getVersion(),
-				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
-		return chartGenerator.generateALEJsonChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale) , ales);
+		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + " " + analysis.getVersion(),
+				analysis.getAssessments().stream().filter(Assessment::isSelected).count())));
+		return chartGenerator.generateRsikJSChart(locale, messageSource.getMessage("label.title.chart.total_risk", null, "Total Risk", locale), ales);
 	}
 
 }

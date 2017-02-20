@@ -25,6 +25,12 @@ public interface DAOAnalysis {
 
 	public Long countByIdentifier(String identifier);
 
+	public int countNotEmpty();
+
+	public int countNotEmptyNoItemInformationAndRiskInformation();
+
+	public Long countNotProfileDistinctIdentifier();
+
 	public void delete(Analysis analysis);
 
 	public void delete(Integer idAnalysis);
@@ -35,13 +41,21 @@ public interface DAOAnalysis {
 
 	public boolean exists(String identifier, String version);
 
+	public boolean existsByNameAndCustomerId(String name, int idCustomer);
+
 	public Analysis get(Integer idAnalysis);
 
 	public List<Analysis> getAll();
 
+	public List<Analysis> getAll(List<Integer> ids);
+
 	public List<Integer> getAllAnalysisIDs();
 
 	public List<Analysis> getAllByIdentifier(String identifier);
+
+	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name);
+
+	public List<Analysis> getAllContains(MeasureDescription measureDescription);
 
 	public List<Analysis> getAllFromCustomer(Customer customer);
 
@@ -53,15 +67,23 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version);
 
+	public List<Analysis> getAllFromOwner(User user);
+
 	public List<Analysis> getAllFromUser(User user);
 
 	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID);
 
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize);
 
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
+
 	public List<Analysis> getAllNotEmpty();
 
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize);
+
 	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer);
+	
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
 
 	public List<String> getAllNotEmptyVersion(int analysisId);
 
@@ -71,117 +93,52 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getAllProfiles();
 
-	public List<String> getAllVersion(String identifier);
-
-	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights);
-
-	public Integer getCustomerIdByIdAnalysis(int analysisId);
-
-	public String getCustomerNameFromId(int idAnalysis);
-
-	public List<Customer> getCustomersByIdAnalysis(String identifier);
-
-	public Analysis getDefaultProfile(AnalysisType analysisType);
-	
-	public List<Analysis> getDefaultProfiles();
-
-	public int getDefaultProfileId(AnalysisType analysisType);
-
-	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID);
-
-	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights);
-
-	public String getIdentifierByIdAnalysis(int analysisId);
-
-	public Integer getIdFromIdentifierAndVersion(String identifier, String string);
-
-	public String getLabelFromId(int idAnalysis);
-
-	public Language getLanguageOfAnalysis(Integer idAnalysis);
-
-	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter);
-
-	public String getVersionOfAnalysis(Integer idAnalysis);
-
-	public boolean hasData(Integer idAnalysis);
-
-	public boolean isAnalysisOwner(Integer analysisId, String userName);
-
-	public boolean isAnalysisUncertainty(Integer analysisID);
-
-	public boolean isProfile(Integer idAnalysis);
-
-	public void save(Analysis analysis);
-
-	public void saveOrUpdate(Analysis analysis);
-
-	public List<Customer> getCustomersByIdAnalysis(int analysisId);
-
-	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer);
-
-	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer);
-
-	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name);
-
-	public boolean isProfileNameInUsed(String name);
+	public List<String> getAllProjectIds();
 
 	public List<String> getAllVersion(Integer analysisId);
 
-	public List<Analysis> getAll(List<Integer> ids);
+	public List<String> getAllVersion(String identifier);
 
-	public List<Analysis> getAllContains(MeasureDescription measureDescription);
+	public AnalysisType getAnalysisTypeById(int idAnalysis);
 
-	public Long countNotProfileDistinctIdentifier();
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, AnalysisType type,
+			List<AnalysisRight> rights);
 
-	public List<String> getNotProfileIdentifiers(int page, int size);
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights);
 
-	public List<Analysis> getAllFromOwner(User user);
-
-	public boolean hasData(String identifier);
-
-	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
-
-	public boolean existsByNameAndCustomerId(String name, int idCustomer);
-
-	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize);
-
-	public int countNotEmpty();
+	public Analysis getByAnalysisStandardId(int idAnalysisStandard);
 
 	public Analysis getByCustomerAndNameAndVersion(int customerId, String name, String version);
 
 	public Analysis getByIdentifierAndVersion(String identifier, String version);
 
-	public Analysis getProfileByName(String name);
-
-	public Analysis getByAnalysisStandardId(int idAnalysisStandard);
-
-	public int countNotEmptyNoItemInformationAndRiskInformation();
-
-	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
-
-	public String getProjectIdById(Integer idAnalysis);
-
-	public boolean hasProject(int idAnalysis);
-
-	public String getProjectIdByIdentifier(String identifier);
-
-	public List<String> getAllProjectIds();
-
-	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids);
-
 	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId);
 
 	public Analysis getByUsernameAndId(String username, Integer analysisId);
 
+	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids);
+
+	public Integer getCustomerIdByIdAnalysis(int analysisId);
+
+	public String getCustomerNameFromId(int idAnalysis);
+
+	public List<Customer> getCustomersByIdAnalysis(int analysisId);
+
+	public List<Customer> getCustomersByIdAnalysis(String identifier);
+
+	public Analysis getDefaultProfile(AnalysisType analysisType);
+
+	public int getDefaultProfileId(AnalysisType analysisType);
+
+	public List<Analysis> getDefaultProfiles();
+
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID);
+
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
 
-	/**
-	 * Only analysis user can export.
-	 * @param name
-	 * @param idCustomer
-	 * @return Object[2],  [0]=identifier, [1] = name
-	 */
-	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer);
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, AnalysisType type, List<AnalysisRight> rights);
+
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, List<AnalysisRight> rights);
 
 	/**
 	 * Only analysis user can export.
@@ -192,10 +149,58 @@ public interface DAOAnalysis {
 	 */
 	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username);
 
-	public AnalysisType getAnalysisTypeById(int idAnalysis);
+	/**
+	 * Only analysis user can export.
+	 * @param name
+	 * @param idCustomer
+	 * @return Object[2],  [0]=identifier, [1] = name
+	 */
+	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer);
+
+	public String getIdentifierByIdAnalysis(int analysisId);
+
+	public Integer getIdFromIdentifierAndVersion(String identifier, String string);
+
+	public String getLabelFromId(int idAnalysis);
+
+	public Language getLanguageOfAnalysis(Integer idAnalysis);
+
+	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer);
+
+	public List<String> getNotProfileIdentifiers(int page, int size);
+
+	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter);
+
+	public Analysis getProfileByName(String name);
+
+	public String getProjectIdById(Integer idAnalysis);
+
+	public String getProjectIdByIdentifier(String identifier);
+
+	public String getVersionOfAnalysis(Integer idAnalysis);
+
+	public boolean hasData(Integer idAnalysis);
+
+	public boolean hasData(String identifier);
 
 	public boolean hasDefault(AnalysisType analysisType);
 
+	public boolean hasProject(int idAnalysis);
+
+	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer);
+
+	public boolean isAnalysisOwner(Integer analysisId, String userName);
+
+	public boolean isAnalysisUncertainty(Integer analysisID);
+
 	public boolean isDefaultProfile(int analysisId);
+
+	public boolean isProfile(Integer idAnalysis);
+
+	public boolean isProfileNameInUsed(String name);
+
+	public void save(Analysis analysis);
+
+	public void saveOrUpdate(Analysis analysis);
 
 }

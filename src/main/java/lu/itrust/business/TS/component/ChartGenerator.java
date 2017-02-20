@@ -187,7 +187,7 @@ public class ChartGenerator {
 		}
 	}
 
-	private Chart generateALEJSChart(Locale locale, String title, List<ALE> ales) {
+	public Chart generateALEJSChart(Locale locale, String title, List<ALE> ales) {
 		return generateALEJSChart(locale, title, new ALEChart(ales));
 	}
 
@@ -524,56 +524,36 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String compliance(Locale locale, ComplianceChartData... measureChartDatas) {
-
+	public Chart compliance(Locale locale, ComplianceChartData... measureChartDatas) {
 		ComplianceChartData reference = measureChartDatas[0];
-
 		Map<String, Object[]> compliances = ComputeComplianceBefore(reference.getMeasures(), reference.getFactory());
-
-		JsonChart chart = new JsonChart("\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}",
-				"\"title\": { \"marginLeft\": -50, \"text\":\""
-						+ messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { reference.getStandard() }, reference + " measure compliance", locale)
-						+ "\"}",
-				"\"pane\": {\"size\": \"100%\"}", "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\",\"layout\": \"vertical\",  \"y\": 70 }");
-
-		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6}}");
-
+		Chart chart = new Chart(reference.getStandard(),
+				messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { reference.getStandard() }, reference + " measure compliance", locale));
 		if (measureChartDatas.length > 0) {
-
-			chart.setyAxis(
-					"\"yAxis\": {\"gridLineInterpolation\": \"polygon\" , \"lineWidth\":0,\"min\":0,\"max\":100, \"tickInterval\": 20, \"labels\":{ \"format\": \"{value}%\"} }");
-
-			String series = "";
-			String categories = "";
-			String data = "";
+			Dataset<String> dataset = new Dataset<String>(reference.getAnalysisKey(), getColor(chart.getDatasets().size()));
 			for (String key : compliances.keySet()) {
 				Object[] compliance = compliances.get(key);
-				data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
-				categories += (categories.isEmpty() ? "" : ",") + "\"" + key + "\"";
+				dataset.getData().add((int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+				chart.getLabels().add(key);
 			}
-
-			series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + reference.getAnalysisKey() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
-
+			chart.getDatasets().add(dataset);
 			if (measureChartDatas.length > 1) {
 				Collection<String> keys = compliances.keySet();
 				for (int i = 1; i < measureChartDatas.length; i++) {
 					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures(), measureChartDatas[i].getFactory());
-					data = "";
+					dataset = new Dataset<String>(measureChartDatas[i].getAnalysisKey(), getColor(chart.getDatasets().size()));
 					for (String key : keys) {
 						Object[] compliance = compliances.get(key);
 						if (compliance == null)
-							data += (data.isEmpty() ? "0" : ",0");
+							dataset.getData().add(0);
 						else
-							data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
+							dataset.getData().add((int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
 					}
-					series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + measureChartDatas[i].getAnalysisKey() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
+					chart.getDatasets().add(dataset);
 				}
 			}
-			chart.setxAxis(String.format("\"xAxis\":{\"categories\":[%s]}", categories));
-			chart.setSeries(String.format("\"series\":[%s]", series));
 		}
-
-		return chart.toString();
+		return chart;
 	}
 
 	/**
@@ -737,21 +717,6 @@ public class ChartGenerator {
 		return charts;
 	}
 
-	public String generateALEJsonChart(Locale locale, String chartitle, ALEChart... aleCharts) {
-		JsonChart chart = new JsonChart("\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}",
-				"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
-				"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
-
-		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 },\"series\":{\"minPointLength\" : 1.6}}");
-		chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
-		if (aleCharts.length == 1)
-			buildSingleALESerie(chart, aleCharts[0]);
-		else if (aleCharts.length > 0)
-			buildMulitALESeries(chart, aleCharts);
-		return chart.toString();
-
-	}
-
 	public Chart generateALEJSChart(Locale locale, String title, ALEChart... aleCharts) {
 		Chart chart = new Chart(title);
 		if (aleCharts.length == 1)
@@ -759,10 +724,6 @@ public class ChartGenerator {
 		else if (aleCharts.length > 0)
 			buildMulitALESeries(chart, aleCharts);
 		return chart;
-	}
-
-	public String generateALEJsonChart(Locale locale, String chartitle, List<ALE> ales) {
-		return generateALEJsonChart(locale, chartitle, new ALEChart(ales));
 	}
 
 	public Chart generateRiskHeatMap(Integer idAnalysis) {
@@ -1052,78 +1013,6 @@ public class ChartGenerator {
 				.replaceAll("\r|\n", " ");
 	}
 
-	private void buildMulitALESeries(JsonChart chart, ALEChart... aleCharts) {
-
-		Map<String, Map<String, ALE>> aleChartMapper = new LinkedHashMap<>();
-
-		Map<String, ALE> references = new LinkedHashMap<>(aleCharts[0].getAles().size());
-
-		aleCharts[0].getAles().forEach(ale -> references.put(ale.getAssetName(), ale));
-
-		aleChartMapper.put(aleCharts[0].getName(), references);
-
-		for (int i = 1; i < aleCharts.length; i++) {
-			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
-					.collect(Collectors.toMap(ALE::getAssetName, Function.identity()));
-			if (!aleMapper.isEmpty())
-				aleChartMapper.put(aleCharts[i].getName(), aleMapper);
-		}
-
-		double max = aleChartMapper.values().stream().flatMap(aleMapper -> aleMapper.values().stream()).mapToDouble(ALE::getValue).max().orElse(0d);
-
-		int count = references.size();
-
-		String categories = "", series = "";
-
-		for (String category : references.keySet())
-			categories += String.format("%s\"%s\"", categories.isEmpty() ? "" : ",", category);
-
-		for (Entry<String, Map<String, ALE>> entry : aleChartMapper.entrySet()) {
-			String dataALEs = "";
-			for (String category : references.keySet()) {
-				ALE ale = entry.getValue().get(category);
-				dataALEs += String.format("%s%f", dataALEs.isEmpty() ? "" : ",", ale == null ? 0d : ale.getValue());
-			}
-			series += String.format("%s{ \"name\":\"%s\",\"data\":[%s]}", series.isEmpty() ? "" : ",", entry.getKey(), dataALEs);
-		}
-
-		chart.setSeries("\"series\":[" + series + "]");
-
-		chart.setxAxis("\"xAxis\":{\"categories\":[" + categories + "], \"min\":\"0\", \"max\":\"" + (count - 1) + "\"}");
-
-		chart.setyAxis("\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}");
-	}
-
-	private void buildSingleALESerie(JsonChart chart, ALEChart data) {
-
-		double max = data.getAles().stream().mapToDouble(ALE::getValue).max().orElse(0d);
-
-		int count = data.getAles().size();
-
-		String categories = "[";
-
-		String dataALEs = "[";
-
-		for (ALE ale : data.getAles()) {
-			categories += "\"" + ale.getAssetName() + "\",";
-			dataALEs += ale.getValue() + ",";
-		}
-
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-		}
-		categories += "]";
-		dataALEs += "]";
-
-		chart.setxAxis("\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (count - 1) + "\"}");
-
-		chart.setSeries("\"series\":[{ \"name\":\"" + data.getName() + "\",\"data\":" + dataALEs + "}]");
-
-		chart.setyAxis("\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}");
-
-	}
-
 	private void buildMulitALESeries(Chart chart, ALEChart... aleCharts) {
 
 		Map<String, Map<String, ALE>> aleChartMapper = new LinkedHashMap<>();
@@ -1132,30 +1021,32 @@ public class ChartGenerator {
 
 		aleCharts[0].getAles().forEach(ale -> references.put(ale.getAssetName(), ale));
 
-		aleChartMapper.put(aleCharts[0].getName(), references);
-
+		Map<String, Dataset<String>> datasets = new LinkedHashMap<>(references.size());
+		
+		Dataset<String> dataset = new Dataset<String>(aleCharts[0].getName(), getColor(chart.getDatasets().size()));
+		
+		chart.getDatasets().add(dataset);
+		datasets.put(dataset.getLabel(), dataset);
+		aleChartMapper.put(dataset.getLabel(), references);
+		
+		for (String category : references.keySet())
+			chart.getLabels().add(category);
+		
 		for (int i = 1; i < aleCharts.length; i++) {
 			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
 					.collect(Collectors.toMap(ALE::getAssetName, Function.identity()));
-			if (!aleMapper.isEmpty())
-				aleChartMapper.put(aleCharts[i].getName(), aleMapper);
-		}
-
-		Map<String, Dataset<String>> datasets = new LinkedHashMap<>(references.size());
-
-		int colorIndex = 0;
-
-		for (String category : references.keySet()) {
-			chart.getLabels().add(category);
-			Dataset<String> dataset = new Dataset<String>(category, getColor(colorIndex++));
-			chart.getDatasets().add(dataset);
-			datasets.put(category, dataset);
+			if (!aleMapper.isEmpty()) {
+				dataset = new Dataset<String>(aleCharts[i].getName(), getColor(chart.getDatasets().size()));
+				chart.getDatasets().add(dataset);
+				aleChartMapper.put(dataset.getLabel(), aleMapper);
+				datasets.put(dataset.getLabel(), dataset);
+			}
 		}
 
 		for (Entry<String, Map<String, ALE>> entry : aleChartMapper.entrySet()) {
 			for (String category : references.keySet()) {
 				ALE ale = entry.getValue().get(category);
-				datasets.get(category).getData().add(ale == null ? 0d : ale.getValue());
+				datasets.get(entry.getKey()).getData().add(ale == null ? 0d : ale.getValue());
 			}
 		}
 
@@ -1170,7 +1061,7 @@ public class ChartGenerator {
 	}
 
 	private void buildSingleALESerie(Chart chart, ALEChart data) {
-		Dataset<String> dataset = new Dataset<String>("ALE", getColor(0, "#1071b3"));
+		Dataset<String> dataset = new Dataset<String>(data.getName(), getColor(0));
 		for (ALE ale : data.getAles()) {
 			chart.getLabels().add(ale.getAssetName());
 			dataset.getData().add(ale.getValue());
@@ -1570,6 +1461,11 @@ public class ChartGenerator {
 		colorBounds.forEach(colorBound -> chart.getLegends().add(new Legend(colorBound.getCount() + " " + colorBound.getLabel(), colorBound.getColor())));
 
 		return chart;
+	}
+
+	public Chart generateRsikJSChart(Locale locale, String message, List<ALE> ales) {
+		
+		return null;
 	}
 
 }

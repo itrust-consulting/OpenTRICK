@@ -115,7 +115,7 @@ function aleChartOption(title) {
 			text: title
 		},
 		legend: {
-			position: "right"
+			position: "bottom"
 		},
 		tooltips: {
 			callbacks: {
@@ -298,9 +298,9 @@ function findAnalysisLocale() {
 }
 
 function reloadAssetScenario() {
-	if ($("#section_asset:visible"))
+	if ($("#section_asset:visible").length)
 		reloadSection("section_asset")
-	else if ($("#section_scenario"))
+	else if ($("#section_scenario:visible").length)
 		reloadSection("section_scenario");
 	else
 		reloadSection(["section_asset", "section_scenario", undefined, true]);
@@ -736,12 +736,14 @@ function loadComplianceChart(url) {
 									},
 									title: {
 										display: true,
-										text: chart.title
+										text: chart.title,
+										fontSize: 16,
 									},
 									scale: {
 										ticks: {
 											beginAtZero: true,
-											max: 100
+											max: 100,
+											stepSize:20
 										}
 									}
 								}
