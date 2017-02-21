@@ -23,6 +23,8 @@ public class Chart {
 	private List<Dataset<?>> datasets = new ArrayList<>();
 
 	private List<Legend> legends = new ArrayList<>();
+	
+	private Object settings = null;
 
 	/**
 	 * 
@@ -149,5 +151,19 @@ public class Chart {
 	 */
 	public void setTrickId(Object trickId) {
 		this.trickId = trickId;
+	}
+
+	/**
+	 * @return the settings
+	 */
+	public Object getSettings() {
+		return settings;
+	}
+
+	/**
+	 * @param settings the settings to set
+	 */
+	public void setSettings(Object settings) {
+		this.settings = settings;
 	}
 }

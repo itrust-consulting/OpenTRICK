@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ViewResolver;
 
 import lu.itrust.business.TS.component.ALEChart;
 import lu.itrust.business.TS.component.ChartGenerator;
@@ -64,6 +65,9 @@ public class ControllerRiskEvolution {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private ViewResolver viewResolver;
 
 	@Value("${app.settings.ale.chart.content.max.size}")
 	private int aleChartMaxSize;
@@ -90,14 +94,12 @@ public class ControllerRiskEvolution {
 			Locale locale) {
 		return computeTotalALE(loadAnalyses(principal, customerId, analysisIds), locale);
 	}
-	
+
 	@RequestMapping(value = "/Chart/Total-Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Chart loadTotalRisk(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
 			Locale locale) {
-		return computeTotalRisk(loadAnalyses(principal, customerId, analysisIds), locale);
+		return chartGenerator.generateTotalRiskJSChart(loadAnalyses(principal, customerId, analysisIds), locale);
 	}
-
-	
 
 	private List<Analysis> loadAnalyses(Principal principal, int customerId, List<Integer> analysisIds) {
 		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
@@ -289,13 +291,6 @@ public class ControllerRiskEvolution {
 		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + " " + analysis.getVersion(),
 				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
 		return chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale), ales);
-	}
-	
-	private Chart computeTotalRisk(List<Analysis> analyses, Locale locale) {
-		List<ALE> ales = new ArrayList<>(analyses.size());
-		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + " " + analysis.getVersion(),
-				analysis.getAssessments().stream().filter(Assessment::isSelected).count())));
-		return chartGenerator.generateRsikJSChart(locale, messageSource.getMessage("label.title.chart.total_risk", null, "Total Risk", locale), ales);
 	}
 
 }

@@ -1022,16 +1022,16 @@ public class ChartGenerator {
 		aleCharts[0].getAles().forEach(ale -> references.put(ale.getAssetName(), ale));
 
 		Map<String, Dataset<String>> datasets = new LinkedHashMap<>(references.size());
-		
+
 		Dataset<String> dataset = new Dataset<String>(aleCharts[0].getName(), getColor(chart.getDatasets().size()));
-		
+
 		chart.getDatasets().add(dataset);
 		datasets.put(dataset.getLabel(), dataset);
 		aleChartMapper.put(dataset.getLabel(), references);
-		
+
 		for (String category : references.keySet())
 			chart.getLabels().add(category);
-		
+
 		for (int i = 1; i < aleCharts.length; i++) {
 			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
 					.collect(Collectors.toMap(ALE::getAssetName, Function.identity()));
@@ -1463,9 +1463,47 @@ public class ChartGenerator {
 		return chart;
 	}
 
-	public Chart generateRsikJSChart(Locale locale, String message, List<ALE> ales) {
-		
-		return null;
+	public Chart generateTotalRiskJSChart(List<Analysis> analyses, Locale locale) {
+		Chart chart = new Chart(messageSource.getMessage("label.title.chart.total_risk", null, "Total Risk", locale));
+		if (analyses.isEmpty())
+			return chart;
+		Map<Integer, ValueFactory> valueFactories = analyses.stream().collect(Collectors.toMap(Analysis::getId, analysis -> new ValueFactory(analysis.getParameters())));
+		List<RiskAcceptanceParameter> riskAcceptanceParameters = analyses.get(0).getRiskAcceptanceParameters();
+		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
+		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
+			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(
+						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+		}
+		Map<String, Dataset<String>> datasets = new LinkedHashMap<>();
+		for (Analysis analysis : analyses) {
+			ValueFactory valueFactory = valueFactories.get(analysis.getId());
+			analysis.getAssessments().stream().filter(Assessment::isSelected).forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+			if (colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0)) {
+				chart.getLabels().add(analysis.getLabel() + " " + analysis.getVersion());
+				colorBounds.forEach(colorBound -> {
+					Dataset<String> dataset = datasets.get(colorBound.getLabel());
+					if (dataset == null) {
+						datasets.put(colorBound.getLabel(), dataset = new Dataset<String>(colorBound.getLabel(), colorBound.getColor()));
+						chart.getDatasets().add(dataset);
+					}
+					while (dataset.getData().size() < chart.getLabels().size())
+						dataset.getData().add(0);
+					dataset.getData().set(chart.getLabels().size() - 1, colorBound.getCount());
+				});
+			}
+			colorBounds.parallelStream().forEach(color -> color.setCount(0));
+		}
+		chart.setSettings(riskAcceptanceParameters);
+		return chart;
 	}
 
 }

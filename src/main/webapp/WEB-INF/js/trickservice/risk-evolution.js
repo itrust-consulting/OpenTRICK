@@ -317,23 +317,23 @@ function loadAleByAsset() {
 }
 
 function loadTotalRisk() {
-	return loadALEChart("#tab-total-risk","total-risk-chart", 'loadTotalRisk', "/Analysis/Risk-evolution/Chart/Total-Risk");
+	return loadRiskChart("#tab-total-risk","total-risk-chart", 'loadTotalRisk', "/Analysis/Risk-evolution/Chart/Total-Risk");
 }
 
 function loadRiskByAssetType() {
-	return loadALEChart("#tab-risk-asset-type","risk-asset-type-chart", 'loadRiskByAssetType', "/Analysis/Risk-evolution/Chart/Risk-by-asset-type");
+	return loadRiskChart("#tab-risk-asset-type","risk-asset-type-chart", 'loadRiskByAssetType', "/Analysis/Risk-evolution/Chart/Risk-by-asset-type");
 }
 
 function loadRiskByScenario() {
-	return loadALEChart("#tab-risk-scenario","risk-scenario-chart", 'loadRiskByScenario', "/Analysis/Risk-evolution/Chart/Risk-by-scenario");
+	return loadRiskChart("#tab-risk-scenario","risk-scenario-chart", 'loadRiskByScenario', "/Analysis/Risk-evolution/Chart/Risk-by-scenario");
 }
 
 function loadRiskByScenarioType() {
-	return loadALEChart("#tab-risk-scenario-type", "risk-scenario-type-chart",'loadRiskByScenarioType', "/Analysis/Risk-evolution/Chart/Risk-by-scenario-type");
+	return loadRiskChart("#tab-risk-scenario-type", "risk-scenario-type-chart",'loadRiskByScenarioType', "/Analysis/Risk-evolution/Chart/Risk-by-scenario-type");
 }
 
 function loadRiskByAsset() {
-	return loadALEChart("#tab-risk-asset","risk-asset-chart", 'loadAleByAsset', "/Analysis/Risk-evolution/Chart/Risk-by-asset");
+	return loadRiskChart("#tab-risk-asset","risk-asset-chart", 'loadAleByAsset', "/Analysis/Risk-evolution/Chart/Risk-by-asset");
 }
 
 function loadCompliance() {
