@@ -1205,10 +1205,13 @@ public class ChartGenerator {
 		return rrfAssetType;
 	}
 
-	private List<Chart> generateAssessmentRisk(Integer idAnalysis, Map<String, List<Assessment>> assessmentByAssetType) {
+	private List<Chart> generateAssessmentRisk(Integer idAnalysis, Map<String, List<Assessment>> assessments) {
 		ValueFactory valueFactory = new ValueFactory(daoLikelihoodParameter.findByAnalysisId(idAnalysis));
 		valueFactory.add(daoImpactParameter.findByAnalysisId(idAnalysis));
-		List<RiskAcceptanceParameter> riskAcceptanceParameters = daoRiskAcceptanceParameter.findByAnalysisId(idAnalysis);
+		return generateAssessmentRisk(valueFactory, assessments, daoRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
+	}
+
+	public List<Chart> generateAssessmentRisk(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<RiskAcceptanceParameter> riskAcceptanceParameters) {
 		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
@@ -1220,13 +1223,15 @@ public class ChartGenerator {
 				colorBounds.add(
 						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
+		return generateAssessmentRiskChart(valueFactory, assessments, colorBounds);
+	}
 
-		Distribution distribution = Distribution.Distribut(assessmentByAssetType.size(), aleChartSize, aleChartMaxSize);
-		int multiplicator = Math.floorDiv(assessmentByAssetType.size(), distribution.getDivisor()), index = 1;
+	public List<Chart> generateAssessmentRiskChart(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<ColorBound> colorBounds) {
+		Distribution distribution = Distribution.Distribut(assessments.size(), aleChartSize, aleChartMaxSize);
+		int multiplicator = Math.floorDiv(assessments.size(), distribution.getDivisor()), index = 1;
 		List<Chart> charts = new ArrayList<>(multiplicator);
 		Map<String, Dataset<String>> datasets = new LinkedHashMap<>();
-		for (Entry<String, List<Assessment>> entry : assessmentByAssetType.entrySet()) {
-			colorBounds.parallelStream().forEach(color -> color.setCount(0));
+		for (Entry<String, List<Assessment>> entry : assessments.entrySet()) {
 			entry.getValue().forEach(assessment -> {
 				int importance = valueFactory.findImportance(assessment);
 				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
@@ -1249,6 +1254,7 @@ public class ChartGenerator {
 					dataset.getData().set(chart.getLabels().size() - 1, colorBound.getCount());
 				});
 			}
+			colorBounds.parallelStream().forEach(color -> color.setCount(0));
 		}
 		return charts;
 	}

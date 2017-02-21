@@ -119,7 +119,6 @@
 					<div id='tab-ale-asset-type' class='tab-pane'></div>
 					<div id='tab-ale-scenario' class='tab-pane'></div>
 					<div id='tab-ale-asset' class='tab-pane'></div>
-
 					<div id='tab-total-risk' class='tab-pane'></div>
 					<div id='tab-risk-scenario-type' class='tab-pane'></div>
 					<div id='tab-risk-asset-type' class='tab-pane'></div>
@@ -136,6 +135,9 @@
 		<jsp:include page="../../template/scripts.jsp" />
 		<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js" />"></script>
 		<script src="<spring:url value="/js/trickservice/risk-evolution.js" />"></script>
+		<div id='view-helper' class='hidden'>
+			<jsp:include page="../single/components/parameters/risk-acceptance.jsp" />
+		</div>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
