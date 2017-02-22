@@ -5,6 +5,35 @@ var language = { // translated asynchronously below
 	"label.dynamicparameter.evolution": "from {0} to {1}"
 };
 
+Chart.defaults.global.defaultFontColor = "#333";
+Chart.defaults.global.defaultFontFamily = 'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
+Chart.defaults.global.defaultFontSize = 13;
+
+//Define a plugin to provide data labels
+Chart.plugins.register({
+    afterDatasetsDraw: function(chartInstance, easing) {
+        // To only draw at the end of animation, check for easing === 1
+        var ctx = chartInstance.chart.ctx, valueFormat = chartInstance.chart.config.options.valueFormat;
+        if(!chartInstance.chart.config.options.displayValue)
+        	return;
+        chartInstance.data.datasets.forEach(function (dataset, i) {
+            var meta = chartInstance.getDatasetMeta(i);
+            if (!meta.hidden) {
+                meta.data.forEach(function(element, index) {
+                	if(dataset.data[index] != 0){
+	                    ctx.fillStyle = Chart.defaults.global.defaultFontColor;
+	                    ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, 'normal', Chart.defaults.global.defaultFontFamily);
+	                    ctx.textAlign = 'center';
+	                    ctx.textBaseline = 'middle';
+	                    var position = element.tooltipPosition(),value = isFunction(valueFormat)? valueFormat(dataset.data[index]) : dataset.data[index].toString();
+	                    ctx.fillText(value, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - 5);
+                	}
+                });
+            }
+        });
+    }
+});
+
 $(document).ready(function () {
 	for (var key in language)
 		language[key] = MessageResolver(key, language[key]);
@@ -34,12 +63,6 @@ $(document).ready(function () {
 		$tabOption.hide();
 	});
 
-	Chart.defaults.global.defaultFontColor = "#333";
-	Chart.defaults.global.defaultFontFamily = 'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
-	Chart.defaults.global.defaultFontSize = 13;
-
-
-
 	Highcharts.setOptions({
 		lang: {
 			decimalPoint: ',',
@@ -52,7 +75,7 @@ $(document).ready(function () {
 			}
 		}
 	});
-
+	
 	// Periodically reload assessment values
 	window.setInterval(function () {
 		reloadAssetScenario();
@@ -124,6 +147,10 @@ function aleChartOption(title) {
 				}
 			}
 		},
+		displayValue: true,
+		valueFormat: function(value){
+			return application.currencyFormat.format(value).replace("€", "k€");
+		},
 		scales: {
 			xAxes: [{
 				stacked: false
@@ -182,7 +209,7 @@ function evolutionProfitabilityComplianceOption(id,title) {
 		tooltips: {
 			callbacks: {
 				label: function (item, data) {
-					return application.percentageFormat.format(parseInt(item.yLabel)/100);
+					return application.percentageFormat.format(item.yLabel);
 				}
 			}
 		},
@@ -195,7 +222,7 @@ function evolutionProfitabilityComplianceOption(id,title) {
 				stacked: false,
 				ticks: {
 					userCallback: function (value, index, values) {
-						return application.percentageFormat.format(parseInt(value)/100);
+						return application.percentageFormat.format(value);
 					}
 				}
 			}]
@@ -245,7 +272,7 @@ function budgetChartOption(id,title) {
 		tooltips: {
 			callbacks: {
 				label: function (item, data) {
-					return application.numberFormat.format(item.yLabel);
+					return application.numberFormat.format(item.yLabel)+" "+MessageResolver("label.metric.man_day");
 				}
 			}
 		},
@@ -258,7 +285,7 @@ function budgetChartOption(id,title) {
 				stacked: true,
 				ticks: {
 					userCallback: function (value, index, values) {
-						return application.numberFormat.format(value);
+						return application.numberFormat.format(value)+" "+MessageResolver("label.metric.man_day");
 					}
 				}
 			}]

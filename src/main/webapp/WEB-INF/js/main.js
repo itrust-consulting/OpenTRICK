@@ -141,6 +141,12 @@ if (!String.prototype.startsWith) {
 		return this.substr(position, searchString.length) === searchString;
 	};
 }
+
+function isFunction(value) {
+	 var getType = {};
+	 return value && getType.toString.call(value) === '[object Function]';
+}
+
 if (!String.prototype.endsWith) {
 	String.prototype.endsWith = function(searchString, position) {
 		var subjectString = this.toString();

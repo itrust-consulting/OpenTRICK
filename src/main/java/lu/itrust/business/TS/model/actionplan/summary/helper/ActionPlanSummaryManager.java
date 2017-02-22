@@ -198,6 +198,118 @@ public class ActionPlanSummaryManager {
 		}
 		return summaries;
 	}
+	
+	
+	public static Map<String, List<Object>> buildChartData(List<SummaryStage> summaryStages, List<Phase> phases) {
+		if (summaryStages.isEmpty())
+			return Collections.emptyMap();
+		List<String> firstRows = generateHeader(summaryStages.get(0).getConformances());
+
+		Map<String, List<Object>> summaries = new LinkedHashMap<>(firstRows.size());
+
+		List<String> rowHeaders = extractPhaseRow(summaryStages);
+
+		Map<String, Phase> phaseStages = buildPhase(phases, rowHeaders);
+
+		for (String string : firstRows) {
+			List<Object> rows = summaries.get(string);
+			if (rows == null) {
+				if (!(string.equals(LABEL_PROFITABILITY) || string.equals(LABEL_RESOURCE_PLANNING)))
+					summaries.put(string, rows = new ArrayList<>(rowHeaders.size()));
+				else
+					summaries.put(string, rows = new ArrayList<>());
+			}
+			if (rows.isEmpty() && LABEL_CHARACTERISTIC.equals(string))
+				rows.addAll(rowHeaders);
+
+		}
+
+		List<Object> summary = null;
+
+		for (SummaryStage summaryStage : summaryStages) {
+			int index = rowHeaders.indexOf(summaryStage.getStage());
+			if (index == -1)
+				throw new IllegalArgumentException("Bad index....");
+
+			Phase phase = phaseStages.get(summaryStage.getStage());
+
+			if (phase != null) {
+				if (phase.getNumber() == 0) {
+					summary = summaries.get(LABEL_PHASE_BEGIN_DATE);
+					summary.add(index,"");
+
+					summary = summaries.get(LABEL_PHASE_END_DATE);
+					summary.add(index, "");
+				} else {
+					summary = summaries.get(LABEL_PHASE_BEGIN_DATE);
+					summary.add(index, phase.getBeginDate() + "");
+
+					summary = summaries.get(LABEL_PHASE_END_DATE);
+					summary.add(index, phase.getEndDate() + "");
+				}
+			}
+
+			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+				summary.add(index,  conformance.getConformance());
+			}
+
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
+			summary.add(index, summaryStage.getMeasureCount());
+
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
+			summary.add(index, summaryStage.getImplementedMeasuresCount());
+			
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001);
+			summary.add(index, summaryStage.getNotCompliantMeasure27001Count());
+			
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27002);
+			summary.add(index, summaryStage.getNotCompliantMeasure27002Count());
+
+			summary = summaries.get(LABEL_PROFITABILITY_ALE_UNTIL_END);
+			summary.add(index, Math.floor(summaryStage.getTotalALE() * 0.001));
+
+			summary = summaries.get(LABEL_PROFITABILITY_RISK_REDUCTION);
+			summary.add(index, Math.floor(summaryStage.getDeltaALE() * 0.001));
+
+			summary = summaries.get(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
+			summary.add(index, Math.floor(summaryStage.getCostOfMeasures() * 0.001));
+
+			summary = summaries.get(LABEL_PROFITABILITY_ROSI);
+			summary.add(index, Math.floor(summaryStage.getROSI() * 0.001));
+
+			summary = summaries.get(LABEL_PROFITABILITY_ROSI_RELATIF);
+			summary.add(index, Math.floor(summaryStage.getRelativeROSI()));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
+			summary.add(index, summaryStage.getInternalWorkload());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
+			summary.add(index, summaryStage.getExternalWorkload());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_INVESTMENT);
+			summary.add(index, Math.floor(summaryStage.getInvestment() * 0.001));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
+			summary.add(index, Math.floor(summaryStage.getInternalMaintenance()));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+			summary.add(index, Math.floor(summaryStage.getExternalMaintenance()));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+			summary.add(index, Math.floor(summaryStage.getRecurrentInvestment() * 0.001));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
+			summary.add(index, Math.floor(summaryStage.getImplementCostOfPhase() * 0.001));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
+			summary.add(index, Math.floor(summaryStage.getRecurrentCost() * 0.001));
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
+			summary.add(index, Math.floor(summaryStage.getTotalCostofStage() * 0.001));
+		}
+		return summaries;
+	}
 
 	public static Map<String, List<Object>> buildRawData(List<SummaryStage> summaryStages, List<Phase> phases) {
 		if (summaryStages.isEmpty())

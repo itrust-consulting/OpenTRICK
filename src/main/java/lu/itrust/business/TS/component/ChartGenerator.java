@@ -96,6 +96,9 @@ public class ChartGenerator {
 	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
 	private List<String> defaultColors;
 
+	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
+	private List<String> staticColors;
+
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
@@ -409,18 +412,18 @@ public class ChartGenerator {
 		if (summaries.isEmpty())
 			return charts;
 
-		String[] workloadNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD,
-				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE },
-				costNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST,
-						ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST };
+		String[] workloadNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE,
+				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD },
+				costNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST,
+						ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT };
 
 		Map<String, Dataset<String>> costDatasets = new LinkedHashMap<>(costNames.length), workloadDatasets = new LinkedHashMap<>(workloadNames.length);
 
 		for (String name : costNames)
-			costDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getColor(costDatasets.size())));
+			costDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getStaticColor(costDatasets.size())));
 
 		for (String name : workloadNames)
-			workloadDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getColor(workloadDatasets.size())));
+			workloadDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getStaticColor(workloadDatasets.size())));
 
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 
@@ -658,6 +661,7 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public Chart[] evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale)
 			throws Exception {
 		Chart[] charts = {
@@ -666,7 +670,7 @@ public class ChartGenerator {
 								"Evolution of profitability for " + actionPlanType, locale)),
 				new Chart("chart_compliance_" + actionPlanType,
 						messageSource.getMessage("label.title.chart.compliance." + actionPlanType.toLowerCase(), null, "ISO compliance for " + actionPlanType, locale)) };
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
+		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildChartData(summaryStages, phases);
 		if (summaries.isEmpty())
 			return charts;
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(summaryStages));
@@ -675,7 +679,7 @@ public class ChartGenerator {
 				chart.getLabels().add("P" + phase.getNumber());
 		}
 
-		Map<String, List<String>> standardcompliances = new LinkedHashMap<String, List<String>>();
+		Map<String, List<Object>> standardcompliances = new LinkedHashMap<>();
 
 		Map<String, Dataset<String>> complianceDatasets = new LinkedHashMap<>();
 
@@ -690,26 +694,54 @@ public class ChartGenerator {
 					standardcompliances.put(analysisStandard.getStandard().getLabel(),
 							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
 		}
-		String[] dataName = { ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION,
-				ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI/*
-																																			 * ,
-																																			 * ActionPlanSummaryManager
-																																			 * .
-																																			 * LABEL_PROFITABILITY_ROSI_RELATIF
-																																			 */ };
-		Map<String, Dataset<String>> profiltabilityDatasets = new LinkedHashMap<>(dataName.length);
+		String[] dataName = { "ALE", "COST", "ROSI", "LOST" };
+		Map<String, Dataset<Object>> profiltabilityDatasets = new LinkedHashMap<>(dataName.length);
 
 		for (String name : dataName)
-			profiltabilityDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getColor(profiltabilityDatasets.size())));
+			profiltabilityDatasets.put(name, new Dataset<Object>(messageSource.getMessage("label.title.chart.evolution_profitability." + name.toLowerCase(), null, locale), null));
 		for (String name : standardcompliances.keySet())
 			complianceDatasets.put(name, new Dataset<String>(name, getColor(complianceDatasets.size())));
 
 		for (int i = 0; i < usesPhases.size(); i++) {
-			for (String name : dataName)
-				profiltabilityDatasets.get(name).getData().add(summaries.get(name).get(i));
+			for (String name : dataName) {
+				Dataset<Object> dataset = profiltabilityDatasets.get(name);
+				Double rosi = (double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i);
+				switch (name) {
+				case "ALE":
+					dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i));
+					dataset.setBackgroundColor(getStaticColor(1));
+					break;
+				case "COST":
+					if (dataset.getBackgroundColor() == null)
+						dataset.setBackgroundColor(new LinkedList<>());
+					if (rosi > 0 || i == 0) {
+						((List<String>) dataset.getBackgroundColor()).add(getStaticColor(2));
+						dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i));
+					} else {
+						List<Object> ales = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
+						dataset.getData().add(((Number) ales.get(i - 1)).doubleValue() - ((Number) ales.get(i)).doubleValue());
+						((List<String>) dataset.getBackgroundColor()).add(getStaticColor(3));
+					}
+					break;
+				case "ROSI":
+					dataset.setBackgroundColor(getStaticColor(4));
+					if (rosi >= 0)
+						dataset.getData().add(rosi);
+					else
+						dataset.getData().add(0F);
+					break;
+				case "LOST":
+					dataset.setBackgroundColor(getStaticColor(6));
+					if (rosi >= 0)
+						dataset.getData().add(0);
+					else
+						dataset.getData().add(rosi * -1);
+					break;
+				}
+
+			}
 			for (String key : standardcompliances.keySet())
 				complianceDatasets.get(key).getData().add(standardcompliances.get(key).get(i));
-
 		}
 
 		charts[0].getDatasets().addAll(profiltabilityDatasets.values());
@@ -1053,11 +1085,17 @@ public class ChartGenerator {
 	}
 
 	private String getColor(int i, String defaultValue) {
-		return defaultColors == null ? defaultValue : i < 0 ? defaultColors.get(0) : i >= defaultColors.size() ? defaultColors.get(i % defaultColors.size()) : defaultColors.get(i);
+		return defaultColors == null || defaultColors.isEmpty() ? defaultValue
+				: i < 0 ? defaultColors.get(0) : i >= defaultColors.size() ? defaultColors.get(i % defaultColors.size()) : defaultColors.get(i);
 	}
 
 	private String getColor(int i) {
 		return getColor(i, null);
+	}
+
+	private String getStaticColor(int i) {
+		return staticColors == null || staticColors.isEmpty() ? getColor(i)
+				: i < 0 ? staticColors.get(0) : i >= staticColors.size() ? staticColors.get(i % staticColors.size()) : staticColors.get(i);
 	}
 
 	private void buildSingleALESerie(Chart chart, ALEChart data) {

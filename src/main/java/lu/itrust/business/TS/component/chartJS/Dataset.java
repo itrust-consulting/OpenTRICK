@@ -6,15 +6,23 @@ package lu.itrust.business.TS.component.chartJS;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * @author eomar
  *
  */
+@JsonInclude(value = Include.NON_EMPTY)
 public class Dataset<T> {
 
 	private String label;
 
 	private List<Object> data = new ArrayList<>();
+	
+	private String type;
+	
+	private String stack;
 
 	private T backgroundColor = null;
 
@@ -112,6 +120,34 @@ public class Dataset<T> {
 	 */
 	public void setPointBackgroundColor(T pointBackgroundColor) {
 		this.pointBackgroundColor = pointBackgroundColor;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return the stack
+	 */
+	public String getStack() {
+		return stack;
+	}
+
+	/**
+	 * @param stack the stack to set
+	 */
+	public void setStack(String stack) {
+		this.stack = stack;
 	}
 
 }

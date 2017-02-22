@@ -85,7 +85,7 @@ function reloadSection(section, subSection, refreshOnly) {
 			}).complete(function() {
 				$progress.hide();
 			});
-		} else {
+		} else if(section!=undefined) {
 			var $container = section.startsWith("section_standard_") ?  $section : $section.closest(".tab-pane");
 			$container.attr("data-update-required", true);
 			$container.attr("data-trigger", 'reloadSection');
