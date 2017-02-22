@@ -325,7 +325,7 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID,'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
+	public @ResponseBody Object loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -459,7 +459,7 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFStandardChart(@RequestBody RRFScenarioFilter scenarioFilter, @PathVariable int elementID, Model model, HttpSession session,
+	public @ResponseBody Object loadRRFStandardChart(@RequestBody RRFScenarioFilter scenarioFilter, @PathVariable int elementID, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);

@@ -20,6 +20,8 @@ public class Dataset<T> {
 
 	private List<Object> data = new ArrayList<>();
 	
+	private List<Object> metaData = new ArrayList<>(); 
+	
 	private String type;
 	
 	private String stack;
@@ -148,6 +150,20 @@ public class Dataset<T> {
 	 */
 	public void setStack(String stack) {
 		this.stack = stack;
+	}
+
+	/**
+	 * @return the metaData
+	 */
+	public List<Object> getMetaData() {
+		return metaData;
+	}
+
+	/**
+	 * @param metaData the metaData to set
+	 */
+	public void setMetaData(List<Object> metaData) {
+		this.metaData = metaData;
 	}
 
 }

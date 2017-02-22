@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.component.chartJS;
+package lu.itrust.business.TS.component.chartJS.helper;
 
 /**
  * @author eomar

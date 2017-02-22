@@ -9,7 +9,7 @@ Chart.defaults.global.defaultFontColor = "#333";
 Chart.defaults.global.defaultFontFamily = 'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
 Chart.defaults.global.defaultFontSize = 13;
 
-//Define a plugin to provide data labels
+// Define a plugin to provide data labels
 Chart.plugins.register({
     afterDatasetsDraw: function(chartInstance, easing) {
         // To only draw at the end of animation, check for easing === 1
@@ -61,19 +61,6 @@ $(document).ready(function () {
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		disableEditMode();
 		$tabOption.hide();
-	});
-
-	Highcharts.setOptions({
-		lang: {
-			decimalPoint: ',',
-			thousandsSep: ' '
-		},
-		chart: {
-			style: {
-				fontFamily: 'Corbel,"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif',
-				fontSize: 13
-			}
-		}
 	});
 	
 	// Periodically reload assessment values
@@ -803,7 +790,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				var charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				charts.map(chart => {
@@ -844,7 +831,7 @@ function budgetByActionPlanType(actionPlanType) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				var charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				charts.map(chart => {
@@ -1059,8 +1046,8 @@ function loadChartScenario() {
 }
 
 function loadChartDynamicParameterEvolution() {
-	if ($('#chart_parameterevolution').length) {
-		if ($('#chart_parameterevolution').is(":visible")) {
+	var $section = $("#tab-chart-parameter-evolution");
+		if ($section.is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
@@ -1068,20 +1055,51 @@ function loadChartDynamicParameterEvolution() {
 				async: true,
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					$('#chart_parameterevolution').loadOrUpdateChart(response);
+					var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+					if (window[name] == undefined)
+						window[name] = new Map();
+					else {
+						window[name].forEach((chart,key)=> {
+							chart.destroy();
+							$("[id='chart-parameter-evolution-" +key+"']",$section).remove();
+						});
+					}
+					
+					charts.map(chart => {
+						if (chart.datasets && chart.datasets.length) {
+							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+							var $parent = $("<div class='col-lg-6' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+								type: "line",
+								data: chart,
+								options: {
+									legend: {
+										position: 'bottom',
+									},
+									title: {
+										display: true,
+										text: chart.title,
+										fontSize: 16
+									}
+								}
+							}));
+						
+						}
+					});
 				},
 				error: unknowError
 			}).complete(function () {
 				$progress.hide();
 			});
 		} else
-			$("#tab-chart-parameter-evolution").attr("data-update-required", "true");
-	}
+			$section.attr("data-update-required", "true");
 }
 
 function loadChartDynamicAleEvolutionByAssetType() {
-	if ($('#chart_aleevolutionbyassettype').length) {
-		if ($('#chart_aleevolutionbyassettype').is(":visible")) {
+		
+	var $section = $("#tab-chart-ale-evolution-by-asset-type");
+	
+		if ($section.is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
@@ -1089,20 +1107,50 @@ function loadChartDynamicAleEvolutionByAssetType() {
 				contentType: "application/json;charset=UTF-8",
 				async: true,
 				success: function (response, textStatus, jqXHR) {
-					displayChart('#chart_aleevolutionbyassettype', response);
+					var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+					if (window[name] == undefined)
+						window[name] = new Map();
+					else {
+						window[name].forEach((chart,key)=> {
+							chart.destroy();
+							$("[id='chart-ale-evolution-by-asset-type-" +key+"']",$section).remove();
+						});
+					}
+					
+					charts.map(chart => {
+						if (chart.datasets && chart.datasets.length) {
+							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+							var $parent = $("<div id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+								type: "line",
+								data: chart,
+								options: {
+									legend: {
+										position: 'bottom',
+									},
+									title: {
+										display: true,
+										text: chart.title,
+										fontSize: 16
+									}
+								}
+							}));
+						
+						}
+					});
 				},
 				error: unknowError
 			}).complete(function () {
 				$progress.hide();
 			});
 		} else
-			$("#tab-chart-ale-evolution-by-asset-type").attr("data-update-required", "true");
-	}
+			$section.attr("data-update-required", "true");
+
 }
 
 function loadChartDynamicAleEvolutionByScenario() {
-	if ($('#chart_aleevolutionbyscenario').length) {
-		if ($('#chart_aleevolutionbyscenario').is(":visible")) {
+	var $section = $("#tab-chart-ale-evolution-by-scenario");
+		if ($section.is(":visible")) {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url: context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
@@ -1110,15 +1158,43 @@ function loadChartDynamicAleEvolutionByScenario() {
 				contentType: "application/json;charset=UTF-8",
 				async: true,
 				success: function (response, textStatus, jqXHR) {
-					displayChart('#chart_aleevolutionbyscenario', response);
+					var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+					if (window[name] == undefined)
+						window[name] = new Map();
+					else {
+						window[name].forEach((chart,key)=> {
+							chart.destroy();
+							$("[id='chart-ale-evolution-by-scenario-" +key+"']",$section).remove();
+						});
+					}
+					
+					charts.map(chart => {
+						if (chart.datasets && chart.datasets.length) {
+							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+							var $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-scenario-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+								type: "line",
+								data: chart,
+								options: {
+									legend: {
+										position: 'bottom',
+									},
+									title: {
+										display: true,
+										text: chart.title,
+										fontSize: 16
+									}
+								}
+							}));
+						
+						}
+					});
 				},
 				error: unknowError
 			}).complete(function () {
 				$progress.hide();
 			});
-		} else
-			$("#tab-chart-ale-evolution-by-scenario").attr("data-update-required", "true");
-	}
+		} else $section.attr("data-update-required", "true");
 }
 
 function loadALEChart(url, name, container, canvas) {

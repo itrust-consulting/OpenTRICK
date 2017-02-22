@@ -85,11 +85,9 @@
 								</div>
 							</div>
 							<div class="col-md-8">
-								<div class="col-md-12" id="chart_rrf" style="height: 343px; margin-bottom: 17px; padding-right: 14px;">
-									<div id="chart-container" class="rrfCharts panel panel-primary">
-										<div style="width: 100%; height: 340px; padding-top: 172px; padding-left: 45%">
-											<i id="chart-container-pending" class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
-										</div>
+								<div class="col-md-12" id="chart_rrf">
+									<div id="chart-container" class="rrfCharts panel panel-primary" style="height: 343px; padding-right: 5px; padding-left: 5px;">
+										<canvas id="chart_rrf_canvas"></canvas>
 									</div>
 								</div>
 								<div class="col-md-12" id="control_rrf">

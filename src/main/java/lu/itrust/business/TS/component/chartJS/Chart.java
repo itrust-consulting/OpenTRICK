@@ -10,21 +10,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(value = Include.NON_EMPTY)
 public class Chart {
 
-	private String title = null;
-	
-	private Object trickId = null;
+	private List<Dataset<?>> datasets = new ArrayList<>();
 	
 	private List<String> labels = new ArrayList<>();
+	
+	private List<Legend> legends = new ArrayList<>();
+
+	private Object settings = null;
+
+	private String title = null;
+
+	private Object trickId = null;
 
 	private List<String> xLabels = new ArrayList<>();
-
-	private List<String> yLabels = new ArrayList<>();
-
-	private List<Dataset<?>> datasets = new ArrayList<>();
-
-	private List<Legend> legends = new ArrayList<>();
 	
-	private Object settings = null;
+	private String xTitle;
+	
+	private List<String> yLabels = new ArrayList<>();
+	
+	private String yTitle;
 
 	/**
 	 * 
@@ -33,13 +37,6 @@ public class Chart {
 	}
 
 	/**
-	 * @param title
-	 */
-	public Chart(String title) {
-		this.title = title;
-	}
-	
-	/**
 	 * @param trickId
 	 * @param title
 	 */
@@ -47,20 +44,12 @@ public class Chart {
 		this.trickId = trickId;
 		this.title = title;
 	}
-
+	
 	/**
-	 * @return the labels
+	 * @param title
 	 */
-	public List<String> getLabels() {
-		return labels;
-	}
-
-	/**
-	 * @param labels
-	 *            the labels to set
-	 */
-	public void setLabels(List<String> labels) {
-		this.labels = labels;
+	public Chart(String title) {
+		this.title = title;
 	}
 
 	/**
@@ -71,11 +60,10 @@ public class Chart {
 	}
 
 	/**
-	 * @param datasets
-	 *            the datasets to set
+	 * @return the labels
 	 */
-	public void setDatasets(List<Dataset<?>> datasets) {
-		this.datasets = datasets;
+	public List<String> getLabels() {
+		return labels;
 	}
 
 	/**
@@ -86,11 +74,24 @@ public class Chart {
 	}
 
 	/**
-	 * @param legends
-	 *            the legends to set
+	 * @return the settings
 	 */
-	public void setLegends(List<Legend> legends) {
-		this.legends = legends;
+	public Object getSettings() {
+		return settings;
+	}
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * @return the trickId
+	 */
+	public Object getTrickId() {
+		return trickId;
 	}
 
 	/**
@@ -102,11 +103,11 @@ public class Chart {
 	}
 
 	/**
-	 * @param xLabels
-	 *            the xLabels to set
+	 * @return the xTitle
 	 */
-	public void setXLabels(List<String> xLabels) {
-		this.xLabels = xLabels;
+	@JsonProperty("xTitle")
+	public String getXTitle() {
+		return xTitle;
 	}
 
 	/**
@@ -118,18 +119,42 @@ public class Chart {
 	}
 
 	/**
-	 * @param yLabels
-	 *            the yLabels to set
+	 * @return the yTitle
 	 */
-	public void setYLabels(List<String> yLabels) {
-		this.yLabels = yLabels;
+	@JsonProperty("yTitle")
+	public String getYTitle() {
+		return yTitle;
 	}
 
 	/**
-	 * @return the title
+	 * @param datasets
+	 *            the datasets to set
 	 */
-	public String getTitle() {
-		return title;
+	public void setDatasets(List<Dataset<?>> datasets) {
+		this.datasets = datasets;
+	}
+
+	/**
+	 * @param labels
+	 *            the labels to set
+	 */
+	public void setLabels(List<String> labels) {
+		this.labels = labels;
+	}
+
+	/**
+	 * @param legends
+	 *            the legends to set
+	 */
+	public void setLegends(List<Legend> legends) {
+		this.legends = legends;
+	}
+
+	/**
+	 * @param settings the settings to set
+	 */
+	public void setSettings(Object settings) {
+		this.settings = settings;
 	}
 
 	/**
@@ -140,13 +165,6 @@ public class Chart {
 	}
 
 	/**
-	 * @return the trickId
-	 */
-	public Object getTrickId() {
-		return trickId;
-	}
-
-	/**
 	 * @param trickId the trickId to set
 	 */
 	public void setTrickId(Object trickId) {
@@ -154,16 +172,32 @@ public class Chart {
 	}
 
 	/**
-	 * @return the settings
+	 * @param xLabels
+	 *            the xLabels to set
 	 */
-	public Object getSettings() {
-		return settings;
+	public void setXLabels(List<String> xLabels) {
+		this.xLabels = xLabels;
 	}
 
 	/**
-	 * @param settings the settings to set
+	 * @param xTitle the xTitle to set
 	 */
-	public void setSettings(Object settings) {
-		this.settings = settings;
+	public void setXTitle(String xTitle) {
+		this.xTitle = xTitle;
+	}
+
+	/**
+	 * @param yLabels
+	 *            the yLabels to set
+	 */
+	public void setYLabels(List<String> yLabels) {
+		this.yLabels = yLabels;
+	}
+
+	/**
+	 * @param yTitle the yTitle to set
+	 */
+	public void setYTitle(String yTitle) {
+		this.yTitle = yTitle;
 	}
 }

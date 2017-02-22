@@ -35,7 +35,7 @@ import lu.itrust.business.TS.component.ComplianceChartData;
 import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.chartJS.Chart;
-import lu.itrust.business.TS.component.chartJS.ColorBound;
+import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;

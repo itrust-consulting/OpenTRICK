@@ -105,6 +105,13 @@ function loadRRF() {
 									loadMeasureChart();
 									$('#chart-container-pending', $rrfUI).remove();
 								}, 500);
+								
+								$rrfUI.on("hidden.bs.modal", (e)=> {
+									if(window["rrf-chart"]){
+										window["rrf-chart"].destroy();
+										delete window["rrf-chart"];
+									}
+								})
 							}
 						},
 						error : unknowError
@@ -326,7 +333,7 @@ function loadMeasureChart() {
 	var idScenarioType = $("#selectable_rrf_scenario_controls .active[data-trick-class='ScenarioType']", $modal).attr("data-trick-id");
 	if (idScenarioType == null || idScenarioType == undefined)
 		return false;
-	var idScenario = $("#selectable_rrf_scenario_controls .active[data-trick-class='Scenario']", $modal).attr("data-trick-id");
+	var $progress = $("#loading-indicator").show(), idScenario = $("#selectable_rrf_scenario_controls .active[data-trick-class='Scenario']", $modal).attr("data-trick-id");
 	$.ajax({
 		url : context + "/Analysis/RRF/Measure/" + idMeasure + "/Chart",
 		type : "POST",
@@ -334,22 +341,15 @@ function loadMeasureChart() {
 			"idScenarioType" : idScenarioType,
 			"idScenario" : idScenario
 		}),
-		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			$("#rrfEditor #chart_rrf").css("padding-right", "");
-			if (response.chart != null && response.chart != undefined) {
-				$("#chart-container", $modal).highcharts(response).highcharts();
-				$("#chart_rrf", $modal).css("padding-right", "14px");
-			} else
-				rrfError(response.error == undefined ? undefined : response.error);
-			return false;
+			updateRffChart(response, $("#chart_rrf_canvas", $modal));
 		},
 		error : function() {
 			rrfError();
 			return false;
 		}
-	});
+	}).complete(() => $progress.hide() );
 	return false;
 }
 
@@ -392,6 +392,7 @@ function loadScenarioChart() {
 			"#selectable_rrf_scenario_controls .active[data-trick-class='Scenario']", $modal).attr("data-trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return null;
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/RRF/Scenario/" + idScenario + "/Chart",
 		type : "POST",
@@ -400,22 +401,69 @@ function loadScenarioChart() {
 			"chapter" : chapter,
 			"idMeasure" : idMeasure
 		}),
-		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			$("#chart_rrf", $modal).css("padding-right", "");
-			if (response.chart != null && response.chart != undefined) {
-				$("#chart-container", $modal).highcharts(response).highcharts();
-				$("#chart_rrf", $modal).css("padding-right", "14px");
-			} else
-				rrfError(response.error == undefined ? undefined : response.error);
-			return false;
+			updateRffChart(response, $("#chart_rrf_canvas", $modal));
 		},
 		error : function() {
 			rrfError();
 			return false;
 		}
-	});
+	}).complete(() => $progress.hide() );
+	return false;
+}
+
+function updateRffChart(response, $canvas){
+	if (response.datasets != null && response.datasets != undefined) {
+		 var color = Chart.helpers.color;
+		 response.datasets.filter(dataset => dataset.type =='line').map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+		if(window["rrf-chart"]){
+			window["rrf-chart"].config.data = response;
+			window["rrf-chart"].update();
+		}
+		else {
+			window["rrf-chart"]= new Chart($canvas[0].getContext("2d"), {
+				type: "bar",
+				data: response,
+				options: {
+					title: {
+						display: response.title != undefined,
+						fontSize: 16,
+						text: response.title
+					},
+				    maintainAspectRatio: false,
+					legend: {
+						position: "right"
+					},
+					tooltips: {
+						callbacks: {
+							label: function (item, data) {
+								return application.percentageFormat.format(item.yLabel);
+							}
+						}
+					}
+					,scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false,
+							ticks: {
+								min:0,
+								max:1,
+								userCallback: function (value, index, values) {
+									return application.percentageFormat.format(value);
+								}
+							
+							}
+						}]
+					}
+				}
+			})
+		}
+			
+	} else
+		rrfError(response.error == undefined ? undefined : response.error);
 	return false;
 }
 
