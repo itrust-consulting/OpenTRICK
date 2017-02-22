@@ -6,6 +6,6 @@
 		<wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
 		<property name="context-root" value="trickservice"/>
         <property name="java-output-path" value="/TrickService/target/classes"/>
-        <property name="component.exclusion.patterns" value="**/WEB-INF/css/*.css,**/WEB-INF/css/themes/*.css,**/WEB-INF/js/*.js,**/WEB-INF/js/trickservice/*.js,**/WEB-INF/js/chartjs/*.js,**/WEB-INF/js/highcharts/themes/*.js,**/WEB-INF/js/bootstrap/*.js,**/WEB-INF/js/bootstrap/locales/*.js,**/WEB-INF/tmp/*,**css,**js"/>
+        <property name="component.exclusion.patterns" value="**/WEB-INF/css/*.css,**/WEB-INF/css/themes/*.css,**/WEB-INF/js/*.js,**/WEB-INF/js/trickservice/*.js,**/WEB-INF/js/chartjs/*.js,**/WEB-INF/js/bootstrap/*.js,**/WEB-INF/js/bootstrap/locales/*.js,**/WEB-INF/tmp/*,**css,**js"/>
 	</wb-module>
 </project-modules>

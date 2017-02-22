@@ -433,7 +433,6 @@
 						**/WEB-INF/js/*.js,
 						**/WEB-INF/js/trickservice/*.js,
 						**/WEB-INF/js/chartjs/*.js,
-						**/WEB-INF/js/highcharts/themes/*.js,
 						**/WEB-INF/js/bootstrap/*.js,
 						**/WEB-INF/js/bootstrap/locales/*.js
 					</warSourceExcludes>
@@ -597,32 +596,7 @@
 
 						</configuration>
 					</execution>
-
-					<execution>
-						<id>minify-js-highcharts-theme</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>minify</goal>
-						</goals>
-						<configuration>
-							<charset>utf-8</charset>
-							<jsEngine>CLOSURE</jsEngine>
-							<skipMerge>true</skipMerge>
-							<nosuffix>true</nosuffix>
-
-							<jsSourceDir>WEB-INF/js/highcharts/themes</jsSourceDir>
-
-							<jsSourceIncludes>
-								<jsSourceInclude>*.js</jsSourceInclude>
-							</jsSourceIncludes>
-
-							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/highcharts/themes/*.min.js</jsSourceExclude>
-							</jsSourceExcludes>
-
-						</configuration>
-					</execution>
-
+					
 				</executions>
 			</plugin>
 
