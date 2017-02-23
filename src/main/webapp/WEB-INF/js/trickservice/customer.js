@@ -1,6 +1,6 @@
 function initUserCustomerList() {
 	$('#usercustomer').hide().after("<ul class='list-group' style='max-height: 300px; padding: 5px;margin:0; overflow: auto;'></ul>");
-	$('#usercustomer option').each(function() {
+	$('#usercustomer option').each(function () {
 		var selected = "";
 
 		var attr = $(this).attr('selected');
@@ -10,10 +10,10 @@ function initUserCustomerList() {
 		}
 		$('#customerusersform .list-group').append("<li class='list-group-item" + selected + "' data-trick-opt='" + $(this).attr('value') + "'>" + $(this).html() + "</li>");
 	});
-	$('#customerusersform .list-group li').on('click', function() {
+	$('#customerusersform .list-group li').on('click', function () {
 		$(this).toggleClass('active');
 		var allVal = new Array();
-		$('#customerusersform .list-group li.active').each(function() {
+		$('#customerusersform .list-group li.active').each(function () {
 			allVal.push($(this).attr("data-trick-opt"));
 		});
 		$('#usercustomer').val(allVal);
@@ -23,56 +23,56 @@ function initUserCustomerList() {
 function saveCustomer(form) {
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", true);
 	$.ajax({
-		url : context + "/KnowledgeBase/Customer/Save",
-		type : "post",
-		data : serializeForm(form),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Customer/Save",
+		type: "post",
+		data: serializeForm(form),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 			var alert = $("#addCustomerModel .label-danger");
 			if (alert.length)
 				alert.remove();
-			for ( var error in response) {
+			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 
 				$(errorElement).text(response[error]);
 				switch (error) {
-				case "organisation":
-					$(errorElement).appendTo($("#customer_form #customer_organisation").parent());
-					break;
-				case "address":
-					$(errorElement).appendTo($("#customer_form #customer_address").parent());
-					break;
+					case "organisation":
+						$(errorElement).appendTo($("#customer_form #customer_organisation").parent());
+						break;
+					case "address":
+						$(errorElement).appendTo($("#customer_form #customer_address").parent());
+						break;
 
-				case "email":
-					$(errorElement).appendTo($("#customer_form #customer_email").parent());
-					break;
+					case "email":
+						$(errorElement).appendTo($("#customer_form #customer_email").parent());
+						break;
 
-				case "city":
-					$(errorElement).appendTo($("#customer_form #customer_city").parent());
-					break;
-				case "ZIPCode":
-					$(errorElement).appendTo($("#customer_form #customer_ZIPCode").parent());
-					break;
+					case "city":
+						$(errorElement).appendTo($("#customer_form #customer_city").parent());
+						break;
+					case "ZIPCode":
+						$(errorElement).appendTo($("#customer_form #customer_ZIPCode").parent());
+						break;
 
-				case "country":
-					$(errorElement).appendTo($("#customer_form #customer_country").parent());
-					break;
+					case "country":
+						$(errorElement).appendTo($("#customer_form #customer_country").parent());
+						break;
 
-				case "contactPerson":
-					$(errorElement).appendTo($("#customer_form #customer_contactPerson").parent());
-					break;
+					case "contactPerson":
+						$(errorElement).appendTo($("#customer_form #customer_contactPerson").parent());
+						break;
 
-				case "phoneNumber":
-					$(errorElement).appendTo($("#customer_form #customer_phoneNumber").parent());
-					break;
-				case "canBeUsed":
-					$(errorElement).appendTo($("#customer_form #customer_canBeUsed").parent());
-					break;
-				case "customer":
-					$(errorElement).appendTo($("#addCustomerModel .modal-body"));
-					break;
+					case "phoneNumber":
+						$(errorElement).appendTo($("#customer_form #customer_phoneNumber").parent());
+						break;
+					case "canBeUsed":
+						$(errorElement).appendTo($("#customer_form #customer_canBeUsed").parent());
+						break;
+					case "customer":
+						$(errorElement).appendTo($("#addCustomerModel .modal-body"));
+						break;
 				}
 			}
 			if (!$("#addCustomerModel .label-danger").length) {
@@ -82,7 +82,7 @@ function saveCustomer(form) {
 			return false;
 
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			var alert = $("#addCustomerModel .label-danger");
 			if (alert.length)
 				alert.remove();
@@ -105,14 +105,14 @@ function deleteCustomer(customerId, organisation) {
 		organisation = $("#section_customer tbody tr[data-trick-id='" + (customerId = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
 	$("#deleteCustomerBody").html(
-			MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer <strong>" + organisation + "</strong>?", organisation));
-	$("#deletecustomerbuttonYes").unbind().click(function() {
+		MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer <strong>" + organisation + "</strong>?", organisation));
+	$("#deletecustomerbuttonYes").unbind().click(function () {
 		$.ajax({
-			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
-			type : "POST",
-			async : false,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/KnowledgeBase/Customer/Delete/" + customerId,
+			type: "POST",
+			async: false,
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response["success"] == undefined) {
 					if (response["error"] == undefined)
 						unknowError();
@@ -124,8 +124,8 @@ function deleteCustomer(customerId, organisation) {
 					reloadSection("section_customer");
 				return false;
 			},
-			error : unknowError
-		}).complete(function(){
+			error: unknowError
+		}).complete(function () {
 			$("#deleteCustomerModel").modal('hide');
 		});
 		return false;
@@ -166,7 +166,7 @@ function editSingleCustomer(customerId) {
 	}
 	$("#addCustomerModel .label-danger").remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] td[data-trick-name]").each(function() {
+	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] td[data-trick-name]").each(function () {
 		if ($(this).attr("data-real-value") == undefined)
 			$("#customer_" + $(this).attr("data-trick-name")).prop("value", $(this).text());
 		else
@@ -189,12 +189,12 @@ function manageUsers(customerID) {
 			return false;
 		customerID = selectedScenario[0];
 	}
-	
+
 	$.ajax({
-		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Customer/" + customerID + "/Users",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersform");
 			if ($content.length) {
 				var $customer = $("#customerusersbody").html(response);
@@ -206,7 +206,7 @@ function manageUsers(customerID) {
 				unknowError();
 			return false;
 		},
-		error : unknowError
+		error: unknowError
 	});
 
 	return false;
@@ -219,17 +219,17 @@ function isNotCustomerProfile() {
 function updateManageUsers(customerID, form) {
 
 	var data = {};
-	$(form).find("select[name='usercustomer'] option").each(function() {
+	$(form).find("select[name='usercustomer'] option").each(function () {
 		var $this = $(this);
 		data[$this.val()] = $this.is(":checked");
 	});
 
 	$.ajax({
-		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users/Update",
-		type : "post",
-		data : JSON.stringify(data),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Customer/" + customerID + "/Users/Update",
+		type: "post",
+		data: JSON.stringify(data),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusers");
 			if ($content.length) {
 				$("#customerusersbody").html(response);
@@ -238,7 +238,7 @@ function updateManageUsers(customerID, form) {
 				unknowError();
 			return false;
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }

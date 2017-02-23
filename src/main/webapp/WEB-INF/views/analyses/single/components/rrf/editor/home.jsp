@@ -86,7 +86,7 @@
 							</div>
 							<div class="col-md-8">
 								<div class="col-md-12" id="chart_rrf">
-									<div id="chart-container" class="rrfCharts panel panel-primary" style="height: 343px; padding-right: 5px; padding-left: 5px;">
+									<div id="chart-container" class="rrfCharts panel panel-primary" style="height: 343px;width:100%, padding-right: 5px; padding-left: 5px;">
 										<canvas id="chart_rrf_canvas"></canvas>
 									</div>
 								</div>

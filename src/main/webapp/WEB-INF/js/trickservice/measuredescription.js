@@ -9,7 +9,7 @@ function findDefaultLanguageId() {
 function rebuildMeasureLanguage() {
 	var $languageSelect = $("#languageselect"), selected = $languageSelect.val();
 	$languageSelect.empty();
-	$("tbody tr[data-trick-id]", "#section_language").each(function() {
+	$("tbody tr[data-trick-id]", "#section_language").each(function () {
 		var $this = $(this), $option = $("<option />"), id = $this.attr("data-trick-id");
 		$option.text($("td[data-field-name='name']", $this).text());
 		$option.attr("value", id);
@@ -42,10 +42,10 @@ function showMeasures(idStandard, languageId, reloadBody) {
 		languageId = findDefaultLanguageId();
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
-		type : "POST",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
+		type: "POST",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			var $newSection = $("#section_kb_measure", new DOMParser().parseFromString(response, "text/html"));
 			if ($newSection.length) {
 				$section = $("#section_kb_measure");
@@ -61,8 +61,8 @@ function showMeasures(idStandard, languageId, reloadBody) {
 				unknowError();
 
 		},
-		error : unknowError,
-		complete : function() {
+		error: unknowError,
+		complete: function () {
 			$progress.hide();
 		}
 	});
@@ -74,7 +74,7 @@ function newMeasure(idStandard) {
 		return false;
 	if (idStandard == null || idStandard == undefined)
 		idStandard = $("#idStandard", "#section_kb_measure").val();
-	var $modal = $("#addMeasureModel"),$progress = $("#loading-indicator").show();
+	var $modal = $("#addMeasureModel"), $progress = $("#loading-indicator").show();
 	$(".label-danger", $modal).remove();
 
 	$("#addmeasurebutton", $modal).prop("disabled", false);
@@ -88,15 +88,15 @@ function newMeasure(idStandard) {
 	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));
 
 	$.ajax({
-		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			var $content = $("#measurelanguageselect", new DOMParser().parseFromString(response, "text/html"));
 			if ($content.length) {
 				var language = $("#languageselect", "#measures_body").val();
 				$("#measurelanguages", $modal).html(response);
-				$("#measurelanguageselect", $modal).change(function() {
+				$("#measurelanguageselect", $modal).change(function () {
 					var language = parseInt($(this).find("option:selected").attr("value"));
 					$("#measurelanguages div[data-trick-id][data-trick-id!='" + language + "']", $modal).css("display", "none");
 					$("#measurelanguages div[data-trick-id][data-trick-id='" + language + "']", $modal).css("display", "block");
@@ -108,8 +108,8 @@ function newMeasure(idStandard) {
 				unknowError();
 			return false;
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 
@@ -128,7 +128,7 @@ function editSingleMeasure(measureId, idStandard) {
 			return false;
 		measureId = selectedScenario[0];
 	}
-	
+
 	var $progress = $("#loading-indicator").show(), measure = $("tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)", "#section_kb_measure");
 	$("#measure_id", $modal).prop("value", measureId);
 	$("#measure_reference", $modal).prop("value", $(measure[1]).text());
@@ -138,15 +138,15 @@ function editSingleMeasure(measureId, idStandard) {
 	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
 	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));
 	$.ajax({
-		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
-		type : "GET",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
+		type: "GET",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			var content = new DOMParser().parseFromString(response, "text/html");
 			if (content.getElementById("measurelanguageselect") != null) {
 				var language = $("#languageselect", "#section_kb_measure").val();
 				$("#measurelanguages", $modal).html(response);
-				$("#measurelanguageselect", $modal).change(function() {
+				$("#measurelanguageselect", $modal).change(function () {
 					var language = parseInt($(this).find("option:selected").attr("value"));
 					$("#measurelanguages div[data-trick-id][data-trick-id!='" + language + "']", $modal).css("display", "none");
 					$("#measurelanguages div[data-trick-id][data-trick-id='" + language + "']", $modal).css("display", "block");
@@ -158,8 +158,8 @@ function editSingleMeasure(measureId, idStandard) {
 				unknowError();
 			return false;
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 
@@ -169,11 +169,11 @@ function editSingleMeasure(measureId, idStandard) {
 function saveMeasure() {
 	var $progress = $("#loading-indicator").show(), $modal = $("#addMeasureModel"), $form = $("#measure_form", $modal), $progressBar = $("#save-measure-progress-bar", $modal), $buttonSubmit = $("#addmeasurebutton", $modal);
 	$.ajax({
-		url : $form.prop("action"),
-		type : "post",
-		data : serializeForm($form),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: $form.prop("action"),
+		type: "post",
+		data: serializeForm($form),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$modal.find(".label-danger").remove();
 			var languages = $form.find("select option"), languageDataValidation = {};
 			for (var i = 0; i < languages.length; i++) {
@@ -181,22 +181,22 @@ function saveMeasure() {
 				languageDataValidation["measureDescriptionText.domain_" + idLanguage] = "#measure_domain_" + idLanguage;
 				languageDataValidation["measureDescriptionText.description_" + idLanguage] = "#measure_description_" + idLanguage;
 			}
-			for ( var error in response) {
+			for (var error in response) {
 				var $errorElement = $("<label class='label label-danger' />").text(response[error]), languageData = languageDataValidation[error];
 				if (languageData != undefined) {
 					$errorElement.appendTo($form.find(languageData).parent());
 					continue;
 				}
 				switch (error) {
-				case "measuredescription.reference":
-					$errorElement.appendTo($form.find("#measure_reference").parent());
-					break;
-				case "measuredescription.level":
-					$errorElement.appendTo($form.find("#measure_level").parent());
-					break;
-				case "measureDescription":
-					$errorElement.appendTo($form.parent());
-					break;
+					case "measuredescription.reference":
+						$errorElement.appendTo($form.find("#measure_reference").parent());
+						break;
+					case "measuredescription.level":
+						$errorElement.appendTo($form.find("#measure_level").parent());
+						break;
+					case "measureDescription":
+						$errorElement.appendTo($form.parent());
+						break;
 				}
 			}
 			if (!$modal.find(".label-danger").length) {
@@ -206,8 +206,8 @@ function saveMeasure() {
 			}
 			return false;
 		},
-		error : unknowError,
-		complete : function() {
+		error: unknowError,
+		complete: function () {
 			$buttonSubmit.prop("disabled", false);
 			$progress.hide();
 		}
@@ -222,25 +222,25 @@ function deleteMeasure(force) {
 	if (!selectedMeasures || selectedMeasures.length != 1)
 		return false;
 	var $deleteModal = $("#deleteMeasureModel"), $measureSection = $("#section_kb_measure"), idStandard = idStandard = $("#idStandard", $measureSection).val(), standard = $("#standardLabel", $measureSection).val(), reference = $(
-			"tbody tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)",$measureSection).first().text(), url, message;
+		"tbody tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)", $measureSection).first().text(), url, message;
 	if (force) {
 		url = context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Force/Delete/" + selectedMeasures[0];
 		message = MessageResolver("label.measure.question.force.delete", "Are you sure that you want to force deleting of the measure with the Reference: <strong>" + reference
-				+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]);
+			+ "</strong> from the standard <strong>" + standard + " </strong>?", [reference, standard]);
 	} else {
 		url = context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Delete/" + selectedMeasures[0];
 		message = MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
-				+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]);
+			+ "</strong> from the standard <strong>" + standard + " </strong>?", [reference, standard]);
 	}
 	$deleteModal.find(".modal-body").html(message);
-	$deleteModal.find("#deletemeasurebuttonYes").unbind("click.delete").one("click.delete", function() {
+	$deleteModal.find("#deletemeasurebuttonYes").unbind("click.delete").one("click.delete", function () {
 		$deleteModal.modal("hide");
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : url,
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: url,
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response.success != undefined)
 					showMeasures(idStandard, $("#languageselect", "#section_kb_measure").val());
 				else if (response.error != undefined)
@@ -249,8 +249,8 @@ function deleteMeasure(force) {
 					unknowError();
 				return true;
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 		return true;

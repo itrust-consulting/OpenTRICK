@@ -2,7 +2,7 @@ function escape(key, val) {
 	if (typeof (val) != "string")
 		return val;
 	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
-			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
+		'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
 }
 
 function defaultValueByType(value, type, protect) {
@@ -28,7 +28,7 @@ function updateFieldValue(element, value, type) {
 }
 
 function FieldValidator() {
-	FieldValidator.prototype.Validate = function() {
+	FieldValidator.prototype.Validate = function () {
 		throw "Not implemented";
 	};
 }
@@ -40,7 +40,7 @@ function FieldBoundedValidator(min, max) {
 	this.minValue = $.isNumeric(min) ? parseFloat(min) : undefined;
 	this.maxValue = $.isNumeric(max) ? parseFloat(max) : undefined;
 
-	FieldBoundedValidator.prototype.Validate = function(element) {
+	FieldBoundedValidator.prototype.Validate = function (element) {
 		var $element = $(element), value = parseFloat($(element).val().replace(",", "."));
 		if (!$.isNumeric(value))
 			return false;
@@ -71,19 +71,19 @@ function FieldEditor(element, validator) {
 	this.isText = false;
 	this.tabPress = undefined;
 	this.backupData = {
-		orginalStyle : undefined,
-		parentClass : undefined,
-		width : undefined
+		orginalStyle: undefined,
+		parentClass: undefined,
+		width: undefined
 	};
 
-	FieldEditor.prototype.GeneratefieldEditor = function() {
+	FieldEditor.prototype.GeneratefieldEditor = function () {
 		var $element = $(this.element);
 		if ($element.find("input,select,textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		var $fieldEditor, height = 0, width = 0, minWidth = 0, rows = 2, $td, minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value"), stepValue = $element
-				.attr("data-trick-step-value");
+			.attr("data-trick-step-value");
 		this.isText = $element.attr("data-trick-content") == "text";
 		if (!(stepValue == undefined || maxValue == undefined || minValue == undefined)) {
 			stepValue = parseInt(stepValue), maxValue = parseInt(maxValue), minValue = parseInt(minValue);
@@ -142,7 +142,7 @@ function FieldEditor(element, validator) {
 				$option.appendTo($fieldEditor);
 			}
 			width = $td.outerWidth();
-			if(width<80)
+			if (width < 80)
 				width = '80';
 		}
 
@@ -150,18 +150,18 @@ function FieldEditor(element, validator) {
 		this.backupData.orginalStyle = $td.attr("style");
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("style", "padding: 4px; position:absolute; z-index:2; width:" + (width ? width : minWidth ? minWidth : '80')
-				+ "px;  margin-left:auto; margin-right:auto; height:" + (height == 0 ? "auto" : (height + "px;")));
+			+ "px;  margin-left:auto; margin-right:auto; height:" + (height == 0 ? "auto" : (height + "px;")));
 		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue);
 
 		$td.css({
-			"padding" : 0,
-			"width" : $td.outerWidth(),
-			"height" : height == 0 ? undefined : height
+			"padding": 0,
+			"width": $td.outerWidth(),
+			"height": height == 0 ? undefined : height
 		});
 
 		if (!application.editMode || !this.isText) {
 			var that = this, $fieldEditor = $(this.fieldEditor);
-			$fieldEditor.blur(function() {
+			$fieldEditor.blur(function () {
 				if (that.Validate())
 					return that.Save(that);
 				else
@@ -171,12 +171,12 @@ function FieldEditor(element, validator) {
 		return false;
 	};
 
-	FieldEditor.prototype.HasAttr = function(element, attribute) {
+	FieldEditor.prototype.HasAttr = function (element, attribute) {
 		var attr = $(element).attr(attribute);
 		return typeof attr !== 'undefined' && attr !== false;
 	};
 
-	FieldEditor.prototype.Initialise = function() {
+	FieldEditor.prototype.Initialise = function () {
 
 		if (!this.GeneratefieldEditor()) {
 			this.controllor = this.__findControllor(this.element);
@@ -189,44 +189,44 @@ function FieldEditor(element, validator) {
 		return true;
 	};
 
-	FieldEditor.prototype.__findChoose = function(element) {
+	FieldEditor.prototype.__findChoose = function (element) {
 		var content = $(element).attr("data-trick-choose");
 		if (content != undefined)
 			return content.split(",");
 		return [];
 	};
 
-	FieldEditor.prototype.__findChooseTranslate = function(element) {
+	FieldEditor.prototype.__findChooseTranslate = function (element) {
 		var content = $(element).attr("data-trick-choose-translate");
 		if (content != undefined)
 			return content.split(",");
 		return [];
 	};
 
-	FieldEditor.prototype.__findChooseTitle = function(element) {
+	FieldEditor.prototype.__findChooseTitle = function (element) {
 		var content = $(element).attr("data-trick-choose-title");
 		if (content != undefined)
 			return content.split(",");
 		return [];
 	};
 
-	FieldEditor.prototype.__findControllor = function(element) {
+	FieldEditor.prototype.__findControllor = function (element) {
 		return this.__finder(element, "data-trick-class");
 	};
 
-	FieldEditor.prototype.__findClassId = function(element) {
+	FieldEditor.prototype.__findClassId = function (element) {
 		return this.__finder(element, "data-trick-id");
 	};
 
-	FieldEditor.prototype.__findCallback = function(element) {
+	FieldEditor.prototype.__findCallback = function (element) {
 		return this.__finder(element, "data-trick-callback");
 	};
 
-	FieldEditor.prototype.__findCallbackPreExec = function(element) {
+	FieldEditor.prototype.__findCallbackPreExec = function (element) {
 		return this.__finder(element, "data-trick-callback-pre");
 	};
 
-	FieldEditor.prototype.__finder = function(element, attr) {
+	FieldEditor.prototype.__finder = function (element, attr) {
 		var $element = $(element);
 		if (!$element.length)
 			return null;
@@ -236,7 +236,7 @@ function FieldEditor(element, validator) {
 		return content;
 	}
 
-	FieldEditor.prototype.__findNextEditable = function($tr, isNext) {
+	FieldEditor.prototype.__findNextEditable = function ($tr, isNext) {
 		var $nextTr = isNext ? $tr.nextAll("tr[data-trick-id]:first") : $tr.prevAll("tr[data-trick-id]:first")
 		if (!$nextTr.length)
 			return $nextTr;
@@ -246,9 +246,9 @@ function FieldEditor(element, validator) {
 		return $next;
 	};
 
-	FieldEditor.prototype.__supportTabNav = function() {
+	FieldEditor.prototype.__supportTabNav = function () {
 		var that = this;
-		$(this.fieldEditor).keydown(function(e) {
+		$(this.fieldEditor).keydown(function (e) {
 			if (e.keyCode == 9) {
 				if (e.shiftKey)
 					that.tabPress = "prev";
@@ -263,7 +263,7 @@ function FieldEditor(element, validator) {
 		return this;
 	}
 
-	FieldEditor.prototype.Show = function() {
+	FieldEditor.prototype.Show = function () {
 		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
@@ -280,13 +280,13 @@ function FieldEditor(element, validator) {
 		return false;
 	};
 
-	FieldEditor.prototype.Validate = function() {
+	FieldEditor.prototype.Validate = function () {
 		if (this.validator != null)
 			return this.validator.Validate(this.fieldEditor);
 		return true;
 	};
 
-	FieldEditor.prototype.LoadData = function() {
+	FieldEditor.prototype.LoadData = function () {
 		var callback = this.__findCallbackPreExec(this.element);
 		if (callback != null)
 			eval(callback);
@@ -301,7 +301,7 @@ function FieldEditor(element, validator) {
 		return true;
 	};
 
-	FieldEditor.prototype.HasChanged = function() {
+	FieldEditor.prototype.HasChanged = function () {
 		if (this.choose.length && this.chooseTranslate.length)
 			return this.choose.indexOf(this.GetValue()) != this.chooseTranslate.indexOf(this.defaultValue);
 		else if (this.realValue == null || this.realValue == undefined)
@@ -310,41 +310,41 @@ function FieldEditor(element, validator) {
 			return this.GetValue() != this.realValue;
 	};
 
-	FieldEditor.prototype.UpdateUI = function() {
+	FieldEditor.prototype.UpdateUI = function () {
 		return this.Restore();
 	};
 
-	FieldEditor.prototype.GetValue = function() {
+	FieldEditor.prototype.GetValue = function () {
 		return $(this.fieldEditor).val();
 	};
 
-	FieldEditor.prototype.Save = function(that) {
+	FieldEditor.prototype.Save = function (that) {
 		if (!that.Validate()) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-					type : "post",
-					async : that.async,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
+					url: context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+					type: "post",
+					async: that.async,
+					data: '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+					+ '", "type": "' + that.fieldType + '"}',
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
 							if (that.callback != null && that.callback != undefined)
 								setTimeout(that.callback, 1);
 						} else if (response["error"] != undefined) {
-							showNotifcation("danger",response["error"]);
-						} else 
-							showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-						
+							showNotifcation("danger", response["error"]);
+						} else
+							showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+
 						return true;
 					},
-					error : function(jqXHR, textStatus, errorThrown) {
+					error: function (jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					}
 				});
 			} else {
@@ -355,11 +355,11 @@ function FieldEditor(element, validator) {
 		return false;
 	};
 
-	FieldEditor.prototype.Rollback = function() {
+	FieldEditor.prototype.Rollback = function () {
 		return this.Restore(true);
 	};
 
-	FieldEditor.prototype.Restore = function(rollback) {
+	FieldEditor.prototype.Restore = function (rollback) {
 		var taht = this, $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td");
 		if (this.backupData.orginalStyle)
 			$td.attr("style", this.orginalStyle);
@@ -408,19 +408,19 @@ ExtendedFieldEditor.prototype = new FieldEditor();
 function ExtendedFieldEditor(section, element) {
 	FieldEditor.call(this, element);
 	this.section = section;
-	ExtendedFieldEditor.prototype.Save = function(that) {
+	ExtendedFieldEditor.prototype.Save = function (that) {
 		if (!that.Validate()) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-					type : "post",
-					async : that.async,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
+					url: context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+					type: "post",
+					async: that.async,
+					data: '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+					+ '", "type": "' + that.fieldType + '"}',
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							try {
 								that.UpdateUI();
@@ -430,17 +430,17 @@ function ExtendedFieldEditor(section, element) {
 								if (that.fieldName == "value") {
 									updateAssessmentAle(true);
 									$("datalist[id^='dataList-parameter-']").remove();
-									reloadSection([ that.section, "section_asset", "section_scenario" ]);
+									reloadSection([that.section, "section_asset", "section_scenario"]);
 								}
 							}
 						} else if (response["error"] != undefined)
-							showNotifcation("danger",MessageResolver("error.unknown.save.data", response["error"]));
-						else 
-							showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+							showNotifcation("danger", MessageResolver("error.unknown.save.data", response["error"]));
+						else
+							showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					},
-					error : function(jqXHR, textStatus, errorThrown) {
+					error: function (jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						showNotifcation("danger",MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					}
 				});
 			} else {
@@ -459,21 +459,21 @@ function MaturityMeasureFieldEditor(element) {
 
 	this.implementations = [];
 
-	MaturityMeasureFieldEditor.prototype.LoadData = function() {
+	MaturityMeasureFieldEditor.prototype.LoadData = function () {
 		var $implementationRates = $("#Maturity_implementation_rate tr[data-trick-class='Parameter']");
 		if (!$implementationRates.length)
 			return true;
 		for (var i = 0; i < $implementationRates.length; i++) {
 			var $implementationRate = $($implementationRates[i]);
 			this.implementations[i] = {
-				'id' : $implementationRate.attr('data-trick-id'),
-				'value' : $implementationRate.find("td[data-trick-field='value']").text()
+				'id': $implementationRate.attr('data-trick-id'),
+				'value': $implementationRate.find("td[data-trick-field='value']").text()
 			};
 		}
 		return !this.implementations.length;
 	};
 
-	MaturityMeasureFieldEditor.prototype.GeneratefieldEditor = function() {
+	MaturityMeasureFieldEditor.prototype.GeneratefieldEditor = function () {
 		var $element = $(this.element);
 		if ($element.find("select").length)
 			return true;
@@ -489,7 +489,7 @@ function MaturityMeasureFieldEditor(element) {
 		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; width:80px; position:absolute; z-index:2; margin-right:auto;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 
-		for ( var i in this.implementations) {
+		for (var i in this.implementations) {
 			var option = document.createElement("option"), $option = $(option);
 			option.setAttribute("value", this.implementations[i].value);
 			option.setAttribute("data-trick-id", this.implementations[i].id);
@@ -504,10 +504,10 @@ function MaturityMeasureFieldEditor(element) {
 		this.backupData.width = $element.width();
 		this.backupData.orginalStyle = $element.attr("style");
 		$element.css({
-			"padding" : 0,
-			"width" : this.backupData.width
+			"padding": 0,
+			"width": this.backupData.width
 		});
-		$fieldEditor.blur(function() {
+		$fieldEditor.blur(function () {
 			return that.Save(that);
 		});
 		return false;
@@ -521,42 +521,38 @@ function AssessmentFieldEditor(element) {
 
 	FieldEditor.call(this, element);
 
-	AssessmentFieldEditor.prototype.Rollback = function() {
+	AssessmentFieldEditor.prototype.Rollback = function () {
 		FieldEditor.prototype.Rollback.call(this);
 		if (application["estimation-helper"] != undefined)
 			application["estimation-helper"].tryUpdate();
 		return this;
 	};
 
-	AssessmentFieldEditor.prototype.Save = function(that) {
+	AssessmentFieldEditor.prototype.Save = function (that) {
 		if (!that.Validate()) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-					type : "post",
-					async : that.async,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
+					url: context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+					type: "post",
+					async: that.async,
+					data: '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+					+ '", "type": "' + that.fieldType + '"}',
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
-							if ($("#tab-risk-estimation").is(":visible")) {
-								application["estimation-helper"].tryUpdate(that.classId);
-								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
-								riskEstimationUpdate();
-							} else
-								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
-							chartALE();
+							application["estimation-helper"].tryUpdate(that.classId);
+							reloadSection(["section_asset", "section_scenario", "section_riskregister"], undefined, true);
+							reloadAssetScenarioChart();
 						} else {
 							that.Rollback();
 							application["estimation-helper"].error(response["error"]);
 						}
 						return true;
 					},
-					error : function(jqXHR, textStatus, errorThrown) {
+					error: function (jqXHR, textStatus, errorThrown) {
 						that.Rollback();
 						application["estimation-helper"].error(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					}
@@ -586,7 +582,7 @@ function AssessmentExtendedParameterEditor(element) {
 
 		this.acromyms = [];
 
-		AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
+		AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function () {
 			var that = this, $element = $(this.element);
 			if ($element.find("select,input,textarea").length)
 				return true;
@@ -602,18 +598,18 @@ function AssessmentExtendedParameterEditor(element) {
 			this.backupData.width = $element.width();
 			this.backupData.orginalStyle = $element.attr("style");
 			$element.css({
-				"padding" : 0,
-				"width" : this.backupData.width
+				"padding": 0,
+				"width": this.backupData.width
 			});
 
-			$(this.fieldEditor).blur(function() {
+			$(this.fieldEditor).blur(function () {
 				return that.Save(that);
 			});
 
 			return false;
 		};
 
-		AssessmentExtendedParameterEditor.prototype.__generateDataList = function() {
+		AssessmentExtendedParameterEditor.prototype.__generateDataList = function () {
 			if (!this.dataListName)
 				return this;
 			var dataList = document.getElementById(this.dataListName);
@@ -639,9 +635,9 @@ function AssessmentImpactFieldEditor(element) {
 	AssessmentExtendedParameterEditor.call(this, element);
 
 	if (application.analysisType == "QUANTITATIVE") {
-		AssessmentImpactFieldEditor.prototype.LoadData = function() {
+		AssessmentImpactFieldEditor.prototype.LoadData = function () {
 			var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
-					"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
+				"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
 			this.dataListName = "dataList-parameter-impact";
 			for (var i = 0; i < $values.length; i++) {
 				this.acromyms[i] = $acronyms[i].innerText.trim();
@@ -651,9 +647,9 @@ function AssessmentImpactFieldEditor(element) {
 			return this.choose.length;
 		};
 	} else {
-		AssessmentImpactFieldEditor.prototype.LoadData = function() {
+		AssessmentImpactFieldEditor.prototype.LoadData = function () {
 			var name = this.element.getAttribute("data-trick-field"), id = "#Scale_Impact_" + name, $acronyms = $("td[data-trick-acronym-value]", id), $values = $(
-					"td[data-trick-field='level']", id), $title = $("td[data-trick-field='description']", id);
+				"td[data-trick-field='level']", id), $title = $("td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
 				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
 				this.chooseTranslate[i] = $values[i].innerText.trim();
@@ -671,10 +667,10 @@ function AssessmentProbaFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
 	if (application.analysisType == "QUANTITATIVE") {
-		AssessmentProbaFieldEditor.prototype.LoadData = function() {
+		AssessmentProbaFieldEditor.prototype.LoadData = function () {
 			this.dataListName = "dataList-parameter-probability";
 			var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",
-					"#Scale_Probability,#DynamicParameters");
+				"#Scale_Probability,#DynamicParameters");
 			for (var i = 0; i < $values.length; i++) {
 				this.acromyms[i] = $acronyms[i].innerText.trim();
 				this.choose[i] = $values[i].innerText.trim();
@@ -683,9 +679,9 @@ function AssessmentProbaFieldEditor(element) {
 			return this.choose.length;
 		};
 	} else {
-		AssessmentProbaFieldEditor.prototype.LoadData = function() {
+		AssessmentProbaFieldEditor.prototype.LoadData = function () {
 			var id = "#Scale_Probability", $acronyms = $("td[data-trick-acronym-value]", id), $values = $("td[data-trick-field='level']", id), $title = $(
-					"td[data-trick-field='description']", id);
+				"td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
 				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
 				this.chooseTranslate[i] = $values[i].innerText.trim();
@@ -701,11 +697,11 @@ function disableEditMode() {
 		try {
 			application.editMode = false
 			var $progress = $("#loading-indicator").show();
-			setTimeout(function() {
+			setTimeout(function () {
 				try {
 					$("li[role='enterEditMode']").removeClass("disabled");
 					$("li[role='leaveEditMode']").addClass("disabled");
-					$(application.fieldEditors).each(function() {
+					$(application.fieldEditors).each(function () {
 						this.Save(this);
 					});
 				} finally {
@@ -724,13 +720,13 @@ function enableEditMode() {
 		try {
 			application.editMode = true;
 			var $progress = $("#loading-indicator").show();
-			setTimeout(function() {
+			setTimeout(function () {
 				try {
 					$("li[role='leaveEditMode']").removeClass("disabled");
 					$("li[role='enterEditMode']").addClass("disabled");
 					application.fieldEditors = [];
 					var $data = $(".tab-pane.active [data-trick-content='text']");
-					$data.each(function() {
+					$data.each(function () {
 						var fieldEditor = editField(this);
 						if (fieldEditor != null)
 							application.fieldEditors.push(fieldEditor);
@@ -760,7 +756,7 @@ function editField(element, controller, id, field, type) {
 				fieldEditor = new ExtendedFieldEditor("section_parameter_impact", element);
 		} else if (controller == "Assessment") {
 			field = element.getAttribute("data-trick-field");
-			var fieldImpact = [ "comment", "hiddenComment", "uncertainty", "owner" ];
+			var fieldImpact = ["comment", "hiddenComment", "uncertainty", "owner"];
 			if (fieldImpact.indexOf(field) != -1)
 				fieldEditor = new AssessmentFieldEditor(element);
 			else if (field == "likelihood")

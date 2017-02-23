@@ -24,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,12 +34,14 @@ import lu.itrust.business.TS.component.ALEChart;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.ComplianceChartData;
 import lu.itrust.business.TS.component.Distribution;
+import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
@@ -53,6 +56,7 @@ import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -83,6 +87,18 @@ public class ControllerRiskEvolution {
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
+
+	@Autowired
+	private ServiceUser serviceUser;
+
+	@RequestMapping(value = "/Save-settings", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object saveSettings(@RequestBody String value, Principal principal, Locale locale) {
+		User user = serviceUser.get(principal.getName());
+		boolean isFirst = user.getUserSettings().containsKey("risk-evolution-data");
+		user.setSetting("risk-evolution-data", value);
+		serviceUser.saveOrUpdate(user);
+		return isFirst ? isFirst : JsonMessage.Success(messageSource.getMessage("success.risk_evolution.setting.saved", null, "Your configuration was been updated", locale));
+	}
 
 	@RequestMapping(value = "/Chart/Compliance", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody List<Chart> compliance(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
@@ -435,7 +451,9 @@ public class ControllerRiskEvolution {
 	}
 
 	private void LoadUserAnalyses(HttpSession session, Principal principal, Model model) throws Exception {
-		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		User user = serviceUser.get(principal.getName());
+		model.addAttribute("customers", user.getCustomers().stream().filter(Customer::isCanBeUsed).collect(Collectors.toList()));
+		model.addAttribute("riskEvolutionSettings", user.getUserSettings().get("risk-evolution-data"));
 	}
 
 }

@@ -49,6 +49,11 @@ public class Dataset<T> {
 		}
 	}
 
+	public Dataset(String label, T backgroundColor, String type) {
+		this(label, backgroundColor);
+		setType(type);
+	}
+
 	/**
 	 * @return the backgroundColor
 	 */

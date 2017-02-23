@@ -1,9 +1,9 @@
-$(function() {
+$(function () {
 	application["settings-fixed-header"] = {
-		fixedOffset : $(".nav-tab"),
-		marginTop : application.fixedOffset
+		fixedOffset: $(".nav-tab"),
+		marginTop: application.fixedOffset
 	};
-	$(window).scroll(function(e) {
+	$(window).scroll(function (e) {
 		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
 			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
 			if ($selectedTab.attr("data-update-required") === "false" && typeof attr !== typeof undefined && attr !== false)
@@ -15,10 +15,10 @@ $(function() {
 function deleteSqlite(id) {
 	var currentSize = $("#section_sqlite>table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
 	$.ajax({
-		url : context + "/Profile/Sqlite/" + id + "/Delete",
-		type : "POST",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Profile/Sqlite/" + id + "/Delete",
+		type: "POST",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#section_sqlite>table>tbody>tr[data-trick-id='" + id + "']").remove();
 				if (currentSize == size)
@@ -28,7 +28,7 @@ function deleteSqlite(id) {
 			else
 				unknowError();
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }
@@ -36,10 +36,10 @@ function deleteSqlite(id) {
 function deleteReport(id) {
 	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
 	$.ajax({
-		url : context + "/Profile/Report/" + id + "/Delete",
-		type : "POST",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Profile/Report/" + id + "/Delete",
+		type: "POST",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#section_report>table>tbody>tr[data-trick-id='" + id + "']").remove();
 				if (currentSize == size)
@@ -49,7 +49,7 @@ function deleteReport(id) {
 			else
 				unknowError();
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }
@@ -59,23 +59,23 @@ function userSqliteScrolling() {
 	if (currentSize >= size && currentSize % size === 0) {
 		$("#progress-sqlite").show();
 		$.ajax({
-			url : context + "/Profile/Section/Sqlite",
-			async : false,
-			type : "get",
-			data : {
-				"page" : (currentSize / size) + 1
+			url: context + "/Profile/Section/Sqlite",
+			async: false,
+			type: "get",
+			data: {
+				"page": (currentSize / size) + 1
 			},
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function () {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
 						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
 				return false;
 			},
-			error : unknowError,
-			complete : function() {
+			error: unknowError,
+			complete: function () {
 				$("#progress-sqlite").hide();
 			}
 		});
@@ -88,23 +88,23 @@ function userReportScrolling() {
 	if (currentSize >= size && currentSize % size === 0) {
 		$("#progress-report").show();
 		$.ajax({
-			url : context + "/Profile/Section/Report",
-			async : false,
-			type : "get",
-			data : {
-				"page" : (currentSize / size) + 1
+			url: context + "/Profile/Section/Report",
+			async: false,
+			type: "get",
+			data: {
+				"page": (currentSize / size) + 1
 			},
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_report>table>tbody>tr").each(function() {
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_report>table>tbody>tr").each(function () {
 					var $current = $("#section_report>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
 						$(this).appendTo($("#section_report>table>tbody"));
 				});
 				return false;
 			},
-			error : unknowError,
-			complete : function() {
+			error: unknowError,
+			complete: function () {
 				$("#progress-report").hide();
 			}
 		});
@@ -116,11 +116,11 @@ function updateReportControl(element) {
 	if (element != undefined && !$(element).is(":checked"))
 		return false;
 	$.ajax({
-		url : context + "/Profile/Control/Report/Update",
-		type : "post",
-		data : serializeForm("#formReportControl"),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Profile/Control/Report/Update",
+		type: "post",
+		data: serializeForm("#formReportControl"),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				return loadUserReport();
 			else if (response["error"] != undefined)
@@ -128,7 +128,7 @@ function updateReportControl(element) {
 			else
 				unknowError();
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }
@@ -137,11 +137,11 @@ function updateSqliteControl(element) {
 	if (element != undefined && !$(element).is(":checked"))
 		return false;
 	$.ajax({
-		url : context + "/Profile/Control/Sqlite/Update",
-		type : "post",
-		data : serializeForm("#formSqliteControl"),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Profile/Control/Sqlite/Update",
+		type: "post",
+		data: serializeForm("#formSqliteControl"),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				return loadUserSqlite();
 			else if (response["error"] != undefined)
@@ -149,7 +149,7 @@ function updateSqliteControl(element) {
 			else
 				unknowError();
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }
@@ -157,13 +157,13 @@ function updateSqliteControl(element) {
 function loadUserSqlite(update) {
 	$("#progress-sqlite").show();
 	$.ajax({
-		url : context + "/Profile/Section/Sqlite",
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Profile/Section/Sqlite",
+		type: "get",
+		async: true,
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (update) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function () {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
 						$(this).appendTo($("#section_sqlite>table>tbody"));
@@ -174,8 +174,8 @@ function loadUserSqlite(update) {
 			}
 			return false;
 		},
-		error : unknowError,
-		complete : function() {
+		error: unknowError,
+		complete: function () {
 			$("#progress-sqlite").hide();
 		}
 	});
@@ -185,12 +185,12 @@ function loadUserSqlite(update) {
 function loadUserReport(update) {
 	$("#progress-report").show();
 	$.ajax({
-		url : context + "/Profile/Section/Report",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Profile/Section/Report",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (update) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function () {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
 						$(this).appendTo($("#section_sqlite>table>tbody"));
@@ -201,8 +201,8 @@ function loadUserReport(update) {
 			}
 			return false;
 		},
-		error : unknowError,
-		complete : function() {
+		error: unknowError,
+		complete: function () {
 			$("#progress-report").hide();
 		}
 	});
@@ -211,24 +211,24 @@ function loadUserReport(update) {
 
 function updateProfile(form) {
 	$
-			.ajax({
-				url : context + "/Profile/Update",
-				type : "post",
-				contentType : "application/json;charset=UTF-8",
-				data : serializeForm(form),
-				success : function(response, textStatus, jqXHR) {
+		.ajax({
+			url: context + "/Profile/Update",
+			type: "post",
+			contentType: "application/json;charset=UTF-8",
+			data: serializeForm(form),
+			success: function (response, textStatus, jqXHR) {
+				$("#profileInfo").attr("hidden", "hidden");
+				$("#profileInfo div").remove();
+				$(".label,.alert").remove();
+				for (var error in response) {
+
 					$("#profileInfo").attr("hidden", "hidden");
 					$("#profileInfo div").remove();
-					$(".label,.alert").remove();
-					for ( var error in response) {
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
 
-						$("#profileInfo").attr("hidden", "hidden");
-						$("#profileInfo div").remove();
-						var errorElement = document.createElement("label");
-						errorElement.setAttribute("class", "label label-danger");
-
-						$(errorElement).text(response[error]);
-						switch (error) {
+					$(errorElement).text(response[error]);
+					switch (error) {
 						case "currentPassword":
 						case "password":
 						case "repeatPassword":
@@ -238,7 +238,7 @@ function updateProfile(form) {
 						case "locale":
 						case "ticketingUsername":
 						case "ticketingPassword":
-							$(errorElement).appendTo($("#" + form + " #"+error).parent());
+							$(errorElement).appendTo($("#" + form + " #" + error).parent());
 							break;
 						case "user": {
 							var errElement = document.createElement("div");
@@ -247,39 +247,39 @@ function updateProfile(form) {
 							$(errElement).appendTo($("#profileInfo"));
 							$("#profileInfo").removeAttr("hidden");
 						}
-						}
 					}
-
-					if (!$(".label-danger,.alert-danger").length) {
-						var successElement = document.createElement("div");
-						successElement.setAttribute("class", "alert alert-success");
-						$(successElement).html(
-								"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
-										+ MessageResolver("label.user.update.success", "Profile successfully updated"));
-						$(successElement).appendTo($("#profileInfo"));
-						$("#profileInfo").removeAttr("hidden");
-						var prevlang = $("#perviouslanguage").val();
-						var newlang = $("#" + form + " #locale").val();
-						if (prevlang !== newlang)
-							setTimeout(function() {
-								document.location.href = "?lang=" + newlang;
-							}, 2000);
-
-					}
-					return false;
-
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					var alert = $("#" + form + " .label-danger");
-					if (alert.length)
-						alert.remove();
-					var errElement = document.createElement("div");
-					errElement.setAttribute("class", "alert alert-success");
-					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
-					$(errElement).appendTo($("#profileInfo"));
-					$("#profileInfo").removeAttr("hidden");
 				}
-			});
+
+				if (!$(".label-danger,.alert-danger").length) {
+					var successElement = document.createElement("div");
+					successElement.setAttribute("class", "alert alert-success");
+					$(successElement).html(
+						"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+						+ MessageResolver("label.user.update.success", "Profile successfully updated"));
+					$(successElement).appendTo($("#profileInfo"));
+					$("#profileInfo").removeAttr("hidden");
+					var prevlang = $("#perviouslanguage").val();
+					var newlang = $("#" + form + " #locale").val();
+					if (prevlang !== newlang)
+						setTimeout(function () {
+							document.location.href = "?lang=" + newlang;
+						}, 2000);
+
+				}
+				return false;
+
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var alert = $("#" + form + " .label-danger");
+				if (alert.length)
+					alert.remove();
+				var errElement = document.createElement("div");
+				errElement.setAttribute("class", "alert alert-success");
+				$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
+				$(errElement).appendTo($("#profileInfo"));
+				$("#profileInfo").removeAttr("hidden");
+			}
+		});
 
 	return false;
 }

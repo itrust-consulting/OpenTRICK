@@ -328,10 +328,8 @@ public class ControllerRRF {
 	public @ResponseBody Object loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 		if (measureFilter.getIdStandard() < 1 || StringUtils.isEmpty(measureFilter.getChapter()))
 			return null;
-
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
@@ -342,15 +340,16 @@ public class ControllerRRF {
 					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
 							"This standard type permits only to see RRF by single measure (Select a single measure of this standard)", locale));
 
-				for (Measure measure : standard.getMeasures())
+				for (Measure measure : standard.getMeasures()) {
 					if (measureFilter.getIdMeasure() > 0) {
 						if (measure.getId() == measureFilter.getIdMeasure()) {
 							measures.add(measure);
 							break;
 						}
-					} else if (measure.getMeasureDescription().getReference().startsWith(measureFilter.getChapter() + ".") && measure.getMeasureDescription().isComputable())
+					} else if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+							&& measure.getMeasureDescription().getReference().startsWith(measureFilter.getChapter() + ".") && measure.getMeasureDescription().isComputable())
 						measures.add(measure);
-
+				}
 			}
 		}
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, locale);

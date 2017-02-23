@@ -111,7 +111,7 @@
 		<tbody>
 			<c:if test="${not empty asset}">
 				<c:forEach items="${assessments}" var="assessment">
-					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}" data-trick-callback="chartALE()">
+					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 						<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
 						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 						<c:choose>

@@ -11,7 +11,7 @@ function Modal(content, body) {
 	this.isDisposing = false;
 	this.isHidden = true;
 
-	Modal.prototype.FromContent = function(content) {
+	Modal.prototype.FromContent = function (content) {
 		this.modal = $(content);
 		this.modal_dialog = $(this.modal).find(".modal-dialog");
 		this.modal_header = $(this.modal).find(".modal-header");
@@ -27,14 +27,14 @@ function Modal(content, body) {
 		return this;
 	};
 
-	Modal.prototype.Size = function(map) {
+	Modal.prototype.Size = function (map) {
 		var size = 0;
-		for ( var value in map)
+		for (var value in map)
 			size++;
 		return size;
 	};
 
-	Modal.prototype.DefaultHeaderButton = function() {
+	Modal.prototype.DefaultHeaderButton = function () {
 		var button_head_close = document.createElement("button");
 		button_head_close.setAttribute("class", "close");
 		button_head_close.setAttribute("data-dismiss", "modal");
@@ -43,7 +43,7 @@ function Modal(content, body) {
 		return false;
 	};
 
-	Modal.prototype.DefaultFooterButton = function() {
+	Modal.prototype.DefaultFooterButton = function () {
 		var button_footer_OK = document.createElement("button"), button_footer_cancel = document.createElement("button"), okText = "OK", cancelText = "Cancel";
 		button_footer_OK.setAttribute("data-dismiss", "modal");
 		button_footer_OK.setAttribute("data-control-type", "ok");
@@ -62,7 +62,7 @@ function Modal(content, body) {
 		return false;
 	};
 
-	Modal.prototype.__Create = function() {
+	Modal.prototype.__Create = function () {
 		// declare modal
 		this.modal = document.createElement("div");
 		this.modal_header = document.createElement("div");
@@ -109,13 +109,13 @@ function Modal(content, body) {
 
 	};
 
-	Modal.prototype.setTitle = function(title) {
+	Modal.prototype.setTitle = function (title) {
 		if (this.modal_title != null)
 			$(this.modal_title).text(title);
 		return this;
 	};
 
-	Modal.prototype.setBody = function(body) {
+	Modal.prototype.setBody = function (body) {
 		if (this.modal_body == null)
 			this.Intialise();
 		if (body instanceof jQuery)
@@ -125,38 +125,38 @@ function Modal(content, body) {
 		return this;
 	};
 
-	Modal.prototype.__addHeadButton = function() {
+	Modal.prototype.__addHeadButton = function () {
 		if (this.modal_header == null)
 			return false;
 
-		$(this.modal_header).find("button").each(function(i) {
+		$(this.modal_header).find("button").each(function (i) {
 			$(this).remove();
 		});
 
-		for ( var button in this.modal_head_buttons)
+		for (var button in this.modal_head_buttons)
 			this.modal_header.insertBefore(this.modal_head_buttons[button], this.modal_header.firstChild);
 		return false;
 	};
 
-	Modal.prototype.__addFooterButton = function() {
+	Modal.prototype.__addFooterButton = function () {
 		if (this.modal_footer == null)
 			return false;
 
-		$(this.modal_footer).find("button").each(function(i) {
+		$(this.modal_footer).find("button").each(function (i) {
 			$(this).remove();
 		});
 
-		for ( var button in this.modal_footer_buttons)
+		for (var button in this.modal_footer_buttons)
 			this.modal_footer.appendChild(this.modal_footer_buttons[button]);
 		return false;
 	};
 
-	Modal.prototype.Intialise = function() {
+	Modal.prototype.Intialise = function () {
 		this.__Create();
 		return this;
 	};
 
-	Modal.prototype.Hide = function() {
+	Modal.prototype.Hide = function () {
 		try {
 			this.isHidden = true;
 			if (!(this.modal == null || this.modal == undefined))
@@ -167,7 +167,7 @@ function Modal(content, body) {
 		return this;
 	};
 
-	Modal.prototype.Dispose = function() {
+	Modal.prototype.Dispose = function () {
 		try {
 			this.isDisposing = true;
 			if (!(this.modal == null || this.modal == undefined))
@@ -178,9 +178,9 @@ function Modal(content, body) {
 		return this;
 	};
 
-	Modal.prototype.Destroy = function() {
+	Modal.prototype.Destroy = function () {
 		var instance = this;
-		$(this.modal).on("hidden.bs.modal", function() {
+		$(this.modal).on("hidden.bs.modal", function () {
 			instance.isDisposed = true;
 			$(instance.modal).remove();
 			delete instance;
@@ -189,7 +189,7 @@ function Modal(content, body) {
 		return false;
 	};
 
-	Modal.prototype.Show = function() {
+	Modal.prototype.Show = function () {
 		try {
 			if (!this.isHidden)
 				return this;
@@ -200,7 +200,7 @@ function Modal(content, body) {
 				$(this.modal).modal("show");
 			}
 			var instance = this;
-			$(this.modal).on("hidden.bs.modal", function() {
+			$(this.modal).on("hidden.bs.modal", function () {
 				if (!(instance.isDisposing || instance.isHidden)) {
 					instance.Destroy();
 					if ($(instance.modal).length) {

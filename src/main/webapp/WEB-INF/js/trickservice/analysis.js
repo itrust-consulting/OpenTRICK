@@ -5,35 +5,6 @@ var language = { // translated asynchronously below
 	"label.dynamicparameter.evolution": "from {0} to {1}"
 };
 
-Chart.defaults.global.defaultFontColor = "#333";
-Chart.defaults.global.defaultFontFamily = 'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
-Chart.defaults.global.defaultFontSize = 13;
-
-// Define a plugin to provide data labels
-Chart.plugins.register({
-    afterDatasetsDraw: function(chartInstance, easing) {
-        // To only draw at the end of animation, check for easing === 1
-        var ctx = chartInstance.chart.ctx, valueFormat = chartInstance.chart.config.options.valueFormat;
-        if(!chartInstance.chart.config.options.displayValue)
-        	return;
-        chartInstance.data.datasets.forEach(function (dataset, i) {
-            var meta = chartInstance.getDatasetMeta(i);
-            if (!meta.hidden) {
-                meta.data.forEach(function(element, index) {
-                	if(dataset.data[index] != 0){
-	                    ctx.fillStyle = Chart.defaults.global.defaultFontColor;
-	                    ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, 'normal', Chart.defaults.global.defaultFontFamily);
-	                    ctx.textAlign = 'center';
-	                    ctx.textBaseline = 'middle';
-	                    var position = element.tooltipPosition(),value = isFunction(valueFormat)? valueFormat(dataset.data[index]) : dataset.data[index].toString();
-	                    ctx.fillText(value, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - 5);
-                	}
-                });
-            }
-        });
-    }
-});
-
 $(document).ready(function () {
 	for (var key in language)
 		language[key] = MessageResolver(key, language[key]);
@@ -62,14 +33,14 @@ $(document).ready(function () {
 		disableEditMode();
 		$tabOption.hide();
 	});
-	
+
 	// Periodically reload assessment values
-	window.setInterval(function () {
+	/*window.setInterval(function () {
 		reloadAssetScenario();
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
-		loadChartDynamicAleEvolutionByScenario();
-	}, 300000); // every 30s
+		loadChartDynamicAleEvolution();
+	}, 300000);*/ // every 30s
 });
 
 $.fn.loadOrUpdateChart = function (parameters) {
@@ -117,169 +88,6 @@ $.fn.loadOrUpdateChart = function (parameters) {
 	return this;
 };
 
-function aleChartOption(title) {
-	return {
-		title: {
-			display: title != undefined,
-			fontSize: 16,
-			text: title
-		},
-		legend: {
-			position: "bottom"
-		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
-					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
-				}
-			}
-		},
-		displayValue: true,
-		valueFormat: function(value){
-			return application.currencyFormat.format(value).replace("€", "k€");
-		},
-		scales: {
-			xAxes: [{
-				stacked: false
-			}],
-			yAxes: [{
-				stacked: false,
-				ticks: {
-					userCallback: function (value, index, values) {
-						return application.currencyFormat.format(value.toString()).replace("€", "k€");
-					}
-				}
-			}]
-		}
-	};
-}
-
-function evolutionProfitabilityComplianceOption(id,title) {
-	return id.startsWith("chart_evolution_profitability_") ? {
-		title: {
-			display: title != undefined,
-			fontSize: 16,
-			text: title
-		},
-		legend: {
-			position: "bottom"
-		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
-					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
-				}
-			}
-		},
-		scales: {
-			xAxes: [{
-				stacked: true
-			}],
-			yAxes: [{
-				stacked: true,
-				ticks: {
-					userCallback: function (value, index, values) {
-						return application.currencyFormat.format(value.toString()).replace("€", "k€");
-					}
-				}
-			}]
-		}
-	} : {
-		title: {
-			display: title != undefined,
-			fontSize: 16,
-			text: title
-		},
-		legend: {
-			position: "bottom"
-		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
-					return application.percentageFormat.format(item.yLabel);
-				}
-			}
-		},
-		scales: {
-			ticks: {
-				beginAtZero: true,
-				max: 100
-			},
-			yAxes: [{
-				stacked: false,
-				ticks: {
-					userCallback: function (value, index, values) {
-						return application.percentageFormat.format(value);
-					}
-				}
-			}]
-		}
-	};
-}
-
-function budgetChartOption(id,title) {
-	return id.startsWith("chart_budget_cost_") ? {
-		title: {
-			display: title != undefined,
-			fontSize: 16,
-			text: title
-		},
-		legend: {
-			position: "bottom"
-		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
-					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
-				}
-			}
-		},
-		scales: {
-			xAxes: [{
-				stacked: true
-			}],
-			yAxes: [{
-				stacked: true,
-				ticks: {
-					userCallback: function (value, index, values) {
-						return application.currencyFormat.format(value.toString()).replace("€", "k€");
-					}
-				}
-			}]
-		}
-	} : {
-		title: {
-			display: title != undefined,
-			fontSize: 16,
-			text: title
-		},
-		legend: {
-			position: "bottom"
-		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
-					return application.numberFormat.format(item.yLabel)+" "+MessageResolver("label.metric.man_day");
-				}
-			}
-		},
-		scales: {
-			ticks: {
-				beginAtZero: true,
-				max: 100
-			},
-			yAxes: [{
-				stacked: true,
-				ticks: {
-					userCallback: function (value, index, values) {
-						return application.numberFormat.format(value)+" "+MessageResolver("label.metric.man_day");
-					}
-				}
-			}]
-		}
-	};
-}
-
 function findAnalysisId() {
 	var id = application['selected-analysis-id'];
 	if (id === undefined) {
@@ -317,7 +125,11 @@ function reloadAssetScenario() {
 	else if ($("#section_scenario:visible").length)
 		reloadSection("section_scenario");
 	else
-		reloadSection(["section_asset", "section_scenario", undefined, true]);
+		reloadSection(["section_asset", "section_scenario"], undefined, true);
+}
+
+function reloadAssetScenarioChart() {
+	return application.analysisType == "QUALITATIVE" ? reloadRiskChart() : chartALE();
 }
 
 function isEditable() {
@@ -537,47 +349,7 @@ function loadRiskHeatMap() {
 			window.riskHeatMap = new Chart(document.getElementById("risk_acceptance_heat_map_canvas").getContext("2d"), {
 				type: 'heatmap',
 				data: response,
-				options: {
-					scales: {
-						yAxes: [{
-							scaleLabel: {
-								display: true,
-								labelString: MessageResolver("label.title.impact", "Impact"),
-								fontFamily: "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
-								fontSize: 22,
-							}
-						}],
-						xAxes: [{
-							scaleLabel: {
-								display: true,
-								labelString: MessageResolver("label.title.likelihood", "Probability"),
-								fontFamily: "'Corbel','Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'",
-								fontSize: 22,
-							}
-						}]
-					},
-					tooltips: {
-						enabled: false
-					},
-					legend: {
-						display: true,
-						position: 'top',
-						onClick: function () {
-							return false;
-						},
-						labels: {
-							generateLabels: function (chart) {
-								var data = chart.data;
-								return helpers.isArray(data.legends) ? data.legends.map(function (legend) {
-									return {
-										text: legend.label,
-										fillStyle: legend.color
-									};
-								}, this) : [];
-							}
-						}
-					}
-				}
+				options: heatMapOption()
 			});
 		},
 		error: unknowError
@@ -605,16 +377,7 @@ function loadRiskChart(url, name, container, canvas) {
 					window[name].push(new Chart($canvas[0].getContext("2d"), {
 						type: "bar",
 						data: chart,
-						options: {
-							scales: {
-								xAxes: [{
-									stacked: true
-								}],
-								yAxes: [{
-									stacked: true
-								}]
-							}
-						}
+						options: riskOptions()
 					}));
 
 				});
@@ -706,7 +469,7 @@ function updateMeasureEffience(reference) {
 
 function compliances() {
 	var $section = $("#tab-chart-compliance");
-	if($section.is(":visible"))
+	if ($section.is(":visible"))
 		loadComplianceChart(context + "/Analysis/Standard/Compliances");
 	else $section.attr("data-update-required", "true");
 	return false;
@@ -718,7 +481,6 @@ function compliance(standard) {
 		loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance");
 	else
 		$section.attr("data-update-required", "true");
-	console.log("here "+ standard);
 	return false;
 }
 
@@ -744,23 +506,7 @@ function loadComplianceChart(url) {
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "radar",
 								data: chart,
-								options: {
-									legend: {
-										position: 'bottom',
-									},
-									title: {
-										display: true,
-										text: chart.title,
-										fontSize: 16,
-									},
-									scale: {
-										ticks: {
-											beginAtZero: true,
-											max: 100,
-											stepSize:20
-										}
-									}
-								}
+								options: complianceOptions(chart.title)
 							}));
 						}
 					} else if (window[name].has(chart.trickId)) {
@@ -790,20 +536,22 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var charts = helpers.isArray(response) ? response : [response];
+				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				charts.map(chart => {
+
 					if (chart.datasets && chart.datasets.length) {
+						chart.datasets.filter(dataset => dataset.type == "line").map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
 						if (window[name].has(chart.trickId)) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#"+chart.trickId);
+							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "bar",
 								data: chart,
-								options:  evolutionProfitabilityComplianceOption(chart.trickId, chart.title)
+								options: evolutionProfitabilityComplianceOption(chart.trickId, chart.title)
 							}));
 						}
 					} else if (window[name].has(chart.trickId)) {
@@ -825,7 +573,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 function budgetByActionPlanType(actionPlanType) {
 	var $section = $("#tab-chart-budget");
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show(),name = "budgetCharts";
+		var $progress = $("#loading-indicator").show(), name = "budgetCharts";
 		$.ajax({
 			url: context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
 			type: "get",
@@ -840,11 +588,11 @@ function budgetByActionPlanType(actionPlanType) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#"+chart.trickId);
+							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "bar",
 								data: chart,
-								options:  budgetChartOption(chart.trickId, chart.title)
+								options: budgetChartOption(chart.trickId, chart.title)
 							}));
 						}
 					} else if (window[name].has(chart.trickId)) {
@@ -902,14 +650,12 @@ function loadChartBudget() {
 }
 
 function reloadCharts() {
-	chartALE();
 	compliances();
 	summaryCharts();
 	loadChartDynamicParameterEvolution();
 	loadChartDynamicAleEvolutionByAssetType();
-	loadChartDynamicAleEvolutionByScenario();
-	if (application.analysisType == "QUALITATIVE")
-		reloadRiskChart();
+	loadChartDynamicAleEvolution();
+	reloadAssetScenarioChart();
 	return false;
 };
 
@@ -1025,176 +771,149 @@ function manageRiskAcceptance() {
 
 function loadChartAsset() {
 	var $section = $("#tab-chart-asset");
-		if ($section.is(":visible")){
-			loadALEChart(context + "/Analysis/Asset/Chart/Ale", "aleAsset", "#chart_ale_asset", "risk_ale_asset_canvas");
-			loadALEChart(context + "/Analysis/Asset/Chart/Type/Ale", "aleAssetType", "#chart_ale_asset_type", "risk_ale_asset_type_canvas");
-		}
-		else
-			$section.attr("data-update-required", "true");
+	if ($section.is(":visible")) {
+		loadALEChart(context + "/Analysis/Asset/Chart/Ale", "aleAsset", "#chart_ale_asset", "risk_ale_asset_canvas");
+		loadALEChart(context + "/Analysis/Asset/Chart/Type/Ale", "aleAssetType", "#chart_ale_asset_type", "risk_ale_asset_type_canvas");
+	}
+	else
+		$section.attr("data-update-required", "true");
 	return false;
 }
 
 function loadChartScenario() {
 	var $section = $("#tab-chart-scenario");
-		if ($section.is(":visible")){
-			loadALEChart(context + "/Analysis/Scenario/Chart/Type/Ale", "aleScenarioType", "#chart_ale_scenario_type", "risk_ale_scenario_type_canvas");
-			loadALEChart(context + "/Analysis/Scenario/Chart/Ale", "aleScenario", "#chart_ale_scenario", "risk_ale_scenario_canvas");
-		}
-		else
-			$section.attr("data-update-required", "true");
+	if ($section.is(":visible")) {
+		loadALEChart(context + "/Analysis/Scenario/Chart/Type/Ale", "aleScenarioType", "#chart_ale_scenario_type", "risk_ale_scenario_type_canvas");
+		loadALEChart(context + "/Analysis/Scenario/Chart/Ale", "aleScenario", "#chart_ale_scenario", "risk_ale_scenario_canvas");
+	}
+	else
+		$section.attr("data-update-required", "true");
 	return false;
 }
 
 function loadChartDynamicParameterEvolution() {
-	var $section = $("#tab-chart-parameter-evolution");
-		if ($section.is(":visible")) {
-			var $progress = $("#loading-indicator").show();
-			$.ajax({
-				url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
-				type: "get",
-				async: true,
-				contentType: "application/json;charset=UTF-8",
-				success: function (response, textStatus, jqXHR) {
-					var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
-					if (window[name] == undefined)
-						window[name] = new Map();
-					else {
-						window[name].forEach((chart,key)=> {
-							chart.destroy();
-							$("[id='chart-parameter-evolution-" +key+"']",$section).remove();
-						});
-					}
-					
-					charts.map(chart => {
-						if (chart.datasets && chart.datasets.length) {
-							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-							var $parent = $("<div class='col-lg-6' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
-							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
-								type: "line",
-								data: chart,
-								options: {
-									legend: {
-										position: 'bottom',
-									},
-									title: {
-										display: true,
-										text: chart.title,
-										fontSize: 16
-									}
-								}
-							}));
-						
-						}
+	var $section = $("#tab-chart-parameter-evolution"), name = 'chart-parameter-evolution-map';
+	if ($section.is(":visible")) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
+			type: "get",
+			async: true,
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				if (window[name] == undefined)
+					window[name] = new Map();
+				else {
+					window[name].forEach((chart, key) => {
+						chart.destroy();
+						$("[id='chart-parameter-evolution-" + key + "']", $section).remove();
 					});
-				},
-				error: unknowError
-			}).complete(function () {
-				$progress.hide();
-			});
-		} else
-			$section.attr("data-update-required", "true");
+				}
+
+				charts.map(chart => {
+					if (chart.datasets && chart.datasets.length) {
+						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+						var $parent = $("<div class='col-lg-6' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+							type: "line",
+							data: chart,
+							options: aleEvolutionOptions(chart.title)
+						}));
+
+					}
+				});
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+	} else
+		$section.attr("data-update-required", "true");
 }
 
 function loadChartDynamicAleEvolutionByAssetType() {
-		
-	var $section = $("#tab-chart-ale-evolution-by-asset-type");
-	
-		if ($section.is(":visible")) {
-			var $progress = $("#loading-indicator").show();
-			$.ajax({
-				url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
-				type: "get",
-				contentType: "application/json;charset=UTF-8",
-				async: true,
-				success: function (response, textStatus, jqXHR) {
-					var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
-					if (window[name] == undefined)
-						window[name] = new Map();
-					else {
-						window[name].forEach((chart,key)=> {
-							chart.destroy();
-							$("[id='chart-ale-evolution-by-asset-type-" +key+"']",$section).remove();
-						});
-					}
-					
-					charts.map(chart => {
-						if (chart.datasets && chart.datasets.length) {
-							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-							var $parent = $("<div id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
-							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
-								type: "line",
-								data: chart,
-								options: {
-									legend: {
-										position: 'bottom',
-									},
-									title: {
-										display: true,
-										text: chart.title,
-										fontSize: 16
-									}
-								}
-							}));
-						
-						}
+
+	var $section = $("#tab-chart-ale-evolution-by-asset-type"), name = 'chart-ale-evolution-by-asset-type-map';
+
+	if ($section.is(":visible")) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			async: true,
+			success: function (response, textStatus, jqXHR) {
+				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				if (window[name] == undefined)
+					window[name] = new Map();
+				else {
+					window[name].forEach((chart, key) => {
+						chart.destroy();
+						$("[id='chart-ale-evolution-by-asset-type-" + key + "']", $section).remove();
 					});
-				},
-				error: unknowError
-			}).complete(function () {
-				$progress.hide();
-			});
-		} else
-			$section.attr("data-update-required", "true");
+				}
+
+				charts.map(chart => {
+					if (chart.datasets && chart.datasets.length) {
+						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+						var $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+							type: "line",
+							data: chart,
+							options: aleEvolutionOptions(chart.title)
+						}));
+
+					}
+				});
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+	} else
+		$section.attr("data-update-required", "true");
 
 }
 
-function loadChartDynamicAleEvolutionByScenario() {
-	var $section = $("#tab-chart-ale-evolution-by-scenario");
-		if ($section.is(":visible")) {
-			var $progress = $("#loading-indicator").show();
-			$.ajax({
-				url: context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
-				type: "get",
-				contentType: "application/json;charset=UTF-8",
-				async: true,
-				success: function (response, textStatus, jqXHR) {
-					var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
-					if (window[name] == undefined)
-						window[name] = new Map();
-					else {
-						window[name].forEach((chart,key)=> {
-							chart.destroy();
-							$("[id='chart-ale-evolution-by-scenario-" +key+"']",$section).remove();
-						});
-					}
-					
-					charts.map(chart => {
-						if (chart.datasets && chart.datasets.length) {
-							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-							var $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-scenario-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
-							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
-								type: "line",
-								data: chart,
-								options: {
-									legend: {
-										position: 'bottom',
-									},
-									title: {
-										display: true,
-										text: chart.title,
-										fontSize: 16
-									}
-								}
-							}));
-						
-						}
+function loadChartDynamicAleEvolution() {
+	var $section = $("#tab-chart-ale-evolution"), name = 'chart-ale-evolution';
+	if ($section.is(":visible")) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Dynamic/Chart/AleEvolution",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			async: true,
+			success: function (response, textStatus, jqXHR) {
+				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				if (window[name] == undefined)
+					window[name] = new Map();
+				else {
+					window[name].forEach((chart, key) => {
+						chart.destroy();
+						$("[id='chart-ale-evolution-" + key + "']", $section).remove();
 					});
-				},
-				error: unknowError
-			}).complete(function () {
-				$progress.hide();
-			});
-		} else $section.attr("data-update-required", "true");
+				}
+
+				charts.map(chart => {
+					if (chart.datasets && chart.datasets.length) {
+						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
+						var $parent = $("<div id='chart-ale-evolution-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
+							type: "line",
+							data: chart,
+							options: aleEvolutionOptions(chart.title)
+						}));
+
+					}
+				});
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+	} else $section.attr("data-update-required", "true");
 }
 
 function loadALEChart(url, name, container, canvas) {

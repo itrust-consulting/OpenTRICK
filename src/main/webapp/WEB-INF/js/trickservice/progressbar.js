@@ -8,7 +8,7 @@ function ProgressBar() {
 	this.waitting = true;
 	this.listners = {};
 
-	ProgressBar.prototype.__Create = function() {
+	ProgressBar.prototype.__Create = function () {
 		// declare progressbar
 		this.progress = document.createElement("div");
 		this.progressbar = document.createElement("div");
@@ -32,12 +32,12 @@ function ProgressBar() {
 		return false;
 	};
 
-	ProgressBar.prototype.Update = function(value, info) {
+	ProgressBar.prototype.Update = function (value, info) {
 		this.setInfo(info);
 		this.setValue(value);
 	};
 
-	ProgressBar.prototype.Increment = function(value) {
+	ProgressBar.prototype.Increment = function (value) {
 		if (value == null)
 			value = parseInt($(this.progressbar).attr("aria-valuenow")) + this.incrementStep;
 		else
@@ -46,7 +46,7 @@ function ProgressBar() {
 		return this.setValue(value);
 	};
 
-	ProgressBar.prototype.setValue = function(value) {
+	ProgressBar.prototype.setValue = function (value) {
 		if (!$.isNumeric(value))
 			return false;
 		if (this.progressbar != null) {
@@ -82,45 +82,45 @@ function ProgressBar() {
 		return false;
 	};
 
-	ProgressBar.prototype.OnChange = function(callack) {
+	ProgressBar.prototype.OnChange = function (callack) {
 		if ($.isFunction(callack))
 			this.listners["change"] = callack;
 		return false;
 	};
 
-	ProgressBar.prototype.OnComplete = function(callack) {
+	ProgressBar.prototype.OnComplete = function (callack) {
 		if ($.isFunction(callack))
 			this.listners["complete"] = callack;
 		return false;
 	};
 
-	ProgressBar.prototype.setInfo = function(info) {
+	ProgressBar.prototype.setInfo = function (info) {
 		if (info != null)
 			$(this.infoText).text(info);
 		return false;
 	};
 
-	ProgressBar.prototype.Anchor = function(anchor) {
+	ProgressBar.prototype.Anchor = function (anchor) {
 
 		if (anchor != null && anchor != undefined)
 			anchor.insertBefore(this.progress, anchor.firstChild);
 		return false;
 	};
 
-	ProgressBar.prototype.Initialise = function(element) {
+	ProgressBar.prototype.Initialise = function (element) {
 		this.__Create();
 		this.Anchor(element);
 	};
 
-	ProgressBar.prototype.Remove = function() {
+	ProgressBar.prototype.Remove = function () {
 		$(this.progress).remove();
 		return false;
 	};
 
-	ProgressBar.prototype.Destroy = function() {
+	ProgressBar.prototype.Destroy = function () {
 		this.Remove();
 		var instance = this;
-		setTimeout(function() {
+		setTimeout(function () {
 			delete instance;
 		}, 10);
 		return false;

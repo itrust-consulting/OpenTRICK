@@ -7,11 +7,11 @@ function addScaleType() {
 		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/KnowledgeBase/ScaleType/Add",
-		type : "GET",
-		success : processScaleTypeForm,
-		error : unknowError
-	}).complete(function() {
+		url: context + "/KnowledgeBase/ScaleType/Add",
+		type: "GET",
+		success: processScaleTypeForm,
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -27,11 +27,11 @@ function editScaleType(id) {
 
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/KnowledgeBase/ScaleType/" + id + "/Edit",
-		type : "GET",
-		success : processScaleTypeForm,
-		error : unknowError
-	}).complete(function() {
+		url: context + "/KnowledgeBase/ScaleType/" + id + "/Edit",
+		type: "GET",
+		success: processScaleTypeForm,
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -44,21 +44,21 @@ function processScaleTypeForm(response, textStatus, jqXHR) {
 	else {
 		$view.appendTo("#dialog-body");
 
-		$view.on("hidden.bs.modal", function() {
+		$view.on("hidden.bs.modal", function () {
 			$view.remove();
 		});
 
 		var $submitButton = $("form>#scale_type_form_submit_button", $view), $acronym = $("input[name='acronym']", $view), $name = $("input[name='name']", $view), acronyms = [];
 
-		$("#section_kb_scale_type table td[data-field-name='acronym']").each(function(i) {
+		$("#section_kb_scale_type table td[data-field-name='acronym']").each(function (i) {
 			acronyms[i] = $(this).text();
 		});
 
-		$(".modal-footer>#scale_type_submit_button", $view).on("click", function() {
+		$(".modal-footer>#scale_type_submit_button", $view).on("click", function () {
 			return $submitButton.click();
 		});
 
-		$name.on("blur", function() {
+		$name.on("blur", function () {
 			var name = $name.val().toLowerCase(), acronym = "i";
 			if ($acronym.val() == "") {
 				if (name == "impact") {
@@ -78,7 +78,7 @@ function processScaleTypeForm(response, textStatus, jqXHR) {
 			$acronym.val(acronym);
 		})
 
-		$("form", $view).on("submit", function(e) {
+		$("form", $view).on("submit", function (e) {
 			return saveScaleType($view, e.target);
 		});
 
@@ -90,34 +90,34 @@ function saveScaleType($view, form) {
 	$("label.label-danger", $view).remove();
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/KnowledgeBase/ScaleType/Save",
-		type : "POST",
-		data : $(form).serialize(),
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/ScaleType/Save",
+		type: "POST",
+		data: $(form).serialize(),
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$view.modal("hide");
 				reloadSection("section_kb_scale_type");
 			} else {
-				for ( var error in response) {
+				for (var error in response) {
 					var errorElement = document.createElement("label");
 					errorElement.setAttribute("class", "label label-danger");
 					$(errorElement).text(response[error]);
 					switch (error) {
-					case "name":
-						$(errorElement).appendTo($("#scale_type_name", $view).parent());
-						break;
-					case "acronym":
-						$(errorElement).appendTo($("#scale_type_acronym", $view).parent());
-						break;
-					default:
-						$(errorElement).appendTo($("#scale-type-error-container", $view));
-						break;
+						case "name":
+							$(errorElement).appendTo($("#scale_type_name", $view).parent());
+							break;
+						case "acronym":
+							$(errorElement).appendTo($("#scale_type_acronym", $view).parent());
+							break;
+						default:
+							$(errorElement).appendTo($("#scale-type-error-container", $view));
+							break;
 					}
 				}
 			}
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -130,16 +130,16 @@ function deleteScaleType() {
 	var $confirmModal = $("#confirm-dialog"), $progress = $("#loading-indicator").show();
 	try {
 		$confirmModal.find(".modal-body").html(
-				selectedIDScale.length > 1 ? MessageResolver("confirm.delete.multi.scale", "Are you sure you want to delete selected scales") : MessageResolver(
-						"confirm.delete.single.scale", "Are you sure, you want to delete selected scale"));
-		$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
+			selectedIDScale.length > 1 ? MessageResolver("confirm.delete.multi.scale", "Are you sure you want to delete selected scales") : MessageResolver(
+				"confirm.delete.single.scale", "Are you sure, you want to delete selected scale"));
+		$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
 			$progress.show();
 			$.ajax({
-				url : context + "/KnowledgeBase/ScaleType/Delete",
-				type : "POST",
-				contentType : "application/json;charset=UTF-8",
-				data : JSON.stringify(selectedIDScale),
-				success : function(response, textStatus, jqXHR) {
+				url: context + "/KnowledgeBase/ScaleType/Delete",
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				data: JSON.stringify(selectedIDScale),
+				success: function (response, textStatus, jqXHR) {
 					if (response["success"] != undefined)
 						reloadSection("section_kb_scale_type");
 					else if (response["error"] != undefined)
@@ -147,8 +147,8 @@ function deleteScaleType() {
 					else
 						showDialog("#info-dialog", MessageResolver("error.unknown.delete", "An unknown error occurred while deleting"));
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
 		});

@@ -4,38 +4,38 @@ function TaskManager(title) {
 	this.title = title;
 	this.view = null;
 
-	TaskManager.prototype.Start = function() {
+	TaskManager.prototype.Start = function () {
 		this.Hide();
 		var instance = this;
-		setTimeout(function() {
+		setTimeout(function () {
 			instance.UpdateTaskCount();
 		}, 500);
 		return this;
 	};
 
-	TaskManager.prototype.UpdateUI = function() {
-		$("#task-counter").text($("li",this.view).length);
+	TaskManager.prototype.UpdateUI = function () {
+		$("#task-counter").text($("li", this.view).length);
 	};
 
-	TaskManager.prototype.__CreateView = function() {
+	TaskManager.prototype.__CreateView = function () {
 		this.view = $("#task-manager");
 		return this;
 	};
 
-	TaskManager.prototype.SetTitle = function(title) {
+	TaskManager.prototype.SetTitle = function (title) {
 		this.title = title;
 		return this;
 	};
 
-	TaskManager.prototype.Show = function() {
+	TaskManager.prototype.Show = function () {
 		if (this.view == null)
 			this.__CreateView();
 		this.view.removeAttr("style");
 		this.view.parent().addClass("open");
 		return this;
 	};
-	
-	TaskManager.prototype.Hide = function() {
+
+	TaskManager.prototype.Hide = function () {
 		if (this.view == null)
 			this.__CreateView();
 		this.view.hide();
@@ -43,23 +43,23 @@ function TaskManager(title) {
 		return this;
 	};
 
-	TaskManager.prototype.isEmpty = function() {
+	TaskManager.prototype.isEmpty = function () {
 		return this.tasks.length == 0;
 	};
 
-	TaskManager.prototype.Destroy = function() {
+	TaskManager.prototype.Destroy = function () {
 		this.Hide().view.empty();
 		return true;
 	};
 
-	TaskManager.prototype.UpdateTaskCount = function() {
+	TaskManager.prototype.UpdateTaskCount = function () {
 		var instance = this;
 		$.ajax({
-			url : context + "/Task/InProcessing",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(reponse) {
-				if (reponse == null || reponse == ""){
+			url: context + "/Task/InProcessing",
+			async: true,
+			contentType: "application/json;charset=UTF-8",
+			success: function (reponse) {
+				if (reponse == null || reponse == "") {
 					instance.Destroy();
 					return false;
 				}
@@ -71,16 +71,16 @@ function TaskManager(title) {
 						}
 					}
 					instance.UpdateUI();
-					if(!instance.isEmpty())
+					if (!instance.isEmpty())
 						instance.Show();
 				}
 			},
-			error : unknowError
+			error: unknowError
 		});
 		return this;
 	};
 
-	TaskManager.prototype.createProgressBar = function(taskId) {
+	TaskManager.prototype.createProgressBar = function (taskId) {
 		if (this.view == null)
 			this.__CreateView();
 		var progressBar = new ProgressBar();
@@ -92,8 +92,8 @@ function TaskManager(title) {
 			$container.appendTo(this.view);
 			progressBar.Anchor($container[0]);
 		}
-		progressBar.OnComplete(function(sender) {
-			setTimeout(function() {
+		progressBar.OnComplete(function (sender) {
+			setTimeout(function () {
 				progressBar.Destroy();
 				instance.Remove(taskId);
 			}, 5000);
@@ -102,7 +102,7 @@ function TaskManager(title) {
 		return progressBar;
 	};
 
-	TaskManager.prototype.Remove = function(taskId) {
+	TaskManager.prototype.Remove = function (taskId) {
 		$("#task-container-" + taskId).remove();
 		var index = this.tasks.indexOf(taskId);
 		if (index > -1)
@@ -117,15 +117,15 @@ function TaskManager(title) {
 		return this;
 	};
 
-	TaskManager.prototype.UpdateStatus = function(taskId) {
+	TaskManager.prototype.UpdateStatus = function (taskId) {
 		if (!$.isNumeric(taskId))
 			return;
 		var instance = this;
 		$.ajax({
-			url : context + "/Task/Status/" + taskId,
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(reponse) {
+			url: context + "/Task/Status/" + taskId,
+			async: true,
+			contentType: "application/json;charset=UTF-8",
+			success: function (reponse) {
 				if (reponse == null || reponse.flag == undefined) {
 					if (!instance.progressBars.length)
 						instance.Remove(taskId);
@@ -138,11 +138,11 @@ function TaskManager(title) {
 					instance.progressBars[taskId].Update(reponse.progress, reponse.message);
 				}
 				if (reponse.flag == 3) {
-					setTimeout(function() {
+					setTimeout(function () {
 						instance.UpdateStatus(taskId);
 					}, 1500);
 				} else {
-					setTimeout(function() {
+					setTimeout(function () {
 						instance.Remove(taskId);
 					}, 5000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
@@ -155,7 +155,7 @@ function TaskManager(title) {
 				}
 				return false;
 			},
-			error : unknowError
+			error: unknowError
 		});
 	};
 };

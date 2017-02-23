@@ -4,19 +4,19 @@ function Login(url, timeoutInterceptor) {
 }
 
 Login.prototype = {
-	IsAuthenticate : function() {
+	IsAuthenticate: function () {
 		var authentificated = false;
 		$.ajax({
-			url : context + "/IsAuthenticate",
-			contentType : "application/json;charset=UTF-8",
-			async:false,
-			success : function(response,textStatus,jqXHR) {
+			url: context + "/IsAuthenticate",
+			contentType: "application/json;charset=UTF-8",
+			async: false,
+			success: function (response, textStatus, jqXHR) {
 				authentificated = response === true;
 			}
 		});
 		return authentificated;
 	},
-	Display : function() {
+	Display: function () {
 		this.timeoutInterceptor.Stop();
 		this.timeoutInterceptor.loginShow = true;
 		if (this.IsAuthenticate())
@@ -26,33 +26,33 @@ Login.prototype = {
 		view.Intialise();
 		$(view.modal_footer).remove();
 		$.ajax({
-			url : context,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			url: context,
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				var login = $($.parseHTML(response)).find("#login");
 				if (login.length) {
 					view.setBody($(login).html());
-					$(view.modal).on('hidden.bs.modal', function() {
+					$(view.modal).on('hidden.bs.modal', function () {
 						that.timeoutInterceptor.loginShow = false;
 					});
-					$(view.modal_body).find("#login_signin_button").on("click", function() {
+					$(view.modal_body).find("#login_signin_button").on("click", function () {
 						var alerts = $(view.modal_body).find(".alert");
 						if (alerts.length)
 							alerts.remove();
 						$.ajax({
-							url : context + "/j_spring_security_check",
-							contentType : "application/x-www-form-urlencoded",
-							type : "post",
-							data : $(view.modal_body).find("#login_form").serialize(),
-							success : function(response,textStatus,jqXHR) {
+							url: context + "/j_spring_security_check",
+							contentType: "application/x-www-form-urlencoded",
+							type: "post",
+							data: $(view.modal_body).find("#login_form").serialize(),
+							success: function (response, textStatus, jqXHR) {
 								var $htmlResult = $.parseHTML(response);
 								if ($($htmlResult).find("#login").length)
 									$(view.modal_body).prepend($($htmlResult).find(".alert"));
 								else {
 									$.ajax({
-										url : that.url,
-										contentType : "application/json;charset=UTF-8"
-									}).done(function() {
+										url: that.url,
+										contentType: "application/json;charset=UTF-8"
+									}).done(function () {
 										view.Destroy();
 										that.timeoutInterceptor.Start(that);
 									});
@@ -65,7 +65,7 @@ Login.prototype = {
 				}
 				return false;
 			},
-			error : unknowError
+			error: unknowError
 		});
 		return this.timeoutInterceptor;
 	}

@@ -6,7 +6,7 @@ var previousenddate = null;
 var previousphaserow = null;
 var nextphaserow = null;
 
-$(function() {
+$(function () {
 	if ($("#addPhaseModel").length) {
 
 		if (navigator.userLanguage) // Explorer
@@ -18,7 +18,7 @@ $(function() {
 
 		if (!(l_lang == "en" || l_lang == "en-GB" || l_lang == "en-US"))
 			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
-		$("#addPhaseModel").on("hidden.bs.modal", function() {
+		$("#addPhaseModel").on("hidden.bs.modal", function () {
 			$("#addPhaseModel .label").remove();
 			clearPhaseInterval();
 		});
@@ -69,21 +69,21 @@ function newPhase() {
 		}
 
 		$("#addPhaseModel #phase_begin_date").datepicker({
-			format : "yyyy-mm-dd",
-			language : l_lang,
-			autoclose : true,
-			weekStart : 1,
-			todayHighlight : true,
-			startDate : $("#addPhaseﬁModel #phase_begin_date").prop("value")
+			format: "yyyy-mm-dd",
+			language: l_lang,
+			autoclose: true,
+			weekStart: 1,
+			todayHighlight: true,
+			startDate: $("#addPhaseﬁModel #phase_begin_date").prop("value")
 		}).on('changeDate', beginDateChanged);
 
 		$("#addPhaseModel #phase_end_date").datepicker({
-			format : "yyyy-mm-dd",
-			language : l_lang,
-			autoclose : true,
-			weekStart : 1,
-			todayHighlight : true,
-			startDate : $("#addPhaseModel #phase_begin_date").prop("value")
+			format: "yyyy-mm-dd",
+			language: l_lang,
+			autoclose: true,
+			weekStart: 1,
+			todayHighlight: true,
+			startDate: $("#addPhaseModel #phase_begin_date").prop("value")
 		}).on('changeDate', endDateChanged);
 		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase"));
 		$("#addPhaseModel #phaseid").prop("value", -1);
@@ -141,23 +141,23 @@ function editPhase(phaseid) {
 		}
 
 		$("#addPhaseModel #phase_begin_date").datepicker({
-			format : "yyyy-mm-dd",
-			language : l_lang,
-			autoclose : true,
-			weekStart : 1,
-			todayHighlight : true,
+			format: "yyyy-mm-dd",
+			language: l_lang,
+			autoclose: true,
+			weekStart: 1,
+			todayHighlight: true,
 			/* startDate : phasestartlimit != null ? phasestartlimit : '', */
-			endDate : phaseendlimit != null ? phaseendlimit : ''
+			endDate: phaseendlimit != null ? phaseendlimit : ''
 		}).on('changeDate', beginDateChanged);
 
 		$("#addPhaseModel #phase_end_date").datepicker({
-			format : "yyyy-mm-dd",
-			language : l_lang,
-			autoclose : true,
-			weekStart : 1,
-			todayHighlight : true,
+			format: "yyyy-mm-dd",
+			language: l_lang,
+			autoclose: true,
+			weekStart: 1,
+			todayHighlight: true,
 			/* startDate : $("#addPhaseModel #phase_begin_date").prop("value"), */
-			endDate : phaseendlimit != null ? phaseendlimit : ''
+			endDate: phaseendlimit != null ? phaseendlimit : ''
 		}).on('changeDate', endDateChanged);
 
 		$("#addPhaseModel #phaseid").prop("value", phaseid);
@@ -209,27 +209,27 @@ function endDateChanged() {
 function savePhase(form) {
 	clearPhaseInterval();
 	$.ajax({
-		url : context + "/Analysis/Phase/Save",
-		type : "post",
-		data : serializeForm(form),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Analysis/Phase/Save",
+		type: "post",
+		data: serializeForm(form),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$("#addPhaseModel .label").remove();
 			var data = parseJson(response);
 			if (data === undefined) {
 				unknowError();
 				$("#addPhaseModel").modal("hide");
 			} else {
-				for ( var error in data) {
+				for (var error in data) {
 					console.log(error);
 					switch (error) {
-					case "endDate":
-					case "beginDate":
-						if ($("#addPhaseModel #phaseid").val() != -1)
-							$("<label class='label label-warning' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
-						break;
-					default:
-						$("<label class='label label-danger' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
+						case "endDate":
+						case "beginDate":
+							if ($("#addPhaseModel #phaseid").val() != -1)
+								$("<label class='label label-warning' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
+							break;
+						default:
+							$("<label class='label label-danger' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
 					}
 				}
 
@@ -239,16 +239,16 @@ function savePhase(form) {
 						$("#addPhaseModel").modal("hide");
 					else {
 						var phaseInterval = {
-							max : 11,
-							current : 0,
-							iteration : 1000,
-							text : $("#addPhaseModel #phase-Modal-title-info").attr("data-lang-text")
+							max: 11,
+							current: 0,
+							iteration: 1000,
+							text: $("#addPhaseModel #phase-Modal-title-info").attr("data-lang-text")
 						}
-						application["phase_interval"] = setInterval(function(e) {
+						application["phase_interval"] = setInterval(function (e) {
 							phaseInterval["worker"]();
 						}, phaseInterval.iteration);
 
-						phaseInterval["worker"] = function() {
+						phaseInterval["worker"] = function () {
 							phaseInterval.current++;
 							if (phaseInterval.current > phaseInterval.max)
 								$("#addPhaseModel").modal("hide");
@@ -261,7 +261,7 @@ function savePhase(form) {
 				}
 			}
 		},
-		error : unknowError
+		error: unknowError
 	});
 	return false;
 }
@@ -276,13 +276,13 @@ function deletePhase(idPhase) {
 	}
 
 	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
-	$("#confirm-dialog .btn-danger").click(function() {
+	$("#confirm-dialog .btn-danger").click(function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Phase/Delete/" + idPhase,
-			contentType : "application/json;charset=UTF-8",
-			type : 'POST',
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Analysis/Phase/Delete/" + idPhase,
+			contentType: "application/json;charset=UTF-8",
+			type: 'POST',
+			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined)
 					reloadSection("section_phase");
 				else if (response["error"] != undefined)
@@ -291,8 +291,8 @@ function deletePhase(idPhase) {
 					unknowError();
 				return false;
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		});
 	});

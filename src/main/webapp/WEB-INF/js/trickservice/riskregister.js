@@ -1,10 +1,10 @@
 function calculateRiskRegister() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/RiskRegister/Compute",
-		type : "post",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Analysis/RiskRegister/Compute",
+		type: "post",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				new TaskManager().Start();
 			else if (message["error"]) {
@@ -13,8 +13,8 @@ function calculateRiskRegister() {
 			} else
 				unknowError()
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;

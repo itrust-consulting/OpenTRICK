@@ -1,35 +1,35 @@
 function saveLanguage(form) {
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 	$.ajax({
-		url : context + "/KnowledgeBase/Language/Save",
-		type : "post",
-		data : serializeForm(form),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		url: context + "/KnowledgeBase/Language/Save",
+		type: "post",
+		data: serializeForm(form),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 			var alert = $("#addLanguageModel .label-danger");
 			if (alert.length)
 				alert.remove();
-			for ( var error in response) {
+			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 
 				$(errorElement).text(response[error]);
 				switch (error) {
-				case "altName":
-					$(errorElement).appendTo($("#language_form #language_altName").parent());
-					break;
-				case "alpha3":
-					$(errorElement).appendTo($("#language_form #language_alpha3").parent());
-					break;
+					case "altName":
+						$(errorElement).appendTo($("#language_form #language_altName").parent());
+						break;
+					case "alpha3":
+						$(errorElement).appendTo($("#language_form #language_alpha3").parent());
+						break;
 
-				case "name":
-					$(errorElement).appendTo($("#language_form #language_name").parent());
-					break;
+					case "name":
+						$(errorElement).appendTo($("#language_form #language_name").parent());
+						break;
 
-				case "language":
-					$(errorElement).appendTo($("#language_form .modal-body"));
-					break;
+					case "language":
+						$(errorElement).appendTo($("#language_form .modal-body"));
+						break;
 				}
 			}
 			if (!$("#addLanguageModel .label-danger").length) {
@@ -39,7 +39,7 @@ function saveLanguage(form) {
 			return false;
 
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			var alert = $("#addLanguageModel .label-danger");
 			if (alert.length)
 				alert.remove();
@@ -63,22 +63,22 @@ function deleteLanguage(languageId, name) {
 
 	}
 	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?", name));
-	$("#deletelanguagebuttonYes").unbind().click(function() {
+	$("#deletelanguagebuttonYes").unbind().click(function () {
 		$.ajax({
-			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response,textStatus,jqXHR) {
-				if(response["success"]!=undefined)
+			url: context + "/KnowledgeBase/Language/Delete/" + languageId,
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			async: true,
+			success: function (response, textStatus, jqXHR) {
+				if (response["success"] != undefined)
 					reloadSection("section_language");
-				else if(response["error"]!=undefined)
+				else if (response["error"] != undefined)
 					new Modal($("#alert-dialog").clone(), response["error"]).Show();
 				else unknowError();
 				return false;
 			},
-			error : unknowError
-		}).complete(function(){
+			error: unknowError
+		}).complete(function () {
 			$("#deleteLanguageModel").modal('hide');
 		});
 		return false;

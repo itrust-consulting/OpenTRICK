@@ -1,73 +1,73 @@
 function register(form) {
 	$.ajax({
-		url : context + "/DoRegister",
-		type : "post",
-		contentType : "application/json;charset=UTF-8",
-		data : serializeForm(form),
-		success : function(response,textStatus,jqXHR) {
+		url: context + "/DoRegister",
+		type: "post",
+		contentType: "application/json;charset=UTF-8",
+		data: serializeForm(form),
+		success: function (response, textStatus, jqXHR) {
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
 			$("#" + form + " .label-danger").remove();
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
-			
-			for ( var error in response) {
+
+			for (var error in response) {
 
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 
 				$(errorElement).text(response[error]);
 				switch (error) {
-				case "login":
-					$(errorElement).appendTo($("#" + form + " #login").parent());
-					break;
-				case "password":
-					$(errorElement).appendTo($("#" + form + " #password").parent());
-					break;
-				case "repeatPassword":
-					$(errorElement).appendTo($("#" + form + " #repeatPassword").parent());
-					break;
-				case "firstName":
-					$(errorElement).appendTo($("#" + form + " #firstName").parent());
-					break;
-				case "lastName":
-					$(errorElement).appendTo($("#" + form + " #lastName").parent());
-					break;
-				case "email":
-					$(errorElement).appendTo($("#" + form + " #email").parent());
-					break;
-				case "locale":
-					$(errorElement).appendTo($("#" + form + " #locale").parent());
-					break;
-				case "user": {
-					var errElement = document.createElement("div");
-					errElement.setAttribute("class", "alert alert-danger");
-					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
-					$(errElement).appendTo($("#success"));
-					$("#success").removeAttr("hidden");
-				}
-				case "constraint": {
-					var errElement = document.createElement("div");
-					errElement.setAttribute("class", "alert alert-danger");
-					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
-					$(errElement).appendTo($("#success"));
-					$("#success").removeAttr("hidden");
-				}
-				
+					case "login":
+						$(errorElement).appendTo($("#" + form + " #login").parent());
+						break;
+					case "password":
+						$(errorElement).appendTo($("#" + form + " #password").parent());
+						break;
+					case "repeatPassword":
+						$(errorElement).appendTo($("#" + form + " #repeatPassword").parent());
+						break;
+					case "firstName":
+						$(errorElement).appendTo($("#" + form + " #firstName").parent());
+						break;
+					case "lastName":
+						$(errorElement).appendTo($("#" + form + " #lastName").parent());
+						break;
+					case "email":
+						$(errorElement).appendTo($("#" + form + " #email").parent());
+						break;
+					case "locale":
+						$(errorElement).appendTo($("#" + form + " #locale").parent());
+						break;
+					case "user": {
+						var errElement = document.createElement("div");
+						errElement.setAttribute("class", "alert alert-danger");
+						$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
+						$(errElement).appendTo($("#success"));
+						$("#success").removeAttr("hidden");
+					}
+					case "constraint": {
+						var errElement = document.createElement("div");
+						errElement.setAttribute("class", "alert alert-danger");
+						$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
+						$(errElement).appendTo($("#success"));
+						$("#success").removeAttr("hidden");
+					}
+
 				}
 			}
 
 			if (!$("#" + form + " .label-danger").length) {
-				
+
 				$('body').load(context + "/Login", {
-					"registerSuccess" : true,
-					"login" : $("#" + form + " #login").val()
+					"registerSuccess": true,
+					"login": $("#" + form + " #login").val()
 				});
 
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			$("#" + form + " .label-danger").remove();
 			var errElement = document.createElement("div");
 			errElement.setAttribute("class", "alert alert-danger");
@@ -86,18 +86,18 @@ function register(form) {
  * 
  * @param $
  */
-(function($) {
+(function ($) {
 
 	var token = $("meta[name='_csrf']").attr("content");
 	var header = $("meta[name='_csrf_header']").attr("content");
-	$(document).ajaxSend(function(e, xhr, options) {
+	$(document).ajaxSend(function (e, xhr, options) {
 		xhr.setRequestHeader(header, token);
 	});
-	
-	$.fn.serializeJSON = function() {
+
+	$.fn.serializeJSON = function () {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(function() {
+		form.find('input, select, textarea').each(function () {
 			var val;
 			if (!this.name)
 				return;
@@ -116,7 +116,7 @@ function register(form) {
 						json[this.name] = '';
 					}
 				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+					json[this.name] = typeof val === 'string' ? [val, this.value] : $.isArray(val) ? $.merge(val, [this.value]) : this.value;
 				}
 			} else {
 				json[this.name] = this.value;

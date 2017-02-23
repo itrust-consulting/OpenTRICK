@@ -1,10 +1,10 @@
 function fixAllScenarioCategories() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Patch/Update/ScenarioCategoryValue",
-		contentType : "application/json;charset=UTF-8",
-		type : 'POST',
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Patch/Update/ScenarioCategoryValue",
+		contentType: "application/json;charset=UTF-8",
+		type: 'POST',
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
@@ -17,11 +17,11 @@ function fixAllScenarioCategories() {
 				$("#alert-dialog").modal("toggle");
 			}
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			$("#alert-dialog").modal("toggle");
 		}
-	}).complete(function() {
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -30,10 +30,10 @@ function fixAllScenarioCategories() {
 function updateMeasureAssetTypeValue() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Patch/Update/Measure/MeasureAssetTypeValues",
-		contentType : "application/json;charset=UTF-8",
-		type : 'POST',
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Patch/Update/Measure/MeasureAssetTypeValues",
+		contentType: "application/json;charset=UTF-8",
+		type: 'POST',
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
@@ -44,8 +44,8 @@ function updateMeasureAssetTypeValue() {
 			} else
 				unknowError();
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -54,13 +54,13 @@ function updateMeasureAssetTypeValue() {
 function restoreAnalysisRights() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.restore.analysis.right", "Are you sure, you want to restore analysis rights?"));
-	$confirmDialog.find("button[name='yes']").one("click",function() {
+	$confirmDialog.find("button[name='yes']").one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Patch/Restore/Analysis/Right",
-			contentType : "application/json;charset=UTF-8",
-			type : 'POST',
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/Patch/Restore/Analysis/Right",
+			contentType: "application/json;charset=UTF-8",
+			type: 'POST',
+			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined)
 					application['taskManager'].Start();
 				else if (response["error"] != undefined) {
@@ -71,11 +71,11 @@ function restoreAnalysisRights() {
 					$("#alert-dialog").modal("show");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
+			error: function (jqXHR, textStatus, errorThrown) {
 				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 				$("#alert-dialog").modal("show");
 			}
-		}).complete(function() {
+		}).complete(function () {
 			$progress.hide();
 		});
 		$confirmDialog.modal("hide");
@@ -87,14 +87,14 @@ function restoreAnalysisRights() {
 function updateAnalysesScopes() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.scopes", "Are you sure, you want to update missing scopes of analyses?"));
-	$confirmDialog.find("button[name='yes']").one("click",function() {
+	$confirmDialog.find("button[name='yes']").one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Patch/Update/Analyses/Scopes",
-			contentType : "application/json;charset=UTF-8",
-			type : 'POST',
-			success : function(response, textStatus, jqXHR) {
-				if(response["success"] != undefined){
+			url: context + "/Patch/Update/Analyses/Scopes",
+			contentType: "application/json;charset=UTF-8",
+			type: 'POST',
+			success: function (response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
 					$("#info-dialog .modal-body").text(response["success"]);
 					$("#info-dialog").modal("show");
 				}
@@ -106,11 +106,11 @@ function updateAnalysesScopes() {
 					$("#alert-dialog").modal("show");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
+			error: function (jqXHR, textStatus, errorThrown) {
 				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 				$("#alert-dialog").modal("show");
 			}
-		}).complete(function() {
+		}).complete(function () {
 			$progress.hide();
 		});
 		$confirmDialog.modal("hide");
@@ -119,17 +119,17 @@ function updateAnalysesScopes() {
 	return false;
 }
 
-function updateAnalysesRiskAndItemInformation(){
+function updateAnalysesRiskAndItemInformation() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.risk_item.information", "Are you sure, you want to update missing risk and item information of analyses?"));
-	$confirmDialog.find("button[name='yes']").one("click",function() {
+	$confirmDialog.find("button[name='yes']").one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Patch/Update/Analyses/Risk-item-information",
-			contentType : "application/json;charset=UTF-8",
-			type : 'POST',
-			success : function(response, textStatus, jqXHR) {
-				if(response["success"] != undefined){
+			url: context + "/Patch/Update/Analyses/Risk-item-information",
+			contentType: "application/json;charset=UTF-8",
+			type: 'POST',
+			success: function (response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
 					$("#info-dialog .modal-body").text(response["success"]);
 					$("#info-dialog").modal("show");
 				}
@@ -141,11 +141,11 @@ function updateAnalysesRiskAndItemInformation(){
 					$("#alert-dialog").modal("show");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
+			error: function (jqXHR, textStatus, errorThrown) {
 				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 				$("#alert-dialog").modal("show");
 			}
-		}).complete(function() {
+		}).complete(function () {
 			$progress.hide();
 		});
 		$confirmDialog.modal("hide");
@@ -157,10 +157,10 @@ function updateAnalysesRiskAndItemInformation(){
 function fixAllAssessments() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Patch/Update/Assessments",
-		contentType : "application/json;charset=UTF-8",
-		type : 'POST',
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Patch/Update/Assessments",
+		contentType: "application/json;charset=UTF-8",
+		type: 'POST',
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
@@ -173,23 +173,23 @@ function fixAllAssessments() {
 				$("#alert-dialog").modal("toggle");
 			}
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			$("#alert-dialog").modal("toggle");
 		}
-	}).complete(function(){
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
 }
 
-function addCSSFParameters(){
+function addCSSFParameters() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Patch/Add-CSSF-Parameters",
-		contentType : "application/json;charset=UTF-8",
-		type : 'POST',
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Patch/Add-CSSF-Parameters",
+		contentType: "application/json;charset=UTF-8",
+		type: 'POST',
+		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
@@ -202,11 +202,11 @@ function addCSSFParameters(){
 				$("#alert-dialog").modal("toggle");
 			}
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			$("#alert-dialog").modal("toggle");
 		}
-	}).complete(function(){
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;

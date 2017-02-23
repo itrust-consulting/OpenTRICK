@@ -8,27 +8,27 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 		if (controller == null || controller == undefined)
 			return false;
 		$
-				.ajax({
-					url : context + controller,
-					type : "get",
-					async : true,
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
-						var $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section,
-								$newSection);
-						if (smartUpdate.Update())
-							$section.replaceWith($newSection);
-						if (!refreshOnly) {
-							var callback = callbackBySection(section);
-							if ($.isFunction(callback))
-								callback();
-						}
-						return false;
-					},
-					error : unknowError
-				});
+			.ajax({
+				url: context + controller,
+				type: "get",
+				async: true,
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					var $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section,
+						$newSection);
+					if (smartUpdate.Update())
+						$section.replaceWith($newSection);
+					if (!refreshOnly) {
+						var callback = callbackBySection(section);
+						if ($.isFunction(callback))
+							callback();
+					}
+					return false;
+				},
+				error: unknowError
+			});
 	} else
-		$section.closest(".tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
+		$section.closest(".tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [section, refreshOnly]);
 	return false;
 }
 
@@ -47,7 +47,7 @@ function reloadSection(section, subSection, refreshOnly) {
 		}
 	} else if (section == "section_standard")
 		location.reload();
-	else if(section == "section_chart")
+	else if (section == "section_chart")
 		reloadCharts();
 	else {
 		var $section = $("#" + section);
@@ -57,9 +57,9 @@ function reloadSection(section, subSection, refreshOnly) {
 				return false;
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
-				url : context + controller,
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+				url: context + controller,
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
 					if (subSection != null && subSection != undefined)
 						section += "_" + subSection;
 					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + section + "']", content);
@@ -81,15 +81,15 @@ function reloadSection(section, subSection, refreshOnly) {
 					}
 					return false;
 				},
-				error : unknowError
-			}).complete(function() {
+				error: unknowError
+			}).complete(function () {
 				$progress.hide();
 			});
-		} else if(section!=undefined) {
-			var $container = section.startsWith("section_standard_") ?  $section : $section.closest(".tab-pane");
+		} else if (section != undefined) {
+			var $container = section.startsWith("section_standard_") ? $section : $section.closest(".tab-pane");
 			$container.attr("data-update-required", true);
 			$container.attr("data-trigger", 'reloadSection');
-			$container.attr("data-parameters", [ section, subSection, refreshOnly ]);
+			$container.attr("data-parameters", [section, subSection, refreshOnly]);
 		}
 	}
 	return false;
@@ -97,25 +97,25 @@ function reloadSection(section, subSection, refreshOnly) {
 
 function findControllerBySection(section, subSection) {
 	var controllers = {
-		"section_asset" : "/Analysis/Asset/Section",
-		"section_scenario" : "/Analysis/Scenario/Section",
-		"section_phase" : "/Analysis/Phase/Section",
-		"section_analysis" : "/Analysis/Section",
-		"section_profile_analysis" : "/AnalysisProfile/Section",
-		"section_standard" : "/Analysis/Standard/Section",
-		"section_customer" : "/KnowledgeBase/Customer/Section",
-		"section_language" : "/KnowledgeBase/Language/Section",
-		"section_kb_standard" : "/KnowledgeBase/Standard/Section",
-		"section_user" : "/Admin/User/Section",
-		"section_actionplans" : "/Analysis/ActionPlan/Section",
-		"section_summary" : "/Analysis/ActionPlanSummary/Section",
-		"section_riskregister" : "/Analysis/RiskRegister/Section",
-		"section_soa" : "/Analysis/Standard/SOA",
-		"section_ids" : "/Admin/IDS/Section",
-		"section_kb_scale_type" : "/KnowledgeBase/ScaleType",
-		"section_qualitative_parameter" : "/Analysis/Parameter/Qualitative/Section",
-		"section_quantitative_parameter" : "/Analysis/Parameter/Quantitative/Section",
-		"section_parameter_impact" : "/Analysis/Parameter/Impact/Section"
+		"section_asset": "/Analysis/Asset/Section",
+		"section_scenario": "/Analysis/Scenario/Section",
+		"section_phase": "/Analysis/Phase/Section",
+		"section_analysis": "/Analysis/Section",
+		"section_profile_analysis": "/AnalysisProfile/Section",
+		"section_standard": "/Analysis/Standard/Section",
+		"section_customer": "/KnowledgeBase/Customer/Section",
+		"section_language": "/KnowledgeBase/Language/Section",
+		"section_kb_standard": "/KnowledgeBase/Standard/Section",
+		"section_user": "/Admin/User/Section",
+		"section_actionplans": "/Analysis/ActionPlan/Section",
+		"section_summary": "/Analysis/ActionPlanSummary/Section",
+		"section_riskregister": "/Analysis/RiskRegister/Section",
+		"section_soa": "/Analysis/Standard/SOA",
+		"section_ids": "/Admin/IDS/Section",
+		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
+		"section_qualitative_parameter": "/Analysis/Parameter/Qualitative/Section",
+		"section_quantitative_parameter": "/Analysis/Parameter/Quantitative/Section",
+		"section_parameter_impact": "/Analysis/Parameter/Impact/Section"
 	};
 
 	if (section.match("^section_standard_")) {
@@ -134,42 +134,38 @@ function findControllerBySection(section, subSection) {
 
 function callbackBySection(section) {
 	var callbacks = {
-		"section_asset" : function() {
+		"section_asset": function () {
 			reloadSection("section_scenario", undefined, true);
-			if (application.analysisType == "QUALITATIVE") {
+			if (application.analysisType == "QUALITATIVE")
 				reloadSection("section_riskregister", undefined, true);
-				updateRiskChart();
-			} else
-				chartALE();
+			reloadAssetScenarioChart();
 			return false;
 		},
-		"section_scenario" : function() {
+		"section_scenario": function () {
 			reloadSection("section_asset", undefined, true);
-			if (application.analysisType == "QUALITATIVE") {
+			if (application.analysisType == "QUALITATIVE")
 				reloadSection("section_riskregister", undefined, true);
-				updateRiskChart();
-			} else
-				chartALE();
+			reloadAssetScenarioChart();
 			return false;
 		},
-		"section_actionplans" : function() {
+		"section_actionplans": function () {
 			compliance('27001');
 			compliance('27002');
 			reloadSection("section_summary");
 			reloadSection("section_soa");
 			return false;
 		},
-		"section_summary" : function() {
+		"section_summary": function () {
 			summaryCharts();
 			return false;
 		},
-		"section_standard" : function() {
+		"section_standard": function () {
 			$("[data-toggle='tooltip']", "#" + section).tooltip().on('show.bs.tooltip', toggleToolTip)
 		},
-		"section_language" : function() {
+		"section_language": function () {
 			rebuildMeasureLanguage();
 		},
-		"section_phase" : function() {
+		"section_phase": function () {
 			if (application["estimation-helper"]) {// See risk-estimation
 				application["estimation-helper"].$tabSection.attr("data-update-required", application["estimation-helper"].invalidate = true);
 				if (application["standard-caching"])// See risk-estimation ->
@@ -177,7 +173,7 @@ function callbackBySection(section) {
 					application["standard-caching"].clear();
 			}
 		},
-		"section_qualitative_parameter" : function() {
+		"section_qualitative_parameter": function () {
 			reloadRiskChart(true)// load chart + rebuild tables.
 		}
 
@@ -195,30 +191,30 @@ function SectionSmartUpdate(sectionName, data) {
 };
 
 SectionSmartUpdate.prototype = {
-	Update : function() {
+	Update: function () {
 		switch (this.sectionName) {
-		case "section_asset":
-		case "section_scenario":
-		case "section_phase":
-			return this.__generic_update(this.data, "#" + this.sectionName, 1);
-		case "section_analysis":
-		case "section_user":
-		case "section_standard":
-		case "section_language":
-		case "section_customer":
-		case "section_profile_analysis":
-		case "section_kb_measure":
-		case "section_ids":
-		case "section_soa":
-			return this.__generic_update(this.data, "#" + this.sectionName, -1);
-		default:
-			if (this.sectionName.match("^section_standard_"))
+			case "section_asset":
+			case "section_scenario":
+			case "section_phase":
+				return this.__generic_update(this.data, "#" + this.sectionName, 1);
+			case "section_analysis":
+			case "section_user":
+			case "section_standard":
+			case "section_language":
+			case "section_customer":
+			case "section_profile_analysis":
+			case "section_kb_measure":
+			case "section_ids":
+			case "section_soa":
 				return this.__generic_update(this.data, "#" + this.sectionName, -1);
-			break;
+			default:
+				if (this.sectionName.match("^section_standard_"))
+					return this.__generic_update(this.data, "#" + this.sectionName, -1);
+				break;
 		}
 		return true;
 	},
-	__generic_update : function(src, dest, indexColnum) {
+	__generic_update: function (src, dest, indexColnum) {
 		try {
 			var $dest = $(dest), $src = $(src), $tableDestTrs = $("tbody>tr", dest);
 			if (!$tableDestTrs.length)

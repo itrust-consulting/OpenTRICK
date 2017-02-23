@@ -6,26 +6,26 @@ function saveUser(form) {
 		idUser = parseInt(idUser.val());
 	var $progress = $("#loading-indicator").show();
 	$.ajax(
-			{
-				url : context + "/Admin/User/Save",
-				type : "post",
-				data : serializeForm(form),
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
+		{
+			url: context + "/Admin/User/Save",
+			type: "post",
+			data: serializeForm(form),
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 
-					$("#success").attr("hidden", "hidden").find("div").remove();
+				$("#success").attr("hidden", "hidden").find("div").remove();
 
-					$("#" + form + " .label-danger").remove();
-					for ( var error in response) {
+				$("#" + form + " .label-danger").remove();
+				for (var error in response) {
 
-						$("#success").attr("hidden", "hidden");
-						$("#success div").remove();
+					$("#success").attr("hidden", "hidden");
+					$("#success div").remove();
 
-						var errorElement = document.createElement("label");
-						errorElement.setAttribute("class", "label label-danger");
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
 
-						$(errorElement).text(response[error]);
-						switch (error) {
+					$(errorElement).text(response[error]);
+					switch (error) {
 						case "login":
 							$(errorElement).appendTo($("#" + form + " #user_login").parent());
 							break;
@@ -49,35 +49,35 @@ function saveUser(form) {
 							$("#success").removeAttr("hidden");
 							$("#user_password").prop("value", "");
 						}
-						}
 					}
-
-					if (!$("#" + form + " .label-danger").length) {
-						var successElement = document.createElement("div");
-						successElement.setAttribute("class", "alert alert-success");
-						$(successElement).html(
-								"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
-										+ (idUser === -1 ? MessageResolver("success.user.created", "User was successfully created") : MessageResolver("success.user.update",
-												"User was successfully updated")));
-						$(successElement).appendTo($("#addUserModel .modal-body #success"));
-						$("#success").removeAttr("hidden");
-						$("#user_password").prop("value", "");
-						setTimeout(reloadSection("section_user"), 500);
-					}
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					$("#addUserModel .label-danger").remove();
-					var errorElement = document.createElement("div");
-					errorElement.setAttribute("class", "alert alert-danger");
-					$(errorElement).text(
-							"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
-									+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
-					$(errorElement).appendTo($("#addUserModel .modal-body #success"));
-					$("#user_password").prop("value", "");
 				}
-			}).complete(function() {
-				$progress.hide();
-	});
+
+				if (!$("#" + form + " .label-danger").length) {
+					var successElement = document.createElement("div");
+					successElement.setAttribute("class", "alert alert-success");
+					$(successElement).html(
+						"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+						+ (idUser === -1 ? MessageResolver("success.user.created", "User was successfully created") : MessageResolver("success.user.update",
+							"User was successfully updated")));
+					$(successElement).appendTo($("#addUserModel .modal-body #success"));
+					$("#success").removeAttr("hidden");
+					$("#user_password").prop("value", "");
+					setTimeout(reloadSection("section_user"), 500);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				$("#addUserModel .label-danger").remove();
+				var errorElement = document.createElement("div");
+				errorElement.setAttribute("class", "alert alert-danger");
+				$(errorElement).text(
+					"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+					+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
+				$(errorElement).appendTo($("#addUserModel .modal-body #success"));
+				$("#user_password").prop("value", "");
+			}
+		}).complete(function () {
+			$progress.hide();
+		});
 	return false;
 }
 
@@ -91,97 +91,97 @@ function deleteUser(userId, name) {
 	}
 	var $loadProgress = $("#loading-indicator").show();
 	$.ajax(
-			{
-				url : context + "/Admin/User/" + userId + "/Prepare-to-delete",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
-					if (response["error"] != undefined)
-						showDialog("#alert-dialog", response["error"]);
-					else {
-						var $deleteUserDialog = $("#deleteUserModal", new DOMParser().parseFromString(response, "text/html"));
-						if ($deleteUserDialog.length) {
-							if ($("#deleteUserModal").length)
-								$("#deleteUserModal").replaceWith($deleteUserDialog);
-							else
-								$deleteUserDialog.appendTo("#dialog-body");
-							var $form = $deleteUserDialog.find("form"), $progress = $deleteUserDialog.find(".progress"), $submitInput = $deleteUserDialog
-									.find("input[type='submit']"), $deleteButton;
+		{
+			url: context + "/Admin/User/" + userId + "/Prepare-to-delete",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else {
+					var $deleteUserDialog = $("#deleteUserModal", new DOMParser().parseFromString(response, "text/html"));
+					if ($deleteUserDialog.length) {
+						if ($("#deleteUserModal").length)
+							$("#deleteUserModal").replaceWith($deleteUserDialog);
+						else
+							$deleteUserDialog.appendTo("#dialog-body");
+						var $form = $deleteUserDialog.find("form"), $progress = $deleteUserDialog.find(".progress"), $submitInput = $deleteUserDialog
+							.find("input[type='submit']"), $deleteButton;
 
-							$progress.hide();
+						$progress.hide();
 
-							function fadeOutComplete() {
-								return $(this).remove();
+						function fadeOutComplete() {
+							return $(this).remove();
+						}
+
+						$deleteButton = $("button[name='delete']", $deleteUserDialog).click(function () {
+							$submitInput.click();
+						});
+
+						$form.on("submit", function () {
+							$deleteUserDialog.find(".label").remove();
+							$deleteButton.prop('disabled', true);
+							var data = {
+								idUser: $form.find("input[name='idUser']").val(),
+								switchOwners: {},
+								deleteAnalysis: []
 							}
-
-							$deleteButton = $("button[name='delete']", $deleteUserDialog).click(function() {
-								$submitInput.click();
+							$form.find("select").each(function () {
+								var $this = $(this), value = $this.val(), name = $this.attr("name");
+								if (value < 1)
+									data.deleteAnalysis.push(name);
+								else
+									data.switchOwners[name] = value;
 							});
 
-							$form.on("submit", function() {
-								$deleteUserDialog.find(".label").remove();
-								$deleteButton.prop('disabled', true);
-								var data = {
-									idUser : $form.find("input[name='idUser']").val(),
-									switchOwners : {},
-									deleteAnalysis : []
-								}
-								$form.find("select").each(function() {
-									var $this = $(this), value = $this.val(), name = $this.attr("name");
-									if (value < 1)
-										data.deleteAnalysis.push(name);
-									else
-										data.switchOwners[name] = value;
-								});
+							$progress.show();
 
-								$progress.show();
-
-								$.ajax({
-									url : context + "/Admin/User/Delete",
-									type : "post",
-									contentType : "application/json;charset=UTF-8",
-									data : JSON.stringify(data),
-									success : function(response, textStatus, jqXHR) {
-										var result = parseJson(response);
-										if (result == undefined)
-											$("<label class='label label-danger'/>").appendTo("#deleteUserErrors").text(
-													MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
-										if (result.success != undefined) {
-											$deleteUserDialog.modal("hide");
-											reloadSection([ 'section_user', 'section_admin_analysis' ]);
-										} else if (result.error != undefined)
-											$("<label class='label label-danger' />").appendTo("#deleteUserErrors").text(result.error).fadeOut(15000, fadeOutComplete);
-										else {
-											for ( var key in result) {
-												var $select = $deleteUserDialog.find("select[name=" + key + "]");
-												if ($select.length)
-													$("<label class='label label-danger' />").appendTo($select.parent()).text(result[key]);
-												else
-													$("<label class='label label-danger' />").appendTo("#deleteUserErrors").text(result.error);
-											}
+							$.ajax({
+								url: context + "/Admin/User/Delete",
+								type: "post",
+								contentType: "application/json;charset=UTF-8",
+								data: JSON.stringify(data),
+								success: function (response, textStatus, jqXHR) {
+									var result = parseJson(response);
+									if (result == undefined)
+										$("<label class='label label-danger'/>").appendTo("#deleteUserErrors").text(
+											MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
+									if (result.success != undefined) {
+										$deleteUserDialog.modal("hide");
+										reloadSection(['section_user', 'section_admin_analysis']);
+									} else if (result.error != undefined)
+										$("<label class='label label-danger' />").appendTo("#deleteUserErrors").text(result.error).fadeOut(15000, fadeOutComplete);
+									else {
+										for (var key in result) {
+											var $select = $deleteUserDialog.find("select[name=" + key + "]");
+											if ($select.length)
+												$("<label class='label label-danger' />").appendTo($select.parent()).text(result[key]);
+											else
+												$("<label class='label label-danger' />").appendTo("#deleteUserErrors").text(result.error);
 										}
-									},
-									error : function(jqXHR, textStatus, errorThrown) {
-										$("<label class='label label-danger' />").appendTo("#deleteUserErrors").text(
-												MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
-									},
-									complete : function() {
-										$deleteButton.prop('disabled', false);
-										$progress.hide();
 									}
-								});
-								return false;
+								},
+								error: function (jqXHR, textStatus, errorThrown) {
+									$("<label class='label label-danger' />").appendTo("#deleteUserErrors").text(
+										MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
+								},
+								complete: function () {
+									$deleteButton.prop('disabled', false);
+									$progress.hide();
+								}
 							});
+							return false;
+						});
 
-							$deleteUserDialog.modal("show");
-						} else
-							unknowError();
-					}
-					return false;
-				},
-				error : unknowError
-			}).complete(function() {
-		$loadProgress.hide();
-	});
+						$deleteUserDialog.modal("show");
+					} else
+						unknowError();
+				}
+				return false;
+			},
+			error: unknowError
+		}).complete(function () {
+			$loadProgress.hide();
+		});
 	return false;
 }
 
@@ -200,17 +200,17 @@ function newUser(isIDSUser) {
 	$("#radioConnexionType input[value='0']").prop("checked", "ckecked");
 	$("#radioConnexionType").button("reset");
 	$.ajax({
-		url : context + "/Admin/Roles",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Admin/Roles",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
 			$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
 			$("#addUserbutton").text(MessageResolver("label.action.save", "save"));
 			$("#user_form").prop("action", "/Save");
 			$("#addUserModel").modal('show');
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
@@ -240,19 +240,19 @@ function editSingleUser(userId) {
 	$("#radioConnexionType input[value='" + $(rows[5]).attr("data-trick-real-value") + "']").parent().button("toggle");
 	$("#addUserModel .alert,.label-danger").remove()
 	$.ajax({
-		url : context + "/Admin/User/Roles/" + userId,
-		type : "get",
-		async : false,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/Admin/User/Roles/" + userId,
+		type: "get",
+		async: false,
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
 			$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
 			$("#addUserbutton").text(MessageResolver("label.action.save", "Save"));
 			$("#user_form").prop("action", "/Save");
 			$("#addUserModel").modal('show');
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;

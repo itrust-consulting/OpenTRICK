@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -205,6 +207,14 @@ public class MeasureManager {
 				chapters.put(chapter, measures2 = new ArrayList<Measure>());
 			measures2.add(measure);
 		}
+
+		List<Chapter> keys = chapters.entrySet().stream()
+				.filter(entry -> !entry.getValue().stream()
+						.anyMatch(measure -> measure.getMeasureDescription().isComputable()))
+				.map(Entry::getKey).collect(Collectors.toList());
+
+		keys.forEach(key -> chapters.remove(key));
+
 		return chapters;
 	}
 

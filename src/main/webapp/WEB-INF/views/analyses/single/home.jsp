@@ -76,6 +76,7 @@
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
 	<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js" />"></script>
+	<script src="<spring:url value="/js/chartjs/plugins.js" />"></script>
 	<script src="<spring:url value="/js/chartjs/Chart.HeatMap.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-slider.min.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>

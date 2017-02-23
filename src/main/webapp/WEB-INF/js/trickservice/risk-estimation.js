@@ -4,7 +4,7 @@ function saveAssessmentData(e) {
 	var $assessmentUI = $("#estimation-ui"), $target = $(e.currentTarget), value = $target.val(), idScenario = $assessmentUI.attr('data-trick-scenario-id'), idAsset = $assessmentUI
 		.attr('data-trick-asset-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target.hasAttr("placeholder") ? $target
 			.attr("placeholder") : $target.attr("data-trick-value");
-	if (value == oldValue || value=='' && oldValue == $target.attr("title"))
+	if (value == oldValue || value == '' && oldValue == $target.attr("title"))
 		$target.parent().removeClass('has-error').removeAttr("title");
 	else {
 		var $progress = $("#loading-indicator").show();
@@ -18,14 +18,14 @@ function saveAssessmentData(e) {
 					unknowError();
 				else {
 					var $parent = $target.parent();
-					if (response.error){
-						$parent.on("show.bs.popover",function(){
+					if (response.error) {
+						$parent.on("show.bs.popover", function () {
 							var popover = $parent.data('bs.popover');
-							setTimeout(function() {
+							setTimeout(function () {
 								popover.destroy();
 							}, 3000);
 						});
-						$parent.addClass("has-error").removeClass("has-success").popover({"content": response.message,'triger':'manual',"container":'body','placement':'auto', 'template' : application.errorTemplate}).attr('title',response.message).popover("show");
+						$parent.addClass("has-error").removeClass("has-success").popover({ "content": response.message, 'triger': 'manual', "container": 'body', 'placement': 'auto', 'template': application.errorTemplate }).attr('title', response.message).popover("show");
 					}
 					else {
 						$parent.removeAttr("title").removeClass("has-error");
@@ -33,7 +33,7 @@ function saveAssessmentData(e) {
 							$target.removeClass("has-success");
 						else
 							$parent.addClass("has-success");
-						
+
 						var updated = false;
 						for (var i = 0; i < response.fields.length; i++) {
 							var field = response.fields[i], $element = $target;
@@ -64,23 +64,16 @@ function saveAssessmentData(e) {
 							else if ($target.tagName = 'SELECT')
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
-						
-						if (application.analysisType == "QUALITATIVE"){
+						if (application.analysisType == "QUALITATIVE")
 							reloadSection("section_riskregister", undefined, true);
-							reloadRiskChart();
-						}else {
-							reloadSection("section_asset", undefined, true);
-							reloadSection("section_scenario", undefined, true);
-							chartALE();
-						}
-						
-						setTimeout(function() {
-							
+						else
+							reloadAssetScenario();
+						reloadAssetScenarioChart();
+						setTimeout(function () {
 							if ($target.attr("readonly"))
 								$target.removeClass("has-success");
 							else
 								$parent.removeClass("has-success");
-							
 						}, 3000);
 					}
 				}
@@ -114,7 +107,7 @@ function toggleAdditionalActionPlan(e) {
 			}
 		}
 	} else {
-		$("a[data-action='hide'],a[data-action='show']","#menu_estimation_action_plan").parent().toggle();
+		$("a[data-action='hide'],a[data-action='show']", "#menu_estimation_action_plan").parent().toggle();
 		if (helper["toggleAdditionalActionPlan"] == 'hide') {
 			$additional.css({ "display": "inline-block" });
 			helper["toggleAdditionalActionPlan"] = 'show';
@@ -137,10 +130,10 @@ function updateAssessmentUI() {
 	loadAssessmentData($assessment.attr("data-trick-id"));
 }
 
-function refreshEstimation(type){
-	var $current = $("#tab-risk-estimation div[data-trick-content='"+type+"'] div.list-group > a.list-group-item.active");
-	if(!$current.length)
-		$current = $("#tab-risk-estimation div[data-trick-content='"+type+"'] div.list-group > a.list-group-item:first");
+function refreshEstimation(type) {
+	var $current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item.active");
+	if (!$current.length)
+		$current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item:first");
 	$current.trigger("click");
 }
 
@@ -151,66 +144,66 @@ function updateEstimationSelect(type, elements, status) {
 	if (status == "true")
 		$selections.show();
 	else $selections.hide();
-	
+
 	refreshEstimation(type);
 	return false;
 }
 
-function updateEstimationIteam(type,item){
-	var $tabSection  = $("#tab-risk-estimation"), $selector = $("select[name='"+type+"']",$tabSection), $option =  $("option[data-trick-type][value='"+item.id+"']", $selector), $link = undefined;
-	if($option.length)
-		$link = $("div[data-trick-content='"+type+"'] a[data-trick-type][data-trick-id='"+item.id+"'][data-trick-selected!='" + status + "']", $tabSection);
-	else{
-		$option=$("<option/>");
-		$link=$("<a href='#' class='list-group-item' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' />");
+function updateEstimationIteam(type, item) {
+	var $tabSection = $("#tab-risk-estimation"), $selector = $("select[name='" + type + "']", $tabSection), $option = $("option[data-trick-type][value='" + item.id + "']", $selector), $link = undefined;
+	if ($option.length)
+		$link = $("div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id='" + item.id + "'][data-trick-selected!='" + status + "']", $tabSection);
+	else {
+		$option = $("<option/>");
+		$link = $("<a href='#' class='list-group-item' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' />");
 	}
-	for ( var key in item) {
+	for (var key in item) {
 		switch (key) {
-		case "id":
-			$option.attr("value",item[key]);
-			$link.attr("data-trick-id", item[key]);
-			break;
-		case "name":
-			$option.text(item[key]).attr("title",item[key]);
-			$link.text(item[key]).attr("title",item[key]);
-			break;
-		case "type":
-			$option.attr("data-trick-type",item[key]);
-			$link.attr("data-trick-type",item[key]);
-			break;
-		case "assetLinked":
-			$option.attr("data-trick-linked",item[key]);
-			$link.attr("data-trick-linked",item[key]);
-			break;
-		case "assetValues":
-		case "assetTypeValues":
-			var types = item[key].join(";");
-			$option.attr("data-trick-type",types);
-			$link.attr("data-trick-type",types);
-			break;
-		case "selected":
-			$option.attr("data-trick-selected",item[key]);
-			$link.attr("data-trick-selected",item[key]);
-			if(asset[key])
-				$option.show();
-			else {
-				$option.hide();
-				$link.hide();
-			}
+			case "id":
+				$option.attr("value", item[key]);
+				$link.attr("data-trick-id", item[key]);
+				break;
+			case "name":
+				$option.text(item[key]).attr("title", item[key]);
+				$link.text(item[key]).attr("title", item[key]);
+				break;
+			case "type":
+				$option.attr("data-trick-type", item[key]);
+				$link.attr("data-trick-type", item[key]);
+				break;
+			case "assetLinked":
+				$option.attr("data-trick-linked", item[key]);
+				$link.attr("data-trick-linked", item[key]);
+				break;
+			case "assetValues":
+			case "assetTypeValues":
+				var types = item[key].join(";");
+				$option.attr("data-trick-type", types);
+				$link.attr("data-trick-type", types);
+				break;
+			case "selected":
+				$option.attr("data-trick-selected", item[key]);
+				$link.attr("data-trick-selected", item[key]);
+				if (asset[key])
+					$option.show();
+				else {
+					$option.hide();
+					$link.hide();
+				}
 		}
 	}
-	if(!$option.parent().length){
-		$link.appendTo("div[data-trick-content='"+type+"']>div.list-group",$tabSection).on("click",changeAssessment);
+	if (!$option.parent().length) {
+		$link.appendTo("div[data-trick-content='" + type + "']>div.list-group", $tabSection).on("click", changeAssessment);
 		$option.appendTo($selector);
 	}
-	
-	if($tabSection.is(":visible"))
+
+	if ($tabSection.is(":visible"))
 		helper.invalidate = true;
 	refreshEstimation(type);
 	return false;
 }
 
-function removeEstimation(type, elements){
+function removeEstimation(type, elements) {
 	var $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tab-risk-estimation").filter(function () {
 		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
 	}).remove();
@@ -229,13 +222,13 @@ function riskEstimationUpdate() {
 }
 
 function updateRiskEstimationNavigation() {
-	var $tabSection = $("#tab-risk-estimation") , $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active",$tabSection);
+	var $tabSection = $("#tab-risk-estimation"), $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active", $tabSection);
 
 	if (activeSelector == undefined)
 		activeSelector = $currentAssessment.closest("[data-trick-content]").attr("data-trick-content") == "scenario" ? "asset" : "scenario";
 
-	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected",$tabSection), $previousSelector = $(
-		"[data-trick-nav='previous-selector']",$tabSection).parent(), $nextSelector = $("[data-trick-nav='next-selector']",$tabSection).parent();
+	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected", $tabSection), $previousSelector = $(
+		"[data-trick-nav='previous-selector']", $tabSection).parent(), $nextSelector = $("[data-trick-nav='next-selector']", $tabSection).parent();
 
 	if ($currentSelector.next("[data-trick-selected='true']:first").length)
 		$nextSelector.removeClass("disabled");
@@ -275,7 +268,7 @@ function AssessmentHelder() {
 		scenario: this.scenario.find("option[data-trick-selected='true']:first").val()
 	};
 	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
-	
+
 }
 
 AssessmentHelder.prototype = {
@@ -304,7 +297,7 @@ AssessmentHelder.prototype = {
 	},
 	switchControl: function (name) {
 		activeSelector = name;
-		$("div[data-trick-content]",this.$tabSection).each(function () {
+		$("div[data-trick-content]", this.$tabSection).each(function () {
 			if (this.getAttribute("data-trick-content") == name)
 				$(this).hide();
 			else
@@ -312,44 +305,44 @@ AssessmentHelder.prototype = {
 		});
 		return this;
 	}, updateContent: function () {
-		var $current = this.getCurrent(activeSelector).find("option:selected"), type = $current.attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']",this.$tabSection);
-		if(type == undefined){
-			if(this.getOther(activeSelector).find("option[data-trick-type]:visible").length)
+		var $current = this.getCurrent(activeSelector).find("option:selected"), type = $current.attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']", this.$tabSection);
+		if (type == undefined) {
+			if (this.getOther(activeSelector).find("option[data-trick-type]:visible").length)
 				this.getCurrent(activeSelector).trigger("change");
 		}
 		else {
-				if (activeSelector == "asset") {
-					var id = $current.val();
-					$elements.each(function () {
-						var $this = $(this), scenarioType = $this.attr("data-trick-type"), linked = $this.attr("data-trick-linked");
-						if(linked ==="true"){
-							if (scenarioType && scenarioType.search(id) != -1)
-								$this.show();
-							else
-								$this.hide();
-						}else {
-							if (scenarioType && scenarioType.search(type) != -1)
-								$this.show();
-							else
-								$this.hide();
-						}
-					});
-				} else {
-					var linked = $current.attr("data-trick-linked") === "true";
-					$elements.each(function () {
-						var $this = $(this);
-						if(linked){
-							if (type.search($this.attr("data-trick-id")) != -1)
-								$this.show();
-							else
-								$this.hide();
-						}else {
-							if (type.search($this.attr("data-trick-type")) != -1)
-								$this.show();
-							else
-								$this.hide();
-						}
-					});
+			if (activeSelector == "asset") {
+				var id = $current.val();
+				$elements.each(function () {
+					var $this = $(this), scenarioType = $this.attr("data-trick-type"), linked = $this.attr("data-trick-linked");
+					if (linked === "true") {
+						if (scenarioType && scenarioType.search(id) != -1)
+							$this.show();
+						else
+							$this.hide();
+					} else {
+						if (scenarioType && scenarioType.search(type) != -1)
+							$this.show();
+						else
+							$this.hide();
+					}
+				});
+			} else {
+				var linked = $current.attr("data-trick-linked") === "true";
+				$elements.each(function () {
+					var $this = $(this);
+					if (linked) {
+						if (type.search($this.attr("data-trick-id")) != -1)
+							$this.show();
+						else
+							$this.hide();
+					} else {
+						if (type.search($this.attr("data-trick-type")) != -1)
+							$this.show();
+						else
+							$this.hide();
+					}
+				});
 			}
 			$elements.removeClass("last").filter(":visible:last").addClass("last");
 			if ($elements.filter(".active").is(":hidden"))
@@ -365,12 +358,12 @@ AssessmentHelder.prototype = {
 			if ($content.attr("data-trick-content") == $section.attr("data-trick-content") && $section.attr("data-trick-asset-id") == idAsset && $section.attr("data-trick-scenario-id") == idScenario) {
 				if (isFullUpdate = this.smartUpdate($content))
 					$section.replaceWith($content).length > 0;
-			}else
+			} else
 				$section.replaceWith($content).length > 0;
-				
-			if(isFullUpdate){
-				$section.attr('data-trick-asset-id',idAsset).attr('data-trick-scenario-id',idScenario);
-				fixTableHeader($("table",$content))
+
+			if (isFullUpdate) {
+				$section.attr('data-trick-asset-id', idAsset).attr('data-trick-scenario-id', idScenario);
+				fixTableHeader($("table", $content))
 			}
 			this.invalidate = false;
 		} else
@@ -395,17 +388,17 @@ AssessmentHelder.prototype = {
 			var $section = $(this.section), tableDestTrs = $("tbody tr", $section);
 			if (!(tableDestTrs.length && $("td", tableDestTrs[0]).length == $("tbody>tr:first>td", assessments).length))
 				return true;
-		
+
 			for (var i = 0; i < tableDestTrs.length; i++) {
 				var trickId = $(tableDestTrs[i]).attr("data-trick-id");
 				if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
-					var $tr = $("tbody tr.panel-footer",assessments);
+					var $tr = $("tbody tr.panel-footer", assessments);
 					if ($tr.length)
 						$(tableDestTrs[i]).replaceWith($tr);
 					else
 						$(tableDestTrs[i]).appendTo($("tbody", $section));
 				} else {
-					var $tr = $("tbody tr[data-trick-id='" + trickId + "']",assessments);
+					var $tr = $("tbody tr[data-trick-id='" + trickId + "']", assessments);
 					if (!$tr.length)
 						$(tableDestTrs[i]).remove();
 					else
@@ -433,15 +426,15 @@ AssessmentHelder.prototype = {
 			return true;
 		}
 	}, reload: function (id) {
-		if(id == undefined)
+		if (id == undefined)
 			id = "-1";
 		if (this.$tabSection.is(":visible")) {
 			var $currentUI = $(this.section), idAsset = -3, idScenario = -3;
 			if (activeSelector == "asset") {
-				idAsset = $("select[name='asset']",this.$tabSection).val();
+				idAsset = $("select[name='asset']", this.$tabSection).val();
 				idScenario = id;
 			} else {
-				idScenario = $("select[name='scenario']",this.$tabSection).val();
+				idScenario = $("select[name='scenario']", this.$tabSection).val();
 				idAsset = id;
 			}
 			return (!this.invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
@@ -496,29 +489,29 @@ AssessmentHelder.prototype = {
 						});
 
 						$("a[data-action='manage']", $assessmentUI).on("click", function (e) {
-							if($(this).parent().hasClass("disabled"))
+							if ($(this).parent().hasClass("disabled"))
 								e.preventDefault();
 							else {
 								forceCloseToolTips();
 								manageRiskProfileMeasure(idAsset, idScenario, e);
 							}
 						});
-						
-						$("thead input[type='checkbox']",$assessmentUI).trigger('change');
-						
+
+						$("thead input[type='checkbox']", $assessmentUI).trigger('change');
+
 						$("a[data-action='delete']", $assessmentUI).on("click", function (e) {
-							if($(this).parent().hasClass("disabled"))
+							if ($(this).parent().hasClass("disabled"))
 								e.preventDefault();
 							else {
 								forceCloseToolTips();
-								deleteEstimationMeasures(idAsset, idScenario,$assessmentUI,$progress);
+								deleteEstimationMeasures(idAsset, idScenario, $assessmentUI, $progress);
 							}
 						});
-						
-						$("input[list]").each(function(){
+
+						$("input[list]").each(function () {
 							generateDataList(this.getAttribute("list"));
 						});
-						
+
 					}
 
 					$("a[data-action='hide'],a[data-action='show']", $assessmentUI).on("click", toggleAdditionalActionPlan)
@@ -551,19 +544,19 @@ AssessmentHelder.prototype = {
 	}
 }
 
-function generateDataList(id){
-	if(document.getElementById(id)!=null)
+function generateDataList(id) {
+	if (document.getElementById(id) != null)
 		return false;
-	var selector = id.endsWith("impact")? "#Scale_Impact" : "#Scale_Probability,#DynamicParameters", $acronyms = $("td[data-trick-field='acronym']", selector), $values = $("td[data-trick-field='value']",selector), dataList = document.createElement("datalist");
+	var selector = id.endsWith("impact") ? "#Scale_Impact" : "#Scale_Probability,#DynamicParameters", $acronyms = $("td[data-trick-field='acronym']", selector), $values = $("td[data-trick-field='value']", selector), dataList = document.createElement("datalist");
 	dataList.setAttribute("id", id);
 	for (var i = 0; i < $acronyms.length; i++) {
 		var option = document.createElement("option"), value = $values[i].innerText.trim();
 		option.setAttribute("value", value);
-		option.innerText = value + " (" + $acronyms[i].innerText.trim()+ ")";
+		option.innerText = value + " (" + $acronyms[i].innerText.trim() + ")";
 		dataList.appendChild(option);
 	}
 	$(dataList).hide().appendTo("#widgets");
-	
+
 }
 
 function displayParameters(name, title) {
@@ -579,33 +572,33 @@ function displayParameters(name, title) {
 	return false;
 }
 
-function deleteEstimationMeasures(idAsset, idScenario,$assessmentUI,$progress){
-	
+function deleteEstimationMeasures(idAsset, idScenario, $assessmentUI, $progress) {
+
 	var $toDelete = [], measures = [];
-	
+
 	$progress.show();
-	
-	$("tbody tr[data-trick-id]>td>input[type='checkbox']",$assessmentUI).each(function(){
-		var $this = $(this),$tr = $this.closest("tr[data-trick-id]");
-		if($this.is(":checked"))
+
+	$("tbody tr[data-trick-id]>td>input[type='checkbox']", $assessmentUI).each(function () {
+		var $this = $(this), $tr = $this.closest("tr[data-trick-id]");
+		if ($this.is(":checked"))
 			$toDelete.push($tr);
 		else measures.push($tr.attr("data-trick-id"));
 	});
-	
+
 	$.ajax({
 		url: context + "/Analysis/Assessment/RiskProfile/Update/Measure?idAsset=" + idAsset + "&idScenario=" + idScenario,
 		type: "POST",
 		data: JSON.stringify(measures),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response) {
-			if (response.success){
-				for ( var i in $toDelete)
+			if (response.success) {
+				for (var i in $toDelete)
 					$toDelete[i].remove();
-				$("thead input[type='checkbox']",$assessmentUI).trigger('change');
+				$("thead input[type='checkbox']", $assessmentUI).trigger('change');
 			}
 			else if (response.error)
 				showDialog("#alert-dialog", response.error);
-			else showDialog("#alert-dialog",MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures'));
+			else showDialog("#alert-dialog", MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures'));
 		},
 		error: unknowError
 	}).complete(function () { $progress.hide(); });
@@ -622,11 +615,11 @@ function computeAssessment(silent) {
 				if (response['error'] != undefined)
 					showDialog("#alert-dialog", response['error']);
 				else if (response['success'] != undefined) {
-					if (!silent) 
-						showDialog("#info-dialog",response['success']);
+					if (!silent)
+						showDialog("#info-dialog", response['success']);
 					riskEstimationUpdate();
 					reloadAssetScenario();
-					chartALE();
+					reloadAssetScenarioChart();
 				} else
 					unknowError();
 				return false;
@@ -650,13 +643,13 @@ function refreshAssessment() {
 				type: "POST",
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					if (response['error'] != undefined) 
+					if (response['error'] != undefined)
 						showDialog("#alert-dialog", response['error']);
 					else if (response['success'] != undefined) {
-						showDialog("#info-dialog",response['success']);
+						showDialog("#info-dialog", response['success']);
 						riskEstimationUpdate();
 						reloadAssetScenario();
-						chartALE();
+						reloadAssetScenarioChart();
 					} else
 						unknowError();
 					return false;
@@ -683,11 +676,11 @@ function updateAssessmentAle(silent) {
 				if (response['error'] != undefined)
 					showDialog("#alert-dialog", response['error']);
 				else if (response['success'] != undefined) {
-					if (!silent) 
-						showDialog("#info-dialog",response['success']);
+					if (!silent)
+						showDialog("#info-dialog", response['success']);
 					riskEstimationUpdate();
 					reloadAssetScenario();
-					chartALE();
+					reloadAssetScenarioChart();
 				} else
 					unknowError();
 				return false;
@@ -719,7 +712,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 						application["standard-caching"] = standardCaching = {
 							standards: {},
 							measures: {},
-							phaseEndDate : {},
+							phaseEndDate: {},
 							$standardSelector: $standardSelector,
 							$measureManager: $measureManager,
 							$selectedMeasures: $selectedMeasures,
@@ -777,10 +770,10 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$("<td />").appendTo($tr);
 										$("<td data-real-value='" + measure.idStandard + "'>" + standardName + "</td>").appendTo($tr);
 										$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
-										$("<td />").text( measure.domain).appendTo($tr);
+										$("<td />").text(measure.domain).appendTo($tr);
 										$("<td data-real-value='" + measure.status + "'>" + status.value + "</td>").attr("title", status.title).appendTo($tr);
 										$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
-										$("<td title='"+this.phaseEndDate[measure.phase]+"'>" + measure.phase + "</td>").appendTo($tr);
+										$("<td title='" + this.phaseEndDate[measure.phase] + "'>" + measure.phase + "</td>").appendTo($tr);
 										$("<td />").text(measure.responsible).appendTo($tr);
 										$clone = $tr;
 									} else {
@@ -797,7 +790,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$clone.addClass("danger");
 									else if (measure.implementationRate >= 100)
 										$clone.addClass("warning");
-	
+
 									$clone.appendTo($("tbody", this.$selectedMeasures));
 								}
 								return this;
@@ -810,7 +803,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 								return this;
 							},
 							updateStandardUI: function (standard) {
-								var that = this, measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text(), isCustomed = $("option:selected", this.$standardSelector).attr("data-trick-custom"), $btnAddMeasure = $("button[name='add-measure']",this.$measureManager);
+								var that = this, measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text(), isCustomed = $("option:selected", this.$standardSelector).attr("data-trick-custom"), $btnAddMeasure = $("button[name='add-measure']", this.$measureManager);
 								for (var idMeasure in measures) {
 									var measure = measures[idMeasure], $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"),
 										$button = $("<button class='btn btn-xs'></button>"), status = application.measureStatus[measure.status];
@@ -820,7 +813,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									$("<td />").text(measure.domain).appendTo($tr);
 									$("<td data-real-value='" + measure.status + "' >" + status.value + "</td>").attr("title", status.title).appendTo($tr);
 									$("<td>" + measure.implementationRate + "</td>").appendTo($tr);
-									$("<td title='"+this.phaseEndDate[measure.phase]+"' >" + measure.phase + "</td>").appendTo($tr);
+									$("<td title='" + this.phaseEndDate[measure.phase] + "' >" + measure.phase + "</td>").appendTo($tr);
 									$("<td />").text(measure.responsible).appendTo($tr);
 									if (this.measures[measure.id] != undefined) {
 										if (measure.status == 'NA')
@@ -829,41 +822,41 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 											$tr.addClass("warning");
 										else $tr.addClass("info");
 										$("<i class='fa fa-remove' aria-hidden='true'></i>").appendTo($button.addClass("btn-danger"));
-									}else $("<i class='fa fa-plus' aria-hidden='true'></i>").appendTo($button.addClass("btn-primary"));
-									
+									} else $("<i class='fa fa-plus' aria-hidden='true'></i>").appendTo($button.addClass("btn-primary"));
+
 									$button.on("click", function () {
 										var $this = $(this), id = $this.closest("tr[data-trick-id]").attr("data-trick-id");
-										if(standardCaching.measures[id])
+										if (standardCaching.measures[id])
 											standardCaching.removeMeasure(id);
 										else standardCaching.addMeasure(standardCaching.getMeasure(standard, id));
 									}).attr("title", MessageResolver("label.action.add", "Add"));
 
 									$tr.appendTo($tbody);
 								}
-								if(isCustomed=="true"){
-									$btnAddMeasure.show().unbind("click").on("click",function(){
+								if (isCustomed == "true") {
+									$btnAddMeasure.show().unbind("click").on("click", function () {
 										$progress.show();
 										$.ajax(
-												{
-													url: context + "/Analysis/Standard/" + standard + "/Measure/New",
-													contentType: "application/json;charset=UTF-8",
-													success: function (response) {
-														var $container = $(new DOMParser().parseFromString(response, "text/html")).find("#measure-form-container"), $modal =  that.$measureManager;
-														if($container.length){
-															$("#measure-form-container", $modal).replaceWith($container);
-															$(".modal-body",$modal).attr('style',"padding-top:5px");
-															$("div[id^='risk-profile-measure-manager-']",$modal).hide();
-															setupMeasureManager($container);
-															$("div[id^='measure-form-']", $modal).show();
-														}else showDialog("#alert-dialog",MessageResolver("error.unknown.occurred", "An unknown error occurred"));
-													}, error: unknowError
-												}).complete(function () {
-													$progress.hide();
-												});
+											{
+												url: context + "/Analysis/Standard/" + standard + "/Measure/New",
+												contentType: "application/json;charset=UTF-8",
+												success: function (response) {
+													var $container = $(new DOMParser().parseFromString(response, "text/html")).find("#measure-form-container"), $modal = that.$measureManager;
+													if ($container.length) {
+														$("#measure-form-container", $modal).replaceWith($container);
+														$(".modal-body", $modal).attr('style', "padding-top:5px");
+														$("div[id^='risk-profile-measure-manager-']", $modal).hide();
+														setupMeasureManager($container);
+														$("div[id^='measure-form-']", $modal).show();
+													} else showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+												}, error: unknowError
+											}).complete(function () {
+												$progress.hide();
+											});
 										return false;
 									});
-								}else $btnAddMeasure.hide().unbind("click");
-								
+								} else $btnAddMeasure.hide().unbind("click");
+
 								return this;
 							},
 							clearStandardMeasureUI: function () {
@@ -893,17 +886,17 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 										$this.appendTo($finalBody);
 									}
 								});
-								
-								$("thead input[type='checkbox']",application["estimation-helper"].section).trigger('change');
+
+								$("thead input[type='checkbox']", application["estimation-helper"].section).trigger('change');
 
 								return this;
-							},clear : function(standard){
-								if(standard == undefined)
+							}, clear: function (standard) {
+								if (standard == undefined)
 									this.phaseEndDate = {};
 								else delete this.standards[standard];
 								return this;
-							},reloadStandard : function() {
-								$("button[name='back']:first",this.$measureManager).trigger("click");
+							}, reloadStandard: function () {
+								$("button[name='back']:first", this.$measureManager).trigger("click");
 								this.clear(this.$standardSelector.val());
 								this.$standardSelector.trigger("change");
 								return this;
@@ -920,10 +913,10 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					});
 
 					standardCaching.measures = [];
-					
-					if(!standardCaching.phaseEndDate.length){
-						$("#section_phase table>tbody>tr[data-trick-id][data-trick-index]").each(function(){
-							standardCaching.phaseEndDate[this.getAttribute("data-trick-index")] = $("td[data-trick-field='endDate']",this).text();
+
+					if (!standardCaching.phaseEndDate.length) {
+						$("#section_phase table>tbody>tr[data-trick-id][data-trick-index]").each(function () {
+							standardCaching.phaseEndDate[this.getAttribute("data-trick-index")] = $("td[data-trick-field='endDate']", this).text();
 						});
 					}
 
@@ -935,15 +928,15 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					$('a[data-toggle="tab"]', $measureManager).on('shown.bs.tab', function (e) {
 						forceCloseToolTips();
 					});
-					
-					$("button[name='back']",$measureManager).on("click",function(){
+
+					$("button[name='back']", $measureManager).on("click", function () {
 						$("div[id^='measure-form-']", $measureManager).hide();
-						$("div[id^='risk-profile-measure-manager-']",$measureManager).show();
-						$(".modal-body",$measureManager).removeAttr('style');
+						$("div[id^='risk-profile-measure-manager-']", $measureManager).show();
+						$(".modal-body", $measureManager).removeAttr('style');
 					});
-					
-					$("button[name='save-measure']",$measureManager).on("click",function(){
-						saveMeasure($("form",$measureManager),function(){
+
+					$("button[name='save-measure']", $measureManager).on("click", function () {
+						saveMeasure($("form", $measureManager), function () {
 							standardCaching.reloadStandard();
 						});
 					});
@@ -968,7 +961,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							data: JSON.stringify(measures),
 							contentType: "application/json;charset=UTF-8",
 							success: function (response) {
-								if (response.success){
+								if (response.success) {
 									$("<label class='label label-success' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;' />").text(response.success).appendTo($messageContainer);
 									standardCaching.updateView().$measureManager.modal("hide");
 								}
@@ -995,25 +988,25 @@ function initialiseRiskEstimation() {
 
 	application["estimation-helper"] = helper = new AssessmentHelder();
 
-	var $previousSelector = $("[data-trick-nav='previous-selector']",application["estimation-helper"].$tabSection), $nextSelector = $("[data-trick-nav='next-selector']",application["estimation-helper"].$tabSection), $previousAssessment = $("[data-trick-nav='previous-assessment']",application["estimation-helper"].$tabSection), $nextAssessment = $("[data-trick-nav='next-assessment']",application["estimation-helper"].$tabSection);
+	var $previousSelector = $("[data-trick-nav='previous-selector']", application["estimation-helper"].$tabSection), $nextSelector = $("[data-trick-nav='next-selector']", application["estimation-helper"].$tabSection), $previousAssessment = $("[data-trick-nav='previous-assessment']", application["estimation-helper"].$tabSection), $nextAssessment = $("[data-trick-nav='next-assessment']", application["estimation-helper"].$tabSection);
 
 	$previousSelector.on("click", function () {
-		$("select[name='" + activeSelector + "']>option:selected",application["estimation-helper"].$tabSection).prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected", application["estimation-helper"].$tabSection).prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$nextSelector.on("click", function () {
-		$("select[name='" + activeSelector + "']>option:selected",application["estimation-helper"].$tabSection).next("[data-trick-selected='true']:first").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected", application["estimation-helper"].$tabSection).next("[data-trick-selected='true']:first").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$previousAssessment.on("click", function () {
-		$("div[data-trick-content]:visible .list-group-item.active",application["estimation-helper"].$tabSection).prevAll(":visible:first").click();
+		$("div[data-trick-content]:visible .list-group-item.active", application["estimation-helper"].$tabSection).prevAll(":visible:first").click();
 		return false;
 	});
 
 	$nextAssessment.on("click", function () {
-		$("div[data-trick-content]:visible .list-group-item.active",application["estimation-helper"].$tabSection).nextAll(":visible:first").click();
+		$("div[data-trick-content]:visible .list-group-item.active", application["estimation-helper"].$tabSection).nextAll(":visible:first").click();
 		return false;
 	});
 
@@ -1031,16 +1024,16 @@ function initialiseRiskEstimation() {
 		return false;
 	};
 
-	$("div.list-group>.list-group-item",application["estimation-helper"].$tabSection).on("click", changeAssessment);
+	$("div.list-group>.list-group-item", application["estimation-helper"].$tabSection).on("click", changeAssessment);
 
 	for (var i in helper.names)
 		application["estimation-helper"].getCurrent(helper.names[i]).on('change', updateSelector)
-		
-	$("button[name='add-scenario']",application["estimation-helper"].$tabSection).on("click",function(){
-		return editScenario(undefined,true);
+
+	$("button[name='add-scenario']", application["estimation-helper"].$tabSection).on("click", function () {
+		return editScenario(undefined, true);
 	});
-	
-	$("button[name='add-asset']",application["estimation-helper"].$tabSection).on("click",function(){
-		return editAsset(undefined,true);
+
+	$("button[name='add-asset']", application["estimation-helper"].$tabSection).on("click", function () {
+		return editAsset(undefined, true);
 	});
 }

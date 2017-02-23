@@ -419,7 +419,7 @@ public class ChartGenerator {
 		Map<String, Dataset<String>> costDatasets = new LinkedHashMap<>(costNames.length), workloadDatasets = new LinkedHashMap<>(workloadNames.length);
 
 		for (String name : costNames)
-			costDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getStaticColor(costDatasets.size())));
+			costDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getColor(costDatasets.size())));
 
 		for (String name : workloadNames)
 			workloadDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getStaticColor(workloadDatasets.size())));
@@ -614,6 +614,7 @@ public class ChartGenerator {
 			Dataset<String> dataset = new Dataset<String>(parameterName, getColor(chart.getDatasets().size()));
 			for (long timeEnd : xAxisValues)
 				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, 0.0));
+			chart.getDatasets().add(dataset);
 		}
 		chart.setYTitle(messageSource.getMessage("label.parameter.value", null, "Value", locale));
 		return chart;
@@ -630,7 +631,6 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	public Chart[] evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale)
 			throws Exception {
 		Chart[] charts = {
@@ -665,11 +665,10 @@ public class ChartGenerator {
 		}
 		String[] dataName = { "ALE", "COST", "ROSI", "LOST" };
 		Map<String, Dataset<Object>> profiltabilityDatasets = new LinkedHashMap<>(dataName.length);
-
 		for (String name : dataName)
 			profiltabilityDatasets.put(name, new Dataset<Object>(messageSource.getMessage("label.title.chart.evolution_profitability." + name.toLowerCase(), null, locale), null));
 		for (String name : standardcompliances.keySet())
-			complianceDatasets.put(name, new Dataset<String>(name, getColor(complianceDatasets.size())));
+			complianceDatasets.put(name, new Dataset<String>(name, getColor(complianceDatasets.size()), "line"));
 
 		for (int i = 0; i < usesPhases.size(); i++) {
 			for (String name : dataName) {
@@ -677,37 +676,33 @@ public class ChartGenerator {
 				Double rosi = (double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i);
 				switch (name) {
 				case "ALE":
-					dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i));
 					dataset.setBackgroundColor(getStaticColor(1));
+					dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i));
 					break;
 				case "COST":
-					if (dataset.getBackgroundColor() == null)
-						dataset.setBackgroundColor(new LinkedList<>());
-					if (rosi > 0 || i == 0) {
-						((List<String>) dataset.getBackgroundColor()).add(getStaticColor(2));
+					dataset.setBackgroundColor(getStaticColor(3));
+					if (rosi >=0)
 						dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i));
-					} else {
+					else {
 						List<Object> ales = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
 						dataset.getData().add(((Number) ales.get(i - 1)).doubleValue() - ((Number) ales.get(i)).doubleValue());
-						((List<String>) dataset.getBackgroundColor()).add(getStaticColor(3));
 					}
 					break;
 				case "ROSI":
-					dataset.setBackgroundColor(getStaticColor(4));
+					dataset.setBackgroundColor(getStaticColor(5));
 					if (rosi >= 0)
 						dataset.getData().add(rosi);
 					else
 						dataset.getData().add(0F);
 					break;
 				case "LOST":
-					dataset.setBackgroundColor(getStaticColor(6));
+					dataset.setBackgroundColor(getStaticColor(7));
 					if (rosi >= 0)
 						dataset.getData().add(0);
 					else
 						dataset.getData().add(rosi * -1);
 					break;
 				}
-
 			}
 			for (String key : standardcompliances.keySet())
 				complianceDatasets.get(key).getData().add(standardcompliances.get(key).get(i));
@@ -773,7 +768,7 @@ public class ChartGenerator {
 				generateNormalMeasureSeries(computeRRFByNormalMeasure((NormalMeasure) measure, daoAssetType.getAll(), scenarios, idAnalysis, locale), chart);
 			else if (measure instanceof AssetMeasure)
 				generateAssetMeasureSeries(computeRRFByAssetMeasure((AssetMeasure) measure, scenarios, idAnalysis), chart);
-			if (scenarios.size() > 2)
+			if (scenarios.size() > 1)
 				chart.getDatasets().forEach(dataset -> dataset.setType("line"));
 			scenarios.forEach(scenario -> chart.getLabels().add(scenario.getName()));
 			return chart;
@@ -811,7 +806,7 @@ public class ChartGenerator {
 				}
 				chart.getDatasets().add(dataset);
 			}
-			if (measures.size() > 2)
+			if (measures.size() > 1)
 				chart.getDatasets().forEach(dataset -> dataset.setType("line"));
 			measures.forEach(measure -> chart.getLabels().add(measure.getMeasureDescription().getReference()));
 			return chart;
@@ -877,6 +872,7 @@ public class ChartGenerator {
 			// Add empty meta data array for last time point (it has none, since
 			// there are no future time points to compare with)
 			dataset.getMetaData().add(new ArrayList<>());
+			chart.getDatasets().add(dataset);
 			// Build JSON object
 		}
 		xAxisValues.forEach(x -> chart.getLabels().add(deltaTimeToString(now - x)));
@@ -945,9 +941,9 @@ public class ChartGenerator {
 		chart.getDatasets().add(dataset);
 	}
 
-	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, NumberFormat numberFormat, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
+	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
 			AssetMeasure measure) throws TrickException, ParseException {
-		rrfMeasure.setValue(numberFormat.parse(numberFormat.format(RRF.calculateAssetMeasureRRF(scenario, asset, parameter, measure))).doubleValue());
+		rrfMeasure.setValue(RRF.calculateAssetMeasureRRF(scenario, asset, parameter, measure));
 		rrfAssetType.getRrfMeasures().add(rrfMeasure);
 	}
 
@@ -1033,17 +1029,15 @@ public class ChartGenerator {
 		if (assetTypes.isEmpty())
 			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!",
 					scenario.getName());
-		NumberFormat numberFormat = new DecimalFormat();
-		numberFormat.setMaximumFractionDigits(2);
 		for (Measure measure : measures) {
 			if (measure instanceof NormalMeasure) {
 				if (scenario.isAssetLinked()) {
 					for (Asset asset : scenario.getLinkedAssets())
-						computeRRFNormalMeasure(scenario, parameter, numberFormat, asset.getAssetType(), findRRFAssetType(asset.getName(), rrfs),
+						computeRRFNormalMeasure(scenario, parameter, asset.getAssetType(), findRRFAssetType(asset.getName(), rrfs),
 								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (NormalMeasure) measure);
 				} else {
 					for (AssetType assetType : scenario.getAssetTypes())
-						computeRRFNormalMeasure(scenario, parameter, numberFormat, assetType,
+						computeRRFNormalMeasure(scenario, parameter, assetType,
 								findRRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale), rrfs),
 								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (NormalMeasure) measure);
 				}
@@ -1051,13 +1045,13 @@ public class ChartGenerator {
 			} else if (measure instanceof AssetMeasure) {
 				if (scenario.isAssetLinked()) {
 					for (Asset asset : scenario.getLinkedAssets())
-						computeRRFAssetMeasure(scenario, parameter, numberFormat, asset, findRRFAssetType(asset.getName(), rrfs),
+						computeRRFAssetMeasure(scenario, parameter, asset, findRRFAssetType(asset.getName(), rrfs),
 								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (AssetMeasure) measure);
 				} else {
 					AssetMeasure assetMeasure = (AssetMeasure) measure;
 					for (MeasureAssetValue measureAssetValue : assetMeasure.getMeasureAssetValues()) {
 						if (scenario.hasInfluenceOnAsset(measureAssetValue.getAsset()))
-							computeRRFAssetMeasure(scenario, parameter, numberFormat, measureAssetValue.getAsset(), findRRFAssetType(measureAssetValue.getAsset().getName(), rrfs),
+							computeRRFAssetMeasure(scenario, parameter, measureAssetValue.getAsset(), findRRFAssetType(measureAssetValue.getAsset().getName(), rrfs),
 									new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), assetMeasure);
 					}
 				}
@@ -1066,9 +1060,9 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	private void computeRRFNormalMeasure(Scenario scenario, IParameter parameter, NumberFormat numberFormat, AssetType assetType, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
+	private void computeRRFNormalMeasure(Scenario scenario, IParameter parameter, AssetType assetType, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
 			NormalMeasure normalMeasure) throws ParseException {
-		rrfMeasure.setValue(numberFormat.parse(numberFormat.format(RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, normalMeasure))).doubleValue());
+		rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, normalMeasure));
 		rrfAssetType.getRrfMeasures().add(rrfMeasure);
 	}
 

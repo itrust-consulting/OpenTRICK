@@ -1,32 +1,32 @@
 function saveStandard(form) {
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	$.ajax({
-		url : context + "/KnowledgeBase/Standard/Save",
-		type : "post",
-		data : serializeForm(form),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Standard/Save",
+		type: "post",
+		data: serializeForm(form),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
 			$("#addStandardModel .label-danger").remove();
-			for ( var error in response) {
+			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				switch (error) {
-				case "label":
-					$(errorElement).appendTo($("#standard_form #standard_label").parent());
-					break;
-				case "version":
-					$(errorElement).appendTo($("#standard_form #standard_version").parent());
-					break;
+					case "label":
+						$(errorElement).appendTo($("#standard_form #standard_label").parent());
+						break;
+					case "version":
+						$(errorElement).appendTo($("#standard_form #standard_version").parent());
+						break;
 
-				case "description":
-					$(errorElement).appendTo($("#standard_form #standard_description").parent());
-					break;
+					case "description":
+						$(errorElement).appendTo($("#standard_form #standard_description").parent());
+						break;
 
-				case "standard":
-					$(errorElement).appendTo($("#standard_form .modal-body"));
-					break;
+					case "standard":
+						$(errorElement).appendTo($("#standard_form .modal-body"));
+						break;
 				}
 			}
 			if (!$("#addStandardModel .label-danger").length) {
@@ -36,7 +36,7 @@ function saveStandard(form) {
 			return false;
 
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			$("#addStandardModel .label-danger").remove();
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
 			var errorElement = document.createElement("label");
@@ -56,14 +56,14 @@ function deleteStandard(idStandard, name) {
 		name = $("#section_kb_standard tbody tr[data-trick-id='" + (idStandard = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
-	$("#deletestandardbuttonYes").unbind("click.delete").one("click.delete", function() {
+	$("#deletestandardbuttonYes").unbind("click.delete").one("click.delete", function () {
 		$("#deleteStandardModel").modal('hide');
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/KnowledgeBase/Standard/Delete/" + idStandard,
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
+			url: context + "/KnowledgeBase/Standard/Delete/" + idStandard,
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
@@ -71,8 +71,8 @@ function deleteStandard(idStandard, name) {
 				reloadSection("section_kb_standard");
 				return false;
 			},
-			error : unknowError
-		}).complete(function() {
+			error: unknowError
+		}).complete(function () {
 			$progress.hide();
 		})
 		return false;
@@ -86,10 +86,10 @@ function uploadImportStandardFile() {
 		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/KnowledgeBase/Standard/Upload",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Standard/Upload",
+		async: true,
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			var $view = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
 			if (!$view.length)
 				unknowError();
@@ -103,8 +103,8 @@ function uploadImportStandardFile() {
 			}
 			return false;
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
@@ -124,13 +124,13 @@ function importNewStandard() {
 		$("#uploadStandardModal").modal("hide");
 	$progress.show();
 	$.ajax({
-		url : context + "/KnowledgeBase/Standard/Import",
-		type : 'POST',
-		data : new FormData($('#uploadStandard_form')[0]),
-		cache : false,
-		contentType : false,
-		processData : false,
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/KnowledgeBase/Standard/Import",
+		type: 'POST',
+		data: new FormData($('#uploadStandard_form')[0]),
+		cache: false,
+		contentType: false,
+		processData: false,
+		success: function (response, textStatus, jqXHR) {
 			if (response.success)
 				application["taskManager"].SetTitle(MessageResolver("label.title.import.norm", "Import a new standard")).Start();
 			else if (response.error)
@@ -138,9 +138,9 @@ function importNewStandard() {
 			else
 				showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 		},
-		error : unknowError
+		error: unknowError
 
-	}).complete(function() {
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;
