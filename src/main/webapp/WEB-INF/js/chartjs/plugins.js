@@ -69,8 +69,13 @@ function aleChartOption(title) {
 	};
 }
 
-function riskOptions() {
+function riskOptions(title) {
 	return {
+		title: {
+			display: title != undefined,
+			fontSize: Chart.defaults.global.defaultTitleFontSize,
+			text: title
+		},
 		tooltips: {
 			callbacks: {
 				label: function (item, data) {
