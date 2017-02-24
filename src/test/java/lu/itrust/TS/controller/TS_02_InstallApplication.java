@@ -40,15 +40,13 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	public static final String ME_CUSTOMER = "me-customer";
 
-	private static final String FRA_FRENCH = "French";
-
-	private static final String FRA_FRANÇAIS = "Français";
-
 	private static final String FRA_ALPHA_3 = "FRA";
 
 	private static final String CUSTOMER_OTHER_FIELDS = "me";
 
 	private static final String CUSTOMER_EMAIL = "me@me.me";
+
+	private static final String ENG_ALPHA_3 = "ENG";
 
 	private static String INSTALL_TASK_ID;
 
@@ -145,18 +143,11 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	}
 
 	@Test
-	public void test_10_AddFRLanguage() throws Exception {
-		this.mockMvc
-				.perform(post("/KnowledgeBase/Language/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", FRA_ALPHA_3, FRA_FRANÇAIS, FRA_FRENCH))
-						.with(httpBasic(USERNAME, PASSWORD)))
-				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
-	}
-
-	@Test
 	@Transactional(readOnly = true)
 	public void test_11_LoadLanguage() throws Exception {
 		Language language = serviceLanguage.getByAlpha3(FRA_ALPHA_3);
 		notNull(language, "Language with alpha3: FRA cannot be found");
+		language = serviceLanguage.getByAlpha3(ENG_ALPHA_3);
+		notNull(language, "Language with alpha3: ENG cannot be found");
 	}
 }

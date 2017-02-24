@@ -465,7 +465,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();
 		assertTrue("Bad length", response.getContentLength() / 1048576.0 > 1E-2);
-		assertEquals("Bad content-disposition", "attachment; filename=\"STA_TS Validation Analysis_V0.2.docm\"", response.getHeaderValue("Content-Disposition"));
+		assertEquals("Bad content-disposition", "attachment; filename=\"STA_TS Validation Analysis_v0.2.docm\"", response.getHeaderValue("Content-Disposition"));
 		assertEquals("Bad contentType", "docm", response.getContentType());
 	}
 }
