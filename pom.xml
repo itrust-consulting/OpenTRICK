@@ -267,6 +267,12 @@
 			<version>0.9.19</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>4.1.1</version>
+		</dependency>
+
 		<!-- JIRA -->
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>
@@ -477,7 +483,7 @@
 							</jsSourceIncludes>
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>minify-css-themes</id>
 						<phase>process-resources</phase>
@@ -492,12 +498,12 @@
 							<cssSourceIncludes>
 								<cssSourceInclude>*.css</cssSourceInclude>
 							</cssSourceIncludes>
-								<cssSourceExcludes>
+							<cssSourceExcludes>
 								<cssSourceExclude>WEB-INF/css/themes/*.min.css</cssSourceExclude>
 							</cssSourceExcludes>
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>minify-js-trickservie</id>
 						<phase>process-resources</phase>
@@ -546,7 +552,7 @@
 
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>minify-js-chartjs</id>
 						<phase>process-resources</phase>
@@ -596,7 +602,7 @@
 
 						</configuration>
 					</execution>
-					
+
 				</executions>
 			</plugin>
 

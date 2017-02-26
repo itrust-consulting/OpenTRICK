@@ -86,8 +86,19 @@
 
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
 		p:username="${jdbc.username}" p:password="${jdbc.password}" />
+		
+	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+    		<property name="dataSource" ref="dataSource"/>
+    		<property name="baselineOnMigrate" value="true"/>
+    		<property name="locations">
+    			<list>
+    				<value>classpath:/migration</value>
+    				<value>classpath:src/main/java/lu/itrust/business/TS/database/migration</value>
+    			</list>
+    		</property>
+	</bean>
 
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="flyway">
 		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan" value="lu.itrust.business.TS" />
 		<property name="hibernateProperties">
@@ -98,6 +109,8 @@
 			</props>
 		</property>
 	</bean>
+	
+	
 
 	<bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">
 		<property name="sessionFactory" ref="sessionFactory" />
