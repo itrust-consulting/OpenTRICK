@@ -1,5 +1,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 
+ALTER TABLE `Parameter` DROP FOREIGN KEY `FK_gmt6cbbow3t8j001q8pnu1nw8`;
+
 ALTER TABLE `MaturityMeasure` DROP FOREIGN KEY `FK58aym60jyndinl3ltxuivajah`;
 
 ALTER TABLE `Parameter` DROP FOREIGN KEY `FKh95ugwcyoo8t4m9t5bcalcvas`;
@@ -7,8 +9,6 @@ ALTER TABLE `Parameter` DROP FOREIGN KEY `FKh95ugwcyoo8t4m9t5bcalcvas`;
 ALTER TABLE `MaturityParameter` DROP FOREIGN KEY `FK7dah74f0jxvoxooeb1rl26j45`;
 
 ALTER TABLE `MaturityParameter` DROP FOREIGN KEY `FK_pmio6p62piu7xoagu4mppguya`;
-
-ALTER TABLE `ParameterType` DROP FOREIGN KEY `FKh95ugwcyoo8t4m9t5bcalcvas`;
 
 ALTER TABLE `RiskProfile` DROP FOREIGN KEY `FK5d6s84rfob5jh8hn2dqspsm97`;
 
@@ -42,21 +42,21 @@ ALTER TABLE `Asset` CHANGE `dtSelected` `dtSelected` bit(1) NOT NULL;
 ALTER TABLE `AssetMeasure` CHANGE `dtImplmentationRate` `dtImplmentationRate` varchar(255) NOT NULL;
 ALTER TABLE `Customer` CHANGE `dtCanBeUsed` `dtCanBeUsed` bit(1) NOT NULL;
 ALTER TABLE `History` CHANGE `dtComment` `dtComment` longtext NOT NULL;
-ALTER TABLE `MaturityParameter` CHANGE `idMaturityParameter` `idMaturityParameter` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `MaturityParameter` CHANGE `idMaturityParameter` `idMaturityParameter` int(11) NOT NULL AUTO_INCREMENT FIRST;
 ALTER TABLE `MaturityParameter` ADD `dtDescription` varchar(255) NOT NULL;
 ALTER TABLE `MaturityParameter` ADD `dtValue` double NOT NULL;
 ALTER TABLE `MaturityParameter` ADD `fiAnalysis` int(11) DEFAULT NULL;
 ALTER TABLE `MeasureDescriptionText` CHANGE `dtDomain` `dtDomain` longtext NOT NULL;
 ALTER TABLE `NormalMeasure` CHANGE `dtImplementationRate` `dtImplementationRate` varchar(255) NOT NULL;
-ALTER TABLE `ParameterType` CHANGE `idParameterType` `idParameterType` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `ParameterType` CHANGE `idParameterType` `idParameterType` int(11) NOT NULL AUTO_INCREMENT FIRST;
 ALTER TABLE `ParameterType` CHANGE `dtLabel` `dtName` varchar(255) DEFAULT NULL;
 ALTER TABLE `Scenario` CHANGE `dtSelected` `dtSelected` bit(1) NOT NULL;
 ALTER TABLE `Scenario` ADD `dtAssetLinked` bit(1) DEFAULT NULL;
-ALTER TABLE `dtAnalysisOnly` CHANGE `dtAnalysisOnly` `dtAnalysisOnly` bit(1) NOT NULL;
-ALTER TABLE `dtAnalysisOnly` CHANGE `dtComputable` `dtComputable` bit(1) NOT NULL;
+ALTER TABLE `Standard` CHANGE `dtAnalysisOnly` `dtAnalysisOnly` bit(1) NOT NULL;
+ALTER TABLE `Standard` CHANGE `dtComputable` `dtComputable` bit(1) NOT NULL;
 ALTER TABLE `TrickService` CHANGE `dtInstalled` `dtInstalled` bit(1) NOT NULL;
 ALTER TABLE `User` CHANGE `dtEnabled` `dtEnabled` bit(1) NOT NULL;
-ALTER TABLE `dtSQLite` CHANGE `dtSQLite` `dtSQLite` longblob NOT NULL;
+ALTER TABLE `UserSQLite` CHANGE `dtSQLite` `dtSQLite` longblob NOT NULL;
 ALTER TABLE `WordReport` CHANGE `dtFile` `dtFile` longblob NOT NULL;
 
 
@@ -258,6 +258,8 @@ ALTER TABLE `ImpactParameter`
 ALTER TABLE `LikelihoodParameter`
   ADD CONSTRAINT `FK6rq3rtob9a0ig6o1uf5c4ycw4` FOREIGN KEY (`fiAnalysis`) REFERENCES `Analysis` (`idAnalysis`);
 
+SET FOREIGN_KEY_CHECKS=0;
+
 ALTER TABLE `MaturityMeasure`
   ADD CONSTRAINT `FKl8syxaywv15qxl3hqulsmxgkm` FOREIGN KEY (`fiImplementationRateParameter`) REFERENCES `SimpleParameter` (`idSimpleParameter`);
 
@@ -294,8 +296,31 @@ ALTER TABLE `SimpleParameter`
   ADD CONSTRAINT `FK5d7a1yyntmdfm4eni0ww15q8x` FOREIGN KEY (`fiAnalysis`) REFERENCES `Analysis` (`idAnalysis`),
   ADD CONSTRAINT `FKaj6832gix9hcbyfxu0m69yv6c` FOREIGN KEY (`fiParameterType`) REFERENCES `ParameterType` (`idParameterType`);
 
+SET FOREIGN_KEY_CHECKS=1;
 
 UPDATE `Analysis` SET `dtType` = 'QUALITATIVE' WHERE `dtCssf` = TRUE;
-UPDATE `Analysis` SET `dtType` = 'QUANTITATIVE' WHERE `dtCssf` = FALSE;
-ALTER TABLE `Analysis` REMOVE `dtCssf`;
 
+UPDATE `Analysis` SET `dtType` = 'QUANTITATIVE' WHERE `dtCssf` = FALSE;
+
+UPDATE `Scenario` SET `dtAssetLinked`= FALSE WHERE `dtAssetLinked` IS NULL;
+
+INSERT INTO `ScaleType` (`dtName`, `dtAcronym`) VALUES
+('IMPACT', 'i'), ('FINANCIAL', 'if'), ('MORAL', 'im'),
+('PHYSICAL', 'iph'),('PRIVACY', 'ip'),('LEGAL', 'il'),
+('OPERATIONAL', 'io'),('REPUTATIONAL', 'ir');
+
+UPDATE `MaturityParameter` `maturityParameter` JOIN `Parameter` `parameter` ON `maturityParameter`.`idMaturityParameter` = `parameter`.`idParameter` 
+	SET `maturityParameter`.`dtDescription`=`parameter`.`dtLabel`,`maturityParameter`.`dtValue`=`parameter`.`dtValue`,`maturityParameter`.`fiAnalysis`=`parameter`.`fiAnalysis`;
+
+INSERT INTO `SimpleParameter`(`dtDescription`, `dtValue`, `fiParameterType`, `fiAnalysis`) 
+	SELECT `Parameter`.`dtLabel`, `Parameter`.`dtValue`, `Parameter`.`fiParameterType`, `Parameter`.`fiAnalysis` 
+		FROM `Parameter` WHERE `Parameter`.`fiParameterType` in (4,5,6,7);
+		
+UPDATE `MaturityMeasure` `maturityMeasure` 
+	JOIN `Parameter` `parameter` 
+		on `maturityMeasure`.`fiImplementationRateParameter` = `parameter`.`idParameter` 
+	JOIN `SimpleParameter` `simpleParameter` 
+		on (`simpleParameter`.`fiAnalysis` = `parameter`.`fiAnalysis` and `simpleParameter`.`fiParameterType` = `parameter`.`fiParameterType` and `simpleParameter`.`dtValue` = `parameter`.`dtValue`) 
+	SET `fiImplementationRateParameter`=`simpleParameter`.`idSimpleParameter`;
+	
+ALTER TABLE `Analysis` DROP `dtCssf`;

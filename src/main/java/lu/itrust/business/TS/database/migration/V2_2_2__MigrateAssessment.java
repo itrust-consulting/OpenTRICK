@@ -3,8 +3,6 @@
  */
 package lu.itrust.business.TS.database.migration;
 
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -12,12 +10,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author eomar
  *
  */
-public class V2_2__0_MigrateParameter implements SpringJdbcMigration, MigrationInfoProvider {
-
+public class V2_2_2__MigrateAssessment implements SpringJdbcMigration  {
 	/**
 	 * 
 	 */
-	public V2_2__0_MigrateParameter() {
+	public V2_2_2__MigrateAssessment() {
 	}
 
 	/* (non-Javadoc)
@@ -25,17 +22,6 @@ public class V2_2__0_MigrateParameter implements SpringJdbcMigration, MigrationI
 	 */
 	@Override
 	public void migrate(JdbcTemplate arg0) throws Exception {
-		System.out.println("Parameters");
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public MigrationVersion getVersion() {
-		return MigrationVersion.fromVersion("2.2");
 	}
 
 }
