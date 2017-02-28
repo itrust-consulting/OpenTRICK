@@ -47,7 +47,7 @@ public class ValueFactory {
 	public ValueFactory() {
 	}
 
-	public ValueFactory(List<? extends IParameter> parameters) {
+	public ValueFactory(Collection<? extends IParameter> parameters) {
 		add(parameters);
 	}
 
@@ -375,7 +375,7 @@ public class ValueFactory {
 		return value == null ? null : (IProbabilityParameter) value.getParameter();
 	}
 
-	public void add(List<? extends IParameter> parameters) {
+	public void add(Collection<? extends IParameter> parameters) {
 		parameters.forEach(parameter -> add(parameter));
 	}
 

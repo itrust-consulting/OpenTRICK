@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.NumericValue;
 
 /**
  * @author eomar

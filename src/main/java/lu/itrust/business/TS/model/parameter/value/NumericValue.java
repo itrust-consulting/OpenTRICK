@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.parameter.value.impl;
+package lu.itrust.business.TS.model.parameter.value;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;

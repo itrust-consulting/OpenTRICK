@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.parameter.value.impl;
+package lu.itrust.business.TS.model.parameter.value;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -13,7 +13,6 @@ import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
-import lu.itrust.business.TS.model.parameter.value.IValue;
 
 @MappedSuperclass
 public abstract class AbstractValue implements IValue {

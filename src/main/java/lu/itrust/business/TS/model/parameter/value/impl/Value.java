@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.value.AbstractValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 
 /**

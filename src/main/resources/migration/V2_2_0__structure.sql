@@ -309,6 +309,8 @@ INSERT INTO `ScaleType` (`dtName`, `dtAcronym`) VALUES
 ('PHYSICAL', 'iph'),('PRIVACY', 'ip'),('LEGAL', 'il'),
 ('OPERATIONAL', 'io'),('REPUTATIONAL', 'ir');
 
+DELETE FROM `Parameter` WHERE `dtLabel` = 'importanceThreshold';
+
 UPDATE `MaturityParameter` `maturityParameter` JOIN `Parameter` `parameter` ON `maturityParameter`.`idMaturityParameter` = `parameter`.`idParameter` 
 	SET `maturityParameter`.`dtDescription`=`parameter`.`dtLabel`,`maturityParameter`.`dtValue`=`parameter`.`dtValue`,`maturityParameter`.`fiAnalysis`=`parameter`.`fiAnalysis`;
 
