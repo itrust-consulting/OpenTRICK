@@ -43,7 +43,7 @@ public class ValueFactory {
 	private Map<String, Map<String, IProbabilityParameter>> probabilityMapper;
 
 	private Map<String, Map<String, IImpactParameter>> impactMapper;
-	
+
 	public ValueFactory() {
 	}
 
@@ -301,6 +301,18 @@ public class ValueFactory {
 		return impacts == null ? 0 : impacts.stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel).orElse(0);
 	}
 
+	public int findImpactLevel(IValue... impacts) {
+		if (impacts == null || impacts.length == 0)
+			return 0;
+		IValue max = impacts[0];
+		for (int i = 1; i < impacts.length; i++) {
+			if (IValue.compareByLevel(max, impacts[i]) < 0)
+				max = impacts[i];
+		}
+		return max.getLevel();
+
+	}
+
 	public IValue findMaxImpactByLevel(Map<String, Value> impacts) {
 		return impacts == null ? null : findMaxImpactByLevel(impacts.values());
 	}
@@ -411,5 +423,21 @@ public class ValueFactory {
 	 */
 	public void setProbabilities(Map<String, List<IProbabilityParameter>> probabilities) {
 		this.probabilities = probabilities;
+	}
+
+	public double findImpactValue(IValue... impacts) {
+		if (impacts == null || impacts.length == 0)
+			return 0.0;
+		IValue max = impacts[0];
+		for (int i = 1; i < impacts.length; i++) {
+			if (IValue.compareByReal(max, impacts[i]) < 0)
+				max = impacts[i];
+		}
+		return max.getReal();
+	}
+
+	public ILevelParameter findParameter(Integer value, String type) {
+		IValue result = findValue(value, type);
+		return result == null ? null : result.getParameter();
 	}
 }
