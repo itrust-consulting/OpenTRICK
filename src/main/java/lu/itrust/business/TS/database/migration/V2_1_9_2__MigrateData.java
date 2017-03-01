@@ -39,7 +39,7 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  * @author eomar
  *
  */
-public class V2_2_1__MigrateData implements SpringJdbcMigration {
+public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
 	private static final String QUERY_INSERT_RISK_PROFILE_EXP_IMPACT = "INSERT INTO `RiskProfileExpImpacts`(`fiRiskProfile`, `fiExpImpact`) VALUES (?,?)";
 
@@ -54,7 +54,7 @@ public class V2_2_1__MigrateData implements SpringJdbcMigration {
 	/**
 	 * 
 	 */
-	public V2_2_1__MigrateData() {
+	public V2_1_9_2__MigrateData() {
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class V2_2_1__MigrateData implements SpringJdbcMigration {
 
 	private List<AssessmentMapper> loadAssessment(Integer idAnalysis, JdbcTemplate template) {
 		List<AssessmentMapper> assessmentMappers = new LinkedList<>();
-		template.query(V2_2_1__MigrateData.QUERY_ASSESSMENT_SQL, new Object[] { idAnalysis }, (row) -> {
+		template.query(V2_1_9_2__MigrateData.QUERY_ASSESSMENT_SQL, new Object[] { idAnalysis }, (row) -> {
 			AssessmentMapper mapper = new AssessmentMapper();
 			mapper.setId(row.getInt("idAssessment"));
 			mapper.setAle(row.getDouble("dtALE"));

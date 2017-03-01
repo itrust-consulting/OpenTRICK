@@ -12,12 +12,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author eomar
  *
  */
-public class V2_2_2__Clean implements SpringJdbcMigration {
+public class V2_2__Clean implements SpringJdbcMigration {
 
 	/**
 	 * 
 	 */
-	public V2_2_2__Clean() {
+	public V2_2__Clean() {
 	}
 
 	/*
@@ -39,13 +39,9 @@ public class V2_2_2__Clean implements SpringJdbcMigration {
 		jdbcTemplate.update(
 				"ALTER TABLE `RiskProfile` DROP COLUMN `fiExpImpactFin`, DROP COLUMN `fiExpImpactLeg`, DROP COLUMN `fiExpImpactOp`, DROP COLUMN `fiExpImpactRep`, DROP COLUMN `fiRawImpactFin`, DROP COLUMN `fiRawImpactLeg`, DROP COLUMN `fiRawImpactOp`, DROP COLUMN `fiRawImpactRep`;");
 
-		jdbcTemplate.update("DROP TABLE `ExtendedParameter`;");
+		jdbcTemplate.update("DROP TABLE IF EXISTS `ExtendedParameter`;");
 
-		foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(null, null, "Parameter");
-		while (foreignKeys.next())
-			jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME")));
-
-		jdbcTemplate.update("DROP TABLE `Parameter`;");
+		jdbcTemplate.update("DROP TABLE IF EXISTS `Parameter`;");
 	}
 
 }

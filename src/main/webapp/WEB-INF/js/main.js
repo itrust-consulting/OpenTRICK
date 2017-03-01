@@ -167,6 +167,13 @@ function checkExtention(value, extention, button) {
 	return match;
 }
 
+function switchLangueTo(url){
+	if (window.location.hash == undefined)
+		return true;
+	location.href = url + window.location.hash;
+	return false;
+}
+
 function triggerCaller($target) {
 	try {
 		if ($target.attr("data-update-required") == "true") {

@@ -82,21 +82,6 @@ function exportAnalysisReport(analysisId) {
 	return false;
 }
 
-function exportAnalysisReportData(analysisId) {
-	if (analysisId == null || analysisId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_analysis");
-		if (selectedScenario.length != 1)
-			return false;
-		analysisId = selectedScenario[0];
-	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/ReportData/' + analysisId).fail(unknowError);
-		return false;
-	} else
-		permissionError();
-	return false;
-}
-
 function exportRiskSheet(idAnalysis, report) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.EXPORT)) {
 		var $progress = $("#loading-indicator").show();

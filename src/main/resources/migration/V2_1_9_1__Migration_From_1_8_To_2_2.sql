@@ -1,17 +1,3 @@
-SET FOREIGN_KEY_CHECKS=0;
-
-ALTER TABLE `Parameter` DROP FOREIGN KEY `FK_gmt6cbbow3t8j001q8pnu1nw8`;
-
-ALTER TABLE `MaturityMeasure` DROP FOREIGN KEY `FK58aym60jyndinl3ltxuivajah`;
-
-ALTER TABLE `Parameter` DROP FOREIGN KEY `FKh95ugwcyoo8t4m9t5bcalcvas`;
-
-ALTER TABLE `MaturityParameter` DROP FOREIGN KEY `FK7dah74f0jxvoxooeb1rl26j45`;
-
-ALTER TABLE `MaturityParameter` DROP FOREIGN KEY `FK_pmio6p62piu7xoagu4mppguya`;
-
-SET FOREIGN_KEY_CHECKS=1;
-
 ALTER TABLE `ActionPlan` ADD `dtRiskCount` INT(11) NOT NULL;
 ALTER TABLE `Analysis` ADD `dtType` VARCHAR(255) NOT NULL;
 ALTER TABLE `Analysis` CHANGE `dtData` `dtData` bit(1) NOT NULL;

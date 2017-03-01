@@ -237,7 +237,7 @@ table.floatThead-table {
 	resize: vertical;
 }
 
-td[data-trick-content='text'] {
+td[data-trick-content='text'], .pre {
 	border: none;
 	background-color: inherit;
 	color: inherit;
