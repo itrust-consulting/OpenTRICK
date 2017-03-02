@@ -61,6 +61,7 @@ import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.rrf.RRFAsset;
 import lu.itrust.business.TS.model.rrf.RRFAssetType;
@@ -84,6 +85,14 @@ import lu.itrust.business.TS.usermanagement.RoleType;
  */
 @Component
 public class ChartGenerator {
+
+	private static final String RECURRENT_INVESTMENT_EXTERNAL_MAINTENANCE = "recurrent_investment_external_maintenance";
+
+	private static final String INTERNAL_MAINTENANCE_COST = "internal.maintenance.cost";
+
+	private static final String EXTERNAL_WORKLOAD_INVESTMENT = "external_workload_investment";
+
+	private static final String INTERNAL_WORKLOAD_COST = "internal.workload.cost";
 
 	@Value("${app.settings.ale.chart.content.max.size}")
 	private int aleChartMaxSize;
@@ -394,32 +403,39 @@ public class ChartGenerator {
 	 * budget: <br>
 	 * Description
 	 * 
+	 * @param parameters
+	 * 
 	 * @param summaryStages
 	 * @param phases
 	 * @param actionPlanType
 	 * @param locale
 	 * @return
 	 */
-	public Chart[] budget(List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) {
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
-		Chart[] charts = {
-				new Chart("chart_budget_cost_" + actionPlanType,
-						messageSource.getMessage("label.title.chart.budget.cost." + actionPlanType.toLowerCase(), null, "Cost for " + actionPlanType, locale)),
-				new Chart("chart_budget_workload_" + actionPlanType,
-						messageSource.getMessage("label.title.chart.budget.workload." + actionPlanType.toLowerCase(), null, "Workload for " + actionPlanType, locale)) };
-
+	public Chart[] budget(List<SimpleParameter> parameters, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) {
+		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildChartData(summaryStages, phases);
+		Chart[] charts = { new Chart("chart_budget_cost_" + actionPlanType, messageSource.getMessage("label.title.chart.budget.cost", null, "Costs", locale)),
+				new Chart("chart_budget_workload_" + actionPlanType, messageSource.getMessage("label.title.chart.budget.workload", null, "Workloads", locale)) };
 		if (summaries.isEmpty())
 			return charts;
 
+		double internalSetup = 0, externalSetup = 0;
+
+		for (SimpleParameter parameter : parameters) {
+			if (parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
+				externalSetup = parameter.getValue().doubleValue();
+			else if (parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
+				internalSetup = parameter.getValue().doubleValue();
+		}
+
 		String[] workloadNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE,
 				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD },
-				costNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST,
-						ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT };
+				costNames = { ChartGenerator.INTERNAL_WORKLOAD_COST, ChartGenerator.EXTERNAL_WORKLOAD_INVESTMENT, ChartGenerator.INTERNAL_MAINTENANCE_COST,
+						ChartGenerator.RECURRENT_INVESTMENT_EXTERNAL_MAINTENANCE };
 
 		Map<String, Dataset<String>> costDatasets = new LinkedHashMap<>(costNames.length), workloadDatasets = new LinkedHashMap<>(workloadNames.length);
 
 		for (String name : costNames)
-			costDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getColor(costDatasets.size())));
+			costDatasets.put(name, new Dataset<String>(messageSource.getMessage("label.resource.planning." + name, null, locale), null));
 
 		for (String name : workloadNames)
 			workloadDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getStaticColor(workloadDatasets.size())));
@@ -432,10 +448,37 @@ public class ChartGenerator {
 		}
 
 		for (int i = 0, length = charts[0].getLabels().size(); i < length; i++) {
-			for (String name : costNames)
-				costDatasets.get(name).getData().add(summaries.get(name).get(i));
+
 			for (String name : workloadNames)
 				workloadDatasets.get(name).getData().add(summaries.get(name).get(i));
+
+			double externalMaintenance = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE).get(i),
+					internalMaintenance = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE).get(i),
+					internalWorkload = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD).get(i),
+					externalWorkload = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD).get(i),
+					investement = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT).get(i),
+					recurrentMaintenance = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT).get(i), kEuro = .001;
+
+			for (String name : costNames) {
+				Dataset<String> dataset = costDatasets.get(name);
+				switch (name) {
+				case INTERNAL_WORKLOAD_COST:
+					dataset.setBackgroundColor(getStaticColor(5));
+					dataset.getData().add(internalWorkload * internalSetup * kEuro);
+					break;
+				case EXTERNAL_WORKLOAD_INVESTMENT:
+					dataset.setBackgroundColor(getStaticColor(4));
+					dataset.getData().add((externalWorkload * externalSetup) * kEuro + investement);
+					break;
+				case INTERNAL_MAINTENANCE_COST:
+					dataset.setBackgroundColor(getStaticColor(1));
+					dataset.getData().add(internalMaintenance * internalSetup * kEuro);
+					break;
+				case RECURRENT_INVESTMENT_EXTERNAL_MAINTENANCE:
+					dataset.setBackgroundColor(getStaticColor(0));
+					dataset.getData().add((externalMaintenance * externalSetup) * kEuro + recurrentMaintenance);
+				}
+			}
 		}
 
 		charts[0].getDatasets().addAll(costDatasets.values());
@@ -681,7 +724,7 @@ public class ChartGenerator {
 					break;
 				case "COST":
 					dataset.setBackgroundColor(getStaticColor(3));
-					if (rosi >=0)
+					if (rosi >= 0)
 						dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i));
 					else {
 						List<Object> ales = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
@@ -941,8 +984,8 @@ public class ChartGenerator {
 		chart.getDatasets().add(dataset);
 	}
 
-	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
-			AssetMeasure measure) throws TrickException, ParseException {
+	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure, AssetMeasure measure)
+			throws TrickException, ParseException {
 		rrfMeasure.setValue(RRF.calculateAssetMeasureRRF(scenario, asset, parameter, measure));
 		rrfAssetType.getRrfMeasures().add(rrfMeasure);
 	}

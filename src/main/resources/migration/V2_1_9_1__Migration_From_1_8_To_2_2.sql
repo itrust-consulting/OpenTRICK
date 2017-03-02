@@ -290,5 +290,3 @@ UPDATE `MaturityMeasure` `maturityMeasure`
 	JOIN `SimpleParameter` `simpleParameter` 
 		on (`simpleParameter`.`fiAnalysis` = `parameter`.`fiAnalysis` and `simpleParameter`.`fiParameterType` = `parameter`.`fiParameterType` and `simpleParameter`.`dtValue` = `parameter`.`dtValue`) 
 	SET `fiImplementationRateParameter`=`simpleParameter`.`idSimpleParameter`;
-	
-ALTER TABLE `Analysis` DROP `dtCssf`;

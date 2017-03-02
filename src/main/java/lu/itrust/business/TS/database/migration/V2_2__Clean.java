@@ -36,12 +36,16 @@ public class V2_2__Clean implements SpringJdbcMigration {
 				jdbcTemplate.update(String.format("ALTER TABLE `RiskProfile` DROP FOREIGN KEY `%s`", fkName));
 		}
 
-		jdbcTemplate.update(
+		jdbcTemplate.execute(
 				"ALTER TABLE `RiskProfile` DROP COLUMN `fiExpImpactFin`, DROP COLUMN `fiExpImpactLeg`, DROP COLUMN `fiExpImpactOp`, DROP COLUMN `fiExpImpactRep`, DROP COLUMN `fiRawImpactFin`, DROP COLUMN `fiRawImpactLeg`, DROP COLUMN `fiRawImpactOp`, DROP COLUMN `fiRawImpactRep`;");
+		
+		jdbcTemplate.execute("ALTER TABLE `Assessment` DROP COLUMN `dtImpactFin`, DROP COLUMN `dtImpactLeg`, DROP COLUMN `dtImpactOp`, DROP COLUMN `dtImpactRep`;");
 
-		jdbcTemplate.update("DROP TABLE IF EXISTS `ExtendedParameter`;");
-
-		jdbcTemplate.update("DROP TABLE IF EXISTS `Parameter`;");
+		jdbcTemplate.execute("DROP TABLE IF EXISTS `ExtendedParameter`;");
+		
+		jdbcTemplate.execute("DROP TABLE IF EXISTS `Parameter`;");
+		
+		jdbcTemplate.execute("ALTER TABLE `Analysis` DROP `dtCssf`;");
 	}
 
 }

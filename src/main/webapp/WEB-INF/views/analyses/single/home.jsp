@@ -113,6 +113,7 @@
 		application['openMode'] = OPEN_MODE.valueOf('${open}');
 		application['isLinkedToProject'] = ${isLinkedToProject};
 		application['hasMaturity'] = ${hasMaturity};
+		application['actionPlanType']  = "${show_uncertainty? 'APPO,APPN,APPP' : 'APPN'}".split(',');
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");
 		-->

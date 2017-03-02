@@ -26,6 +26,8 @@ import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 
 /**
  * @author eomar
@@ -50,6 +52,9 @@ public class ControllerSummary {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceSimpleParameter serviceSimpleParameter;
 
 	/**
 	 * section: <br>
@@ -117,13 +122,14 @@ public class ControllerSummary {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Budget", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart[] chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
+	public @ResponseBody Chart[] chartBudget(Principal principal, HttpSession session, Locale locale) throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		String actionPlanType = ActionPlanMode.APPN.getName();
 		// return chart
-		return chartGenerator.budget(serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType), servicePhase.getAllFromAnalysis(idAnalysis),
-				actionPlanType, locale);
+		return chartGenerator.budget(serviceSimpleParameter.findByAnalysisId(idAnalysis), serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType),
+				servicePhase.getAllFromAnalysis(idAnalysis), actionPlanType, locale);
 	}
 }
