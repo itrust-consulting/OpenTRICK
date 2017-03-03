@@ -383,11 +383,11 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
 			if (riskProfileMapper.getExpOperational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
+						findParameter(impactParameters.get(riskProfileMapper.getExpOperational()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
 
 			if (riskProfileMapper.getExpReputational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
+						findParameter(impactParameters.get(riskProfileMapper.getExpReputational()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
 
 			if (riskProfileMapper.getExpLikelihood() > 0)
 				riskProfileMapper.setExpLikelihood(
@@ -401,15 +401,15 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
 			if (riskProfileMapper.getRawLegal() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
+						findParameter(impactParameters.get(riskProfileMapper.getRawLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
 
 			if (riskProfileMapper.getRawOperational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
+						findParameter(impactParameters.get(riskProfileMapper.getRawOperational()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
 
 			if (riskProfileMapper.getRawReputational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
+						findParameter(impactParameters.get(riskProfileMapper.getRawReputational()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
 
 			if (riskProfileMapper.getRawLikelihood() > 0)
 				riskProfileMapper.setRawLikelihood(
