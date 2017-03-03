@@ -203,6 +203,11 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 				});
 			});
 
+			if (paramters.isEmpty()) {
+				System.out.println("Analysis does not have parameters : " + idAnalysis);
+				return;
+			}
+
 			ValueFactory valueFactory = new ValueFactory(likelihoods.values());
 			scaleTypes.forEach((name, scaleType) -> {
 				Collection<IBoundedParameter> collection = paramters.get(name).values();
