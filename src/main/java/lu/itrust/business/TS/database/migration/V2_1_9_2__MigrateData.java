@@ -172,7 +172,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 		Map<Integer, LikelihoodParameter> likelihoodParameters = extendParameterLoader(template, idAnalysis, Constant.PARAMETERTYPE_TYPE_PROPABILITY)
 				.collect(Collectors.toMap(ExtendedParameterMapper::getId, parameter -> createLikelihoodParameter(parameter)));
 
-		if (!likelihoodParameters.isEmpty() && impactParameters.isEmpty()) {
+		if (likelihoodParameters.isEmpty() && impactParameters.isEmpty()) {
 			System.err.println("Analysis does not have parameters : " + idAnalysis);
 			return;
 		}
