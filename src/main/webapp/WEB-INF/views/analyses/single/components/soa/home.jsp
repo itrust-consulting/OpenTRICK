@@ -99,12 +99,12 @@
 										<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										<td>${measure.phase.number}</td>
 										<c:if test="${type == 'QUANTITATIVE' }">
-											<td><pre><spring:message text="${measure.measurePropertyList.soaRisk}" /></pre></td>
+											<td class='pre'><spring:message text="${measure.measurePropertyList.soaRisk}" /></td>
 										</c:if>
-										<td ${empty measure.measurePropertyList.soaComment? 'class="warning"' : empty css? '' : css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" 
-											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaComment}" /></pre></td>
-										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaReference" data-trick-content="text" 
-											data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaReference}" /></pre></td>
+										<td ${empty measure.measurePropertyList.soaComment? 'class="warning"' : empty css? '' : css} onclick="return editField(this);" data-trick-field="soaComment" 
+											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaComment}" /></td>
+										<td ${css} onclick="return editField(this);" data-trick-field="soaReference" data-trick-content="text" 
+											data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaReference}"/></td>
 									</tr>
 								</c:otherwise>
 							</c:choose>

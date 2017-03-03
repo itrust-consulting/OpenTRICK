@@ -90,6 +90,25 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 		this(type, level, acronym);
 		setValue(value);
 	}
+	
+	
+
+	/**
+	 * @param type
+	 * @param acronym
+	 * @param level
+	 * @param value
+	 * @param description
+	 * @param bounds
+	 * @param label
+	 */
+	public ImpactParameter(ScaleType type, String acronym, int level, double value, String description, Bounds bounds) {
+		super(value, description);
+		this.type = type;
+		this.acronym = acronym;
+		this.level = level;
+		this.bounds = bounds;
+	}
 
 	/***********************************************************************************************
 	 * Getters and Setters

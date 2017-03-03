@@ -570,12 +570,23 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	return false;
 }
 
-function budgetByActionPlanType(actionPlanType) {
+function summaryCharts() {
+	loadChartBudget();
+	loadChartEvolution();
+	return false;
+}
+
+function loadChartEvolution() {
+	application['actionPlanType'].map(actionType => evolutionProfitabilityComplianceByActionPlanType(actionType));
+	return false;
+}
+
+function loadChartBudget() {
 	var $section = $("#tab-chart-budget");
 	if ($section.is(":visible")) {
 		var $progress = $("#loading-indicator").show(), name = "budgetCharts";
 		$.ajax({
-			url: context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
+			url: context + "/Analysis/ActionPlanSummary/Budget" ,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
@@ -608,45 +619,7 @@ function budgetByActionPlanType(actionPlanType) {
 		});
 	} else
 		$section.attr("data-update-required", "true");
-	return false;
-}
-
-function summaryCharts() {
-	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
-	for (var i = 0; i < actionPlanTypes.length; i++) {
-		try {
-			actionPlanType = $(actionPlanTypes[i]).attr("data-trick-nav-control");
-			evolutionProfitabilityComplianceByActionPlanType(actionPlanType);
-			budgetByActionPlanType(actionPlanType);
-		} catch (e) {
-			console.log(e);
-		}
-	}
-	return false;
-}
-
-function loadChartEvolution() {
-	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
-	for (var i = 0; i < actionPlanTypes.length; i++) {
-		try {
-			evolutionProfitabilityComplianceByActionPlanType($(actionPlanTypes[i]).attr("data-trick-nav-control"));
-		} catch (e) {
-			console.log(e);
-		}
-	}
-	return false;
-}
-
-function loadChartBudget() {
-	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
-	for (var i = 0; i < actionPlanTypes.length; i++) {
-		try {
-			budgetByActionPlanType($(actionPlanTypes[i]).attr("data-trick-nav-control"));
-		} catch (e) {
-			console.log(e);
-		}
-	}
-	return false;
+	return false;	
 }
 
 function reloadCharts() {
