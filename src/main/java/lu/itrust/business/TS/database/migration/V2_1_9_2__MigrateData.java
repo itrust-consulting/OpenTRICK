@@ -256,6 +256,8 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			if (riskProfileMapper.getExpLikelihood() > 0)
 				riskProfileMapper.setExpLikelihood(
 						findParameter(likelihoodParameters.get(riskProfileMapper.getExpLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
+			else
+				riskProfileMapper.setExpLikelihood(null);
 
 			if (riskProfileMapper.getRawFinancial() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
@@ -276,6 +278,12 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			if (riskProfileMapper.getRawLikelihood() > 0)
 				riskProfileMapper.setRawLikelihood(
 						findParameter(likelihoodParameters.get(riskProfileMapper.getRawLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
+			else
+				riskProfileMapper.setRawLikelihood(null);
+
+			if (idAnalysis == 24)
+				System.out.println(String.format("`fiExpProbability` = %s, `fiRawProbability` = %s WHERE `idRiskProfile` = %s", riskProfileMapper.getExpLikelihood(),
+						riskProfileMapper.getRawLikelihood(), riskProfileMapper.getId()));
 
 			template.update("UPDATE `RiskProfile` SET `fiExpProbability` = ?, `fiRawProbability` = ? WHERE `idRiskProfile` = ?", riskProfileMapper.getExpLikelihood(),
 					riskProfileMapper.getRawLikelihood(), riskProfileMapper.getId());
