@@ -30,6 +30,9 @@ public class V2_1_9__PrepareMigration implements SpringJdbcMigration {
 		while (foreignKeys.next())
 			jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME")));
 		
+		foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(null, null, "ExtendedParameter");
+		while (foreignKeys.next())
+			jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME")));
 	}
 
 }
