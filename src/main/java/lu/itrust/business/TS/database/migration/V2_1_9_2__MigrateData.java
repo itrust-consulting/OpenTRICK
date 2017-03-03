@@ -41,13 +41,15 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  */
 public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
+	private static final String QUERY_ASSESSMENT_SQL = "SELECT `idAssessment`, `dtALE`, `dtALEO`, `dtALEP`,`dtImpactFin`, `dtImpactLeg`, `dtImpactOp`, `dtImpactReal`, `dtImpactRep`, `dtLikelihood`, `dtLikelihoodReal`, `dtUncertainty` FROM `Assessment` WHERE `fiAnalysis` = ?";
+
 	private static final String QUERY_INSERT_RISK_PROFILE_EXP_IMPACT = "INSERT INTO `RiskProfileExpImpacts`(`fiRiskProfile`, `fiExpImpact`) VALUES (?,?)";
 
 	private static final String QUERY_INSERT_RISK_PROFILE_RAW_IMPACT = "INSERT INTO `RiskProfileRawImpacts`(`fiRiskProfile`, `fiRawImpact`) VALUES (?,?)";
 
-	private static final String QUERY_ASSESSMENT_SQL = "SELECT `idAssessment`, `dtALE`, `dtALEO`, `dtALEP`,`dtImpactFin`, `dtImpactLeg`, `dtImpactOp`, `dtImpactReal`, `dtImpactRep`, `dtLikelihood`, `dtLikelihoodReal`, `dtUncertainty` FROM `Assessment` WHERE `fiAnalysis` = ?";
-
 	private Map<Integer, AnalysisType> analyses = new LinkedHashMap<>();
+
+	private List<ScaleType> cssfScaleTypes = Collections.emptyList();
 
 	private Map<String, ScaleType> scaleTypes = Collections.emptyMap();
 
@@ -62,6 +64,13 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 	 */
 	public Map<Integer, AnalysisType> getAnalyses() {
 		return analyses;
+	}
+
+	/**
+	 * @return the cssfScaleTypes
+	 */
+	public List<ScaleType> getCssfScaleTypes() {
+		return cssfScaleTypes;
 	}
 
 	/**
@@ -94,11 +103,23 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 	}
 
 	/**
+	 * @param cssfScaleTypes
+	 *            the cssfScaleTypes to set
+	 */
+	public void setCssfScaleTypes(List<ScaleType> cssfScaleTypes) {
+		this.cssfScaleTypes = cssfScaleTypes;
+	}
+
+	/**
 	 * @param scaleTypes
 	 *            the scaleTypes to set
 	 */
 	public void setScaleTypes(Map<String, ScaleType> scaleTypes) {
 		this.scaleTypes = scaleTypes;
+	}
+
+	private void addRiskProfileValue(JdbcTemplate template, String sql, Integer id, IBoundedParameter parameter) {
+		template.update(sql, id, parameter.getId());
 	}
 
 	private ImpactParameter createImpactParameter(ExtendedParameterMapper parameter) {
@@ -119,6 +140,10 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 				.query("Select Parameter.`idParameter` as `id`, Parameter.`dtLabel` as `description` , Parameter.`dtValue` as `value`, Parameter.`fiParameterType` as `idType`, ExtendedParameter.`dtAcronym` as `acronym`, ExtendedParameter.`dtFrom` as `from`, ExtendedParameter.`dtTo` as `to`, ExtendedParameter.`dtLevel` as `level`, Parameter.`fiAnalysis` as `idAnalysis` from ExtendedParameter inner join Parameter on ExtendedParameter.`idExtendedParameter` = Parameter.`idParameter` where Parameter.`fiParameterType` = ? and Parameter.`fiAnalysis` = ?  order by Parameter.`fiAnalysis`, Parameter.`fiParameterType`, ExtendedParameter.`dtLevel`;",
 						new Object[] { type, idAnalysis }, new BeanPropertyRowMapper<>(ExtendedParameterMapper.class))
 				.stream();
+	}
+
+	private IBoundedParameter findParameter(IBoundedParameter parameter, ValueFactory valueFactory, String type) {
+		return (IBoundedParameter) valueFactory.findParameter(parameter.getLevel(), type);
 	}
 
 	private IValue findValue(String raw, Map<String, IBoundedParameter> parameters, ValueFactory valueFactory, String type) {
@@ -164,6 +189,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 				.query("Select `id`, `dtName` as `name`, `dtAcronym` as `acronym` From ScaleType where `dtName` in (?,?,?,?,?)",
 						new Object[] { "IMPACT", "FINANCIAL", "LEGAL", "OPERATIONAL", "REPUTATIONAL" }, new BeanPropertyRowMapper<>(ScaleType.class))
 				.stream().collect(Collectors.toMap(ScaleType::getName, Function.identity())));
+		this.setCssfScaleTypes(getScaleTypes().values().stream().filter(type -> !type.getName().equalsIgnoreCase(Constant.PARAMETER_CATEGORY_IMPACT)).collect(Collectors.toList()));
 	}
 
 	private void migrateExtended(JdbcTemplate template, Integer idAnalysis, AnalysisType analysisType) {
@@ -177,7 +203,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			return;
 		}
 
-		System.out.println(String.format("Migrating analysis (%d)", idAnalysis));
+		System.out.println(String.format("Migrating analysis (%d), type : %s", idAnalysis, analysisType));
 
 		Map<String, Map<String, IBoundedParameter>> paramters = new LinkedHashMap<>(likelihoodParameters.size() * (analysisType == AnalysisType.QUALITATIVE ? 2 : 5));
 		Map<String, IBoundedParameter> likelihoods = new LinkedHashMap<>(likelihoodParameters.size());
@@ -198,9 +224,8 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			saveImpactParameter(template, idAnalysis, impacts.values());
 			updateQuantitativeAssessments(template, idAnalysis, paramters);
 		} else {
-			scaleTypes.remove(Constant.PARAMETER_CATEGORY_IMPACT);
 			impactParameters.values().forEach(impact -> {
-				scaleTypes.values().forEach(scaleType -> {
+				cssfScaleTypes.forEach(scaleType -> {
 					Map<String, IBoundedParameter> impacts = paramters.get(scaleType.getName());
 					if (impacts == null)
 						paramters.put(scaleType.getName(), impacts = new LinkedHashMap<>(impactParameters.size()));
@@ -213,8 +238,9 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			});
 
 			ValueFactory valueFactory = new ValueFactory(likelihoods.values());
-			scaleTypes.forEach((name, scaleType) -> {
-				Collection<IBoundedParameter> collection = paramters.get(name).values();
+
+			cssfScaleTypes.forEach(scaleType -> {
+				Collection<IBoundedParameter> collection = paramters.get(scaleType.getName()).values();
 				saveImpactParameter(template, idAnalysis, collection);
 				valueFactory.add(collection);
 			});
@@ -222,81 +248,6 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			updateQualitativeAssessments(template, idAnalysis, paramters, valueFactory);
 			updateRiskProfiles(template, idAnalysis, impactParameters, likelihoodParameters, valueFactory);
 		}
-	}
-
-	private void updateRiskProfiles(JdbcTemplate template, Integer idAnalysis, Map<Integer, ImpactParameter> impactParameters,
-			Map<Integer, LikelihoodParameter> likelihoodParameters, ValueFactory valueFactory) {
-		List<RiskProfileMapper> profileMappers = new LinkedList<>();
-		template.query(
-				"SELECT `idRiskProfile`, `fiExpImpactFin`, `fiExpImpactLeg`, `fiExpImpactOp`, `fiExpImpactRep`, `fiExpProbability`, `fiRawImpactFin`, `fiRawImpactLeg`, `fiRawImpactOp`, `fiRawImpactRep`, `fiRawProbability` FROM `RiskProfile` WHERE `fiAnalysis` = ?",
-				new Object[] { idAnalysis }, (row) -> {
-					profileMappers.add(new RiskProfileMapper(row.getInt("idRiskProfile"), row.getInt("fiExpImpactFin"), row.getInt("fiExpImpactLeg"), row.getInt("fiExpImpactOp"),
-							row.getInt("fiExpImpactRep"), row.getInt("fiExpProbability"), row.getInt("fiRawImpactFin"), row.getInt("fiRawImpactLeg"), row.getInt("fiRawImpactOp"),
-							row.getInt("fiRawImpactRep"), row.getInt("fiRawProbability")));
-				});
-
-		for (RiskProfileMapper riskProfileMapper : profileMappers) {
-
-			if (riskProfileMapper.getExpFinancial() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
-
-			if (riskProfileMapper.getExpLegal() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
-
-			if (riskProfileMapper.getExpOperational() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
-
-			if (riskProfileMapper.getExpReputational() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
-
-			if (riskProfileMapper.getExpLikelihood() > 0)
-				riskProfileMapper.setExpLikelihood(
-						findParameter(likelihoodParameters.get(riskProfileMapper.getExpLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
-			else
-				riskProfileMapper.setExpLikelihood(null);
-
-			if (riskProfileMapper.getRawFinancial() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
-
-			if (riskProfileMapper.getRawLegal() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
-
-			if (riskProfileMapper.getRawOperational() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
-
-			if (riskProfileMapper.getRawReputational() > 0)
-				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
-
-			if (riskProfileMapper.getRawLikelihood() > 0)
-				riskProfileMapper.setRawLikelihood(
-						findParameter(likelihoodParameters.get(riskProfileMapper.getRawLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
-			else
-				riskProfileMapper.setRawLikelihood(null);
-
-			if (idAnalysis == 24)
-				System.out.println(String.format("`fiExpProbability` = %s, `fiRawProbability` = %s WHERE `idRiskProfile` = %s", riskProfileMapper.getExpLikelihood(),
-						riskProfileMapper.getRawLikelihood(), riskProfileMapper.getId()));
-
-			template.update("UPDATE `RiskProfile` SET `fiExpProbability` = ?, `fiRawProbability` = ? WHERE `idRiskProfile` = ?", riskProfileMapper.getExpLikelihood(),
-					riskProfileMapper.getRawLikelihood(), riskProfileMapper.getId());
-		}
-
-	}
-
-	private void addRiskProfileValue(JdbcTemplate template, String sql, Integer id, IBoundedParameter parameter) {
-		template.update(sql, id, parameter.getId());
-	}
-
-	private IBoundedParameter findParameter(IBoundedParameter parameter, ValueFactory valueFactory, String type) {
-		return (IBoundedParameter) valueFactory.findParameter(parameter.getLevel(), type);
 	}
 
 	private void saveImpactParameter(JdbcTemplate template, Integer idAnalysis, Collection<IBoundedParameter> impactParameters) {
@@ -407,6 +358,69 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			saveImpactValue(template, assessmentMapper.getId(), impactValue);
 		}
 		deleteAllRiskProfileFromAnalysis(template, idAnalysis);
+	}
+
+	private void updateRiskProfiles(JdbcTemplate template, Integer idAnalysis, Map<Integer, ImpactParameter> impactParameters,
+			Map<Integer, LikelihoodParameter> likelihoodParameters, ValueFactory valueFactory) {
+		List<RiskProfileMapper> profileMappers = new LinkedList<>();
+		template.query(
+				"SELECT `idRiskProfile`, `fiExpImpactFin`, `fiExpImpactLeg`, `fiExpImpactOp`, `fiExpImpactRep`, `fiExpProbability`, `fiRawImpactFin`, `fiRawImpactLeg`, `fiRawImpactOp`, `fiRawImpactRep`, `fiRawProbability` FROM `RiskProfile` WHERE `fiAnalysis` = ?",
+				new Object[] { idAnalysis }, (row) -> {
+					profileMappers.add(new RiskProfileMapper(row.getInt("idRiskProfile"), row.getInt("fiExpImpactFin"), row.getInt("fiExpImpactLeg"), row.getInt("fiExpImpactOp"),
+							row.getInt("fiExpImpactRep"), row.getInt("fiExpProbability"), row.getInt("fiRawImpactFin"), row.getInt("fiRawImpactLeg"), row.getInt("fiRawImpactOp"),
+							row.getInt("fiRawImpactRep"), row.getInt("fiRawProbability")));
+				});
+
+		for (RiskProfileMapper riskProfileMapper : profileMappers) {
+
+			if (riskProfileMapper.getExpFinancial() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
+
+			if (riskProfileMapper.getExpLegal() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
+
+			if (riskProfileMapper.getExpOperational() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
+
+			if (riskProfileMapper.getExpReputational() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
+
+			if (riskProfileMapper.getExpLikelihood() > 0)
+				riskProfileMapper.setExpLikelihood(
+						findParameter(likelihoodParameters.get(riskProfileMapper.getExpLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
+			else
+				riskProfileMapper.setExpLikelihood(null);
+
+			if (riskProfileMapper.getRawFinancial() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
+
+			if (riskProfileMapper.getRawLegal() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
+
+			if (riskProfileMapper.getRawOperational() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
+
+			if (riskProfileMapper.getRawReputational() > 0)
+				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
+						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
+
+			if (riskProfileMapper.getRawLikelihood() > 0)
+				riskProfileMapper.setRawLikelihood(
+						findParameter(likelihoodParameters.get(riskProfileMapper.getRawLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
+			else
+				riskProfileMapper.setRawLikelihood(null);
+
+			template.update("UPDATE `RiskProfile` SET `fiExpProbability` = ?, `fiRawProbability` = ? WHERE `idRiskProfile` = ?", riskProfileMapper.getExpLikelihood(),
+					riskProfileMapper.getRawLikelihood(), riskProfileMapper.getId());
+		}
+
 	}
 
 }
