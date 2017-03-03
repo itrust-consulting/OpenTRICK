@@ -397,7 +397,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
 			if (riskProfileMapper.getRawFinancial() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
-						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
+						findParameter(impactParameters.get(riskProfileMapper.getRawFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
 
 			if (riskProfileMapper.getRawLegal() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
