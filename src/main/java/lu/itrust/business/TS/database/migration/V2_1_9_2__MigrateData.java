@@ -212,7 +212,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			scaleTypes.forEach((name, scaleType) -> {
 				Map<String, IBoundedParameter> impacts = paramters.get(name);
 				if (impacts == null) {
-					System.err.println(String.format("Parameters '%s' cannot be found for analysis : ", name, idAnalysis));
+					System.err.println(String.format("Parameters '%s' cannot be found for analysis : %d", name, idAnalysis));
 				} else {
 					Collection<IBoundedParameter> collection = impacts.values();
 					saveImpactParameter(template, idAnalysis, collection);
