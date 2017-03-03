@@ -91,7 +91,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 	public void migrate(JdbcTemplate arg0) throws Exception {
 		loadScaleTypes(arg0);
 		loadAnalysis(arg0);
-		getAnalyses().forEach((id, type) -> migrateExtended(arg0, id, type));
+		getAnalyses().entrySet().parallelStream().forEach((entry) -> migrateExtended(arg0, entry.getKey(), entry.getValue()));
 	}
 
 	/**
