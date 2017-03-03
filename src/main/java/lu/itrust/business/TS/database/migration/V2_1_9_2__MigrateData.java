@@ -171,12 +171,19 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 				.collect(Collectors.toMap(ExtendedParameterMapper::getId, parameter -> createImpactParameter(parameter)));
 		Map<Integer, LikelihoodParameter> likelihoodParameters = extendParameterLoader(template, idAnalysis, Constant.PARAMETERTYPE_TYPE_PROPABILITY)
 				.collect(Collectors.toMap(ExtendedParameterMapper::getId, parameter -> createLikelihoodParameter(parameter)));
+
+		if (!likelihoodParameters.isEmpty() && impactParameters.isEmpty()) {
+			System.err.println("Analysis does not have parameters : " + idAnalysis);
+			return;
+		}
+
 		Map<String, Map<String, IBoundedParameter>> paramters = new LinkedHashMap<>(likelihoodParameters.size() * (analysisType == AnalysisType.QUALITATIVE ? 2 : 5));
 		Map<String, IBoundedParameter> likelihoods = new LinkedHashMap<>(likelihoodParameters.size());
 		likelihoodParameters.values().forEach(likelihoodParameter -> {
 			likelihoods.put(likelihoodParameter.getAcronym(), likelihoodParameter);
 			likelihoodParameter.setAcronym("p" + likelihoodParameter.getLevel());
 		});
+
 		paramters.put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, likelihoods);
 		saveLikelihoodParameter(template, idAnalysis, likelihoodParameters);
 		if (analysisType == AnalysisType.QUANTITATIVE) {
@@ -203,21 +210,11 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 				});
 			});
 
-			if (paramters.isEmpty()) {
-				System.err.println("Analysis does not have parameters : " + idAnalysis);
-				return;
-			}
-
 			ValueFactory valueFactory = new ValueFactory(likelihoods.values());
 			scaleTypes.forEach((name, scaleType) -> {
-				Map<String, IBoundedParameter> impacts = paramters.get(name);
-				if (impacts == null) {
-					System.err.println(String.format("Parameters '%s' cannot be found for analysis : %d", name, idAnalysis));
-				} else {
-					Collection<IBoundedParameter> collection = impacts.values();
-					saveImpactParameter(template, idAnalysis, collection);
-					valueFactory.add(collection);
-				}
+				Collection<IBoundedParameter> collection = paramters.get(name).values();
+				saveImpactParameter(template, idAnalysis, collection);
+				valueFactory.add(collection);
 			});
 
 			updateQualitativeAssessments(template, idAnalysis, paramters, valueFactory);
