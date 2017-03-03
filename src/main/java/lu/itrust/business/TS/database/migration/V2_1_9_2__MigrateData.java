@@ -204,15 +204,20 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			});
 
 			if (paramters.isEmpty()) {
-				System.out.println("Analysis does not have parameters : " + idAnalysis);
+				System.err.println("Analysis does not have parameters : " + idAnalysis);
 				return;
 			}
 
 			ValueFactory valueFactory = new ValueFactory(likelihoods.values());
 			scaleTypes.forEach((name, scaleType) -> {
-				Collection<IBoundedParameter> collection = paramters.get(name).values();
-				saveImpactParameter(template, idAnalysis, collection);
-				valueFactory.add(collection);
+				Map<String, IBoundedParameter> impacts = paramters.get(name);
+				if (impacts == null) {
+					System.err.println(String.format("Parameters '%s' cannot be found for analysis : ", name, idAnalysis));
+				} else {
+					Collection<IBoundedParameter> collection = impacts.values();
+					saveImpactParameter(template, idAnalysis, collection);
+					valueFactory.add(collection);
+				}
 			});
 
 			updateQualitativeAssessments(template, idAnalysis, paramters, valueFactory);
