@@ -177,6 +177,8 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 			return;
 		}
 
+		System.out.println(String.format("Migrating analysis (%d)", idAnalysis));
+
 		Map<String, Map<String, IBoundedParameter>> paramters = new LinkedHashMap<>(likelihoodParameters.size() * (analysisType == AnalysisType.QUALITATIVE ? 2 : 5));
 		Map<String, IBoundedParameter> likelihoods = new LinkedHashMap<>(likelihoodParameters.size());
 		likelihoodParameters.values().forEach(likelihoodParameter -> {
@@ -235,43 +237,43 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
 		for (RiskProfileMapper riskProfileMapper : profileMappers) {
 
-			if (riskProfileMapper.getExpFinancial() != null)
+			if (riskProfileMapper.getExpFinancial() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
 
-			if (riskProfileMapper.getExpLegal() != null)
+			if (riskProfileMapper.getExpLegal() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
 
-			if (riskProfileMapper.getExpOperational() != null)
+			if (riskProfileMapper.getExpOperational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
 
-			if (riskProfileMapper.getExpReputational() != null)
+			if (riskProfileMapper.getExpReputational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_EXP_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpLegal()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
 
-			if (riskProfileMapper.getExpLikelihood() != null)
+			if (riskProfileMapper.getExpLikelihood() > 0)
 				riskProfileMapper.setExpLikelihood(
 						findParameter(likelihoodParameters.get(riskProfileMapper.getExpLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
 
-			if (riskProfileMapper.getRawFinancial() != null)
+			if (riskProfileMapper.getRawFinancial() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]));
 
-			if (riskProfileMapper.getRawLegal() != null)
+			if (riskProfileMapper.getRawLegal() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]));
 
-			if (riskProfileMapper.getRawOperational() != null)
+			if (riskProfileMapper.getRawOperational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]));
 
-			if (riskProfileMapper.getRawReputational() != null)
+			if (riskProfileMapper.getRawReputational() > 0)
 				addRiskProfileValue(template, QUERY_INSERT_RISK_PROFILE_RAW_IMPACT, riskProfileMapper.getId(),
 						findParameter(impactParameters.get(riskProfileMapper.getExpFinancial()), valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[3]));
 
-			if (riskProfileMapper.getRawLikelihood() != null)
+			if (riskProfileMapper.getRawLikelihood() > 0)
 				riskProfileMapper.setRawLikelihood(
 						findParameter(likelihoodParameters.get(riskProfileMapper.getRawLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
 
