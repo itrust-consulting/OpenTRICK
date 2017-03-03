@@ -170,7 +170,7 @@ function checkExtention(value, extention, button) {
 function switchLangueTo(url){
 	if (window.location.hash == undefined)
 		return true;
-	location.href = url + window.location.hash;
+	window.location.replace(url + window.location.hash);
 	return false;
 }
 
@@ -407,8 +407,7 @@ $.fn.serializeJSON = function() {
 };
 
 function permissionError() {
-	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
-	return false;
+	return showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
 }
 
 function findRight(idAnalysis) {

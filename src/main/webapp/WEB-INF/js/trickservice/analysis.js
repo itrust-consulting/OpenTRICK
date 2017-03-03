@@ -17,7 +17,7 @@ $(document).ready(function () {
 	// * uncheck checked checkboxes
 	// ******************************************************************************************************************
 
-	$("input[type='checkbox']").removeAttr("checked");
+	$("input[type='checkbox']:checked").trigger("change");
 
 	var $tabOption = $("#tabOption");
 

@@ -21,21 +21,16 @@ function editSingleAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	var $progress = $("#loading-indicator").show();
-	$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 	$.ajax({
 		url: context + "/Analysis/Edit/" + analysisId,
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((form = doc.getElementById("form_edit_analysis")) == null) {
-				$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
-				$("#alert-dialog").modal("toggle");
-			} else {
-				$("#analysis_form").html($(form).html());
-				$("#editAnalysisModel").modal('toggle');
-			}
+			var $view = $("#editAnalysisModel",new DOMParser().parseFromString(response, "text/html"));
+			if (!$view.length) {
+				showDialog("#alert-dialog",MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
+			} else 
+				$view.appendTo("#widget").modal('show').on("hidden.bs.modal", () => $view.remove());
 		},
 		error: unknowError
 	}).complete(function () {
@@ -157,8 +152,7 @@ function deleteAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-	$("#deleteanalysisbuttonYes").unbind();
-	$("#deleteanalysisbuttonYes").one("click", function () {
+	$("#deleteanalysisbuttonYes").unbind().one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Delete/" + analysisId,

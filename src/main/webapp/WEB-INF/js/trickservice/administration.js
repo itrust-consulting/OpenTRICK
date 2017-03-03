@@ -26,10 +26,9 @@ function installTrickService() {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else if (response["idTask"] != undefined)
+			if (response["error"] != undefined)
+				showDialog("#alert-dialog",response["error"]);
+			else if (response["idTask"] != undefined)
 				application['taskManager'].Start();
 		},
 		error : unknowError
@@ -198,7 +197,7 @@ function updateAnalysisAccess(e) {
 					if (data.userRights[me] != undefined && data.userRights[me].oldRight != data.userRights[me].newRight)
 						reloadSection("section_analysis");
 					else
-						showDialog("#info-dialog", response.success);
+						showDialog("success", response.success);
 				} else
 					unknowError();
 			},
@@ -240,7 +239,7 @@ function manageAnalysisIDSAccess(section) {
 								if (response.error != undefined)
 									showDialog("#alert-dialog", response.error);
 								else if (response.success != undefined)
-									showDialog("#info-dialog", response.success);
+									showDialog("success", response.success);
 								else
 									unknowError();
 							},
@@ -306,40 +305,34 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 		selectedAnalysis[selectedAnalysis.length] = analysisId;
 	else
 		selectedAnalysis = analysisId;
-
-	var modal = new Modal($("#deleteAnalysisModel").clone()).setBody(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-	$(modal.modal).find("#deleteanalysisbuttonNo").click(function() {
-		modal.Destroy();
+	
+	var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+	$("button[name='delete']", $modal).unbind().one("click", function () {
+		var $progress = $("#loading-indicator").show();
+		$.ajax(
+				{
+					url : context + "/Admin/Analysis/Delete",
+					type : "post",
+					contentType : "application/json;charset=UTF-8",
+					data : JSON.stringify(selectedAnalysis),
+					success : function(response, textStatus, jqXHR) {
+						if (response === true)
+							$("#section_admin_analysis select").change();
+						else if (response === false)
+							showDialog("#alert-dialog", selectedAnalysis.length == 1 ? MessageResolver("failed.delete.analysis", "Analysis cannot be deleted!")
+									: MessageResolver("failed.delete.analyses", "Analyses cannot be deleted!"));
+						else
+							unknowError();
+						return false;
+					},
+					error : unknowError
+				}).complete(function() {
+			$progress.hide();
+		});
+		$modal.modal("hide");
+		return false;
 	});
-	$(modal.modal).find("#deleteanalysisbuttonYes").click(
-			function() {
-				var $progress = $("#loading-indicator").show()
-				$(modal.modal).find(".btn").prop("disabled", true);
-				$.ajax(
-						{
-							url : context + "/Admin/Analysis/Delete",
-							type : "post",
-							contentType : "application/json;charset=UTF-8",
-							data : JSON.stringify(selectedAnalysis),
-							success : function(response, textStatus, jqXHR) {
-								if (response === true)
-									$("#section_admin_analysis select").change();
-								else if (response === false)
-									showDialog("#alert-dialog", selectedAnalysis.length == 1 ? MessageResolver("failed.delete.analysis", "Analysis cannot be deleted!")
-											: MessageResolver("failed.delete.analyses", "Analyses cannot be deleted!"));
-								else
-									unknowError();
-								return false;
-							},
-							error : unknowError
-						}).complete(function() {
-					$progress.hide();
-				});
-				modal.Destroy();
-				return false;
-			});
-	$(modal.modal).find("#deleteanalysisbuttonYes").prop("disabled", false);
-	modal.Show();
+	
 	return false;
 }
 
@@ -364,7 +357,7 @@ function updateLogFilter(element) {
 			if (response["success"] != undefined)
 				return loadSystemLog();
 			else if (response["error"] != undefined)
-				new Modal($("#alert-dialog").clone(), response["error"]).Show();
+				showDialog("#alert-dialog",response["error"]);
 			else
 				unknowError();
 		},
@@ -374,7 +367,7 @@ function updateLogFilter(element) {
 }
 
 function loadSystemLog() {
-	$("#progress-trickLog").show();
+	var $progress = $("#progress-trickLog").show();
 	$.ajax({
 		url : context + "/Admin/Log/Section",
 		async : false,
@@ -387,10 +380,10 @@ function loadSystemLog() {
 			} else
 				unknowError();
 		},
-		error : unknowError,
-		complete : function() {
-			$("#progress-trickLog").hide();
-		}
+		error : unknowError
+		
+	}).complete( () => {
+		$progress.hide();
 	});
 	return true;
 }
@@ -398,7 +391,7 @@ function loadSystemLog() {
 function loadSystemLogScrolling() {
 	var currentSize = $("#section_log table>tbody>tr").length, size = parseInt($("#logFilterPageSize").val());
 	if (currentSize >= size && currentSize % size === 0) {
-		$("#progress-trickLog").show();
+		var $progress = $("#progress-trickLog").show();
 		$.ajax({
 			url : context + "/Admin/Log/Section",
 			async : false,
@@ -414,10 +407,9 @@ function loadSystemLogScrolling() {
 				});
 				return false;
 			},
-			error : unknowError,
-			complete : function() {
-				$("#progress-trickLog").hide();
-			}
+			error : unknowError
+		}).complete(() => {
+			$progress.hide();
 		});
 	}
 	return true;

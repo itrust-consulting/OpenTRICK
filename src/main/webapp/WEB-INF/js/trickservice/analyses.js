@@ -1,7 +1,7 @@
 var taskManager = undefined, analysesCaching = undefined;
 
 $(document).ready(function () {
-	$("input[type='checkbox']").removeAttr("checked");
+	$("input[type='checkbox']:checked").trigger('change');
 	application["settings-fixed-header"] = {
 		fixedOffset: $(".navbar-fixed-top"),
 		scrollStartFixMulti: 1.02
@@ -114,7 +114,7 @@ function manageAnalysisIDSAccess(section) {
 									if (response.error != undefined)
 										showDialog("#alert-dialog", response.error);
 									else if (response.success != undefined)
-										showDialog("#info-dialog", response.success);
+										showDialog("success", response.success);
 									else
 										unknowError();
 								},
@@ -163,19 +163,14 @@ function disableifprofile(section, menu) {
 }
 
 function saveAnalysis(form, reloadaction) {
-	$("#editAnalysisModel .progress").show();
-	$("#editAnalysisModel #editAnalysisButton").prop("disabled", true);
+	var $progress = $("#loading-indicator").show();
+	$("#editAnalysisModel .label-danger").remove();
 	$.ajax({
 		url: context + "/Analysis/Save",
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$("#editAnalysisModel .progress").hide();
-			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
-			var alert = $("#editAnalysisModel .label-danger");
-			if (alert.length)
-				alert.remove();
 			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
@@ -218,6 +213,8 @@ function saveAnalysis(form, reloadaction) {
 			return false;
 		},
 		error: unknowError
+	}).complete(function () {
+		$progress.hide();
 	});
 	return false;
 }
@@ -232,7 +229,7 @@ function deleteAnalysis(analysisId) {
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
 		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-		$("button[data-action='delete']", $modal).one("click", function () {
+		$("button[name='delete']", $modal).unbind().one("click", function () {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url: context + "/Analysis/Delete/" + analysisId,
@@ -301,7 +298,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 					$('#standards').val(allVal);
 				});
 
-				$(analysisProfile).modal("toggle");
+				$(analysisProfile).modal("hide");
 
 			},
 			error: unknowError
@@ -770,8 +767,7 @@ function customAnalysis(element) {
 							}
 						});
 
-					var $saveButton = $(modal.modal_footer).find("button[name='save']"), $cancelButton = $(modal.modal_footer).find("button[name='cancel']"), $progress_bar = $modalBody
-						.find(".progress");
+					var $saveButton = $(modal.modal_footer).find("button[name='save']"), $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
 					$cancelButton.click(function () {
 						if (!$cancelButton.is(":disabled"))
 							modal.Destroy();
@@ -792,21 +788,13 @@ function customAnalysis(element) {
 								var response = parseJson(data);
 								if (typeof response == 'object') {
 									if (response.error != undefined)
-										$(showError($("#build-analysis-modal-error", $modalBody)[0], response.error)).css({
-											'margin-bottom': '0',
-											'padding': '6px 10px'
-										});
+										showDialog("error", response.error);
 									else if (response.success != undefined) {
-										$(showSuccess($("#build-analysis-modal-error", $modalBody)[0], response.success)).css({
-											'margin-bottom': '0',
-											'padding': '6px 10px'
-										});
-										setTimeout(function () {
-											modal.Destroy();
-											$("select#nameSelectorFilter").val("ALL");
-											$("select#customerSelectorFilter").val($("form select[name='customer']", $modalBody).val()).trigger("change");
-										}, 1000);
+										showDialog("success", response.success);
 										$saveButton.unbind();
+										modal.Destroy();
+										$("select#nameSelectorFilter").val("ALL");
+										$("select#customerSelectorFilter").val($("form select[name='customer']", $modalBody).val()).trigger("change");
 									} else {
 										var errorContainer = document.getElementById("build-analysis-modal-error");
 										for (var error in response) {
@@ -911,28 +899,22 @@ function editSingleAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
-		$("#editAnalysisModel .progress").hide();
-		$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Edit/" + analysisId,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var doc = new DOMParser().parseFromString(response, "text/html");
-				if ((form = doc.getElementById("form_edit_analysis")) == null) {
-					$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
-					$("#alert-dialog").modal("toggle");
-				} else {
-					$("#analysis_form").html($(form).html());
-					$("#editAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
-					$("#editAnalysisButton").text(MessageResolver("label.action.save", "Save"));
-					$("#analysis_form").prop("action", "/Save");
-					$("#editAnalysisModel").modal('toggle');
-				}
+				var $view = $("#editAnalysisModel",new DOMParser().parseFromString(response, "text/html"));
+				if (!$view.length) {
+					showDialog("#alert-dialog",MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
+				} else 
+					$view.appendTo("#widget").modal('show').on("hidden.bs.modal", () => $view.remove());
 			},
 			error: unknowError
+		}).complete(function () {
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -946,9 +928,10 @@ function selectAnalysis(analysisId, mode) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
-	if (userCan(analysisId, right))
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value + "");
+	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY, $progress = $("#loading-indicator").show();
+	setTimeout(() => {
+		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value);
+	}, 0);
 	return false;
 }
 
@@ -977,15 +960,13 @@ function calculateActionPlan(analysisId) {
 			data: JSON.stringify({
 				"id": analysisID
 			}),
-			async: true,
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
-				} else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else
+				} else if (response["error"] != undefined) 
+					showDialog("#alert-dialog",response["error"]);
+				 else
 					unknowError();
 			},
 			error: unknowError
@@ -1028,10 +1009,9 @@ function calculateRiskRegister(analysisId) {
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
-				} else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else
+				} else if (response["error"] != undefined) 
+					showDialog("#alert-dialog",response["error"]);
+				else
 					unknowError();
 			},
 			error: unknowError
@@ -1042,8 +1022,7 @@ function calculateRiskRegister(analysisId) {
 }
 
 function duplicateAnalysis(form, analyisId) {
-	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal"), oldVersion = $("#history_oldVersion", $modal).prop("value"), $buttons = $modal.find(
-		"[data-action!='cancel']").prop("disabled", true);
+	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal"), oldVersion = $("#history_oldVersion", $modal).prop("value");
 	$(".label-danger", $modal).remove();
 	$("[class='alert alert-warning']", $modal);
 	$.ajax({
@@ -1088,7 +1067,6 @@ function duplicateAnalysis(form, analyisId) {
 		error: unknowError
 	}).complete(function () {
 		$progress.hide();
-		$buttons.prop("disabled", false);
 	});
 	return false;
 }

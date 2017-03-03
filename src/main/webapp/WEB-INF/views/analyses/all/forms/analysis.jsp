@@ -5,32 +5,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="editAnalysisModel" tabindex="-1" role="dialog" data-aria-labelledby="editAnalysis" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog" style="width: 800px;">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title">
-					<spring:message code="label.title.analysis.edit.info" text="Edit Analysis information" />
-				</h4>
-			</div>
-			<div class="modal-body">
-				<form name="analysis" action="Analysis/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="analysis_form"></form>
-				<div class="progress progress-striped active" hidden="true">
-					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button id="editAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
-					<spring:message code="label.action.save" text="Save" />
-				</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">
-					<spring:message code="label.action.cancel" text="Cancel" />
-				</button>
-			</div>
-		</div>
-	</div>
-</div>
 <div class="modal fade" id="deleteAnalysisModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteAnalysis" role="dialog" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -40,13 +14,12 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<div id="deleteAnalysisBody" class="text-center">Your question here...</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" data-action="delete" class="btn btn-danger">
+				<button type="button" name="delete" class="btn btn-danger">
 					<spring:message code="label.yes_no.true" text="Yes" />
 				</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal" data-action="cancel" >
+				<button type="button" class="btn btn-default" data-dismiss="modal" name="cancel" >
 					<spring:message code="label.yes_no.false" text="No" />
 				</button>
 			</div>
