@@ -1,13 +1,12 @@
 package lu.itrust.business.TS.controller;
 
-
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -94,15 +93,12 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping("/{customerID}/Users")
+	@RequestMapping("/{customerID}/Manage-access")
 	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
-		if (!model.containsAttribute("customer"))
-			model.addAttribute("customer", serviceCustomer.get(customerID));
-		if (!model.containsAttribute("users"))
-			model.addAttribute("users", serviceUser.getAll());
-		if (!model.containsAttribute("customerusers"))
-			model.addAttribute("customerusers", serviceUser.getAllFromCustomer(customerID));
-		return "knowledgebase/customer/customerusers";
+		model.addAttribute("customer", serviceCustomer.get(customerID));
+		model.addAttribute("users", serviceUser.getAll());
+		model.addAttribute("customerUsers", serviceUser.getAllFromCustomer(customerID).stream().collect(Collectors.toMap(User::getLogin, user -> true)));
+		return "admin/customer/manage-access";
 	}
 
 	/**
@@ -116,47 +112,31 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale,
-			RedirectAttributes redirectAttributes) throws Exception {
+	@RequestMapping(value = "/{customerID}/Manage-access/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updateCustomerUsers(@RequestBody Map<Integer, Boolean> accesses, @PathVariable("customerID") int customerID, Model model, Principal principal,
+			Locale locale, RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list
 		try {
 			Customer customer = serviceCustomer.get(customerID);
 			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-			List<User> users = serviceUser.getAll();
-			List<User> customerusers = serviceUser.getAllFromCustomer(customerID);
-			for (User user : users) {
-				JsonNode userNode = jsonNode.get("user_" + user.getId());
-				boolean userhasaccess = userNode != null && userNode.asBoolean();
+			serviceUser.getAll(accesses.keySet()).forEach(user -> {
+				Boolean userhasaccess = accesses.get(user.getId());
 				if (userhasaccess) {
 					if (!user.containsCustomer(customer)) {
 						user.addCustomer(customer);
 						serviceUser.saveOrUpdate(user);
-						customerusers.add(user);
 						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
 								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
 								customer.getOrganisation(), user.getLogin());
 					}
-				} else if (customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName()))
-					customerusers.remove(user);
-			}
-
-			model.addAttribute("users", users);
-
-			model.addAttribute("customerusers", customerusers);
-
-			model.addAttribute("customer", serviceCustomer.get(customerID));
-
-			model.addAttribute("success", messageSource.getMessage("label.customer.manage.users.success", null, "Customer users successfully updated!", locale));
-
-			return loadCustomerUsers(customerID, model, principal);
+				} else
+					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
+			});
+			return JsonMessage.Success(messageSource.getMessage("label.customer.manage.users.success", null, "Customer users successfully updated!", locale));
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
-			return loadCustomerUsers(customerID, model, principal);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -243,7 +223,7 @@ public class ControllerCustomer {
 				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
-			errors.put("customer",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -349,7 +329,7 @@ public class ControllerCustomer {
 
 			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
 		} catch (Exception e) {
-			errors.put("customer",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

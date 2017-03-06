@@ -1,19 +1,16 @@
 function saveLanguage(form) {
-	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
+	$("#addLanguageModel .label-danger").remove();
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/KnowledgeBase/Language/Save",
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
-			var alert = $("#addLanguageModel .label-danger");
-			if (alert.length)
-				alert.remove();
+			var hasError = false;
 			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
 				switch (error) {
 					case "altName":
@@ -26,30 +23,20 @@ function saveLanguage(form) {
 					case "name":
 						$(errorElement).appendTo($("#language_form #language_name").parent());
 						break;
-
-					case "language":
-						$(errorElement).appendTo($("#language_form .modal-body"));
-						break;
+					default:
+						showDialog("#alert-dialog",response[error]);
 				}
+				hasError = true;
 			}
-			if (!$("#addLanguageModel .label-danger").length) {
+			if (!hasError) {
 				$("#addLanguageModel").modal("hide");
 				reloadSection("section_language");
 			}
-			return false;
-
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			var alert = $("#addLanguageModel .label-danger");
-			if (alert.length)
-				alert.remove();
-			$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
-			var errorElement = document.createElement("label");
-			errorElement.setAttribute("class", "label label-danger");
-			$(errorElement).text(MessageResolver("error.unknown.save.language", "An unknown error occurred during saving language"));
-			$(errorElement).appendTo($("#addLanguageModel .modal-body"));
+			showDialog("#alert-dialog", MessageResolver("error.unknown.save.language", "An unknown error occurred during saving language"))
 		}
-	});
+	}).complete(()=> $progress.hide());
 	return false;
 }
 
@@ -60,10 +47,12 @@ function deleteLanguage(languageId, name) {
 			return false;
 		languageId = selectedScenario[0];
 		name = $("#section_language tbody tr[data-trick-id='" + languageId + "']>td:nth-child(3)").text();
-
 	}
+	
 	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?", name));
 	$("#deletelanguagebuttonYes").unbind().click(function () {
+		$("#deleteLanguageModel").modal('hide');
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/KnowledgeBase/Language/Delete/" + languageId,
 			type: "POST",
@@ -73,14 +62,11 @@ function deleteLanguage(languageId, name) {
 				if (response["success"] != undefined)
 					reloadSection("section_language");
 				else if (response["error"] != undefined)
-					new Modal($("#alert-dialog").clone(), response["error"]).Show();
+					showDialog("#alert-dialog",response["error"]);
 				else unknowError();
-				return false;
 			},
 			error: unknowError
-		}).complete(function () {
-			$("#deleteLanguageModel").modal('hide');
-		});
+		}).complete( () => $progress.hide());
 		return false;
 	});
 	$("#deleteLanguageModel").modal('show');

@@ -32,9 +32,7 @@ function selectAsset(assetId, value) {
 						return false;
 					},
 					error: unknowError
-				}).complete(function () {
-					$progress.hide();
-				});
+				}).complete( ()  => $progress.hide());
 			}
 		} else {
 			var $progress = $("#loading-indicator").show();
@@ -47,9 +45,7 @@ function selectAsset(assetId, value) {
 					return false;
 				},
 				error: unknowError
-			}).complete(function () {
-				$progress.hide();
-			});
+			}).complete(() => $progress.hide());
 		}
 	}
 	return false;
@@ -73,6 +69,7 @@ function deleteAsset() {
 					"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
 					assetname));
 		$("#confirm-dialog .btn-danger").one("click", function () {
+			$("#confirm-dialog").modal("hide");
 			var $progress = $("#loading-indicator").show(), hasChange = false;
 			while (selectedAsset.length) {
 				var assetId = selectedAsset.pop();
@@ -100,9 +97,8 @@ function deleteAsset() {
 					}
 				});
 			}
-
 		});
-		$("#confirm-dialog").modal("toggle");
+		$("#confirm-dialog").modal("show");
 	}
 	return false;
 
@@ -132,15 +128,13 @@ function editAsset(rowTrickId, isAdd) {
 				var $addAssetModal = $(new DOMParser().parseFromString(response, "text/html")).find("#addAssetModal");
 				if ($addAssetModal.length) {
 					$("#addAssetModal").replaceWith($addAssetModal);
-					$("#addAssetModal").modal("toggle");
+					$("#addAssetModal").modal("show");
 				} else
 					unknowError();
 				return false;
 			},
 			error: unknowError
-		}).complete(function () {
-			$progress.hide();
-		});
+		}).complete(() => $progress.hide());
 	}
 	return false;
 }
@@ -192,8 +186,6 @@ function saveAsset(form) {
 		error: function (jqXHR, textStatus, errorThrown) {
 			$("<label class='label label-danger'>").text(MessageResolver("error.unknown.add.asset", "An unknown error occurred during adding asset")).appendTo($(".modal-body", $assetModal));
 		}
-	}).complete(function () {
-		$progress.hide();
-	});
+	}).complete(() => $progress.hide());
 	return false;
 }

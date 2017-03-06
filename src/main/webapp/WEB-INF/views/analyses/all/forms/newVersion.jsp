@@ -48,10 +48,10 @@
 				
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" id="history_submit_button" onclick="return duplicateAnalysis('history_form', '${analysisId}')">
+				<button type="button" class="btn btn-primary" name="save" id="history_submit_button" onclick="return duplicateAnalysis('history_form', '${analysisId}')">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
-				<button type="button" class="btn btn-default" data-action='cancel' data-dismiss="modal">
+				<button type="button" class="btn btn-default" name='cancel' data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>

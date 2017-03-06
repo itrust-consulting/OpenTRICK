@@ -54,10 +54,9 @@ function exportAnalysis(analysisId) {
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				application["taskManager"].Start();
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else
+			} else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else
 				unknowError();
 		},
 		error: unknowError
@@ -99,23 +98,20 @@ function selectAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	$("#loading-indicator").show();
-	window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + OPEN_MODE.EDIT.value + "");
+	setTimeout(() =>window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + OPEN_MODE.EDIT.value), 0);
 	return false;
 }
 
 function saveAnalysis(form, reloadaction) {
 	var $progress = $("#loading-indicator").show();
-	$("#editAnalysisModel #editAnalysisButton").prop("disabled", true);
+	$("#editAnalysisModel .label-danger").remove();
 	$.ajax({
 		url: context + "/Analysis/Save",
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
-			var alert = $("#editAnalysisModel .label-danger");
-			if (alert.length)
-				alert.remove();
+			var hasError = false;
 			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
@@ -128,11 +124,12 @@ function saveAnalysis(form, reloadaction) {
 						$(errorElement).appendTo($("#analysis_label").parent());
 						break;
 					default:
-						$(errorElement).appendTo($("#editAnalysisModel .modal-body"));
+						showDialog("#alert-dialog", response["error"]);
 						break;
 				}
+				hasError = true;
 			}
-			if (!$("#editAnalysisModel .label-danger").length) {
+			if (!hasError) {
 				$("#editAnalysisModel").modal("hide");
 				reloadSection("section_profile_analysis");
 			}
@@ -153,6 +150,7 @@ function deleteAnalysis(analysisId) {
 	}
 	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 	$("#deleteanalysisbuttonYes").unbind().one("click", function () {
+		$("#deleteAnalysisModel").modal('hide');
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Delete/" + analysisId,
@@ -170,7 +168,6 @@ function deleteAnalysis(analysisId) {
 		}).complete(function () {
 			$progress.hide();
 		});
-		$("#deleteAnalysisModel").modal('hide');
 		return false;
 	});
 	$("#deleteAnalysisModel").modal('show');

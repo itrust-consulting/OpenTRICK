@@ -1,13 +1,12 @@
 function saveStandard(form) {
-	$("#addStandardModel #addstandardbutton").prop("disabled", false);
+	$("#addStandardModel .label-danger").remove();
 	$.ajax({
 		url: context + "/KnowledgeBase/Standard/Save",
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$("#addStandardModel #addstandardbutton").prop("disabled", false);
-			$("#addStandardModel .label-danger").remove();
+			var hasError = false;
 			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
@@ -28,8 +27,9 @@ function saveStandard(form) {
 						$(errorElement).appendTo($("#standard_form .modal-body"));
 						break;
 				}
+				hasError = true;
 			}
-			if (!$("#addStandardModel .label-danger").length) {
+			if (!hasError) {
 				$("#addStandardModel").modal("hide");
 				reloadSection("section_kb_standard");
 			}
@@ -37,12 +37,7 @@ function saveStandard(form) {
 
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			$("#addStandardModel .label-danger").remove();
-			$("#addStandardModel #addstandardbutton").prop("disabled", false);
-			var errorElement = document.createElement("label");
-			errorElement.setAttribute("class", "label label-danger");
-			$(errorElement).text(MessageResolver("error.unknown.save.norm", "An unknown error occurred during saving standard"));
-			$(errorElement).appendTo($("#addStandardModel .modal-body"));
+			showDialog("#alert-dialog", MessageResolver("error.unknown.save.norm", "An unknown error occurred during saving standard"));
 		}
 	});
 	return false;
@@ -56,7 +51,7 @@ function deleteStandard(idStandard, name) {
 		name = $("#section_kb_standard tbody tr[data-trick-id='" + (idStandard = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
-	$("#deletestandardbuttonYes").unbind("click.delete").one("click.delete", function () {
+	$("#deletestandardbuttonYes").off("click.delete").one("click.delete", function () {
 		$("#deleteStandardModel").modal('hide');
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -64,10 +59,8 @@ function deleteStandard(idStandard, name) {
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				}
+				if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
 				reloadSection("section_kb_standard");
 				return false;
 			},

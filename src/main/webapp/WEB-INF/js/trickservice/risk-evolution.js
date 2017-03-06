@@ -196,7 +196,7 @@ function resetSaveSettingsTimeout() {
 function restoreSettings() {
 	try {
 		restoring = true;
-		if (!application["settings"].type)
+		if (!application["settings"] || !application["settings"].type)
 			return false;
 		$("#type-selector").val(application["settings"].type).change();
 		if (!application["settings"].idCustomer)

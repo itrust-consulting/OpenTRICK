@@ -13,7 +13,6 @@
 	<script src="<spring:url value="/js/jquery.idle.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/login.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/progressbar.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/modal.js" />"></script>

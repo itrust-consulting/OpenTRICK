@@ -12,6 +12,7 @@ function editScenario(rowTrickId, isAdd) {
 			rowTrickId = findTrickID(selectedScenario[0]);
 		}
 
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 			contentType: "application/json;charset=UTF-8",
@@ -67,7 +68,7 @@ function editScenario(rowTrickId, isAdd) {
 				return false;
 			},
 			error: unknowError
-		});
+		}).complete(() => $progress.hide());
 	}
 	return false;
 }
@@ -130,7 +131,6 @@ function saveScenario(form) {
 					.appendTo($("#error_scenario_container"));
 				break;
 			case "error.scenario.threat.source":
-
 				$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please define a threat source")).appendTo($("#error_scenario_container"));
 				break;
 			default:
@@ -149,11 +149,11 @@ function deleteScenario(scenarioId) {
 			var selectedScenario = findSelectItemIdBySection(("section_scenario"));
 			if (!selectedScenario.length)
 				return false;
-			var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
-				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios");
-			$("#confirm-dialog .modal-body").text(text);
-			$("#confirm-dialog .btn-danger").click(function () {
+			var $confirmDialog = showDialog("#confirm-dialog", selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
+				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios"));
+			$(".btn-danger",$confirmDialog).click(function () {
 				var $progress = $("#loading-indicator").show(), hasChange = false;
+				$confirmDialog.modal("hide");
 				while (selectedScenario.length) {
 					rowTrickId = selectedScenario.pop();
 					$.ajax({
@@ -184,21 +184,21 @@ function deleteScenario(scenarioId) {
 
 			});
 		} else {
-			$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
-			$("#confirm-dialog .btn-danger").click(function () {
+			var $confirmDialog = showDialog("#confirm-dialog",MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") );
+			$(".btn-danger", $confirmDialog).one("click",function () {
+				$confirmDialog.modal("hide");
+				var $progress = $("#loading-indicator").show()
 				$.ajax({
 					url: context + "/Analysis/Scenario/Delete/" + scenarioId,
 					contentType: "application/json;charset=UTF-8",
-					async: true,
 					success: function (reponse) {
 						reloadSection("section_scenario");
 						return false;
 					},
 					error: unknowError
-				});
+				}).complete(() => $progress.hide());
 			});
 		}
-		$("#confirm-dialog").modal("toggle");
 	}
 	return false;
 

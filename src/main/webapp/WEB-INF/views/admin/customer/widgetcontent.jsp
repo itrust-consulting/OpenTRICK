@@ -120,7 +120,7 @@
 					<spring:message code="label.customer.manage.users" text="Manage customer users" />
 				</h4>
 			</div>
-			<div class="modal-body" id="customerusersbody" style="margin: 0px;"></div>
+			<div class="modal-body"></div>
 			<div class="modal-footer" style="margin-top: 0px;">
 				<button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
 					<spring:message code="label.action.update" text="Update" />

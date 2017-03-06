@@ -1,9 +1,10 @@
 function saveUser(form) {
-	var idUser = $("#" + form).find("#user_id");
+	var $form = $("#" + form),  idUser = $form.find("#user_id");
 	if (!idUser.length)
 		idUser = -1;
 	else
 		idUser = parseInt(idUser.val());
+	$(".label-danger", $form).remove();
 	var $progress = $("#loading-indicator").show();
 	$.ajax(
 		{
@@ -12,68 +13,43 @@ function saveUser(form) {
 			data: serializeForm(form),
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-
-				$("#success").attr("hidden", "hidden").find("div").remove();
-
-				$("#" + form + " .label-danger").remove();
+				var hasError = false;
 				for (var error in response) {
-
-					$("#success").attr("hidden", "hidden");
-					$("#success div").remove();
-
 					var errorElement = document.createElement("label");
 					errorElement.setAttribute("class", "label label-danger");
-
 					$(errorElement).text(response[error]);
 					switch (error) {
 						case "login":
-							$(errorElement).appendTo($("#" + form + " #user_login").parent());
+							$(errorElement).appendTo($("#user_login",$form).parent());
 							break;
 						case "password":
-							$(errorElement).appendTo($("#" + form + " #user_password").parent());
+							$(errorElement).appendTo($("#user_password",$form).parent());
 							break;
 						case "firstName":
-							$(errorElement).appendTo($("#" + form + " #user_firstName").parent());
+							$(errorElement).appendTo($("#user_firstName",$form).parent());
 							break;
 						case "lastName":
-							$(errorElement).appendTo($("#" + form + " #user_lastName").parent());
+							$(errorElement).appendTo($("#user_lastName",$form).parent());
 							break;
 						case "email":
-							$(errorElement).appendTo($("#" + form + " #user_email").parent());
+							$(errorElement).appendTo($("#user_email",$form).parent());
 							break;
-						case "user": {
-							var errElement = document.createElement("div");
-							errElement.setAttribute("class", "alert alert-danger");
-							$(errElement).text($(errorElement).text());
-							$(errElement).appendTo($("#success"));
-							$("#success").removeAttr("hidden");
-							$("#user_password").prop("value", "");
-						}
+						default: 
+							showDialog("#alert-dialog", response[error]);
 					}
+					hasError = true;
 				}
 
-				if (!$("#" + form + " .label-danger").length) {
-					var successElement = document.createElement("div");
-					successElement.setAttribute("class", "alert alert-success");
-					$(successElement).html(
-						"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
-						+ (idUser === -1 ? MessageResolver("success.user.created", "User was successfully created") : MessageResolver("success.user.update",
-							"User was successfully updated")));
-					$(successElement).appendTo($("#addUserModel .modal-body #success"));
-					$("#success").removeAttr("hidden");
-					$("#user_password").prop("value", "");
-					setTimeout(reloadSection("section_user"), 500);
+				if (!hasError) {
+					showDialog("success",idUser === -1 ? MessageResolver("success.user.created", "User was successfully created") : MessageResolver("success.user.update",
+					"User was successfully updated"));
+					reloadSection("section_user");
+					$form.closest(".modal").modal("hide");
 				}
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
-				$("#addUserModel .label-danger").remove();
-				var errorElement = document.createElement("div");
-				errorElement.setAttribute("class", "alert alert-danger");
-				$(errorElement).text(
-					"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
-					+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
-				$(errorElement).appendTo($("#addUserModel .modal-body #success"));
-				$("#user_password").prop("value", "");
+				showDialog("#alert-dialog",MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
+				$("#user_password",$form).prop("value", "");
 			}
 		}).complete(function () {
 			$progress.hide();

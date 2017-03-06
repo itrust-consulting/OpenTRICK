@@ -14,7 +14,7 @@
 			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span>
 					<spring:message code="label.menu.delete.customer" text="Delete" /> </a></li>
 			<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-				<li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()"><a href="#" onclick="return manageUsers();"><span
+				<li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()"><a href="#" onclick="return manageCustomerAccess();"><span
 						class="glyphicon glyphicon-edit"></span> <spring:message code="label.menu.manage.access.user_customer" text="Manage user access" /> </a></li>
 			</sec:authorize>
 		</ul>

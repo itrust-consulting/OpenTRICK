@@ -224,7 +224,7 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public boolean removeCustomerByUser(int customerId, String userName, String adminUsername) throws Exception {
+	public boolean removeCustomerByUser(int customerId, String userName, String adminUsername) {
 		Customer customer = daoCustomer.get(customerId);
 		if (customer == null || !customer.isCanBeUsed())
 			return false;
@@ -237,9 +237,11 @@ public class CustomDelete {
 			return false;
 
 		for (Analysis analysis : analyses) {
-			analysis.removeRights(user);
+			UserAnalysisRight userAnalysisRight = analysis.removeRights(user);
 			daoAnalysis.saveOrUpdate(analysis);
+			daoUserAnalysisRight.delete(userAnalysisRight);
 		}
+
 		daoUser.saveOrUpdate(user);
 		/**
 		 * Log

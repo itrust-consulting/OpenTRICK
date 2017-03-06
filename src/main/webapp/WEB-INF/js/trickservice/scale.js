@@ -127,13 +127,11 @@ function deleteScaleType() {
 	var selectedIDScale = findSelectItemIdBySection("section_kb_scale_type");
 	if (selectedIDScale.length < 1)
 		return false;
-	var $confirmModal = $("#confirm-dialog"), $progress = $("#loading-indicator").show();
-	try {
-		$confirmModal.find(".modal-body").html(
-			selectedIDScale.length > 1 ? MessageResolver("confirm.delete.multi.scale", "Are you sure you want to delete selected scales") : MessageResolver(
-				"confirm.delete.single.scale", "Are you sure, you want to delete selected scale"));
+	var $confirmModal = showDialog("#confirm-dialog", selectedIDScale.length > 1 ? MessageResolver("confirm.delete.multi.scale", "Are you sure you want to delete selected scales") : MessageResolver(
+			"confirm.delete.single.scale", "Are you sure, you want to delete selected scale"));
 		$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
-			$progress.show();
+			$confirmModal.modal("hide");
+			var $progress = $("#loading-indicator").show()
 			$.ajax({
 				url: context + "/KnowledgeBase/ScaleType/Delete",
 				type: "POST",
@@ -143,18 +141,14 @@ function deleteScaleType() {
 					if (response["success"] != undefined)
 						reloadSection("section_kb_scale_type");
 					else if (response["error"] != undefined)
-						showDialog("#info-dialog", response["error"]);
+						showDialog("#alert-dialog", response["error"]);
 					else
-						showDialog("#info-dialog", MessageResolver("error.unknown.delete", "An unknown error occurred while deleting"));
+						showDialog("#alert-dialog", MessageResolver("error.unknown.delete", "An unknown error occurred while deleting"));
 				},
 				error: unknowError
 			}).complete(function () {
 				$progress.hide();
 			});
 		});
-		$confirmModal.modal("show");
-	} finally {
-		$progress.hide();
-	}
 	return false;
 }

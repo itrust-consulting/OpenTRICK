@@ -137,7 +137,7 @@
 		<script src="<spring:url value="/js/chartjs/plugins.js" />"></script>
 		<script src="<spring:url value="/js/trickservice/risk-evolution.js" />"></script>
 		<script type="text/javascript">
-			application["settings"] = ${riskEvolutionSettings};
+			application["settings"] = ${ empty riskEvolutionSettings? '{}' : riskEvolutionSettings };
 		</script>
 		<div id='view-helper' class='hidden'>
 			<jsp:include page="../single/components/parameters/risk-acceptance.jsp" />

@@ -55,4 +55,6 @@ public interface ServiceUser {
 	public boolean existByUsername(String username);
 
 	public boolean existByEmail(String email);
+
+	public List<User> getAll(Collection<Integer> ids);
 }

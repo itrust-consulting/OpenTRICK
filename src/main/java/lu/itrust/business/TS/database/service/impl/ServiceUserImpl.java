@@ -274,4 +274,9 @@ public class ServiceUserImpl implements ServiceUser {
 	public boolean existByEmail(String email) {
 		return daoUser.existByEmail(email);
 	}
+
+	@Override
+	public List<User> getAll(Collection<Integer> ids) {
+		return daoUser.getAll(ids);
+	}
 }

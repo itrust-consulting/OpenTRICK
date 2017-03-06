@@ -6,20 +6,15 @@ function fixAllScenarioCategories() {
 		type: 'POST',
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
-				$("#info-dialog").modal("toggle");
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else {
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-				$("#alert-dialog").modal("toggle");
-			}
+				showDialog("success", response["success"]);
+				setTimeout(() => location.reload(), 5000);
+			} else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else 
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
+			showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 		}
 	}).complete(function () {
 		$progress.hide();
@@ -35,13 +30,11 @@ function updateMeasureAssetTypeValue() {
 		type: 'POST',
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
-				$("#info-dialog").modal("toggle");
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else
+				showDialog("success", response["success"]);
+				setTimeout(() => location.reload(), 5000);
+			} else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else
 				unknowError();
 		},
 		error: unknowError
@@ -61,19 +54,16 @@ function restoreAnalysisRights() {
 			contentType: "application/json;charset=UTF-8",
 			type: 'POST',
 			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
-					application['taskManager'].Start();
-				else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("show");
-				} else {
-					$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-					$("#alert-dialog").modal("show");
-				}
+				if (response["success"] != undefined) {
+					showDialog("success", response["success"]);
+					setTimeout(() => location.reload(), 5000);
+				} else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else 
+					showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-				$("#alert-dialog").modal("show");
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			}
 		}).complete(function () {
 			$progress.hide();
@@ -95,20 +85,15 @@ function updateAnalysesScopes() {
 			type: 'POST',
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
-					$("#info-dialog .modal-body").text(response["success"]);
-					$("#info-dialog").modal("show");
-				}
-				else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("show");
-				} else {
-					$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-					$("#alert-dialog").modal("show");
-				}
+					showDialog("success", response["success"]);
+					setTimeout(() => location.reload(), 5000);
+				} else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else 
+					showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-				$("#alert-dialog").modal("show");
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			}
 		}).complete(function () {
 			$progress.hide();
@@ -130,20 +115,15 @@ function updateAnalysesRiskAndItemInformation() {
 			type: 'POST',
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
-					$("#info-dialog .modal-body").text(response["success"]);
-					$("#info-dialog").modal("show");
-				}
-				else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("show");
-				} else {
-					$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-					$("#alert-dialog").modal("show");
-				}
+					showDialog("success", response["success"]);
+					setTimeout(() => location.reload(), 5000);
+				} else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else 
+					showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-				$("#alert-dialog").modal("show");
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 			}
 		}).complete(function () {
 			$progress.hide();
@@ -162,20 +142,15 @@ function fixAllAssessments() {
 		type: 'POST',
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
-				$("#info-dialog").modal("toggle");
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else {
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-				$("#alert-dialog").modal("toggle");
-			}
+				showDialog("success", response["success"]);
+				setTimeout(() => location.reload(), 5000);
+			} else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else 
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
+			showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 		}
 	}).complete(function () {
 		$progress.hide();
@@ -191,20 +166,15 @@ function addCSSFParameters() {
 		type: 'POST',
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
-				$("#info-dialog").modal("toggle");
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else {
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-				$("#alert-dialog").modal("toggle");
-			}
+				showDialog("success", response["success"]);
+				setTimeout(() => location.reload(), 5000);
+			} else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else 
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
+			showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
 		}
 	}).complete(function () {
 		$progress.hide();

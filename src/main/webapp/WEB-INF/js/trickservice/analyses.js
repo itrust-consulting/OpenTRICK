@@ -71,7 +71,7 @@ function updateAnalysisAccess(e) {
 					if (data.userRights[me] != undefined && data.userRights[me].oldRight != data.userRights[me].newRight)
 						reloadSection("section_analysis");
 					else
-						showDialog("#info-dialog", response.success);
+						showDialog("success", response.success);
 				} else
 					unknowError();
 			},
@@ -171,6 +171,7 @@ function saveAnalysis(form, reloadaction) {
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
+			var hasError = false;
 			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
@@ -179,34 +180,28 @@ function saveAnalysis(form, reloadaction) {
 					case "analysiscustomer":
 						$(errorElement).appendTo($("#analysiscustomercontainer"));
 						break;
-
 					case "analysislanguage":
 						$(errorElement).appendTo($("#analysislanguagecontainer"));
 						break;
-
 					case "comment":
 						$(errorElement).appendTo($("#analysis_label").parent());
-
 						break;
-
 					case "profile":
 						$(errorElement).appendTo($("#analysis_form select[name='profile']").parent());
 						break;
-
 					case "author":
 						$(errorElement).appendTo($("#analysis_form input[name='author']").parent());
 						break;
-
 					case "version":
 						$(errorElement).appendTo($("#analysis_version").parent());
 						break;
-
 					case "analysis":
-						$(errorElement).appendTo($("#editAnalysisModel .modal-body"));
+						showDialog("#alert-dialog", response[error]);
 						break;
 				}
+				hasError = true;
 			}
-			if (!$("#editAnalysisModel .label-danger").length) {
+			if (!hasError) {
 				$("#editAnalysisModel").modal("hide");
 				reloadSection("section_analysis");
 			}
@@ -269,36 +264,34 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var doc = new DOMParser().parseFromString(response, "text/html");
-				if ((analysisProfile = doc.getElementById("analysisProfileModal")) == null)
-					return false;
-				$(analysisProfile).appendTo("#wrap");
-				$(analysisProfile).on('hidden.bs.modal', function () {
-					$(analysisProfile).remove();
-				});
-
-				var allVal = new Array();
-
-				$('#analysisProfileform .list-group-item.active').each(function () {
-					allVal.push($(this).attr("data-trick-opt"));
-				});
-
-				$('#standards').val(allVal);
-
-				$('#analysisProfileform .list-group-item').on('click', function () {
-					$(this).toggleClass('active');
-					if ($(this).hasClass("active"))
-						$(this).css("border", "1px solid #dddddd");
-					else
-						$(this).css("border", "");
-					allVal = new Array();
-					$('#analysisProfileform .list-group-item.active').each(function () {
+				var $view = $("#analysisProfileModal",new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length){
+					$view.appendTo("#widget").on('hidden.bs.modal', ()  => $view.remove());
+	
+					var allVal = new Array();
+	
+					$('.list-group-item.active',$view).each(function () {
 						allVal.push($(this).attr("data-trick-opt"));
 					});
-					$('#standards').val(allVal);
-				});
-
-				$(analysisProfile).modal("hide");
+	
+					$('#standards',$view).val(allVal);
+	
+					$('.list-group-item',$view).on('click', function () {
+						var $this = $(this);
+						$this.toggleClass('active');
+						if ($this.hasClass("active"))
+							$this.css("border", "1px solid #dddddd");
+						else
+							$this.css("border", "");
+						allVal = new Array();
+						$('.list-group-item.active',$view).each(function () {
+							allVal.push($(this).attr("data-trick-opt"));
+						});
+						$('#standards',$view).val(allVal);
+					});
+	
+					$view.modal("hide");
+				}else unknowError();
 
 			},
 			error: unknowError
@@ -876,10 +869,9 @@ function addHistory(analysisId) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#addHistoryModal");
-				if ($content.length) {
-					$("#addHistoryModal").replaceWith(response);
-					$('#addHistoryModal').modal("toggle");
+				var $view = $("#addHistoryModal",new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
 				} else
 					unknowError();
 			},
@@ -1022,44 +1014,36 @@ function calculateRiskRegister(analysisId) {
 }
 
 function duplicateAnalysis(form, analyisId) {
-	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal"), oldVersion = $("#history_oldVersion", $modal).prop("value");
 	$(".label-danger", $modal).remove();
-	$("[class='alert alert-warning']", $modal);
+	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal");
+	$("#history_oldVersion", $modal).val("value", $("#history_oldVersion", $modal).val());
 	$.ajax({
 		url: context + "/Analysis/Duplicate/" + analyisId,
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$("#history_oldVersion", $modal).attr("value", oldVersion);
-			var errorcounter = 0;
-			for (var error in response) {
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
-				$(errorElement).text(response[error]);
-				switch (error) {
-					case "author":
-						errorcounter++;
-						$(errorElement).appendTo($("#history_author", $modal).parent());
-						break;
-					case "version":
-						$(errorElement).appendTo($("#history_version", $modal).parent());
-						errorcounter++;
-						break;
-					case "comment":
-						errorcounter++;
-						$(errorElement).appendTo($("#history_comment", $modal).parent());
-						break;
-					case "analysis":
-						errorcounter++;
-						var alertElement = document.createElement("div");
-						alertElement.setAttribute("class", "alert alert-warning");
-						$(alertElement).text($(errorElement).text());
-						$(".modal-body", $modal).prepend($(alertElement));
-						break;
+			if(response["analysis_task_id"]==undefined){
+				for (var error in response) {
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
+					$(errorElement).text(response[error]);
+					switch (error) {
+						case "author":
+							$(errorElement).appendTo($("#history_author", $modal).parent());
+							break;
+						case "version":
+							$(errorElement).appendTo($("#history_version", $modal).parent());
+							break;
+						case "comment":
+							$(errorElement).appendTo($("#history_comment", $modal).parent());
+							break;
+						default:
+							showDialog("#alert-dialog",response[error]);
+							break;
+					}
 				}
-			}
-			if (errorcounter == 0) {
+			}else {
 				$modal.modal("hide");
 				application["taskManager"].Start();
 			}

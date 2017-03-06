@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -25,8 +26,6 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 @Repository
 public class DAOUserHBM extends DAOHibernate implements DAOUser {
-	
-	
 
 	/**
 	 * Constructor: <br>
@@ -50,7 +49,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#get(int)
 	 */
 	@Override
-	public User get(Integer id)  {
+	public User get(Integer id) {
 		return (User) getSession().get(User.class, id);
 	}
 
@@ -62,7 +61,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public User get(String login)  {
+	public User get(String login) {
 		return (User) getSession().createQuery("From User where login = :login").setParameter("login", login).uniqueResultOptional().orElse(null);
 	}
 
@@ -70,12 +69,14 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUser#get(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOUser#get(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public User get(String login, String password)  {
-		return (User) getSession().createQuery("From User where login = :login and password = :password").setParameter("login", login).setParameter("password", password).uniqueResultOptional().orElse(null);
+	public User get(String login, String password) {
+		return (User) getSession().createQuery("From User where login = :login and password = :password").setParameter("login", login).setParameter("password", password)
+				.uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -85,7 +86,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#noUsers()
 	 */
 	@Override
-	public boolean noUsers()  {
+	public boolean noUsers() {
 		return (boolean) getSession().createQuery("Select count(*) = 0 From User").getSingleResult();
 	}
 
@@ -97,7 +98,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAll()  {
+	public List<User> getAll() {
 		return getSession().createQuery("From User order by firstName").getResultList();
 	}
 
@@ -109,7 +110,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllByFirstName(String name)  {
+	public List<User> getAllByFirstName(String name) {
 		return getSession().createQuery("From User where firstName = :name").setParameter("name", name).getResultList();
 	}
 
@@ -121,7 +122,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllByCountry(String name)  {
+	public List<User> getAllByCountry(String name) {
 		return getSession().createQuery("From User where country = :country").setParameter("country", name).getResultList();
 	}
 
@@ -133,8 +134,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllFromCustomer(Integer customer)  {
-		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer.id = :customer").setParameter("customer", customer).getResultList();
+	public List<User> getAllFromCustomer(Integer customer) {
+		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer.id = :customer").setParameter("customer", customer)
+				.getResultList();
 	}
 
 	/**
@@ -145,8 +147,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllFromCustomer(Customer customer)  {
-		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).getResultList();
+	public List<User> getAllFromCustomer(Customer customer) {
+		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer)
+				.getResultList();
 	}
 
 	/**
@@ -159,10 +162,10 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllAdministrators()  {
+	public List<User> getAllAdministrators() {
 		return getSession().createQuery("SELECT user From User as user join user.roles as role where role.type = :role").setParameter("role", RoleType.ROLE_ADMIN).getResultList();
 	}
-	
+
 	/**
 	 * hasRole: <br>
 	 * Description
@@ -171,8 +174,8 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 *      lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Override
-	public boolean hasRole(User user, Role role)  {
-		return !(user==null || role==null) && user.hasRole(role.getType());
+	public boolean hasRole(User user, Role role) {
+		return !(user == null || role == null) && user.hasRole(role.getType());
 	}
 
 	/**
@@ -182,7 +185,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#save(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public void save(User user)  {
+	public void save(User user) {
 		getSession().save(user);
 	}
 
@@ -193,7 +196,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public void saveOrUpdate(User user)  {
+	public void saveOrUpdate(User user) {
 		getSession().saveOrUpdate(user);
 	}
 
@@ -204,7 +207,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#delete(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public void delete(User user)  {
+	public void delete(User user) {
 		getSession().delete(user);
 	}
 
@@ -215,7 +218,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#delete(long)
 	 */
 	@Override
-	public void delete(Integer id)  {
+	public void delete(Integer id) {
 		delete(get(id));
 	}
 
@@ -239,11 +242,17 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 
 	@Override
 	public boolean existByUsername(String username) {
-		return (boolean) getSession().createQuery("Select count(*)> 0 From User where login = :username").setParameter("username",username ).getSingleResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From User where login = :username").setParameter("username", username).getSingleResult();
 	}
 
 	@Override
 	public boolean existByEmail(String email) {
-		return (boolean) getSession().createQuery("Select count(*)> 0 From User where email = :email").setParameter("email",email ).getSingleResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From User where email = :email").setParameter("email", email).getSingleResult();
+	}
+
+	@Override
+	public List<User> getAll(Collection<Integer> ids) {
+		return ids.isEmpty() ? Collections.emptyList()
+				: getSession().createQuery("From User where id in :ids", User.class).setParameterList("ids", ids).getResultList();
 	}
 }

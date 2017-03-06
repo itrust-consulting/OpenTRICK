@@ -208,6 +208,7 @@ function endDateChanged() {
  */
 function savePhase(form) {
 	clearPhaseInterval();
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Phase/Save",
 		type: "post",
@@ -274,9 +275,9 @@ function deletePhase(idPhase) {
 			return false;
 		idPhase = selectedScenario[0];
 	}
-
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
-	$("#confirm-dialog .btn-danger").click(function () {
+	var $confirmDialog = showDialog("#confirm-dialog", MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
+	$(".btn-danger", $confirmDialog).click(function () {
+		$confirmDialog.modal("hide");
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Phase/Delete/" + idPhase,
@@ -296,7 +297,6 @@ function deletePhase(idPhase) {
 			$progress.hide();
 		});
 	});
-	$("#confirm-dialog").modal("show");
 	return false;
 }
 

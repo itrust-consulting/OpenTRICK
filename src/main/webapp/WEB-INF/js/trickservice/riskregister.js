@@ -7,10 +7,9 @@ function calculateRiskRegister() {
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				new TaskManager().Start();
-			else if (message["error"]) {
-				$("#alert-dialog .modal-body").html(message["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else
+			else if (response["error"])
+				showDialog("#alert-dialog",response["error"] );
+			else
 				unknowError()
 		},
 		error: unknowError

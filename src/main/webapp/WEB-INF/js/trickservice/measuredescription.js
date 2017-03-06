@@ -168,13 +168,13 @@ function editSingleMeasure(measureId, idStandard) {
 
 function saveMeasure() {
 	var $progress = $("#loading-indicator").show(), $modal = $("#addMeasureModel"), $form = $("#measure_form", $modal), $progressBar = $("#save-measure-progress-bar", $modal), $buttonSubmit = $("#addmeasurebutton", $modal);
+	$modal.find(".label-danger").remove();
 	$.ajax({
 		url: $form.prop("action"),
 		type: "post",
 		data: serializeForm($form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$modal.find(".label-danger").remove();
 			var languages = $form.find("select option"), languageDataValidation = {};
 			for (var i = 0; i < languages.length; i++) {
 				var idLanguage = $(languages[i]).val();

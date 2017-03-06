@@ -250,8 +250,8 @@ function removeStandard() {
 	selectedStandard = findTrickID(selectedStandard[0]);
 	$deleteModal.find(".modal-body").text(MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
 	$deleteModal.find("#deletestandardbuttonYes").one("click.delete", function () {
-		var $progress = $("#loading-indicator").show()
 		$(".label-danger", $standardModal).remove();
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Standard/Delete/" + selectedStandard,
 			type: "POST",
@@ -291,6 +291,7 @@ function editMeasure(element, idStandard, idMeasure) {
 }
 
 function manageMeasure(url) {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: url,
 		type: "get",
@@ -308,7 +309,7 @@ function manageMeasure(url) {
 				unknowError()
 		},
 		error: unknowError
-	});
+	}).complete( () => $progress.hide());
 	return false;
 }
 
@@ -390,7 +391,7 @@ function setupMeasureManager($content) {
 }
 
 function saveMeasure(form, callback) {
-	var data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
+	var $progress = $("#loading-indicator").show(), data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
 		.serializeJSON(), $assetTab = $("#tab_asset", $form);
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
@@ -470,8 +471,7 @@ function saveMeasure(form, callback) {
 				$("#error_container", $modalMeasureForm));
 			return false;
 		}
-	});
-
+	}).complete( () => $progress.hide());
 	return false;
 }
 

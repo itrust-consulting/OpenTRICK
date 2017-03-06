@@ -21,21 +21,18 @@ function initUserCustomerList() {
 }
 
 function saveCustomer(form) {
-	$("#addCustomerModel #addcustomerbutton").prop("disabled", true);
+	var $progress = $("#loading-indicator").show();
+	$("#addCustomerModel .label-danger").remove();
 	$.ajax({
 		url: context + "/KnowledgeBase/Customer/Save",
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-			var alert = $("#addCustomerModel .label-danger");
-			if (alert.length)
-				alert.remove();
+			var hasError = false;
 			for (var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
 				switch (error) {
 					case "organisation":
@@ -44,56 +41,45 @@ function saveCustomer(form) {
 					case "address":
 						$(errorElement).appendTo($("#customer_form #customer_address").parent());
 						break;
-
 					case "email":
 						$(errorElement).appendTo($("#customer_form #customer_email").parent());
 						break;
-
 					case "city":
 						$(errorElement).appendTo($("#customer_form #customer_city").parent());
 						break;
 					case "ZIPCode":
 						$(errorElement).appendTo($("#customer_form #customer_ZIPCode").parent());
 						break;
-
 					case "country":
 						$(errorElement).appendTo($("#customer_form #customer_country").parent());
 						break;
-
 					case "contactPerson":
 						$(errorElement).appendTo($("#customer_form #customer_contactPerson").parent());
 						break;
-
 					case "phoneNumber":
 						$(errorElement).appendTo($("#customer_form #customer_phoneNumber").parent());
 						break;
 					case "canBeUsed":
 						$(errorElement).appendTo($("#customer_form #customer_canBeUsed").parent());
 						break;
-					case "customer":
-						$(errorElement).appendTo($("#addCustomerModel .modal-body"));
+					default:
+						showDialog("#alert-dialog", response[error]);
 						break;
 				}
+				hasError = true;
 			}
-			if (!$("#addCustomerModel .label-danger").length) {
-				$("#addCustomerModel").modal("toggle");
+			if (!hasError) {
+				$("#addCustomerModel").modal("hide");
 				reloadSection("section_customer");
 			}
 			return false;
 
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			var alert = $("#addCustomerModel .label-danger");
-			if (alert.length)
-				alert.remove();
-			$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-			var errorElement = document.createElement("label");
-			errorElement.setAttribute("class", "label label-danger");
-			$(errorElement).text(MessageResolver("error.unknown.add.customer", "An unknown error occurred during adding customer"));
-			$(errorElement).appendTo($("#addCustomerModel .modal-body"));
+			showDialog("#alert-dialog", MessageResolver("error.unknown.add.customer", "An unknown error occurred during adding customer"));
 			return false;
 		}
-	});
+	}).complete(() => $progress.hide());
 	return false;
 }
 
@@ -107,6 +93,8 @@ function deleteCustomer(customerId, organisation) {
 	$("#deleteCustomerBody").html(
 		MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer <strong>" + organisation + "</strong>?", organisation));
 	$("#deletecustomerbuttonYes").unbind().click(function () {
+		$("#deleteCustomerModel").modal('hide');
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/KnowledgeBase/Customer/Delete/" + customerId,
 			type: "POST",
@@ -116,18 +104,14 @@ function deleteCustomer(customerId, organisation) {
 				if (response["success"] == undefined) {
 					if (response["error"] == undefined)
 						unknowError();
-					else {
-						$("#alert-dialog .modal-body").html(response["error"]);
-						$("#alert-dialog").modal("show");
-					}
+					else
+						showDialog("#alert-dialog", response["error"]);
 				} else
 					reloadSection("section_customer");
 				return false;
 			},
 			error: unknowError
-		}).complete(function () {
-			$("#deleteCustomerModel").modal('hide');
-		});
+		}).complete(() => $progress.hide());
 		return false;
 	});
 	$("#deleteCustomerModel").modal('show');
@@ -180,7 +164,7 @@ function editSingleCustomer(customerId) {
 	return false;
 }
 
-function manageUsers(customerID) {
+function manageCustomerAccess(customerID) {
 	if (!isNotCustomerProfile())
 		return false;
 	if (customerID == null || customerID == undefined) {
@@ -189,26 +173,22 @@ function manageUsers(customerID) {
 			return false;
 		customerID = selectedScenario[0];
 	}
-
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: context + "/KnowledgeBase/Customer/" + customerID + "/Users",
+		url: context + "/KnowledgeBase/Customer/" + customerID + "/Manage-access",
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersform");
-			if ($content.length) {
-				var $customer = $("#customerusersbody").html(response);
-				initUserCustomerList();
-				$("#customerusersform").prop("action", "Customer/" + customerID + "/Users/Update");
-				$("#customerusersbutton").attr("onclick", "updateManageUsers(" + customerID + ",'#customerusersform')");
-				$("#manageCustomerUserModel").modal('toggle');
+			var $view = $(new DOMParser().parseFromString(response, "text/html")).find("#manageCustomerUserModel");
+			if ($view.length) {
+				$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
+				$("button[name='save']", $view).on("click" , e => updateCustomerAccess(e,$view,$progress,customerID));
 			} else
 				unknowError();
 			return false;
 		},
 		error: unknowError
-	});
-
+	}).complete(() => $progress.hide());
 	return false;
 }
 
@@ -216,29 +196,31 @@ function isNotCustomerProfile() {
 	return $("#section_customer tbody>tr>td>input:checked").parent().parent().attr("data-trick-is-profile") === "false";
 }
 
-function updateManageUsers(customerID, form) {
-
+function updateCustomerAccess(e,$view,$progress,customerID) {
 	var data = {};
-	$(form).find("select[name='usercustomer'] option").each(function () {
-		var $this = $(this);
-		data[$this.val()] = $this.is(":checked");
+	$view.find(".form-group[data-trick-id][data-default-value]").each(function () {
+		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+		if (newRight != oldRight)
+			data[$this.attr("data-trick-id")] = newRight;
 	});
-
-	$.ajax({
-		url: context + "/KnowledgeBase/Customer/" + customerID + "/Users/Update",
-		type: "post",
-		data: JSON.stringify(data),
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusers");
-			if ($content.length) {
-				$("#customerusersbody").html(response);
-				initUserCustomerList();
-			} else
-				unknowError();
-			return false;
-		},
-		error: unknowError
-	});
-	return false;
+	if (Object.keys(data).length) {
+		$progress.show();
+		$.ajax({
+			url: context + "/KnowledgeBase/Customer/" + customerID + "/Manage-access/Update",
+			type: "post",
+			data: JSON.stringify(data),
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				if (response.error != undefined)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success != undefined) 
+					showDialog("success", response.success);
+				 else
+					unknowError();
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+	}
 }
