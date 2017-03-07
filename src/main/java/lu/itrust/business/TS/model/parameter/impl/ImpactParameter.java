@@ -130,8 +130,8 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	 * @see lu.itrust.business.TS.model.parameter.ILevelParameter#setLevel(int)
 	 */
 	public void setLevel(int level) throws TrickException {
-		if (level < 0 || level > 10)
-			throw new TrickException("error.extended_parameter.level", "Level needs to be between 0 and 10 included!");
+		if (level < 0)
+			throw new TrickException("error.impact.level", "Impact level must be 0 or greater");
 		this.level = level;
 	}
 

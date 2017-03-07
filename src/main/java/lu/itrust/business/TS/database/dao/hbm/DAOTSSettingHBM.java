@@ -46,7 +46,7 @@ public class DAOTSSettingHBM extends DAOHibernate implements DAOTSSetting {
 
 	@Override
 	public void delete(String name) {
-		getSession().createQuery("Delete TSSetting where name = :name").setParameter("name", name).executeUpdate();
+		getSession().createQuery("Delete TSSetting where name = :name").setParameter("name", TSSettingName.valueOf(name)).executeUpdate();
 	}
 
 	@Override

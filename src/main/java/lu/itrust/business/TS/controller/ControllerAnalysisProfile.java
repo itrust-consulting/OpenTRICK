@@ -7,11 +7,11 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -31,31 +31,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisProfile;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.usermanagement.RoleType;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
+import lu.itrust.business.TS.model.standard.Standard;
 
 /**
  * @author eomar
@@ -64,7 +55,7 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 @RequestMapping("/AnalysisProfile")
 @Controller
-@PreAuthorize(Constant.ROLE_MIN_USER)
+@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 public class ControllerAnalysisProfile {
 
 	@Autowired
@@ -72,9 +63,6 @@ public class ControllerAnalysisProfile {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -86,13 +74,7 @@ public class ControllerAnalysisProfile {
 	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
-
-	@Autowired
-	private ServiceRole serviceRole;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -106,59 +88,42 @@ public class ControllerAnalysisProfile {
 		return "analyses/all/forms/createProfile";
 	}
 
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> saveProfile(@RequestBody String value, Principal principal, Locale locale) throws Exception {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Map<String, String> saveProfile(@PathVariable int idAnalysis, @RequestBody Map<Object, Object> data, Principal principal, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-		int analysisId = -1;
 		try {
-
-			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
-
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-
-			// retrieve analysis id to compute
-			analysisId = jsonNode.get("id").asInt();
-
-			if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)
-					|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
-
-				String name = jsonNode.get("description").asText();
-
-				List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
-
-				List<Integer> standards = new ArrayList<Integer>();
-
-				for (AnalysisStandard standard : analysisStandards) {
-					if (jsonNode.get("standard_" + standard.getStandard().getId()).asBoolean())
-						standards.add(standard.getStandard().getId());
-				}
-
-				if (StringUtils.isEmpty(name)) {
-					errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
-					return errors;
-				} else if (serviceAnalysis.isProfileNameInUsed(name)) {
-					errors.put("description",
-							messageSource.getMessage("error.analysis_profile.name_in_used", null, "Another analysis profile with the same description already exists", locale));
-					return errors;
-				}
-
-				Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, analysisId, name, standards, principal.getName());
-				if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-					executor.execute(worker);
-					errors.put("taskid", String.valueOf(worker.getId()));
-				} else
-					errors.put("analysisprofile", messageSource.getMessage("failed.analysis.duplication.start", null, "Error starting profile creation task!", locale));
+			String name = (String) data.get("description");
+			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
+			List<Integer> standards = analysisStandards.stream().map(AnalysisStandard::getStandard).map(Standard::getId).filter(idStandard -> data.containsKey(idStandard+""))
+					.collect(Collectors.toList());
+			if (StringUtils.isEmpty(name))
+				errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
+			else if (serviceAnalysis.isProfileNameInUsed(name))
+				errors.put("description",
+						messageSource.getMessage("error.analysis_profile.name_in_used", null, "Another analysis profile with the same description already exists", locale));
+			
+			if(standards.isEmpty())
+				errors.put("standards",
+						messageSource.getMessage("error.analysis_profile.collection.empty", null, "Please select at least one measures collection", locale));
+			
+			if(!errors.isEmpty())
 				return errors;
+			
+			Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, idAnalysis, name, standards, principal.getName());
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+				executor.execute(worker);
+				errors.put("taskid", String.valueOf(worker.getId()));
 			} else
-				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+				errors.put("analysisprofile", messageSource.getMessage("failed.analysis.duplication.start", null, "Error starting profile creation task!", locale));
+			return errors;
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			errors.put("analysisprofile", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (AccessDeniedException e) {
-			TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis_profile.access_deny", String.format("Analysis: %d", analysisId), principal.getName(),
-					LogAction.DENY_ACCESS, analysisId + "");
+			TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis_profile.access_deny", String.format("Analysis: %d", idAnalysis), principal.getName(),
+					LogAction.DENY_ACCESS, idAnalysis + "");
 			errors.put("analysisprofile", e.getMessage());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
@@ -192,7 +157,6 @@ public class ControllerAnalysisProfile {
 		return true;
 	}
 
-	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
 		model.addAttribute("analyses", serviceAnalysis.getAllProfiles());

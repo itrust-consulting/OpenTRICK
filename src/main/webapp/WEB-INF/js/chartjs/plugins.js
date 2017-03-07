@@ -55,7 +55,10 @@ function aleChartOption(title) {
 		},
 		scales: {
 			xAxes: [{
-				stacked: false
+				stacked: false,
+				ticks: {
+				        autoSkip: false
+				    }
 			}],
 			yAxes: [{
 				stacked: false,
@@ -89,7 +92,10 @@ function riskOptions(title) {
 		},
 		scales: {
 			xAxes: [{
-				stacked: true
+				stacked: true,
+				ticks: {
+			        autoSkip: false
+			    }
 			}],
 			yAxes: [{
 				stacked: true,
@@ -361,6 +367,7 @@ function rffOptions(title) {
 			yAxes: [{
 				stacked: false,
 				ticks: {
+					autoSkip: false,
 					min: 0,
 					max: 1,
 					userCallback: function (value, index, values) {

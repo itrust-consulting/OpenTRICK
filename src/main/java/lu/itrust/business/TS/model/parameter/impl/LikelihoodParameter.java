@@ -11,6 +11,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
 
@@ -102,6 +103,8 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	 *            the level to set
 	 */
 	public void setLevel(int level) {
+		if (level < 0)
+			throw new TrickException("error.likelihood.level", "Probability level must be 0 or greater");
 		this.level = level;
 	}
 

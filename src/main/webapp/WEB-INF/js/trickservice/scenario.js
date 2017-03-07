@@ -108,7 +108,7 @@ function saveScenario(form) {
 					reloadSection("section_scenario");
 					if (!application.isProfile) {
 						scenario.id = response.id;
-						if (scenario.assetLinked===true)
+						if (scenario.assetLinked==='true')
 							delete scenario['assetTypeValues'];
 						else
 							delete scenario['assetValues'];

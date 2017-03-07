@@ -1,0 +1,1 @@
+ALTER TABLE `Standard` CHANGE `dtDescription` `dtDescription` VARCHAR(1024) NOT NULL;

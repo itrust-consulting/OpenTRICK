@@ -266,33 +266,9 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			success: function (response, textStatus, jqXHR) {
 				var $view = $("#analysisProfileModal",new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length){
-					$view.appendTo("#widget").on('hidden.bs.modal', ()  => $view.remove());
-	
-					var allVal = new Array();
-	
-					$('.list-group-item.active',$view).each(function () {
-						allVal.push($(this).attr("data-trick-opt"));
-					});
-	
-					$('#standards',$view).val(allVal);
-	
-					$('.list-group-item',$view).on('click', function () {
-						var $this = $(this);
-						$this.toggleClass('active');
-						if ($this.hasClass("active"))
-							$this.css("border", "1px solid #dddddd");
-						else
-							$this.css("border", "");
-						allVal = new Array();
-						$('.list-group-item.active',$view).each(function () {
-							allVal.push($(this).attr("data-trick-opt"));
-						});
-						$('#standards',$view).val(allVal);
-					});
-	
-					$view.modal("hide");
+					$view.appendTo("#widget").modal("show").on('hidden.bs.modal', ()  => $view.remove());
+					$("button[name='save']").on("click", e => saveAnalysisProfile(e, $view, $progress, analysisId ));
 				}else unknowError();
-
 			},
 			error: unknowError
 		}).complete(function () {
@@ -302,52 +278,45 @@ function createAnalysisProfile(analysisId, section_analysis) {
 	return false;
 }
 
-function saveAnalysisProfile(form) {
-	var $modal = $("#analysisProfileModal"), $progress = $("#loading-indicator").show(), $form = $("#" + form), data = {
-		"id": $form.find("#id").val(),
-		"description": $form.find("#name").val()
+function saveAnalysisProfile(e, $view, $progress, analysisId) {
+	var data = {
+		"id": analysisId,
+		"description": $("input[name='name']", $view).val()
 	};
-
-	$(".label-danger", $form).remove();
-
-	$form.find("select[name='standards'] option").each(function () {
-		data[this.value] = $(this).is(":checked");
+	$view.find(".form-group[data-trick-id][data-name]").each(function () {
+		if($("input[type='radio'][value='true']:checked", this).length)
+			data[this.getAttribute("data-trick-id")] = true;
 	});
-
+	$progress.show();
 	$.ajax({
-		url: context + "/AnalysisProfile/Save",
+		url: context + "/AnalysisProfile/Analysis/"+analysisId+"/Save",
 		type: "post",
 		data: JSON.stringify(data),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			for (var error in response) {
-				if (error === "taskid")
-					continue;
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
-				$(errorElement).text(response[error]);
-				switch (error) {
-					case "description":
-						$(errorElement).appendTo($("#name", $form).parent());
-						break;
-					case "analysisprofile":
-					default:
-						$(errorElement).appendTo($form.parent());
-						break;
+			$(".label-danger", $view).remove();
+			if(response['taskid'] == undefined){
+				for (var error in response) {
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
+					$(errorElement).text(response[error]);
+					switch (error) {
+						case "description":
+							$(errorElement).appendTo($("#name", $view).parent());
+							break;
+						default:
+							showDialog("#alert-dialog", response[error]);
+							break;
+					}
 				}
-			}
-
-			if (!$(".label-danger", $form).length) {
+			}else {
 				application["taskManager"].Start();
-				$modal.modal("hide");
+				$view.modal("hide");
 			}
 			return false;
-
 		},
 		error: unknowError
-	}).complete(function () {
-		$progress.hide();
-	});
+	}).complete(() => $progress.hide());
 	return false;
 }
 
@@ -776,7 +745,6 @@ function customAnalysis(element) {
 							type: "post",
 							data: $("form", $modalBody).serialize(),
 							contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-							async: false,
 							success: function (data, textStatus, jqXHR) {
 								var response = parseJson(data);
 								if (typeof response == 'object') {

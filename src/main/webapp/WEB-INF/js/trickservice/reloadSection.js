@@ -164,6 +164,8 @@ function callbackBySection(section) {
 		},
 		"section_language": function () {
 			rebuildMeasureLanguage();
+			reloadSection("section_kb_scale_type");
+			
 		},
 		"section_phase": function () {
 			if (application["estimation-helper"]) {// See risk-estimation

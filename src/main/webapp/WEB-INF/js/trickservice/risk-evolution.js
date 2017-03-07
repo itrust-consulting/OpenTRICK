@@ -1,4 +1,4 @@
-var helpers = Chart.helpers, $customer = undefined, $analyses = undefined, $versions = undefined, analysisType = undefined, timerSaveSettings = undefined, restoring = false;
+var helpers = Chart.helpers, $customer = undefined, $analyses = undefined, $versions = undefined, analysisType = undefined, timerSaveSettings = undefined, restoring = false, openingTag = window.location.hash;
 $(document).ready(function () {
 	$customer = $("#customer-selector"), $analyses = $("select[name='analysis']"), $versions = $("select[name='version']");
 
@@ -90,8 +90,7 @@ $(document).ready(function () {
 		resetSaveSettingsTimeout();
 	});
 
-	setTimeout(() => restoreSettings(), 500);
-
+	restoreSettings();
 
 });
 
@@ -190,7 +189,7 @@ function updateCharts() {
 
 function resetSaveSettingsTimeout() {
 	clearTimeout(timerSaveSettings);
-	timerSaveSettings = setTimeout(() => saveSettings(), 10000);
+	timerSaveSettings = setTimeout(() => saveSettings(), 5000);
 }
 
 function restoreSettings() {
@@ -201,11 +200,20 @@ function restoreSettings() {
 		$("#type-selector").val(application["settings"].type).change();
 		if (!application["settings"].idCustomer)
 			return false;
+		
+		if(application["settings"].currentTab){
+			if(!openingTag)
+				openingTag = application["settings"].currentTab;
+		}
+		
+		if(openingTag)	
+			$("a[href='"+openingTag+"']:visible").tab("show");
+		
 		$customer.val(application["settings"].idCustomer).change();
 		if (!application["settings"].analyses || !application["settings"].versions)
 			return false;
 		var analyses = application["settings"].analyses, versions = application["settings"].versions;
-		for (var i = 0; i < analyses.length; i++) {
+		for (var i = 0; i < analyses.length && i < versions.length; i++) {
 			$($analyses[i]).val(analyses[i]).change();
 			$($versions[i]).val(versions[i]).change();
 		}
@@ -221,6 +229,7 @@ function saveSettings() {
 	var data = {
 		type: analysisType,
 		idCustomer: $customer.val(),
+		currentTab : window.location.hash,
 		analyses: [],
 		versions: []
 	};
