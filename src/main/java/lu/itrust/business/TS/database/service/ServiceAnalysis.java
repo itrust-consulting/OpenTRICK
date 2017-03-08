@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.service;
 
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -166,6 +167,8 @@ public interface ServiceAnalysis {
 	
 	public String getProjectIdByIdentifier(String identifier);
 
+	public Map<String, String> getSettingsByIdAnalysis(Integer integer);
+
 	public String getVersionOfAnalysis(Integer idAnalysis);
 
 	public boolean hasData(Integer idAnalysis);
@@ -189,7 +192,4 @@ public interface ServiceAnalysis {
 	public void save(Analysis analysis);
 
 	public void saveOrUpdate(Analysis analysis);
-
-	
-
 }

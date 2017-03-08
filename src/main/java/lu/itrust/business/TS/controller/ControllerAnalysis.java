@@ -93,6 +93,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
@@ -230,6 +231,38 @@ public class ControllerAnalysis {
 		return LoadUserAnalyses(session, principal, model);
 	}
 
+	@RequestMapping(value = "Manage-settings", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String loadSettingManager(HttpSession session, Model model, Principal principal, Locale locale) {
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Map<String, String> currentSettings = serviceAnalysis.getSettingsByIdAnalysis(integer);
+		Map<AnalysisSetting, Object> settings = new LinkedHashMap<>();
+		AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(integer);
+		for (AnalysisSetting setting : AnalysisSetting.values()) {
+			if (!setting.isSupported(analysisType))
+				continue;
+			settings.put(setting, Analysis.findSetting(setting, currentSettings.get(setting.name())));
+		}
+		// load all assets of analysis to model
+		model.addAttribute("settings", settings);
+		return "analyses/single/components/settings/form";
+	}
+
+	@RequestMapping(value = "Manage-settings/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String saveSettingManager(@RequestBody Map<String, String> currentSettings, HttpSession session, Model model, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		AnalysisType analysisType = analysis.getType();
+		for (AnalysisSetting setting : AnalysisSetting.values()) {
+			if (!setting.isSupported(analysisType))
+				continue;
+			analysis.setSetting(setting.name(), Analysis.findSetting(setting, currentSettings.get(setting.name())));
+		}
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
+	}
+
 	/**
 	 * selectAnalysis: <br>
 	 * selects or deselects an analysis
@@ -277,8 +310,12 @@ public class ControllerAnalysis {
 			model.addAttribute("type", analysis.getType());
 			model.addAttribute("standards", standards);
 			model.addAttribute("hasMaturity", hasMaturity);
-			if (analysis.getType() == AnalysisType.QUALITATIVE)
+			model.addAttribute("showHiddenComment", analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT));
+			if (analysis.getType() == AnalysisType.QUALITATIVE) {
+				model.addAttribute("showRawColumn", analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
+			}else model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
+			
 			if (hasMaturity)
 				model.addAttribute("effectImpl27002",
 						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
@@ -649,8 +686,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes,
-			Principal principal, HttpSession session, Locale locale) throws Exception {
+	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Principal principal, HttpSession session, Locale locale)
+			throws Exception {
 		try {
 
 			if (serviceAnalysis.isDefaultProfile(analysisId))

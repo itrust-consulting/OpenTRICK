@@ -48,7 +48,7 @@ public class Standard implements Cloneable {
 	private int version = 2013;
 
 	/** description of the Standard */
-	@Column(name = "dtDescription", nullable = false)
+	@Column(name = "dtDescription", nullable = false, length=2048)
 	private String description = "";
 
 	@Enumerated(EnumType.STRING)

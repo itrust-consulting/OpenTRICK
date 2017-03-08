@@ -23,14 +23,15 @@
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<tr class="form-group-fill">
-						<th class="text-center" width="12.5%" ><spring:message code="label.risk_register.category" /></th>
-						<th class="text-center" width="12.5%" ><spring:message code="label.title.owner" text="Owner" /></th>
-						<th class="text-center" width="12.5%" ><spring:message code="label.title.impact" /></th>
-						<th class="text-center" width="12.5%" ><spring:message code="label.title.likelihood" /></th>
-						<th class="text-center" width="12.5%" ><spring:message code="label.title.uncertainty" /></th>
-						<th class='form-estimation form-estimation-left text-center' width="12.5%" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
-						<th class="text-center" width="12.5%"  title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
-						<th class="text-center" width="12.5%"  title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+						<th class="text-center" width="12.5%"><spring:message code="label.risk_register.category" /></th>
+						<th class="text-center" width="12.5%"><spring:message code="label.title.owner" text="Owner" /></th>
+						<th class="text-center" width="12.5%"><spring:message code="label.title.impact" /></th>
+						<th class="text-center" width="12.5%"><spring:message code="label.title.likelihood" /></th>
+						<th class="text-center" width="12.5%"><spring:message code="label.title.uncertainty" /></th>
+						<th class='form-estimation form-estimation-left text-center' width="12.5%" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic"
+								text='Optimistic' /></th>
+						<th class="text-center" width="12.5%" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
+						<th class="text-center" width="12.5%" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
 					</tr>
 				</c:when>
 				<c:otherwise>
@@ -47,7 +48,7 @@
 		<tbody>
 			<tr>
 				<spring:message text="${assessment.owner}" var="owner" />
-				<td class='form-estimation form-estimation-right text-center' ><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}"
+				<td class='form-estimation form-estimation-right text-center'><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}"
 							text="${scenarioType}" /></strong></td>
 				<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 				<td>
@@ -67,7 +68,8 @@
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
 									</c:otherwise>
 								</c:choose>
-								<input name="IMPACT" class="form-control" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string' title="${impact.variable}">
+								<input name="IMPACT" class="form-control" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
+									title="${impact.variable}">
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -79,7 +81,8 @@
 						<c:choose>
 							<c:when test="${empty likelihood}">
 								<spring:message text="${assessment.likelihood}" var="probaValue" />
-								<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${probaValue}" placeholder="${probaValue}" data-trick-type='string'>
+								<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${probaValue}" placeholder="${probaValue}"
+									data-trick-type='string'>
 							</c:when>
 							<c:otherwise>
 								<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="probaValue" />
@@ -132,10 +135,12 @@
 	<label class='label-control'>${comment}</label>
 	<textarea rows="${rowLength}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
-<div class='form-group form-group-fill'>
-	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
-	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
-	<label class='label-control'>${hiddenComment}</label>
-	<textarea rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}"
-		data-trick-type='string'>${hiddenCommentContent}</textarea>
-</div>
+<c:if test="${showRawColumn}">
+	<div class='form-group form-group-fill'>
+		<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
+		<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
+		<label class='label-control'>${hiddenComment}</label>
+		<textarea rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}"
+			data-trick-type='string'>${hiddenCommentContent}</textarea>
+	</div>
+</c:if>

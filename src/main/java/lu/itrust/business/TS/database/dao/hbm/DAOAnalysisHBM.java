@@ -1,7 +1,9 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -888,5 +890,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			getSession().delete(tmpstandard);
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis) {
+		return (Map<String, String>) getSession()
+				.createQuery("Select new Map(KEY(setting), VALUE(setting)) From Analysis analysis join analysis.settings as setting where analysis.id = :analysisid")
+				.setParameter("analysisid", idAnalysis).uniqueResultOptional().orElse(Collections.emptyMap());
 	}
 }

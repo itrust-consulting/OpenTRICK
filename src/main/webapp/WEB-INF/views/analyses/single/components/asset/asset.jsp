@@ -58,7 +58,9 @@
 						</c:choose>
 					</c:if>
 					<th><spring:message code="label.asset.comment" /></th>
-					<th><spring:message code="label.asset.hidden_comment" /></th>
+					<c:if test="${showRawColumn}">
+						<th><spring:message code="label.asset.hidden_comment" /></th>
+					</c:if>
 				</tr>
 			</thead>
 			<tfoot></tfoot>
@@ -90,7 +92,9 @@
 							</c:choose>
 						</c:if>
 						<td onclick="editField(this);" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.comment}" /></td>
-						<td onclick="editField(this);" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></td>
+						<c:if test="${showRawColumn}">
+							<td onclick="editField(this);" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></td>
+						</c:if>
 					</tr>
 				</c:forEach>
 			</tbody>

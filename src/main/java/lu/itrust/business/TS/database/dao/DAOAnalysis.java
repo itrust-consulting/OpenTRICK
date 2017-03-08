@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -202,5 +203,7 @@ public interface DAOAnalysis {
 	public void save(Analysis analysis);
 
 	public void saveOrUpdate(Analysis analysis);
+
+	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis);
 
 }

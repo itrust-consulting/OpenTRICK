@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -723,5 +724,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public void saveOrUpdate(Analysis analysis)  {
 		daoAnalysis.saveOrUpdate(analysis);
+	}
+
+	@Override
+	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis) {
+		return daoAnalysis.getSettingsByIdAnalysis(idAnalysis);
 	}
 }

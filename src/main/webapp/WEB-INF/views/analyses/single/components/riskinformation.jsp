@@ -50,7 +50,9 @@
 					<th width="5%" title='<spring:message code="label.risk_information.exposed" />'><spring:message code="label.risk_information.expo" /></th>
 					<th width="5%" title='<spring:message code="label.title.risk_information.owner" />'><spring:message code="label.risk_information.owner" /></th>
 					<th title='<spring:message code="label.risk_information.comment" />'><spring:message code="label.risk_information.comment" /></th>
-					<th title='<spring:message code="label.risk_information.comment_hidden" />'><spring:message code="label.risk_information.comment_hidden" /></th>
+					<c:if test="${showRawColumn}">
+						<th title='<spring:message code="label.risk_information.comment_hidden" />'><spring:message code="label.risk_information.comment_hidden" /></th>
+					</c:if>
 				</tr>
 			</thead>
 			<tfoot></tfoot>
@@ -100,8 +102,10 @@
 								<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${risk_information.owner}" /></td>
 								<td class="editable" onclick="return editField(this);" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message
 										text="${risk_information.comment}" /></td>
-								<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
-										text="${risk_information.hiddenComment}" /></td>
+								<c:if test="${showRawColumn}">
+									<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
+											text="${risk_information.hiddenComment}" /></td>
+								</c:if>
 							</c:when>
 							<c:otherwise>
 								<td style="height: 32px;"><spring:message text="${risk_information.chapter}" /></td>
@@ -114,8 +118,10 @@
 								<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${risk_information.owner}" /></td>
 								<td class="editable" onclick="return editField(this);" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message
 										text="${risk_information.comment}" /></td>
-								<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
-										text="${risk_information.hiddenComment}" /></td>
+								<c:if test="${showRawColumn}">
+									<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
+											text="${risk_information.hiddenComment}" /></td>
+								</c:if>
 							</c:otherwise>
 						</c:choose>
 					</tr>
