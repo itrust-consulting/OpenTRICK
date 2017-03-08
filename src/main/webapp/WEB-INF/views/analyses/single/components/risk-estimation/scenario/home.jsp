@@ -18,7 +18,7 @@
 					<jsp:include page="../form/qualitative.jsp" />
 				</c:when>
 				<c:otherwise>
-					<c:set var="rowLength" value="${show_uncertainty? '12' : '13'}" scope="request"/>
+					<c:set var="rowLength" value="${showHiddenComment? '14' : '30'}" scope="request"/>
 					<jsp:include page="../form/quantitative.jsp" />
 				</c:otherwise>
 			</c:choose>

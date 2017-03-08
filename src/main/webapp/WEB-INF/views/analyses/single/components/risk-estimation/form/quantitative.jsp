@@ -135,7 +135,7 @@
 	<label class='label-control'>${comment}</label>
 	<textarea rows="${rowLength}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
-<c:if test="${showRawColumn}">
+<c:if test="${showHiddenComment}">
 	<div class='form-group form-group-fill'>
 		<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 		<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />

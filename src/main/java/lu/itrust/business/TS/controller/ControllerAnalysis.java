@@ -254,11 +254,11 @@ public class ControllerAnalysis {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		AnalysisType analysisType = analysis.getType();
-		for (AnalysisSetting setting : AnalysisSetting.values()) {
-			if (!setting.isSupported(analysisType))
-				continue;
-			analysis.setSetting(setting.name(), Analysis.findSetting(setting, currentSettings.get(setting.name())));
-		}
+		currentSettings.forEach((key, value) ->  {
+			AnalysisSetting setting = AnalysisSetting.valueOf(key);
+			if(setting!=null && setting.isSupported(analysisType))
+				analysis.setSetting(setting.name(), Analysis.findSetting(setting, value));
+		});
 		serviceAnalysis.saveOrUpdate(analysis);
 		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
 	}
@@ -314,8 +314,9 @@ public class ControllerAnalysis {
 			if (analysis.getType() == AnalysisType.QUALITATIVE) {
 				model.addAttribute("showRawColumn", analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
-			}else model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
-			
+			} else
+				model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
+
 			if (hasMaturity)
 				model.addAttribute("effectImpl27002",
 						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),

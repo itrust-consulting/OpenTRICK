@@ -53,12 +53,12 @@
 				code="label.menu.analysis.risk_treatment_compliance" /><span class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.standards" /></li>
-			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a> 
+			<li><a href="#tab-standards" data-toggle="tab"><spring:message code="label.menu.analysis.view_by_collection" /></a>
 			<li title='<spring:message code="label.menu.view.measures"/>'><a href="#tab-measure-edition" data-toggle="tab"><spring:message
 						code="label.menu.analysis.view_by_measure" /></a></li>
 			<c:if test="${isProfile || isEditable}">
-					<li title='<spring:message code="label.title.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message code="label.menu.manage_standard" /></a></li>
-				</c:if>
+				<li title='<spring:message code="label.title.manage_standard"/>'><a href="#" onclick="return manageStandard();"><spring:message code="label.menu.manage_standard" /></a></li>
+			</c:if>
 			<li class="divider"></li>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.implementation" /></li>
 			<li><a href="#tab-phase" data-toggle="tab"> <spring:message code="label.menu.analysis.phase" /></a></li>
@@ -88,9 +88,11 @@
 					<c:when test="${type=='QUANTITATIVE'}">
 						<li><a href="#tab-chart-evolution" data-toggle="tab"> <spring:message code="label.chart.evolution" /></a></li>
 						<li><a href="#tab-chart-budget" data-toggle="tab"> <spring:message code="label.chart.budget" /></a></li>
-						<li><a href="#tab-chart-ale-evolution" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution" /></a></li>
-						<li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution_by_asset_type" /></a></li>
-						<li><a href="#tab-chart-parameter-evolution" data-toggle="tab"> <spring:message code="label.title.chart.dynamic" /></a></li>
+						<c:if test="${showDynamicAnalysis}">
+							<li><a href="#tab-chart-ale-evolution" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution" /></a></li>
+							<li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution_by_asset_type" /></a></li>
+							<li><a href="#tab-chart-parameter-evolution" data-toggle="tab"> <spring:message code="label.title.chart.dynamic" /></a></li>
+						</c:if>
 						<li class="divider"></li>
 					</c:when>
 					<c:otherwise>
@@ -174,6 +176,8 @@
 				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
 				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
 				<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" /></a></li>
+				<li class="divider"></li>
+				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>
 			</c:if>
 		</ul></li>
 	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<spring:message code="label.options" />' class="dropdown-toggle"

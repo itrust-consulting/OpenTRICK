@@ -34,6 +34,7 @@ import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
@@ -90,6 +91,9 @@ public class ControllerParameter {
 		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
 		model.addAttribute("type", AnalysisType.QUANTITATIVE);
+		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
+		AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
+		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
 		return "analyses/single/components/parameters/quantitative/home";
 	}
 

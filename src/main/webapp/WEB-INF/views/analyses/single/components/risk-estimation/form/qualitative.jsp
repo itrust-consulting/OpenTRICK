@@ -393,7 +393,7 @@
 		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};"
 		placeholder="${empty actionPlanContent? actionPlanInfo : actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 </div>
-<c:if test="${showRawColumn}">
+<c:if test="${showHiddenComment}">
 	<div class='form-group form-group-fill'>
 		<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 		<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />

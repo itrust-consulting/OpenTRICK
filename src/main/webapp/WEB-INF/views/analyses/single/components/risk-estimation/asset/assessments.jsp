@@ -56,11 +56,19 @@
 			</c:when>
 			<c:otherwise>
 				<li><a href="#" onclick='return displayParameters("#Scale_Impact", "${impactScaleTitle}")'>${impactScaleMenu}</a></li>
-				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${probabilityScaleMenu} <span class="caret"></span></a>
-					<ul class="dropdown-menu">
+				<c:choose>
+					<c:when test="${showDynamicAnalysis}">
+						<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${probabilityScaleMenu} <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleTitle}</a></li>
+								<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersTitle}</a></li>
+							</ul></li>
+					</c:when>
+					<c:otherwise>
 						<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleTitle}</a></li>
-						<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersTitle}</a></li>
-					</ul></li>
+					</c:otherwise>
+				</c:choose>
+
 			</c:otherwise>
 		</c:choose>
 	</ul>
@@ -74,7 +82,7 @@
 						<th rowspan="2" style="width: 2%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
 						<th rowspan="2" width="2%"><spring:message code="label.title.owner" text="Owner" /></th>
 						<th rowspan="2" style="width: 30%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
-						<c:if test="${showRawColumn}">
+						<c:if test="${showHiddenComment}">
 							<th rowspan="2" style="width: 30%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
 						</c:if>
 					</tr>
@@ -105,7 +113,7 @@
 
 						<th width="2%"><spring:message code="label.title.owner" text="Owner" /></th>
 						<th style="width: 30%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
-						<c:if test="${showRawColumn}">
+						<c:if test="${showHiddenComment}">
 							<th style="width: 30%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
 						</c:if>
 					</tr>
@@ -198,7 +206,7 @@
 						<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
 						<td onclick="return editField(this);" class="editable" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
 								text="${assessment.comment}" /></td>
-						<c:if test="${showRawColumn}">
+						<c:if test="${showHiddenComment}">
 							<td onclick="return editField(this);" class="editable" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message
 									text="${assessment.hiddenComment}" /></td>
 						</c:if>

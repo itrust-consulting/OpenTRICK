@@ -35,12 +35,12 @@ $(document).ready(function () {
 	});
 
 	// Periodically reload assessment values
-	/*window.setInterval(function () {
-		reloadAssetScenario();
-		loadChartDynamicParameterEvolution();
-		loadChartDynamicAleEvolutionByAssetType();
-		loadChartDynamicAleEvolution();
-	}, 300000);*/ // every 30s
+	/*
+	 * window.setInterval(function () { reloadAssetScenario();
+	 * loadChartDynamicParameterEvolution();
+	 * loadChartDynamicAleEvolutionByAssetType();
+	 * loadChartDynamicAleEvolution(); }, 300000);
+	 */ // every 30s
 });
 
 $.fn.loadOrUpdateChart = function (parameters) {
@@ -186,6 +186,60 @@ function updateMeasuresCost() {
 				}
 			},
 			error: unknowError
+		});
+	} else
+		permissionError();
+	return false;
+}
+
+function manageAnalysisSettings(){
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Manage-settings",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $view = $("#analysisSettingModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', ()  => $view.remove());
+					$("button[name='save']").on("click", e => {
+						var data = {};
+
+						$(".form-group[data-trick-name]",$view).each(function () {
+							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible",this).val(), oldValue = $("input[type!='radio']:hidden",this).val();
+							if (newValue != oldValue)
+								data[$this.attr("data-trick-name")] = newValue;
+						});
+
+						if (Object.keys(data).length) {
+							$.ajax({
+								url: context + "/Analysis/Manage-settings/Save",
+								type: "post",
+								data: JSON.stringify(data),
+								contentType: "application/json;charset=UTF-8",
+								success: function (response, textStatus, jqXHR) {
+									if (response.error != undefined)
+										showDialog("#alert-dialog", response.error);
+									else if (response.success != undefined) {
+											showDialog("success", response.success);
+											setTimeout(() => window.location.reload() ,1000);
+									} else
+										unknowError();
+								},
+								error: unknowError
+							}).complete(function () {
+								$progress.hide();
+							});
+						} else
+							$progress.hide();
+					});
+				} else
+					unknowError();
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
 		});
 	} else
 		permissionError();

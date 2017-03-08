@@ -82,7 +82,7 @@
 		</table>
 	</fieldset>
 </div>
-<c:if test="${type == 'QUANTITATIVE'}">
+<c:if test="${type == 'QUANTITATIVE' and showDynamicAnalysis}">
 	<div class="col-md-6">
 		<fieldset id="DynamicParameters">
 			<legend>

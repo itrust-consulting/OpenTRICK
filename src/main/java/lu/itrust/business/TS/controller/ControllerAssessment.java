@@ -123,6 +123,7 @@ public class ControllerAssessment {
 		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
 		model.addAttribute("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
 		model.addAttribute("showRawColumn", analysis.getSetting(rawSetting));
+		model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 	}
 
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -57,11 +57,18 @@
 			</c:when>
 			<c:otherwise>
 				<li><a href="#" onclick='return displayParameters("#Scale_Impact", "${impactScaleTitle}")'>${impactScaleMenu}</a></li>
-				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${probabilityScaleMenu} <span class="caret"></span></a>
-					<ul class="dropdown-menu">
+				<c:choose>
+					<c:when test="${showDynamicAnalysis}">
+						<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${probabilityScaleMenu} <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleTitle}</a></li>
+								<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersTitle}</a></li>
+							</ul></li>
+					</c:when>
+					<c:otherwise>
 						<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleTitle}</a></li>
-						<li><a href="#" onclick="return displayParameters('#DynamicParameters')">${dynamicParametersTitle}</a></li>
-					</ul></li>
+					</c:otherwise>
+				</c:choose>
 			</c:otherwise>
 		</c:choose>
 	</ul>
@@ -76,7 +83,9 @@
 						<th rowspan="2" style="width: 2%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
 						<th rowspan="2" width="2%"><spring:message code="label.title.owner" text="Owner" /></th>
 						<th rowspan="2" style="width: 29%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
-						<th rowspan="2" style="width: 29%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
+						<c:if test="${showHiddenComment}">
+							<th rowspan="2" style="width: 29%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
+						</c:if>
 					</tr>
 					<tr>
 						<c:forEach items="${impactTypes}" var="impactType">
@@ -105,7 +114,9 @@
 						</c:choose>
 						<th width="2%"><spring:message code="label.title.owner" text="Owner" /></th>
 						<th style="width: 29%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
-						<th style="width: 29%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
+						<c:if test="${showHiddenComment}">
+							<th style="width: 29%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
+						</c:if>
 					</tr>
 				</c:otherwise>
 			</c:choose>
@@ -175,8 +186,8 @@
 									<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
 								</c:when>
 								<c:otherwise>
-									<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber
-											value="${fct:round(likelihood.real,3)}" /></td>
+									<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
+										title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,3)}" /></td>
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${show_uncertainty}">
@@ -194,8 +205,10 @@
 					<td class="editable" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
 					<td class="editable" onclick="return editField(this);" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
 							text="${assessment.comment}" /></td>
-					<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
-							text="${assessment.hiddenComment}" /></td>
+					<c:if test="${showHiddenComment}">
+						<td class="editable" onclick="return editField(this);" data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
+								text="${assessment.hiddenComment}" /></td>
+					</c:if>
 				</tr>
 			</c:forEach>
 			<c:if test="${type == 'QUANTITATIVE'}">
