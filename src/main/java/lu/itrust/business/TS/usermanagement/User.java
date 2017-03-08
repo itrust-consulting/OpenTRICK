@@ -586,7 +586,7 @@ public class User implements Serializable, IUser {
 		if (name == null)
 			return;
 		else if (value == null)
-			this.userSettings.put(name, null);
+			this.userSettings.remove(name);
 		else
 			this.userSettings.put(name, String.valueOf(value));
 	}

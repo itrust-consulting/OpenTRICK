@@ -30,16 +30,20 @@
 					<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><spring:message code="label.risk_register.category" /></th>
 					<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><spring:message code="label.risk_register.risk_title" /></th>
 					<th style="width: 15%" rowspan="2" title='<spring:message code="label.risk_register.asset" />'><spring:message code="label.risk_register.asset" /></th>
-					<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.raw_eval" />'><spring:message code="label.risk_register.raw_eval" /></th>
+					<c:if test="${showRawColumn}">
+						<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.raw_eval" />'><spring:message code="label.risk_register.raw_eval" /></th>
+					</c:if>
 					<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.net_eval" />'><spring:message code="label.risk_register.net_eval" /></th>
 					<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.exp_eval" />'><spring:message code="label.risk_register.exp_eval" /></th>
 					<th rowspan="2" style="width: 5%" title='<spring:message code="label.risk_register.strategy" />'><spring:message code="label.risk_register.strategy" /></th>
 					<th style="width: 4%" rowspan="2" title='<spring:message code="label.risk_register.owner" />'><spring:message code="label.risk_register.owner" /></th>
 				</tr>
 				<tr>
-					<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><spring:message code="label.risk_register.acro.probability" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.impact"  />'><spring:message code="label.risk_register.acro.impact" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><spring:message code="label.risk_register.acro.importance" /></th>
+					<c:if test="${showRawColumn}">
+						<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><spring:message code="label.risk_register.acro.probability" /></th>
+						<th class="text-center" title='<spring:message code="label.risk_register.impact"  />'><spring:message code="label.risk_register.acro.impact" /></th>
+						<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><spring:message code="label.risk_register.acro.importance" /></th>
+					</c:if>
 					<th class="text-center" title='<spring:message code="label.risk_register.probability"  />'><spring:message code="label.risk_register.acro.probability" /></th>
 					<th class="text-center" title='<spring:message code="label.risk_register.impact" />'><spring:message code="label.risk_register.acro.impact" /></th>
 					<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><spring:message code="label.risk_register.acro.importance" /></th>
@@ -60,9 +64,11 @@
 						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(riskProfile.scenario.type.name,'-','_'))}" /></td>
 						<td><spring:message text="${riskProfile.scenario.name}" /></td>
 						<td><spring:message text="${riskProfile.asset.name}" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.importance}" maxFractionDigits="0" /></td>
+						<c:if test="${showRawColumn}">
+							<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
+							<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
+							<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.importance}" maxFractionDigits="0" /></td>
+						</c:if>
 
 						<td class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.probabilityLevel}" maxFractionDigits="0" /></td>
 						<td class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.impactLevel}" maxFractionDigits="0" /></td>

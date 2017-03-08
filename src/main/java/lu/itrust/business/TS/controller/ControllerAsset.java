@@ -44,6 +44,7 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -190,6 +191,10 @@ public class ControllerAsset {
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		model.addAttribute("showHiddenComment", Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
+		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
 		// load all assets of analysis to model
 		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
@@ -317,8 +322,7 @@ public class ControllerAsset {
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAssetType(idAnalysis, locale);
 	}
-	
-	
+
 	/**
 	 * aleByAsset: <br>
 	 * Description
@@ -375,7 +379,7 @@ public class ControllerAsset {
 			String name = jsonNode.get("name").asText();
 
 			JsonNode node = jsonNode.get("assetType");
-			
+
 			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
 
 			Double value = getDouble(jsonNode);

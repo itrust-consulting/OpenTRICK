@@ -35,6 +35,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
@@ -205,6 +206,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		MessageHandler messageHandler = null;
 		File workFile = null;
 		try {
+			boolean showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.backup", "Backup of user changes", progress));
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
@@ -223,6 +225,19 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			XWPFTable table = getTable(document, 0);// lib contains a bug
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
+			if (!showRawColumn) {
+				for (XWPFTableRow row : table.getRows()) {
+					row.getCtRow().removeTc(5);
+					row.removeCell(5);
+					if (row.getCtRow().sizeOfTcArray() > 14) {
+						for (int i = 0; i < 2; i++) {
+							row.getCtRow().removeTc(5);
+							row.removeCell(5);
+						}
+					}
+				}
+			}
+			int rawIndex = 5, nextIndex = showRawColumn ? rawIndex + 3 : rawIndex, expIndex = nextIndex + 3;
 			for (Estimation estimation : estimations) {
 				XWPFTableRow row = index == 0 ? table.getRow(table.getRows().size() - 1) : table.createRow();
 				String scenarioType = estimation.getScenario().getType().getName();
@@ -231,17 +246,17 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				addString(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType, locale), row, 2);
 				addString(estimation.getScenario().getName(), row, 3);
 				addString(estimation.getAsset().getName(), row, 4);
-
-				addField(estimation.getRawProbaImpact(), row, 5);
-				addField(estimation.getNetEvaluation(), row, 8);
-				addField(estimation.getExpProbaImpact(), row, 11);
+				if (showRawColumn)
+					addField(estimation.getRawProbaImpact(), row, rawIndex);
+				addField(estimation.getNetEvaluation(), row, nextIndex);
+				addField(estimation.getExpProbaImpact(), row, expIndex);
 
 				RiskStrategy strategy = estimation.getRiskStrategy();
 				if (strategy == null)
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
-				addString(getMessage("label.risk_register.strategy." + response, response, locale), row, 14);
-				addString(estimation.getOwner(), row, 15);
+				addString(getMessage("label.risk_register.strategy." + response, response, locale), row, expIndex + 3);
+				addString(estimation.getOwner(), row, expIndex + 4);
 				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max - progress)));
 			}
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));

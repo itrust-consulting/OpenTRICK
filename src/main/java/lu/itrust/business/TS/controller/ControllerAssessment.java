@@ -37,6 +37,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
@@ -111,9 +112,17 @@ public class ControllerAssessment {
 				model.addAttribute("scenario", scenario);
 			}
 		}
+
 		model.addAttribute("asset", asset);
+		loadAnalysisSettings(model, analysis);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		return "analyses/single/components/risk-estimation/asset/home";
+	}
+
+	private void loadAnalysisSettings(Model model, Analysis analysis) {
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		model.addAttribute("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
+		model.addAttribute("showRawColumn", analysis.getSetting(rawSetting));
 	}
 
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -146,6 +155,7 @@ public class ControllerAssessment {
 				model.addAttribute("asset", asset);
 			}
 		}
+		loadAnalysisSettings(model, analysis);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		return "analyses/single/components/risk-estimation/scenario/home";

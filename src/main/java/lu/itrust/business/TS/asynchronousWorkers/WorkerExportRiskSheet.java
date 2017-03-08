@@ -47,6 +47,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
@@ -88,6 +89,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	private DAOUser daoUser;
 
 	private CSSFExportForm cssfExportForm;
+
+	private boolean showRawColumn = true;
 
 	private String alpha2 = "EN";
 
@@ -214,6 +217,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			else
 				dateFormat = new SimpleDateFormat("MM-dd-yyyy");
 
+			showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+
 			List<ScaleType> scaleTypes = analysis.getImpacts();
 			CSSFFilter cssfFilter = cssfExportForm.getFilter();
 			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
@@ -278,8 +283,10 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			setCellString(row, index++, category);
 			setCellString(row, index++, estimation.getScenario().getName());
 			setCellString(row, index++, estimation.getOwner());
-			printRiskProba(row, index++, types, estimation.getRawProbaImpact());
-			index += types.size() + 1;
+			if (showRawColumn) {
+				printRiskProba(row, index++, types, estimation.getRawProbaImpact());
+				index += types.size() + 1;
+			}
 			printRiskProba(row, index++, types, estimation.getNetEvaluation());
 			index += types.size() + 1;
 			printRiskProba(row, index++, types, estimation.getExpProbaImpact());
@@ -314,7 +321,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	private void addHeader(XSSFSheet sheet, List<ScaleType> types) {
-		int rowCount = types.size() * 3 + 16;
+		int rowCount = showRawColumn ? types.size() * 3 + 16 : types.size() * 2 + 14;
 		XSSFRow row = sheet.getRow(0), row1 = sheet.getRow(1);
 		if (row == null)
 			row = sheet.createRow(0);
@@ -327,12 +334,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				row1.createCell(i, CellType.STRING);
 		}
 
-		int size = types.size() + 2, netIndex = 6 + types.size(), expIndex = netIndex + types.size() + 2, index = expIndex + types.size() + 2;
+		int step = 2, size = types.size() + step, netIndex = (showRawColumn ? 6 + types.size() : 4), expIndex = netIndex + types.size() + step,
+				index = expIndex + types.size() + step;
 		row.getCell(0).setCellValue(getMessage("report.risk_sheet.risk_id", "Risk ID"));
 		row.getCell(1).setCellValue(getMessage("report.risk_sheet.risk_category", "Category"));
 		row.getCell(2).setCellValue(getMessage("report.risk_sheet.title", "Title"));
 		row.getCell(3).setCellValue(getMessage("report.risk_sheet.risk_owner", "Risk owner"));
-		row.getCell(4).setCellValue(getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"));
+		if (showRawColumn)
+			row.getCell(4).setCellValue(getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"));
 		row.getCell(netIndex).setCellValue(getMessage("report.risk_sheet.net_evaluation", "Net evaluation"));
 		row.getCell(expIndex).setCellValue(getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"));
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.risk_description", "Risk description"));
@@ -341,7 +350,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.risk_treatment", "Risk treatment"));
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.response", "Response strategy"));
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.action_plan", "Action plan"));
-		printEvaluationHeader(row1, types, 4);
+		if (showRawColumn)
+			printEvaluationHeader(row1, types, 4);
 		printEvaluationHeader(row1, types, netIndex);
 		printEvaluationHeader(row1, types, expIndex);
 		for (int i = 0; i < 4; i++)
@@ -389,6 +399,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		MessageHandler messageHandler = null;
 		boolean isFirst = true;
 		try {
+			showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
 			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
 					Estimation.IdComparator());
@@ -414,7 +425,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				} else
 					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
 				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
-				addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"), estimation.getRawProbaImpact(), types);
+				if (showRawColumn)
+					addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"), estimation.getRawProbaImpact(), types);
 				addField(document, getMessage("report.risk_sheet.argumentation", "Argumentation"), estimation.getArgumentation());
 				addField(document, getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"), riskProfile.getAsset().getName());
 				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), estimation.getRiskTreatment());
