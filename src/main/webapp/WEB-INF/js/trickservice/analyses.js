@@ -1,7 +1,6 @@
 var taskManager = undefined, analysesCaching = undefined;
 
 $(document).ready(function () {
-	$("input[type='checkbox']:checked").trigger('change');
 	application["settings-fixed-header"] = {
 		fixedOffset: $(".navbar-fixed-top"),
 		scrollStartFixMulti: 1.02
@@ -83,11 +82,13 @@ function updateAnalysisAccess(e) {
 		$progress.hide();
 }
 
+
+
 function manageAnalysisIDSAccess(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (selectedAnalysis.length != 1)
 		return false;
-	if (canManageAccess()) {
+	if (canManageAccess() && isAnalysisType("QUANTITATIVE")) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Manage/IDS/" + selectedAnalysis[0],
@@ -132,8 +133,7 @@ function manageAnalysisIDSAccess(section) {
 		}).complete(function () {
 			$progress.hide();
 		});
-	} else
-		permissionError();
+	} 
 	return false;
 
 }
@@ -257,7 +257,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			return false;
 		analysisId = selectedAnalysis[0];
 	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.READ)) {
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/AnalysisProfile/Add/" + analysisId,

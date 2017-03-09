@@ -300,6 +300,10 @@ function getScrollbarWidth() {
 	return widthNoScroll - widthWithScroll;
 }
 
+function isAnalysisType(type, section){
+	return  $("table>tbody>tr[data-trick-type='" + type + "']>td>input:checked", section? section : "#section_analysis").length > 0;
+}
+
 function downloadWordReport(id) {
 	window.location = context + '/Profile/Report/' + id + "/Download";
 	return false;

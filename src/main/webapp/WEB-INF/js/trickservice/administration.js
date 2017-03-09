@@ -210,6 +210,8 @@ function updateAnalysisAccess(e) {
 }
 
 function manageAnalysisIDSAccess(section) {
+	if(!isAnalysisType("QUANTITATIVE", "#"+section))
+		return false;
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (selectedAnalysis.length != 1)
 		return false;

@@ -13,7 +13,7 @@
 				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message
 						code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
 						
-			<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis') && isAnalysisType('QUANTITATIVE','#section_admin_analysis')"><a href="#"
 						onclick="return manageAnalysisIDSAccess('section_admin_analysis');"> <span class="fa fa-rss-square"></span> <spring:message code="label.menu.manage.ids.access.analysis"
 								text="Manage IDS" /></a></li>
 
@@ -59,7 +59,7 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}">
+					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}" data-trick-type='${analysis.type}'>
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
 						<td><spring:message text="${analysis.identifier}" /></td>
 						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>

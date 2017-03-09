@@ -24,7 +24,7 @@
 				</c:if>
 				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="scenario_form">
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
-					<div id="tab_scenario_general" class="tab-pane active" style="padding-top: 17px;">
+					<div id="tab_scenario_general" class="tab-pane active"  style="padding-top: ${type=='QUANTITATIVE'? '8px':'3px'};" >
 						<div class="form-group">
 							<label for="type" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.asset_linked"/>'><spring:message
 									code="label.scenario.applicable.to" /></label>
