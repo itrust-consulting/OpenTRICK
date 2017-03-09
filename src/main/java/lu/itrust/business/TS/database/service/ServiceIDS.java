@@ -53,5 +53,5 @@ public interface ServiceIDS {
 	 */
 	boolean exists(String token);
 
-	
+	boolean exists(boolean state);
 }

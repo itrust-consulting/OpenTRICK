@@ -39,6 +39,7 @@ import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
@@ -181,8 +182,8 @@ public class ControllerIDS {
 						ids.setToken(passwordEncoder.encodePassword(UUID.randomUUID().toString(), ids.getPrefix() + System.nanoTime()));
 					} while (serviceIDS.exists(ids.getToken()));
 					serviceIDS.saveOrUpdate(ids);
-					TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids.token", String.format("IDS token has been renewed, Target: %s", ids.getLogin()), principal.getName(),
-							LogAction.RENEW, ids.getLogin());
+					TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids.token",
+							String.format("IDS token has been renewed, Target: %s", ids.getLogin()), principal.getName(), LogAction.RENEW, ids.getLogin());
 					newToken.put(id, ids.getToken());
 				}
 			});
@@ -195,7 +196,7 @@ public class ControllerIDS {
 				return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
-	
+
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/Admin/Manage/IDS/{id}")
 	public String adminManage(@PathVariable Integer id, Model model, Principal principal, Locale locale) {
@@ -214,11 +215,14 @@ public class ControllerIDS {
 	@RequestMapping("/Analysis/Manage/IDS/{id}")
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#id, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public String analysisManage(@PathVariable Integer id, Model model, Principal principal, Locale locale) {
+		Analysis analysis = serviceAnalysis.get(id);
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			return null;
 		List<IDS> IDSs = serviceIDS.getByAnalysisId(id);
 		Map<Integer, Boolean> subscriptionsStates = IDSs.stream().collect(Collectors.toMap(IDS::getId, ids -> true));
 		IDSs.addAll(serviceIDS.getAllAnalysisNoSubscribe(id));
 		model.addAttribute("IDSs", IDSs);
-		model.addAttribute("analysis", serviceAnalysis.get(id));
+		model.addAttribute("analysis", analysis);
 		model.addAttribute("subscriptionsStates", subscriptionsStates);
 		return "analyses/all/forms/ids";
 	}
@@ -226,8 +230,10 @@ public class ControllerIDS {
 	@RequestMapping(value = "/Analysis/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#id, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public @ResponseBody String saveManagement(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
-		Map<Integer, IDS> analysisSubscriptions = serviceIDS.getByAnalysisId(id).stream().collect(Collectors.toMap(IDS::getId, Function.identity()));
 		Analysis analysis = serviceAnalysis.get(id);
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+		Map<Integer, IDS> analysisSubscriptions = serviceIDS.getByAnalysisId(id).stream().collect(Collectors.toMap(IDS::getId, Function.identity()));
 		subscriptions.forEach((IDSId, status) -> {
 			IDS ids = analysisSubscriptions.get(IDSId);
 			if (ids == null) {

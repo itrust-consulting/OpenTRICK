@@ -48,5 +48,5 @@ public interface DAOIDS {
 
 	IDS getByToken(String token);
 
-	
+	boolean exists(boolean state);
 }

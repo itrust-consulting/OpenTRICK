@@ -77,6 +77,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
@@ -186,6 +187,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
+	
+	@Autowired
+	private ServiceIDS serviceIDS;
 
 	@Value("${app.settings.report.quantitative.french.template.name}")
 	private String frenchQuantitativeReportName;
@@ -434,6 +438,7 @@ public class ControllerAnalysis {
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
+		model.addAttribute("allowIDS", serviceIDS.exists(true));
 		return "analyses/all/home";
 	}
 

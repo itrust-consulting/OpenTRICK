@@ -134,6 +134,11 @@ public class ServiceIDSImpl implements ServiceIDS {
 		return daoIDS.getByToken(token);
 	}
 
+	@Override
+	public boolean exists(boolean state) {
+		return daoIDS.exists(state);
+	}
+
 	
 
 }

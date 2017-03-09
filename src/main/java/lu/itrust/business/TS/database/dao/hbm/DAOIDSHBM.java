@@ -175,7 +175,13 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public IDS getByToken(String token) {
-		return (IDS) getSession().createQuery("From IDS ids where ids.token = :token ").setParameter("token",token).uniqueResultOptional().orElse(null);
+		return (IDS) getSession().createQuery("From IDS ids where ids.token = :token ").setParameter("token", token).uniqueResultOptional().orElse(null);
+	}
+
+	@Override
+	public boolean exists(boolean state) {
+		return getSession().createQuery("Select count(*)> 0 From IDS ids where ids.enable = :enabled", Boolean.class).setParameter("enabled", state).uniqueResultOptional()
+				.orElse(false);
 	}
 
 }
