@@ -91,11 +91,11 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_00_addUser")
 	public void test_02_AddCustomerUser() throws Exception {
 		this.mockMvc
-				.perform(post(String.format("/KnowledgeBase/Customer/%d/Users/Update", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
-						.accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"user_%d\" : \"true\", \"user_%d\" : \"true\"}", getInteger(USER_TO_DELETE_ID), getInteger(USER_TO_DELETE_ID)))
+				.perform(post(String.format("/KnowledgeBase/Customer/%d/Manage-access/Update", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"%d\" : \"true\", \"%d\" : \"true\"}", getInteger(USER_TO_DELETE_ID), getInteger(USER_TO_DELETE_ID)))
 						.with(httpBasic(USERNAME, PASSWORD)))
-				.andExpect(status().isOk()).andExpect(view().name("knowledgebase/customer/customerusers")).andExpect(model().attributeDoesNotExist("errors"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test(dependsOnMethods = "test_01_AddCustomer")
