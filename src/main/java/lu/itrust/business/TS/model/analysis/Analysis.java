@@ -543,6 +543,7 @@ public class Analysis implements Cloneable {
 		analysis.actionPlans = new ArrayList<>();
 		analysis.riskRegisters = new ArrayList<>();
 		analysis.summaries = new ArrayList<>();
+		analysis.settings = new LinkedHashMap<>(this.settings);
 		analysis.id = -1;
 		return analysis;
 	}
@@ -566,6 +567,7 @@ public class Analysis implements Cloneable {
 		copy.actionPlans = new ArrayList<>();
 		copy.riskRegisters = new ArrayList<>();
 		copy.summaries = new ArrayList<>();
+		copy.settings = new LinkedHashMap<>(settings);
 		copy.id = -1;
 		return copy;
 	}
@@ -880,47 +882,6 @@ public class Analysis implements Cloneable {
 
 		return phases;
 
-	}
-
-	public void setSetting(String name, Object value) {
-		if (name == null)
-			return;
-		else if (value == null)
-			this.settings.remove(name);
-		else
-			this.settings.put(name, String.valueOf(value));
-	}
-
-	public <T> T getSetting(AnalysisSetting setting) {
-		return findSetting(setting, settings.get(setting.name()));
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T findSetting(AnalysisSetting setting, String value) {
-		try {
-			if (value == null)
-				return (T) setting.getDefaultValue();
-			return (T) ParseSettingValue(value, setting.getType());
-		} catch (Exception e) {
-			return (T) setting.getDefaultValue();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T ParseSettingValue(String value, Class<T> type) {
-		if (String.class.equals(type))
-			return (T) value;
-		else if (Boolean.class.equals(type))
-			return (T) Boolean.valueOf(value);
-		else if (Integer.class.equals(type))
-			return (T) (Integer) Integer.parseInt(value);
-		else if (Double.class.equals(type))
-			return (T) (Double) Double.parseDouble(value);
-		else if (Long.class.equals(type))
-			return (T) (Long) Long.parseLong(value);
-		else if (Float.class.equals(type))
-			return (T) (Float) Float.parseFloat(value);
-		return (T) value;
 	}
 
 	/**
@@ -1640,6 +1601,10 @@ public class Analysis implements Cloneable {
 		return tmpassets;
 	}
 
+	public <T> T getSetting(AnalysisSetting setting) {
+		return findSetting(setting, settings.get(setting.name()));
+	}
+
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
@@ -2337,6 +2302,15 @@ public class Analysis implements Cloneable {
 		this.scenarios = scenarios;
 	}
 
+	public void setSetting(String name, Object value) {
+		if (name == null)
+			return;
+		else if (value == null)
+			this.settings.remove(name);
+		else
+			this.settings.put(name, String.valueOf(value));
+	}
+
 	public void setSimpleParameters(List<SimpleParameter> parameters) {
 		this.parameters.put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters);
 	}
@@ -2482,6 +2456,17 @@ public class Analysis implements Cloneable {
 		// return calculated cost
 		return (((internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad) + investment) * (1. / (lifetime == 0 ? lifetimeDefault : lifetime)))
 				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T findSetting(AnalysisSetting setting, String value) {
+		try {
+			if (value == null)
+				return (T) setting.getDefaultValue();
+			return (T) ParseSettingValue(value, setting.getType());
+		} catch (Exception e) {
+			return (T) setting.getDefaultValue();
+		}
 	}
 
 	/**
@@ -2656,6 +2641,23 @@ public class Analysis implements Cloneable {
 			assessments.add(assessment);
 		}
 		return mappings;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T ParseSettingValue(String value, Class<T> type) {
+		if (String.class.equals(type))
+			return (T) value;
+		else if (Boolean.class.equals(type))
+			return (T) Boolean.valueOf(value);
+		else if (Integer.class.equals(type))
+			return (T) (Integer) Integer.parseInt(value);
+		else if (Double.class.equals(type))
+			return (T) (Double) Double.parseDouble(value);
+		else if (Long.class.equals(type))
+			return (T) (Long) Long.parseLong(value);
+		else if (Float.class.equals(type))
+			return (T) (Float) Float.parseFloat(value);
+		return (T) value;
 	}
 
 	@SuppressWarnings("unchecked")
