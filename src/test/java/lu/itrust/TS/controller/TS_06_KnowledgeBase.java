@@ -198,7 +198,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_05_LoadAnalysisStandard() throws Exception {
 		String standards = "";
 		for (Standard standard : serviceStandard.getAllFromAnalysis(ANALYSIS_ID))
-			standards = String.format("%s%s\"standard_%d\":\"true\"", standards, (standards.isEmpty() ? "" : ","), standard.getId());
+			standards += (standards.isEmpty() ? "" : ",") + String.format("\"%d\":\"true\"", standard.getId());
 		assertFalse("Standard not be empty", standards.isEmpty());
 		put(PROFILE_STANDARD_LIST, standards);
 	}
@@ -208,8 +208,9 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		String standards = getString(PROFILE_STANDARD_LIST);
 		notNull(standards, "Standards cannot be found");
 		JsonNode node = new ObjectMapper().readTree(this.mockMvc
-				.perform(post("/AnalysisProfile/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, %s, \"description\":\"%s\"}", ANALYSIS_ID, standards, "test profile")))
+				.perform(post(String.format("/AnalysisProfile/Analysis/%d/Save", ANALYSIS_ID)).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{%s, \"description\":\"%s\"}", standards, "test profile")))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.taskid").exists()).andReturn().getResponse()
 				.getContentAsString());
 		String idTask = node.get("taskid").asText(null);
@@ -241,11 +242,12 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_03_LoadData")
 	public void test_03_AddAssetToProfile() throws Exception {
-		this.mockMvc.perform(post("/Analysis/Asset/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-				.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
-				.content(String.format(
-						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
-						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
+		this.mockMvc
+				.perform(post("/Analysis/Asset/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
+						.content(String.format(
+								"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
+								"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.errors.asset").exists());
 
 	}
@@ -254,11 +256,10 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_04_CreateAnalysisUsedCustomerLanguageAndProfile() throws Exception {
 		Integer idProfile = getInteger(ANALYSIS_PROFILE_ID);
 		notNull(idProfile, "Profile analysis cannot be found");
-		this.mockMvc
-				.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
-						.param("author", "Admin Admin").param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION)
-						.param("comment", "comment").param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID))
-						.param("type", AnalysisType.QUANTITATIVE.name()).param("profile", idProfile + ""))
+		this.mockMvc.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
+				.param("author", "Admin Admin").param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
+				.param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID)).param("type", AnalysisType.QUANTITATIVE.name())
+				.param("profile", idProfile + ""))
 
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
