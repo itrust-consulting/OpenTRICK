@@ -63,87 +63,68 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 public class ControllerAsset {
 
 	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
-	private ServiceAssetType serviceAssetType;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
-
-	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
-	private CustomDelete customDelete;
 
 	@Autowired
 	private ChartGenerator chartGenerator;
 
 	@Autowired
+	private CustomDelete customDelete;
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
 	private ServiceAssessment serviceAssessment;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private ServiceAssetType serviceAssetType;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
 	/**
-	 * select: <br>
+	 * aleByAsset: <br>
 	 * Description
 	 * 
-	 * @param id
-	 * @param principal
+	 * @param session
+	 * @param model
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
-		try {
-			// retrieve asset
-			assessmentAndRiskProfileManager.toggledAsset(elementID);
-			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale));
-		} catch (Exception e) {
-			// return error message
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-		}
+	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		// retrieve analysis id
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		// generate chart of assets for this analysis
+		return chartGenerator.aleByAsset(idAnalysis, locale);
 	}
 
 	/**
-	 * selectMultiple: <br>
+	 * assetByALE: <br>
 	 * Description
 	 * 
-	 * @param ids
-	 * @param principal
-	 * @param locale
 	 * @param session
+	 * @param model
+	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		// init list of errors
-		List<String> errors = new LinkedList<String>();
-		if (!serviceAsset.belongsToAnalysis(integer, ids)) {
-			errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null, "One of the assets does not belong to this analysis!", locale)));
-			return errors;
-		}
-		assessmentAndRiskProfileManager.toggledAssets(ids);
-		return errors;
-	}
-
-	@RequestMapping("/Add")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("assettypes", serviceAssetType.getAll());
-		return "analyses/single/components/asset/manageAsset";
+	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		// retrieve analysis id
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		// generate chart of assets for this analysis
+		return chartGenerator.aleByAssetType(idAnalysis, locale);
 	}
 
 	/**
@@ -175,36 +156,6 @@ public class ControllerAsset {
 	}
 
 	/**
-	 * section: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		// retrieve analysis id
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
-		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
-		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
-		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
-		model.addAttribute("showHiddenComment", Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
-		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
-		// load all assets of analysis to model
-		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
-		model.addAttribute("assets", assets);
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
-		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		return "analyses/single/components/asset/asset";
-	}
-
-	/**
 	 * edit: <br>
 	 * Description
 	 * 
@@ -220,7 +171,50 @@ public class ControllerAsset {
 		model.addAttribute("assettypes", serviceAssetType.getAll());
 		// add asset object to model
 		model.addAttribute("asset", serviceAsset.get(elementID));
-		return "analyses/single/components/asset/manageAsset";
+		loadAnalysisSettings(model, (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		return "analyses/single/components/asset/form";
+	}
+
+	@RequestMapping("/Add")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
+		model.addAttribute("assettypes", serviceAssetType.getAll());
+		loadAnalysisSettings(model, (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		return "analyses/single/components/asset/form";
+	}
+
+	/**
+	 * aleByAsset: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Chart/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.riskByAsset(idAnalysis, locale);
+	}
+
+	/**
+	 * assetByALE: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Chart/Type/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.riskByAssetType(idAnalysis, locale);
 	}
 
 	/**
@@ -286,75 +280,80 @@ public class ControllerAsset {
 	}
 
 	/**
-	 * aleByAsset: <br>
+	 * section: <br>
 	 * Description
 	 * 
-	 * @param session
 	 * @param model
-	 * @param locale
+	 * @param session
+	 * @param principal
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		// generate chart of assets for this analysis
-		return chartGenerator.aleByAsset(idAnalysis, locale);
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
+		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+		loadAnalysisSettings(model, integer);
+		// load all assets of analysis to model
+		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
+		model.addAttribute("assets", assets);
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
+		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
+		return "analyses/single/components/asset/asset";
 	}
 
 	/**
-	 * assetByALE: <br>
+	 * select: <br>
 	 * Description
 	 * 
-	 * @param session
-	 * @param model
+	 * @param id
+	 * @param principal
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		// generate chart of assets for this analysis
-		return chartGenerator.aleByAssetType(idAnalysis, locale);
+	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
+		try {
+			// retrieve asset
+			assessmentAndRiskProfileManager.toggledAsset(elementID);
+			// return success message
+			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale));
+		} catch (Exception e) {
+			// return error message
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
 	}
 
 	/**
-	 * aleByAsset: <br>
+	 * selectMultiple: <br>
 	 * Description
 	 * 
-	 * @param session
-	 * @param model
+	 * @param ids
+	 * @param principal
 	 * @param locale
+	 * @param session
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return chartGenerator.riskByAsset(idAnalysis, locale);
-	}
-
-	/**
-	 * assetByALE: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param model
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Chart/Type/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return chartGenerator.riskByAssetType(idAnalysis, locale);
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		// init list of errors
+		List<String> errors = new LinkedList<String>();
+		if (!serviceAsset.belongsToAnalysis(integer, ids)) {
+			errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null, "One of the assets does not belong to this analysis!", locale)));
+			return errors;
+		}
+		assessmentAndRiskProfileManager.toggledAssets(ids);
+		return errors;
 	}
 
 	/**
@@ -388,7 +387,7 @@ public class ControllerAsset {
 
 			asset.setComment(jsonNode.get("comment").asText());
 
-			asset.setHiddenComment(jsonNode.get("hiddenComment").asText());
+			asset.setHiddenComment(jsonNode.get("hiddenComment").asText(""));
 
 			error = validator.validate(asset, "name", name);
 			if (error != null)
@@ -442,5 +441,12 @@ public class ControllerAsset {
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+
+	private void loadAnalysisSettings(Model model, Integer integer) {
+		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		model.addAttribute("showHiddenComment", Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
+		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
 	}
 }

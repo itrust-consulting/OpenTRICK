@@ -695,7 +695,7 @@ function AssessmentProbaFieldEditor(element) {
 function disableEditMode() {
 	if (application.editMode) {
 		try {
-			application.editMode = false
+			application.editingModeFroceAbort = application.editMode = false;
 			var $progress = $("#loading-indicator").show();
 			setTimeout(function () {
 				try {

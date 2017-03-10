@@ -17,23 +17,23 @@
 				<form name="language" action="Language/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="language_form">
 					<input type="hidden" name="id" value="-1" id="language_id">
 					<div class="form-group">
-						<label for="alpha3" class="col-sm-2 control-label"> <spring:message code="label.language.alpha3" text="Alpha3 code" />
+						<label for="alpha3" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.language.alpha3" />' > <spring:message code="label.language.alpha3" text="Alpha3 code" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="alpha3" id="language_alpha3" class="form-control" type="text" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.language.name" text="Name" />
+						<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.language.name" />' > <spring:message code="label.language.name" text="Name" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="name" id="language_name" class="form-control" type="text" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="altName" class="col-sm-2 control-label"> <spring:message code="label.language.alt_name" text="Alternative Name" />
+						<label for="altName" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.language.alt_name" />' > <spring:message code="label.language.alt_name" text="Alternative Name" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="altName" id="language_altName" class="form-control" type="text" />
 						</div>
 					</div>

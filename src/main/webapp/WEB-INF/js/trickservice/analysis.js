@@ -16,23 +16,28 @@ $(document).ready(function () {
 	// ******************************************************************************************************************
 	// * uncheck checked checkboxes
 	// ******************************************************************************************************************
-
-	$("input[type='checkbox']:checked").trigger("change");
-
-	var $tabOption = $("#tabOption");
-
 	application["settings-fixed-header"] = {
-		fixedOffset: $(".nav-analysis"),
-		marginTop: application.fixedOffset,
-		scrollStartFixMulti: 0.99998
-	};
-
-	fixTableHeader("table.table-fixed-header-analysis");
-
-	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-		disableEditMode();
-		$tabOption.hide();
-	});
+			fixedOffset: $(".nav-analysis"),
+			marginTop: application.fixedOffset,
+			scrollStartFixMulti: 0.99998
+		};
+	
+	setTimeout(() =>{ 
+		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab',  (e) => {
+			disableEditMode();
+		});
+		
+		$(window).bind("beforeunload", (e) => {
+			if(!application.editingModeFroceAbort && application.editMode){
+				showDialog("info", MessageResolver("info.leave.page.in_mode_editing"));
+				application.editingModeFroceAbort = true;
+				return false;
+			}
+		});
+		
+		fixTableHeader("table.table-fixed-header-analysis");
+		
+	}, 100);
 
 	// Periodically reload assessment values
 	/*

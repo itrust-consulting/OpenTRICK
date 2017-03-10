@@ -18,10 +18,11 @@ function editScenario(rowTrickId, isAdd) {
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
 				var $modal = $("#addScenarioModal", new DOMParser().parseFromString(response, "text/html"));
+				
 				if (!$modal.length)
 					unknowError();
 				else {
-					$("#addScenarioModal").replaceWith($modal);
+					$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", (e) => $modal.remove());
 					$("input[name='assetLinked'][type='radio']", $modal).on("change", function () {
 						if (this.checked) {
 							var $assetVlues = $("#scenario-asset-values", $modal), $assetTypeValues = $("#scenario-asset-type-values", $modal)
@@ -63,7 +64,7 @@ function editScenario(rowTrickId, isAdd) {
 									});
 							});
 					}
-					$modal.modal("show");
+					
 				}
 				return false;
 			},

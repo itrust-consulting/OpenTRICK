@@ -18,14 +18,11 @@ function saveStandard(form) {
 					case "version":
 						$(errorElement).appendTo($("#standard_form #standard_version").parent());
 						break;
-
 					case "description":
 						$(errorElement).appendTo($("#standard_form #standard_description").parent());
 						break;
-
-					case "standard":
-						$(errorElement).appendTo($("#standard_form .modal-body"));
-						break;
+					default:
+						showDialog("#alert-dialog",response[error]);
 				}
 				hasError = true;
 			}
@@ -148,12 +145,12 @@ function newStandard() {
 	$("#standard_label").prop("value", "");
 	$("#standard_version").prop("value", "");
 	$("#standard_description").prop("value", "");
-	$("#addStandardModel input[name='type'][value='NORMAL']").prop("checked", true);
-	$("#standard_computable").prop("checked", false);
+	$("#addStandardModel input[name='type'][value='NORMAL']").parent().button("toggle");
+	$("#standard_computable input[value='true']").parent().button("toggle");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.add", "Add a new Standard"));
 	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
-	$("#addStandardModel").modal('toggle');
+	$("#addStandardModel").modal('show');
 	return false;
 }
 
@@ -171,13 +168,13 @@ function editSingleStandard(idStandard) {
 	$("#standard_label").prop("value", $(rows[0]).text());
 	$("#standard_version").prop("value", $(rows[1]).text());
 	$("#standard_description").prop("value", $(rows[2]).text());
-	var standardtype = $($(rows[3])[0]).attr("data-trick-type");
-	$("#addStandardModel input[name='type'][value='" + standardtype + "']").prop("checked", "checked");
-	$("#standard_computable").prop("checked", $(rows[4]).attr("data-trick-computable") == 'Yes' ? "checked" : "");
+	var standardtype = $($(rows[3])[0]).attr("data-trick-type"), computable = $(rows[4]).attr("data-trick-computable") == 'Yes';
+	$("#addStandardModel input[name='type'][value='" + standardtype + "']").parent().button("toggle");
+	$("#standard_computable input[value='"+computable+"']").parent().button("toggle");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Standard"));
 	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
-	$("#addStandardModel").modal('toggle');
+	$("#addStandardModel").modal('show');
 	return false;
 }
 

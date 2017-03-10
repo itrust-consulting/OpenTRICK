@@ -731,6 +731,10 @@ img.support-logo+img.support-logo {
 	margin-left: 15px;
 }
 
+.customer-modal .modal-body{
+	padding: 5px 15px;
+}
+
 @media ( min-width : 992px) {
 	.max-height {
 		height: 100%;

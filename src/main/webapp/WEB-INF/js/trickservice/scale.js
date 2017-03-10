@@ -42,11 +42,8 @@ function processScaleTypeForm(response, textStatus, jqXHR) {
 	if (!$view.length)
 		showDialog("#info-dialog", MessageResolver("error.unknown.view.loading", "An unknown error occurred while loading view"));
 	else {
-		$view.appendTo("#dialog-body");
-
-		$view.on("hidden.bs.modal", function () {
-			$view.remove();
-		});
+		
+		/*generateHelper(undefined, */$view.appendTo("#dialog-body").modal("show").on("hidden.bs.modal", (e) => $view.remove())//);
 
 		var $submitButton = $("form>#scale_type_form_submit_button", $view), $acronym = $("input[name='acronym']", $view), $name = $("input[name='name']", $view), acronyms = [];
 
@@ -81,8 +78,6 @@ function processScaleTypeForm(response, textStatus, jqXHR) {
 		$("form", $view).on("submit", function (e) {
 			return saveScaleType($view, e.target);
 		});
-
-		$view.modal("show");
 	}
 }
 

@@ -6,7 +6,7 @@ $(document).ready(function() {
 		fixedOffset : $(".nav-tab"),
 		marginTop : application.fixedOffset
 	};
-	fixTableHeader("#tab-container table");
+	setTimeout(() => fixTableHeader("#tab-container table"), 300);
 });
 
 $(function() {

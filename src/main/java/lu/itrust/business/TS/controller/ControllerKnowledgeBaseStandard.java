@@ -947,7 +947,7 @@ public class ControllerKnowledgeBaseStandard {
 			String reference = jsonNode.get("reference").asText();
 
 			Integer level = null;
-			Boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
+			Boolean computable = jsonNode.get("computable").asBoolean(false);
 			try {
 				level = jsonNode.get("level").asInt();
 			} catch (Exception e) {
@@ -1124,7 +1124,7 @@ public class ControllerKnowledgeBaseStandard {
 				standard.setType(type);
 
 			// set computable flag
-			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
+			standard.setComputable(jsonNode.get("computable").asBoolean(false));
 
 			standard.setAnalysisOnly(false);
 

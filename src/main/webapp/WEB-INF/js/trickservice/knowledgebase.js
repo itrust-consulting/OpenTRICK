@@ -3,14 +3,12 @@ $(document).ready(function () {
 		fixedOffset: $(".nav-tab"),
 		marginTop: application.fixedOffset
 	};
-
-	fixTableHeader("#tab-container table");
-
-	$("input[type='checkbox']").removeAttr("checked");
+	
 	$("#section_kb_measure #languageselect").change(function () {
 		showMeasures($("#section_kb_measure").attr("data-standard-id"), $(this).val());
 	});
-
+	
+	setTimeout(() => fixTableHeader("#tab-container table"), 300);
 });
 
 function editSingleAnalysis(analysisId) {

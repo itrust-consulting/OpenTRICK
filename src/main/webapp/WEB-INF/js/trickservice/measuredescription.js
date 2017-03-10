@@ -81,8 +81,7 @@ function newMeasure(idStandard) {
 	$("#measure_id", $modal).prop("value", "-1");
 	$("#measure_reference", $modal).prop("value", "");
 	$("#measure_level", $modal).prop("value", "");
-	$("#measure_computable", $modal).prop("checked", "false");
-
+	$("#measure_computable input[value='true']", $modal).parent().button("toggle");
 	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
 	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));
@@ -103,7 +102,7 @@ function newMeasure(idStandard) {
 				});
 				$("#measurelanguageselect option[value='" + language + "']", $modal).prop("selected", true);
 				$("#measurelanguageselect", $modal).change();
-				$modal.modal("show");
+				generateHelper(undefined,$modal.modal("show"));
 			} else
 				unknowError();
 			return false;
@@ -133,7 +132,7 @@ function editSingleMeasure(measureId, idStandard) {
 	$("#measure_id", $modal).prop("value", measureId);
 	$("#measure_reference", $modal).prop("value", $(measure[1]).text());
 	$("#measure_level", $modal).prop("value", $(measure[0]).text());
-	$("#measure_computable", $modal).prop("checked", $(measure[4]).attr("data-trick-computable") == "true");
+	$("#measure_computable input[value='"+$(measure[4]).attr("data-trick-computable")+"']", $modal).parent().button("toggle");
 	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
 	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));
@@ -153,7 +152,7 @@ function editSingleMeasure(measureId, idStandard) {
 				});
 				$("#measurelanguageselect option[value='" + language + "']", $modal).prop("selected", true);
 				$("#measurelanguageselect", $modal).trigger("change");
-				$modal.modal("show");
+				generateHelper(undefined,$modal.modal("show"));
 			} else
 				unknowError();
 			return false;

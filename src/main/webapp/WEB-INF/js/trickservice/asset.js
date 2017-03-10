@@ -126,10 +126,9 @@ function editAsset(rowTrickId, isAdd) {
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
 				var $addAssetModal = $(new DOMParser().parseFromString(response, "text/html")).find("#addAssetModal");
-				if ($addAssetModal.length) {
-					$("#addAssetModal").replaceWith($addAssetModal);
-					$("#addAssetModal").modal("show");
-				} else
+				if ($addAssetModal.length)
+					$addAssetModal.appendTo("#widgets").modal("show").on("hidden.bs.modal", (e) => $addAssetModal.remove());
+				else
 					unknowError();
 				return false;
 			},

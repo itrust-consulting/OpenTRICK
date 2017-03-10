@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="scale" action="${pageContext.request.contextPath}/KnowledgeBase/ScaleType/Save" class="form-horizontal" id="scale_type_form" style="height: 360px;">
+				<form name="scale" action="${pageContext.request.contextPath}/KnowledgeBase/ScaleType/Save" class="form-horizontal" id="scale_type_form" style="height: 400px;">
 					<c:choose>
 						<c:when test="${empty scaleType}">
 							<input name="id" value="0" type="hidden">
@@ -26,34 +26,34 @@
 					</c:choose>
 
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scale.name" text="Name" />
+						<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scale_type.name" />' > <spring:message code="label.scale.name" text="Name" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="name" id="scale_type_name" style="text-transform:uppercase" class="form-control" value="${empty scaleType? '': scaleType.name }" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label for="acronym" class="col-sm-2 control-label"> <spring:message code="label.scale.acronym" text="Acronym" />
+						<label for="acronym" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scale_type.acronym" />' > <spring:message code="label.scale.acronym" text="Acronym" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="acronym" id="scale_type_acronym" class="form-control" value="${empty scaleType? '': scaleType.acronym}" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
 						</div>
 					</div>
 					
-					<fieldset style="height: 180px; overflow-y: auto; overflow-x: hidden;">
-						<legend>
+					<fieldset style="height: 330px; overflow-y: auto; overflow-x: hidden;">
+						<legend data-helper-content='<spring:message code="help.scale_type.translations" />'>
 							<spring:message code="label.scale.translations" text="Translations" />
 						</legend>
 						<c:forEach items="${languages}" var="language">
 							<c:set var="alpha2" value="${language.alpha2}" />
 							<div class="form-group">
-								<label for="translations['${alpha2}']" class="col-sm-2 control-label"> <spring:message text="${locale == fn:toLowerCase(alpha2)? language.name : language.altName}" />
+								<label for="translations['${alpha2}']" class="col-sm-3 control-label"> <spring:message text="${locale == fn:toLowerCase(alpha2)? language.name : language.altName}" />
 								</label>
 								<div class="col-sm-5">
 									<input name="translations['${alpha2}'].name" id="scale_type_translations_${alpha2}_name" class="form-control" value="${empty scaleType? '': scaleType.translations[alpha2].name}" required="required" placeholder='<spring:message code='label.translation'/>' />
 								</div>
-								<div class="col-sm-5">
+								<div class="col-sm-4">
 									<input name="translations['${alpha2}'].shortName" id="scale_type_translations_${alpha2}_shortName" class="form-control" value="${empty scaleType? '': scaleType.translations[alpha2].shortName}" placeholder='<spring:message code='label.translation.short'/>' required="required" />
 								</div>
 							</div>

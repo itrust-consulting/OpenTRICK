@@ -138,7 +138,8 @@ function importStandard(e) {
 								if ($tableStandard.find("tr[data-trick-id='" + $tr.attr("data-trick-id") + "']").length)
 									$tr.remove();
 								else
-									$tr.appendTo($tableStandard.find("tbody")).find("td").show();
+									$tr.appendTo($tableStandard.find("tbody")).find("td:hidden").show();
+								$tr.on("click",(e) => {selectElement(e.currentTarget);});
 								application["standard-change"] = true;
 							}
 						},

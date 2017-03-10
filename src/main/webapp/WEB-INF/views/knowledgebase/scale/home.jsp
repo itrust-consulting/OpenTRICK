@@ -13,9 +13,9 @@
 	<div class='section row' id='section_kb_scale_type'>
 		<ul class="nav nav-pills bordered-bottom" id="menu_kb_scale_type" style="margin-bottom: 10px;">
 			<li><a href="#tab_kb_scale_type" onclick="return addScaleType()"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
-			<li class="disabled" data-trick-selectable="true"><a href="#tab_kb_scale_type" onclick="editScaleType()"><span class="glyphicon glyphicon-edit"></span> <spring:message
+			<li class="disabled" data-trick-selectable="true"><a href="#tab_kb_scale_type" onclick="return editScaleType()"><span class="glyphicon glyphicon-edit"></span> <spring:message
 						code="label.action.edit" /> </a></li>
-			<li class="disabled pull-right" data-trick-selectable="multi"><a href="#tab_kb_scale_type" onclick="deleteScaleType()" class="text-danger"><span
+			<li class="disabled pull-right" data-trick-selectable="multi"><a href="#tab_kb_scale_type" onclick="return deleteScaleType()" class="text-danger"><span
 					class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /> </a></li>
 		</ul>
 		<table class="table table-hover">

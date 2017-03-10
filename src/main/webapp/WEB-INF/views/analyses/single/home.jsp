@@ -116,6 +116,7 @@
 		application['actionPlanType']  = "${show_uncertainty? 'APPO,APPN,APPP' : 'APPN'}".split(',');
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");
+		resolveMessage("info.leave.page.in_mode_editing", "<spring:message code='info.leave.page.in_mode_editing' />");
 		-->
 	</script>
 </body>

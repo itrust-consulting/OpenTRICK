@@ -567,6 +567,6 @@ public class ControllerScenario {
 		model.addAttribute("type", type);
 		model.addAttribute("assetTypeValues", assetTypeValues);
 		model.addAttribute("assetValues", assetValues);
-		return "analyses/single/components/scenario/manageScenario";
+		return "analyses/single/components/scenario/form";
 	}
 }

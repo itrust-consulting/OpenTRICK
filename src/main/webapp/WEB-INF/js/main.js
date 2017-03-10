@@ -10,6 +10,7 @@ function Application() {
 	this.localesMessages = {};
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
+	this.editingModeFroceAbort = false;
 	this.analysisType = '';
 	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	this.timeoutSetting = {
@@ -252,6 +253,20 @@ function showStaticNotifcation(type, message, icon, url, title) {
 		placement : application.notification.placement,
 		delay : -1
 	});
+}
+
+function onElementInserted(elementClass, callback) {
+    var onMutationsObserved = function(mutations) {
+        mutations.forEach(function(mutation) {
+           for (var i = 0; i < mutation.addedNodes.length; i++) {
+        	   var element = mutation.addedNodes[i];
+        	   if(element.classList && element.classList.contains(elementClass))
+           			callback(element);
+           }
+        });
+    };
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+    new MutationObserver(onMutationsObserved).observe(document, { childList: true, subtree: true });
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
@@ -877,12 +892,12 @@ function generateHelper($selection, container) {
 	$selection
 			.each(function() {
 				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");
+				$this.removeAttr("data-helper-content");
 				if (title == "" || title == undefined) {
 					title = $this.attr("title");
 					if (title == "" || title == undefined)
 						return false;
 				}
-
 				if (placement == undefined || placement == "")
 					placement = "auto right";
 
@@ -941,54 +956,6 @@ $(document)
 								}
 							});
 
-					// prevent perform click while a menu is disabled
-					$("ul.nav li>a").on("click", function(e) {
-						if ($(e.currentTarget).parent().hasClass("disabled"))
-							e.preventDefault();
-					});
-
-					// prevent perform click while a menu is disabled
-					$("ul.nav li").on("click", function(e) {
-						if ($(e.currentTarget).hasClass("disabled"))
-							e.stopPropagation();
-					});
-
-					// prevent unknown error modal display
-					$window.bind("beforeunload", function() {
-						application["isReloading"] = true;
-					});
-
-					$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-						var $target = $(e.currentTarget);
-						if ($target.find("li.active").length && !$target.hasClass("active"))
-							$target.addClass("active");
-					});
-
-					$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-						var $parent = $(e.target).closest("li.dropdown-submenu");
-						if (!$parent.hasClass("active"))
-							$parent.addClass("active");
-					});
-
-					$("a[data-toggle='taskmanager']").on("click", function(e) { // task
-						// manager
-						var taksmanager = application['taskManager'];
-						if (taksmanager.isEmpty())
-							return false;
-						var $target = $(e.currentTarget), $parent = $target.parent();
-						if ($parent.hasClass("open"))
-							taksmanager.Hide();
-						else
-							taksmanager.Show();
-					});
-
-					$('#confirm-dialog').on('hidden.bs.modal', function() {
-						$("#confirm-dialog .btn-danger").unbind("click");
-					});
-
-					$('#alert-dialog').on('hidden.bs.modal', function() {
-						$("#alert-dialog .btn-danger").unbind("click");
-					});
 
 					if ($tabNav.length) {
 
@@ -1053,6 +1020,50 @@ $(document)
 							});
 						}
 
+					
+						// prevent perform click while a menu is disabled
+						$("ul.nav li>a").on("click", function(e) {
+							if ($(e.currentTarget).parent().hasClass("disabled"))
+								e.preventDefault();
+						});
+
+						// prevent perform click while a menu is disabled
+						$("ul.nav li").on("click", function(e) {
+							if ($(e.currentTarget).hasClass("disabled"))
+								e.stopPropagation();
+						});
+
+						// prevent unknown error modal display
+						$window.bind("beforeunload", function() {
+							application["isReloading"] = true;
+						});
+
+						$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+							var $target = $(e.currentTarget);
+							if ($target.find("li.active").length && !$target.hasClass("active"))
+								$target.addClass("active");
+						});
+
+						$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+							var $parent = $(e.target).closest("li.dropdown-submenu");
+							if (!$parent.hasClass("active"))
+								$parent.addClass("active");
+						});
+
+						$("a[data-toggle='taskmanager']").on("click", function(e) { // task
+							// manager
+							var taksmanager = application['taskManager'];
+							if (taksmanager.isEmpty())
+								return false;
+							var $target = $(e.currentTarget), $parent = $target.parent();
+							if ($parent.hasClass("open"))
+								taksmanager.Hide();
+							else
+								taksmanager.Show();
+						});
+
+						
+						
 						$window.on('hashchange', function() {
 							var hash = window.location.hash;
 							application["no-update-hash"] = true;
@@ -1066,7 +1077,14 @@ $(document)
 								scrollTop : 0
 							}, 20);
 						}
-
+						
+						$('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
+						
+						$window.keydown(function(e) {
+							if (e.keyCode == 27)
+								forceCloseToolTips();
+						});
+				
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
 
 							forceCloseToolTips();
@@ -1086,14 +1104,19 @@ $(document)
 								window.location.hash = $target.attr("id");
 						});
 					}
+					
+					$('#confirm-dialog').on('hidden.bs.modal', function() {
+						$("#confirm-dialog .btn-danger").unbind("click");
+					});
 
-					$('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
-
-					$window.keydown(function(e) {
-						if (e.keyCode == 27)
-							forceCloseToolTips();
+					$('#alert-dialog').on('hidden.bs.modal', function() {
+						$("#alert-dialog .btn-danger").unbind("click");
 					});
 
 					if (window.location.hash != undefined)
 						$('a[data-toggle="tab"][href="' + window.location.hash + '"]', $tabNav).trigger("shown.bs.tab");
+					
+					setTimeout(() => generateHelper(), 100);
+					
+					onElementInserted("modal",(element) => generateHelper(undefined, element));
 				});

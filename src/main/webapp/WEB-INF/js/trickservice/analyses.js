@@ -5,7 +5,7 @@ $(document).ready(function () {
 		fixedOffset: $(".navbar-fixed-top"),
 		scrollStartFixMulti: 1.02
 	};
-	fixTableHeader("#section_analysis table");
+	setTimeout(() => fixTableHeader("#section_analysis table"), 300);
 });
 
 function manageAnalysisAccess(analysisId, section_analysis) {
@@ -344,11 +344,7 @@ function customAnalysis(element) {
 						"label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector = $("#selector-analysis",
 							$modalBody), $impacts = $("select[name='impacts']", $modalBody), $impactValue = $("input#scale_level", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2"), $qualitativeSection = $(
 								"#analysis_qualitative", $modalBody);
-
-					generateHelper($("[data-helper-content]", $modalBody), "#buildAnalysisModal");
-
 					// load data from database and manage caching
-
 					analysesCaching = {
 						versions: {},
 						identifiers: {},

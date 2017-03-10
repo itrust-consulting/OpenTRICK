@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewCustomer" data-aria-hidden="true">
-	<div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-lg customer-modal">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -19,28 +19,28 @@
 						<legend><spring:message code='label.contact' text='Contact'/></legend>
 						<input type="hidden" name="id" value="-1" id="customer_id">
 						<div class="form-group">
-							<label for="organisation" class="col-sm-3 control-label"> <spring:message code="label.customer.organisation" text="Company" />
+							<label for="organisation" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.organisation" />' > <spring:message code="label.customer.organisation" text="Company" />
 							</label>
 							<div class="col-sm-9">
 								<input name="organisation" id="customer_organisation" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="contactPerson" class="col-sm-3 control-label"> <spring:message code="label.customer.contact_person" text="Contact person" />
+							<label for="contactPerson" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.contact_person" />' > <spring:message code="label.customer.contact_person" text="Contact person" />
 							</label>
 							<div class="col-sm-9">
 								<input name="contactPerson" id="customer_contactPerson" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="phoneNumber" class="col-sm-3 control-label"> <spring:message code="label.customer.phone_number" text="Phone number" />
+							<label for="phoneNumber" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.phone_number" />' > <spring:message code="label.customer.phone_number" text="Phone number" />
 							</label>
 							<div class="col-sm-9">
 								<input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="email" class="col-sm-3 control-label"> <spring:message code="label.customer.email" text="Email address" />
+							<label for="email" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.email" />' > <spring:message code="label.customer.email" text="Email address" />
 							</label>
 							<div class="col-sm-9">
 								<input name="email" id="customer_email" class="form-control" type="text" />
@@ -50,28 +50,28 @@
 					<fieldset>
 						<legend><spring:message code="label.address" text="Address"/></legend>
 						<div class="form-group">
-							<label for="address" class="col-sm-3 control-label"> <spring:message code="label.customer.address" text="Address" />
+							<label for="address" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.address" />' > <spring:message code="label.customer.address" text="Address" />
 							</label>
 							<div class="col-sm-9">
 								<input name="address" id="customer_address" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="ZIPCode" class="col-sm-3 control-label"> <spring:message code="label.customer.zip_code" text="Zip code" />
+							<label for="ZIPCode" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.zip_code" />' > <spring:message code="label.customer.zip_code" text="Zip code" />
 							</label>
 							<div class="col-sm-9">
 								<input name="ZIPCode" id="customer_ZIPCode" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="city" class="col-sm-3 control-label"> <spring:message code="label.customer.city" text="City" />
+							<label for="city" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.city" />' > <spring:message code="label.customer.city" text="City" />
 							</label>
 							<div class="col-sm-9">
 								<input name="city" id="customer_city" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="country" class="col-sm-3 control-label"> <spring:message code="label.customer.country" text="Country" />
+							<label for="country" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.country" />' > <spring:message code="label.customer.country" text="Country" />
 							</label>
 							<div class="col-sm-9">
 								<input name="country" id="customer_country" class="form-control" type="text" />

@@ -11,9 +11,9 @@
 			<th><spring:message code="label.norm.label" /></th>
 			<th><spring:message code="label.norm.version" /></th>
 			<th colspan="3"><spring:message code="label.norm.description" /></th>
-			<th><spring:message code="label.norm.computable" /></th>
-			<th><spring:message code="label.norm.type" /></th>
-			<th><spring:message code="label.actions" /></th>
+			<th class="text-center"><spring:message code="label.norm.computable" /></th>
+			<th class="text-center"><spring:message code="label.norm.type" /></th>
+			<th class="text-center" ><spring:message code="label.actions" /></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -24,9 +24,9 @@
 				<td><spring:message text="${standard.label}" /></td>
 				<td><spring:message text="${standard.version}" /></td>
 				<td colspan="3"><spring:message text="${standard.description}" /></td>
-				<td style="text-align: center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
-				<td style="text-align: center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
-				<td hidden="hidden" style="text-align: center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>
+				<td class="text-center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
+				<td class="text-center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
+				<td hidden="hidden" class="text-center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>
 				<td class="text-center"><button class="btn btn-xs btn-primary"><i class="fa fa-plus-circle"></i></button></td>
 			</tr>
 		</c:forEach>
