@@ -37,21 +37,6 @@ import lu.itrust.business.TS.model.general.Customer;
 @Entity
 public class User implements Serializable, IUser {
 
-	@Transient
-	private static final String DEFAULT_LANGUAGE = "default-language";
-
-	@Transient
-	public static final String LDAP_KEY_PASSWORD = "!-_-!LDAP connexion is required.!-_-!";
-
-	@Transient
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Authorise Only Standard connexion
-	 */
-	@Transient
-	public static final int STANDARD_CONNEXION = -1;
-
 	/**
 	 * Authorise ALL Connexion type
 	 */
@@ -64,12 +49,55 @@ public class User implements Serializable, IUser {
 	@Transient
 	public static final int LADP_CONNEXION = 1;
 
+	@Transient
+	public static final String LDAP_KEY_PASSWORD = "!-_-!LDAP connexion is required.!-_-!";
+
+	/**
+	 * Authorise Only Standard connexion
+	 */
+	@Transient
+	public static final int STANDARD_CONNEXION = -1;
+
+	@Transient
+	private static final String DEFAULT_LANGUAGE = "default-language";
+
+	@Transient
+	private static final long serialVersionUID = 1L;
+
+	private static final String USER_2_FACTOR_SECRET = "user-2-factor-secret";
+
+	private static final String USER_USING_2_FACTOR_AUTHENTICATION = "user-using-2-factor-authentication";
+
+	@Column(name = "dtConnexionType", nullable = false)
+	private int connexionType = BOTH_CONNEXION;
+
+	@ManyToMany
+	@JoinTable(name = "UserCustomer", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
+			@JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiCustomer" }))
+	@Cascade(CascadeType.ALL)
+	private List<Customer> customers = null;
+
+	@Column(name = "dtEmail", nullable = false, unique = true)
+	private String email = null;
+
+	@Column(name = "dtEnabled", nullable = false)
+	private boolean enable = true;
+
+	@Column(name = "dtFirstName", nullable = false)
+	private String firstName = null;
+
 	/** Fields */
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idUser", length = 12)
 	private Integer id = -1;
+
+	@Column(name = "dtLastName", nullable = false)
+	private String lastName = null;
+
+	@Column(name = "dtLocale", nullable = false)
+	private String locale = "en";
 
 	@Column(name = "dtLogin", nullable = false, unique = true)
 	private String login = null;
@@ -80,31 +108,10 @@ public class User implements Serializable, IUser {
 	@Transient
 	private String repeatPassword = null;
 
-	@Column(name = "dtFirstName", nullable = false)
-	private String firstName = null;
-
-	@Column(name = "dtLastName", nullable = false)
-	private String lastName = null;
-
-	@Column(name = "dtEmail", nullable = false, unique = true)
-	private String email = null;
-
-	@Column(name = "dtEnabled", nullable = false)
-	private boolean enable = true;
-
 	@ManyToMany
 	@JoinTable(name = "UserRole", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
 			@JoinColumn(name = "fiRole", nullable = false, updatable = false) })
 	private List<Role> roles = null;
-
-	@ManyToMany
-	@JoinTable(name = "UserCustomer", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
-			@JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiCustomer" }))
-	@Cascade(CascadeType.ALL)
-	private List<Customer> customers = null;
-
-	@Column(name = "dtLocale", nullable = false)
-	private String locale = "en";
 
 	@ElementCollection
 	@MapKeyColumn(name = "dtName")
@@ -112,26 +119,6 @@ public class User implements Serializable, IUser {
 	@Cascade(CascadeType.ALL)
 	@CollectionTable(name = "UserSetting", joinColumns = @JoinColumn(name = "fiUser"))
 	private Map<String, String> userSettings = new HashMap<String, String>();
-
-	@Column(name = "dtConnexionType", nullable = false)
-	private int connexionType = BOTH_CONNEXION;
-
-	/**
-	 * Constructor: <br>
-	 * 
-	 * @param login
-	 * @param password
-	 * @param firstName
-	 * @param lastName
-	 * @param email
-	 */
-	public User(String login, String password, String firstName, String lastName, String email) {
-		this.login = login;
-		this.password = password;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.email = email;
-	}
 
 	/**
 	 * Constructor: <br>
@@ -153,180 +140,33 @@ public class User implements Serializable, IUser {
 	}
 
 	/**
-	 * getId: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public Integer getId() {
-		return id;
-	}
-
-	/**
-	 * setId: <br>
-	 * Description
-	 * 
-	 * @param id
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.usermanagement.IUser#getLogin()
-	 */
-	@Override
-	public String getLogin() {
-		return login;
-	}
-
-	/**
-	 * setLogin: <br>
-	 * Description
+	 * Constructor: <br>
 	 * 
 	 * @param login
-	 */
-	public void setLogin(String login) {
-		this.login = login;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.usermanagement.IUser#getPassword()
-	 */
-	@Override
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * setPassword: <br>
-	 * Description
-	 * 
 	 * @param password
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	/**
-	 * getFirstName: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public String getFirstName() {
-		return firstName;
-	}
-
-	/**
-	 * setFirstName: <br>
-	 * Description
-	 * 
 	 * @param firstName
-	 */
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	/**
-	 * getLastName: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public String getLastName() {
-		return lastName;
-	}
-
-	/**
-	 * setLastName: <br>
-	 * Description
-	 * 
 	 * @param lastName
-	 */
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	/**
-	 * getEmail: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public String getEmail() {
-		return email;
-	}
-
-	/**
-	 * setEmail: <br>
-	 * Description
-	 * 
 	 * @param email
 	 */
-	public void setEmail(String email) {
+	public User(String login, String password, String firstName, String lastName, String email) {
+		this.login = login;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.email = email;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.usermanagement.IUser#isEnable()
-	 */
-	@Override
-	public boolean isEnable() {
-		return enable;
-	}
-
 	/**
-	 * setEnable: <br>
+	 * addCustomer: <br>
 	 * Description
 	 * 
-	 * @param enable
-	 */
-	public void setEnable(boolean enable) {
-		this.enable = enable;
-	}
-
-	/**
-	 * disable: <br>
-	 * Removes all accounts and disables it.
-	 * 
-	 */
-	public void disable() {
-		enable = !clearRole();
-	}
-
-	private boolean clearRole() {
-		if (roles == null)
-			return true;
-		else
-			roles.clear();
-		return roles.isEmpty();
-	}
-
-	/**
-	 * getRoles: <br>
-	 * Description
-	 * 
+	 * @param arg0
 	 * @return
 	 */
-	public List<Role> getRoles() {
-		return roles;
-	}
-
-	/**
-	 * setRoles: <br>
-	 * Description
-	 * 
-	 * @param roles
-	 */
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
+	public boolean addCustomer(Customer customer) {
+		if (!containsCustomer(customer))
+			return customers.add(customer);
+		return true;
 	}
 
 	/**
@@ -350,6 +190,17 @@ public class User implements Serializable, IUser {
 	}
 
 	/**
+	 * containsCustomer: <br>
+	 * Description
+	 * 
+	 * @param arg0
+	 * @return
+	 */
+	public boolean containsCustomer(Customer customer) {
+		return customers.contains(customer);
+	}
+
+	/**
 	 * containsRole: <br>
 	 * Description
 	 * 
@@ -361,16 +212,100 @@ public class User implements Serializable, IUser {
 	}
 
 	/**
-	 * getRole: <br>
+	 * disable: <br>
+	 * Removes all accounts and disables it.
+	 * 
+	 */
+	public void disable() {
+		enable = !clearRole();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getAccess()
+	 */
+	@Override
+	public RoleType getAccess() {
+		RoleType[] roleTypes = RoleType.values();
+		for (int i = roleTypes.length - 1; i >= 0; i--) {
+			if (hasRole(roleTypes[i]))
+				return roleTypes[i];
+		}
+		return null;
+	}
+
+	/**
+	 * @return the connexionType
+	 */
+	public int getConnexionType() {
+		return connexionType;
+	}
+
+	/**
+	 * @return the customers
+	 */
+	public List<Customer> getCustomers() {
+		return customers;
+	}
+
+	/**
+	 * getEmail: <br>
 	 * Description
 	 * 
-	 * @param role
 	 * @return
 	 */
-	public Role getRole(Role role) {
-		if (roles == null)
+	public String getEmail() {
+		return email;
+	}
+
+	/**
+	 * getFirstName: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public String getFirstName() {
+		return firstName;
+	}
+
+	/**
+	 * return {@value User#firstName} +" "+ {@value #lastName}
+	 */
+	@Override
+	public String getFullname() {
+		return (firstName == null ? "" : firstName + " ") + (lastName == null ? "" : lastName);
+	}
+
+	/**
+	 * getId: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public Integer getId() {
+		return id;
+	}
+
+	public Integer getInteger(String name) {
+		try {
+			String value = getSetting(name);
+			if (value == null)
+				return null;
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
 			return null;
-		return roles.get(roles.indexOf(role));
+		}
+	}
+
+	/**
+	 * getLastName: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public String getLastName() {
+		return lastName;
 	}
 
 	/**
@@ -390,24 +325,91 @@ public class User implements Serializable, IUser {
 		return new Locale(getLocale());
 	}
 
-	/**
-	 * setLocale: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param locale
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getLogin()
 	 */
-	public void setLocale(String locale) {
-		setSetting(DEFAULT_LANGUAGE, locale);
+	@Override
+	public String getLogin() {
+		return login;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getPassword()
+	 */
+	@Override
+	public String getPassword() {
+		return password;
 	}
 
 	/**
-	 * setLocaleObject: <br>
+	 * @return the repeatPassword
+	 */
+	public String getRepeatPassword() {
+		return repeatPassword;
+	}
+
+	/**
+	 * getRole: <br>
 	 * Description
 	 * 
-	 * @param locale
+	 * @param role
+	 * @return
 	 */
-	public void setLocaleObject(Locale locale) {
-		setLocale(locale.getISO3Language().substring(0, 2));
+	public Role getRole(Role role) {
+		if (roles == null)
+			return null;
+		return roles.get(roles.indexOf(role));
+	}
+
+	/**
+	 * getRoles: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<Role> getRoles() {
+		return roles;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getScrete()
+	 */
+	@Override
+	public String getSecret() {
+		return getUserSettings().get(User.USER_2_FACTOR_SECRET);
+	}
+
+	public String getSetting(String name) {
+		return this.userSettings.get(name);
+	}
+
+	public Map<String, String> getUserSettings() {
+		return userSettings;
+	}
+
+	public boolean hasRole(Role role) {
+		return role == null || roles == null || roles.isEmpty() ? false : roles.contains(role);
+	}
+
+	/**
+	 * hasRole: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
+	public boolean hasRole(RoleType roleType) {
+		if (roles == null || roleType == null)
+			return false;
+		for (Role role : roles) {
+			if (role.getType().equals(roleType))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -441,6 +443,37 @@ public class User implements Serializable, IUser {
 		return isAutorised(RoleType.valueOf(role));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.usermanagement.IUser#isEnable()
+	 */
+	@Override
+	public boolean isEnable() {
+		return enable;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.usermanagement.IUser#isUsing2FA()
+	 */
+	@Override
+	public boolean isUsing2FA() {
+		return Boolean.valueOf(getSetting(User.USER_USING_2_FACTOR_AUTHENTICATION));
+	}
+
+	/**
+	 * removeCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	public boolean removeCustomer(Customer customer) {
+		if (customers.contains(customer))
+			return customers.remove(customer);
+		return true;
+	}
+
 	/**
 	 * removeRole: <br>
 	 * Description
@@ -460,82 +493,8 @@ public class User implements Serializable, IUser {
 		return role;
 	}
 
-	/**
-	 * @return the repeatPassword
-	 */
-	public String getRepeatPassword() {
-		return repeatPassword;
-	}
-
-	/**
-	 * @param repeatPassword
-	 *            the repeatPassword to set
-	 */
-	public void setRepeatPassword(String repeatPassword) {
-		this.repeatPassword = repeatPassword;
-	}
-
-	/**
-	 * hasRole: <br>
-	 * Description
-	 * 
-	 * @param role
-	 * @return
-	 */
-	public boolean hasRole(RoleType roleType) {
-		if (roles == null || roleType == null)
-			return false;
-		for (Role role : roles) {
-			if (role.getType().equals(roleType))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @return the customers
-	 */
-	public List<Customer> getCustomers() {
-		return customers;
-	}
-
-	/**
-	 * @param customers
-	 *            the customers to set
-	 */
-	public void setCustomers(List<Customer> customers) {
-		this.customers = customers;
-	}
-
-	/**
-	 * addCustomer: <br>
-	 * Description
-	 * 
-	 * @param arg0
-	 * @return
-	 */
-	public boolean addCustomer(Customer customer) {
-		if (!containsCustomer(customer))
-			return customers.add(customer);
-		return true;
-	}
-
-	/**
-	 * containsCustomer: <br>
-	 * Description
-	 * 
-	 * @param arg0
-	 * @return
-	 */
-	public boolean containsCustomer(Customer customer) {
-		return customers.contains(customer);
-	}
-
-	/**
-	 * @return the connexionType
-	 */
-	public int getConnexionType() {
-		return connexionType;
+	public String removeSetting(String name) {
+		return userSettings.remove(name);
 	}
 
 	/**
@@ -547,39 +506,123 @@ public class User implements Serializable, IUser {
 	}
 
 	/**
-	 * removeCustomer: <br>
+	 * @param customers
+	 *            the customers to set
+	 */
+	public void setCustomers(List<Customer> customers) {
+		this.customers = customers;
+	}
+
+	/**
+	 * setEmail: <br>
 	 * Description
 	 * 
-	 * @param customer
-	 * @return
+	 * @param email
 	 */
-	public boolean removeCustomer(Customer customer) {
-		if (customers.contains(customer))
-			return customers.remove(customer);
-		return true;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
-	public Map<String, String> getUserSettings() {
-		return userSettings;
+	/**
+	 * setEnable: <br>
+	 * Description
+	 * 
+	 * @param enable
+	 */
+	public void setEnable(boolean enable) {
+		this.enable = enable;
 	}
 
-	public void setUserSettings(Map<String, String> userSettings) {
-		this.userSettings = userSettings;
+	/**
+	 * setFirstName: <br>
+	 * Description
+	 * 
+	 * @param firstName
+	 */
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
-	public String getSetting(String name) {
-		return this.userSettings.get(name);
+	/**
+	 * setId: <br>
+	 * Description
+	 * 
+	 * @param id
+	 */
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	public Integer getInteger(String name) {
-		try {
-			String value = getSetting(name);
-			if (value == null)
-				return null;
-			return Integer.parseInt(value);
-		} catch (NumberFormatException e) {
-			return null;
-		}
+	/**
+	 * setLastName: <br>
+	 * Description
+	 * 
+	 * @param lastName
+	 */
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	/**
+	 * setLocale: <br>
+	 * Description
+	 * 
+	 * @param locale
+	 */
+	public void setLocale(String locale) {
+		setSetting(DEFAULT_LANGUAGE, locale);
+	}
+
+	/**
+	 * setLocaleObject: <br>
+	 * Description
+	 * 
+	 * @param locale
+	 */
+	public void setLocaleObject(Locale locale) {
+		setLocale(locale.getISO3Language().substring(0, 2));
+	}
+
+	/**
+	 * setLogin: <br>
+	 * Description
+	 * 
+	 * @param login
+	 */
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	/**
+	 * setPassword: <br>
+	 * Description
+	 * 
+	 * @param password
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	/**
+	 * @param repeatPassword
+	 *            the repeatPassword to set
+	 */
+	public void setRepeatPassword(String repeatPassword) {
+		this.repeatPassword = repeatPassword;
+	}
+
+	/**
+	 * setRoles: <br>
+	 * Description
+	 * 
+	 * @param roles
+	 */
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+
+	public void setSecret(String secret){
+		setSetting(USER_2_FACTOR_SECRET, secret);
 	}
 
 	public void setSetting(String name, Object value) {
@@ -590,36 +633,23 @@ public class User implements Serializable, IUser {
 		else
 			this.userSettings.put(name, String.valueOf(value));
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.usermanagement.IUser#getAccess()
-	 */
-	@Override
-	public RoleType getAccess() {
-		RoleType[] roleTypes = RoleType.values();
-		for (int i = roleTypes.length - 1; i >= 0; i--) {
-			if (hasRole(roleTypes[i]))
-				return roleTypes[i];
-		}
-		return null;
+	
+	public void setUserSettings(Map<String, String> userSettings) {
+		this.userSettings = userSettings;
 	}
 
-	public boolean hasRole(Role role) {
-		return role == null || roles == null || roles.isEmpty() ? false : roles.contains(role);
+	public void setUsing2FA(boolean using2FA){
+		setSetting(USER_USING_2_FACTOR_AUTHENTICATION, using2FA);
 	}
-
-	public String removeSetting(String name) {
-		return userSettings.remove(name);
+	
+	private boolean clearRole() {
+		if (roles == null)
+			return true;
+		else
+			roles.clear();
+		return roles.isEmpty();
 	}
-
-	/**
-	 * return {@value User#firstName} +" "+ {@value #lastName}
-	 */
-	@Override
-	public String getFullname() {
-		return (firstName == null ? "" : firstName + " ") + (lastName == null ? "" : lastName);
-	}
+	
+	
 
 }

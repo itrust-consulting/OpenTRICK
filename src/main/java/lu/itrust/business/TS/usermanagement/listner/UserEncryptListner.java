@@ -27,7 +27,7 @@ import lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHel
  * @author eomar
  *
  */
-public class UserEncryptListner implements PostLoadEventListener, PreUpdateEventListener, PreInsertEventListener,PreCollectionUpdateEventListener {
+public class UserEncryptListner implements PostLoadEventListener, PreUpdateEventListener, PreInsertEventListener, PreCollectionUpdateEventListener {
 
 	/**
 	 * 
@@ -37,11 +37,31 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 	@PrePersist
 	@PreUpdate
 	public void encrypt(User user) {
+		encryptTicketingSystem(user);
+		encrypt2FASecrete(user);
+	}
+
+	private void encrypt2FASecrete(User user) {
 		try {
-			if (!isEncrypted(user))
+			if (!(user.isUsing2FA() && is2FASecreteEncrypted(user)))
+				return;
+			String password = user.getSecret();
+			if (StringUtils.isEmpty(password))
+				return;
+			EncryptedPassword encryptedPassword = PasswordEncryptionHelper.encrypt(password, user.getLogin());
+			user.setSecret(encryptedPassword.getEncryption());
+			user.setSetting(Constant.USER_IV_2_FACTOR_SECRET, encryptedPassword.getIv());
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+	}
+
+	private void encryptTicketingSystem(User user) {
+		try {
+			if (!isTicketingSystemEncrypted(user))
 				return;
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
-			if(StringUtils.isEmpty(username))
+			if (StringUtils.isEmpty(username))
 				return;
 			EncryptedPassword encryptedPassword = PasswordEncryptionHelper.encrypt(password, username);
 			user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, encryptedPassword.getEncryption());
@@ -53,18 +73,47 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 
 	@PostLoad
 	public void decrypt(User user) {
+		decryptTicketingSystem(user);
+		decrypt2FASecrete(user);
+
+	}
+
+	private void decrypt2FASecrete(User user) {
 		try {
-			String iv = user.removeSetting(Constant.USER_TICKETING_SYSTEM_IV);
-			if (!StringUtils.isEmpty(iv)) {
-				String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
-				user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, PasswordEncryptionHelper.decrypt(password, username, iv));
-			}
+			String iv = user.removeSetting(Constant.USER_IV_2_FACTOR_SECRET);
+			if (!StringUtils.isEmpty(iv))
+				user.setSecret(PasswordEncryptionHelper.decrypt(user.getLogin(), user.getSecret(), iv));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
 	}
 
-	private boolean isEncrypted(User user) {
+	private void decryptTicketingSystem(User user) {
+		try {
+			String iv = user.removeSetting(Constant.USER_TICKETING_SYSTEM_IV);
+			if (!StringUtils.isEmpty(iv))
+				user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD,
+						PasswordEncryptionHelper.decrypt(user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD), user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), iv));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+	}
+
+	private boolean is2FASecreteEncrypted(User user) {
+		try {
+			String iv = user.getSetting(Constant.USER_IV_2_FACTOR_SECRET);
+			if (StringUtils.isEmpty(iv))
+				return true;
+			PasswordEncryptionHelper.decrypt(user.getLogin(), user.getSecret(), iv);
+			return true;
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return false;
+		}
+
+	}
+
+	private boolean isTicketingSystemEncrypted(User user) {
 		try {
 			String iv = user.getSetting(Constant.USER_TICKETING_SYSTEM_IV);
 			if (StringUtils.isEmpty(iv))
@@ -76,7 +125,6 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 			TrickLogManager.Persist(e);
 			return false;
 		}
-
 	}
 
 	@Override
@@ -101,9 +149,9 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 
 	@Override
 	public void onPreUpdateCollection(PreCollectionUpdateEvent event) {
-		if(event.getAffectedOwnerOrNull() instanceof User)
+		if (event.getAffectedOwnerOrNull() instanceof User)
 			encrypt((User) event.getAffectedOwnerOrNull());
-			
+
 	}
 
 }

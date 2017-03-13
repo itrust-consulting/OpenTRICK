@@ -38,9 +38,13 @@ public class Constant {
 
 	/** Role at least consultant */
 	public static final String ROLE_MIN_CONSULTANT = "hasAnyRole('ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
-
+	
 	/** Role supervisor */
 	public static final String ROLE_MIN_ADMIN = "hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')";
+	
+	public static final String ROLE_OTP_ONLY = "hasRole('ROLE_PRE_AUTHEN')";
+	
+	public static final String ROLE_OTP_NAME = "ROLE_PRE_AUTHEN";
 
 	public static final String SETTING_DEFAULT_SHOW_UNCERTAINTY = "DEFAULT_SHOW_UNCERTAINTY";
 
@@ -637,6 +641,8 @@ public class Constant {
 	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-credential-password";
 
 	public static final String USER_TICKETING_SYSTEM_IV = "user-titcketing-credential-iv";
+	
+	public static final String USER_IV_2_FACTOR_SECRET = "user-iv-2-factor-secret";
 
 	/*
 	 * *************************************************************************

@@ -25,6 +25,22 @@ public interface IUser {
 	 * @return
 	 */
 	boolean isEnable();
+	
+	/**
+	 * Retrieve 2 factor secrete
+	 * @return secrete
+	 */
+	default String getSecret(){
+		return null;
+	}
+	
+	/**
+	 * User enable two factor authentication
+	 * @return using2FA
+	 */
+	default boolean isUsing2FA(){
+		return false;
+	}
 
 	/**
 	 * @return Right

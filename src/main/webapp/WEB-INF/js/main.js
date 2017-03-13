@@ -1116,7 +1116,9 @@ $(document)
 					if (window.location.hash != undefined)
 						$('a[data-toggle="tab"][href="' + window.location.hash + '"]', $tabNav).trigger("shown.bs.tab");
 					
-					setTimeout(() => generateHelper(), 100);
-					
-					onElementInserted("modal",(element) => generateHelper(undefined, element));
+					setTimeout(() => 
+					{
+						generateHelper();
+						onElementInserted("modal",(element) => generateHelper(undefined, element));
+					}, 100);
 				});
