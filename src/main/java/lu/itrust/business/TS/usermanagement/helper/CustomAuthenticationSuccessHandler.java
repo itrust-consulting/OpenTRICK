@@ -60,7 +60,13 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		} finally {
-			super.onAuthenticationSuccess(request, response, authentication);
+			if(!response.isCommitted())
+				super.onAuthenticationSuccess(request, response, authentication);
+			else saveAuthentication(request, response, authentication);
 		}
+	}
+
+	private void saveAuthentication(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+		clearAuthenticationAttributes(request);
 	}
 }

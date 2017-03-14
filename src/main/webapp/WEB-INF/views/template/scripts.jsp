@@ -4,7 +4,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <script src="<spring:url value="/js/jquery-2.2.4.min.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
-<sec:authorize access="authenticated">
+<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
 	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js" />"></script>
 	<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
 	<script src="<spring:url value="/js/dom-parser.js" />"></script>
@@ -37,4 +37,7 @@
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>
+</sec:authorize>
+<sec:authorize access="hasRole('ROLE_PRE_AUTHEN')">
+	<script src="<spring:url value="/js/trickservice/otp.js" />"></script>
 </sec:authorize>

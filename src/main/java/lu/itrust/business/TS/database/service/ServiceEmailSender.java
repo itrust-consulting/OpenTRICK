@@ -17,4 +17,6 @@ public interface ServiceEmailSender {
 	void sendRegistrationMail(List<User> recipient, User user);
 	
 	void sendResetPassword(ResetPassword password,String hotname);
+
+	void sendOTPCode(String code, User user);
 }

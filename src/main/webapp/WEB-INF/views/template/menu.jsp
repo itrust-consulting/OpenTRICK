@@ -13,13 +13,13 @@
 </c:set>
 <div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;">
 	<div class="container">
-		<div class="navbar-header">
-			<a class="navbar-brand" id='main_menu_brand' href="${pageContext.request.contextPath}/Home"></a>
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-				<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-			</button>
-		</div>
-		<sec:authorize access="authenticated">
+		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+			<div class="navbar-header">
+				<a class="navbar-brand" id='main_menu_brand' href="${pageContext.request.contextPath}/Home"></a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')">
@@ -55,8 +55,8 @@
 					</c:choose>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="taskmanager" id='main_menu_task'><spring:message
-								code="label.background.task" /> <span id="task-counter" class="fa badge">0</span></a>
+					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="taskmanager" id='main_menu_task'><spring:message code="label.background.task" /> <span
+							id="task-counter" class="fa badge">0</span></a>
 						<ul class="dropdown-menu" id="task-manager"></ul></li>
 					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile" id='main_menu_profile'> <spring:message
 								code="label.profile" text="Profile" /></a></li>

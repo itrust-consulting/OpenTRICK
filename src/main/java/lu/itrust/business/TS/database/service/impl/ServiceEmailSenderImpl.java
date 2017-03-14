@@ -148,4 +148,30 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			TrickLogManager.Persist(e);
 		}
 	}
+
+	@Override
+	public void sendOTPCode(String code, User user) {
+		try {
+			MimeMessagePreparator preparator= new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+						MissingResourceException, IOException, TemplateException {
+					Locale locale = user.getLocaleObject();
+					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					message.setFrom(emailSender);
+					message.setSubject(messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
+					Map<String, Object> model = new LinkedHashMap<String, Object>();
+					model.put("title", messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
+					model.put("user", user);
+					model.put("code", code);
+					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
+							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "on-time-password-fr.ftl" : "on-time-password-en.ftl"), "UTF-8"),
+							model), true);
+					message.setTo(user.getEmail());
+				}
+			};
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
 }

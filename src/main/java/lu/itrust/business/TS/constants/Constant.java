@@ -45,6 +45,8 @@ public class Constant {
 	public static final String ROLE_OTP_ONLY = "hasRole('ROLE_PRE_AUTHEN')";
 	
 	public static final String ROLE_OTP_NAME = "ROLE_PRE_AUTHEN";
+	
+	public static final String OTP_PRE_AUTHENTICATION = "OTP-PRE-AUTHENTICATION";
 
 	public static final String SETTING_DEFAULT_SHOW_UNCERTAINTY = "DEFAULT_SHOW_UNCERTAINTY";
 
@@ -675,5 +677,9 @@ public class Constant {
 	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
 
 	public static final String API_AUTHENTICATION_TOKEN_NAME = "X-Auth-Token";
+
+	public static final String OTP_CHALLENGE_AUTHEN = "otp-change-verificator";
+	
+	public static final String OTP_CHALLENGE_USER_RESPONSE = "otp-user-code";
 
 }

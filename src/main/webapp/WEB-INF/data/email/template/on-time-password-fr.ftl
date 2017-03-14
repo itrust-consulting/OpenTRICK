@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//FR" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -51,7 +51,6 @@
        font-size:19px;
       font-weight:normal;
     }
-     
      div,p,ul,h1,h3,h4{
       margin:0;
     }
@@ -77,10 +76,7 @@
   </head>
   <body paddingwidth="0" paddingheight="0"   style="padding-top: 0; padding-bottom: 0; padding-top: 0; padding-bottom: 0; background-repeat: repeat; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;" offset="0" toppadding="0" leftpadding="0">
     <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableContent bgBody" align="center"  style='font-family:Helvetica, Arial,serif;'>
-
-      
       <tr><td height='35'></td></tr>
-
       <tr>
         <td>
           <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" class='bgItem'>
@@ -104,7 +100,7 @@
                             <td valign='top' align='center'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable">
-                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>Welcome to TRICK Service</p>
+                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>Tantative d'authentification sur TRICK Service</p>
                                 </div>
                               </div>
                             </td>
@@ -118,10 +114,11 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								<h4 align="left">Hello ${user.firstName} ${user.lastName},</h4>
+								<h4 align="left">Bonjour ${user.firstName} ${user.lastName},</h4>
                                    <p style="margin-top:5px;">
-									Your user account has been successfully created and you're now ready to use TRICK Service.<br>
-									This is an automatically generated message, please do not reply to it.
+									Voici le code d'authentification que vous avez demand&eacute : <b>${code}</b><br>
+									Si vous n'avez pas a l'origine de cette requ&ecirc;te, veuillez changer votre mot de passe..	
+									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacute; automatiquement, veuillez ne pas y r&eacute;pondre.
                                   </p>
                                 </div>
                               </div>
@@ -147,5 +144,5 @@
     </table>
 
    </body>
-</html>
+  </html>
 

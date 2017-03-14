@@ -19,6 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -53,17 +54,23 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 			Authentication authentication = super.attemptAuthentication(request, response);
 			if (enable2FA && authentication != null && authentication.isAuthenticated()) {
 				User user = new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName());
-				if (!user.isUsing2FA()) {
-					List<GrantedAuthority> roles = new LinkedList<>();
-					roles.add(new SimpleGrantedAuthority("ROLE_PRE_AUTHEN"));
-					return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(), roles);
-				}
+				if (!user.isUsing2FA())
+					return prepareOTPAuthentication(request, authentication);
 			}
 			return authentication;
 		} finally {
 			if (session != null)
 				session.close();
 		}
+	}
+
+	private Authentication prepareOTPAuthentication(HttpServletRequest request, Authentication authentication) {
+		List<GrantedAuthority> roles = new LinkedList<>();
+		roles.add(new SimpleGrantedAuthority(Constant.ROLE_OTP_NAME));
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(authentication.getName(), authentication.getCredentials(), roles);
+		request.getSession().setAttribute(Constant.OTP_PRE_AUTHENTICATION, authRequest);
+		setDetails(request, authRequest);
+		return authRequest;
 	}
 
 	/**
