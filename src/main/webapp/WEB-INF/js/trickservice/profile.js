@@ -210,7 +210,7 @@ function loadUserReport(update) {
 
 function updateProfile(form) {
 	$(".label-danger").remove();
-	var $progress = $("#loading-indicator").show()
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 			url: context + "/Profile/Update",
 			type: "post",
@@ -245,7 +245,6 @@ function updateProfile(form) {
 						setTimeout(() => switchLangueTo(context+"/Profile"+"?lang=" + newlang), 2000);
 
 				}
-				return false;
 
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
@@ -253,5 +252,27 @@ function updateProfile(form) {
 			}
 		}).complete(()=> $progress.hide());
 
+	return false;
+}
+
+function updateUserOtp(){
+	var $progress = $("#loading-indicator").show(), $form =  $("#section_user_otp form#user-otp-form"), data = serializeForm($form);
+	$.ajax({
+			url: context + "/Profile/OTP/Update",
+			type: "post",
+			contentType: "application/json;charset=UTF-8",
+			data: serializeForm($form),
+			success: function (response, textStatus, jqXHR) {
+				$view = $("form#user-otp-form",new DOMParser().parseFromString(response, "text/html"));
+				if($view.length)
+					$form.replaceWith($view);
+				else if(response['error'])
+					showDialog("#alert-dialog",response['error'] );
+				else unknowError();
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			}
+		}).complete(()=> $progress.hide());
 	return false;
 }

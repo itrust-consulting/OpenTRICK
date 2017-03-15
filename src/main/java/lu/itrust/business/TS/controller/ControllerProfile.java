@@ -19,6 +19,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
+import org.jboss.aerogear.security.otp.Totp;
+import org.jboss.aerogear.security.otp.api.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -50,22 +53,25 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.ReportType;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.general.ReportType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
 import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
+import net.glxn.qrgen.QRCode;
 
 /**
  * ControllerProfile.java: <br>
@@ -80,11 +86,26 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @Controller
 public class ControllerProfile {
 
+	@Value("${app.settings.otp.enable}")
+	private boolean enabledOTP;
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	@Autowired
 	private ServiceUser serviceUser;
 
 	@Autowired
-	private MessageSource messageSource;
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceUserSqLite serviceUserSqLite;
@@ -92,119 +113,13 @@ public class ControllerProfile {
 	@Autowired
 	private ServiceWordReport serviceWordReport;
 
-	@Autowired
-	private ServiceDataValidation serviceDataValidation;
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private ServiceTSSetting serviceTSSetting;
-	
-	@Value("${app.settings.otp.enable}")
-	private boolean enabledOTP;
-
-	/**
-	 * profile: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param session
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping
-	public String home(Model model, HttpSession session, Principal principal) throws Exception {
-		if (principal == null)
-			return "redirect:/Logout";
-		User user = serviceUser.get(principal.getName());
-		if (user == null)
-			return "redirect:/Logout";
-		user.setPassword(EMPTY_STRING);
-		// add profile to model
-		model.addAttribute("user", user);
-		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
-		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
-		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
-		model.addAttribute("enabledOTP", enabledOTP);
-		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
-		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
-		return "user/home";
-	}
-
-	private TrickFilter buildFromUser(User user, String type) {
-		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
-				filter = user.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
-		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
-
-		if (size == null)
-			size = 30;
-		if (sort == null)
-			sort = "identifier";
-		if (filter == null)
-			filter = "ALL";
-		if (direction == null)
-			direction = "asc";
-		return new FilterControl(sort, direction, size, filter);
-	}
-
-	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
-
-		if (!filterControl.validate())
-			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
-		User user = serviceUser.get(principal.getName());
-		if (user == null)
-			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
-		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
-		session.setAttribute("sqliteControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
-
-	}
-
-	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
-
-		if (!filterControl.validate())
-			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
-		User user = serviceUser.get(principal.getName());
-		if (user == null)
-			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
-		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
-		session.setAttribute("reportControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
-
-	}
-
-	private void updateFilterControl(User user, FilterControl value, String type) throws Exception {
-		user.setSetting(String.format(FILTER_CONTROL_SORT_KEY, type), value.getSort());
-		user.setSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type), value.getDirection());
-		user.setSetting(String.format(FILTER_CONTROL_FILTER_KEY, type), value.getFilter());
-		user.setSetting(String.format(FILTER_CONTROL_SIZE_KEY, type), value.getSize());
-		serviceUser.saveOrUpdate(user);
-	}
-
-	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
-		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
-		if (filter == null)
-			filter = new FilterControl();
-		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "user/sqlites";
-	}
-
-	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
-		FilterControl filter = (FilterControl) session.getAttribute("reportControl");
-		if (filter == null)
-			filter = new FilterControl();
-		model.addAttribute("reports", serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "user/reports";
-
+	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
+		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
+		if (report == null)
+			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+		serviceWordReport.delete(report);
+		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
 	}
 
 	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -216,14 +131,56 @@ public class ControllerProfile {
 		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
 	}
 
-	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
-		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
-		if (report == null)
-			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
-		serviceWordReport.delete(report);
-		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+	/**
+	 * download: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param principal
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Report/{id}/Download")
+	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+		// get user file by given file id and username
+		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
 
+		// if file could not be found retrun 404 error
+		if (wordReport == null)
+			return "errors/404";
+
+		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
+
+		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+
+		String extension = ReportType.getExtension(wordReport.getType());
+
+		// set response contenttype to sqlite
+		response.setContentType(extension);
+
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition",
+				"attachment; filename=\"" + String.format("%s_%s_v%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
+
+		// set sqlite file size as response size
+		response.setContentLength((int) wordReport.getSize());
+
+		// return the sqlite file (as copy) to the response outputstream ( whihc
+		// creates on the
+		// client side the sqlite file)
+		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
+		/**
+		 * Log
+		 */
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
+				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated(),
+						ReportType.getDisplayName(wordReport.getType())),
+				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()));
+
+		// return
+		return null;
 	}
 
 	/**
@@ -239,8 +196,6 @@ public class ControllerProfile {
 	@RequestMapping("/Sqlite/{id}/Download")
 	public String downloadSqlite(@PathVariable Integer id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
-		
-		
 		// get user file by given file id and username
 		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 
@@ -249,7 +204,7 @@ public class ControllerProfile {
 			return "errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(), userSqLite.getVersion());
-		if (idAnalysis <1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");
@@ -280,56 +235,73 @@ public class ControllerProfile {
 	}
 
 	/**
-	 * download: <br>
+	 * profile: <br>
 	 * Description
 	 * 
-	 * @param id
 	 * @param principal
-	 * @param response
+	 * @param session
+	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	@RequestMapping
+	public String home(Model model, HttpSession session, Principal principal) throws Exception {
+		if (principal == null)
+			return "redirect:/Logout";
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return "redirect:/Logout";
+		user.setPassword(EMPTY_STRING);
+		// add profile to model
+		model.addAttribute("user", user);
+		model.addAttribute("enabledOTP", enabledOTP);
+		model.addAttribute("roles", RoleType.ROLES);
+		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
+		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
+		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
+		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
+		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
+		if (enabledOTP) {
+			String secret = user.getSecret();
+			if (StringUtils.hasText(secret))
+				model.addAttribute("qrcode", generateQRCode(user, secret));
+		}
+		return "user/home";
+	}
 
-		// get user file by given file id and username
-		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @param result
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/OTP/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String saveOTP(@RequestBody Map<String, Boolean> settings, Model model, Locale locale, Principal principal) {
+		if (!enabledOTP)
+			throw new ResourceNotFoundException("error.page.not_found");
+		User user = serviceUser.get(principal.getName());
+		Boolean using2FA = settings.get("using2FA"), useApplication = settings.get("useApplication");
+		if (using2FA == null)
+			using2FA = false;
+		if (useApplication == null || !using2FA)
+			useApplication = false;
+		if (!useApplication || !using2FA)
+			user.setSecret(null);
+		else {
+			user.setSecret(Base32.random());
+			model.addAttribute("qrcode", generateQRCode(user, user.getSecret()));
+		}
+		user.setUsing2FA(using2FA);
+		serviceUser.saveOrUpdate(user);
+		model.addAttribute("user", user);
+		model.addAttribute("enabledOTP", enabledOTP);
+		return "user/otp";
 
-		// if file could not be found retrun 404 error
-		if (wordReport == null)
-			return "errors/404";
-
-		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
-
-		if (idAnalysis <1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
-			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-		
-		String extension = ReportType.getExtension(wordReport.getType());
-
-		// set response contenttype to sqlite
-		response.setContentType(extension);
-
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + String.format("%s_%s_v%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
-
-		// set sqlite file size as response size
-		response.setContentLength((int) wordReport.getSize());
-
-		// return the sqlite file (as copy) to the response outputstream ( whihc
-		// creates on the
-		// client side the sqlite file)
-		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
-		/**
-		 * Log
-		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
-				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated(),
-						ReportType.getDisplayName(wordReport.getType())),
-				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()));
-
-		// return
-		return null;
 	}
 
 	/**
@@ -346,26 +318,79 @@ public class ControllerProfile {
 	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response)
 			throws Exception {
-
 		Map<String, String> errors = new LinkedHashMap<>();
-
 		try {
-
 			User user = serviceUser.get(principal.getName());
-
 			if (!buildUser(errors, user, source, locale))
 				return errors;
-
 			serviceUser.saveOrUpdate(user);
-
 			return errors;
-
 		} catch (Exception e) {
-
 			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
+	}
+
+	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
+		FilterControl filter = (FilterControl) session.getAttribute("reportControl");
+		if (filter == null)
+			filter = new FilterControl();
+		model.addAttribute("reports", serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
+		return "user/reports";
+
+	}
+
+	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
+		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
+		if (filter == null)
+			filter = new FilterControl();
+		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
+		return "user/sqlites";
+	}
+
+	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+		if (!filterControl.validate())
+			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
+		session.setAttribute("reportControl", filterControl);
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+	}
+
+	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+
+		if (!filterControl.validate())
+			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
+		session.setAttribute("sqliteControl", filterControl);
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+
+	}
+
+	private TrickFilter buildFromUser(User user, String type) {
+		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
+				filter = user.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
+		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
+
+		if (size == null)
+			size = 30;
+		if (sort == null)
+			sort = "identifier";
+		if (filter == null)
+			filter = "ALL";
+		if (direction == null)
+			direction = "asc";
+		return new FilterControl(sort, direction, size, filter);
 	}
 
 	/**
@@ -482,6 +507,15 @@ public class ControllerProfile {
 
 	}
 
+	private String generateQRCode(User user, String secret) {
+		try {
+			return Base64.encodeBase64String(QRCode.from(new Totp(secret).uri(user.getEmail())).withSize(131, 131).stream().toByteArray());
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return null;
+		}
+	}
+
 	private Boolean isConnected(User user) {
 		Client client = null;
 		try {
@@ -510,5 +544,13 @@ public class ControllerProfile {
 
 	private String readStringValue(JsonNode jsonNode, String fieldName) {
 		return jsonNode.has(fieldName) ? jsonNode.get(fieldName).textValue() : null;
+	}
+
+	private void updateFilterControl(User user, FilterControl value, String type) throws Exception {
+		user.setSetting(String.format(FILTER_CONTROL_SORT_KEY, type), value.getSort());
+		user.setSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type), value.getDirection());
+		user.setSetting(String.format(FILTER_CONTROL_FILTER_KEY, type), value.getFilter());
+		user.setSetting(String.format(FILTER_CONTROL_SIZE_KEY, type), value.getSize());
+		serviceUser.saveOrUpdate(user);
 	}
 }

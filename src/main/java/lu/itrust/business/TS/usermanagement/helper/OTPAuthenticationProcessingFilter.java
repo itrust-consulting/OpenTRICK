@@ -83,6 +83,7 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 				if (timeout == null || timeout < System.currentTimeMillis())
 					throw new TrickOtpException("error.otp.timeout");
 			}
+			
 			if (!totp.verify(code))
 				throw new TrickOtpException("error.otp.invalid.code");
 			Collection<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getType().name())).collect(Collectors.toList());

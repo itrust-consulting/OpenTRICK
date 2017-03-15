@@ -82,7 +82,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 		try {
 			String iv = user.removeSetting(Constant.USER_IV_2_FACTOR_SECRET);
 			if (!StringUtils.isEmpty(iv))
-				user.setSecret(PasswordEncryptionHelper.decrypt(user.getLogin(), user.getSecret(), iv));
+				user.setSecret(PasswordEncryptionHelper.decrypt(user.getSecret(), user.getLogin(), iv));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}

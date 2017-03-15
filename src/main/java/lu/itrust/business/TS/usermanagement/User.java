@@ -420,13 +420,11 @@ public class User implements Serializable, IUser {
 	 * @return
 	 */
 	public boolean isAutorised(RoleType role) {
-
 		if (role != null && roles != null) {
 			for (Role role2 : roles)
 				if (role2.getType().ordinal() >= role.ordinal())
 					return true;
 		}
-
 		return false;
 
 	}
@@ -439,7 +437,6 @@ public class User implements Serializable, IUser {
 	 * @return
 	 */
 	public boolean isAutorised(String role) {
-
 		return isAutorised(RoleType.valueOf(role));
 	}
 
