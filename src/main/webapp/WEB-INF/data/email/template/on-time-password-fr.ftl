@@ -100,7 +100,7 @@
                             <td valign='top' align='center'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable">
-                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>Tantative d'authentification sur TRICK Service</p>
+                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>Authentification à TRICK Service</p>
                                 </div>
                               </div>
                             </td>
@@ -116,8 +116,8 @@
                                 <div class="contentEditable" align='center'>
 								<h4 align="left">Bonjour ${user.firstName} ${user.lastName},</h4>
                                    <p style="margin-top:5px;">
-									Voici le code d'authentification que vous avez demand&eacute : <b>${code}</b><br>
-									Si vous n'avez pas a l'origine de cette requ&ecirc;te, veuillez changer votre mot de passe..	
+									Voici le code d'authentification que vous avez demand&eacute; : <strong>${code}</strong>, ce code est valable jusqu'au ${expireDate} &agrave; ${expireDateTime}.<br>
+									Si vous n'avez pas a l'origine de cette requ&ecirc;te, veuillez changer votre mot de passe.<br>
 									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacute; automatiquement, veuillez ne pas y r&eacute;pondre.
                                   </p>
                                 </div>

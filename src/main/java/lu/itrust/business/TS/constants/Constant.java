@@ -682,4 +682,6 @@ public class Constant {
 	
 	public static final String OTP_CHALLENGE_USER_RESPONSE = "otp-user-code";
 
+	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
+
 }

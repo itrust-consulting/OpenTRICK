@@ -29,10 +29,8 @@ import lu.itrust.business.TS.constants.Constant;
  */
 public class OTPAuthenticationFilter extends GenericFilterBean {
 
-	
-
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-	
+
 	private String redirectURL = "/OTP/Authorise";
 
 	private RequestMatcher requestMatcher;
@@ -66,12 +64,12 @@ public class OTPAuthenticationFilter extends GenericFilterBean {
 			chain.doFilter(request, response);
 			return;
 		}
-		
-		if (logger.isDebugEnabled()) 
+
+		if (logger.isDebugEnabled())
 			logger.debug("Request is to process otp authentication");
-	
+
 		Authentication authentication = (Authentication) request.getSession().getAttribute(Constant.OTP_PRE_AUTHENTICATION);
-		if(authentication == null)
+		if (authentication == null || !authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME)))
 			return;
 		request.getSession().removeAttribute(Constant.OTP_PRE_AUTHENTICATION);
 		SecurityContextHolder.clearContext();
@@ -102,7 +100,8 @@ public class OTPAuthenticationFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * @param redirectStrategy the redirectStrategy to set
+	 * @param redirectStrategy
+	 *            the redirectStrategy to set
 	 */
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
 		this.redirectStrategy = redirectStrategy;

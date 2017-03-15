@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.database.service.impl;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -50,13 +52,12 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
-	
+
 	@Value("${app.settings.smtp.username}")
 	private String emailSender;
-	
+
 	@Autowired
 	private TaskExecutor emailTaskExecutor;
-
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -70,7 +71,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	@Override
 	public void sendRegistrationMail(final List<User> recipients, final User user) {
 		try {
-			MimeMessagePreparator preparator= new MimeMessagePreparator() {
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
@@ -86,16 +87,16 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setTo(user.getEmail());
 				}
 			};
-			
+
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
-			
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 		if (!(recipients == null || recipients.isEmpty())) {
 			for (final User admin : recipients) {
 				try {
-					MimeMessagePreparator preparator= new MimeMessagePreparator() {
+					MimeMessagePreparator preparator = new MimeMessagePreparator() {
 						public void prepare(MimeMessage mimeMessage) throws MissingResourceException, MessagingException, TemplateNotFoundException, MalformedTemplateNameException,
 								ParseException, IOException, TemplateException {
 							Locale locale = admin.getLocaleObject();
@@ -113,9 +114,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							message.setTo(admin.getEmail());
 						}
 					};
-					
+
 					emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
-					
+
 				} catch (Exception e) {
 					TrickLogManager.Persist(e);
 				}
@@ -150,22 +151,26 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	}
 
 	@Override
-	public void sendOTPCode(String code, User user) {
+	public void sendOTPCode(String code, Long timeout, User user) {
 		try {
-			MimeMessagePreparator preparator= new MimeMessagePreparator() {
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
+					Timestamp timestamp = new Timestamp(timeout);
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
+					model.put("expireDate", DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp));
+					model.put("expireDateTime", DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp));
 					model.put("user", user);
 					model.put("code", code);
-					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "on-time-password-fr.ftl" : "on-time-password-en.ftl"), "UTF-8"),
-							model), true);
+					message.setText(
+							FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
+									.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "on-time-password-fr.ftl" : "on-time-password-en.ftl"), "UTF-8"), model),
+							true);
 					message.setTo(user.getEmail());
 				}
 			};

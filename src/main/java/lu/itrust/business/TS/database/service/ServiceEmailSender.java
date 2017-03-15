@@ -18,5 +18,5 @@ public interface ServiceEmailSender {
 	
 	void sendResetPassword(ResetPassword password,String hotname);
 
-	void sendOTPCode(String code, User user);
+	void sendOTPCode(String code, Long timeout, User user);
 }

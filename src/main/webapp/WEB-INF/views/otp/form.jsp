@@ -30,6 +30,7 @@
 						<button class="btn btn-danger pull-left" type="submit"><spring:message code="label.action.signin" /></button>
 						<a href="#" class="btn btn-default pull-right" onclick="return $('#logoutFormSubmiter').click()"><spring:message code="label.action.cancel" /></a>
 					</div>
+					<input type="hidden" name="username" value='<sec:authentication  property="principal" />'>
 					<input type="submit" id="application-form-submit" hidden="hidden" /> <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 				</form>
 				<form action="${pageContext.request.contextPath}/signout" method="post" style="display: none">

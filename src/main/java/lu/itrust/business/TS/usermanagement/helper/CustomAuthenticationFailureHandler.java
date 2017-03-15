@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exception.TrickOtpException;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
@@ -37,13 +38,13 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-		String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date()), remoteaddr = request.getHeader("X-FORWARDED-FOR"), username = request
-				.getParameter("username");
+		String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date()), remoteaddr = request.getHeader("X-FORWARDED-FOR"),
+				username = request.getParameter("username");
 		if (remoteaddr == null)
 			remoteaddr = request.getRemoteAddr();
 
-		if (exception instanceof BadCredentialsException || exception instanceof InternalAuthenticationServiceException
-				&& !(allowedLDAPAutnetication || exception.getCause() instanceof CannotGetJdbcConnectionException)) {
+		if (exception instanceof BadCredentialsException
+				|| exception instanceof InternalAuthenticationServiceException && !(allowedLDAPAutnetication || exception.getCause() instanceof CannotGetJdbcConnectionException)) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
 			request.getSession().setAttribute("LOGIN_ERROR", "error.bad.credential");
 			/**
@@ -61,14 +62,22 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 					String.format("%s's account is disabled but he tries to connect from %s", username, remoteaddr), "anonymous", LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception.getCause() instanceof TrickException) {
 			TrickException e = (TrickException) exception.getCause();
-			System.err.println(String.format("%s CustomAuthenticationFailureHandler -  ERROR: User %s, Requesting IP: %s, Cause: %s", stringdate, username, remoteaddr,
-					e.getMessage()));
+			System.err.println(
+					String.format("%s CustomAuthenticationFailureHandler -  ERROR: User %s, Requesting IP: %s, Cause: %s", stringdate, username, remoteaddr, e.getMessage()));
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.account.processing",
 					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), "anonymous", LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
 			request.getSession().setAttribute("LOGIN_ERROR_EXCEPTION", e);
+		} else if (exception instanceof TrickOtpException) {
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
+			request.getSession().setAttribute("LOGIN_ERROR", exception.getMessage());
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.otp.failure",
+					String.format("%s attempts to connect from %s but on time password failed", username, remoteaddr), username, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception instanceof InternalAuthenticationServiceException) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: " + exception.getMessage());
 			request.getSession().setAttribute("LOGIN_ERROR", "error.database.connection_failed");

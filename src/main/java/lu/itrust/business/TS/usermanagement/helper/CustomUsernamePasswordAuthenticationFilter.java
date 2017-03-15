@@ -54,7 +54,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 			Authentication authentication = super.attemptAuthentication(request, response);
 			if (enable2FA && authentication != null && authentication.isAuthenticated()) {
 				User user = new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName());
-				if (!user.isUsing2FA())
+				if (user.isUsing2FA())
 					return prepareOTPAuthentication(request, authentication);
 			}
 			return authentication;

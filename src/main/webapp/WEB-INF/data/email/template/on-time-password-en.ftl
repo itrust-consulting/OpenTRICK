@@ -104,7 +104,7 @@
                             <td valign='top' align='center'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable">
-                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>Attempt to authenticate on TRICK Service</p>
+                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>Authenticate on TRICK Service</p>
                                 </div>
                               </div>
                             </td>
@@ -120,8 +120,8 @@
                                 <div class="contentEditable" align='center'>
 								<h4 align="left">Hello ${user.firstName} ${user.lastName},</h4>
                                    <p style="margin-top:5px;">
-									Here is the authentication code you requested: <b>${code}</b><br>
-									If you do not have this request, please change your password.
+									Here is the authentication code you requested: <strong>${code}</strong>, this code is valid until ${expireDate} at ${expireDateTime}<br>
+									If you do not have this request, please change your password.<br>
 									This is an automatically generated message, please do not reply to it.
                                   </p>
                                 </div>

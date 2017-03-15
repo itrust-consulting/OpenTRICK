@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.TS.exception.TrickOtpException;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -61,11 +62,13 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 		if (!request.getMethod().equals("POST"))
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || !authentication.isAuthenticated())
-			throw new AuthenticationServiceException("label.opt.error.user.not_pre_authenticated");
+		if (authentication == null)
+			throw new AuthenticationServiceException("User session has been expired!");
+		else if (!authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME)))
+			throw new AuthenticationServiceException("User is already authenticated");
 		String code = request.getParameter(Constant.OTP_CHALLENGE_USER_RESPONSE);
 		if (code == null)
-			throw new AuthenticationServiceException("label.otp.error.code.not_found");
+			throw new TrickOtpException("error.otp.code.not_found");
 		Session session = null;
 		try {
 			User user = new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName());
@@ -73,19 +76,24 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 			if (totp == null) {
 				String secret = user.getSecret();
 				if (StringUtils.isEmpty(secret))
-					throw new AuthenticationServiceException("label.otp.error.code.no_secret");
+					throw new TrickOtpException("error.otp.code.no_secret");
 				totp = new Totp(secret);
+			} else {
+				Long timeout = (Long) request.getSession().getAttribute(Constant.OTP_CHALLENGE_AUTHEN_INIT_TIME);
+				if (timeout == null || timeout < System.currentTimeMillis())
+					throw new TrickOtpException("error.otp.timeout");
 			}
 			if (!totp.verify(code))
-				throw new AuthenticationServiceException("label.otp.error.code");
+				throw new TrickOtpException("error.otp.invalid.code");
 			Collection<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getType().name())).collect(Collectors.toList());
 			UserDetails userDetails = new org.springframework.security.core.userdetails.User(authentication.getName(), user.getPassword(), user.isEnable(), true, true, true,
 					authorities);
 			UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(), authorities);
 			authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+			request.getSession().removeAttribute(Constant.OTP_CHALLENGE_AUTHEN);
+			request.getSession().removeAttribute(Constant.OTP_CHALLENGE_AUTHEN_INIT_TIME);
 			return authRequest;
 		} finally {
-			request.getSession().removeAttribute(Constant.OTP_CHALLENGE_AUTHEN);
 			if (session != null)
 				session.close();
 		}

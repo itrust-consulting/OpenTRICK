@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -102,6 +103,9 @@ public class ControllerProfile {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
+	
+	@Value("${app.settings.otp.enable}")
+	private boolean enabledOTP;
 
 	/**
 	 * profile: <br>
@@ -126,9 +130,9 @@ public class ControllerProfile {
 		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
+		model.addAttribute("enabledOTP", enabledOTP);
 		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
 		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
-
 		return "user/home";
 	}
 

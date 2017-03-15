@@ -4,6 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <!-- ###################################################################### HTML #################################################################### -->
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
@@ -34,8 +35,10 @@
 								<option value="tel"><spring:message code='label.otp.send.text' arguments="${phoneNumber}" text='Send text to ${phoneNumber}' /></option>
 							</c:if>
 						</select>
+						<c:if test="${not empty error }">
+							<div class='label label-danger'><spring:message code='${error}' text="${error}"/></div>
+						</c:if>
 					</div>
-
 					<c:if test="${not empty email }">
 						<form name="application" action="${pageContext.request.contextPath}/OTP/Authorise" method="POST"  id="otp-option-application" data-action-name="${signing}">
 							<input hidden="hidden" name="otp-method" value="application">
@@ -44,6 +47,7 @@
 							</div>
 							<input type="submit" id="application-form-submit" hidden="hidden"/>
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> 
+							<input type="hidden" name="username" value='<sec:authentication  property="principal" />'>
 						</form>
 					</c:if>
 					<c:if test="${not empty email}">
