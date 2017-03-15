@@ -816,7 +816,7 @@ function oldversionComparator(version1, version2) {
 
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
-	if (current != undefined) {
+	if (!(current == undefined ||current.$element == null )) {
 		if (target === current.$element[0])
 			return e;
 		else if ($(current.$tip).is(":visible")) {
