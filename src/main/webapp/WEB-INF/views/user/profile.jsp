@@ -116,7 +116,7 @@
 					<div class="form-group">
 						<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.access.level" text="Access level" /></label>
 						<div class="col-sm-9 text-center">
-							<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
+							<div class="btn-group" data-toggle="buttons">
 								<c:forEach items="${roles}" var="role">
 									<c:set var="role_value" value="${fn:replace(role,'ROLE_','')}" />
 									<label class="btn disabled ${user.isAutorised(role)? 'btn-primary' : 'btn-default'}"><spring:message code="label.role.${fn:toLowerCase(role_value)}"

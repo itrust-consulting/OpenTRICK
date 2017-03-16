@@ -735,6 +735,10 @@ img.support-logo+img.support-logo {
 	padding: 5px 15px;
 }
 
+a#main_menu_profile {
+	text-transform: capitalize;
+}
+
 @media ( min-width : 992px) {
 	.max-height {
 		height: 100%;

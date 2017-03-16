@@ -4,7 +4,6 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -138,6 +137,9 @@ public class ControllerAdministration {
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
 
+	@Value("${app.settings.otp.enable}")
+	private boolean enabledOTP;
+
 	@Value("${app.settings.version}")
 	private String version;
 
@@ -210,6 +212,7 @@ public class ControllerAdministration {
 		}
 
 		model.put("tsSettings", tsSettings);
+		model.put("enabledOTP", enabledOTP);
 		model.put("logFilter", loadLogFilter(session, principal.getName()));
 		model.put("logLevels", serviceTrickLog.getDistinctLevel());
 		model.put("logTypes", serviceTrickLog.getDistinctType());
@@ -483,6 +486,7 @@ public class ControllerAdministration {
 	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String userSection(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.getAll());
+		model.addAttribute("enabledOTP", enabledOTP);
 		return "admin/user/users";
 	}
 
@@ -496,10 +500,12 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/User/Add", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
 		model.put("roles", RoleType.ROLES);
-		return "admin/user/roles";
+		model.put("enabledOTP", enabledOTP);
+		model.put("user", new User());
+		return "admin/user/form";
 
 	}
 
@@ -513,15 +519,12 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/User/Edit/{userId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
-		List<Role> userRoles = serviceRole.getAllFromUser(serviceUser.get(userId));
-		List<RoleType> roleTypes = new ArrayList<RoleType>();
-		for (Role role : userRoles)
-			roleTypes.add(role.getType());
-		model.put("userRoles", roleTypes);
+		model.put("user", serviceUser.get(userId));
+		model.put("enabledOTP", enabledOTP);
 		model.put("roles", RoleType.ROLES);
-		return "admin/user/roles";
+		return "admin/user/form";
 
 	}
 
@@ -559,6 +562,7 @@ public class ControllerAdministration {
 						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
 								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
 								user.getLogin(), role.getType().name()));
+				errors.put("success", messageSource.getMessage("success.user.created", null, "User was successfully created", locale));
 			} else {
 				serviceUser.saveOrUpdate(user);
 				/**
@@ -574,6 +578,7 @@ public class ControllerAdministration {
 						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
 								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
 								user.getLogin(), role.getType().name()));
+				errors.put("success", messageSource.getMessage("success.user.update", null, "User was successfully updated", locale));
 			}
 		} catch (Exception e) {
 			if (e instanceof TrickException)
@@ -682,6 +687,13 @@ public class ControllerAdministration {
 			}
 		} else if (!User.LDAP_KEY_PASSWORD.equals(user.getPassword()))
 			user.setPassword(User.LDAP_KEY_PASSWORD);
+
+		if (enabledOTP) {
+			boolean using2FA = jsonNode.get("using2FA").asBoolean(false);
+			user.setUsing2FA(using2FA);
+			if (!using2FA)
+				user.setSecret(null);
+		}
 
 		error = validator.validate(user, "firstName", firstname);
 		if (error != null)

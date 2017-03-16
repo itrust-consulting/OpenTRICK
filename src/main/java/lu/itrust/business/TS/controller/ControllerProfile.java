@@ -10,6 +10,7 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_KEY;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
-import org.jboss.aerogear.security.otp.Totp;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -509,7 +509,9 @@ public class ControllerProfile {
 
 	private String generateQRCode(User user, String secret) {
 		try {
-			return Base64.encodeBase64String(QRCode.from(new Totp(secret).uri(user.getEmail())).withSize(131, 131).stream().toByteArray());
+			return Base64.encodeBase64String(QRCode
+					.from(String.format("otpauth://totp/TS-%s?secret=%s", URLEncoder.encode(user.getEmail(), "UTF-8"), secret))
+					.withSize(131, 131).stream().toByteArray());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return null;

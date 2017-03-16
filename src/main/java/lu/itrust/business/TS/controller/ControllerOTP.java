@@ -53,7 +53,7 @@ public class ControllerOTP {
 			characters[i] = '*';
 		}
 		model.addAttribute("email", new String(characters));
-		model.addAttribute("application", StringUtils.hasText(user.getSecret()) || true);
+		model.addAttribute("application", StringUtils.hasText(user.getSecret()));
 		//model.addAttribute("phoneNumber", "**********86");
 		return "otp/options";
 	}

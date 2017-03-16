@@ -22,21 +22,27 @@
 						<th><spring:message code="label.user.first_name" text="Firstname" /></th>
 						<th><spring:message code="label.user.last_name" text="Lastname" /></th>
 						<th><spring:message code="label.user.email" text="Email address" /></th>
-						<th><spring:message code="label.user.account.status" text="Status" /></th>
-						<th><spring:message code="label.user.connexion.type" text="Authentication type" /></th>
+						<th class='text-center' ><spring:message code="label.user.account.status" text="Status" /></th>
+						<c:if test="${enabledOTP}">
+							<th class='text-center'><spring:message code="label.user.account.otp" text="OTP" /></th>
+						</c:if>
+						<th class='text-center'><spring:message code="label.user.connexion.type" text="Authentication type" /></th>
 						<th><spring:message code="label.user.account.role" text="Roles" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<c:forEach items="${users}" var="user">
-						<tr data-trick-id="${user.id}" onclick="selectElement(this)" ondblclick="return editSingleUser(${user.id});">
+						<tr class="${enabledOTP and not  user.using2FA? 'warning' : ''}" data-trick-id="${user.id}" onclick="selectElement(this)" ondblclick="return editSingleUser(${user.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_user','#menu_user');"></td>
 							<td><spring:message text="${user.login}" /></td>
 							<td><spring:message text="${user.firstName}" /></td>
 							<td><spring:message text="${user.lastName}" /></td>
 							<td><spring:message text="${user.email}" /></td>
-							<td><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}" /></td>
-							<td data-trick-real-value="${user.connexionType}"><c:choose>
+							<td class='text-center' ><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}" /></td>
+							<c:if test="${enabledOTP}">
+								<td class='text-center'><spring:message code="label.action.${user.using2FA?'enable':'disable'}" text="${user.using2FA?'Enabled':'Disabled'}" /></td>
+							</c:if>
+							<td data-trick-real-value="${user.connexionType}" class='text-center' ><c:choose>
 									<c:when test="${user.connexionType == -1}">
 										<spring:message code="label.user.connexion.standard" text="Standard" />
 									</c:when>
@@ -49,7 +55,7 @@
 								</c:choose></td>
 							<td><c:forEach items="${user.roles}" var="role">
 									<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />
-									<div style="padding: 6px; border: 1px solid #dddddd; text-align: center; border-radius: 4px; background-color: #eeeeee; display: inline-block;">
+									<div style="padding: 2px 4px; border: 1px solid #dddddd; text-align: center; border-radius: 2px; background-color: #eeeeee; display: inline-block;">
 										<spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}" />
 									</div>
 								</c:forEach></td>

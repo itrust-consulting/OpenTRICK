@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.LocaleResolver;
 
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
@@ -53,16 +54,24 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			String remoteaddr = request.getHeader("X-FORWARDED-FOR");
 			if (remoteaddr == null)
 				remoteaddr = request.getRemoteAddr();
-			System.out
-					.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + authentication.getName() + "'! Requesting IP: " + remoteaddr);
-			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", authentication.getName(), remoteaddr),
-					authentication.getName(), LogAction.SIGN_IN, remoteaddr);
+			if (authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME))) {
+				System.out.println(stringdate + " CustomAuthenticationSuccessHandler - Pre-authentication: " + authentication.getName() + " is pre-authenticated! Requesting IP: "
+						+ remoteaddr);
+				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.pre_authenticated",
+						String.format("%s is pre-authenticated from %s", authentication.getName(), remoteaddr), authentication.getName(), LogAction.SIGN_IN, remoteaddr);
+			} else {
+				System.out.println(
+						stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + authentication.getName() + "'! Requesting IP: " + remoteaddr);
+				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", authentication.getName(), remoteaddr),
+						authentication.getName(), LogAction.SIGN_IN, remoteaddr);
+			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		} finally {
-			if(!response.isCommitted())
+			if (!response.isCommitted())
 				super.onAuthenticationSuccess(request, response, authentication);
-			else saveAuthentication(request, response, authentication);
+			else
+				saveAuthentication(request, response, authentication);
 		}
 	}
 

@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <jsp:include page="../../../template/successErrors.jsp" />
 <div class="modal fade" id="editAnalysisModel" tabindex="-1" role="dialog" data-aria-labelledby="editAnalysis" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog" style="width: 800px;">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -20,8 +20,8 @@
 					<input type="hidden" name="id" value="${analysis.id}" id="analysis_id">
 					<c:if test="${not analysis.profile}">
 						<div class="form-group">
-							<label for="type" class="col-sm-2 control-label"> <spring:message code="label.analysis.type" text="Type" /></label>
-							<div class="col-sm-10" align="center">
+							<label for="type" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.type"/>' > <spring:message code="label.analysis.type" text="Type" /></label>
+							<div class="col-sm-9" align="center">
 								<div class="btn-group" data-toggle="buttons">
 									<c:forEach items="${types}" var="type" varStatus="status">
 										<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
@@ -32,58 +32,56 @@
 						</div>
 					</c:if>
 					<div class="form-group">
-						<label for="identifier" class="col-sm-2 control-label"> <spring:message code="label.analysis.identifier" text="Identifier" />
+						<label for="identifier" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.identifier" />' > <spring:message code="label.analysis.identifier" text="Identifier" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="identifier" id="analysis_identifier" class="form-control" type="text" value="${analysis.identifier}" readonly />
 						</div>
 					</div>
 					<c:if test="${not analysis.profile}">
 						<div class="form-group">
-							<label for="version" class="col-sm-2 control-label"> <spring:message code="label.analysis.version" text="Version" />
+							<label for="version" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.version" />' > <spring:message code="label.analysis.version" text="Version" />
 							</label>
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<input name="version" id="analysis_version" class="form-control" type="text" value="${analysis.version}" readonly />
 							</div>
 						</div>
 					</c:if>
 					<div class="form-group">
-						<label for="creationDate" class="col-sm-2 control-label"> <spring:message code="label.analysis.creation_date" text="Creation date" />
+						<label for="creationDate" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.creation_date" />' > <spring:message code="label.analysis.creation_date" text="Creation date" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="creationDate" id="analysis_creationDate" class="form-control" type="text" value="${analysis.creationDate}" readonly />
 						</div>
 					</div>
 					<c:if test="${not(analysis.profile || empty analysis.basedOnAnalysis)}">
 						<div class="form-group">
-							<label for="basedOnAnalysis" class="col-sm-2 control-label"> <spring:message code="label.analysis.based_on_analysis" text="Based on analysis version" />
+							<label for="basedOnAnalysis" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.parent" />' > <spring:message code="label.analysis.based_on_analysis" text="Based on analysis version" />
 							</label>
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<input name="basedOnAnalysis" id="analysis_basedOnAnalysis" class="form-control" type="text" value="${analysis.basedOnAnalysis.version}" readonly />
 							</div>
 						</div>
 					</c:if>
 					<div class="form-group">
-						<label for="owner" class="col-sm-2 control-label"> <spring:message code="label.analysis.owner" text="Owner" />
+						<label for="owner" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.author" />' > <spring:message code="label.analysis.owner" text="Owner" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="owner" id="analysis_owner" class="form-control" type="text" value="${analysis.owner.firstName} ${analysis.owner.lastName}" readonly />
 						</div>
 					</div>
 					<c:if test="${not analysis.profile}">
-						<div class="form-group">
-							<label for="hasData" class="col-sm-2 control-label"> <spring:message code="label.analysis.has_data" text="Has Data" />
+						<%-- <div class="form-group">
+							<label for="hasData" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.has_data" />' > <spring:message code="label.analysis.has_data" text="Has Data" />
 							</label>
-							<div class="col-sm-10" align="center">
+							<div class="col-sm-9" align="center">
 								<input name="hasData" id="analysis_hasData" class="checkbox" type="checkbox" ${analysis.hasData()?"checked='checked'":""} disabled="disabled" />
 							</div>
-						</div>
-					</c:if>
-					<c:if test="${not analysis.profile}">
+						</div> --%>
 						<div class="form-group">
-							<label for="customer" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
+							<label for="customer" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.customer" />' > <spring:message code="label.customer.organisation" text="Customer" />
 							</label>
-							<div class="col-sm-10" id="analysiscustomercontainer">
+							<div class="col-sm-9" id="analysiscustomercontainer">
 								<select name="analysiscustomer" class="form-control">
 									<c:forEach items="${customers}" var="customer">
 										<option value="${customer.id}" ${customer.equals(analysis.customer)?"selected='selected'":""}>${customer.organisation}</option>
@@ -93,9 +91,9 @@
 						</div>
 					</c:if>
 					<div class="form-group">
-						<label for="language" class="col-sm-2 control-label"> <spring:message code="label.analysis.language" text="Language" />
+						<label for="language" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.language" />' > <spring:message code="label.analysis.language" text="Language" />
 						</label>
-						<div class="col-sm-10" id="analysislanguagecontainer">
+						<div class="col-sm-9" id="analysislanguagecontainer">
 							<select name="analysislanguage" class="form-control">
 								<c:forEach items="${languages}" var="language">
 									<option value="${language.id}" ${language.equals(analysis.language)?"selected='selected'":""}>${language.name}</option>
@@ -104,17 +102,17 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.label" text="Name" />
+						<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.label" />' > <spring:message code="label.analysis.label" text="Name" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="comment" class="form-control resize_vectical_only" required="required" value='<spring:message text="${analysis.label}" />'>
 						</div>
 					</div>
 					<c:if test="${not analysis.profile}">
 						<div class="form-group">
-							<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
+							<label for="uncertainty" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.uncertainty" />' > <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
 							</label>
-							<div class="col-sm-10" align="center">
+							<div class="col-sm-9" align="center">
 								<c:choose>
 									<c:when test="${ analysis.type=='QUALITATIVE'}">
 										<input type="checkbox" name="uncertainty" class="checkbox" disabled="disabled">
