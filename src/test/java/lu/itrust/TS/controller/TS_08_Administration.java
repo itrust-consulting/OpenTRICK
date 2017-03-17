@@ -56,9 +56,9 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post("/Admin/User/Save").with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))
 						.content(String.format(
-								"{ \"id\":\"-1\", \"connexionType\": \"0\" ,\"login\": \"%s\",\"ROLE_USER\":\"on\", \"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
-								"user", "user.Pass-20", "user.Pass-20", "First name", "Last name", "email@itrust.lu", "fr")))
-				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(content().string("{}"));
+								"{ \"id\":\"-1\", \"connexionType\": \"0\" ,\"login\": \"%s\",\"ROLE_USER\":\"on\", \"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\", \"using2FA\": \"%s\"}",
+								"user", "user.Pass-20", "user.Pass-20", "First name", "Last name", "email@itrust.lu", "fr", false)))
+				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists());
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
