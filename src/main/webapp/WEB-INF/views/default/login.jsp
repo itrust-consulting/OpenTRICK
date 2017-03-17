@@ -34,6 +34,10 @@
 					<c:set var="errorTRICKException" scope="request" value="${sessionScope.LOGIN_ERROR_EXCEPTION}" />
 					<c:remove var="LOGIN_ERROR_EXCEPTION" scope="session" />
 				</c:if>
+				<c:if test="${!empty sessionScope.LOGIN_ERROR_HANDLER}">
+					<c:set var="errorHANDLER" scope="request" value="${sessionScope.LOGIN_ERROR_HANDLER}" />
+					<c:remove var="LOGIN_ERROR_HANDLER" scope="session" />
+				</c:if>
 				<jsp:include page="../template/successErrors.jsp" />
 				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin">
 					<div class="form-group">

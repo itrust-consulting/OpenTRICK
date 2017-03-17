@@ -43,18 +43,18 @@
 						<form name="application" action="${pageContext.request.contextPath}/OTP/Authorise" method="POST"  id="otp-option-application" data-action-name="${signing}">
 							<input hidden="hidden" name="otp-method" value="application">
 							<div class='form-group'>
-								<label><spring:message code='label.otp.enter.code' text='Please enter code' /></label> <input name="otp-user-code" type="number" pattern="d{8}"  class="form-control" required="required" placeholder="000000000" >
+								<label><spring:message code='label.otp.enter.application.code' text='Please enter code' /></label> <input name="otp-user-code" type="number" pattern="d{8}"  class="form-control" required="required" placeholder="000000000" >
 							</div>
 							<input type="submit" id="application-form-submit" hidden="hidden"/>
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> 
-							<input type="hidden" name="username" value='<sec:authentication  property="principal" />'>
+							<input type="hidden" name="username" value='<sec:authentication  property="name" />'>
 						</form>
 					</c:if>
 					<c:if test="${not empty email}">
 						<form name="email" action="${pageContext.request.contextPath}/OTP/Generate-code" method="GET" class="form-horizontal" id="otp-option-email" data-action-name="${sendCode}" >
 							<input hidden="hidden" name="otp-method" value="email">
 							<div class='form-group'>
-								<label><spring:message code='label.otp.confirm.email' text='Please your email' /></label> <input name="otp-method-value" type="email" placeholder="${email}" class="form-control" required="required">
+								<label><spring:message code='label.otp.enter.email' text='Please enter your email' /></label> <input name="otp-method-value" type="email" placeholder="${email}" class="form-control" required="required">
 							</div>
 							<input type="submit" id="application-email-submit" hidden="hidden"/>
 						</form>
@@ -63,7 +63,7 @@
 						<form name="tel" action="${pageContext.request.contextPath}/OTP/Generate-code" method="GET" class="form-horizontal" id="otp-option-tel" data-action-name="${sendCode}" >
 							<input hidden="hidden" name="otp-method" value="tel">
 							<div class='form-group'>
-								<label><spring:message code='label.otp.confirm.text' text='Please your mobile phone' /></label> <input name="otp-method-value" type="tel" placeholder="${phoneNumber}" required="required"
+								<label><spring:message code='label.otp.enter.text' text='Please enter your mobile phone' /></label> <input name="otp-method-value" type="tel" placeholder="${phoneNumber}" required="required"
 									class="form-control">
 							</div>
 							<input type="submit" id="application-email-submit" hidden="hidden"/>

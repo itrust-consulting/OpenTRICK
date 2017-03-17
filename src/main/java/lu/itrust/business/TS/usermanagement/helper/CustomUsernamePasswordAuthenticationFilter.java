@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.TS.database.service.AccountLockerManager;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -32,12 +34,26 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	@Autowired
 	private SessionFactory sessionFactory;
 
+	@Autowired
+	private AccountLockerManager accountLockerManager;
+
 	private boolean enable2FA = false;
 
 	/**
 	 * 
 	 */
 	public CustomUsernamePasswordAuthenticationFilter() {
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter#obtainUsername(javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
+	protected String obtainUsername(HttpServletRequest request) {
+		String username = super.obtainUsername(request);
+		if (accountLockerManager.isLocked(username, AccountLockerManager.getIP(request)))
+			throw new LockedException("User account is locked");
+		return username;
 	}
 
 	/*

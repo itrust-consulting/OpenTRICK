@@ -28,3 +28,9 @@
 		<spring:message code="${errorTRICKException.code}" arguments="${errorTRICKException.parameters}" text="${errorTRICKException.message}" />
 	</div>
 </c:if>
+<c:if test="${not empty(errorHANDLER)}">
+	<div class="alert alert-danger" id="error">
+		<a href="#" class="close" data-dismiss="alert" style="margin-right: -10px; margin-top: -12px">×</a>
+		<spring:message code="${errorHANDLER.code}" arguments="${errorHANDLER.parameters}" text="${errorHANDLER.message}" />
+	</div>
+</c:if>

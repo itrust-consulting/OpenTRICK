@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.TS.database.service.AccountLockerManager;
 import lu.itrust.business.TS.exception.TrickOtpException;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -40,6 +41,9 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	@Autowired
+	private AccountLockerManager accountLockerManager;
 
 	/**
 	 * 
@@ -72,6 +76,7 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 		Session session = null;
 		try {
 			User user = new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName());
+			request.setAttribute("username", user.getLogin());
 			Totp totp = (Totp) request.getSession().getAttribute(Constant.OTP_CHALLENGE_AUTHEN);
 			if (totp == null) {
 				String secret = user.getSecret();
@@ -93,6 +98,7 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 			authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 			request.getSession().removeAttribute(Constant.OTP_CHALLENGE_AUTHEN);
 			request.getSession().removeAttribute(Constant.OTP_CHALLENGE_AUTHEN_INIT_TIME);
+			accountLockerManager.clean(user.getLogin(), AccountLockerManager.getIP(request) );
 			return authRequest;
 		} finally {
 			if (session != null)

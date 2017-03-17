@@ -23,14 +23,14 @@
 			<div class="form-signin" id="login" style="margin: 0 auto; max-width: 330px;">
 				<form action="${pageContext.request.contextPath}/OTP/Authorise" method="POST" id="otp-option-application">
 					<div class='form-group'>
-						<label><spring:message code='label.otp.enter.code' text='Please enter code' /></label> <input name="otp-user-code" type="number"
+						<label><spring:message code='label.otp.enter.receive.code' text='Please enter received code' /></label> <input name="otp-user-code" type="number"
 							class="form-control" required="required">
 					</div>
 					<div class="form-group">
 						<button class="btn btn-danger pull-left" type="submit"><spring:message code="label.action.signin" /></button>
 						<a href="#" class="btn btn-default pull-right" onclick="return $('#logoutFormSubmiter').click()"><spring:message code="label.action.cancel" /></a>
 					</div>
-					<input type="hidden" name="username" value='<sec:authentication  property="principal" />'>
+					<input type="hidden" name="username" value='<sec:authentication  property="name" />'>
 					<input type="submit" id="application-form-submit" hidden="hidden" /> <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 				</form>
 				<form action="${pageContext.request.contextPath}/signout" method="post" style="display: none">

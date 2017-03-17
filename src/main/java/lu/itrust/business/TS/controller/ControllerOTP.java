@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.jboss.aerogear.security.otp.Totp;
 import org.jboss.aerogear.security.otp.api.Base32;
+import org.jboss.aerogear.security.otp.api.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,8 +64,8 @@ public class ControllerOTP {
 			Model model, RedirectAttributes attributes, Locale locale) {
 		Totp totp = (Totp) session.getAttribute(Constant.OTP_CHALLENGE_AUTHEN);
 		Long timeout = (Long) session.getAttribute(Constant.OTP_CHALLENGE_AUTHEN_INIT_TIME);
-		if (totp == null || timeout < (System.currentTimeMillis() + 60000)) {
-			session.setAttribute(Constant.OTP_CHALLENGE_AUTHEN, totp = new Totp(Base32.random()));
+		if (totp == null || timeout < (System.currentTimeMillis() + 20000)) {
+			session.setAttribute(Constant.OTP_CHALLENGE_AUTHEN, totp = new Totp(Base32.random(), new Clock((int) (otpTimeout*.001))));
 			session.setAttribute(Constant.OTP_CHALLENGE_AUTHEN_INIT_TIME, timeout = (System.currentTimeMillis() + otpTimeout));
 		}
 		User user = serviceUser.get(principal.getName());
