@@ -133,7 +133,7 @@ function manageAnalysisIDSAccess(section) {
 		}).complete(function () {
 			$progress.hide();
 		});
-	} 
+	}
 	return false;
 
 }
@@ -160,58 +160,6 @@ function disableifprofile(section, menu) {
 		else
 			element.removeClass("disabled");
 	}
-}
-
-function saveAnalysis(form, reloadaction) {
-	var $progress = $("#loading-indicator").show();
-	$("#editAnalysisModel .label-danger").remove();
-	$.ajax({
-		url: context + "/Analysis/Save",
-		type: "post",
-		data: serializeForm(form),
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			var hasError = false;
-			for (var error in response) {
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
-				$(errorElement).text(response[error]);
-				switch (error) {
-					case "analysiscustomer":
-						$(errorElement).appendTo($("#analysiscustomercontainer"));
-						break;
-					case "analysislanguage":
-						$(errorElement).appendTo($("#analysislanguagecontainer"));
-						break;
-					case "comment":
-						$(errorElement).appendTo($("#analysis_label").parent());
-						break;
-					case "profile":
-						$(errorElement).appendTo($("#analysis_form select[name='profile']").parent());
-						break;
-					case "author":
-						$(errorElement).appendTo($("#analysis_form input[name='author']").parent());
-						break;
-					case "version":
-						$(errorElement).appendTo($("#analysis_version").parent());
-						break;
-					case "analysis":
-						showDialog("#alert-dialog", response[error]);
-						break;
-				}
-				hasError = true;
-			}
-			if (!hasError) {
-				$("#editAnalysisModel").modal("hide");
-				reloadSection("section_analysis");
-			}
-			return false;
-		},
-		error: unknowError
-	}).complete(function () {
-		$progress.hide();
-	});
-	return false;
 }
 
 function deleteAnalysis(analysisId) {
@@ -264,11 +212,11 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $view = $("#analysisProfileModal",new DOMParser().parseFromString(response, "text/html"));
-				if ($view.length){
-					$view.appendTo("#widget").modal("show").on('hidden.bs.modal', ()  => $view.remove());
-					$("button[name='save']").on("click", e => saveAnalysisProfile(e, $view, $progress, analysisId ));
-				}else unknowError();
+				var $view = $("#analysisProfileModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widget").modal("show").on('hidden.bs.modal', () => $view.remove());
+					$("button[name='save']").on("click", e => saveAnalysisProfile(e, $view, $progress, analysisId));
+				} else unknowError();
 			},
 			error: unknowError
 		}).complete(function () {
@@ -284,18 +232,18 @@ function saveAnalysisProfile(e, $view, $progress, analysisId) {
 		"description": $("input[name='name']", $view).val()
 	};
 	$view.find(".form-group[data-trick-id][data-name]").each(function () {
-		if($("input[type='radio'][value='true']:checked", this).length)
+		if ($("input[type='radio'][value='true']:checked", this).length)
 			data[this.getAttribute("data-trick-id")] = true;
 	});
 	$progress.show();
 	$.ajax({
-		url: context + "/AnalysisProfile/Analysis/"+analysisId+"/Save",
+		url: context + "/AnalysisProfile/Analysis/" + analysisId + "/Save",
 		type: "post",
 		data: JSON.stringify(data),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			$(".label-danger", $view).remove();
-			if(response['taskid'] == undefined){
+			if (response['taskid'] == undefined) {
 				for (var error in response) {
 					var errorElement = document.createElement("label");
 					errorElement.setAttribute("class", "label label-danger");
@@ -309,7 +257,7 @@ function saveAnalysisProfile(e, $view, $progress, analysisId) {
 							break;
 					}
 				}
-			}else {
+			} else {
 				application["taskManager"].Start();
 				$view.modal("hide");
 			}
@@ -833,7 +781,7 @@ function addHistory(analysisId) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $view = $("#addHistoryModal",new DOMParser().parseFromString(response, "text/html"));
+				var $view = $("#addHistoryModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
 					$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
 				} else
@@ -862,11 +810,54 @@ function editSingleAnalysis(analysisId) {
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $view = $("#editAnalysisModel",new DOMParser().parseFromString(response, "text/html"));
+				var $view = $("#editAnalysisModel", new DOMParser().parseFromString(response, "text/html"));
 				if (!$view.length) {
-					showDialog("#alert-dialog",MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
-				} else 
+					showDialog("#alert-dialog", MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
+				} else {
 					$view.appendTo("#widget").modal('show').on("hidden.bs.modal", () => $view.remove());
+					
+					$("button[name='save']", $view).on("click", e => {
+						$progress.show();
+						$.ajax({
+							url: context + "/Analysis/Save",
+							type: "post",
+							data: serializeForm($("form", $view)),
+							contentType: "application/json;charset=UTF-8",
+							success: function (response, textStatus, jqXHR) {
+								var hasError = false;
+								$(".label-danger", $view).remove();
+								for (var error in response) {
+									var $errorElement = $("<label class='label label-danger' />").text(response[error]);
+									switch (error) {
+										case "analysiscustomer":
+											$errorElement.appendTo($("#analysiscustomercontainer", $view));
+											break;
+										case "analysislanguage":
+											$errorElement.appendTo($("#analysislanguagecontainer", $view));
+											break;
+										case "comment":
+										case "profile":
+										case "owner":
+										case "version":
+											$errorElement.appendTo($("input[name='"+error+"']", $view).parent());
+											break;
+										default:
+											showDialog("#alert-dialog", response[error]);
+											break;
+									}
+									hasError = true;
+								}
+								if (!hasError) {
+									$view.modal("hide");
+									reloadSection("section_analysis");
+								}
+							},
+							error: unknowError
+						}).complete(function () {
+							$progress.hide();
+						});
+					});
+				}
 			},
 			error: unknowError
 		}).complete(function () {
@@ -920,9 +911,9 @@ function calculateActionPlan(analysisId) {
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
-				} else if (response["error"] != undefined) 
-					showDialog("#alert-dialog",response["error"]);
-				 else
+				} else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else
 					unknowError();
 			},
 			error: unknowError
@@ -965,8 +956,8 @@ function calculateRiskRegister(analysisId) {
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
-				} else if (response["error"] != undefined) 
-					showDialog("#alert-dialog",response["error"]);
+				} else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
 				else
 					unknowError();
 			},
@@ -987,7 +978,7 @@ function duplicateAnalysis(form, analyisId) {
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			if(response["analysis_task_id"]==undefined){
+			if (response["analysis_task_id"] == undefined) {
 				for (var error in response) {
 					var errorElement = document.createElement("label");
 					errorElement.setAttribute("class", "label label-danger");
@@ -1003,11 +994,11 @@ function duplicateAnalysis(form, analyisId) {
 							$(errorElement).appendTo($("#history_comment", $modal).parent());
 							break;
 						default:
-							showDialog("#alert-dialog",response[error]);
+							showDialog("#alert-dialog", response[error]);
 							break;
 					}
 				}
-			}else {
+			} else {
 				$modal.modal("hide");
 				application["taskManager"].Start();
 			}

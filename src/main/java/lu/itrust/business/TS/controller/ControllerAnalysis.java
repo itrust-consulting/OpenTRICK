@@ -669,7 +669,7 @@ public class ControllerAnalysis {
 				// throw error
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		} catch (TrickException e) {
-			errors.put("owner", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
 			TrickLogManager.Persist(e);

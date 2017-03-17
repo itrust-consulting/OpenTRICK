@@ -128,10 +128,10 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button id="editAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
+				<button name='save' type="button" class="btn btn-primary">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">
+				<button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
