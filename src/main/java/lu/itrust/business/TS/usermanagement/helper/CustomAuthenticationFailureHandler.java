@@ -51,13 +51,13 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		String stringdate = dateFormat.format(new Date()), remoteaddr = AccountLockerManager.getIP(request), username = request.getParameter("username");
 		if (exception instanceof BadCredentialsException
 				|| exception instanceof InternalAuthenticationServiceException && !(allowedLDAPAutnetication || exception.getCause() instanceof CannotGetJdbcConnectionException)) {
-			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
-			request.getSession().setAttribute("LOGIN_ERROR", "error.bad.credential");
+			lockAccount(request, stringdate, remoteaddr, username, null);
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential", String.format("%s attempts to connect from %s", username, remoteaddr),
 					"anonymous", LogAction.AUTHENTICATE, username, remoteaddr);
+
 		} else if (exception instanceof DisabledException) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: User '" + username + "' is disabled! Requesting IP: " + remoteaddr);
 			request.getSession().setAttribute("LOGIN_ERROR", "error.account.disabled");
@@ -77,16 +77,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), "anonymous", LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
 			request.getSession().setAttribute("LOGIN_ERROR_EXCEPTION", e);
 		} else if (exception instanceof TrickOtpException) {
-			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
-			AccountLocker locker = accountLockerManager.lock(username, remoteaddr);
-			if (locker == null || !locker.isLocked())
-				request.getSession().setAttribute("LOGIN_ERROR", exception.getMessage());
-			else
-				request.getSession().setAttribute("LOGIN_ERROR_HANDLER",
-						new MessageHandler("error.wait.account.locked",
-								new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale()).format(locker.getLockTime()) },
-								"Your account has been locked, please try later"));
-
+			lockAccount(request, stringdate, remoteaddr, username, exception);
 			/**
 			 * Log
 			 */
@@ -106,5 +97,17 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			request.getSession().setAttribute("LOGIN_ERROR", "error.database.connection_failed");
 		}
 		super.onAuthenticationFailure(request, response, exception);
+	}
+
+	private void lockAccount(HttpServletRequest request, String stringDate, String remoteaddr, String username, AuthenticationException exception) {
+		System.err.println(stringDate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' on time password failed! Requesting IP: " + remoteaddr);
+		AccountLocker locker = accountLockerManager.lock(username, remoteaddr);
+		if (locker == null || !locker.isLocked())
+			request.getSession().setAttribute("LOGIN_ERROR", exception == null ? "error.bad.credential" : exception.getMessage());
+		else
+			request.getSession().setAttribute("LOGIN_ERROR_HANDLER",
+					new MessageHandler("error.wait.account.locked",
+							new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale()).format(locker.getLockTime()) },
+							"Your account has been locked, please try later"));
 	}
 }
