@@ -300,7 +300,7 @@ public class ControllerAnalysis {
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
-
+			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 			standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
 					.collect(Collectors.toList());
@@ -1109,7 +1109,7 @@ public class ControllerAnalysis {
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
 
 			workbook.write(response.getOutputStream());
 

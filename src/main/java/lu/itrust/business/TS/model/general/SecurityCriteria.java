@@ -785,6 +785,54 @@ public abstract class SecurityCriteria implements Cloneable {
 	public void setAvailability(int value) throws TrickException {
 		setCategoryValue("Availability", value);
 	}
+	
+	/**
+	 * getExploitability: <br>
+	 * Return the Availability value. Uses {@link #getCategoryValue(String)}
+	 * 
+	 * @return The Exploitability value
+	 */
+	@Column(name = "dtExploitabilityCat", nullable = false)
+	public int getExploitability(){
+		return getCategoryValue("Exploitability");
+	}
+	
+	/**
+	 * setExploitability: <br>
+	 * Sets the "Exploitability" value. Uses
+	 * {@link #setCategoryValue(String, int)}
+	 * 
+	 * @param value
+	 *            Value to set the Exploitability
+	 * @throws TrickException
+	 */
+	public void setExploitability(int value) {
+		setCategoryValue("Exploitability", value);
+	}
+	
+	/**
+	 * getReliability: <br>
+	 * Return the Availability value. Uses {@link #getCategoryValue(String)}
+	 * 
+	 * @return The Reliability value
+	 */
+	@Column(name = "dtReliabilityCat", nullable = false)
+	public int getReliability(){
+		return getCategoryValue("Reliability");
+	}
+	
+	/**
+	 * setExploitability: <br>
+	 * Sets the "Reliability" value. Uses
+	 * {@link #setCategoryValue(String, int)}
+	 * 
+	 * @param value
+	 *            Value to set the Reliability
+	 * @throws TrickException
+	 */
+	public void setReliability(int value) {
+		setCategoryValue("Reliability", value);
+	}
 
 	/**
 	 * getPreventive: <br>

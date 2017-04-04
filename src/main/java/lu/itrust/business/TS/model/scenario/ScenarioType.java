@@ -15,26 +15,26 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 public enum ScenarioType {
 
-	Confidentiality(1), Integrity(2), Availability(3), Direct1(4), Direct2(5), Direct3(6), Direct4(7), Direct5(8), Direct6(9), Direct6_1(10), Direct6_2(11), Direct6_3(12), Direct6_4(
-			13), Direct7(14), Indirect1(15), Indirect2(16), Indirect3(17), Indirect4(18), Indirect5(19), Indirect6(20), Indirect7(21), Indirect8(22), Indirect8_1(23), Indirect8_2(
-			24), Indirect8_3(25), Indirect8_4(26), Indirect9(27), Indirect10(28);
+	Confidentiality(1), Integrity(2), Availability(3), Exploitability(4), Reliability(5), Direct1(6), Direct2(7), Direct3(8), Direct4(9), Direct5(10), Direct6(11), Direct6_1(
+			12), Direct6_2(13), Direct6_3(14), Direct6_4(15), Direct7(16), Indirect1(17), Indirect2(18), Indirect3(19), Indirect4(20), Indirect5(
+					21), Indirect6(22), Indirect7(23), Indirect8(24), Indirect8_1(25), Indirect8_2(26), Indirect8_3(27), Indirect8_4(28), Indirect9(29), Indirect10(30);
 
-	public static final String[] NAMES = new String[] { "Confidentiality", "Integrity", "Availability", "D1-Strat", "D2-RH", "D3-Processus", "D4-BCM", "D5-Soustrait", "D6-SI",
-			"D6.1-Secu", "D6.2-Dev", "D6.3-Expl", "D6.4-Support", "D7-Aut", "I1-Strat", "I2-Fin", "I3-Leg", "I4-RH", "I5-Processus", "I6-BCM", "I7-Soustrait", "I8-SI",
-			"I8.1-Secu", "I8.2-Dev", "I8.3-Expl", "I8.4-Support", "I9-Prest", "I10-Aut" };
+	public static final String[] NAMES = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability", "D1-Strat", "D2-RH", "D3-Processus",
+			"D4-BCM", "D5-Soustrait", "D6-SI", "D6.1-Secu", "D6.2-Dev", "D6.3-Expl", "D6.4-Support", "D7-Aut", "I1-Strat", "I2-Fin", "I3-Leg", "I4-RH", "I5-Processus", "I6-BCM",
+			"I7-Soustrait", "I8-SI", "I8.1-Secu", "I8.2-Dev", "I8.3-Expl", "I8.4-Support", "I9-Prest", "I10-Aut" };
 
-	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6",
-			"Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8",
-			"Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
+	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability", "Direct1", "Direct2", "Direct3",
+			"Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5",
+			"Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
 
 	public static final String[] CSSF_KEYS = new String[] { "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4",
 			"Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3",
 			"Indirect8.4", "Indirect9", "Indirect10" };
 
-	public static final String[] CIA_KEYS = new String[] { "Confidentiality", "Integrity", "Availability" };
+	public static final String[] CIA_KEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability" };
 
 	/** value */
-	private int value = 1;
+	private int value;
 
 	/**
 	 * Constructor:<br>
@@ -80,7 +80,7 @@ public enum ScenarioType {
 	public static List<ScenarioType> getAllCIA() {
 		List<ScenarioType> result = new ArrayList<ScenarioType>();
 		ScenarioType[] values = values();
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < CIA_KEYS.length; i++)
 			result.add(values[i]);
 		return result;
 	}
@@ -94,7 +94,7 @@ public enum ScenarioType {
 	public static List<ScenarioType> getAllCSSF() {
 		List<ScenarioType> result = new ArrayList<ScenarioType>();
 		ScenarioType[] values = values();
-		for (int i = 3; i < values.length; i++)
+		for (int i = CIA_KEYS.length; i < values.length; i++)
 			result.add(values[i]);
 		return result;
 	}

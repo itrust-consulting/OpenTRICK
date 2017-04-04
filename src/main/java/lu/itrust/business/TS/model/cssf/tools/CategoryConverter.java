@@ -27,74 +27,67 @@ public class CategoryConverter {
 
 	/**
 	 * SQLITEKEYS:<br>
-	 * confidentiality, integrity, availability, d1, d2, d3, d4, d5, d6, d61, d62, d63, d64, d7, i1,
-	 * i2, i3, i4, i5, i6, i7, i8, i81, i82, i83, i84, i9,i10
+	 * confidentiality, integrity, availability, d1, d2, d3, d4, d5, d6, d61,
+	 * d62, d63, d64, d7, i1, i2, i3, i4, i5, i6, i7, i8, i81, i82, i83, i84,
+	 * i9,i10
 	 */
-	public static final String[] SQLITEKEYS = new String[] { "confidentiality", "integrity",
-		"availability", "d1", "d2", "d3", "d4", "d5", "d6", "d61", "d62", "d63", "d64", "d7", "i1",
-		"i2", "i3", "i4", "i5", "i6", "i7", "i8", "i81", "i82", "i83", "i84", "i9", "i10" };
+	public static final String[] SQLITEKEYS = new String[] { "confidentiality", "integrity", "availability", "exploitability", "reliability", "d1", "d2", "d3", "d4", "d5", "d6",
+			"d61", "d62", "d63", "d64", "d7", "i1", "i2", "i3", "i4", "i5", "i6", "i7", "i8", "i81", "i82", "i83", "i84", "i9", "i10" };
 
 	/**
 	 * MYSQLKEYS: <br>
-	 * dtConfidentialityCat, dtIntegrityCat, dtAvailabilityCat, dtDirect1Cat, dtDirect2Cat,
-	 * dtDirect3Cat, dtDirect4Cat, dtDirect5Cat, dtDirect6Cat, dtDirect6.1Cat, dtDirect6.2Cat,
-	 * dtDirect6.3Cat, dtDirect6.4Cat, dtDirect7Cat, dtIndirect1Cat, dtIndirect2Cat, dtIndirect3Cat,
-	 * dtIndirect4Cat, dtIndirect5Cat, dtIndirect6Cat, dtIndirect7Cat, dtIndirect8Cat,
-	 * dtIndirect8.1Cat, dtIndirect8.2Cat, dtIndirect8.3Cat, dtIndirect8.4Cat, dtIndirect9Cat,
-	 * dtIndirect10Cat
+	 * dtConfidentialityCat, dtIntegrityCat, dtAvailabilityCat, dtDirect1Cat,
+	 * dtDirect2Cat, dtDirect3Cat, dtDirect4Cat, dtDirect5Cat, dtDirect6Cat,
+	 * dtDirect6.1Cat, dtDirect6.2Cat, dtDirect6.3Cat, dtDirect6.4Cat,
+	 * dtDirect7Cat, dtIndirect1Cat, dtIndirect2Cat, dtIndirect3Cat,
+	 * dtIndirect4Cat, dtIndirect5Cat, dtIndirect6Cat, dtIndirect7Cat,
+	 * dtIndirect8Cat, dtIndirect8.1Cat, dtIndirect8.2Cat, dtIndirect8.3Cat,
+	 * dtIndirect8.4Cat, dtIndirect9Cat, dtIndirect10Cat
 	 */
-	public static final String[] MYSQLKEYS = new String[] { "dtConfidentialityCat",
-		"dtIntegrityCat", "dtAvailabilityCat", "dtDirect1Cat", "dtDirect2Cat", "dtDirect3Cat",
-		"dtDirect4Cat", "dtDirect5Cat", "dtDirect6Cat", "dtDirect6.1Cat", "dtDirect6.2Cat",
-		"dtDirect6.3Cat", "dtDirect6.4Cat", "dtDirect7Cat", "dtIndirect1Cat", "dtIndirect2Cat",
-		"dtIndirect3Cat", "dtIndirect4Cat", "dtIndirect5Cat", "dtIndirect6Cat", "dtIndirect7Cat",
-		"dtIndirect8Cat", "dtIndirect8.1Cat", "dtIndirect8.2Cat", "dtIndirect8.3Cat",
-		"dtIndirect8.4Cat", "dtIndirect9Cat", "dtIndirect10Cat" };
+	public static final String[] MYSQLKEYS = new String[] { "dtConfidentialityCat", "dtIntegrityCat", "dtAvailabilityCat", "dtExploitabilityCat", "dtReliabilityCat",
+			"dtDirect1Cat", "dtDirect2Cat", "dtDirect3Cat", "dtDirect4Cat", "dtDirect5Cat", "dtDirect6Cat", "dtDirect6.1Cat", "dtDirect6.2Cat", "dtDirect6.3Cat", "dtDirect6.4Cat",
+			"dtDirect7Cat", "dtIndirect1Cat", "dtIndirect2Cat", "dtIndirect3Cat", "dtIndirect4Cat", "dtIndirect5Cat", "dtIndirect6Cat", "dtIndirect7Cat", "dtIndirect8Cat",
+			"dtIndirect8.1Cat", "dtIndirect8.2Cat", "dtIndirect8.3Cat", "dtIndirect8.4Cat", "dtIndirect9Cat", "dtIndirect10Cat" };
 
 	/**
 	 * JAVAKEYS: <br>
-	 * Confidentiality, Integrity, Availability, Direct1, Direct2, Direct3, Direct4, Direct5,
-	 * Direct6, Direct6.1, Direct6.2, Direct6.3, Direct6.4, Direct7, Indirect1, Indirect2,
-	 * Indirect3, Indirect4, Indirect5, Indirect6,Indirect7, Indirect8, Indirect8.1, Indirect8.2,
-	 * Indirect8.3, Indirect8.4, Indirect9,Indirect10
+	 * Confidentiality, Integrity, Availability, Direct1, Direct2, Direct3,
+	 * Direct4, Direct5, Direct6, Direct6.1, Direct6.2, Direct6.3, Direct6.4,
+	 * Direct7, Indirect1, Indirect2, Indirect3, Indirect4, Indirect5,
+	 * Indirect6,Indirect7, Indirect8, Indirect8.1, Indirect8.2, Indirect8.3,
+	 * Indirect8.4, Indirect9,Indirect10
 	 */
-	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity",
-		"Availability", "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6",
-		"Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2",
-		"Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8",
-		"Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
+	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability", "Direct1", "Direct2", "Direct3",
+			"Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5",
+			"Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
 
 	/**
 	 * TYPE_CSSF_KEYS:<br>
-	 * Direct1, Direct2, Direct3, Direct4, Direct5, Direct6, Direct6.1, Direct6.2, Direct6.3,
-	 * Direct6.4, Direct7, Indirect1, Indirect2, Indirect3, Indirect4, Indirect5,
-	 * Indirect6,Indirect7, Indirect8, Indirect8.1, Indirect8.2, Indirect8.3, Indirect8.4,
-	 * Indirect9,Indirect10
+	 * Direct1, Direct2, Direct3, Direct4, Direct5, Direct6, Direct6.1,
+	 * Direct6.2, Direct6.3, Direct6.4, Direct7, Indirect1, Indirect2,
+	 * Indirect3, Indirect4, Indirect5, Indirect6,Indirect7, Indirect8,
+	 * Indirect8.1, Indirect8.2, Indirect8.3, Indirect8.4, Indirect9,Indirect10
 	 */
-	public static final String[] TYPE_CSSF_KEYS = new String[] { "Direct1", "Direct2", "Direct3",
-		"Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4",
-		"Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6",
-		"Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4",
-		"Indirect9", "Indirect10" };
+	public static final String[] TYPE_CSSF_KEYS = new String[] { "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3",
+			"Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2",
+			"Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
 
 	/**
 	 * TYPE_CIA_KEYS:<br>
-	 * Confidentiality, Integrity, Availability
+	 * Confidentiality, Integrity, Availability, Exploitability,Reliability
 	 */
-	public static final String[] TYPE_CIA_KEYS = new String[] { "Confidentiality", "Integrity",
-		"Availability" };
+	public static final String[] TYPE_CIA_KEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability" };
 
 	/**
 	 * SCENARIO_TYPE_CSSF:<br>
-	 * D1-Strat, D2-RH,D3-Processus, D4-BCM, D5-Soustrait, D6-SI, D6.1-Secu, D6.2-Dev, D6.3-Expl,
-	 * D6.4-Support, D7-Aut, I1-Strat, I2-Fin, I3-Leg, I4-RH, I5-Processus, I6-BCM, I7-Soustrait,
-	 * I8-SI, I8.1-Secu, I8.2-Dev, I8.3-Expl, I8.4-Support, I9-Prest, I10-Aut
+	 * D1-Strat, D2-RH,D3-Processus, D4-BCM, D5-Soustrait, D6-SI, D6.1-Secu,
+	 * D6.2-Dev, D6.3-Expl, D6.4-Support, D7-Aut, I1-Strat, I2-Fin, I3-Leg,
+	 * I4-RH, I5-Processus, I6-BCM, I7-Soustrait, I8-SI, I8.1-Secu, I8.2-Dev,
+	 * I8.3-Expl, I8.4-Support, I9-Prest, I10-Aut
 	 */
-	public static final String[] SCENARIO_TYPE_CSSF_KEYS = new String[] { "D1-Strat", "D2-RH",
-		"D3-Processus", "D4-BCM", "D5-Soustrait", "D6-SI", "D6.1-Secu", "D6.2-Dev", "D6.3-Expl",
-		"D6.4-Support", "D7-Aut", "I1-Strat", "I2-Fin", "I3-Leg", "I4-RH", "I5-Processus",
-		"I6-BCM", "I7-Soustrait", "I8-SI", "I8.1-Secu", "I8.2-Dev", "I8.3-Expl", "I8.4-Support",
-		"I9-Prest", "I10-Aut" };
+	public static final String[] SCENARIO_TYPE_CSSF_KEYS = new String[] { "D1-Strat", "D2-RH", "D3-Processus", "D4-BCM", "D5-Soustrait", "D6-SI", "D6.1-Secu", "D6.2-Dev",
+			"D6.3-Expl", "D6.4-Support", "D7-Aut", "I1-Strat", "I2-Fin", "I3-Leg", "I4-RH", "I5-Processus", "I6-BCM", "I7-Soustrait", "I8-SI", "I8.1-Secu", "I8.2-Dev", "I8.3-Expl",
+			"I8.4-Support", "I9-Prest", "I10-Aut" };
 
 	/***********************************************************************************************
 	 * Fields
@@ -188,8 +181,8 @@ public class CategoryConverter {
 
 	/**
 	 * initialiseMySQLToTypeAndTypeToMySQL: <br>
-	 * Initialise List of Mysql category names ("mysqlToType"). Initialise List of Type category
-	 * names ("typeToMysql").
+	 * Initialise List of Mysql category names ("mysqlToType"). Initialise List
+	 * of Type category names ("typeToMysql").
 	 */
 	protected synchronized static void initialiseMySQLToTypeAndTypeToMySQL() {
 
@@ -212,7 +205,8 @@ public class CategoryConverter {
 			// set generic type as keys and set mysql as keys
 			map2.put(JAVAKEYS[i], MYSQLKEYS[i]);
 
-			//System.out.println("Java: " + JAVAKEYS[i] + " MySQL:" + MYSQLKEYS[i]);
+			// System.out.println("Java: " + JAVAKEYS[i] + " MySQL:" +
+			// MYSQLKEYS[i]);
 		}
 		// set mysqltotype with map
 		mysqlToType = map;
@@ -232,8 +226,7 @@ public class CategoryConverter {
 			return;
 
 		// initialise size of List with cia and cssf keys
-		Map<String, String> map =
-			new HashMap<String, String>(TYPE_CIA_KEYS.length + SCENARIO_TYPE_CSSF_KEYS.length);
+		Map<String, String> map = new HashMap<String, String>(TYPE_CIA_KEYS.length + SCENARIO_TYPE_CSSF_KEYS.length);
 
 		// parse all cia keys and add them as keys with javakeys as value
 		for (int i = 0; i < TYPE_CIA_KEYS.length; i++)
@@ -281,9 +274,11 @@ public class CategoryConverter {
 		if (mysqlToType == null)
 			initialiseMySQLToTypeAndTypeToMySQL();
 
-		// check if key is not null and if key is a MySQL DatabaseField (starts with "dt" and end
+		// check if key is not null and if key is a MySQL DatabaseField (starts
+		// with "dt" and end
 		// with "Cat")
-		// if this check is false (it is not a valid MySQL Field) the method returns null else, the
+		// if this check is false (it is not a valid MySQL Field) the method
+		// returns null else, the
 		return mysqlToType.get(key);
 	}
 
@@ -384,7 +379,7 @@ public class CategoryConverter {
 	public static String getTypeFromScenario(Scenario scenario) {
 		return getTypeFromScenarioType(scenario.getType().getName());
 	}
-	
+
 	/**
 	 * getTypeFromScenarioType: <br>
 	 * retrieves CSSF genreic type or null
@@ -396,10 +391,10 @@ public class CategoryConverter {
 	public static String getTypeFromScenarioType(String scenarioType) {
 
 		// check if array is not yet initialised -> NO -> initialise
-		if (scenarioTypeToType == null) 
+		if (scenarioTypeToType == null)
 			initialiseScenarioTypeToType();
 		// returns the type of the scneario if it is CSSF null when not
-		return  scenarioTypeToType.get(scenarioType);
+		return scenarioTypeToType.get(scenarioType);
 	}
 
 	/**

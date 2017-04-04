@@ -38,9 +38,9 @@
 					<c:if test="${isEditable}">
 						<th style="width: 2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
 					</c:if>
-					<th style="width: 3%"><a href="#" onclick="return sortTable('index',this,true)" data-order='1'><spring:message code="label.row.index" /></a></th>
-					<th style="width: 25%"><a href="#" onclick="return sortTable('name',this,true)" data-order='1'><spring:message code="label.scenario.name" /></a></th>
-					<th style="width: 5%"><a href="#" onclick="return sortTable('type',this,true)" data-order='1'><spring:message code="label.scenario.type" /></a></th>
+					<th style="width: 3%"><a href="#" onclick="return sortTable('index',this,true)" data-order='0'><spring:message code="label.row.index" /></a></th>
+					<th style="width: 25%"><a href="#" onclick="return sortTable('name',this)" data-order='1'><spring:message code="label.scenario.name" /></a></th>
+					<th style="width: 5%"><a href="#" onclick="return sortTable('type',this)" data-order='1'><spring:message code="label.scenario.type" /></a></th>
 					<c:if test="${type == 'QUANTITATIVE'}">
 						<c:choose>
 							<c:when test="${show_uncertainty}">

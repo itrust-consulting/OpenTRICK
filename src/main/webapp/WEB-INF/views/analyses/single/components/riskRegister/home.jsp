@@ -25,7 +25,7 @@
 		<table class="table table-hover table-condensed table-fixed-header-analysis">
 			<thead>
 				<tr>
-					<th style="width: 1.8%" rowspan="2"><a href="#" onclick="return sortTable('index',this,true)" data-order='1'><spring:message code="label.row.index" /></a></th>
+					<th style="width: 1.8%" rowspan="2"><a href="#" onclick="return sortTable('index',this,true)" data-order='0'><spring:message code="label.row.index" /></a></th>
 					<th style="width: 4.5%" rowspan="2" title='<spring:message code="label.title.id" />'><a href="#" onclick="return sortTable('.identifier',this)" data-order='1'><spring:message
 								code="label.risk_register.id" /></a></th>
 					<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><a href="#" onclick="return sortTable('category',this)" data-order='1'><spring:message

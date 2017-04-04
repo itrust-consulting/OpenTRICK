@@ -184,12 +184,12 @@ public class Constant {
 	/** Regular expression for Risk Information Categories */
 	public static final String REGEXP_VALID_RISKINFORMATION_TYPE = "Vul|Threat|Risk_(TBS|TBA)";
 
-	public static final String REGEXP_VALID_SCENARIO_TYPE = "Confidentiality|Integrity|Availability|D1-Strat|D2-RH|D3-Processus|D4-BCM|D5-Soustrait|D6-SI|"
+	public static final String REGEXP_VALID_SCENARIO_TYPE = "Confidentiality|Integrity|Availability|Exploitability|Reliability|D1-Strat|D2-RH|D3-Processus|D4-BCM|D5-Soustrait|D6-SI|"
 			+ "D6\\.1-Secu|D6\\.2-Dev|D6\\.3-Expl|D6\\.4-Support|D7-Aut|I1-Strat|I2-Fin|I3-Leg|I4-RH|I5-Processus|"
 			+ "I6-BCM|I7-Soustrait|I8-SI|I8\\.1-Secu|I8\\.2-Dev|I8\\.3-Expl|I8\\.4-Support|I9-Prest|I10-Aut";
 
 	/** The Regular expression for valid Risk Categories */
-	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|Confidentiality|Availability|Integrity";
+	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|Confidentiality|Availability|Integrity|Exploitability|Reliability";
 
 	/***********************************************************************************************
 	 * List of Regular Expressions - END

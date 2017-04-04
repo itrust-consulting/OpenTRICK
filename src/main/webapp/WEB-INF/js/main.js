@@ -340,6 +340,22 @@ function hasScrollBar(element) {
 	return element.get(0).scrollHeight > element.get(0).clientHeight;
 }
 
+function sortTable(type, element, number){
+	var $table = $(element).closest("table"), $tbody = $("tbody", $table),  $trs =  $("tr",$tbody), order = element == undefined?  undefined :  element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='"+type+"']";
+	if($trs.length && order !== undefined){
+		$trs.sort( (a, b)  => {
+			var value1 = $(selector,a).text() , value2 = $(selector,b).text();
+			return  (number? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, ""))  : naturalSort(value1, value2) ) * order;
+		}).detach().appendTo($tbody);
+		var $tr = $(element).closest("tr");
+		$tr.find(".fa").remove();
+		$tr.find("a[data-order]").attr("data-order", 1);
+		element.setAttribute("data-order", order > 0 ? 0 : 1 );
+		$(order > 0 ? "<i class='fa fa-caret-up' aria-hidden='true' style='margin-left:3px;'/>" :  "<i class='fa fa-caret-down' style='margin-left:3px;' aria-hidden='true' />").appendTo(element);
+	}
+	return false;
+}
+
 $.fn.hasAttr = function(name) {
 	return this[0].hasAttribute(name);
 };
