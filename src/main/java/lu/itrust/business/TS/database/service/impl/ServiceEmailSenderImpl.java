@@ -21,6 +21,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import freemarker.core.ParseException;
@@ -29,6 +30,7 @@ import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateNotFoundException;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
@@ -55,9 +57,15 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Value("${app.settings.smtp.username}")
 	private String emailSender;
+	
+	@Value("${app.settings.hostserver}")
+	private String hostServer;
 
 	@Autowired
 	private TaskExecutor emailTaskExecutor;
+
+	@Autowired
+	private DAOUser daoUser;
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -175,8 +183,46 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 				}
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
 		}
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public void sendAccountLocked(String code, String ip, Long timeout, String username) {
+		
+		
+		try {
+			User user = daoUser.get(username);
+			if(user == null)
+				return;
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+						MissingResourceException, IOException, TemplateException {
+					Locale locale = user.getLocaleObject();
+					Timestamp timestamp = new Timestamp(timeout);
+					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					message.setFrom(emailSender);
+					message.setSubject(messageSource.getMessage("label.account.locked.subject", null, "TRICK Service account locked", locale));
+					Map<String, Object> model = new LinkedHashMap<String, Object>();
+					model.put("title", messageSource.getMessage("label.title.account.locked", null, "TRICK Service account locked", locale));
+					model.put("expireDate", DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp));
+					model.put("expireDateTime", DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp));
+					model.put("hostname", String.format("%s/Unlock-account/%s", hostServer, code));
+					model.put("user", user);
+					model.put("ip", ip);
+					message.setText(
+							FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
+									.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "account-locked-fr.ftl" : "account-locked-en.ftl"), "UTF-8"), model),
+							true);
+					message.setTo(user.getEmail());
+				}
+			};
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+
 	}
 }

@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.AccountLockerManager;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -52,6 +54,9 @@ public class ControllerHome {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
+
+	@Autowired
+	private AccountLockerManager accountLockerManager;
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
@@ -123,6 +128,13 @@ public class ControllerHome {
 	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String error(@ModelAttribute("error") String error) {
 		return JsonMessage.Error(error);
+	}
+
+	@RequestMapping(value = "/Unlock-account/{code}", method = RequestMethod.GET)
+	public String unlockAccount(@PathVariable String code, RedirectAttributes attributes, Locale locale) {
+		accountLockerManager.unlock(code);
+		attributes.addFlashAttribute("success", "success.unlock.account");
+		return "redirect:/Login";
 	}
 
 }

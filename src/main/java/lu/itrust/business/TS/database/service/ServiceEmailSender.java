@@ -19,4 +19,6 @@ public interface ServiceEmailSender {
 	void sendResetPassword(ResetPassword password,String hotname);
 
 	void sendOTPCode(String code, Long timeout, User user);
+	
+	void sendAccountLocked(String code, String ip,Long timeout, String username);
 }

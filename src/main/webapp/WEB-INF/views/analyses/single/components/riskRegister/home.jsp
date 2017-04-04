@@ -25,31 +25,46 @@
 		<table class="table table-hover table-condensed table-fixed-header-analysis">
 			<thead>
 				<tr>
-					<th style="width: 1%" rowspan="2"><spring:message code="label.row.index" /></th>
-					<th style="width: 3%" rowspan="2" title='<spring:message code="label.title.id" />'><spring:message code="label.risk_register.id" /></th>
-					<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><spring:message code="label.risk_register.category" /></th>
-					<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><spring:message code="label.risk_register.risk_title" /></th>
-					<th style="width: 15%" rowspan="2" title='<spring:message code="label.risk_register.asset" />'><spring:message code="label.risk_register.asset" /></th>
+					<th style="width: 1.8%" rowspan="2"><a href="#" onclick="return sortTable('index',this,true)" data-order='1'><spring:message code="label.row.index" /></a></th>
+					<th style="width: 4.5%" rowspan="2" title='<spring:message code="label.title.id" />'><a href="#" onclick="return sortTable('.identifier',this)" data-order='1'><spring:message
+								code="label.risk_register.id" /></a></th>
+					<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><a href="#" onclick="return sortTable('category',this)" data-order='1'><spring:message
+								code="label.risk_register.category" /></a></th>
+					<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><a href="#" onclick="return sortTable('scenario',this,true)" data-order='1'><spring:message
+								code="label.risk_register.risk_title" /></a></th>
+					<th style="width: 8%" rowspan="2" title='<spring:message code="label.risk_register.asset" />'><a href="#" onclick="return sortTable('asset',this)" data-order='1'><spring:message
+								code="label.risk_register.asset" /></a></th>
 					<c:if test="${showRawColumn}">
 						<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.raw_eval" />'><spring:message code="label.risk_register.raw_eval" /></th>
 					</c:if>
 					<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.net_eval" />'><spring:message code="label.risk_register.net_eval" /></th>
 					<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.exp_eval" />'><spring:message code="label.risk_register.exp_eval" /></th>
-					<th rowspan="2" style="width: 5%" title='<spring:message code="label.risk_register.strategy" />'><spring:message code="label.risk_register.strategy" /></th>
-					<th style="width: 4%" rowspan="2" title='<spring:message code="label.risk_register.owner" />'><spring:message code="label.risk_register.owner" /></th>
+					<th rowspan="2" style="width: 5%" title='<spring:message code="label.risk_register.strategy" />'><a href="#" onclick="return sortTable('.riskStrategy',this)" data-order='1'><spring:message
+								code="label.risk_register.strategy" /></a></th>
+					<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.owner" />'><a href="#" onclick="return sortTable('owner',this)" data-order='1'><spring:message
+								code="label.risk_register.owner" /></a></th>
 				</tr>
 				<tr>
 					<c:if test="${showRawColumn}">
-						<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><spring:message code="label.risk_register.acro.probability" /></th>
-						<th class="text-center" title='<spring:message code="label.risk_register.impact"  />'><spring:message code="label.risk_register.acro.impact" /></th>
-						<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><spring:message code="label.risk_register.acro.importance" /></th>
+						<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><a href="#" onclick="return sortTable('raw.probability',this,true)" data-order='1'><spring:message
+									code="label.risk_register.acro.probability" /></a></th>
+						<th class="text-center" title='<spring:message code="label.risk_register.impact"  />'><a href="#" onclick="return sortTable('raw.impact',this,true)" data-order='1'><spring:message
+									code="label.risk_register.acro.impact" /></a></th>
+						<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><a href="#" onclick="return sortTable('raw.importance',this,true)" data-order='1'><spring:message
+									code="label.risk_register.acro.importance" /></a></th>
 					</c:if>
-					<th class="text-center" title='<spring:message code="label.risk_register.probability"  />'><spring:message code="label.risk_register.acro.probability" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.impact" />'><spring:message code="label.risk_register.acro.impact" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><spring:message code="label.risk_register.acro.importance" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><spring:message code="label.risk_register.acro.probability" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.impact"/>'><spring:message code="label.risk_register.acro.impact" /></th>
-					<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><spring:message code="label.risk_register.acro.importance" /></th>
+					<th class="text-center" title='<spring:message code="label.risk_register.probability"  />'><a href="#" onclick="return sortTable('net.probability',this,true)" data-order='1'><spring:message
+								code="label.risk_register.acro.probability" /></a></th>
+					<th class="text-center" title='<spring:message code="label.risk_register.impact" />'><a href="#" onclick="return sortTable('net.impact',this,true)" data-order='1'><spring:message
+								code="label.risk_register.acro.impact" /></a></th>
+					<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><a href="#" onclick="return sortTable('net.importance',this,true)" data-order='1'><spring:message
+								code="label.risk_register.acro.importance" /></a></th>
+					<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><a href="#" onclick="return sortTable('exp.probability',this,true)" data-order='1'><spring:message
+								code="label.risk_register.acro.probability" /></a></th>
+					<th class="text-center" title='<spring:message code="label.risk_register.impact"/>'><a href="#" onclick="return sortTable('exp.impact',this,true)" data-order='1'><spring:message
+								code="label.risk_register.acro.impact" /></a></th>
+					<th class="text-center" title='<spring:message code="label.risk_register.importance" />'><a href="#" onclick="return sortTable('exp.importance',this,true)" data-order='1'><spring:message
+								code="label.risk_register.acro.importance" /></a></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -58,25 +73,25 @@
 				<c:forEach items="${estimations}" var="estimation" varStatus="status">
 					<c:set var="riskProfile" value="${estimation.riskProfile}" />
 					<tr data-trick-id='${riskProfile.id}'>
-						<td><spring:message text="${status.index+1}" /></td>
+						<td data-trick-field="index" ><spring:message text="${status.index+1}" /></td>
 						<td class="editable" data-trick-id="${riskProfile.id}" data-trick-field=".identifier" onclick="return editField(this);" data-trick-class="RiskProfile"
 							data-trick-field-type="string"><spring:message text="${riskProfile.identifier}" /></td>
-						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(riskProfile.scenario.type.name,'-','_'))}" /></td>
-						<td><spring:message text="${riskProfile.scenario.name}" /></td>
-						<td><spring:message text="${riskProfile.asset.name}" /></td>
+						<td data-trick-field="category" ><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(riskProfile.scenario.type.name,'-','_'))}" /></td>
+						<td data-trick-field="scenario" ><spring:message text="${riskProfile.scenario.name}" /></td>
+						<td data-trick-field="asset"><spring:message text="${riskProfile.asset.name}" /></td>
 						<c:if test="${showRawColumn}">
-							<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
-							<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
-							<td class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.importance}" maxFractionDigits="0" /></td>
+							<td data-trick-field="raw.probability" class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
+							<td data-trick-field="raw.impact" class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
+							<td data-trick-field="raw.importance" class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.importance}" maxFractionDigits="0" /></td>
 						</c:if>
 
-						<td class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.probabilityLevel}" maxFractionDigits="0" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.impactLevel}" maxFractionDigits="0" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.importance}" maxFractionDigits="0" /></td>
+						<td data-trick-field="net.probability" class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.probabilityLevel}" maxFractionDigits="0" /></td>
+						<td data-trick-field="net.impact" class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.impactLevel}" maxFractionDigits="0" /></td>
+						<td data-trick-field="net.importance" class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.importance}" maxFractionDigits="0" /></td>
 
-						<td class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
-						<td class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.importance}" maxFractionDigits="0" /></td>
+						<td data-trick-field="exp.probability" class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
+						<td data-trick-field="exp.impact" class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
+						<td data-trick-field="exp.importance" class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.importance}" maxFractionDigits="0" /></td>
 
 						<td class="editable" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
 							data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><spring:message

@@ -5,6 +5,8 @@ package lu.itrust.business.TS.usermanagement.helper;
 
 import java.io.Serializable;
 
+import lu.itrust.business.TS.constants.Constant;
+
 /**
  * @author eomar
  *
@@ -112,7 +114,7 @@ public class AccountLocker implements Serializable {
 	public synchronized void attempts(long lockTime) {
 		if (isLocked())
 			return;
-		if (this.attemption < 2) {
+		if (this.attemption < (Constant.APPLICATION_SECURITY_MAX_ATTEMPTION - 1)) {
 			this.attemption++;
 			this.lastAttemption = System.currentTimeMillis();
 		} else

@@ -37,6 +37,8 @@ public interface AccountLockerManager {
 	}
 
 	void clean();
+	
+	void unlock(String code);
 
 	void clean(String username, String ip);
 }

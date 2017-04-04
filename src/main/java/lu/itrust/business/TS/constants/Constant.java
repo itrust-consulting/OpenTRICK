@@ -684,4 +684,6 @@ public class Constant {
 
 	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
 
+	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
+
 }

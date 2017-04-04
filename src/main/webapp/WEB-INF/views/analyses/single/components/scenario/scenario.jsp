@@ -38,18 +38,18 @@
 					<c:if test="${isEditable}">
 						<th style="width: 2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
 					</c:if>
-					<th style="width: 3%"><spring:message code="label.row.index" /></th>
-					<th style="width: 25%"><spring:message code="label.scenario.name" /></th>
-					<th style="width: 5%"><spring:message code="label.scenario.type" /></th>
+					<th style="width: 3%"><a href="#" onclick="return sortTable('index',this,true)" data-order='1'><spring:message code="label.row.index" /></a></th>
+					<th style="width: 25%"><a href="#" onclick="return sortTable('name',this,true)" data-order='1'><spring:message code="label.scenario.name" /></a></th>
+					<th style="width: 5%"><a href="#" onclick="return sortTable('type',this,true)" data-order='1'><spring:message code="label.scenario.type" /></a></th>
 					<c:if test="${type == 'QUANTITATIVE'}">
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<th style="width: 5%"><spring:message code="label.scenario.aleo" /></th>
-								<th style="width: 5%"><spring:message code="label.scenario.ale" /></th>
-								<th style="width: 5%"><spring:message code="label.scenario.alep" /></th>
+								<th style="width: 5%"><a href="#" onclick="return sortTable('aleo',this,true)" data-order='1'><spring:message code="label.scenario.aleo" /></a></th>
+								<th style="width: 5%"><a href="#" onclick="return sortTable('ale',this,true)" data-order='1'><spring:message code="label.scenario.ale" /></a></th>
+								<th style="width: 5%"><a href="#" onclick="return sortTable('alep',this,true)" data-order='1'><spring:message code="label.scenario.alep" /></a></th>
 							</c:when>
 							<c:otherwise>
-								<th style="width: 5%"><spring:message code="label.scenario.ale" /></th>
+								<th style="width: 5%"><a href="#" onclick="return sortTable('ale',this,true)" data-order='1'><spring:message code="label.scenario.ale" /></a></th>
 							</c:otherwise>
 						</c:choose>
 					</c:if>
@@ -66,18 +66,18 @@
 						<c:if test="${isEditable}">
 							<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 						</c:if>
-						<td>${status.index+1}</td>
-						<td><spring:message text="${scenario.name}" /></td>
-						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
+						<td data-trick-field="index" >${status.index+1}</td>
+						<td data-trick-field="name"><spring:message text="${scenario.name}" /></td>
+						<td data-trick-field="type"><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
 						<c:if test="${type == 'QUANTITATIVE'}">
 							<c:choose>
 								<c:when test="${show_uncertainty}">
-									<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
-									<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
-									<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[2].value*0.001,1)}" /></td>
+									<td data-trick-field="aleo" title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
+									<td data-trick-field="ale" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
+									<td data-trick-field="alep" title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[2].value*0.001,1)}" /></td>
 								</c:when>
 								<c:otherwise>
-									<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
+									<td data-trick-field="ale" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
 								</c:otherwise>
 							</c:choose>
 						</c:if>

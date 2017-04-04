@@ -55,6 +55,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			/**
 			 * Log
 			 */
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential", String.format("%s attempts to connect from %s", username, remoteaddr),
 					"anonymous", LogAction.AUTHENTICATE, username, remoteaddr);
 
@@ -81,6 +82,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			/**
 			 * Log
 			 */
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' on time password failed! Requesting IP: " + remoteaddr);
 			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.otp.failure",
 					String.format("%s attempts to connect from %s but on time password failed", username, remoteaddr), username, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception instanceof LockedException) {
@@ -100,7 +102,6 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	}
 
 	private void lockAccount(HttpServletRequest request, String stringDate, String remoteaddr, String username, AuthenticationException exception) {
-		System.err.println(stringDate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' on time password failed! Requesting IP: " + remoteaddr);
 		AccountLocker locker = accountLockerManager.lock(username, remoteaddr);
 		if (locker == null || !locker.isLocked())
 			request.getSession().setAttribute("LOGIN_ERROR", exception == null ? "error.bad.credential" : exception.getMessage());

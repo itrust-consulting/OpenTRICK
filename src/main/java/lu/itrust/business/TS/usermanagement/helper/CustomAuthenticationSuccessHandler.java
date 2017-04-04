@@ -19,6 +19,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOUser;
+import lu.itrust.business.TS.database.service.AccountLockerManager;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -40,6 +41,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 	@Autowired
 	private LocaleResolver localeResolver;
+
+	@Autowired
+	private AccountLockerManager accountLockerManager;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
@@ -64,6 +68,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 						stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + authentication.getName() + "'! Requesting IP: " + remoteaddr);
 				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", authentication.getName(), remoteaddr),
 						authentication.getName(), LogAction.SIGN_IN, remoteaddr);
+				accountLockerManager.clean(authentication.getName(), remoteaddr);
 			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
