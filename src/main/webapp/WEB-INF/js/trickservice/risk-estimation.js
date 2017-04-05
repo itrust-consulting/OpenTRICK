@@ -177,14 +177,14 @@ function updateEstimationIteam(type, item) {
 				break;
 			case "assetValues":
 			case "assetTypeValues":
-				var types = item[key].join(";");
+				var types = item[key].join("|");
 				$option.attr("data-trick-type", types);
 				$link.attr("data-trick-type", types);
 				break;
 			case "selected":
 				$option.attr("data-trick-selected", item[key]);
 				$link.attr("data-trick-selected", item[key]);
-				if (asset[key])
+				if (item[key]=="true")
 					$option.show();
 				else {
 					$option.hide();
@@ -316,12 +316,12 @@ AssessmentHelder.prototype = {
 				$elements.each(function () {
 					var $this = $(this), scenarioType = $this.attr("data-trick-type"), linked = $this.attr("data-trick-linked");
 					if (linked === "true") {
-						if (scenarioType && scenarioType.search(id) != -1)
+						if (scenarioType && scenarioType.length &&  (id === scenarioType || id.match(scenarioType)))
 							$this.show();
 						else
 							$this.hide();
 					} else {
-						if (scenarioType && scenarioType.search(type) != -1)
+						if (scenarioType && scenarioType.length && (type === scenarioType || type.match(scenarioType)))
 							$this.show();
 						else
 							$this.hide();
@@ -330,18 +330,11 @@ AssessmentHelder.prototype = {
 			} else {
 				var linked = $current.attr("data-trick-linked") === "true";
 				$elements.each(function () {
-					var $this = $(this);
-					if (linked) {
-						if (type.search($this.attr("data-trick-id")) != -1)
-							$this.show();
-						else
-							$this.hide();
-					} else {
-						if (type.search($this.attr("data-trick-type")) != -1)
-							$this.show();
-						else
-							$this.hide();
-					}
+					var $this = $(this), assetType = linked? $this.attr("data-trick-id") : $this.attr("data-trick-type");
+					if (type.length && (type=== assetType || assetType.match(type)))
+						$this.show();
+					else
+						$this.hide();
 				});
 			}
 			$elements.removeClass("last").filter(":visible:last").addClass("last");

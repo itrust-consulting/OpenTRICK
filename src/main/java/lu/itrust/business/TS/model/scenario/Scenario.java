@@ -95,11 +95,11 @@ public class Scenario extends SecurityCriteria {
 		String value = "";
 		if (isAssetLinked()) {
 			for (Asset asset : getLinkedAssets())
-				value += (value.isEmpty() ? "" : ";") + asset.getId();
+				value += (value.isEmpty() ? "" : "|") + asset.getId();
 		} else {
 			for (AssetTypeValue assetTypeValue : getAssetTypeValues()) {
 				if (assetTypeValue.getValue() > 0)
-					value += (value.isEmpty() ? "" : ";") + assetTypeValue.getAssetType().getId();
+					value += (value.isEmpty() ? "" : "|") + assetTypeValue.getAssetType().getId();
 			}
 		}
 		return value;

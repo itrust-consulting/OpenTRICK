@@ -300,7 +300,7 @@ public class ControllerAnalysis {
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
-
+			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 			standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
 					.collect(Collectors.toList());
