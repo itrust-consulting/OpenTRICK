@@ -70,7 +70,9 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  */
 public class ExportAnalysis {
 
-	private static final int MEASURE_ROW_COUNT = 68;
+	private static final int SCENARIO_COLUMN_COUNT = 55;
+
+	private static final int MEASURE_ROW_COUNT = 70;
 
 	private static final int MATURITY_MEASURE_ROW_COUNT = 27;
 
@@ -834,7 +836,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = DatabaseHandler.generateInsertQuery("identifier", 4);
+		query = "INSERT INTO identifier (id_analysis,label,analysis_type,uncertainty) VALUES(?,?,?,?)";
 		// add parameters
 		params.add(this.analysis.getIdentifier());
 		params.add(this.analysis.getLabel());
@@ -1348,8 +1350,8 @@ public class ExportAnalysis {
 
 		final String[] assetTypeNames = Constant.ASSET_TYPES.split(",");
 		final Map<String, AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getName, Function.identity()));
-		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
-				baseQuery = "INSERT INTO threats SELECT ? as id_threat, ? as name_threat, ? as type_threat, ? as linked_asset_threat, ? as description_threat, ? as sel_threat, ? as serv, ? as info, ? as sw, ? as hw, ? as net, ? as staff, ? as iv, ? as busi, ? as fin, ? as compl, ? as confidentiality, ? as integrity, ? as availability, ? as d1, ? as d2 , ? as d3, ? as d4, ? as d5, ? as d6, ? as d61, ? as d62, ? as d63, ? as d64, ? as d7, ? as i1, ? as i2, ? as i3, ? as i4, ? as i5, ? as i6, ? as i7, ? as i8, ? as i81, ? as i82, ? as i83, ? as i84, ? as i9, ? as i10, ? as preventive, ? as detective, ? as limitative, ? as corrective, ? as intentional, ? as accidental, ? as environmental, ? as internal_threat, ? as external_threat";
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO threats SELECT ? as id_threat, ? as name_threat, ? as type_threat, ? as linked_asset_threat, ? as description_threat, ? as sel_threat, ? as serv, ? as info, ? as sw, ? as hw, ? as net, ? as staff, ? as iv, ? as busi, ? as fin, ? as compl, ? as confidentiality, ? as integrity, ? as availability, ? as exploitability, ? as reliability, ? as d1, ? as d2 , ? as d3, ? as d4, ? as d5, ? as d6, ? as d61, ? as d62, ? as d63, ? as d64, ? as d7, ? as i1, ? as i2, ? as i3, ? as i4, ? as i5, ? as i6, ? as i7, ? as i8, ? as i81, ? as i82, ? as i83, ? as i84, ? as i9, ? as i10, ? as preventive, ? as detective, ? as limitative, ? as corrective, ? as intentional, ? as accidental, ? as environmental, ? as internal_threat, ? as external_threat";
 
 		// ****************************************************************
 		// * export scenarios
@@ -1360,7 +1362,7 @@ public class ExportAnalysis {
 
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 53 > 999) {
+			else if (params.size() + SCENARIO_COLUMN_COUNT > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
@@ -1595,7 +1597,7 @@ public class ExportAnalysis {
 						measurequery = "INSERT INTO measures SELECT ? as 'id_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norme_type',"
 								+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
 								+ "? as 'question_measure',? as 'level',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
-								+ "? as 'integrity',? as 'availability',? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
+								+ "? as 'integrity',? as 'availability',? as `exploitability`, ? as `reliability`,? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
 								+ "? as 'd61',? as 'd62',? as 'd63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',"
 								+ "? as 'i5',? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',? as 'i84',? as 'i9',"
 								+ "? as 'i10',? as 'preventive',? as 'detective',? as 'limiting',? as 'corrective',? as 'intentional',"
@@ -1626,7 +1628,7 @@ public class ExportAnalysis {
 							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
 									+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
 									+ "? as 'question_measure',? as 'level',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
-									+ "? as 'integrity',? as 'availability',? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
+									+ "? as 'integrity',? as 'availability', ? as `exploitability`, ? as `reliability`, ? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
 									+ "? as 'd61',? as 'd62',? as 'd63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',"
 									+ "? as 'i5',? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',? as 'i84',? as 'i9',"
 									+ "? as 'i10',? as 'preventive',? as 'detective',? as 'limiting',? as 'corrective',? as 'intentional',"
@@ -1642,7 +1644,7 @@ public class ExportAnalysis {
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
 							measurecounter += MEASURE_ROW_COUNT;

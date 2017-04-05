@@ -132,6 +132,8 @@ public class ImportAnalysis {
 
 	private String currentSqliteTable = "";
 
+	private String version = null;
+
 	private DAOAnalysis daoAnalysis;
 
 	private DAOAssetType daoAssetType;
@@ -485,6 +487,21 @@ public class ImportAnalysis {
 	}
 
 	/**
+	 * @return the version
+	 */
+	public String getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version
+	 *            the version to set
+	 */
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	/**
 	 * @param daoAnalysis
 	 *            the daoAnalysis to set
 	 */
@@ -699,16 +716,23 @@ public class ImportAnalysis {
 
 				String type = getString(rs, "analysis_type");
 
-				if (type == null)
+				if (type == null) {
 					analysis.setType(getBoolean(rs, "cssf") ? AnalysisType.QUALITATIVE : AnalysisType.QUANTITATIVE);
-				else
+					setVersion("1.8");
+				} else
 					analysis.setType(AnalysisType.valueOf(type));
 
+				if (getVersion() == null) {
+					setVersion(getString(rs, "version"));
+					if (getVersion() == null)
+						setVersion("2.3");
+				}
 				if (analysis.getType() == AnalysisType.QUANTITATIVE)
 					analysis.setUncertainty(getBoolean(rs, "uncertainty"));
 				else
 					analysis.setUncertainty(false);
 			}
+			setCompability1X(getVersion() == null || getVersion().equals("1.8"));
 		} finally {
 			// close result
 			if (rs != null)
@@ -716,10 +740,8 @@ public class ImportAnalysis {
 		}
 
 		List<Customer> customers = daoAnalysis.getCustomersByIdAnalysis(this.analysis.getIdentifier());
-
 		if (customers.size() > 1 || !(customers.isEmpty() || customers.contains(this.analysis.getCustomer())))
 			throw new TrickException("error.bad.customer", "This analysis already belong to an other customer");
-
 		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 		// ****************************************************************
@@ -1430,9 +1452,7 @@ public class ImportAnalysis {
 		ResultSet resultSet = null;
 		try {
 			impactTypes = new LinkedHashMap<>();
-			resultSet = sqlite.query("Select * From impact_type");
-			if (resultSet == null) {
-				setCompability1X(true);
+			if (isCompability1X()) {
 				if (analysis.getType() == AnalysisType.QUANTITATIVE)
 					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, Constant.DEFAULT_IMPACT_SHORT_NAME, "");
 				else {
@@ -1440,6 +1460,7 @@ public class ImportAnalysis {
 						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], Constant.DEFAULT_IMPACT_TYPE_SHORT_NAMES[i], "i");
 				}
 			} else {
+				resultSet = sqlite.query("Select * From impact_type");
 				while (resultSet.next()) {
 					String name = resultSet.getString("name"), acronym = resultSet.getString("acronym");
 					ScaleType type = daoScaleType.findOne(name);
@@ -2049,6 +2070,7 @@ public class ImportAnalysis {
 		String measureRefMeasure = "";
 		MeasureDescription mesDesc = null;
 		MeasureDescriptionText mesText = null;
+		boolean hasNewType = NaturalOrderComparator.compareTo(version, "2.3") > 0;
 
 		// ****************************************************************
 		// * retrieve all measures
@@ -2269,7 +2291,10 @@ public class ImportAnalysis {
 				measureProperties.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.MEASURE_CONFIDENTIALITY));
 				measureProperties.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.MEASURE_INTEGRITY));
 				measureProperties.setCategoryValue(Constant.AVAILABILITY_RISK, rs.getInt(Constant.MEASURE_AVAILABILITY));
-
+				if (hasNewType) {
+					measureProperties.setCategoryValue(Constant.EXPLOITABILITY_RISK, rs.getInt(Constant.MEASURE_EXPLOITABILITY));
+					measureProperties.setCategoryValue(Constant.RELIABILITY_RISK, rs.getInt(Constant.MEASURE_RELIABILITY));
+				}
 				// load CSSF Risk data from sqlLight
 				setAllCriteriaCSSFCategories(measureProperties, rs);
 				measureProperties.setPreventive(rs.getInt(Constant.MEASURE_PREVENTIVE));
@@ -2730,6 +2755,7 @@ public class ImportAnalysis {
 		Scenario tempScenario = null;
 		Integer id = -1;
 		importScenarioAssets();
+		boolean hasNewType = NaturalOrderComparator.compareTo(version, "2.3") > 0;
 
 		// ****************************************************************
 		// * Query sqlite for all scenario types
@@ -2788,7 +2814,10 @@ public class ImportAnalysis {
 				tempScenario.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.THREAT_CONFIDENTIALITY));
 				tempScenario.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.THREAT_INTEGRITY));
 				tempScenario.setCategoryValue(Constant.AVAILABILITY_RISK, rs.getInt(Constant.THREAT_AVAILABILITY));
-
+				if (hasNewType) {
+					tempScenario.setCategoryValue(Constant.EXPLOITABILITY_RISK, rs.getInt(Constant.THREAT_EXPLOITABILITY));
+					tempScenario.setCategoryValue(Constant.RELIABILITY_RISK, rs.getInt(Constant.THREAT_RELIABILITY));
+				}
 				// add cssf categories to object
 				setAllCriteriaCSSFCategories(tempScenario, rs);
 				tempScenario.setPreventive(rs.getDouble(Constant.THREAT_PREVENTIVE));

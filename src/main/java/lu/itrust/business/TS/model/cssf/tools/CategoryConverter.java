@@ -36,7 +36,7 @@ public class CategoryConverter {
 
 	/**
 	 * MYSQLKEYS: <br>
-	 * dtConfidentialityCat, dtIntegrityCat, dtAvailabilityCat, dtDirect1Cat,
+	 * dtConfidentialityCat, dtIntegrityCat, dtAvailabilityCat,dtExploitabilityCat,dtReliabilityCat, dtDirect1Cat,
 	 * dtDirect2Cat, dtDirect3Cat, dtDirect4Cat, dtDirect5Cat, dtDirect6Cat,
 	 * dtDirect6.1Cat, dtDirect6.2Cat, dtDirect6.3Cat, dtDirect6.4Cat,
 	 * dtDirect7Cat, dtIndirect1Cat, dtIndirect2Cat, dtIndirect3Cat,
@@ -51,7 +51,7 @@ public class CategoryConverter {
 
 	/**
 	 * JAVAKEYS: <br>
-	 * Confidentiality, Integrity, Availability, Direct1, Direct2, Direct3,
+	 * Confidentiality, Integrity, Availability, Exploitability, Reliability, Direct1, Direct2, Direct3,
 	 * Direct4, Direct5, Direct6, Direct6.1, Direct6.2, Direct6.3, Direct6.4,
 	 * Direct7, Indirect1, Indirect2, Indirect3, Indirect4, Indirect5,
 	 * Indirect6,Indirect7, Indirect8, Indirect8.1, Indirect8.2, Indirect8.3,

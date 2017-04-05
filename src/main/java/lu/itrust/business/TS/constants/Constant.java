@@ -372,6 +372,8 @@ public class Constant {
 	public static final String CONFIDENTIALITY_RISK = "Confidentiality";
 	public static final String INTEGRITY_RISK = "Integrity";
 	public static final String AVAILABILITY_RISK = "Availability";
+	public static final String EXPLOITABILITY_RISK = "Exploitability";
+	public static final String RELIABILITY_RISK = "Reliability";
 
 	public final static String EMPTY_STRING = "";
 
@@ -444,6 +446,8 @@ public class Constant {
 	public static final String MEASURE_AVAILABILITY = AVAILABILITY_RISK.toLowerCase();
 	public static final String MEASURE_INTEGRITY = INTEGRITY_RISK.toLowerCase();
 	public static final String MEASURE_CONFIDENTIALITY = CONFIDENTIALITY_RISK.toLowerCase();
+	public static final String MEASURE_EXPLOITABILITY = EXPLOITABILITY_RISK.toLowerCase();
+	public static final String MEASURE_RELIABILITY = RELIABILITY_RISK.toLowerCase();
 	public static final String MEASURE_STRENGTH_SECTORAL = "strength_sectoral";
 	public static final String MEASURE_STRENGTH_MEASURE = "strength_measure";
 	public static final String MEASURE_REVISION = "revision";
@@ -550,6 +554,8 @@ public class Constant {
 	public static final String THREAT_DETECTIVE = MEASURE_DETECTIVE;
 	public static final String THREAT_PREVENTIVE = MEASURE_PREVENTIVE;
 	public static final String THREAT_AVAILABILITY = MEASURE_AVAILABILITY;
+	public static final String THREAT_EXPLOITABILITY = MEASURE_EXPLOITABILITY;
+	public static final String THREAT_RELIABILITY = MEASURE_RELIABILITY;
 	public static final String THREAT_INTEGRITY = MEASURE_INTEGRITY;
 	public static final String THREAT_CONFIDENTIALITY = MEASURE_CONFIDENTIALITY;
 	public static final String THREAT_SERV = "serv";
