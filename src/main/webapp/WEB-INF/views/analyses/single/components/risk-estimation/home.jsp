@@ -98,10 +98,10 @@
 							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
 							<c:choose>
 								<c:when test="${scenario.assetLinked}">
-									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetId and scenarioAssetTypeIds.contains(currentAssetId)?'':'display : none;'}" />
+									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetId and currentAssetId.matches(scenarioAssetTypeIds) ?'':'display : none;'}" />
 								</c:when>
 								<c:otherwise>
-									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetType and scenarioAssetTypeIds.contains(currentAssetType)?'':'display : none;'}" />
+									<c:set var="displayScenario" value="${scenario.selected and not empty currentAssetType and currentAssetType.matches(scenarioAssetTypeIds)?'':'display : none;'}" />
 								</c:otherwise>
 							</c:choose>
 							<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-selected='${scenario.selected}' data-trick-linked='${scenario.assetLinked}'
