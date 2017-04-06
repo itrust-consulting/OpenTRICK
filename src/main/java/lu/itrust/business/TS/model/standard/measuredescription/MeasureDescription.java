@@ -133,10 +133,7 @@ public class MeasureDescription implements Cloneable {
 	 * @return
 	 */
 	public MeasureDescriptionText findByAlph2(String alpha2) {
-		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
-			if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2))
-				return measureDescriptionText;
-		return null;
+		return measureDescriptionTexts.parallelStream().filter(measureDescriptionText -> measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2)).findAny().orElse(null);
 	}
 
 	/**

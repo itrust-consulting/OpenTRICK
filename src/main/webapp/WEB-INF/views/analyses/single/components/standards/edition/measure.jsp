@@ -31,7 +31,11 @@
 		<c:set var="rowSize" value="${isMaturity? 9 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">
 			<spring:message text="${fn:trim(measureDescriptionText.description)}" var="description" />
-			<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
+			<spring:message text="${measureDescriptionText.language.alpha2}" var="lang"/>
+			<c:if test="${otherMeasureDescriptionText}">
+				<a href="#" id="description-switch-language" class='pull-right btn btn-xs btn-link' title='<spring:message code="label.action.change.measure.description.language"/>'><i class="fa fa-flag" aria-hidden="true"></i></a>
+			</c:if>
+			<div id="description" lang="${lang}" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
 		</fieldset>
 		<fieldset>
 			<c:if test="${measureDescription.computable}">

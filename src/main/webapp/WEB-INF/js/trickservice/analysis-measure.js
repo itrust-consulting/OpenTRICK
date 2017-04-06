@@ -91,6 +91,12 @@ function loadMeasureData(id) {
 					backupDescriptionHeight();
 					$currentUI.replaceWith($measureUI);
 					restoreDescriptionHeight();
+					
+					$("#description-switch-language", $measureUI).on("click", e => {
+						var $description = $("#description", $measureUI), language = $description.attr("lang").toUpperCase()==="FR"? "en": "fr";
+						return updateDescription(id,$description, language,$progress);
+					});
+					
 					if (OPEN_MODE.isReadOnly()) {
 						$("select:not([disabled])", $measureUI).prop("disabled", true);
 						$("input:not([disabled]),textarea:not([disabled])", $measureUI).attr("readOnly", true);
@@ -113,6 +119,22 @@ function loadMeasureData(id) {
 			application["measure-view-invalidate"] = false;
 		});
 	}
+	return false;
+}
+
+function updateDescription(id,$description, language, $progress){
+	$progress.show();
+	$.ajax({
+		url: context + "/Analysis/Standard/Measure/" + id + "/Description/"+language,
+		contentType: "application/json;charset=UTF-8",
+		success: function (response) {
+			if(response["error"])
+				showDialog("#alert-dialog", response["error"]);
+			else if(response["description"])
+				$description.attr("lang", language).text(response["description"]);
+			else unknowError();
+		},error: unknowError
+	}).complete(() => $progress.hide());
 	return false;
 }
 

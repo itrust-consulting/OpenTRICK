@@ -259,7 +259,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
-		
+
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
 		model.addAttribute("valueFactory", factory);
@@ -308,7 +308,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("measuresByStandard", measuresByStandard);
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
-		
+
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
@@ -427,8 +427,8 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody List<Chart> compliances(HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream()
-				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale)).collect(Collectors.toList());
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -995,13 +995,17 @@ public class ControllerAnalysisStandard {
 		try {
 			Measure measure = serviceMeasure.get(idMeasure);
 			List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
-			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 			MeasureDescription measureDescription = measure.getMeasureDescription();
-			MeasureDescriptionText measureDescriptionText = measureDescription.findByLanguage(language);
+			MeasureDescriptionText measureDescriptionText = measureDescription.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
 			model.addAttribute("measureDescriptionText", measureDescriptionText);
 			model.addAttribute("measureDescription", measureDescription);
-			if (measureDescriptionText != null)
+			if (measureDescriptionText != null) {
 				model.addAttribute("countLine", measureDescriptionText.getDescription().trim().split("\r\n|\r|\n").length);
+				MeasureDescriptionText otherMeasureDescriptionText = measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase("fra") ? measureDescription.findByAlph2("en")
+						: measureDescription.findByAlph2("fr");
+				if (!(otherMeasureDescriptionText == null || StringUtils.isEmpty(otherMeasureDescriptionText.getDescription())))
+					model.addAttribute("otherMeasureDescriptionText", true);
+			}
 			model.addAttribute("measureDescription", measureDescription);
 			boolean isMaturity = measure instanceof MaturityMeasure;
 			model.addAttribute("isMaturity", isMaturity);
@@ -1016,6 +1020,18 @@ public class ControllerAnalysisStandard {
 		}
 		return "analyses/single/components/standards/edition/measure";
 
+	}
+
+	@RequestMapping(value = "/Measure/{idMeasure}/Description/{langue}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody String loadDescription(@PathVariable("idMeasure") int idMeasure, @PathVariable("langue") String langue, Principal principal, HttpSession session,
+			Locale locale) {
+		Measure measure = serviceMeasure.get(idMeasure);
+		MeasureDescriptionText measureDescriptionText = measure.getMeasureDescription().findByAlph2(langue);
+		if (measureDescriptionText == null || StringUtils.isEmpty(measureDescriptionText.getDescription()))
+			return JsonMessage.Error(messageSource.getMessage("error.measure.description.empty", null, "There is no other description for this security measure", locale));
+		else
+			return JsonMessage.Field("description", measureDescriptionText.getDescription());
 	}
 
 	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -739,6 +739,17 @@ a#main_menu_profile {
 	text-transform: capitalize;
 }
 
+#description-switch-language{
+	float: right;
+	font-size: 8px;
+	margin-right: -10px;
+}
+
+#description-switch-language:HOVER {
+	font-size: inherit;
+	margin-right: -15px;
+}
+
 @media ( min-width : 992px) {
 	.max-height {
 		height: 100%;
