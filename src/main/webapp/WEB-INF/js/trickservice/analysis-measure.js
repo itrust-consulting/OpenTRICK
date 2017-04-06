@@ -92,9 +92,8 @@ function loadMeasureData(id) {
 					$currentUI.replaceWith($measureUI);
 					restoreDescriptionHeight();
 					
-					$("#description-switch-language", $measureUI).on("click", e => {
-						var $description = $("#description", $measureUI), language = $description.attr("lang").toUpperCase()==="FR"? "en": "fr";
-						return updateDescription(id,$description, language,$progress);
+					$("#description-switch-language .btn", $measureUI).on("click", e => {
+						return updateDescription($(e.currentTarget), id,$("#description", $measureUI),$progress);
 					});
 					
 					if (OPEN_MODE.isReadOnly()) {
@@ -122,16 +121,20 @@ function loadMeasureData(id) {
 	return false;
 }
 
-function updateDescription(id,$description, language, $progress){
+function updateDescription($element,id,$description, $progress){
 	$progress.show();
 	$.ajax({
-		url: context + "/Analysis/Standard/Measure/" + id + "/Description/"+language,
+		url: context + "/Analysis/Standard/Measure/" + id + "/Description/"+$element.attr("lang"),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response) {
 			if(response["error"])
 				showDialog("#alert-dialog", response["error"]);
-			else if(response["description"])
+			else if(response["description"]!=undefined){
 				$description.attr("lang", language).text(response["description"]);
+				$element.attr("disabled",true).find("img").attr("src", $element.attr("data-flag-disabled"));
+				var lang = $element.attr("lang"), $other = $element.parent().find(".btn[lang!='"+lang+"']");
+				$other.removeAttr('disabled').find("img").attr("src", $other.attr("data-flag-enabled") );
+			}
 			else unknowError();
 		},error: unknowError
 	}).complete(() => $progress.hide());

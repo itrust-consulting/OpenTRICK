@@ -1028,7 +1028,7 @@ public class ControllerAnalysisStandard {
 			Locale locale) {
 		Measure measure = serviceMeasure.get(idMeasure);
 		MeasureDescriptionText measureDescriptionText = measure.getMeasureDescription().findByAlph2(langue);
-		if (measureDescriptionText == null || StringUtils.isEmpty(measureDescriptionText.getDescription()))
+		if (measureDescriptionText == null)
 			return JsonMessage.Error(messageSource.getMessage("error.measure.description.empty", null, "There is no other description for this security measure", locale));
 		else
 			return JsonMessage.Field("description", measureDescriptionText.getDescription());

@@ -2596,7 +2596,8 @@ public class ImportAnalysis {
 				// ****************************************************************
 				tempRI = new RiskInformation();
 				tempRI.setCategory(Constant.RI_TYPE_RISK + "_" + rs.getString(Constant.RI_TYPE));
-				tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
+				if (tempRI.getCategory().equals(Constant.RI_TYPE_RISK_TBA))
+					tempRI.setChapter("7" + rs.getString(Constant.RI_LEVEL).substring(1));
 				tempRI.setLabel(rs.getString(Constant.RI_NAME));
 				tempRI.setAcronym(Constant.EMPTY_STRING);
 				tempRI.setExposed(rs.getString(Constant.RI_EXPO));

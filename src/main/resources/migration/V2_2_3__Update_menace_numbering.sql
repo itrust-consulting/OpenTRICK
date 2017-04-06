@@ -1,0 +1,1 @@
+UPDATE `RiskInformation` SET `dtChapter`= CONCAT('7',SUBSTRING(`dtChapter`,2)) WHERE dtCategory = 'Risk_TBA';

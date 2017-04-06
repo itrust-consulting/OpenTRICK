@@ -31,11 +31,18 @@
 		<c:set var="rowSize" value="${isMaturity? 9 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">
 			<spring:message text="${fn:trim(measureDescriptionText.description)}" var="description" />
-			<spring:message text="${measureDescriptionText.language.alpha2}" var="lang"/>
+			<spring:message text="${measureDescriptionText.language.alpha2}" var="lang" />
 			<c:if test="${otherMeasureDescriptionText}">
-				<a href="#" id="description-switch-language" class='pull-right btn btn-xs btn-link' title='<spring:message code="label.action.change.measure.description.language"/>'><i class="fa fa-flag" aria-hidden="true"></i></a>
+			<spring:url value="/images/flags/en.png" var="en_enabled"/>
+			<spring:url value="/images/flags/fr.png"  var="fr_enabled" />
+			<spring:url value="/images/flags/en_disabled.png" var="en_disabled"/>
+			<spring:url value="/images/flags/fr_disabled.png" var="fr_disabled"/>
+			<div id='description-switch-language' class='btn-group pull-right'>
+				<button type="button" class="btn btn-xs btn-link" ${lang=='FR'? '' : 'disabled'}  lang="EN" data-flag-disabled='${en_disabled}' data-flag-enabled='${en_enabled}' ><img alt="English" src="${lang=='FR'? en_enabled : en_disabled}"></button>
+				<button type="button" class="btn btn-xs btn-link" ${lang=='FR'? 'disabled' : ''} lang="FR" data-flag-disabled='${fr_disabled}' data-flag-enabled='${fr_enabled}' ><img alt="Français" src="${lang=='FR'? fr_disabled : fr_enabled}"></button>
+			</div>
 			</c:if>
-			<div id="description" lang="${lang}" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
+			<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
 		</fieldset>
 		<fieldset>
 			<c:if test="${measureDescription.computable}">
