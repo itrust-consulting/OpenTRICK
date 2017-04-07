@@ -41,7 +41,7 @@
 				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<c:if test="${!isProfile}">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
-					<jsp:include page="./components/riskinformation.jsp" />
+					<jsp:include page="./components/risk-information/home.jsp" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />
 					<c:if test="${type=='QUANTITATIVE' }">

@@ -1,0 +1,66 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<c:set var="chapterRegex">^\d(\.0)*$</c:set>
+<div class="modal fade" id="modal-manage-brainstorming" tabindex="-1" role="dialog" data-aria-labelledby="modal-manage-brainstorming" data-aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog" style="width: 800px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<div class="modal-title">
+					<h4 class="col-xs-5" style="padding: 0; margin: 0">
+						<spring:message code="label.title.risk_information.management" />
+					</h4>
+					<div class="col-xs-7" id="error-risk-information-modal" style="padding: 0"></div>
+				</div>
+			</div>
+			<div class="modal-body" style="padding-top: 5px">
+				<ul id="menu_manage_risk_information" class="nav nav-tabs">
+					<li class="active"><a href="#tab-manage-risk-information-risk" data-toggle="tab"><spring:message code="label.menu.analysis.risk" /></a></li>
+					<li><a href="#tab-manage-risk-information-vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
+					<li><a href="#tab-manage-risk-information-threat" data-toggle="tab"><spring:message code="label.menu.analysis.threat" /></a></li>
+				</ul>
+				<div class='tab-content' style="height: 500px; overflow-y: auto;">
+					<c:forEach items="${riskInformationMap.keySet()}" var="category">
+						<div id="tab-manage-risk-information-${fn:toLowerCase(category)}" class="tab-pane ${category == 'Risk'? 'active':''}" >
+							<table class='table'>
+								<thead>
+									<tr>
+										<th width="2%"><spring:message code="label.risk_information.id" /></th>
+										<th ><spring:message code="label.name" /></th>
+										<th width="10%"><spring:message code="label.action" /></th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:forEach items="${riskInformationMap[category]}" var="risk_information">
+										<tr ${fct:matches(risk_information.chapter,chapterRegex)? 'class="lead" ' : ''} >
+											<td ><spring:message text="${risk_information.chapter}"/></td>
+											<td><input class="form-control" type="text" name="label" value="${risk_information.label}"></td>
+											<td>
+												<button class='btn btn-xs btn-danger' title="<spring:message code='label.action.delete'/>"><i class='fa fa-times-circle'></i></button>
+												<button class='btn btn-xs btn-primary' title="<spring:message code='label.action.add'/>"><i class='fa fa-plus-circle'></i></button>
+											</td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</div>
+					</c:forEach>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" name="save">
+					<spring:message code="label.action.save" />
+				</button>
+				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
+					<spring:message code="label.action.close" />
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

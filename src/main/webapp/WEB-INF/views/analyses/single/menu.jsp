@@ -37,6 +37,9 @@
 				<li><a href="#tab-risk-information-risk" data-toggle="tab"><spring:message code="label.menu.analysis.risk" /></a></li>
 				<li><a href="#tab-risk-information-vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
 				<li><a href="#tab-risk-information-threat" data-toggle="tab"><spring:message code="label.menu.analysis.threat" /></a></li>
+				<c:if test="${isProfile || isEditable}">
+					<li title='<spring:message code="label.title.manage_brainstorming"/>'><a href="#" onclick="return manageBrainstorming();"><spring:message code="label.title.manage_brainstorming" /></a></li>
+				</c:if>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.quantitative_analysis" /></li>

@@ -1022,6 +1022,25 @@ function navToogled(section, parentMenu, navSelected) {
 	return false;
 }
 
+function manageBrainstorming(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Risk-information/Manage",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			var $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
+			if ($modal.length) {
+				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
+			} else if (response["error"])
+				showDialog("#alert-dialog", response['error']);
+			else
+				unknowError();
+		},
+		error: unknowError
+	}).complete(()  => $progress.hide());
+	return false;
+}
+
 function openTicket(section) {
 	if (!application.isLinkedToProject)
 		return false;

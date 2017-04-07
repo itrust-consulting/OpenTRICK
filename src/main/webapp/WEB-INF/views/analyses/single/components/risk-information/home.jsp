@@ -74,8 +74,11 @@
 						</c:choose>
 					</c:if>
 					<tr data-trick-class="RiskInformation" data-trick-id="${risk_information.id}">
-						<c:set var="codeText" value="${risk_information.label}" />
+						<c:set var="codeLabel" value="${risk_information.label}" />
 						<c:choose>
+							<c:when test="${risk_information.custom}">
+								<c:set var="codeText" value="${risk_information.label}" />
+							</c:when>
 							<c:when test="${risk_information.category == 'Risk_TBA'}">
 								<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}_tba.${fn:replace(risk_information.chapter,'.','_')}</c:set>
 							</c:when>
@@ -91,10 +94,10 @@
 								<td style="height: 32px;"><strong><spring:message text="${risk_information.chapter}" /></strong></td>
 								<c:choose>
 									<c:when test="${categoryRiskInformation == 'Threat'}">
-										<td colspan="2"><strong><spring:message code="${codeLabel}" /></strong></td>
+										<td colspan="2"><strong><spring:message code="${codeLabel}" text="${codeText}"/></strong></td>
 									</c:when>
 									<c:otherwise>
-										<td><strong><spring:message code="${codeLabel}" /></strong></td>
+										<td><strong><spring:message code="${codeLabel}"  text="${codeText}" /></strong></td>
 									</c:otherwise>
 								</c:choose>
 								<td class="editable" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message

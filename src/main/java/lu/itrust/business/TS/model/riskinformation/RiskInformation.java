@@ -38,6 +38,9 @@ public class RiskInformation implements Cloneable {
 	/** editable */
 	@Transient
 	private boolean editable;
+	
+	@Column(name = "dtCustom", nullable = false)
+	private boolean custom;
 
 	/** The Risk Information Label */
 	@Column(name = "dtLabel", nullable = false)
@@ -306,6 +309,20 @@ public class RiskInformation implements Cloneable {
 	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;
+	}
+
+	/**
+	 * @return the custom
+	 */
+	public boolean isCustom() {
+		return custom;
+	}
+
+	/**
+	 * @param custom the custom to set
+	 */
+	public void setCustom(boolean custom) {
+		this.custom = custom;
 	}
 
 	/**
