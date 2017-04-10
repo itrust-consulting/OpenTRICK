@@ -17,26 +17,26 @@ $(document).ready(function () {
 	// * uncheck checked checkboxes
 	// ******************************************************************************************************************
 	application["settings-fixed-header"] = {
-			fixedOffset: $(".nav-analysis"),
-			marginTop: application.fixedOffset,
-			scrollStartFixMulti: 0.99998
-		};
-	
-	setTimeout(() =>{ 
-		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab',  (e) => {
+		fixedOffset: $(".nav-analysis"),
+		marginTop: application.fixedOffset,
+		scrollStartFixMulti: 0.99998
+	};
+
+	setTimeout(() => {
+		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', (e) => {
 			disableEditMode();
 		});
-		
+
 		$(window).bind("beforeunload", (e) => {
-			if(!application.editingModeFroceAbort && application.editMode){
+			if (!application.editingModeFroceAbort && application.editMode) {
 				showDialog("info", MessageResolver("info.leave.page.in_mode_editing"));
 				application.editingModeFroceAbort = true;
 				return false;
 			}
 		});
-		
+
 		fixTableHeader("table.table-fixed-header-analysis");
-		
+
 	}, 100);
 
 	// Periodically reload assessment values
@@ -197,7 +197,7 @@ function updateMeasuresCost() {
 	return false;
 }
 
-function manageAnalysisSettings(){
+function manageAnalysisSettings() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -207,12 +207,12 @@ function manageAnalysisSettings(){
 			success: function (response, textStatus, jqXHR) {
 				var $view = $("#analysisSettingModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
-					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', ()  => $view.remove());
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					$("button[name='save']").on("click", e => {
 						var data = {};
 
-						$(".form-group[data-trick-name]",$view).each(function () {
-							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible",this).val(), oldValue = $("input[type!='radio']:hidden",this).val();
+						$(".form-group[data-trick-name]", $view).each(function () {
+							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
 								data[$this.attr("data-trick-name")] = newValue;
 						});
@@ -227,8 +227,8 @@ function manageAnalysisSettings(){
 									if (response.error != undefined)
 										showDialog("#alert-dialog", response.error);
 									else if (response.success != undefined) {
-											showDialog("success", response.success);
-											setTimeout(() => window.location.reload() ,1000);
+										showDialog("success", response.success);
+										setTimeout(() => window.location.reload(), 1000);
 									} else
 										unknowError();
 								},
@@ -645,7 +645,7 @@ function loadChartBudget() {
 	if ($section.is(":visible")) {
 		var $progress = $("#loading-indicator").show(), name = "budgetCharts";
 		$.ajax({
-			url: context + "/Analysis/ActionPlanSummary/Budget" ,
+			url: context + "/Analysis/ActionPlanSummary/Budget",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
@@ -678,7 +678,7 @@ function loadChartBudget() {
 		});
 	} else
 		$section.attr("data-update-required", "true");
-	return false;	
+	return false;
 }
 
 function reloadCharts() {
@@ -1022,7 +1022,7 @@ function navToogled(section, parentMenu, navSelected) {
 	return false;
 }
 
-function manageBrainstorming(){
+function manageBrainstorming() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Risk-information/Manage",
@@ -1031,14 +1031,111 @@ function manageBrainstorming(){
 			var $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
+				updateRiskInformationAddButton($("#tab-manage-risk-information-risk button[name='add']", $modal)).on("click", addNewRiskInformtion);
+				updateRiskInformationAddButton($("#tab-manage-risk-information-vul button[name='add']", $modal)).on("click", addNewRiskInformtion);
+				updateRiskInformationAddButton($("#tab-manage-risk-information-threat button[name='add']", $modal)).on("click", addNewRiskInformtionChapter);
+				$("button[name='add-chapter']", $modal).on("click",addNewRiskInformtionChapter);
+				$("a[data-action='delete-chapter']", $modal).on("click",removeRiskInformtionChapter);
+				$("a[data-action='delete-all']", $modal).on("click",removeRiskInformtionChapter);
+				$("button[name='delete']", $modal).on("click", removeRiskInformtion);
 			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
 			else
 				unknowError();
 		},
 		error: unknowError
-	}).complete(()  => $progress.hide());
+	}).complete(() => $progress.hide());
 	return false;
+}
+
+function removeRiskInformtionChapter(e){
+	var $this = $(this), action = $this.attr("data-action"), $tr = $this.closest("tr"), $table = $this.closest('tbody'), chapter = $tr.attr("data-chapter");
+	switch (action) {
+	case "delete-chapter":
+		var deleteHeader = $("tr[data-chapter].lead", $table).filter(function(){return this.getAttribute("data-chapter") > chapter}).length == 0;
+		if(deleteHeader)
+			$("tr[data-chapter='"+chapter+"']", $table).remove();
+		else $("tr[data-chapter='"+chapter+"']:not(.lead)", $table).remove();
+		break;
+	case "delete-all":
+		$("tr[data-chapter]", $table).filter(function() {return this.getAttribute("data-chapter") >= chapter}).remove();
+		break;
+	}
+}
+
+function nextRiskInformation(chapter) {
+	if (parseInt(chapter[2]) < 9)
+		chapter[2]++;
+	else if (parseInt(chapter[1]) < 9) {
+		chapter[2] = '0';
+		chapter[1]++;
+	} else return undefined
+	return chapter.join(".");
+}
+
+function addNewRiskInformtion(e) {
+	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' />") , chapter = $currentTr.find("td:first-child").text().split("."), value = nextRiskInformation(chapter);
+	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),chapter,value,true);
+	$this.attr("disabled", true);
+}
+
+function addNewRiskInformtionChapter(e){
+	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' class='lead'/>"), $prevTr = $currentTr.prev();
+	var chapter = $prevTr.length? $prevTr.find("td:first-child").text().split(".") : chapter = ['0','0','0'];
+	if(chapter[0]<9){
+		chapter[0]++;
+		chapter[1] = chapter[2] = '0';
+		addNewRiskInformation($currentTr,$tr, $("#risk-information-btn-chapter",$this.closest(".modal")),chapter,chapter.join("."),false);
+		$("a[data-action='delete-chapter']", $tr).on("click",removeRiskInformtionChapter);
+		$("a[data-action='delete-all']", $tr).on("click",removeRiskInformtionChapter);
+	}else showDialog("alert-dialog",$this.attr("data-error-full-message"));
+}
+
+function addNewRiskInformation($currentTr,$tr,$buttons,chapter, value, after){
+	$("<td>" + value + "<input type='hidden' name='id' value='-1' /><input type='hidden' name='chapter' value='" + value + "'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
+	$("<td><input class='form-control' type='text' name='label'></td>").appendTo($tr);
+	$("<td />").html($buttons.html()).appendTo($tr);
+	$("button[name='delete']", $tr).on("click", removeRiskInformtion);
+	if(after)
+		$tr.insertAfter($currentTr);
+	else $tr.insertBefore($currentTr);
+	var nextValue = nextRiskInformation(chapter), $addBtn = $("button[name='add']", $tr).on("click", addNewRiskInformtion);
+	if (nextValue != undefined) {
+		var $nextTr = $tr.next();
+		if ($nextTr.find("td:first-child").text() == nextValue)
+			$addBtn.attr("disabled", true);
+	}
+	$tr.attr("data-chapter", chapter[0]);
+}
+
+function removeRiskInformtion(e) {
+	var $currentTr = $(this).closest("tr"),$prevTr = $currentTr.prev();
+	if($prevTr.length){
+		var  currentGroup = $("td:first-child",$currentTr).text().split(".",2)[0], prevGroup = $("td", $prevTr).text().split(".",2)[0];
+		if(currentGroup == prevGroup)
+			$("button[name='add']",$prevTr).removeAttr("disabled");
+	}
+	$currentTr.remove();
+	return false;
+}
+
+function updateRiskInformationAddButton($btns) {
+	var chatpers = {};
+	$btns.each(function (i) {
+		var $this = $(this),$tr = $this.closest("tr"), chapter = $tr.find("td:first-child").text(), group = chapter.split(".", 2)[0], value = parseInt(chapter.replace(/\./g, ''));
+		if (!chatpers[group])
+			chatpers[group] = { min: value, max: parseInt(group + "99"), chapter: group }
+		else {
+			if (chatpers[group].min + 1 == value)
+				$($btns[i - 1]).attr("disabled", true);
+			else $($btns[i - 1]).removeAttr("disabled");
+			if (chatpers[group].max == value)
+				$this.attr("disabled", true);
+			chatpers[group].min = value;
+		}
+		$tr.attr("data-chapter", group);
+	});
+	return $btns;
 }
 
 function openTicket(section) {
