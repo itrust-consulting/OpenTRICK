@@ -830,7 +830,6 @@ function loadChartDynamicParameterEvolution() {
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
 			type: "get",
-			async: true,
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
 				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
@@ -874,7 +873,6 @@ function loadChartDynamicAleEvolutionByAssetType() {
 			url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
-			async: true,
 			success: function (response, textStatus, jqXHR) {
 				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
@@ -1038,6 +1036,31 @@ function manageBrainstorming() {
 				$("a[data-action='delete-chapter']", $modal).on("click",removeRiskInformtionChapter);
 				$("a[data-action='delete-all']", $modal).on("click",removeRiskInformtionChapter);
 				$("button[name='delete']", $modal).on("click", removeRiskInformtion);
+				$("button[name='save']", $modal).on("click", e => $("input[type='submit']", $modal).trigger("click"));
+				$("form", $modal).on("submit", e => {
+					$progress.show();
+					var data  = parseRiskInformationData("Risk_TBA",$("#tab-manage-risk-information-risk tbody>tr[data-chapter]", $modal))
+					.concat(parseRiskInformationData("Vul",$("#tab-manage-risk-information-vul tbody>tr[data-chapter]", $modal)))
+					.concat(parseRiskInformationData("Threat",$("#tab-manage-risk-information-threat tbody>tr[data-chapter]", $modal)));
+					$.ajax({
+						url: context + "/Analysis/Risk-information/Manage/Save",
+						type: "post",
+						data: JSON.stringify(data),
+						contentType: "application/json;charset=UTF-8",
+						success: function (response, textStatus, jqXHR) {
+							if(response['success']){
+								reloadSection(['section_risk-information_risk', 'section_risk-information_vul', 'section_risk-information_threat' ]);
+								$modal.modal("hide");
+							}
+							else if(response['error'])
+								showDialog("#alert-dialog", response['error']);
+							else unknowError();
+						},error: unknowError
+					}).complete(() => $progress.hide());
+					
+					return false;
+				});
+				
 			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
 			else
@@ -1046,6 +1069,22 @@ function manageBrainstorming() {
 		error: unknowError
 	}).complete(() => $progress.hide());
 	return false;
+}
+
+function parseRiskInformationData(category,$trs){
+	var data =  [];
+	$trs.each(function(i) {
+		var $this = $(this), $label = $("input[name='label']",$this), id = $this.attr("data-trick-id"), chapter = $("input[name='chapter']",$this).val(), label = $label.val(), custom = $("input[name='cutom']",$this).val();
+		data.push({
+			id : id,
+			category : category,
+			chapter : chapter,
+			label : label,
+			custom : custom ==='true' || label !== $label.attr('placeholder')
+		});
+	});
+	return data;
+	
 }
 
 function removeRiskInformtionChapter(e){
@@ -1077,6 +1116,7 @@ function addNewRiskInformtion(e) {
 	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' />") , chapter = $currentTr.find("td:first-child").text().split("."), value = nextRiskInformation(chapter);
 	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),chapter,value,true);
 	$this.attr("disabled", true);
+	return false;
 }
 
 function addNewRiskInformtionChapter(e){
@@ -1089,11 +1129,12 @@ function addNewRiskInformtionChapter(e){
 		$("a[data-action='delete-chapter']", $tr).on("click",removeRiskInformtionChapter);
 		$("a[data-action='delete-all']", $tr).on("click",removeRiskInformtionChapter);
 	}else showDialog("alert-dialog",$this.attr("data-error-full-message"));
+	return false;
 }
 
 function addNewRiskInformation($currentTr,$tr,$buttons,chapter, value, after){
 	$("<td>" + value + "<input type='hidden' name='id' value='-1' /><input type='hidden' name='chapter' value='" + value + "'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
-	$("<td><input class='form-control' type='text' name='label'></td>").appendTo($tr);
+	$("<td><input class='form-control' type='text' name='label' placeholder='' required ></td>").appendTo($tr);
 	$("<td />").html($buttons.html()).appendTo($tr);
 	$("button[name='delete']", $tr).on("click", removeRiskInformtion);
 	if(after)
@@ -1106,6 +1147,7 @@ function addNewRiskInformation($currentTr,$tr,$buttons,chapter, value, after){
 			$addBtn.attr("disabled", true);
 	}
 	$tr.attr("data-chapter", chapter[0]);
+	return false;
 }
 
 function removeRiskInformtion(e) {
@@ -1234,7 +1276,6 @@ function linkToTicketingSystem(section) {
 							$modal.appendTo($("#widgets")).modal("show");
 							var isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
 								.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = $tasks.length;
-
 							taskController = function () {
 								$view = $(this.getAttribute("href"));
 								if (!$view.is(":visible")) {

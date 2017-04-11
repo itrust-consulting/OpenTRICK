@@ -763,7 +763,7 @@ public abstract class AbstractWordExporter {
 
 				for (RiskInformation riskinfo : elements) {
 
-					if ((previouselement == null) || (!riskinfo.getCategory().equals(previouselement.getCategory()))) {
+					if ((previouselement == null) || (!riskinfo.isMatch(previouselement.getCategory()))) {
 
 						if (previouselement != null)
 							document.insertNewParagraph(paragraph.getCTP().newCursor());

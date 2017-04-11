@@ -451,18 +451,18 @@ public class ExportAnalysis {
 
 					// build first query part
 					riskquery = "INSERT INTO threat_source SELECT ? as level,? as name,? as ";
-					riskquery += "type,? as expo,? as owner,? as comment,? as comment2 UNION";
+					riskquery += "type,? as expo,? as owner,? as custom,? as comment,? as comment2 UNION";
 
 					// set number of ? -> sqlite ? limit is 999 -> before 999 is
 					// reached, a execute
 					// needs to be done
-					riskcounter = 7;
+					riskcounter = 8;
 				} else {
 
 					// first time query is used ? -> NO
 
 					// check if limit of ? is reached with next query -> YES
-					if (riskcounter + 7 >= 999) {
+					if (riskcounter + 8 >= 999) {
 
 						// remove UNION from query
 						riskquery = riskquery.substring(0, riskquery.length() - 6);
@@ -475,20 +475,20 @@ public class ExportAnalysis {
 
 						// rebuild first query part
 						riskquery = "INSERT INTO threat_source SELECT ? as level,? as name,";
-						riskquery += "? as type,? as expo,? as owner,? as comment,? as comment2 UNION";
+						riskquery += "? as type,? as expo,? as owner,? as custom,? as comment,? as comment2 UNION";
 
 						// reset number of ?
-						riskcounter = 7;
+						riskcounter = 8;
 					} else {
 
 						// check if limit of ? is reached -> NO
 
 						// add values to query ( execute 1 query with multiple
 						// rows)
-						riskquery += " SELECT ?,?,?,?,?,?,? UNION";
+						riskquery += " SELECT ?,?,?,?,?,?,?,? UNION";
 
 						// add number of ? used
-						riskcounter += 7;
+						riskcounter += 8;
 					}
 				}
 
@@ -498,6 +498,7 @@ public class ExportAnalysis {
 				riskparams.add(information.getCategory().split("_")[1]);
 				riskparams.add(information.getExposed());
 				riskparams.add(information.getOwner());
+				riskparams.add(information.isCustom());
 				riskparams.add(information.getComment());
 				riskparams.add(information.getHiddenComment());
 			}
@@ -519,14 +520,14 @@ public class ExportAnalysis {
 				// first part ? -> YES
 				if (threatquery.equals(Constant.EMPTY_STRING)) {
 					threatquery = "INSERT INTO threat_typology SELECT ? as level,? as name,";
-					threatquery += "? as acro,? as expo,? as owner,? as comment,? as comment2 UNION";
+					threatquery += "? as acro,? as expo,? as owner,? as custom,? as comment,? as comment2 UNION";
 					threatcounter = 7;
 				} else {
 
 					// first part ? -> NO
 
 					// limit of ? reached -> YES
-					if (threatcounter + 7 >= 999) {
+					if (threatcounter + 8 >= 999) {
 
 						// execute query
 						threatquery = threatquery.substring(0, threatquery.length() - 6);
@@ -537,20 +538,20 @@ public class ExportAnalysis {
 
 						// reset query
 						threatquery = "INSERT INTO threat_typology SELECT ? as level,? as name";
-						threatquery += ",? as acro,? as expo,? as owner,? as comment,? as comment2";
+						threatquery += ",? as acro,? as expo,? as owner, ? as custom,? as comment,? as comment2";
 						threatquery += " UNION";
 
 						// reset number of ?
-						threatcounter = 7;
+						threatcounter = 8;
 					} else {
 
 						// limit of ? reached -> NO
 
 						// add value
-						threatquery += " SELECT ?,?,?,?,?,?,? UNION";
+						threatquery += " SELECT ?,?,?,?,?,?,?,? UNION";
 
 						// add number of ? used
-						threatcounter += 7;
+						threatcounter += 8;
 					}
 				}
 
@@ -560,6 +561,7 @@ public class ExportAnalysis {
 				threatparams.add(information.getAcronym());
 				threatparams.add(information.getExposed());
 				threatparams.add(information.getOwner());
+				threatparams.add(information.isCustom());
 				threatparams.add(information.getComment());
 				threatparams.add(information.getHiddenComment());
 			}
@@ -583,14 +585,14 @@ public class ExportAnalysis {
 
 					// build query
 					vulquery = "INSERT INTO vulnerabilities SELECT ? as level,? as name,";
-					vulquery += "? as expo,? as owner,? as comment,? as comment2 UNION";
+					vulquery += "? as expo,? as owner, ? as custom,? as comment,? as comment2 UNION";
 
 					// set number of ? used
-					vulcounter = 6;
+					vulcounter = 7;
 				} else {
 
 					// check if limit is reached -> YES
-					if (vulcounter + 6 >= 999) {
+					if (vulcounter + 7 >= 999) {
 
 						// execute query
 						vulquery = vulquery.substring(0, vulquery.length() - 6);
@@ -601,19 +603,19 @@ public class ExportAnalysis {
 
 						// reset query
 						vulquery = "INSERT INTO vulnerabilities SELECT ? as level,? as name, ";
-						vulquery += "? as expo,? as owner,? as comment,? as comment2 UNION";
+						vulquery += "? as expo,? as owner, ? as custom,? as comment,? as comment2 UNION";
 
 						// reset number of ?
-						vulcounter = 6;
+						vulcounter = 7;
 					} else {
 
 						// check if limit reached -> NO
 
 						// set values
-						vulquery += " SELECT ?,?,?,?,?,? UNION";
+						vulquery += " SELECT ?,?,?,?,?,?,? UNION";
 
 						// add number of ? used
-						vulcounter += 6;
+						vulcounter += 7;
 					}
 				}
 
@@ -622,6 +624,7 @@ public class ExportAnalysis {
 				vulparams.add(information.getLabel());
 				vulparams.add(information.getExposed());
 				vulparams.add(information.getOwner());
+				vulparams.add(information.isCustom());
 				vulparams.add(information.getComment());
 				vulparams.add(information.getHiddenComment());
 			}
@@ -1856,14 +1859,15 @@ public class ExportAnalysis {
 							measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
 									+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
 									+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
-									+ "? as 'integrity'," + "? as 'availability', ? as `exploitability`, ? as `reliability`," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
-									+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
-									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
-									+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
-									+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
-									+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
-									+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
-									+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
+									+ "? as 'integrity'," + "? as 'availability', ? as `exploitability`, ? as `reliability`," + "? as 'd1'," + "? as 'd2'," + "? as 'd3',"
+									+ "? as 'd4'," + "? as 'd5'," + "? as 'd6'," + "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1',"
+									+ "? as 'i2'," + "? as 'i3'," + "? as 'i4'," + "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82',"
+									+ "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting',"
+									+ "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat',"
+									+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime',"
+									+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
+									+ "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference',"
+									+ "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
 
 							// reset limit counter
 							measurecounter = MEASURE_ROW_COUNT;

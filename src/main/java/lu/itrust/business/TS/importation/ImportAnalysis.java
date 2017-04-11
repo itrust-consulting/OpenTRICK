@@ -2502,6 +2502,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		RiskInformation tempRI = null;
+		boolean hasCustom = NaturalOrderComparator.compareTo(version, "2.3") > 0;
 
 		// ****************************************************************
 		// * Query sqlite for all vulnerabilities (vulnerabilities)
@@ -2536,6 +2537,8 @@ public class ImportAnalysis {
 				tempRI.setLabel(rs.getString(Constant.RI_NAME));
 				tempRI.setAcronym(rs.getString(Constant.RI_ACRO));
 				tempRI.setOwner(getStringOrEmpty(rs, Constant.RI_OWNER));
+				if (hasCustom)
+					tempRI.setCustom(rs.getBoolean(Constant.RI_CUSTOM));
 				tempRI.setExposed(rs.getString(Constant.RI_EXPO));
 				tempRI.setComment(rs.getString(Constant.RI_COMMENT));
 				tempRI.setHiddenComment(rs.getString(Constant.RI_COMMENT2));
@@ -2569,6 +2572,8 @@ public class ImportAnalysis {
 				tempRI.setAcronym(Constant.EMPTY_STRING);
 				tempRI.setExposed(rs.getString(Constant.RI_EXPO));
 				tempRI.setOwner(getStringOrEmpty(rs, Constant.RI_OWNER));
+				if (hasCustom)
+					tempRI.setCustom(rs.getBoolean(Constant.RI_CUSTOM));
 				tempRI.setComment(rs.getString(Constant.RI_COMMENT));
 				tempRI.setHiddenComment(rs.getString(Constant.RI_COMMENT2));
 
@@ -2596,8 +2601,15 @@ public class ImportAnalysis {
 				// ****************************************************************
 				tempRI = new RiskInformation();
 				tempRI.setCategory(Constant.RI_TYPE_RISK + "_" + rs.getString(Constant.RI_TYPE));
-				if (tempRI.getCategory().equals(Constant.RI_TYPE_RISK_TBA))
+				
+				if (hasCustom) {
+					tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
+					tempRI.setCustom(rs.getBoolean(Constant.RI_CUSTOM));
+				} else if (tempRI.getCategory().equals(Constant.RI_TYPE_RISK_TBA))
 					tempRI.setChapter("7" + rs.getString(Constant.RI_LEVEL).substring(1));
+				else
+					tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
+				
 				tempRI.setLabel(rs.getString(Constant.RI_NAME));
 				tempRI.setAcronym(Constant.EMPTY_STRING);
 				tempRI.setExposed(rs.getString(Constant.RI_EXPO));

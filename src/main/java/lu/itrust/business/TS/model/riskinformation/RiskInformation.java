@@ -38,7 +38,7 @@ public class RiskInformation implements Cloneable {
 	/** editable */
 	@Transient
 	private boolean editable;
-	
+
 	@Column(name = "dtCustom", nullable = false)
 	private boolean custom;
 
@@ -48,15 +48,15 @@ public class RiskInformation implements Cloneable {
 
 	/** The Risk Information Exposed Value */
 	@Column(name = "dtExposed", nullable = false)
-	private String exposed;
+	private String exposed="";
 
 	/** The Risk Information Comment */
-	@Column(name = "dtComment", nullable = false, length=16777216)
-	private String comment;
+	@Column(name = "dtComment", nullable = false, length = 16777216)
+	private String comment="";
 
 	/** The Risk Information Hidden Comment */
-	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
-	private String hiddenComment;
+	@Column(name = "dtHiddenComment", nullable = false, length = 16777216)
+	private String hiddenComment="";
 
 	/** The Risk Information Category */
 	@Column(name = "dtCategory", nullable = false)
@@ -68,11 +68,10 @@ public class RiskInformation implements Cloneable {
 
 	/** The Risk Information Acronym */
 	@Column(name = "dtAcronym", nullable = false, length = 15)
-	private String acronym;
+	private String acronym="";
 
 	@Column(name = "dtOwner")
-	private String owner;
-
+	private String owner="";
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -319,14 +318,29 @@ public class RiskInformation implements Cloneable {
 	}
 
 	/**
-	 * @param custom the custom to set
+	 * @param custom
+	 *            the custom to set
 	 */
 	public void setCustom(boolean custom) {
 		this.custom = custom;
 	}
 
+	public String getKey() {
+		return key(category, chapter);
+	}
+
+	public static String key(String category, String chapter) {
+		return (category == null ? "" : category.startsWith("Risk") ? "risk_" : category.toLowerCase()) + "__risk-information__" + chapter;
+	}
+
+	public boolean isMatch(String category) {
+		return category == null || this.category == null ? this.category == category
+				: category.equalsIgnoreCase("risk") ? this.category.startsWith("Risk") : this.category.equals(category);
+	}
+
 	/**
 	 * reset owner, comment, exposed, hiddenComment, id
+	 * 
 	 * @return duplicate
 	 */
 	public RiskInformation anonymise() {

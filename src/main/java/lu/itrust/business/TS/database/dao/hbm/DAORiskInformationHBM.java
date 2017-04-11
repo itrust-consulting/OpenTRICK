@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -163,5 +164,10 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	@Override
 	public void delete(RiskInformation riskInformation)  {
 		getSession().delete(riskInformation);
+	}
+
+	@Override
+	public void delete(Collection<RiskInformation> riskInformations) {
+		riskInformations.forEach(riskInformation -> getSession().delete(riskInformation));
 	}
 }

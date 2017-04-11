@@ -115,7 +115,11 @@ function findControllerBySection(section, subSection) {
 		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
 		"section_qualitative_parameter": "/Analysis/Parameter/Qualitative/Section",
 		"section_quantitative_parameter": "/Analysis/Parameter/Quantitative/Section",
-		"section_parameter_impact": "/Analysis/Parameter/Impact/Section"
+		"section_parameter_impact": "/Analysis/Parameter/Impact/Section",
+		"section_risk-information_risk":"/Analysis/Risk-information/Section/Risk",
+		"section_risk-information_vul":"/Analysis/Risk-information/Section/Vul",
+		"section_risk-information_threat":"/Analysis/Risk-information/Section/Threat",
+		
 	};
 
 	if (section.match("^section_standard_")) {

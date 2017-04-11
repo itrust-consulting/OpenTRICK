@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -35,4 +36,6 @@ public interface ServiceRiskInformation {
 	public void saveOrUpdate(RiskInformation riskInformation);
 
 	public void delete(RiskInformation riskInformation);
+
+	public void delete(Collection<RiskInformation> riskInformations);
 }

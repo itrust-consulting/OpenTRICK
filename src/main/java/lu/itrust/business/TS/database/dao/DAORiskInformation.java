@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -35,5 +36,7 @@ public interface DAORiskInformation {
 	public void saveOrUpdate(RiskInformation riskInformation);
 
 	public void delete(RiskInformation riskInformation);
+
+	public void delete(Collection<RiskInformation> riskInformations);
 	
 }
