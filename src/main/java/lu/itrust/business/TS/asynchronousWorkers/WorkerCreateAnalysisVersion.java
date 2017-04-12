@@ -180,7 +180,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				MessageHandler handler = new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100);
 				
-				handler.setAsyncCallback(new AsyncCallback("reloadSection", "section_analysis"));
+				handler.setAsyncCallback(new AsyncCallback("reloadSection('section_analysis',undefined,undefined,true)"));//addTop
 				
 				serviceTaskFeedback.send(id, handler);
 				/**

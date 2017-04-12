@@ -37,7 +37,6 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	} else
 		permissionError();
 	return false;
-
 }
 
 function updateAnalysisAccess(e) {
@@ -698,8 +697,8 @@ function customAnalysis(element) {
 										showDialog("success", response.success);
 										$saveButton.unbind();
 										modal.Destroy();
-										$("select#nameSelectorFilter").val("ALL");
-										$("select#customerSelectorFilter").val($("form select[name='customer']", $modalBody).val()).trigger("change");
+										$("select#customerSelectorFilter").val($("form select[name='customer']", $modalBody).val());
+										$("select#nameSelectorFilter").val("ALL").trigger("change");
 									} else {
 										var errorContainer = document.getElementById("build-analysis-modal-error");
 										for (var error in response) {

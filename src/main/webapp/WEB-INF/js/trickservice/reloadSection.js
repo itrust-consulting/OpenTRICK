@@ -33,17 +33,19 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 }
 
 // reload sections
-function reloadSection(section, subSection, refreshOnly) {
+function reloadSection(section, subSection, refreshOnly,prepend) {
 	if (subSection == "")
 		subSection = undefined;
 	if (refreshOnly == "")
 		refreshOnly = undefined
+	if(!(prepend===true || prepend ==='true'))
+		prepend = undefined;
 	if (Array.isArray(section)) {
 		for (var i = 0; i < section.length; i++) {
 			if (Array.isArray(section[i]))
-				reloadSection(section[i][0], section[i][1], refreshOnly);
+				reloadSection(section[i][0], section[i][1], refreshOnly, prepend);
 			else
-				reloadSection(section[i], subSection, refreshOnly);
+				reloadSection(section[i], subSection, refreshOnly, prepend);
 		}
 	} else if (section == "section_standard")
 		location.reload();
@@ -64,7 +66,7 @@ function reloadSection(section, subSection, refreshOnly) {
 						section += "_" + subSection;
 					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + section + "']", content);
 					if ($newSection.length) {
-						var smartUpdate = new SectionSmartUpdate(section, $newSection);
+						var smartUpdate = new SectionSmartUpdate(section, $newSection,prepend);
 						if (smartUpdate.Update()) {
 							$("#" + section).replaceWith($newSection);
 							fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
@@ -89,7 +91,7 @@ function reloadSection(section, subSection, refreshOnly) {
 			var $container = section.startsWith("section_standard_") ? $section : $section.closest(".tab-pane");
 			$container.attr("data-update-required", true);
 			$container.attr("data-trigger", 'reloadSection');
-			$container.attr("data-parameters", [section, subSection, refreshOnly]);
+			$container.attr("data-parameters", [section, subSection, refreshOnly,prepend]);
 		}
 	}
 	return false;
@@ -191,9 +193,10 @@ function callbackBySection(section) {
 	return callbacks[section];
 }
 
-function SectionSmartUpdate(sectionName, data) {
+function SectionSmartUpdate(sectionName, data, prepend) {
 	this.sectionName = sectionName;
 	this.data = data;
+	this.prepend = prepend;
 };
 
 SectionSmartUpdate.prototype = {
@@ -248,8 +251,11 @@ SectionSmartUpdate.prototype = {
 			for (var i = 0; i < $tableSourceTrs.length; i++) {
 				var trickId = $($tableSourceTrs[i]).attr("data-trick-id");
 				var $tr = $("tbody>tr[data-trick-id='" + trickId + "']", $dest);
-				if (!$tr.length)
-					$($tableSourceTrs[i]).appendTo($tbody);
+				if (!$tr.length){
+					if(this.prepend)
+						$($tableSourceTrs[i]).prependTo($tbody);
+					else $($tableSourceTrs[i]).appendTo($tbody);
+				}
 			}
 
 			var $tfooter = $("tfoot", $dest);
