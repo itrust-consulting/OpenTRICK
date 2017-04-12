@@ -112,11 +112,13 @@ public class ControllerParameter {
 	public String qualitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<IParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		int level = parameters.size()-1;
 		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
 		parameters.addAll(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
 		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, idAnalysis));
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
 		model.addAttribute("isEditable", !OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE)).isReadOnly());
+		model.addAttribute("maxImportance", level * level);
 		model.addAttribute("type", AnalysisType.QUALITATIVE);
 		return "analyses/single/components/parameters/qualitative/home";
 	}

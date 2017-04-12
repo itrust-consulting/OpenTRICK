@@ -37,10 +37,23 @@
 					</tr>
 				</c:when>
 				<c:otherwise>
-					<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter">
+					<c:set var="size" value="${mappedParameters['RISK_ACCEPTANCE'].size()}" />
+					<c:forEach items="${mappedParameters['RISK_ACCEPTANCE']}" var="parameter" varStatus="status">
 						<tr data-trick-class="RiskAcceptanceParameter" data-trick-id="${parameter.id}" ${isEditable? 'ondblclick="return manageRiskAcceptance()"':''}
 							data-trick-callback='reloadRiskHeatMapSection()'>
-							<td class='textaligncenter' data-trick-field="value"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+							<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" var="value" />
+							<td class='textaligncenter' data-trick-field="value"><c:choose>
+								<c:when test="${status.index==0 }">
+									[ <span class='text-muted'>0</span> ; ${value} ]
+								</c:when>
+								<c:when test="${status.index < size-1}">
+									] <span class='text-muted'>${prevValue}</span> ; ${value} ]
+								</c:when>
+								<c:otherwise>
+									] <span class='text-muted'>${prevValue}</span> ; ${maxImportance} ]
+								</c:otherwise>
+								</c:choose></td>
+							<c:set var="prevValue" value="${value}" />
 							<td class='textaligncenter editable' data-trick-field='label' data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							<spring:message text="${parameter.color}" var="color" />
 							<td class='textaligncenter editable' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message

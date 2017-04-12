@@ -187,7 +187,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
-	
+
 	@Autowired
 	private ServiceIDS serviceIDS;
 
@@ -258,9 +258,9 @@ public class ControllerAnalysis {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		AnalysisType analysisType = analysis.getType();
-		currentSettings.forEach((key, value) ->  {
+		currentSettings.forEach((key, value) -> {
 			AnalysisSetting setting = AnalysisSetting.valueOf(key);
-			if(setting!=null && setting.isSupported(analysisType))
+			if (setting != null && setting.isSupported(analysisType))
 				analysis.setSetting(setting.name(), Analysis.findSetting(setting, value));
 		});
 		serviceAnalysis.saveOrUpdate(analysis);
@@ -325,7 +325,8 @@ public class ControllerAnalysis {
 				model.addAttribute("effectImpl27002",
 						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
 								analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
-
+			int level = analysis.getLikelihoodParameters().size()-1;
+			model.addAttribute("maxImportance", level * level);
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
