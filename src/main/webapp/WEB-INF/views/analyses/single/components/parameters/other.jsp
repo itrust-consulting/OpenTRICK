@@ -103,8 +103,61 @@
 			</table>
 		</fieldset>
 	</div>
-
+	
+	<div class="col-sm-3">
+		<fieldset>
+			<legend>
+				<spring:message code="label.parameter.probability.label" />
+			</legend>
+			<table class="table table-hover table-fixed-header-analysis table-condensed">
+				<thead>
+					<tr>
+						<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+						<th class="textaligncenter"><spring:message code="label.parameter.label" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					
+					<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
+						<c:if test="${parameter.level>0}">
+							<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
+								<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+								<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
+									data-trick-callback="reloadSection('section_parameter_impact_probability')" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+							</tr>
+						</c:if>
+					</c:forEach>
+				</tbody>
+			</table>
+		</fieldset>
+	</div>
+	<div class="col-sm-3">
+		<fieldset>
+			<legend>
+				<spring:message code="label.parameter.impact.label" />
+			</legend>
+			<table class="table table-hover table-fixed-header-analysis table-condensed">
+				<thead>
+					<tr>
+						<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+						<th class="textaligncenter"><spring:message code="label.parameter.label" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${mappedParameters[impactLabel]}" var="parameter" varStatus="status">
+						<c:if test="${parameter.level>0}">
+							<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
+								<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+								<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
+									data-trick-callback="reloadSection('section_parameter_impact_probability')" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+							</tr>
+						</c:if>
+					</c:forEach>
+				</tbody>
+			</table>
+		</fieldset>
+	</div>
 	<div class="col-md-6">
-		<jsp:include page="risk-acceptance.jsp"/>
+		<jsp:include page="risk-acceptance.jsp" />
 	</div>
 </c:if>

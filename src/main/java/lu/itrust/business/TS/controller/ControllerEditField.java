@@ -153,7 +153,7 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceRiskInformation serviceRiskInformation;
-	
+
 	@Autowired
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
@@ -325,10 +325,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
-	
-	
-	
-	
+
 	/**
 	 * parameter: <br>
 	 * Description
@@ -367,7 +364,6 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
-	
 
 	/**
 	 * Impact: <br>
@@ -407,13 +403,23 @@ public class ControllerEditField {
 			field.setAccessible(true);
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
-				if ("value".equals(fieldEditor.getFieldName())) {
+				switch (fieldEditor.getFieldName()) {
+				case "value":
 					parameter.setValue(parameter.getValue() * 1000);
 					List<ImpactParameter> parameters = serviceImpactParameter.findByTypeAndAnalysisId(parameter.getType(), idAnalysis);
 					ImpactParameter.ComputeScales(parameters);
 					serviceImpactParameter.saveOrUpdate(parameters);
-				} else
+					break;
+				case "label":
+					List<ImpactParameter> impactParameters = serviceImpactParameter.findByIdAnalysisAndLevel(idAnalysis, parameter.getLevel());
+					impactParameters.forEach(impact-> impact.setLabel(fieldEditor.getValue().toString()));
+					serviceImpactParameter.saveOrUpdate(impactParameters);
+					
+
+				default:
 					serviceImpactParameter.saveOrUpdate(parameter);
+					break;
+				}
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.impact.update", null, "Impact was successfully update", locale));
 			} else

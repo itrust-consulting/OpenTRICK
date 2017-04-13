@@ -6,15 +6,22 @@
 <div class="col-md-6">
 	<fieldset id="Scale_Probability">
 		<legend>
-			<spring:message code="label.parameter.extended.probability" />
+			<c:choose>
+				<c:when test="${type == 'QUALITATIVE'}">
+					<spring:message code="label.title.probability"/>
+				</c:when>
+				<c:otherwise>
+					<spring:message code="label.parameter.extended.probability" />
+				</c:otherwise>
+			</c:choose>
 		</legend>
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
-					<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+					<th width="5%" class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 					<c:choose>
 						<c:when test="${type == 'QUALITATIVE'}">
-							<th class="textaligncenter"><spring:message code="label.parameter.label" /></th>
+							<th class="textaligncenter" width="20%" ><spring:message code="label.parameter.label" /></th>
 						</c:when>
 						<c:otherwise>
 							<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
@@ -50,8 +57,7 @@
 						</td>
 						<c:choose>
 							<c:when test="${type == 'QUALITATIVE'}">
-								<td data-trick-field="label" data-trick-field-type="string" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="editable textaligncenter"
-									data-trick-callback='loadRiskHeatMap()' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+								<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter" ><spring:message text="${parameter.label}" /></td>
 							</c:when>
 							<c:otherwise>
 								<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>

@@ -224,13 +224,18 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		getSession().saveOrUpdate(entity);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#findByAnalysisId(java.lang.Integer)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#findByAnalysisId(java.
+	 * lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ImpactParameter> findByAnalysisId(Integer idAnalysis) {
-		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis order by parameter.level")
+		return getSession()
+				.createQuery("Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis order by parameter.level")
 				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
@@ -239,16 +244,18 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> findAcronymByTypeAndAnalysisId(String type, Integer idAnalysis) {
-		return getSession()
-				.createQuery(
-						"Select parameter.acronym From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type")
-				.setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
+		return getSession().createQuery(
+				"Select parameter.acronym From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type",
+				String.class).setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
-	
-	
-	
+	@Override
+	public List<ImpactParameter> findByIdAnalysisAndLevel(Integer idAnalysis, Integer level) {
+		return getSession().createQuery(
+				"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.level = :level",
+				ImpactParameter.class).setParameter("level", level).setParameter("idAnalysis", idAnalysis).getResultList();
+	}
+
 }

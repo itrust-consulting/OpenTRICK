@@ -206,4 +206,9 @@ public class ServiceImpactParameterImpl implements ServiceImpactParameter {
 		return daoImpactParameter.findAcronymByTypeAndAnalysisId(type,idAnalysis);
 	}
 
+	@Override
+	public List<ImpactParameter> findByIdAnalysisAndLevel(Integer idAnalysis, Integer level) {
+		return daoImpactParameter.findByIdAnalysisAndLevel(idAnalysis, level);
+	}
+
 }
