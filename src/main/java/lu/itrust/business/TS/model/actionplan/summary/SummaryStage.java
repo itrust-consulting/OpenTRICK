@@ -206,7 +206,7 @@ public class SummaryStage {
 
 	public Double getSingleConformance(String label) {
 		for (SummaryStandardConformance conformance : this.conformances)
-			if (conformance.getAnalysisStandard().getStandard().getLabel().equals(label))
+			if (conformance.getAnalysisStandard().getStandard().is(label))
 				return conformance.getConformance();
 		return 0.0;
 	}

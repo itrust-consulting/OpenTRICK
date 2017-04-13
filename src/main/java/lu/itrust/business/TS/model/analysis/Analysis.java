@@ -707,10 +707,11 @@ public class Analysis implements Cloneable {
 		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
 	}
 
-	public List<? extends Measure> findMeasureByStandard(String string) {
-		for (AnalysisStandard analysisStandard : this.analysisStandards)
-			if (analysisStandard.getStandard().getLabel().equalsIgnoreCase(string))
+	public List<? extends Measure> findMeasureByStandard(String standard) {
+		for (AnalysisStandard analysisStandard : this.analysisStandards) {
+			if (analysisStandard.getStandard().is(standard))
 				return analysisStandard.getMeasures();
+		}
 		return null;
 	}
 
@@ -1029,7 +1030,7 @@ public class Analysis implements Cloneable {
 	 */
 	public AnalysisStandard getAnalysisStandardByLabel(String label) {
 		for (AnalysisStandard analysisStandard : this.analysisStandards) {
-			if (analysisStandard.getStandard().getLabel().equals(label)) {
+			if (analysisStandard.getStandard().is(label)) {
 				return analysisStandard;
 			}
 		}

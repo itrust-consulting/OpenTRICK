@@ -292,7 +292,7 @@ public class ControllerAnalysisStandard {
 		ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		List<Standard> standards = new ArrayList<Standard>(1);
 		Map<String, List<Measure>> measuresByStandard = new HashMap<>(1);
-		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
+		if (analysisStandard.getStandard().is(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
 			if (maturityStandard != null && maturityStandard.getStandard().isComputable())
 				model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(),
@@ -375,7 +375,7 @@ public class ControllerAnalysisStandard {
 	 */
 	private void loadEfficience(Model model, Integer idAnalysis, Measure measure) {
 		try {
-			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
+			if (!measure.getAnalysisStandard().getStandard().is(Constant.STANDARD_27002))
 				return;
 			if (measure.getMeasureDescription().isComputable()) {
 				ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));

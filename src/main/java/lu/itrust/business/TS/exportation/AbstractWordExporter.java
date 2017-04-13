@@ -88,7 +88,7 @@ public abstract class AbstractWordExporter {
 	protected ValueFactory valueFactory = null;
 
 	protected String idTask;
-	
+
 	protected String languageAlpha2 = null;
 
 	protected DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
@@ -479,7 +479,8 @@ public abstract class AbstractWordExporter {
 					xssfSheet.createRow(rowCount);
 				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
 					xssfSheet.getRow(rowCount).createCell(columnIndex);
-				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber());
+				xssfSheet.getRow(rowCount++).getCell(columnIndex)
+						.setCellValue(getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale));
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
 					if (xssfSheet.getRow(rowCount) == null)
@@ -672,14 +673,10 @@ public abstract class AbstractWordExporter {
 							for (int i = 0; i < 16; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
 							if (measure.getImplementationRateValue(expressionParameters) < 100) {
-								switch (analysisStandard.getStandard().getLabel()) {
-								case Constant.STANDARD_27001:
-									nonApplicableMeasure27001++;
-									break;
-								case Constant.STANDARD_27002:
+								if (analysisStandard.getStandard().is(Constant.STANDARD_27002))
 									nonApplicableMeasure27002++;
-									break;
-								}
+								else if (analysisStandard.getStandard().is(Constant.STANDARD_27001))
+									nonApplicableMeasure27001++;
 							}
 						} else {
 							row.getCell(0).setColor(SUB_HEADER_COLOR);
@@ -757,21 +754,15 @@ public abstract class AbstractWordExporter {
 
 			if (paragraph != null && elements.size() > 0) {
 
-				RiskInformation previouselement = null;
+				boolean isFirst = true;
 
 				// set data
 
 				for (RiskInformation riskinfo : elements) {
 
-					if ((previouselement == null) || (!riskinfo.isMatch(previouselement.getCategory()))) {
-
-						if (previouselement != null)
-							document.insertNewParagraph(paragraph.getCTP().newCursor());
-
+					if (isFirst) {
 						table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
 						table.setStyleID("TableTS" + key);
-
 						// set header
 						row = table.getRow(0);
 						setCellText(row.getCell(0), getMessage(String.format("report.risk_information.title.%s", "id"), null, "Id", locale));
@@ -794,9 +785,9 @@ public abstract class AbstractWordExporter {
 							row.addNewTableCell();
 							setCellText(row.getCell(4), getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
 						}
+						isFirst = false;
 					}
 
-					previouselement = riskinfo;
 					row = table.createRow();
 					setCellText(row.getCell(0), riskinfo.getChapter());
 					setCellText(row.getCell(1),

@@ -15,6 +15,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -48,7 +49,7 @@ public class Standard implements Cloneable {
 	private int version = 2013;
 
 	/** description of the Standard */
-	@Column(name = "dtDescription", nullable = false, length=2048)
+	@Column(name = "dtDescription", nullable = false, length = 2048)
 	private String description = "";
 
 	@Enumerated(EnumType.STRING)
@@ -366,15 +367,16 @@ public class Standard implements Cloneable {
 	}
 
 	public boolean isMatch(Standard standard) {
-		return label.equals(standard.label) && standard.type == standard.type;
+		return label.equalsIgnoreCase(standard.label) && standard.type == standard.type;
 	}
 
 	public boolean hasSameName(Standard standard) {
-		return label.equals(standard.label);
+		return label.equalsIgnoreCase(standard.label);
 	}
 
-	public Boolean is(String type) {
-		return label.equals(type);
+	public Boolean is(String label) {
+		return analysisOnly || !(label.equals(Constant.STANDARD_27001) || label.equals(Constant.STANDARD_27002)) ? this.label.equalsIgnoreCase(label)
+				: this.label.startsWith(label);
 	}
 
 }

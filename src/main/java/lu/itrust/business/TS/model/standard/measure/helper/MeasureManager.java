@@ -26,6 +26,7 @@ import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
+import lu.itrust.business.TS.database.dao.DAORiskProfile;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.exception.TrickException;
@@ -97,30 +98,33 @@ public class MeasureManager {
 	@Autowired
 	private DAOMeasureDescription daoMeasureDescription;
 
+	@Autowired
+	private DAORiskProfile daoRiskProfile;
+
 	public static Standard getStandard(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
-			if (standard.getLabel().equals(standardname))
+			if (standard.is(standardname))
 				return standard;
 		return null;
 	}
 
 	public static Integer getStandardId(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
-			if (standard.getLabel().equals(standardname))
+			if (standard.is(standardname))
 				return standard.getId();
 		return null;
 	}
 
 	public static StandardType getStandardType(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
-			if (standard.getLabel().equals(standardname))
+			if (standard.is(standardname))
 				return standard.getType();
 		return null;
 	}
 
 	public static boolean isAnalysisOnlyStandard(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
-			if (standard.getLabel().equals(standardname))
+			if (standard.is(standardname))
 				return standard.isAnalysisOnly();
 		return false;
 	}
@@ -208,9 +212,7 @@ public class MeasureManager {
 			measures2.add(measure);
 		}
 
-		List<Chapter> keys = chapters.entrySet().stream()
-				.filter(entry -> !entry.getValue().stream()
-						.anyMatch(measure -> measure.getMeasureDescription().isComputable()))
+		List<Chapter> keys = chapters.entrySet().stream().filter(entry -> !entry.getValue().stream().anyMatch(measure -> measure.getMeasureDescription().isComputable()))
 				.map(Entry::getKey).collect(Collectors.toList());
 
 		keys.forEach(key -> chapters.remove(key));
@@ -336,6 +338,11 @@ public class MeasureManager {
 		for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
 			daoActionPlan.delete(actionPlanEntry);
 
+		daoRiskProfile.getAllFromAnalysis(idAnalysis).forEach(riskProfile -> {
+				if (riskProfile.getMeasures().removeIf(measure -> measure.getAnalysisStandard().equals(analysisStandard)))
+					daoRiskProfile.saveOrUpdate(riskProfile);
+			});
+		
 		Standard standard = daoStandard.get(idStandard);
 
 		daoAnalysisStandard.delete(analysisStandard);

@@ -833,7 +833,7 @@ public class ActionPlanComputation {
 				normalMeasure = null;
 
 				// check if it is a maturity measure -> YES
-				if (actionPlanEntry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_MATURITY)) {
+				if (actionPlanEntry.getMeasure().getAnalysisStandard().getStandard().is(Constant.STANDARD_MATURITY)) {
 
 					// retrieve matrurity masure
 					maturityMeasure = (MaturityMeasure) actionPlanEntry.getMeasure();
@@ -934,7 +934,7 @@ public class ActionPlanComputation {
 
 		// parse all phases
 		for (Phase phase : phases) {
-			
+
 			// ****************************************************************
 			// * check if TMAList is empty -> YES: for the first time, the
 			// TMAList is empty, so
@@ -995,7 +995,7 @@ public class ActionPlanComputation {
 					// maturity
 					// computation -> YES
 					// ****************************************************************
-					if (tma.getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
+					if (tma.getStandard().is(Constant.STANDARD_27002) && maturitycomputation) {
 
 						// ****************************************************************
 						// * recalculate delta ALE Maturity
@@ -1488,8 +1488,7 @@ public class ActionPlanComputation {
 					// * parse TMAList for AnalysisStandard 27002 measures and
 					// inside this chapter
 					// ****************************************************************
-					if ((TMAList.get(napmc).getStandard().getLabel().equals(Constant.STANDARD_27002))
-							&& (tmpMeasure.getMeasureDescription().getReference().startsWith(maturityChapter))) {
+					if ((TMAList.get(napmc).getStandard().is(Constant.STANDARD_27002)) && (tmpMeasure.getMeasureDescription().getReference().startsWith(maturityChapter))) {
 
 						// ****************************************************************
 						// * add measure to a list if it does not yet exist,
@@ -1760,7 +1759,7 @@ public class ActionPlanComputation {
 						TMAList.get(j).calculateDeltaALE(factory);
 
 						// if the measure is from 27002 -> YES
-						if (TMAList.get(j).getStandard().getLabel().equals(Constant.STANDARD_27002)) {
+						if (TMAList.get(j).getStandard().is(Constant.STANDARD_27002)) {
 
 							// ****************************************************************
 							// * calculate deltaALEMaturity
@@ -1828,7 +1827,7 @@ public class ActionPlanComputation {
 					// parse each element where the measure is the one that was
 					// taken, and when
 					// assessment couple is the same
-					if ((tmpTMA.getMeasure().getMeasureDescription().getReference().startsWith(chapter)) && (tmpTMA.getStandard().getLabel().equals(Constant.STANDARD_27002))
+					if ((tmpTMA.getMeasure().getMeasureDescription().getReference().startsWith(chapter)) && (tmpTMA.getStandard().is(Constant.STANDARD_27002))
 							&& (tmpTMA.getAssessment().getId() == assessment.getId())) {
 
 						// ****************************************************************
@@ -1859,7 +1858,7 @@ public class ActionPlanComputation {
 						TMAList.get(j).calculateDeltaALE(factory);
 
 						// if it is a 27002 standard ->YES
-						if (TMAList.get(j).getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
+						if (TMAList.get(j).getStandard().is(Constant.STANDARD_27002) && maturitycomputation) {
 
 							// ****************************************************************
 							// * calculate the deltaALEMaturity
@@ -1935,7 +1934,7 @@ public class ActionPlanComputation {
 
 			if (!standards.contains(analysisStandard))
 				continue;
-			
+
 			// ****************************************************************
 			// * check if not Maturity standard -> NO
 			// ****************************************************************
@@ -1987,7 +1986,7 @@ public class ActionPlanComputation {
 							// Maturity calculation
 							// ****************************************************************
 
-							if (!isCssf && normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
+							if (!isCssf && normalStandard.getStandard().is(Constant.STANDARD_27002) && maturitycomputation) {
 
 								// ****************************************************************
 								// * generate TMA entry -> not a useful measure
@@ -2012,7 +2011,7 @@ public class ActionPlanComputation {
 						// calculation
 						// ****************************************************************
 						if (!isCssf && !(normalMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normalMeasure.getMeasureDescription().isComputable())
-								&& (normalMeasure.getCost() >= 0) && (normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002) && (maturitycomputation))) {
+								&& (normalMeasure.getCost() >= 0) && (normalStandard.getStandard().is(Constant.STANDARD_27002) && (maturitycomputation))) {
 							// ****************************************************************
 							// * generate TMA entry -> not a useful measure
 							// ****************************************************************
@@ -2185,7 +2184,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * check if measure is from 27002 standard (for maturity)
 					// ****************************************************************
-					if (standard.getLabel().equals(Constant.STANDARD_27002)) {
+					if (standard.is(Constant.STANDARD_27002)) {
 
 						// ****************************************************************
 						// * retrieve reached SML
@@ -2498,55 +2497,11 @@ public class ActionPlanComputation {
 	 *         in the 27002 AnalysisStandard
 	 */
 	private static boolean hasUsable27002MeasuresInMaturityChapter(Analysis analysis, String chapter) {
-
 		// initialise variables
-		NormalStandard normalStandard = null;
-		boolean result = false;
-
-		// ****************************************************************
-		// * check if at least 1 measure of 27002 standard is applicable ->
-		// Special
-		// case
-		// ****************************************************************
-
-		// parse standards
-		for (int i = 0; i < analysis.getAnalysisStandards().size(); i++) {
-
-			// check if 27002 standard -> YES
-			if (analysis.getAnalysisStandard(i) instanceof NormalStandard && analysis.getAnalysisStandard(i).getStandard().getLabel().equals(Constant.STANDARD_27002)) {
-
-				// temporary store measure standard
-				normalStandard = (NormalStandard) analysis.getAnalysisStandard(i);
-
-				if (normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002))
-					// leave loop
-					break;
-
-			}
-		}
-
-		// parse measures of standard
-		for (int j = 0; j < normalStandard.getMeasures().size(); j++) {
-
-			// the measure reference needs to start with the chapter number and
-			// is applicable or
-			// mandatory
-			if ((normalStandard.getMeasure(j).getMeasureDescription().getReference().startsWith(chapter + "."))
-					&& (!normalStandard.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
-							&& (normalStandard.getMeasure(j).getMeasureDescription().isComputable()))) {
-
-				// *************************************************
-				// * measure found increment counter
-				// *************************************************
-				result = true;
-
-				// leave loop (only 1 measure is enough)
-				break;
-			}
-		}
-
-		// return the result
-		return result;
+		NormalStandard normalStandard = (NormalStandard) analysis.getAnalysisStandards().stream()
+				.filter(analysisStandard -> (analysisStandard instanceof NormalStandard) && analysisStandard.getStandard().is(Constant.STANDARD_27002)).findAny().orElse(null);
+		return normalStandard != null && normalStandard.getMeasures().stream().anyMatch(measure -> (measure.getMeasureDescription().getReference().startsWith(chapter + "."))
+				&& (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (measure.getMeasureDescription().isComputable())));
 	}
 
 	/***********************************************************************************************
@@ -2824,10 +2779,10 @@ public class ActionPlanComputation {
 	 */
 	public static String extractMainChapter(String chapter) {
 		if ((chapter.toUpperCase().startsWith("A.")) || (chapter.toUpperCase().startsWith("M."))) {
-			String[] chapters = chapter.split("[.]",3);
+			String[] chapters = chapter.split("[.]", 3);
 			return chapters[0] + "." + chapters[1];
 		}
-		return chapter.split(Constant.REGEX_SPLIT_REFERENCE,2)[0];
+		return chapter.split(Constant.REGEX_SPLIT_REFERENCE, 2)[0];
 	}
 
 	/**
@@ -2896,14 +2851,10 @@ public class ActionPlanComputation {
 					}
 					denominator++;
 					if (imprate < soa && measure.getPhase().getNumber() > phasenumber && measure instanceof NormalMeasure) {
-						switch (helper.standard.getStandard().getLabel()) {
-						case Constant.STANDARD_27001:
+						if (helper.standard.getStandard().is(Constant.STANDARD_27001))
 							tmpval.notCompliantMeasure27001Count++;
-							break;
-						case Constant.STANDARD_27002:
+						else if (helper.standard.getStandard().is(Constant.STANDARD_27002))
 							tmpval.notCompliantMeasure27002Count++;
-							break;
-						}
 					}
 
 				}

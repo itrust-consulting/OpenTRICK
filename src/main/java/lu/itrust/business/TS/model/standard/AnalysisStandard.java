@@ -193,7 +193,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	 */
 	public void setSoaEnabled(Boolean soaEnabled) {
 		if (soaEnabled == null)
-			soaEnabled = standard != null && standard.getLabel().equals(Constant.STANDARD_27002);
+			soaEnabled = standard != null && standard.is(Constant.STANDARD_27002);
 		this.soaEnabled = soaEnabled;
 	}
 

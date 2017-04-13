@@ -1029,7 +1029,7 @@ public class ControllerKnowledgeBaseStandard {
 				else
 					mesDescText.setDomain(domain);
 
-				if (level == 3 && !(measuredescription.getStandard().getLabel().equals("27001") && measuredescription.getStandard().getVersion() == 2013))
+				if (level == 3 && !(measuredescription.getStandard().is("27001") && measuredescription.getStandard().getVersion() == 2013))
 					error = validator.validate(mesDescText, "description", description);
 				else
 					error = null;
