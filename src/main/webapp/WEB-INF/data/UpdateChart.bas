@@ -98,7 +98,7 @@ Private Sub UpdateALE(mychart)
     Set chart = mychart
     Set workSheet = chart.chartData.Workbook.Sheets(1)
     lastNotEmptyRow = workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row
-    workSheet.Range("B2:B" & lastNotEmptyRow).NumberFormat = "[>9.99]# ### ### ### ##0kï¿½;[>0.01]#0.0kï¿½;0kï¿½"
+    workSheet.Range("B2:B" & lastNotEmptyRow).NumberFormat = "[>9.99]# ### ### ### ##0K€;[>0.01]#0.0K€;0K€"
     chart.SetSourceData Source:="'" & workSheet.name & "'!" & workSheet.Range("A1:B" & lastNotEmptyRow).Address
     chart.PlotBy = myXlColumns
 End Sub
@@ -159,7 +159,7 @@ Private Sub UpdateBudget(mychart)
     Set chart = mychart
     Set workSheet = chart.chartData.Workbook.Sheets(1)
     workSheet.Range("B2:E" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0" & ThisDocument.CurrencyManDay
-    workSheet.Range("F2:H" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0kï¿½"
+    workSheet.Range("F2:H" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0K€"
     chart.SetSourceData Source:="'" & workSheet.name & "'!" & workSheet.Range(workSheet.Cells(1, 1), workSheet.Cells(workSheet.Range("A2").End(myXlDown).row, workSheet.Range("B2").End(myXlToRight).Column)).Address
     chart.PlotBy = myXlColumns
     'Move all series to primary axis
@@ -181,7 +181,7 @@ Private Sub UpdateEvolutionOfProfitability(mychart)
     Set chart = mychart
     Set workSheet = chart.chartData.Workbook.Sheets(1)
     workSheet.Range("B2:C" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "0%"
-    workSheet.Range("D2:D" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0kï¿½"
+    workSheet.Range("D2:D" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0K€"
     workSheet.Range("E2:G" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0" & ThisDocument.CurrencyKiloEuroPerYear
     workSheet.Range("H2:H" & workSheet.Range("A" & workSheet.Rows.count).End(myxlUp).row).NumberFormat = "### ### ### ###0"
     chart.SetSourceData Source:="'" & workSheet.name & "'!" & workSheet.Range(workSheet.Cells(1, 1), workSheet.Cells(workSheet.Range("A2").End(myXlDown).row, workSheet.Range("B2").End(myXlToRight).Column)).Address
@@ -220,7 +220,6 @@ Private Sub ActivateWorkbook(chartData As Variant)
 End Sub
 Private Function CountChart(name As String) As Integer
     Dim count As Integer: count = 0
-    
     For Each shape In ActiveDocument.InlineShapes
         If shape.HasChart And shape.AlternativeText = name Then
             count = count + 1
@@ -274,17 +273,19 @@ Private Sub DistributionRiskChart(chartName As String, chartCount As Integer, to
     If chartCount < 2 Then
         Exit Sub
     End If
-    Debug.Print chartCount
+    
     For Each shape In ActiveDocument.InlineShapes
         If shape.HasChart And shape.AlternativeText = chartName Then
-            Call ActivateWorkbook(shape.chart.chartData)
+            Call ShowWorkbook(shape.chart.chartData)
             Set workSheet = shape.chart.chartData.Workbook.Sheets(1)
             If chartIndex = 0 Then
                 columnCount = workSheet.Range("B2").End(myXlToRight).Column
             Else:
                 workSheet.Range("A3:" & workSheet.Cells(((rowCount * chartIndex) + 2), columnCount).Address).Delete
             End If
-            workSheet.Range(workSheet.Range("A" & (rowCount + 3) & ":" & workSheet.Cells(totalRow + 2, columnCount).Address).Address).Delete
+            If chartIndex < chartCount - 1 Then
+                workSheet.Range(workSheet.Range("A" & (rowCount + 3) & ":" & workSheet.Cells(totalRow + 2, columnCount).Address).Address).Delete
+            End If
             chartIndex = chartIndex + 1
             workSheet.name = chartName & chartIndex
         End If
@@ -344,10 +345,10 @@ End Sub
 
 
 Sub UpdateGraphics()
-Attribute UpdateGraphics.VB_Description = "Applique le style Normal et convertit les titres sï¿½lectionnï¿½s en corps de texte."
+Attribute UpdateGraphics.VB_Description = "Applique le style Normal et convertit les titres sÃ©lectionnÃ©s en corps de texte."
 Attribute UpdateGraphics.VB_ProcData.VB_Invoke_Func = "TemplateProject.NewMacros.AbaisserEnCorpsDeTexte"
 'Update chart
-'Mise à jour des graphs
+'Mise à  jour des graphs
 '
     Call Initialisation
     Call SplitChart("ALEByAsset", 10, 12)

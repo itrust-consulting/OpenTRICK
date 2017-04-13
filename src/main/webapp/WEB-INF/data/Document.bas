@@ -40,15 +40,15 @@ AddPropertyError:
 End Function
 Private Sub AddReference()
     On Error GoTo UnknownError
-        CurrencyManDay = "\j\h"
-        CurrencyKiloEuroPerYear = "k€\/\a"
+        CurrencyManDay = "\m\d"
+        CurrencyKiloEuroPerYear = "k€\/\y"
         Call UpdateChart.UpdateGraphics
     Exit Sub
 UnknownError:
-    MsgBox "Une erreur inconnue s'est produite lors de la mise à jour des graphiques"
+    MsgBox "An unknow error occurred while update charts"
     Exit Sub
 DisplayError:
-    MsgBox "Veuillez activer 'Fichier>Options>Centre de confiance>Paramètres du centre de confiance>Paramètres de la Macro>Accès approuvé au modèle d'objet du projet VBA'"
+    MsgBox "Please enable 'File>Options>Trust Center>Trust Center Settings>Macro Settings>Trust access to the VBA project object model'"
 End Sub
 
 Private Sub Document_Open()
@@ -105,17 +105,20 @@ Private Sub formatRiskHeatMap(table As table)
     Selection.Cells.Merge
     Selection.Orientation = wdTextOrientationUpward
     Selection.ParagraphFormat.Alignment = wdAlignRowCenter
+    
     table.Borders.Enable = False
     
     Set selectedRange = table.Cell(1, 2).Range
     selectedRange.End = table.Cell(count - 1, count).Range.End
     selectedRange.Select
     Selection.Borders.Enable = True
+    Selection.Borders.InsideColor = wdColorWhite
+    Selection.Borders.OutsideColor = wdColorWhite
     Selection.Font.Bold = False
     table.Cell(count - 1, 2).Select
-    Selection.Cells.Borders(wdBorderLeft).Visible = False
-    Selection.Cells.Borders(wdBorderBottom).Visible = False
-    Selection.Shading.BackgroundPatternColor = table.Cell(1, 1).Shading.BackgroundPatternColor
+    Selection.Cells.Borders(wdBorderLeft).Color = table.Cell(1, 1).Shading.BackgroundPatternColor
+    Selection.Cells.Borders(wdBorderBottom).Color = Selection.Cells.Borders(wdBorderLeft).Color
+    Selection.Shading.BackgroundPatternColor = Selection.Cells.Borders(wdBorderLeft).Color
 End Sub
 
 
@@ -138,7 +141,7 @@ Private Sub UpdateMeasureTable()
     columnsPreferenceWidth = Array(1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
     rowCount = UBound(columnWidth) + 1
     On Error GoTo UnknownError
-        Application.ScreenUpdating = False
+        'ActiveWindow.WindowState = xlMinimized
         For Each table In ActiveDocument.Tables
             If StartsWith(table.style, "TableTS") Then
                 style = table.style
@@ -194,9 +197,9 @@ Private Sub UpdateMeasureTable()
                 table.Rows.Alignment = wdAlignRowCenter
             End If
         Next table
-        Application.ScreenUpdating = True
+        'ActiveWindow.WindowState = wdWindowStateNormal
     Exit Sub
 UnknownError:
-       MsgBox "Une erreur inconnue s'est produite lors du formatage du contenu"
-       Application.ScreenUpdating = True
+       MsgBox "An unknow error occurred while formatting content"
+       'ActiveWindow.WindowState = wdWindowStateNormal
 End Sub
