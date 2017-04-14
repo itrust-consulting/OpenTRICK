@@ -87,7 +87,10 @@ import net.glxn.qrgen.QRCode;
 public class ControllerProfile {
 
 	@Value("${app.settings.otp.enable}")
-	private boolean enabledOTP;
+	private boolean enabledOTP = true;
+
+	@Value("${app.settings.otp.force}")
+	private boolean forcedOTP = true;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -255,6 +258,7 @@ public class ControllerProfile {
 		// add profile to model
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
+		model.addAttribute("forcedOTP", forcedOTP);
 		model.addAttribute("roles", RoleType.ROLES);
 		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
@@ -263,7 +267,7 @@ public class ControllerProfile {
 		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
 		if (enabledOTP) {
 			String secret = user.getSecret();
-			if (StringUtils.hasText(secret))
+			if ((user.isUsing2FA() || forcedOTP) && StringUtils.hasText(secret))
 				model.addAttribute("qrcode", generateQRCode(user, secret));
 		}
 		return "user/home";
@@ -288,9 +292,9 @@ public class ControllerProfile {
 		Boolean using2FA = settings.get("using2FA"), useApplication = settings.get("useApplication");
 		if (using2FA == null)
 			using2FA = false;
-		if (useApplication == null || !using2FA)
+		if (useApplication == null || !(using2FA || forcedOTP))
 			useApplication = false;
-		if (!useApplication || !using2FA)
+		if (!useApplication || !(using2FA || forcedOTP))
 			user.setSecret(null);
 		else {
 			user.setSecret(Base32.random());
@@ -300,6 +304,7 @@ public class ControllerProfile {
 		serviceUser.saveOrUpdate(user);
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
+		model.addAttribute("forcedOTP", forcedOTP);
 		return "user/otp";
 
 	}
@@ -509,9 +514,8 @@ public class ControllerProfile {
 
 	private String generateQRCode(User user, String secret) {
 		try {
-			return Base64.encodeBase64String(QRCode
-					.from(String.format("otpauth://totp/TS-%s?secret=%s", URLEncoder.encode(user.getEmail(), "UTF-8"), secret))
-					.withSize(131, 131).stream().toByteArray());
+			return Base64.encodeBase64String(
+					QRCode.from(String.format("otpauth://totp/TS-%s?secret=%s", URLEncoder.encode(user.getEmail(), "UTF-8"), secret)).withSize(131, 131).stream().toByteArray());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return null;

@@ -183,8 +183,6 @@ function callbackBySection(section) {
 		},
 		"section_qualitative_parameter": function () {
 			reloadRiskChart(true)// load chart + rebuild tables.
-		},"section_parameter_impact_probability":function(){
-			loadRiskHeatMap();
 		}
 
 	};

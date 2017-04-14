@@ -22,7 +22,7 @@
 						<th><spring:message code="label.user.first_name" text="Firstname" /></th>
 						<th><spring:message code="label.user.last_name" text="Lastname" /></th>
 						<th><spring:message code="label.user.email" text="Email address" /></th>
-						<th class='text-center' ><spring:message code="label.user.account.status" text="Status" /></th>
+						<th class='text-center'><spring:message code="label.user.account.status" text="Status" /></th>
 						<c:if test="${enabledOTP}">
 							<th class='text-center'><spring:message code="label.user.account.otp" text="OTP" /></th>
 						</c:if>
@@ -32,17 +32,25 @@
 				</thead>
 				<tbody>
 					<c:forEach items="${users}" var="user">
-						<tr class="${enabledOTP and not  user.using2FA? 'warning' : ''}" data-trick-id="${user.id}" onclick="selectElement(this)" ondblclick="return editSingleUser(${user.id});">
+						<tr class="${enabledOTP and not  (forcedOTP or user.using2FA)? 'warning' : ''}" data-trick-id="${user.id}" onclick="selectElement(this)"
+							ondblclick="return editSingleUser(${user.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_user','#menu_user');"></td>
 							<td><spring:message text="${user.login}" /></td>
 							<td><spring:message text="${user.firstName}" /></td>
 							<td><spring:message text="${user.lastName}" /></td>
 							<td><spring:message text="${user.email}" /></td>
-							<td class='text-center' ><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}" /></td>
+							<td class='text-center'><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}" /></td>
 							<c:if test="${enabledOTP}">
-								<td class='text-center'><spring:message code="label.action.${user.using2FA?'enable':'disable'}" text="${user.using2FA?'Enabled':'Disabled'}" /></td>
+								<td class='text-center'><c:choose>
+										<c:when test="${forcedOTP}">
+											<spring:message code="label.action.forced" text="Forced" />
+										</c:when>
+										<c:otherwise>
+											<spring:message code="label.action.${user.using2FA?'enable':'disable'}" text="${user.using2FA?'Enabled':'Disabled'}" />
+										</c:otherwise>
+									</c:choose></td>
 							</c:if>
-							<td data-trick-real-value="${user.connexionType}" class='text-center' ><c:choose>
+							<td data-trick-real-value="${user.connexionType}" class='text-center'><c:choose>
 									<c:when test="${user.connexionType == -1}">
 										<spring:message code="label.user.connexion.standard" text="Standard" />
 									</c:when>

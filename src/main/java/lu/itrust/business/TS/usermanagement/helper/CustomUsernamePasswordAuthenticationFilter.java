@@ -23,7 +23,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.service.AccountLockerManager;
-import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -37,7 +36,9 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	@Autowired
 	private AccountLockerManager accountLockerManager;
 
-	private boolean enable2FA = false;
+	private boolean enable2FA = true;
+
+	private boolean force2FA = true;
 
 	/**
 	 * 
@@ -45,8 +46,12 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	public CustomUsernamePasswordAuthenticationFilter() {
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter#obtainUsername(javax.servlet.http.HttpServletRequest)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.security.web.authentication.
+	 * UsernamePasswordAuthenticationFilter#obtainUsername(javax.servlet.http.
+	 * HttpServletRequest)
 	 */
 	@Override
 	protected String obtainUsername(HttpServletRequest request) {
@@ -65,15 +70,16 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	 */
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+		Authentication authentication = super.attemptAuthentication(request, response);
+		if (enable2FA && authentication != null && authentication.isAuthenticated() && (force2FA || isUser2FEnabled(authentication)))
+			return prepareOTPAuthentication(request, authentication);
+		return authentication;
+	}
+
+	private boolean isUser2FEnabled(Authentication authentication) {
 		Session session = null;
 		try {
-			Authentication authentication = super.attemptAuthentication(request, response);
-			if (enable2FA && authentication != null && authentication.isAuthenticated()) {
-				User user = new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName());
-				if (user.isUsing2FA())
-					return prepareOTPAuthentication(request, authentication);
-			}
-			return authentication;
+			return new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName()).isUsing2FA();
 		} finally {
 			if (session != null)
 				session.close();
@@ -102,6 +108,21 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	 */
 	public void setEnable2FA(boolean enable2FA) {
 		this.enable2FA = enable2FA;
+	}
+
+	/**
+	 * @return the force2FA
+	 */
+	public boolean isForce2FA() {
+		return force2FA;
+	}
+
+	/**
+	 * @param force2fa
+	 *            the force2FA to set
+	 */
+	public void setForce2FA(boolean force2fa) {
+		force2FA = force2fa;
 	}
 
 }

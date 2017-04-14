@@ -1,8 +1,11 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -584,17 +587,18 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@Override
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, AnalysisType type, List<AnalysisRight> rights) {
-		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.type = :type and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label";
+		Map<String, Boolean> filter = new HashMap<>();
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.type = :type and analysis.data = true and analysis.customer.id = :customer order by analysis.label";
 		return getSession().createQuery(query, Analysis.class).setParameter("type", type).setParameter("username", username).setParameterList("rights", rights)
-				.setParameter("customer", id).getResultList().stream().map(analysis -> new AnalysisBaseInfo(analysis)).collect(Collectors.toList());
+				.setParameter("customer", id).getResultList().stream().filter(filterByIdentifier(filter)).map(mapToBaseInfo()).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, List<AnalysisRight> rights) {
-		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label";
+		Map<String, Boolean> filter = new HashMap<>();
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and analysis.customer.id = :customer order by analysis.label";
 		return getSession().createQuery(query, Analysis.class).setParameter("username", username).setParameterList("rights", rights).setParameter("customer", id).getResultList()
-				.stream().map(analysis -> new AnalysisBaseInfo(analysis)).collect(Collectors.toList());
-
+				.stream().filter(filterByIdentifier(filter)).map(mapToBaseInfo()).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -706,6 +710,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public String getProjectIdByIdentifier(String identifier) {
 		return (String) getSession().createQuery("Select distinct project From Analysis where identifier = :identifier and project IS NOT NULL")
 				.setParameter("identifier", identifier).uniqueResultOptional().orElse(null);
+	}
+
+	@Override
+	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis) {
+		return getSession()
+				.createQuery("Select KEY(setting) as key , VALUE(setting) as value  From Analysis analysis join analysis.settings as setting where analysis.id = :analysisid",
+						Object[].class)
+				.setParameter("analysisid", idAnalysis).getResultList().stream().collect(Collectors.toMap(result -> result[0].toString(), result -> result[1].toString()));
 	}
 
 	/**
@@ -891,11 +903,15 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	}
 
-	@Override
-	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis) {
-		return getSession()
-				.createQuery("Select KEY(setting) as key , VALUE(setting) as value  From Analysis analysis join analysis.settings as setting where analysis.id = :analysisid",
-						Object[].class)
-				.setParameter("analysisid", idAnalysis).getResultList().stream().collect(Collectors.toMap(result -> result[0].toString(), result -> result[1].toString()));
+	/**
+	 * group by identifier do not supported by mysql 5.7
+	 */
+	private Predicate<? super Analysis> filterByIdentifier(Map<String, Boolean> filter) {
+		return analysis -> filter.put(analysis.getIdentifier(), true) == null;
+	}
+
+	private Function<? super Analysis, ? extends AnalysisBaseInfo> mapToBaseInfo() {
+		return analysis -> new AnalysisBaseInfo(analysis);
+
 	}
 }

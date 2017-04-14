@@ -138,7 +138,10 @@ public class ControllerAdministration {
 	private ServiceTSSetting serviceTSSetting;
 
 	@Value("${app.settings.otp.enable}")
-	private boolean enabledOTP;
+	private boolean enabledOTP = true;
+
+	@Value("${app.settings.otp.force}")
+	private boolean forcedOTP = true;
 
 	@Value("${app.settings.version}")
 	private String version;
@@ -213,6 +216,7 @@ public class ControllerAdministration {
 
 		model.put("tsSettings", tsSettings);
 		model.put("enabledOTP", enabledOTP);
+		model.put("forcedOTP", forcedOTP);
 		model.put("logFilter", loadLogFilter(session, principal.getName()));
 		model.put("logLevels", serviceTrickLog.getDistinctLevel());
 		model.put("logTypes", serviceTrickLog.getDistinctType());
@@ -487,6 +491,7 @@ public class ControllerAdministration {
 	public String userSection(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.getAll());
 		model.addAttribute("enabledOTP", enabledOTP);
+		model.addAttribute("forcedOTP", forcedOTP);
 		return "admin/user/users";
 	}
 
@@ -504,6 +509,7 @@ public class ControllerAdministration {
 	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
 		model.put("roles", RoleType.ROLES);
 		model.put("enabledOTP", enabledOTP);
+		model.put("forcedOTP", forcedOTP);
 		model.put("user", new User());
 		return "admin/user/form";
 
@@ -523,6 +529,7 @@ public class ControllerAdministration {
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
 		model.put("user", serviceUser.get(userId));
 		model.put("enabledOTP", enabledOTP);
+		model.put("forcedOTP", forcedOTP);
 		model.put("roles", RoleType.ROLES);
 		return "admin/user/form";
 
@@ -689,9 +696,9 @@ public class ControllerAdministration {
 			user.setPassword(User.LDAP_KEY_PASSWORD);
 
 		if (enabledOTP) {
-			boolean using2FA = jsonNode.get("using2FA").asBoolean(false);
+			boolean using2FA = jsonNode.get("using2FA").asBoolean(forcedOTP);
 			user.setUsing2FA(using2FA);
-			if (!using2FA)
+			if (!(using2FA || forcedOTP))
 				user.setSecret(null);
 		}
 

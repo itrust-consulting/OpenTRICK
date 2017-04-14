@@ -268,7 +268,11 @@ function updateRiskCriteria(settings, $table) {
 	for (var i = 0; i < settings.length; i++) {
 		var $tr = $("<tr />");
 		$("<td class='textaligncenter'/>").text(settings[i].label).appendTo($tr);
-		$("<td class='textaligncenter'/>").text(application.numberFormatNoDecimal.format(settings[i].value)).appendTo($tr);
+		if(i==0)
+			$("<td class='textaligncenter'/>").text("[ 0 ; "+application.numberFormatNoDecimal.format(settings[i].value)+" ]").appendTo($tr);
+		else if(i==settings.length-1)
+			$("<td class='textaligncenter'/>").text('] '+application.numberFormatNoDecimal.format(settings[i-1].value)+'; +∞ [').appendTo($tr);
+		else $("<td class='textaligncenter'/>").text('] '+application.numberFormatNoDecimal.format(settings[i-1].value)+'; '+application.numberFormatNoDecimal.format(settings[i].value)+' ]').appendTo($tr);
 		$("<td class='textaligncenter' />").text(settings[i].description).appendTo($tr);
 		$("<td/>").css({ "background-color": settings[i].color }).appendTo($tr);
 		$tr.appendTo($body);

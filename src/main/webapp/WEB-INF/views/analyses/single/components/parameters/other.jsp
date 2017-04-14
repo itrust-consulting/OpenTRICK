@@ -123,7 +123,7 @@
 							<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
 								<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 								<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
-									data-trick-callback="reloadSection('section_parameter_impact_probability')" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+									data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							</tr>
 						</c:if>
 					</c:forEach>
@@ -149,7 +149,7 @@
 							<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 								<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 								<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
-									data-trick-callback="reloadSection('section_parameter_impact_probability')" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+									data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							</tr>
 						</c:if>
 					</c:forEach>

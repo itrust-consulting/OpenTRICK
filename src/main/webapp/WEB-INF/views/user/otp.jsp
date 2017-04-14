@@ -17,23 +17,36 @@
 				<c:set var="using2FA" value="${user.using2FA}" />
 				<spring:message code="label.action.enable" text="Enable" var="enable" />
 				<spring:message code="label.action.disable" text="Disable" var="disable" />
+
 				<div class='form-group' data-index='0'>
 					<label class="control-label col-md-6"><spring:message code='label.user.otp.setting' /></label>
 					<div class='col-md-6 text-center'>
 						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-sm btn-default ${using2FA?'active':''}">${enable}<input ${using2FA?'checked':''} name="using2FA" type="radio" value="true" onchange="updateUserOtp()" ></label> <label
-								class="btn btn-sm btn-default ${using2FA?'':'active'}">${disable}<input ${using2FA?'':'checked'} name="using2FA" type="radio" value="false" onchange="updateUserOtp()" ></label>
+							<c:choose>
+								<c:when test="${forcedOTP}">
+								<spring:message code="label.user.opt.forced" var="titleForce"/>
+									<label class="btn btn-sm btn-default active disabled" title='${titleForce}' >${enable}</label>
+									<label class="btn btn-sm btn-default disabled" title='${titleForce}' >${disable}</label>
+								</c:when>
+								<c:otherwise>
+									<label class="btn btn-sm btn-default ${using2FA?'active':''}">${enable}<input ${using2FA?'checked':''} name="using2FA" type="radio" value="true"
+										onchange="updateUserOtp()"></label>
+									<label class="btn btn-sm btn-default ${using2FA?'':'active'}">${disable}<input ${using2FA?'':'checked'} name="using2FA" type="radio" value="false"
+										onchange="updateUserOtp()"></label>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</div>
 				</div>
-				<c:if test="${using2FA}">
+				<c:if test="${using2FA || forcedOTP}">
 					<c:set value="${not empty user.secret}" var="hasSecret" />
 					<div class='form-group' data-index='1'>
 						<label class="control-label col-md-6"><spring:message code='label.user.otp.use.application' text='Use mobile application' /></label>
 						<div class='col-md-6 text-center'>
 							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-sm btn-default ${hasSecret?'active':''}">${enable}<input ${hasSecret?'checked':''} name="useApplication" type="radio" value="true" onchange="updateUserOtp()"></label> <label
-									class="btn btn-sm btn-default ${hasSecret?'':'active'}">${disable}<input ${hasSecret?'':'checked'} name="useApplication" type="radio" value="false" onchange="updateUserOtp()"></label>
+								<label class="btn btn-sm btn-default ${hasSecret?'active':''}">${enable}<input ${hasSecret?'checked':''} name="useApplication" type="radio" value="true"
+									onchange="updateUserOtp()"></label> <label class="btn btn-sm btn-default ${hasSecret?'':'active'}">${disable}<input ${hasSecret?'':'checked'} name="useApplication"
+									type="radio" value="false" onchange="updateUserOtp()"></label>
 							</div>
 						</div>
 					</div>
@@ -41,7 +54,7 @@
 						<c:if test="${not empty qrcode}">
 							<label class="control-label col-md-6"><spring:message code='label.user.otp.use.qrcode' text='Please scan this following qrcode' /></label>
 							<div class='col-md-6 text-center'>
-								<img  alt="<spring:message code='label.user.qrcode' text='Qrcode'/>" src="data:image/png;base64,${qrcode}">
+								<img alt="<spring:message code='label.user.qrcode' text='Qrcode'/>" src="data:image/png;base64,${qrcode}">
 							</div>
 						</c:if>
 					</div>

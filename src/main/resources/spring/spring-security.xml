@@ -55,6 +55,7 @@
 		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
 		<beans:property name="continueChainBeforeSuccessfulAuthentication"  value="${app.settings.otp.enable}"/>
 		<beans:property name="enable2FA" value="${app.settings.otp.enable}" />
+		<beans:property name="force2FA" value="${app.settings.otp.force}" />
 	</beans:bean>
 	
 	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationFilter">
