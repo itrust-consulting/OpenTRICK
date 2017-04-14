@@ -6,9 +6,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
-<c:if test="${empty(riskInformationSplited)}">
-	<spring:eval expression="T(lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager).Split(riskInformation)" var="riskInformationSplited" />
-</c:if>
 <c:set var="chapterRegex">^\d(\.0)*$</c:set>
 <c:forEach items="${riskInformationSplited.keySet()}" var="categoryRiskInformation">
 	<spring:message var="category" text="${fn:toLowerCase(categoryRiskInformation)}" />
@@ -29,10 +26,15 @@
 									<spring:message code="label.title.risk_information.risks" />
 								</c:otherwise>
 							</c:choose>
+							<c:if test="${isEditable}">
+								<a href="#" class="btn btn-xs btn-link pull-right" onclick="return manageBrainstorming('${category}');"><span class="glyphicon glyphicon-cog"></span> <spring:message
+												code="label.action.manage" /> </a>
+							</c:if>
 						</h3>
 					</div>
 				</div>
 			</div>
+
 			<table id="table_${category}" class="table table-condensed table-hover table-fixed-header-analysis">
 				<thead>
 					<tr>
@@ -114,7 +116,7 @@
 								</c:when>
 								<c:otherwise>
 									<td style="height: 32px;"><spring:message text="${risk_information.chapter}" /></td>
-									<td><spring:message code="${codeLabel}" text="${codeText}"/></td>
+									<td><spring:message code="${codeLabel}" text="${codeText}" /></td>
 									<c:if test="${category == 'threat'}">
 										<td><spring:message text="${risk_information.acronym}" /></td>
 									</c:if>

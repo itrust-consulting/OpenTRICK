@@ -5,13 +5,13 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="language" value="${analysis.language.alpha2}" scope="request" />
 <c:set var="isProfile" value="${analysis.profile}" scope="request" />
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
+<c:set var="language" value="${locale.language}" scope="request" />
 <!DOCTYPE html>
-<html lang="${locale.language}">
+<html lang="${language}">
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <jsp:include page="../../template/header.jsp" />
 <c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}" />
@@ -40,7 +40,6 @@
 				<jsp:include page="./components/parameters/home.jsp" />
 				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<c:if test="${!isProfile}">
-					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/risk-information/home.jsp" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />

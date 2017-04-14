@@ -198,4 +198,9 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 		daoRiskInformation.delete(riskInformations);
 		
 	}
+
+	@Override
+	public List<RiskInformation> getAllByIdAnalysisAndCategory(Integer idAnalysis, String... types) {
+		return daoRiskInformation.getAllByIdAnalysisAndCategories(idAnalysis,types);
+	}
 }

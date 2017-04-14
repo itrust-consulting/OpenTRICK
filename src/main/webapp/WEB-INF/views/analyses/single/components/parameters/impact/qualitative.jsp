@@ -4,13 +4,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
+<c:set var="impactLanguage" value="${fn:toUpperCase(language)}"/>
 <c:forEach items="${impactTypes}" var="impactType">
 	<spring:message text="${impactType.name}" var="impactName" />
+	<c:set var="displayName" value="${empty impactType.translations[impactLanguage]? impactType.displayName  :  impactType.translations[impactLanguage].name}" />
 	<div class="col-md-6">
 		<fieldset id="Scale_Impact_${impactName}">
 			<legend>
-				<spring:message code="label.title.parameter.extended.impact.${fn:toLowerCase(impactName)}"
-					text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[language].name}" />
+				<spring:message code="label.title.parameter.impact.name" arguments="${displayName},${fn:toLowerCase(displayName)}" />
 			</legend>
 			<table class="table table-hover table-fixed-header-analysis table-condensed">
 				<thead>

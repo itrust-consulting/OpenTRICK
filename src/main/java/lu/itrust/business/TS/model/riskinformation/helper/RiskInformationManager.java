@@ -14,8 +14,13 @@ import lu.itrust.business.TS.model.riskinformation.RiskInformation;
  *
  */
 public class RiskInformationManager {
-	
-	public static Map<String, List<RiskInformation>> Split(List<RiskInformation> riskInformations){
-		return riskInformations.stream().sorted(new RiskInformationComparator()).collect(Collectors.groupingBy(riskInformation -> riskInformation.getCategory().startsWith("Risk_TB") ? "Risk" : riskInformation.getCategory()));
+
+	public static Map<String, List<RiskInformation>> Split(List<RiskInformation> riskInformations) {
+		return riskInformations.stream().sorted(new RiskInformationComparator()).collect(Collectors.groupingBy(RiskInformation::getMainCategory));
+	}
+
+	public static Map<String, List<RiskInformation>> Split(List<RiskInformation> riskInformations, String category) {
+		return riskInformations.stream().filter(riskInformation -> riskInformation.isMatch(category)).sorted(new RiskInformationComparator())
+				.collect(Collectors.groupingBy(RiskInformation::getMainCategory));
 	}
 }

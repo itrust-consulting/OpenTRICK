@@ -38,4 +38,6 @@ public interface ServiceRiskInformation {
 	public void delete(RiskInformation riskInformation);
 
 	public void delete(Collection<RiskInformation> riskInformations);
+
+	public List<RiskInformation> getAllByIdAnalysisAndCategory(Integer idAnalysis, String...types);
 }

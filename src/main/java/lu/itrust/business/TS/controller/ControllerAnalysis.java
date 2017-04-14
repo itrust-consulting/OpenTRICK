@@ -111,6 +111,8 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -327,7 +329,17 @@ public class ControllerAnalysis {
 				model.addAttribute("effectImpl27002",
 						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
 								analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
-			int level = analysis.getLikelihoodParameters().size()-1;
+			int level = analysis.getLikelihoodParameters().size() - 1;
+			if (!analysis.isProfile()) {
+				Map<String, List<RiskInformation>> riskInformations = RiskInformationManager.Split(analysis.getRiskInformations());
+				if (!riskInformations.containsKey(Constant.RI_TYPE_RISK))
+					riskInformations.put(Constant.RI_TYPE_RISK, Collections.emptyList());
+				if (!riskInformations.containsKey(Constant.RI_TYPE_VUL))
+					riskInformations.put(Constant.RI_TYPE_VUL, Collections.emptyList());
+				if (!riskInformations.containsKey(Constant.RI_TYPE_THREAT))
+					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
+				model.addAttribute("riskInformationSplited", riskInformations);
+			}
 			model.addAttribute("maxImportance", level * level);
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);

@@ -43,7 +43,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#get(int)
 	 */
 	@Override
-	public RiskInformation get(Integer id)  {
+	public RiskInformation get(Integer id) {
 		return (RiskInformation) getSession().get(RiskInformation.class, id);
 	}
 
@@ -51,11 +51,12 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * getFromAnalysisById: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getFromAnalysisById(int, int)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getFromAnalysisById(int,
+	 *      int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id)  {
+	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.id = :id";
 		return (RiskInformation) getSession().createQuery(query).setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
@@ -67,10 +68,10 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId)  {
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) {
 		String query = "Select count(riskinformation)>0 From Analysis as analysis inner join analysis.riskInformations as riskinformation where analysis.id = :analysisid and riskinformation.id = ";
 		query += ":riskinformationId";
-		return  (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).getSingleResult();
+		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).getSingleResult();
 	}
 
 	/**
@@ -81,7 +82,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAll()  {
+	public List<RiskInformation> getAll() {
 		return getSession().createQuery("From RiskInformation").getResultList();
 	}
 
@@ -93,7 +94,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllByChapter(String chapter)  {
+	public List<RiskInformation> getAllByChapter(String chapter) {
 		return getSession().createQuery("From RiskInformation where chapter = :chapter").setParameter("chapter", chapter).getResultList();
 	}
 
@@ -105,7 +106,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllByCategory(String category)  {
+	public List<RiskInformation> getAllByCategory(String category) {
 		return getSession().createQuery("From RiskInformation where category = :category").setParameter("category", category).getResultList();
 	}
 
@@ -117,7 +118,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllFromAnalysis(Integer analysisID)  {
+	public List<RiskInformation> getAllFromAnalysis(Integer analysisID) {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis";
 		return getSession().createQuery(query).setParameter("idAnalysis", analysisID).getResultList();
 	}
@@ -129,7 +130,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<RiskInformation> getAllFromAnalysis(Analysis analysis)  {
+	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) {
 		return analysis.getRiskInformations();
 	}
 
@@ -140,7 +141,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#save(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
-	public void save(RiskInformation riskInformation)  {
+	public void save(RiskInformation riskInformation) {
 		getSession().save(riskInformation);
 	}
 
@@ -151,7 +152,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#saveOrUpdate(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
-	public void saveOrUpdate(RiskInformation riskInformation)  {
+	public void saveOrUpdate(RiskInformation riskInformation) {
 		getSession().saveOrUpdate(riskInformation);
 	}
 
@@ -162,12 +163,19 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#delete(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
-	public void delete(RiskInformation riskInformation)  {
+	public void delete(RiskInformation riskInformation) {
 		getSession().delete(riskInformation);
 	}
 
 	@Override
 	public void delete(Collection<RiskInformation> riskInformations) {
 		riskInformations.forEach(riskInformation -> getSession().delete(riskInformation));
+	}
+
+	@Override
+	public List<RiskInformation> getAllByIdAnalysisAndCategories(Integer idAnalysis, String... types) {
+		return getSession().createQuery(
+				"Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.category in :categories",
+				RiskInformation.class).setParameter("idAnalysis", idAnalysis).setParameterList("categories", types).getResultList();
 	}
 }

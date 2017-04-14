@@ -10,7 +10,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<spring:message code='label.title.other.parameters' />
+						<spring:message code='label.title.parameter' />
 					</h3>
 				</div>
 			</div>

@@ -1020,18 +1020,16 @@ function navToogled(section, parentMenu, navSelected) {
 	return false;
 }
 
-function manageBrainstorming() {
-	var $progress = $("#loading-indicator").show();
+function manageBrainstorming(type) {
+	var $progress = $("#loading-indicator").show(), category = type.replace(/\b\w/g, s => s.toUpperCase());
 	$.ajax({
-		url: context + "/Analysis/Risk-information/Manage",
+		url: context + "/Analysis/Risk-information/Manage/"+category,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			var $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
-				updateRiskInformationAddButton($("#tab-manage-risk-information-risk button[name='add']", $modal)).on("click", addNewRiskInformtion);
-				updateRiskInformationAddButton($("#tab-manage-risk-information-vul button[name='add']", $modal)).on("click", addNewRiskInformtion);
-				updateRiskInformationAddButton($("#tab-manage-risk-information-threat button[name='add']", $modal)).on("click", addNewRiskInformtionChapter);
+				updateRiskInformationAddButton($("form button[name='add']", $modal)).on("click", addNewRiskInformtion);;
 				$("button[name='add-chapter']", $modal).on("click",addNewRiskInformtionChapter);
 				$("a[data-action='delete-chapter']", $modal).on("click",removeRiskInformtionChapter);
 				$("a[data-action='delete-all']", $modal).on("click",removeRiskInformtionChapter);
@@ -1039,17 +1037,15 @@ function manageBrainstorming() {
 				$("button[name='save']", $modal).on("click", e => $("input[type='submit']", $modal).trigger("click"));
 				$("form", $modal).on("submit", e => {
 					$progress.show();
-					var data  = parseRiskInformationData("Risk_TBA",$("#tab-manage-risk-information-risk tbody>tr[data-chapter]", $modal))
-					.concat(parseRiskInformationData("Vul",$("#tab-manage-risk-information-vul tbody>tr[data-chapter]", $modal)))
-					.concat(parseRiskInformationData("Threat",$("#tab-manage-risk-information-threat tbody>tr[data-chapter]", $modal)));
+					var data  = parseRiskInformationData(category ==="Risk"? "Risk_TBA" : category, $("form tbody>tr[data-chapter]", $modal));
 					$.ajax({
-						url: context + "/Analysis/Risk-information/Manage/Save",
+						url: context + "/Analysis/Risk-information/Manage/"+category+"/Save",
 						type: "post",
 						data: JSON.stringify(data),
 						contentType: "application/json;charset=UTF-8",
 						success: function (response, textStatus, jqXHR) {
 							if(response['success']){
-								reloadSection(['section_risk-information_risk', 'section_risk-information_vul', 'section_risk-information_threat' ]);
+								reloadSection('section_risk-information_'+type);
 								$modal.modal("hide");
 							}
 							else if(response['error'])
@@ -1057,9 +1053,9 @@ function manageBrainstorming() {
 							else unknowError();
 						},error: unknowError
 					}).complete(() => $progress.hide());
-					
 					return false;
 				});
+				
 				
 			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
@@ -1164,7 +1160,7 @@ function removeRiskInformtion(e) {
 function updateRiskInformationAddButton($btns) {
 	var chatpers = {};
 	$btns.each(function (i) {
-		var $this = $(this),$tr = $this.closest("tr"), chapter = $tr.find("td:first-child").text(), group = chapter.split(".", 2)[0], value = parseInt(chapter.replace(/\./g, ''));
+		var $this = $(this),$tr = $this.closest("tr"), chapter = $tr.find("td:first-child").text(), group = chapter.split(".", 2)[0].trim(), value = parseInt(chapter.replace(/\./g, ''));
 		if (!chatpers[group])
 			chatpers[group] = { min: value, max: parseInt(group + "99"), chapter: group }
 		else {

@@ -48,15 +48,15 @@ public class RiskInformation implements Cloneable {
 
 	/** The Risk Information Exposed Value */
 	@Column(name = "dtExposed", nullable = false)
-	private String exposed="";
+	private String exposed = "";
 
 	/** The Risk Information Comment */
 	@Column(name = "dtComment", nullable = false, length = 16777216)
-	private String comment="";
+	private String comment = "";
 
 	/** The Risk Information Hidden Comment */
 	@Column(name = "dtHiddenComment", nullable = false, length = 16777216)
-	private String hiddenComment="";
+	private String hiddenComment = "";
 
 	/** The Risk Information Category */
 	@Column(name = "dtCategory", nullable = false)
@@ -68,10 +68,10 @@ public class RiskInformation implements Cloneable {
 
 	/** The Risk Information Acronym */
 	@Column(name = "dtAcronym", nullable = false, length = 15)
-	private String acronym="";
+	private String acronym = "";
 
 	@Column(name = "dtOwner")
-	private String owner="";
+	private String owner = "";
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -329,13 +329,17 @@ public class RiskInformation implements Cloneable {
 		return key(category, chapter);
 	}
 
+	public String getMainCategory() {
+		return isMatch(Constant.RI_TYPE_RISK) ? Constant.RI_TYPE_RISK : this.category;
+	}
+
 	public static String key(String category, String chapter) {
-		return (category == null ? "" : category.startsWith("Risk") ? "risk_" : category.toLowerCase()) + "__risk-information__" + chapter;
+		return ((category == null ? "" : category.startsWith(Constant.RI_TYPE_RISK) ? Constant.RI_TYPE_RISK : category) + "__risk-information__" + chapter).toLowerCase();
 	}
 
 	public boolean isMatch(String category) {
 		return category == null || this.category == null ? this.category == category
-				: category.equalsIgnoreCase("risk") ? this.category.startsWith("Risk") : this.category.equals(category);
+				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK) : this.category.equals(category);
 	}
 
 	/**
