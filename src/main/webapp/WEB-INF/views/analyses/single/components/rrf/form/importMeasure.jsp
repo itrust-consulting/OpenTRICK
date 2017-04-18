@@ -18,7 +18,7 @@
 			<div class="modal-body">
 				<form action="${pageContext.request.contextPath}/Analysis/RRF/Import/Save" class="form">
 					<div class="form-group">
-						<label> <spring:message code="label.customers" />
+						<label class='control-label' data-helper-content='<spring:message code="help.rrf.customer" />' > <spring:message code="label.customers" />
 						</label> <select class="form-control" name="customer">
 							<c:forEach items="${customers}" var="customer">
 								<option value="${customer.id}">
@@ -28,7 +28,7 @@
 						</select>
 					</div>
 					<div class="form-group">
-						<label><spring:message code="label.analyses" /></label> <select class="form-control" name="analysis">
+						<label class='control-label' data-helper-content='<spring:message code="help.rrf.analysis" />' ><spring:message code="label.analyses" /></label> <select class="form-control" name="analysis">
 							<c:forEach items="${analyses}" var="analysis">
 								<c:choose>
 									<c:when test="${analysis.profile}">
@@ -48,7 +48,7 @@
 
 					</div>
 					<div class="form-group">
-						<label><spring:message code="label.standards" /></label> <select class="form-control" name="standards" multiple="multiple">
+						<label data-helper-content='<spring:message code="help.rrf.standard" />' ><spring:message code="label.standards" /></label> <select class="form-control" name="standards" multiple="multiple">
 							<c:forEach items="${analyses}" var="analysis">
 								<c:forEach items="${analysis.analysisStandards}" var="analysisStandard">
 									<c:if test="${standards.contains(analysisStandard.standard)}">

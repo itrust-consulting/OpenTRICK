@@ -54,11 +54,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysis
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#delete(lu.itrust.business.TS.model.analysis.Analysis)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#delete(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
-	public void delete(Analysis analysis)  {
+	public void delete(Analysis analysis) {
 		daoAnalysis.delete(analysis);
 	}
 
@@ -69,11 +70,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysisId
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#delete(java.lang.Integer)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#delete(java.lang.Integer)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer analysisId)  {
+	public void delete(Integer analysisId) {
 		daoAnalysis.delete(analysisId);
 	}
 
@@ -85,11 +87,11 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(int)
+	 * 	@see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(int)
 	 */
 
 	@Override
-	public boolean exists(Integer idAnalysis)  {
+	public boolean exists(Integer idAnalysis) {
 		return daoAnalysis.exists(idAnalysis);
 	}
 
@@ -107,12 +109,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(java.lang.String,
-	 *      java.lang.String)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#exists(java.lang.String,
+	 *   java.lang.String)
 	 */
 
 	@Override
-	public boolean exists(String identifier, String version)  {
+	public boolean exists(String identifier, String version) {
 		return daoAnalysis.exists(identifier, version);
 	}
 
@@ -129,11 +132,11 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#get(int)
+	 * 	@see lu.itrust.business.TS.database.service.ServiceAnalysis#get(int)
 	 */
 
 	@Override
-	public Analysis get(Integer id)  {
+	public Analysis get(Integer id) {
 		return daoAnalysis.get(id);
 	}
 
@@ -144,11 +147,11 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAll()
+	 * 	@see lu.itrust.business.TS.database.service.ServiceAnalysis#getAll()
 	 */
 
 	@Override
-	public List<Analysis> getAll()  {
+	public List<Analysis> getAll() {
 		return daoAnalysis.getAll();
 	}
 
@@ -159,11 +162,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllAnalysisIDs()
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllAnalysisIDs()
 	 */
 
 	@Override
-	public List<Integer> getAllAnalysisIDs()  {
+	public List<Integer> getAllAnalysisIDs() {
 		return daoAnalysis.getAllAnalysisIDs();
 	}
 
@@ -185,11 +189,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomer(lu.itrust.business.TS.model.general.Customer)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomer(lu.itrust.business.TS.model.general.Customer)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomer(Customer customer)  {
+	public List<Analysis> getAllFromCustomer(Customer customer) {
 		return daoAnalysis.getAllFromCustomer(customer);
 	}
 
@@ -206,11 +211,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdAndProfile(int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdAndProfile(int)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer)  {
+	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) {
 		return daoAnalysis.getAllFromCustomerAndProfile(idCustomer);
 	}
 
@@ -224,12 +230,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdAndProfileByPageAndSize(java.lang.Integer,
-	 *      java.lang.Integer, java.lang.Integer)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdAndProfileByPageAndSize(java.lang.Integer,
+	 *   java.lang.Integer, java.lang.Integer)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize)  {
+	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) {
 		return daoAnalysis.getAllFromCustomerAndProfileByPageAndSizeIndex(customerID, pageIndex, pageSize);
 	}
 
@@ -243,12 +250,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.model.general.Customer,
-	 *      java.lang.String, java.lang.String)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.model.general.Customer,
+	 *   java.lang.String, java.lang.String)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version)  {
+	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) {
 		return daoAnalysis.getAllFromCustomerIdentifierVersion(customer, identifier, version);
 	}
 
@@ -265,11 +273,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromUser(User user)  {
+	public List<Analysis> getAllFromUser(User user) {
 		return daoAnalysis.getAllFromUser(user);
 	}
 
@@ -282,12 +291,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromUserNameAndCustomerId(java.lang.String,
-	 *      java.lang.Integer)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromUserNameAndCustomerId(java.lang.String,
+	 *   java.lang.Integer)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID)  {
+	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) {
 		return daoAnalysis.getAllFromUserAndCustomer(userName, customerID);
 	}
 
@@ -302,18 +312,19 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getFromUserNameAndCustomer(java.lang.String,
-	 *      java.lang.Integer, int, int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getFromUserNameAndCustomer(java.lang.String,
+	 *   java.lang.Integer, int, int)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize)  {
+	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) {
 		return daoAnalysis.getAllFromUserAndCustomerByPageAndSizeIndex(login, customer, pageIndex, pageSize);
 	}
 
 	@Override
-	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
-		return daoAnalysis.getAllHasRightsAndContainsStandard(username, rights, standards);
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType analysisType) {
+		return daoAnalysis.getAllHasRightsAndContainsStandard(username, rights, standards, analysisType);
 	}
 
 	/**
@@ -323,11 +334,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllNotEmpty()
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllNotEmpty()
 	 */
 
 	@Override
-	public List<Analysis> getAllNotEmpty()  {
+	public List<Analysis> getAllNotEmpty() {
 		return daoAnalysis.getAllNotEmpty();
 	}
 
@@ -345,12 +357,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getFromUserNameAndCustomerIdAndNotEmpty(java.lang.String,
-	 *      int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getFromUserNameAndCustomerIdAndNotEmpty(java.lang.String,
+	 *   int)
 	 */
 
 	@Override
-	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer)  {
+	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) {
 		return daoAnalysis.getAllNotEmptyFromUserAndCustomer(userName, idCustomer);
 	}
 
@@ -370,8 +383,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards) {
-		return daoAnalysis.getAllProfileContainsStandard(standards);
+	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType analysisType) {
+		return daoAnalysis.getAllProfileContainsStandard(standards, analysisType);
 	}
 
 	/**
@@ -381,11 +394,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllProfiles()
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getAllProfiles()
 	 */
 
 	@Override
-	public List<Analysis> getAllProfiles()  {
+	public List<Analysis> getAllProfiles() {
 		return daoAnalysis.getAllProfiles();
 	}
 
@@ -412,7 +426,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, AnalysisType type,
 			List<AnalysisRight> rights) {
-		return daoAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, username, identifier,type , rights);
+		return daoAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, username, identifier, type, rights);
 	}
 
 	@Override
@@ -422,7 +436,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version) {
-		return daoAnalysis.getByCustomerAndNameAndVersion(customerId,name, version);
+		return daoAnalysis.getByCustomerAndNameAndVersion(customerId, name, version);
 	}
 
 	@Override
@@ -432,7 +446,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId) {
-		return daoAnalysis.getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(username,customerId);
+		return daoAnalysis.getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(username, customerId);
 	}
 
 	@Override
@@ -442,7 +456,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids) {
-		return daoAnalysis.getByUsernameAndIds(username,ids);
+		return daoAnalysis.getByUsernameAndIds(username, ids);
 	}
 
 	@Override
@@ -472,11 +486,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getDefaultProfile()
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getDefaultProfile()
 	 */
 
 	@Override
-	public Analysis getDefaultProfile(AnalysisType analysisType)  {
+	public Analysis getDefaultProfile(AnalysisType analysisType) {
 		return daoAnalysis.getDefaultProfile(analysisType);
 	}
 
@@ -499,12 +514,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getFromIdentifierVersion(java.lang.String,
-	 *      java.lang.String)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getFromIdentifierVersion(java.lang.String,
+	 *   java.lang.String)
 	 */
 
 	@Override
-	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID)  {
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) {
 		return daoAnalysis.getFromIdentifierVersionCustomer(identifier, version, customerID);
 	}
 
@@ -515,7 +531,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username, AnalysisType type, List<AnalysisRight> rights) {
-		return daoAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, username,type, rights);
+		return daoAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, username, type, rights);
 	}
 
 	@Override
@@ -525,25 +541,27 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	/**
 	 * Only analysis user can export.
+	 * 
 	 * @param identifier
 	 * @param idCustomer
 	 * @param username
-	 * @return Object[2],  [0]=id, [1] = version
+	 * @return Object[2], [0]=id, [1] = version
 	 */
 	@Override
 	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username) {
-		return daoAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier,idCustomer,username);
+		return daoAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier, idCustomer, username);
 	}
 
 	/**
 	 * Only analysis user can export.
+	 * 
 	 * @param name
 	 * @param idCustomer
-	 * @return Object[2],  [0]=identifier, [1] = name
+	 * @return Object[2], [0]=identifier, [1] = name
 	 */
 	@Override
 	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer) {
-		return daoAnalysis.getIdentifierAndNameByUserAndCustomer(username,idCustomer);
+		return daoAnalysis.getIdentifierAndNameByUserAndCustomer(username, idCustomer);
 	}
 
 	@Override
@@ -569,11 +587,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getLanguageOfAnalysis(int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getLanguageOfAnalysis(int)
 	 */
 
 	@Override
-	public Language getLanguageOfAnalysis(Integer analysisID)  {
+	public Language getLanguageOfAnalysis(Integer analysisID) {
 		return daoAnalysis.getLanguageOfAnalysis(analysisID);
 	}
 
@@ -591,12 +610,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getParameterFromAnalysis(java.lang.Integer,
-	 *      java.lang.String)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getParameterFromAnalysis(java.lang.Integer,
+	 *   java.lang.String)
 	 */
 
 	@Override
-	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter)  {
+	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) {
 		return daoAnalysis.getParameterFromAnalysis(idAnalysis, Parameter);
 	}
 
@@ -623,11 +643,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getVersionOfAnalysis(int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#getVersionOfAnalysis(int)
 	 */
 
 	@Override
-	public String getVersionOfAnalysis(Integer id)  {
+	public String getVersionOfAnalysis(Integer id) {
 		return daoAnalysis.getVersionOfAnalysis(id);
 	}
 
@@ -641,7 +662,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 */
 
 	@Override
-	public boolean hasData(Integer idAnalysis)  {
+	public boolean hasData(Integer idAnalysis) {
 		return daoAnalysis.hasData(idAnalysis);
 	}
 
@@ -666,7 +687,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public boolean isAnalysisUncertainty(Integer analysisID)  {
+	public boolean isAnalysisUncertainty(Integer analysisID) {
 		return daoAnalysis.isAnalysisUncertainty(analysisID);
 	}
 
@@ -683,11 +704,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#isProfile(int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#isProfile(int)
 	 */
 
 	@Override
-	public boolean isProfile(Integer analysisid)  {
+	public boolean isProfile(Integer analysisid) {
 		return daoAnalysis.isProfile(analysisid);
 	}
 
@@ -703,11 +725,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysis
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#save(lu.itrust.business.TS.model.analysis.Analysis)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#save(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
-	public void save(Analysis analysis)  {
+	public void save(Analysis analysis) {
 		daoAnalysis.save(analysis);
 	}
 
@@ -718,11 +741,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysis
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business.TS.model.analysis.Analysis)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Analysis analysis)  {
+	public void saveOrUpdate(Analysis analysis) {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 

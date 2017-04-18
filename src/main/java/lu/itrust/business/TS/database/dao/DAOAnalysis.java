@@ -76,7 +76,7 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize);
 
-	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType analysisType);
 
 	public List<Analysis> getAllNotEmpty();
 
@@ -90,7 +90,7 @@ public interface DAOAnalysis {
 
 	public List<String> getAllNotEmptyVersion(String identfier);
 
-	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards);
+	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType analysisType);
 
 	public List<Analysis> getAllProfiles();
 

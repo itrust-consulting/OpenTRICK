@@ -544,8 +544,8 @@ public class ControllerRRF {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
 		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()));
-		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards);
-		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards));
+		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards,AnalysisType.QUANTITATIVE);
+		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards, AnalysisType.QUANTITATIVE));
 		analyses.removeIf(analysis -> analysis.getId() == idAnalysis);
 		Collections.sort(analyses, new AnalysisComparator());
 		List<Customer> customers = new ArrayList<Customer>();

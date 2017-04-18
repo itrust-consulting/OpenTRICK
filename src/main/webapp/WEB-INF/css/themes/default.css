@@ -564,6 +564,10 @@ table.rrf-values th {
 	border-top: 1px #ddd solid;
 }
 
+.nav-chapter a.list-group-item.lead{
+	font-size: 16px;
+}
+
 .nav-chapter a.list-group-item.active {
 	color: #333;
 	background-color: window;

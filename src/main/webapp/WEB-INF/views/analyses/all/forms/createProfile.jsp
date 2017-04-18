@@ -19,7 +19,7 @@
 				<form id="analysisProfileform" action="/AnalysisProfile/Save?${_csrf.parameterName}=${_csrf.token}" method="post" class="form-horizontal">
 					<input type="hidden" id="id" name="id" value="${id}" />
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label" style="text-align: left;"> <spring:message code="label.name" text="Name" /></label>
+						<label for="name" class="col-sm-2 control-label" style="text-align: left;" data-helper-content='<spring:message code="help.analysis.profile.name" />' > <spring:message code="label.name" text="Name" /></label>
 						<div class="col-sm-10">
 							<input class="form-control" id="name" name="name">
 						</div>

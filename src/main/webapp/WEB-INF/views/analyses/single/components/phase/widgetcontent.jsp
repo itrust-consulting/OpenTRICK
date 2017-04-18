@@ -28,7 +28,7 @@
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="date" class="col-sm-3 control-label"> <spring:message code="label.phase_period" />
+						<label for="date" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.period" />' > <spring:message code="label.phase_period" />
 						</label>
 						<div class="col-sm-9">
 							<div id="datepicker_container" class="input-daterange"></div>

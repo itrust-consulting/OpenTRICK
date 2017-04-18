@@ -33,7 +33,7 @@
 						</div>
 					</div>
 					<div class='form-group'>
-						<label class='label-control col-sm-4'><spring:message code='label.customer' text="Customer" /></label>
+						<label class='label-control col-sm-4' data-helper-content='<spring:message code="help.analysis.customer" />' ><spring:message code='label.customer' text="Customer" /></label>
 						<div class='col-sm-8'>
 							<select class='form-control' name='customer' id='customer-selector'>
 								<option value="-"><spring:message code='label.action.choose' text='Choose...' /></option>

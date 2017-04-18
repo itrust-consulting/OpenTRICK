@@ -17,30 +17,30 @@
 				<jsp:include page="../../../template/successErrors.jsp" />
 				<form name="history" action="${pageContext.request.contextPath}/History/Analysis/${analysisId}/NewVersion/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="history_form" method="post">
 					<div class="form-group">
-						<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
+						<label for="author" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.author" />' > <spring:message code="label.analysis.info.author" text="Author" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="author" id="history_author" class="form-control" value="<spring:message text="${author}"/>" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for=basedOnVersion class="col-sm-2 control-label"> <spring:message code="label.analysis.based_on" text="Based on version" />
+						<label for=basedOnVersion class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.info.parent" />' > <spring:message code="label.analysis.based_on" text="Based on version" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="oldVersion" id="history_oldVersion" class="form-control" value=<spring:message text="${oldVersion}"/> readonly />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for=version class="col-sm-2 control-label"> <spring:message code="label.analysis.version" text="Version" />
+						<label for=version class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.new_version" />' > <spring:message code="label.analysis.version" text="Version" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<input name="version" id="history_version" class="form-control" value="" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.comment" text="Comment" />
+						<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.description" />' > <spring:message code="label.analysis.comment" text="Comment" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<textarea name="comment" class="form-control" id="history_comment"></textarea>
 						</div>
 					</div>
