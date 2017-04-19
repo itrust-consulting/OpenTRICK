@@ -26,42 +26,42 @@
 				<form name="user" action="User/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="user_form" name="user">
 					<input type="hidden" name="id" value="${user.id}" id="user_id" ${user.id>0? 'readonly':''}>
 					<div class="form-group">
-						<label for="login" class="col-sm-4 control-label"> <spring:message code="label.user.login" text="Username" />
+						<label for="login" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.login" />' > <spring:message code="label.user.login" text="Username" />
 						</label>
 						<div class="col-sm-8">
 							<input id="user_login" name="login" class="form-control" type="text" value="${user.login}" required="required" ${user.id>0? 'readonly':''} />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="password" class="col-sm-4 control-label"> <spring:message code="label.user.password" text="Password" />
+						<label for="password" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.password" />' > <spring:message code="label.user.password" text="Password" />
 						</label>
 						<div class="col-sm-8">
 							<input id="user_password" name="password" class="form-control" type="password" ${user.id>0? '':'required'} />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="firstName" class="col-sm-4 control-label"> <spring:message code="label.user.first_name" text="Firstname" />
+						<label for="firstName" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.first_name" />' > <spring:message code="label.user.first_name" text="Firstname" />
 						</label>
 						<div class="col-sm-8">
 							<input id="user_firstName" name="firstName" class="form-control" type="text" value="${user.firstName}" required="required" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="lastName" class="col-sm-4 control-label"> <spring:message code="label.user.last_name" text="Lastname" />
+						<label for="lastName" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.last_name" />' > <spring:message code="label.user.last_name" text="Lastname" />
 						</label>
 						<div class="col-sm-8">
 							<input id="user_lastName" name="lastName" class="form-control" type="text" value="${user.lastName}" required="required" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="email" class="col-sm-4 control-label"> <spring:message code="label.user.email" text="Email address" />
+						<label for="email" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.email" />' > <spring:message code="label.user.email" text="Email address" />
 						</label>
 						<div class="col-sm-8">
 							<input id="user_email" name="email" class="form-control" type="text" value="${user.email}" required="required" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="connexionType" class="col-sm-4 control-label"><spring:message code="label.user.connexion.type" text="Authentication type" /></label>
+						<label for="connexionType" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.connexion.type" />' ><spring:message code="label.user.connexion.type" text="Authentication type" /></label>
 						<div class="col-sm-8">
 							<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
 								<label class="btn btn-default ${user.connexionType==-1?'active':''}"><spring:message code="label.user.connexion.standard" text="Standard" /><input
@@ -73,7 +73,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="roles" class="col-sm-4 control-label"> <spring:message code="label.user.account.access.level" text="Access level" /></label>
+						<label for="roles" class="col-sm-4 control-label" data-helper-content='<spring:message code="help.user.admin.role" />' > <spring:message code="label.user.account.access.level" text="Access level" /></label>
 						<div class="col-sm-8">
 							<div class="btn-group" data-toggle="buttons">
 								<c:forEach items="${roles}" var="role">
@@ -89,7 +89,7 @@
 						<spring:message code="label.action.enable" text="Enable" var="enable" />
 						<spring:message code="label.action.disable" text="Disable" var="disable" />
 						<div class='form-group' data-index='0'>
-							<label class="control-label col-sm-4"><spring:message code='label.user.otp.setting' /></label>
+							<label class="control-label col-sm-4" data-helper-content='<spring:message code="help.user.admin.otp" />' ><spring:message code='label.user.otp.setting' /></label>
 							<div class='col-sm-8'>
 								<div class="btn-group" data-toggle="buttons">
 									<label class="btn btn-default ${using2FA?'active':''}">${enable}<input ${using2FA?'checked':''} name="using2FA" type="radio" value="true"></label> <label

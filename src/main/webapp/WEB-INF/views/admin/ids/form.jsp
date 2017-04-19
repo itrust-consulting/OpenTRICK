@@ -22,29 +22,34 @@
 			</div>
 			<div class="modal-body">
 				<jsp:include page="../../template/successErrors.jsp" />
+				<spring:message code="help.id.prefix" var="hPrefix"/>
+				<spring:message code="help.id.token" var="hToken"/>
+				<spring:message code="help.id.description" var="hDescription"/>
+				<spring:message code="help.id.status" var="hStatus"/>
+				
 				<form:form commandName="ids" class="form-horizontal" name="ids" method="post">
 					<form:hidden path="id"/>
 					<div class="form-group">
-						<form:label path="prefix" cssClass="col-sm-2 control-label"> <spring:message code="label.name" text="Name" /></form:label>
-						<div class="col-sm-10">
+						<form:label path="prefix" cssClass="col-sm-3 control-label" data-helper-content='${hPrefix}' > <spring:message code="label.name" text="Name" /></form:label>
+						<div class="col-sm-9">
 							<form:input path="prefix" cssClass="form-control" maxlength="32" size='32' required="true"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<form:label path="token" cssClass="col-sm-2 control-label"> <spring:message code="label.ids.token" text="Token" /></form:label>
-						<div class="col-sm-10">
+						<form:label path="token" cssClass="col-sm-3 control-label" data-helper-content='${hToken}' > <spring:message code="label.ids.token" text="Token" /></form:label>
+						<div class="col-sm-9">
 							<form:textarea path="token" cssClass="form-control resize_vectical_only" maxlength="512" readonly="true" size="256" rows="2"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<form:label path="description" cssClass="col-sm-2 control-label"> <spring:message code="label.description" text="Name" /></form:label>
-						<div class="col-sm-10">
+						<form:label path="description" cssClass="col-sm-3 control-label" data-helper-content='${hDescription}' > <spring:message code="label.description" text="Name" /></form:label>
+						<div class="col-sm-9">
 							<form:textarea path="description" cssClass="form-control resize_vectical_only" maxlength="255" size='255' rows="4" required="true"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<form:label path="enable" cssClass="col-sm-2 control-label"> <spring:message code="label.user.account.status" text="Status" /></form:label>
-						<div class="col-sm-10" align="center">
+						<form:label path="enable" cssClass="col-sm-3 control-label" data-helper-content='${hStatus}' > <spring:message code="label.user.account.status" text="Status" /></form:label>
+						<div class="col-sm-9" align="center">
 							<form:checkbox path="enable" cssClass="checkbox"/>
 						</div>
 					</div>

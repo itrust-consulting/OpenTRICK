@@ -840,6 +840,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 														$(".modal-body", $modal).attr('style', "padding-top:5px");
 														$("div[id^='risk-profile-measure-manager-']", $modal).hide();
 														setupMeasureManager($container);
+														generateHelper(undefined, "#measure-form-container");
 														$("div[id^='measure-form-']", $modal).show();
 													} else showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 												}, error: unknowError

@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="addScenarioModal" tabindex="-1" role="dialog" data-aria-labelledby="addNewScenario" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog" style="min-width: 50%;">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -26,9 +26,9 @@
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
 					<div id="tab_scenario_general" class="tab-pane active"  style="padding-top: ${type=='QUANTITATIVE'? '8px':'3px'};" >
 						<div class="form-group">
-							<label for="type" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.asset_linked"/>'><spring:message
+							<label for="type" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.asset_linked"/>'><spring:message
 									code="label.scenario.applicable.to" /></label>
-							<div class="col-sm-10" align="center">
+							<div class="col-sm-9" align="center">
 								<div class="btn-group" data-toggle="buttons">
 									<label class="btn btn-default ${empty(scenario) or not scenario.assetLinked? 'active':''}"><spring:message code="label.scenario.apply.to.asset_type" /><input
 										${empty(scenario) or not scenario.assetLinked? 'checked':''} name="assetLinked" type="radio" value="false"></label> <label
@@ -39,16 +39,16 @@
 						</div>
 
 						<div class="form-group">
-							<label for="name" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.name" />'  > <spring:message code="label.scenario.name" />
+							<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.name" />'  > <spring:message code="label.scenario.name" />
 							</label>
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="scenarioType.id" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.type" />' > <spring:message code="label.scenario.type" />
+							<label for="scenarioType.id" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.type" />' > <spring:message code="label.scenario.type" />
 							</label>
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
 									<c:choose>
 										<c:when test="${!empty(scenariotypes)}">
@@ -66,9 +66,9 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="selected" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.status" />' > <spring:message code="label.status" />
+							<label for="selected" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.status" />' > <spring:message code="label.status" />
 							</label>
-							<div class="col-sm-10" align="center">
+							<div class="col-sm-9" align="center">
 								<div class="btn-group" data-toggle="buttons">
 									<label class="btn btn-default ${empty(scenario) or scenario.selected ? 'active' : ''}"><spring:message code="label.action.select" /><input
 										${empty(scenario) or scenario.selected ? 'checked' : ''} name=selected type="radio" value="true"></label> <label
@@ -78,17 +78,17 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="comment" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.comment" />' > <spring:message code="label.scenario.description" />
+							<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.comment" />' > <spring:message code="label.scenario.description" />
 							</label>
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<textarea name="description" class="form-control resize_vectical_only" rows="15" id="scenario_description"><spring:message
 										text="${empty(scenario)? '': scenario.description}" /></textarea>
 							</div>
 						</div>
 						<div id='scenario-asset-type-values' class='form-group' ${not empty scenario and scenario.assetLinked? 'hidden' : ''  }>
-							<label class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.application.asset.types" />' ><spring:message code="label.scenario.application.asset.types" /></label>
+							<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.application.asset.types" />' ><spring:message code="label.scenario.application.asset.types" /></label>
 							<spring:message var="typeChooseText" code='label.asset_type.choose.multi' />
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<c:choose>
 									<c:when test="${!empty(scenario)}">
 										<select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
@@ -110,9 +110,9 @@
 							</div>
 						</div>
 						<div class='form-group' id='scenario-asset-values' ${not empty scenario and scenario.assetLinked? '' : 'hidden'  }>
-							<label class="col-sm-2 control-label" data-helper-content='<spring:message code="help.scenario.application.asset" />' ><spring:message code="label.scenario.applicable.asset" /></label>
+							<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.application.asset" />' ><spring:message code="label.scenario.applicable.asset" /></label>
 							<spring:message var="assetChooseText" code='label.asset.choose.multi' />
-							<div class="col-sm-10">
+							<div class="col-sm-9">
 								<c:choose>
 									<c:when test="${!empty(scenario)}">
 										<select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">

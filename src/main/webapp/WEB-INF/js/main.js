@@ -901,10 +901,10 @@ function forceCloseToolTips() {
 }
 
 function generateHelper($selection, container) {
-	if ($selection == undefined || $selection == null)
-		$selection = $("[data-helper-content]");
 	if (container == undefined || container == null)
 		container = "body";
+	if ($selection == undefined || $selection == null)
+		$selection = $("[data-helper-content]",container);
 	$selection
 			.each(function() {
 				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");

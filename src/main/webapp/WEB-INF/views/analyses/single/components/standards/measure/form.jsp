@@ -64,35 +64,35 @@
 							<div id="tab_general" class="tab-pane active" style="padding-top: 17px;">
 
 								<div class="form-group">
-									<label for="reference" class="col-sm-3 control-label"> <spring:message code="label.reference" /></label>
+									<label for="reference" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.reference" />' > <spring:message code="label.reference" /></label>
 									<div class="col-sm-9">
 										<input name="reference" id="reference" value='<spring:message text="${measureForm.reference}"/>' class="form-control" />
 									</div>
 								</div>
 
 								<div class="form-group">
-									<label for="level" class="col-sm-3 control-label"> <spring:message code="label.measure.level" /></label>
+									<label for="level" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.level" />' > <spring:message code="label.measure.level" /></label>
 									<div class="col-sm-9">
 										<input name="level" id="level" value="${measureForm.level}" class="form-control" type="number" min="1" />
 									</div>
 								</div>
 
 								<div class="form-group">
-									<label for="computable" class="col-sm-3 control-label"> <spring:message code="label.measure.computable" /></label>
+									<label for="computable" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.computable" />' > <spring:message code="label.measure.computable" /></label>
 									<div class="col-sm-9" align="center">
 										<input name="computable" id="computable" ${measureForm.computable?'checked':''} class="checkbox" type="checkbox" />
 									</div>
 								</div>
 
 								<div class="form-group">
-									<label for="domain" class="col-sm-3 control-label"> <spring:message code="label.measure.domain" /></label>
+									<label for="domain" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.domain" />' > <spring:message code="label.measure.domain" /></label>
 									<div class="col-sm-9">
 										<textarea name="domain" id="domain" rows="4" class="form-control resize_vectical_only"><spring:message text="${measureForm.domain}" /></textarea>
 									</div>
 								</div>
 
 								<div class="form-group">
-									<label for="description" class="col-sm-3 control-label"><spring:message code="label.measure.description" /></label>
+									<label for="description" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.description" />' ><spring:message code="label.measure.description" /></label>
 									<div class="col-sm-9">
 										<textarea name="description" id="description" rows="9" class="form-control resize_vectical_only"><spring:message text="${measureForm.description}" /></textarea>
 									</div>
