@@ -24,8 +24,8 @@
 					<th><spring:message code="label.description" text="Description" /></th>
 					<th width="8%"><spring:message code="label.last_update" text="Last update" /></th>
 					<th width="8%"><spring:message code="label.last_alert" text="Last alert" /></th>
-					<th width="8%"><spring:message code="label.user.account.status" text="Status" /></th>
-					<th width="8%"><spring:message code="label.count.subscriber" text="Number of subscriber" /></th>
+					<th width="8%" class='text-center' ><spring:message code="label.ids.status" text="Status" /></th>
+					<th width="8%" class='text-center'><spring:message code="label.count.subscriber" text="Number of subscriber" /></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -37,8 +37,8 @@
 						<td><spring:message text="${ids.description}" /></td>
 						<td><spring:message text="${ids.lastUpdate}" /></td>
 						<td><spring:message text="${ids.lastAlert}" /></td>
-						<td><spring:message code="label.user.account.state_${fn:toLowerCase(ids.enable)}" text="${ids.enable?'Enabled':'Disabled'}" /></td>
-						<td align="center"><spring:message text="${ids.subscribers.size()}" /></td>
+						<td class='text-center'><spring:message code="label.user.account.state_${fn:toLowerCase(ids.enable)}" text="${ids.enable?'Enabled':'Disabled'}" /></td>
+						<td class='text-center'><spring:message text="${ids.subscribers.size()}" /></td>
 					</tr>
 				</c:forEach>
 			</tbody>

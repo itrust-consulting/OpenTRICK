@@ -20,40 +20,43 @@
 					</c:choose>
 				</h4>
 			</div>
+			<spring:message code="label.action.enable" text="Enable" var="enable" />
+			<spring:message code="label.action.disable" text="Disable" var="disable" />
 			<div class="modal-body">
 				<jsp:include page="../../template/successErrors.jsp" />
-				<spring:message code="help.id.prefix" var="hPrefix"/>
-				<spring:message code="help.id.token" var="hToken"/>
-				<spring:message code="help.id.description" var="hDescription"/>
-				<spring:message code="help.id.status" var="hStatus"/>
-				
 				<form:form commandName="ids" class="form-horizontal" name="ids" method="post">
-					<form:hidden path="id"/>
+					<form:hidden path="id" />
+
 					<div class="form-group">
-						<form:label path="prefix" cssClass="col-sm-3 control-label" data-helper-content='${hPrefix}' > <spring:message code="label.name" text="Name" /></form:label>
+						<label for="prefix" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.id.prefix"/>'> <spring:message code="label.name" text="Name" /></label>
 						<div class="col-sm-9">
-							<form:input path="prefix" cssClass="form-control" maxlength="32" size='32' required="true"/>
+							<form:input path="prefix" cssClass="form-control" maxlength="32" size='32' required="true" />
 						</div>
 					</div>
 					<div class="form-group">
-						<form:label path="token" cssClass="col-sm-3 control-label" data-helper-content='${hToken}' > <spring:message code="label.ids.token" text="Token" /></form:label>
+						<label for="token" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.id.token"/>'> <spring:message code="label.ids.token" text="Token" /></label>
 						<div class="col-sm-9">
-							<form:textarea path="token" cssClass="form-control resize_vectical_only" maxlength="512" readonly="true" size="256" rows="2"/>
+							<form:textarea path="token" cssClass="form-control resize_vectical_only" maxlength="512" readonly="true" size="256" rows="2" />
 						</div>
 					</div>
 					<div class="form-group">
-						<form:label path="description" cssClass="col-sm-3 control-label" data-helper-content='${hDescription}' > <spring:message code="label.description" text="Name" /></form:label>
+						<label for="description" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.id.description"/>'> <spring:message code="label.description"
+								text="Name" /></label>
 						<div class="col-sm-9">
-							<form:textarea path="description" cssClass="form-control resize_vectical_only" maxlength="255" size='255' rows="4" required="true"/>
+							<form:textarea path="description" cssClass="form-control resize_vectical_only" maxlength="255" size='255' rows="4" required="true" />
 						</div>
 					</div>
-					<div class="form-group">
-						<form:label path="enable" cssClass="col-sm-3 control-label" data-helper-content='${hStatus}' > <spring:message code="label.user.account.status" text="Status" /></form:label>
-						<div class="col-sm-9" align="center">
-							<form:checkbox path="enable" cssClass="checkbox"/>
+					<div class='form-group' data-index='0'>
+						<label for="enable" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.id.status"/>'> <spring:message code="label.ids.status"
+								text="Status" /></label>
+						<div class='col-sm-9 text-center'>
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-default ${ids.enable?'active':''}">${enable}<input ${ids.enable?'checked':''} name="enable" type="radio" value="true"></label><label
+									class="btn btn-default ${ids.enable?'':'active'}">${disable}<input ${ids.enable?'':'checked'} name="enable" type="radio" value="false"></label>
+							</div>
 						</div>
 					</div>
-					<form:button type="submit" hidden="hidden" id="ids_form_submit_button"/>
+					<form:button type="submit" hidden="hidden" id="ids_form_submit_button" />
 				</form:form>
 				<div id="ids-error-container"></div>
 			</div>

@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.actionplan.helper;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -777,7 +778,7 @@ public class ActionPlanComputation {
 		// measures are in the
 		// list of measures
 		// ****************************************************************
-		while (usedMeasures.size() > 0) {
+		while (!usedMeasures.isEmpty()) {
 
 			// ****************************************************************
 			// * calculate temporary Action Plan
@@ -790,39 +791,17 @@ public class ActionPlanComputation {
 			// plan and remove measure from usefulmeasures list
 			// ****************************************************************
 
+			actionPlanEntry = tmpActionPlan.parallelStream().max((e1, e2) -> Double.compare(e1.getROI(), e2.getROI())).orElse(null);
+
 			// check if first action plan entry is not null -> YES
-			if (tmpActionPlan.get(0) != null) {
-
-				// ****************************************************************
-				// * initialise first element to be biggest rosi
-				// ****************************************************************
-
-				// first element has the biggest ROSI/ROSMI to start
-				actionPlanEntry = tmpActionPlan.get(0);
-
-				// ****************************************************************
-				// * parse all elements of action plan and determine real
-				// biggest rosi
-				// ****************************************************************
-
-				// parse action plan
-				for (int i = 0; i < tmpActionPlan.size(); i++) {
-
-					// check if current element's ROSI > supposed -> YES
-					if (actionPlanEntry.getROI() < tmpActionPlan.get(i).getROI()) {
-
-						// replace entry with current element
-						actionPlanEntry = tmpActionPlan.get(i);
-					}
-				}
+			if (actionPlanEntry != null) {
 
 				// ****************************************************************
 				// * at this point actionPlanEntry is the object with the
 				// biggest ROSI
 				// ****************************************************************
 
-				actionPlanEntry.setPosition(index);
-				index++;
+				actionPlanEntry.setPosition(index++);
 
 				// ****************************************************************
 				// * update ALE values for next action plan run
@@ -890,9 +869,8 @@ public class ActionPlanComputation {
 	 * @param in
 	 * @throws CloneNotSupportedException
 	 */
-	public static void clone(List<TMA> out, List<TMA> in) throws CloneNotSupportedException {
-		for (int i = 0; i < in.size(); i++)
-			out.add((TMA) in.get(i).clone());
+	public static void clone(List<TMA> out, List<TMA> in) {
+		in.forEach(tma -> out.add(tma.clone()));
 	}
 
 	/**
@@ -2111,8 +2089,11 @@ public class ActionPlanComputation {
 		double rrf = 0;
 		double cMaxEff = -1;
 		double nMaxEff = -1;
+		boolean insertMeasure = usefulMeasure && usedMeasures != null && standards != null;
 		IParameter parameterMaxRRF = analysis.getSimpleParameters().stream()
 				.filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF)).findAny().orElse(null);
+
+		Map<String, Boolean> measureMapper = insertMeasure ? usedMeasures.parallelStream().collect(Collectors.toMap(Measure::getKey, m -> true)) : Collections.emptyMap();
 
 		// ****************************************************************
 		// * parse assesments to generate TMA entries
@@ -2162,24 +2143,8 @@ public class ActionPlanComputation {
 					// ****************************************************************
 
 					// measure needs to be taken into account? -> YES
-					if (usefulMeasure && usedMeasures != null && standards != null) {
-
-						// ****************************************************************
-						// * check if measure is already on the list, if not:
-						// add it
-						// ****************************************************************
-						// ****************************************************************
-						// * check if the measure was found, if not: add it
-						// ****************************************************************
-						if (!usedMeasures.contains(measure)) {
-
-							// ****************************************************************
-							// * add to the list of measures
-							// ****************************************************************
-							usedMeasures.add(measure);
-						}
-
-					}
+					if (insertMeasure && !measureMapper.containsKey(measure.getKey()))
+						measureMapper.put(measure.getKey(), usedMeasures.add(measure));
 
 					// ****************************************************************
 					// * check if measure is from 27002 standard (for maturity)

@@ -491,8 +491,12 @@ datalist {
 	border: solid 1px #337ab7;
 	color: #337ab7;
 	border-radius: 1em;
-	margin-left: 5px;
+	margin-left: 4px;
 	font-size: 9px;
+}
+
+.modal-md{
+	width: 700px;
 }
 
 .popover-danger {

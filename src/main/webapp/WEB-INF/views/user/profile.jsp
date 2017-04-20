@@ -99,7 +99,7 @@
 				</fieldset>
 				<fieldset>
 					<legend>
-						<spring:message code='label.user.title.account.info' text='Account access information' />
+						<spring:message code='label.user.title.account.access.info' text='Account access information' />
 					</legend>
 					<div class="form-group">
 						<label for="connexionType" class="col-sm-3 control-label"><spring:message code="label.user.connexion.type" text="Authentication type" /></label>

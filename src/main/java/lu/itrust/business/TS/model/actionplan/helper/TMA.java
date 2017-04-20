@@ -9,9 +9,9 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * TMA: <br>
- * Stands for Threat, Measure, Asset. It contains data to calculate for each triple of T,M,A the
- * delta ALE. Using each T,M,A inside a list it is possible to calculate and create the action
- * plans.
+ * Stands for Threat, Measure, Asset. It contains data to calculate for each
+ * triple of T,M,A the delta ALE. Using each T,M,A inside a list it is possible
+ * to calculate and create the action plans.
  * 
  * @author itrust consulting s.� r.l. - BJA,SME
  * @version 0.1
@@ -56,8 +56,10 @@ public class TMA {
 
 	/**
 	 * Constructor: <br>
-	 * Creates a new instance of TMA and selects the ALE using the mode and sets the Assessment,
-	 * AnalysisStandard, Measure objects and the calculated RRF from the parameters.
+	 * Creates a new instance of TMA and selects the ALE using the mode and sets
+	 * the Assessment, AnalysisStandard, Measure objects and the calculated RRF
+	 * from the parameters.
+	 * 
 	 * @param mode
 	 * @param asessment
 	 * @param measure
@@ -71,18 +73,18 @@ public class TMA {
 
 		// get ALE corresponding to type of computation
 		switch (mode) {
-			case APN:
-			case APPN:
-				this.ALE = this.assessment.getALE();
-				break;
-			case APO:
-			case APPO:
-				this.ALE = this.assessment.getALEO();
-				break;
-			case APP:
-			case APPP:
-				this.ALE = this.assessment.getALEP();
-				break;
+		case APN:
+		case APPN:
+			this.ALE = this.assessment.getALE();
+			break;
+		case APO:
+		case APPO:
+			this.ALE = this.assessment.getALEO();
+			break;
+		case APP:
+		case APPP:
+			this.ALE = this.assessment.getALEP();
+			break;
 		}
 
 		// the analysisStandard
@@ -93,8 +95,8 @@ public class TMA {
 
 		// the calculated RRF
 		this.RRF = RRF;
-		
-		if(Double.isNaN(RRF))
+
+		if (Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
 	}
 
@@ -106,12 +108,13 @@ public class TMA {
 	 * calculateDeltaALE: <br>
 	 * Calculates the delta ALE using the formula <br>
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
-	 * @throws TrickException 
+	 * 
+	 * @throws TrickException
 	 */
 	public void calculateDeltaALE(ValueFactory factory) throws TrickException {
-		if(Double.isNaN(RRF))
+		if (Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
-		if(Double.isNaN(ALE))
+		if (Double.isNaN(ALE))
 			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
 		double implementationRate = this.measure.getImplementationRateValue(factory) / 100.;
 		this.deltaALE = this.ALE * RRF * (1. - implementationRate) / (1. - RRF * implementationRate);
@@ -131,12 +134,12 @@ public class TMA {
 	 *            The Measure to calculate the deltaALE
 	 * 
 	 * @return the computed deltaALE for this measure using a given ALE
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public static double calculateDeltaALE(double ALE, double RRF, Measure measure, ValueFactory valueFactory) throws TrickException {
-		if(Double.isNaN(RRF))
+		if (Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
-		if(Double.isNaN(ALE))
+		if (Double.isNaN(ALE))
 			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
 		double implementationRate = measure.getImplementationRateValue(valueFactory) / 100.0;
 		return ALE * RRF * (1.0 - implementationRate) / (1.0 - RRF * implementationRate);
@@ -145,13 +148,12 @@ public class TMA {
 	/**
 	 * calculateDeltaALEMaturity: <br>
 	 * Calculates the delta ALE for 27002 measures using the formula <br>
-	 * ALE * RRF * ImpRate * ((maxEffnextSML - maxEffcurrentSML) / 1 - RRF * ImpRate)
+	 * ALE * RRF * ImpRate * ((maxEffnextSML - maxEffcurrentSML) / 1 - RRF *
+	 * ImpRate)
 	 */
 	public void calculateDeltaALEMaturity(ValueFactory factory) {
 		double implementationRate = measure.getImplementationRateValue(factory) / 100.0;
-		this.deltaALEMat =
-			this.ALE * RRF * implementationRate
-				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * implementationRate));
+		this.deltaALEMat = this.ALE * RRF * implementationRate * ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * implementationRate));
 	}
 
 	/***********************************************************************************************
@@ -393,10 +395,11 @@ public class TMA {
 	@Override
 	public String toString() {
 		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO=" + assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
-			+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id=" + assessment.getAsset().getId()
-			+ ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name=" + assessment.getScenario().getName() + "]], " + "Measure[id="
-			+ measure.getId() + ", Standard [ id=" + standard.getId() + ", name=" + standard.getLabel() + ", version=" + standard.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], "
-			+ "RRF="+RRF+", ALE="+ALE+", deltaALE="+deltaALE+", current SML Max Eff= "+cMaxEff+", next SML Max Eff="+nMaxEff+", deltaALE Maturtity="+deltaALEMat+"]";
+				+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id="
+				+ assessment.getAsset().getId() + ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name="
+				+ assessment.getScenario().getName() + "]], " + "Measure[id=" + measure.getId() + ", Standard [ id=" + standard.getId() + ", name=" + standard.getLabel()
+				+ ", version=" + standard.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], " + "RRF=" + RRF + ", ALE=" + ALE + ", deltaALE="
+				+ deltaALE + ", current SML Max Eff= " + cMaxEff + ", next SML Max Eff=" + nMaxEff + ", deltaALE Maturtity=" + deltaALEMat + "]";
 	}
 
 	/**
@@ -406,9 +409,13 @@ public class TMA {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		TMA tma = (TMA) super.clone();
-		tma.assessment = (Assessment) assessment.clone();
-		return super.clone();
+	public TMA clone() {
+		try {
+			TMA tma = (TMA) super.clone();
+			tma.assessment = (Assessment) assessment.clone();
+			return (TMA) super.clone();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -39,7 +39,7 @@ function deleteSqlite(id) {
 }
 
 function deleteReport(id) {
-	var $progress = $("#loading-indicator").show(), currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val()), $confirm = showDialog("#confirm-dialog", MessageResolver("confirm.delete.report","Are you sure you want to delete this report?"));
+	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val()), $confirm = showDialog("#confirm-dialog", MessageResolver("confirm.delete.report","Are you sure you want to delete this report?"));
 	$(".btn-danger", $confirm).on("click",function(){
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -163,8 +163,6 @@ function loadUserSqlite(update) {
 	var $progress = $("#progress-sqlite").show();
 	$.ajax({
 		url: context + "/Profile/Section/Sqlite",
-		type: "get",
-		async: true,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (update) {
@@ -188,7 +186,6 @@ function loadUserReport(update) {
 	var $progress = $("#progress-report").show();
 	$.ajax({
 		url: context + "/Profile/Section/Report",
-		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (update) {

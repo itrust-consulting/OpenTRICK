@@ -27,10 +27,8 @@ public class ActionPlanManager {
 		for (ActionPlanEntry entry : entries) {
 			ActionPlanType apt = entry.getActionPlanType();
 			List<ActionPlanEntry> templist = mappingActionPlans.get(apt.getName());
-			if (templist == null) {
-				templist = new LinkedList<>();
-				mappingActionPlans.put(apt.getName(), templist);
-			}
+			if (templist == null) 
+				mappingActionPlans.put(apt.getName(), templist = new LinkedList<>());
 			templist.add(entry);
 		}
 		return mappingActionPlans;
@@ -40,10 +38,11 @@ public class ActionPlanManager {
 		try {
 			ActionPlanEntry ape = null;
 			List<Asset> assets = new ArrayList<Asset>();
-			if (entries != null && entries.size() > 0) {
+			if (entries != null && entries.size() > 0)
 				ape = entries.get(0);
-			} else
+			 else
 				throw new TrickException("error.action.plan.empty", "Action plan is empty!");
+			
 			for (ActionPlanAsset apa : ape.getActionPlanAssets())
 				assets.add(apa.getAsset());
 			return assets;
@@ -58,20 +57,12 @@ public class ActionPlanManager {
 
 	public static List<ActionPlanAsset> orderActionPlanAssetsByAssetList(ActionPlanEntry entry, List<Asset> assets) {
 		try {
-
 			List<ActionPlanAsset> apassets = new ArrayList<ActionPlanAsset>();
-
 			Map<Asset, ActionPlanAsset> mapofassets = new LinkedHashMap<Asset, ActionPlanAsset>();
-
-			for (ActionPlanAsset apasset : entry.getActionPlanAssets()) {
-
+			for (ActionPlanAsset apasset : entry.getActionPlanAssets())
 				mapofassets.put(apasset.getAsset(), apasset);
-			}
-
-			for (Asset asset : assets) {
+			for (Asset asset : assets)
 				apassets.add(mapofassets.get(asset));
-			}
-
 			return apassets;
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
