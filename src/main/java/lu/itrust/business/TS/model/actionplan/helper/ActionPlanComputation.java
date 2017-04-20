@@ -4,11 +4,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.naming.directory.InvalidAttributesException;
@@ -956,7 +958,7 @@ public class ActionPlanComputation {
 				// parse TMAList to edit the ALE values by assessment
 				// if the assessment corresponds to the current TMAList
 				// ****************************************************************
-				TMAList.forEach(tma -> tmpTMAList.stream().filter(tmpTMA -> tma.getAssessment().equals(tmpTMA.getAssessment())).forEach(tmpTMA -> {
+				TMAList.parallelStream().forEach(tma -> tmpTMAList.stream().filter(tmpTMA -> tma.getAssessment().equals(tmpTMA.getAssessment())).parallel().forEach(tmpTMA -> {
 					// ****************************************************************
 					// * edit the ALE value
 					// ****************************************************************
@@ -1199,7 +1201,6 @@ public class ActionPlanComputation {
 		double totalALE = 0;
 		Measure measure = null;
 		ActionPlanEntry actionPlanEntry = null;
-		List<ActionPlanAsset> tmpAssets = null;
 		double ALE = 0;
 
 		// ****************************************************************
@@ -1213,8 +1214,6 @@ public class ActionPlanComputation {
 			// * create array of assets that are selected (for "per asset ALE")
 			// ****************************************************************
 
-			tmpAssets = createSelectedAssetsList();
-
 			// ****************************************************************
 			// * calculate values for action plan entry and add entry to
 			// temporary action plan
@@ -1224,6 +1223,10 @@ public class ActionPlanComputation {
 			// * check if the measure is not a maturity measure -> NO
 			// ****************************************************************
 			if (!(usedMeasures.get(i) instanceof MaturityMeasure)) {
+
+				List<ActionPlanAsset> tmpAssets = createSelectedAssetsList();
+				Map<Integer, ActionPlanAsset> actionPlanAssetMapper = tmpAssets.parallelStream()
+						.collect(Collectors.toMap(actionAsset -> actionAsset.getAsset().getId(), Function.identity()));
 
 				// ****************************************************************
 				// * calculate action plan entry ALE and delta ALE from TMAList
@@ -1253,38 +1256,28 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * calculate ALE by asset for this action plan entry
 						// ****************************************************************
+						ActionPlanAsset actionPlanAsset = actionPlanAssetMapper.get(TMAList.get(j).getAssessment().getAsset().getId());
 
-						// parse assets
-						for (int ac = 0; ac < tmpAssets.size(); ac++) {
+						if (actionPlanAsset != null) {
 
 							// ****************************************************************
-							// * take previous value and add current ALE and
-							// rewrite previous value
-							// (of tmpAssets)
+							// * Calculate new ALE for this asset
 							// ****************************************************************
-							if (tmpAssets.get(ac).getAsset().equals(TMAList.get(j).getAssessment().getAsset())) {
 
-								// ****************************************************************
-								// * Calculate new ALE for this asset
-								// ****************************************************************
+							// store current value
+							ALE = actionPlanAsset.getCurrentALE();
 
-								// store current value
-								ALE = tmpAssets.get(ac).getCurrentALE();
+							// add this ALE
+							ALE += TMAList.get(j).getALE();
 
-								// add this ALE
-								ALE += TMAList.get(j).getALE();
+							// calculate minus deltaALE
+							ALE -= TMAList.get(j).getDeltaALE();
 
-								// calculate minus deltaALE
-								ALE -= TMAList.get(j).getDeltaALE();
-
-								// ****************************************************************
-								// * update the object's ALE value
-								// ****************************************************************
-								tmpAssets.get(ac).setCurrentALE(ALE);
-							}
-
+							// ****************************************************************
+							// * update the object's ALE value
+							// ****************************************************************
+							actionPlanAsset.setCurrentALE(ALE);
 						}
-
 						// ****************************************************************
 						// * take deltaALE to calculate the sum of deltaALE
 						// ****************************************************************
@@ -1355,11 +1348,7 @@ public class ActionPlanComputation {
 		double totalCost = 0;
 		double totalChapter = 0;
 		NormalMeasure tmpMeasure = null;
-		boolean found = false;
-		List<ActionPlanAsset> tmpAssets = null;
 		double ALE = 0;
-		List<NormalMeasure> normalMeasureList = null;
-		List<Double> tmpDeltaALEMat = null;
 		double deltaALEMat = 0;
 		double numberMeasures = 0;
 
@@ -1377,21 +1366,19 @@ public class ActionPlanComputation {
 				// * create array of assets that are selected (for
 				// "per asset ALE")
 				// ****************************************************************
-				tmpAssets = createSelectedAssetsList();
+				List<ActionPlanAsset> tmpAssets = createSelectedAssetsList();
+				Map<Integer, ActionPlanAsset> actionPlanAssetMapper = new HashMap<>();
+				Map<Integer, Double> tmpDeltaALEMat = new HashMap<>();
 
 				// ****************************************************************
 				// * create a vector for maturity deltaALE and initialise it
 				// ****************************************************************
-				tmpDeltaALEMat = new ArrayList<Double>();
 
 				// initialise deltaALEMat values to 0
-
-				// parse all assets and create as much deltaALEMaturity values
-				for (int asc = 0; asc < tmpAssets.size(); asc++) {
-
-					// set deltaALEMaturity to 0
-					tmpDeltaALEMat.add((double) 0);
-				}
+				tmpAssets.parallelStream().forEach(tmpAsset -> {
+					tmpDeltaALEMat.put(tmpAsset.getAsset().getId(), (double) 0);
+					actionPlanAssetMapper.put(tmpAsset.getAsset().getId(), tmpAsset);
+				});
 
 				// ****************************************************************
 				// * store action plan entry object
@@ -1448,7 +1435,10 @@ public class ActionPlanComputation {
 				// initialise ALE for the chapter and the deltaALE
 				deltaALE = 0;
 				totalChapter = 0;
-				normalMeasureList = new ArrayList<NormalMeasure>();
+
+				// List<NormalMeasure> normalMeasureList = new
+				// ArrayList<NormalMeasure>();
+				Map<String, Boolean> measureCounter = new HashMap<>();
 
 				// ****************************************************************
 				// * parse TMAList to calculate totalALE and deltaALE and
@@ -1474,35 +1464,8 @@ public class ActionPlanComputation {
 						// measure (measure can only be there once)
 						// ****************************************************************
 
-						// initialise flag
-						found = false;
-
-						// parse list of measures
-						for (int i = 0; i < normalMeasureList.size(); i++) {
-
-							// check if the measure already exists -> YES
-							if (normalMeasureList.get(i).equals(tmpMeasure)) {
-
-								// ****************************************************************
-								// * measure already exists
-								// ****************************************************************
-								found = true;
-
-								// exist loop
-								break;
-							}
-						}
-
-						// ****************************************************************
-						// * measure not yet in the list? -> NO
-						// ****************************************************************
-						if (found == false) {
-
-							// ****************************************************************
-							// * add measre to list
-							// ****************************************************************
-							normalMeasureList.add(tmpMeasure);
-						}
+						if (!measureCounter.containsKey(tmpMeasure.getKey()))
+							measureCounter.put(tmpMeasure.getKey(), true);
 
 						// ****************************************************************
 						// * calculate totalALE
@@ -1514,43 +1477,40 @@ public class ActionPlanComputation {
 						// values
 						// ****************************************************************
 
-						// parse all assets
-						for (int ac = 0; ac < tmpAssets.size(); ac++) {
+						ActionPlanAsset actionPlanAsset = actionPlanAssetMapper.get(TMAList.get(napmc).getAssessment().getAsset().getId());
+
+						// ****************************************************************
+						// * take previous value and add current ALE and
+						// rewrite previous value
+						// (of tmpAssets)
+						// ****************************************************************
+						if (actionPlanAsset != null) {
 
 							// ****************************************************************
-							// * take previous value and add current ALE and
-							// rewrite previous value
-							// (of tmpAssets)
+							// * update ALE of asset
 							// ****************************************************************
-							if (tmpAssets.get(ac).getAsset().equals(TMAList.get(napmc).getAssessment().getAsset())) {
+							// store current value
+							ALE = actionPlanAsset.getCurrentALE();
 
-								// ****************************************************************
-								// * update ALE of asset
-								// ****************************************************************
-								// store current value
-								ALE = tmpAssets.get(ac).getCurrentALE();
+							// add this ALE
+							ALE = ALE + TMAList.get(napmc).getALE();
 
-								// add this ALE
-								ALE = ALE + TMAList.get(napmc).getALE();
+							// update the object's ALE value
+							actionPlanAsset.setCurrentALE(ALE);
 
-								// update the object's ALE value
-								tmpAssets.get(ac).setCurrentALE(ALE);
+							// ****************************************************************
+							// * update delta ALE Maturity
+							// ****************************************************************
 
-								// ****************************************************************
-								// * update delta ALE Maturity
-								// ****************************************************************
+							// take deltaALE for this deltaALEMat
+							deltaALEMat = tmpDeltaALEMat.get(actionPlanAsset.getAsset().getId());
 
-								// take deltaALE for this deltaALEMat
-								deltaALEMat = tmpDeltaALEMat.get(ac);
+							// calculate addition of deltaALEMat
+							deltaALEMat = deltaALEMat + TMAList.get(napmc).getDeltaALEMat();
 
-								// calculate addition of deltaALEMat
-								deltaALEMat = deltaALEMat + TMAList.get(napmc).getDeltaALEMat();
-
-								// rewrite current deltaALEMat with newest value
-								tmpDeltaALEMat.set(ac, (double) deltaALEMat);
-							}
+							// rewrite current deltaALEMat with newest value
+							tmpDeltaALEMat.put(actionPlanAsset.getAsset().getId(), (double) deltaALEMat);
 						}
-
 						// ****************************************************************
 						// * calculate deltaALE
 						// ****************************************************************
@@ -1568,7 +1528,7 @@ public class ActionPlanComputation {
 
 				// take number of measures effected by this maturity chapter, to
 				// divide with the ALE
-				numberMeasures = (double) normalMeasureList.size();
+				numberMeasures = (double) measureCounter.size();
 
 				// store totalALE in the ActionPlan entry for this maturity
 				// measure divide to the
@@ -1605,6 +1565,7 @@ public class ActionPlanComputation {
 
 			}
 		}
+
 	}
 
 	/**
