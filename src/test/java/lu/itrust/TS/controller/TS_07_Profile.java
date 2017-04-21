@@ -5,6 +5,7 @@ import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -243,7 +244,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 								.content(String.format("{\"sort\" : \"%s\",\"filter\": \"%s\",\"direction\": \"%s\",\"size\": %d}", "identifier", identifier, "desc", 30)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists()).andReturn();
 		FilterControl control = (FilterControl) result.getRequest().getSession().getAttribute("sqliteControl");
-		notNull(control);
+		assertNotNull(control);
 		assertEquals("identifier", control.getSort());
 		assertEquals("desc", control.getDirection());
 		assertEquals(identifier, control.getFilter());
@@ -259,7 +260,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 								.content(String.format("{\"sort\" : \"%s\",\"filter\": \"%s\",\"direction\": \"%s\",\"size\": %d}", "version", version, "asc", 50)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists()).andReturn();
 		FilterControl control = (FilterControl) result.getRequest().getSession().getAttribute("reportControl");
-		notNull(control);
+		assertNotNull(control);
 		assertEquals("version", control.getSort());
 		assertEquals("asc", control.getDirection());
 		assertEquals(version, control.getFilter());
