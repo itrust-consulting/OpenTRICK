@@ -122,7 +122,7 @@
 									Nous avons bien re&ccedil;u votre demande pour r&eacute;initialiser votre mot de passe TRICK Service.
 									Pour confirmer votre demande et r&eacute;initialiser votre mot de passe, copiez l'URL suivant dans votre navigateur web et suivez les instructions indiqu&eacute;es sur la page web. L'URL va expirer dans 1 heure pour des raisons de s&eacute;curit&eacute;.<br>
 									<a href="${hostname}">${hostname}</a><br>
-									IMPORTANT: Pour &eacute;viter le danger de courriels frauduleux (« phishing»), nous vous recommandons de ne pas cliquer sur des liens dans les courriels, mais de les copier et coller dans votre navigateur web, comme indiquez au-dessus.
+									IMPORTANT: Pour &eacute;viter le danger de courriels frauduleux (&laquo;phishing&raquo;), nous vous recommandons de ne pas cliquer sur des liens dans les courriels, mais de les copier et coller dans votre navigateur web, comme indiquez au-dessus.
 									Si vous n'avez pas demand&eacute; &agrave; r&eacute;initialiser votre mot de passe, ignorez ce message.	
 									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacute; automatiquement, veuillez ne pas y r&eacute;pondre.
 								</p>
