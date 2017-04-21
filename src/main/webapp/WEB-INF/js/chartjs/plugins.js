@@ -63,6 +63,7 @@ function aleChartOption(title) {
 			yAxes: [{
 				stacked: false,
 				ticks: {
+					min : 0,
 					userCallback: function (value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
 					}

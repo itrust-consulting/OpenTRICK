@@ -435,6 +435,7 @@ public class ControllerRiskEvolution {
 		List<ALE> ales = new ArrayList<>(analyses.size());
 		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + " " + analysis.getVersion(),
 				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
+		ales.forEach(ale -> ale.setValue(ale.getValue() * 0.001));
 		return chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale), ales);
 	}
 
