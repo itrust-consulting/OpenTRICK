@@ -107,7 +107,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 			PasswordEncryptionHelper.decrypt(user.getLogin(), user.getSecret(), iv);
 			return true;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			//TrickLogManager.Persist(e);
 			return false;
 		}
 
@@ -122,7 +122,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 			PasswordEncryptionHelper.decrypt(password, username, iv);
 			return true;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			//TrickLogManager.Persist(e);
 			return false;
 		}
 	}
