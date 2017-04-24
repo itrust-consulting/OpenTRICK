@@ -155,7 +155,7 @@ public class ControllerProfile {
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
 
-		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ, false))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
 		String extension = ReportType.getExtension(wordReport.getType());
@@ -207,7 +207,7 @@ public class ControllerProfile {
 			return "errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(), userSqLite.getVersion());
-		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ, false))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");

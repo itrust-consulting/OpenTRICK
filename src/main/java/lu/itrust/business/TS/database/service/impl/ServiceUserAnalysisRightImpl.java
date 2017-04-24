@@ -72,8 +72,8 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 *      java.lang.Integer, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right)  {
-		return daoUserAnalysisRight.isUserAuthorized(analysisId, userId, right);
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right, boolean archived)  {
+		return daoUserAnalysisRight.isUserAuthorized(analysisId, userId, right,archived);
 	}
 
 	/**
@@ -90,8 +90,8 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 *      java.lang.String, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right)  {
-		return this.daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, right);
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right, boolean archived)  {
+		return this.daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, right,archived);
 	}
 
 	/**
@@ -108,8 +108,8 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 *      lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right)  {
-		return daoUserAnalysisRight.isUserAuthorized(analysis, user, right);
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right, boolean archived)  {
+		return daoUserAnalysisRight.isUserAuthorized(analysis, user, right,archived);
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	}
 
 	@Override
-	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
-		return daoUserAnalysisRight.isUserAuthorized(idAnalysis, username,rights );
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights, boolean archived) {
+		return daoUserAnalysisRight.isUserAuthorized(idAnalysis, username,rights,archived );
 	}
 }

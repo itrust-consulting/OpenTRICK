@@ -131,7 +131,7 @@ public class ControllerActionPlan {
 		model.addAttribute("analysisId", selected);
 		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY, false));
 
 		// return view
 		return "analyses/single/components/actionplan";
@@ -184,7 +184,7 @@ public class ControllerActionPlan {
 			OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 			model.addAttribute("actionplans", actionplans);
 			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
-			model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
+			model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY, false));
 		} else
 			model.addAttribute("actionplans", actionplans);
 		model.addAttribute("type", type);

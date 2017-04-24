@@ -64,49 +64,49 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	private ServiceAsset serviceAsset;
 
 	@Autowired
+	private ServiceDynamicParameter serviceDynamicParameter;
+
+	@Autowired
 	private ServiceHistory serviceHistory;
-
-	@Autowired
-	private ServiceItemInformation serviceItemInformation;
-
-	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
-	private ServiceSimpleParameter serviceSimpleParameter;
 
 	@Autowired
 	private ServiceImpactParameter serviceImpactParameter;
 
 	@Autowired
-	private ServiceMaturityParameter serviceMaturityParameter;
+	private ServiceItemInformation serviceItemInformation;
 
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
-	private ServiceDynamicParameter serviceDynamicParameter;
+	private ServiceMaturityParameter serviceMaturityParameter;
+
+	@Autowired
+	private ServiceMeasure serviceMeasure;
+
+	@Autowired
+	private ServicePhase servicePhase;
 	
 	@Autowired
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 	
 	@Autowired
-	private ServicePhase servicePhase;
-
-	@Autowired
 	private ServiceRiskInformation serviceRiskInformation;
 
 	@Autowired
-	private ServiceScenario serviceScenario;
+	private ServiceRiskProfile serviceRiskProfile;
 
 	@Autowired
 	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+	private ServiceScenario serviceScenario;
 
 	@Autowired
-	private ServiceRiskProfile serviceRiskProfile;
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	public PermissionEvaluatorImpl() {
 	}
@@ -116,12 +116,39 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
+	@Override
+	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+		return false;
+	}
+
+	@Override
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+		return false;
+	}
+
 	public void setServiceUser(ServiceUser serviceUser) {
 	}
 
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
+
+	@Override
+	public boolean userCanCreateVersion(Integer analysisId, Principal principal, AnalysisRight right) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right) {
+		return userIsAuthorized(isAuthorised(session, principal, right), elementId, className, principal, right);
+	}
+
+	@Override
+	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
+		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
+	}
+
 
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
@@ -266,44 +293,21 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-		return false;
-	}
-
-	@Override
-	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
-		return false;
-	}
-
-	@Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
 				throw new NotFoundException("Analysis does not exist!");
-
 			if (principal == null)
 				return false;
-
 			if (right == null)
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
-
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right) || serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;
 		}
-	}
-
-	@Override
-	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right) {
-		return userIsAuthorized(isAuthorised(session, principal, right), elementId, className, principal, right);
-	}
-
-	@Override
-	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
-		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
 	}
 
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {

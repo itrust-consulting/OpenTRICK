@@ -82,7 +82,7 @@ public class ControllerPhase {
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer == null)
 			return null;
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY, false));
 		// add phases of this analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 		return "analyses/single/components/phase/phase";
@@ -243,7 +243,7 @@ public class ControllerPhase {
 		} catch (Exception e) {
 			// return errors
 			TrickLogManager.Persist(e);
-			errors.put("phase",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("phase", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 		// return empty errors (no errors -> success)
 		return errors;
@@ -277,7 +277,7 @@ public class ControllerPhase {
 			return false;
 		} catch (Exception e) {
 			// set error
-			errors.put("phase",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("phase", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}

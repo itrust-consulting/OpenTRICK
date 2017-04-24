@@ -23,11 +23,11 @@ public interface ServiceUserAnalysisRight {
 
 	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user);
 
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right);
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right, boolean archived);
 
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right);
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right, boolean archived);
 
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right);
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right, boolean archived);
 
 	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid);
 
@@ -49,6 +49,6 @@ public interface ServiceUserAnalysisRight {
 
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
 
-	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights);
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights, boolean archived);
 
 }

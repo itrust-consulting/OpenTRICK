@@ -25,7 +25,7 @@ public interface DAOUserAnalysisRight {
 	public UserAnalysisRight get(Integer id);
 
 	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis);
-	
+
 	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid);
 
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId);
@@ -40,20 +40,18 @@ public interface DAOUserAnalysisRight {
 
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
 
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right);
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right, boolean archived);
 
-	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights);
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights, boolean archived);
 
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right);
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right, boolean archived);
 
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right);
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right, boolean archived);
 
-	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right);
+	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right, boolean archived);
 
 	public void save(UserAnalysisRight userAnalysisRight);
 
 	public void saveOrUpdate(UserAnalysisRight userAnalysisRight);
 
-	
-	
 }
