@@ -54,6 +54,8 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public class WorkerSOAExport extends WorkerImpl {
 
+	public static final String DEFAULT_PARAGRAHP_STYLE = "TabText1";
+
 	public static String FR_TEMPLATE;
 
 	public static String ENG_TEMPLATE;
@@ -67,7 +69,7 @@ public class WorkerSOAExport extends WorkerImpl {
 	private DAOUser daoUser;
 
 	private Locale locale;
-	
+
 	private DateFormat format = null;
 
 	private DAOAnalysis daoAnalysis;
@@ -271,25 +273,27 @@ public class WorkerSOAExport extends WorkerImpl {
 	 */
 	private void generateTable(List<Measure> measures, XWPFDocument document, MessageHandler handler, int[] progressing) {
 		int rowIndex = 0;
-		XWPFTable table = document.createTable(measures.size(), 5);
+		XWPFTable table = document.createTable(measures.size(), 6);
 		table.setStyleID("TSSOA");
 		XWPFTableRow row = getRow(table, rowIndex++);
-		getCell(row, 0).setText(messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
-		getCell(row, 1).setText(messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		getCell(row, 2).setText(messageSource.getMessage("report.measure.due.date", null, "Due date", locale));
-		getCell(row, 3).setText(messageSource.getMessage("report.soa.justification", null, "Justification", locale));
-		getCell(row, 4).setText(messageSource.getMessage("report.soa.reference", null, "Reference", locale));
+		addCellContent(getCell(row, 0), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
+		addCellContent(getCell(row, 1), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
+		addCellContent(getCell(row, 2), messageSource.getMessage("report.measure.status", null, "Status", locale));
+		addCellContent(getCell(row, 3), messageSource.getMessage("report.measure.due.date", null, "Due date", locale));
+		addCellContent(getCell(row, 4), messageSource.getMessage("report.soa.justification", null, "Justification", locale));
+		addCellContent(getCell(row, 5), messageSource.getMessage("report.soa.reference", null, "Reference", locale));
 		for (Measure measure : measures) {
 			row = getRow(table, rowIndex++);
-			getCell(row, 0).setText(measure.getMeasureDescription().getReference());
-			getCell(row, 1).setText(measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
+			addCellContent(getCell(row, 0), measure.getMeasureDescription().getReference());
+			addCellContent(getCell(row, 1), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
 			if (measure.getMeasureDescription().isComputable()) {
-				getCell(row, 2).setText(format.format(measure.getPhase().getEndDate()));
+				addCellContent(getCell(row, 2), messageSource.getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
+				addCellContent(getCell(row, 3), format.format(measure.getPhase().getEndDate()));
 				MeasureProperties properties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
 						: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
 				if (properties != null) {
-					addCellContent(getCell(row, 3), properties.getSoaComment());
-					addCellContent(getCell(row, 4), properties.getSoaReference());
+					addCellContent(getCell(row, 4), properties.getSoaComment());
+					addCellContent(getCell(row, 5), properties.getSoaReference());
 				}
 			}
 			handler.setProgress((int) (progressing[0] + (++progressing[3] / (double) progressing[2]) * (progressing[1] - progressing[0])));
@@ -315,7 +319,7 @@ public class WorkerSOAExport extends WorkerImpl {
 		String[] texts = content.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			XWPFParagraph paragraph = cell.getParagraphs().size() > i ? cell.getParagraphs().get(i) : cell.addParagraph();
-			paragraph.setStyle("BodyOfText");
+			paragraph.setStyle(DEFAULT_PARAGRAHP_STYLE);
 			paragraph.createRun().setText(texts[i]);
 		}
 	}
