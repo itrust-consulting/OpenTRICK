@@ -34,6 +34,12 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private boolean forcedOTP = false;
+
+	public UserEncryptListner(boolean forcedOTP) {
+		this.setForcedOTP(forcedOTP);
+	}
+
 	@PrePersist
 	@PreUpdate
 	public void encrypt(User user) {
@@ -43,7 +49,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 
 	private void encrypt2FASecrete(User user) {
 		try {
-			if (!(user.isUsing2FA() && is2FASecreteEncrypted(user)))
+			if (!is2FASecreteEncrypted(user))
 				return;
 			String password = user.getSecret();
 			if (StringUtils.isEmpty(password))
@@ -75,7 +81,6 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 	public void decrypt(User user) {
 		decryptTicketingSystem(user);
 		decrypt2FASecrete(user);
-
 	}
 
 	private void decrypt2FASecrete(User user) {
@@ -103,26 +108,23 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 		try {
 			String iv = user.getSetting(Constant.USER_IV_2_FACTOR_SECRET);
 			if (StringUtils.isEmpty(iv))
-				return true;
+				return false;
 			PasswordEncryptionHelper.decrypt(user.getLogin(), user.getSecret(), iv);
 			return true;
 		} catch (Exception e) {
-			//TrickLogManager.Persist(e);
 			return false;
 		}
-
 	}
 
 	private boolean isTicketingSystemEncrypted(User user) {
 		try {
 			String iv = user.getSetting(Constant.USER_TICKETING_SYSTEM_IV);
 			if (StringUtils.isEmpty(iv))
-				return true;
+				return false;
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			PasswordEncryptionHelper.decrypt(password, username, iv);
 			return true;
 		} catch (Exception e) {
-			//TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -151,7 +153,21 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 	public void onPreUpdateCollection(PreCollectionUpdateEvent event) {
 		if (event.getAffectedOwnerOrNull() instanceof User)
 			encrypt((User) event.getAffectedOwnerOrNull());
+	}
 
+	/**
+	 * @return the forcedOTP
+	 */
+	public boolean isForcedOTP() {
+		return forcedOTP;
+	}
+
+	/**
+	 * @param forcedOTP
+	 *            the forcedOTP to set
+	 */
+	public void setForcedOTP(boolean forcedOTP) {
+		this.forcedOTP = forcedOTP;
 	}
 
 }
