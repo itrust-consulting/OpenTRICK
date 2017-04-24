@@ -34,11 +34,6 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private boolean forcedOTP = false;
-
-	public UserEncryptListner(boolean forcedOTP) {
-		this.setForcedOTP(forcedOTP);
-	}
 
 	@PrePersist
 	@PreUpdate
@@ -154,20 +149,4 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 		if (event.getAffectedOwnerOrNull() instanceof User)
 			encrypt((User) event.getAffectedOwnerOrNull());
 	}
-
-	/**
-	 * @return the forcedOTP
-	 */
-	public boolean isForcedOTP() {
-		return forcedOTP;
-	}
-
-	/**
-	 * @param forcedOTP
-	 *            the forcedOTP to set
-	 */
-	public void setForcedOTP(boolean forcedOTP) {
-		this.forcedOTP = forcedOTP;
-	}
-
 }

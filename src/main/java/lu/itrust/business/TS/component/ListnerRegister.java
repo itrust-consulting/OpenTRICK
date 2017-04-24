@@ -10,7 +10,6 @@ import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lu.itrust.business.TS.usermanagement.listner.UserEncryptListner;
@@ -25,14 +24,9 @@ public class ListnerRegister {
 	@Autowired
 	private SessionFactory sessionFactory;
 	
-	@Value("${app.settings.otp.force}")
-	private boolean forcedOTP = true;
-
-
-
 	@PostConstruct
 	public void registerListner() {
-		UserEncryptListner userEncryptListner = new UserEncryptListner(forcedOTP);
+		UserEncryptListner userEncryptListner = new UserEncryptListner();
 		EventListenerRegistry eventListenerRegistry = ((SessionFactoryImpl) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
 		eventListenerRegistry.getEventListenerGroup(EventType.POST_LOAD).appendListener(userEncryptListner);
 		eventListenerRegistry.getEventListenerGroup(EventType.PRE_UPDATE).appendListener(userEncryptListner);
