@@ -567,7 +567,7 @@ public class ControllerRRF {
 			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
 			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis())
-					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), false)))
+					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			else if (!rrfForm.getStandards().stream().allMatch(idStandard -> serviceStandard.belongToAnalysis(idStandard, rrfForm.getAnalysis())))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));

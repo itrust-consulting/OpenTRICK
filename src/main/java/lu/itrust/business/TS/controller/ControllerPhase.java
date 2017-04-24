@@ -82,7 +82,7 @@ public class ControllerPhase {
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer == null)
 			return null;
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY, false));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		// add phases of this analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 		return "analyses/single/components/phase/phase";

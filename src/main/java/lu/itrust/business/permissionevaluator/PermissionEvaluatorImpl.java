@@ -86,10 +86,10 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Autowired
 	private ServicePhase servicePhase;
-	
+
 	@Autowired
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
-	
+
 	@Autowired
 	private ServiceRiskInformation serviceRiskInformation;
 
@@ -126,17 +126,26 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		return false;
 	}
 
-	public void setServiceUser(ServiceUser serviceUser) {
-	}
-
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
 	@Override
 	public boolean userCanCreateVersion(Integer analysisId, Principal principal, AnalysisRight right) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			if (analysisId == null || analysisId <= 0)
+				throw new InvalidParameterException("Invalid analysis id!");
+			else if (!serviceAnalysis.exists(analysisId))
+				throw new NotFoundException("Analysis does not exist!");
+			if (principal == null)
+				return false;
+			if (right == null)
+				throw new InvalidParameterException("AnalysisRight cannot be null!");
+			return serviceUserAnalysisRight.hasRightOrOwner(analysisId, principal.getName(), right);
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return false;
+		}
 	}
 
 	@Override
@@ -148,7 +157,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
 		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
 	}
-
 
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
@@ -247,9 +255,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
-			
-			case "RiskAcceptanceParameter" :
-				if(!serviceRiskAcceptanceParameter.belongsToAnalysis(analysisId, elementId))
+
+			case "RiskAcceptanceParameter":
+				if (!serviceRiskAcceptanceParameter.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			case "History": {
@@ -257,7 +265,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
-			
+
 			case "RiskRegister": {
 				if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
 					return false;
@@ -292,7 +300,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
-	@Override
+  /*@Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 			if (analysisId == null || analysisId <= 0)
@@ -308,7 +316,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			TrickLogManager.Persist(e);
 			return false;
 		}
-	}
+	}*/
 
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);

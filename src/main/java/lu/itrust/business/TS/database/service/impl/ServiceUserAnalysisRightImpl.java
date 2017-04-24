@@ -34,10 +34,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#get(long)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#get(long)
 	 */
 	@Override
-	public UserAnalysisRight get(Integer id)  {
+	public UserAnalysisRight get(Integer id) {
 		return daoUserAnalysisRight.get(id);
 	}
 
@@ -50,11 +51,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.model.analysis.Analysis,
-	 *      lu.itrust.business.TS.usermanagement.User)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.model.analysis.Analysis,
+	 *   lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user)  {
+	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) {
 		return daoUserAnalysisRight.getFromAnalysisAndUser(analysis, user);
 	}
 
@@ -68,12 +70,14 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer,
-	 *      java.lang.Integer, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer,
+	 *   java.lang.Integer,
+	 *   lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right, boolean archived)  {
-		return daoUserAnalysisRight.isUserAuthorized(analysisId, userId, right,archived);
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) {
+		return daoUserAnalysisRight.isUserAuthorized(analysisId, userId, right);
 	}
 
 	/**
@@ -86,12 +90,14 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer,
-	 *      java.lang.String, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer,
+	 *   java.lang.String,
+	 *   lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right, boolean archived)  {
-		return this.daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, right,archived);
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) {
+		return this.daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, right);
 	}
 
 	/**
@@ -104,12 +110,14 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.model.analysis.Analysis,
-	 *      lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.model.analysis.Analysis,
+	 *   lu.itrust.business.TS.usermanagement.User,
+	 *   lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right, boolean archived)  {
-		return daoUserAnalysisRight.isUserAuthorized(analysis, user, right,archived);
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) {
+		return daoUserAnalysisRight.isUserAuthorized(analysis, user, right);
 	}
 
 	/**
@@ -121,11 +129,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAnalysisRightOfUser(lu.itrust.business.TS.model.analysis.Analysis,
-	 *      lu.itrust.business.TS.usermanagement.User)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAnalysisRightOfUser(lu.itrust.business.TS.model.analysis.Analysis,
+	 *   lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user)  {
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) {
 		return daoUserAnalysisRight.getAnalysisRightOfUser(analysis, user);
 	}
 
@@ -137,10 +146,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromAnalysisId(int)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromAnalysisId(int)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid)  {
+	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) {
 		return daoUserAnalysisRight.getAllFromAnalysis(analysisid);
 	}
 
@@ -152,10 +162,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis)  {
+	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) {
 		return daoUserAnalysisRight.getAllFromAnalysis(analysis);
 	}
 
@@ -167,10 +178,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromUserLogin(java.lang.String)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromUserLogin(java.lang.String)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromUser(String login)  {
+	public List<UserAnalysisRight> getAllFromUser(String login) {
 		return daoUserAnalysisRight.getAllFromUser(login);
 	}
 
@@ -182,10 +194,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromUser(User user)  {
+	public List<UserAnalysisRight> getAllFromUser(User user) {
 		return daoUserAnalysisRight.getAllFromUser(user);
 	}
 
@@ -196,10 +209,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param userAnalysisRight
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#save(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#save(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
-	public void save(UserAnalysisRight userAnalysisRight)  {
+	public void save(UserAnalysisRight userAnalysisRight) {
 		this.daoUserAnalysisRight.save(userAnalysisRight);
 	}
 
@@ -210,10 +224,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param userAnalysisRight
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
-	public void saveOrUpdate(UserAnalysisRight userAnalysisRight)  {
+	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) {
 		this.daoUserAnalysisRight.saveOrUpdate(userAnalysisRight);
 	}
 
@@ -224,10 +239,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param userAnalysisRight
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#delete(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#delete(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
-	public void delete(UserAnalysisRight userAnalysisRight)  {
+	public void delete(UserAnalysisRight userAnalysisRight) {
 		this.daoUserAnalysisRight.delete(userAnalysisRight);
 	}
 
@@ -238,10 +254,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param id
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#delete(long)
+	 * 	@see
+	 *   lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#delete(long)
 	 */
 	@Override
-	public void delete(Integer id)  {
+	public void delete(Integer id) {
 		this.daoUserAnalysisRight.delete(get(id));
 	}
 
@@ -252,11 +269,11 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 
 	@Override
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right) {
-		return daoUserAnalysisRight.hasRightOrOwner(idAnalysis, username,right );
+		return daoUserAnalysisRight.hasRightOrOwner(idAnalysis, username, right);
 	}
 
 	@Override
-	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights, boolean archived) {
-		return daoUserAnalysisRight.isUserAuthorized(idAnalysis, username,rights,archived );
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
+		return daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, rights);
 	}
 }

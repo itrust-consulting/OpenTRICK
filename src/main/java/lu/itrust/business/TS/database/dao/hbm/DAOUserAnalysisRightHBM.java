@@ -71,7 +71,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right, boolean archived) {
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) {
 		String query = "Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and userRight.user.id = :idUser";
 		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResultOptional()
 				.orElse(null);
@@ -88,22 +88,21 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right, boolean archived) {
-		String query = "Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and analysis.archived = :archived and userRight.user.login = :login";
-		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("login", username)
-				.setParameter("archived", archived).uniqueResultOptional().orElse(null);
-		User user = (User) getSession().createQuery("FROM User as user where user.login = :username").setParameter("username", username).uniqueResultOptional().orElse(null);
-		Boolean isProfile = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id and analysis.archived = :archived")
-				.setParameter("id", idAnalysis).setParameter("archived", archived).uniqueResultOptional().orElse(false);
-		if (analysisRight == null && isProfile) {
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) {
+		String query = "Select userRight.right, analysis.archived From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and userRight.user.login = :login";
+		Object[] data = (Object[]) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResultOptional().orElse(null);
+		User user = getSession().createQuery("FROM User as user where user.login = :username", User.class).setParameter("username", username).uniqueResultOptional().orElse(null);
+		Boolean isProfile = getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id", Boolean.class).setParameter("id", idAnalysis)
+				.uniqueResultOptional().orElse(false);
+		if (data == null && isProfile) {
 			if (user.isAutorised(RoleType.ROLE_CONSULTANT))
-				analysisRight = AnalysisRight.ALL;
+				data = new Object[] { AnalysisRight.ALL, false };
 			else
-				analysisRight = AnalysisRight.READ;
+				data = new Object[] { AnalysisRight.READ, false };
 		}
-		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
+		return isAuthorised((AnalysisRight) data[0], right, (Boolean) data[1]);
 	}
-
+	
 	/**
 	 * isUserAuthorized: <br>
 	 * Description
@@ -113,8 +112,8 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 *      lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right, boolean archived) {
-		return analysis.isArchived() == archived && analysis.isUserAuthorized(user, right);
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) {
+		return analysis.isUserAuthorized(user, right);
 	}
 
 	/**
@@ -235,19 +234,19 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 				.setParameter("identifier", identifier).setParameter("idAnalysis", analysisId).getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right, boolean archived) {
-		AnalysisRight analysisRight = (AnalysisRight) getSession()
+	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right) {
+		AnalysisRight analysisRight = getSession()
 				.createQuery(
-						"Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.identifier = :identifier and analysis.archived = :archived and analysis.version = :version and userRight.user = :owner")
-				.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).setParameter("archived", archived).uniqueResultOptional().orElse(null);
+						"Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.identifier = :identifier and analysis.version = :version and userRight.user = :owner",
+						AnalysisRight.class)
+				.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).uniqueResultOptional().orElse(null);
 		if (!(analysisRight == null || right == null) && analysisRight.ordinal() <= right.ordinal())
 			return true;
 		else
 			return (boolean) getSession()
-					.createQuery("Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and analysis.archived = :archived and  analysis.version = :version and analysis.owner = :owner")
-					.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).setParameter("archived", archived).getSingleResult();
+					.createQuery("Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and  analysis.version = :version and analysis.owner = :owner")
+					.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).getSingleResult();
 	}
 
 	@Override
@@ -264,10 +263,14 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	}
 
 	@Override
-	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights, boolean archived) {
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
 		return (boolean) getSession()
 				.createQuery(
-						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.archived = :archived and userRight.user.login = :username and userRight.right in (:rights)")
-				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", rights).setParameter("archived", archived).getSingleResult();
+						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and userRight.user.login = :username and userRight.right in (:rights)")
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", rights).getSingleResult();
+	}
+
+	private boolean isAuthorised(AnalysisRight accessRight, AnalysisRight current, boolean archived) {
+		return archived ? current == AnalysisRight.READ && accessRight.ordinal() <= AnalysisRight.READ.ordinal() : accessRight.ordinal() <= current.ordinal();
 	}
 }
