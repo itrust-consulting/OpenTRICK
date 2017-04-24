@@ -169,7 +169,7 @@ function deleteAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY) && !isArchived(analysisId)) {
 		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 		$("button[name='delete']", $modal).unbind().one("click", function () {
 			var $progress = $("#loading-indicator").show();
@@ -192,8 +192,7 @@ function deleteAnalysis(analysisId) {
 			return false;
 		});
 
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -796,13 +795,14 @@ function addHistory(analysisId) {
 }
 
 function editSingleAnalysis(analysisId) {
+	
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY) && !isArchived(analysisId)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Edit/" + analysisId,
@@ -862,8 +862,7 @@ function editSingleAnalysis(analysisId) {
 		}).complete(function () {
 			$progress.hide();
 		});
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -874,10 +873,13 @@ function selectAnalysis(analysisId, mode) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY, $progress = $("#loading-indicator").show();
-	setTimeout(() => {
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value);
-	}, 0);
+	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	if(open === OPEN_MODE.READ || !isArchived()){
+		$("#loading-indicator").show();
+		setTimeout(() => {
+			window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value);
+		}, 0);
+	}
 	return false;
 }
 
@@ -889,12 +891,11 @@ function calculateActionPlan(analysisId) {
 			return false;
 		while (selectedAnalysis.length) {
 			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
+			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ))
 				analysisID = rowTrickId;
-			} else
+			else
 				permissionError();
 		}
-
 	} else {
 		analysisID = analysisId;
 	}
@@ -1006,6 +1007,33 @@ function duplicateAnalysis(form, analyisId) {
 	}).complete(function () {
 		$progress.hide();
 	});
+	return false;
+}
+
+function archiveAnalysis(){
+	if (canManageAccess() && !isArchived()) {
+		var $modal = showDialog("#confirm-dialog", MessageResolver("label.analysis.question.archive", "Are you sure that you want to archive the analysis?"));
+		$("button[name='yes']", $modal).unbind().one("click", function () {
+			var $progress = $("#loading-indicator").show(), analysisIds = findSelectItemIdBySection(("section_analysis"));
+			$.ajax({
+				url: context + "/Analysis/Archive/" + analysisIds[0],
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					if (response.success != undefined)
+						reloadSection("section_analysis");
+					else if (response.error != undefined)
+						showDialog("#alert-dialog", response.error)
+					return false;
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
+			$modal.modal("hide");
+			return false;
+		});
+	}
 	return false;
 }
 

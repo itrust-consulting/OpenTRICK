@@ -745,7 +745,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userCanCreateVersion(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 		// retrieve user
 		User user = serviceUser.get(principal.getName());
@@ -768,7 +768,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userCanCreateVersion(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
 			throws Exception {
 
@@ -949,7 +949,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
@@ -980,7 +980,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
 			AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(analysisId);
@@ -1010,8 +1010,40 @@ public class ControllerAnalysis {
 		}
 	}
 
+	/**
+	 * computeRiskRegister: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Archive/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	public @ResponseBody String archiving(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
+		try {
+			Analysis analysis = serviceAnalysis.get(analysisId);
+			if (analysis.isProfile())
+				return JsonMessage.Success(messageSource.getMessage("error.archive.profile", null, "An analysis profile cannot be archived", locale));
+			else if (analysis.isArchived())
+				return JsonMessage.Success(messageSource.getMessage("error.archived.analysis", null, "An analysis is already archived", locale));
+			analysis.setArchived(true);
+			serviceAnalysis.saveOrUpdate(analysis);
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.archive.analysis", String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
+					principal.getName(), LogAction.ARCHIVE, analysis.getIdentifier(), analysis.getVersion());
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.archived", null, "Analysis has been successfully archived", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+	}
+
 	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.hasPermission(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		exportRawActionPlan(response, analysis, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));

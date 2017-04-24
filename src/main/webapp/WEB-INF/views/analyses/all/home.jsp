@@ -24,7 +24,7 @@
 								text="Build an analysis" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)"> <span
 							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY') && notArchived()"><a href="#" href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY') && !isArchived()"><a href="#" href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span
 							class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /></a></li>
 
 					<li class="disabled" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span
@@ -36,31 +36,35 @@
 					</c:if>
 
 					<c:if test="${allowedTicketing}">
-						<li class="disabled" data-trick-selectable="true" data-trick-check="!isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
+						<li class="disabled" data-trick-selectable="true" data-trick-check="!isLinked() && hasRight('ALL') && !isArchived()"><a href="#" onclick="return linkToProject()"> <span
 								class="glyphicon glyphicon-link"></span> <spring:message code="label.menu.link.project" arguments="${ticketingName}" text="Link to ${ticketingName}" /></a></li>
 
-						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinked() && hasRight('ALL')"><a href="#" onclick="return unLinkToProject()"> <span
+						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinked() && hasRight('ALL') && !isArchived()"><a href="#" onclick="return unLinkToProject()"> <span
 								class="glyphicon glyphicon-scissors"></span> <spring:message code="label.menu.unlink.project" arguments="${ticketingName}" text="Unlink from ${ticketingName}" /></a></li>
 					</c:if>
 
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT') && notArchived()"><a href="#" onclick="return addHistory()"> <span
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-duplicate"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY') && !isArchived()"><a href="#" onclick="return editSingleAnalysis();"
 						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-align-justify"></span> <spring:message code="label.edit.info" text="Edit info" /></a></li>
 
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');">
 							<span class="glyphicon glyphicon-file"></span> <spring:message code="label.menu.create.analysis_profile" text="New profile" />
 					</a></li>
 					
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysisReport()"> <span
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT') "><a href="#" onclick="return exportAnalysisReport()"> <span
 							class="glyphicon glyphicon-download-alt"></span> <spring:message code="label.menu.export.report" text="Export Report" /></a></li>
 					
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysis()"> <span
 							class="glyphicon glyphicon glyphicon-export"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
-
-					<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return deleteAnalysis();" class="text-danger">
+							
+					<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="hasRight('MODIFY') && !isArchived()"><a href="#" onclick="return deleteAnalysis();" class="text-danger">
 							<span class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.delete.analysis" text="Delete" />
+					</a></li>
+
+					<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isArchived() && canManageAccess()"><a href="#" onclick="return archiveAnalysis();" class="text-warning">
+							<span class="glyphicon glyphicon-folder-close"></span> <spring:message code="label.menu.archive.analysis" text="Archive" />
 					</a></li>
 				</ul>
 				<div class="center-block">
@@ -116,7 +120,7 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${analyses}" var="analysis">
-							<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-is-linked='${not empty analysis.project}' data-trick-type='${analysis.type}'
+							<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-archived='${analysis.archived}' data-is-linked='${not empty analysis.project}' data-trick-type='${analysis.type}'
 								data-trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" ondblclick="return editSingleAnalysis(${analysis.id});"
 								data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>

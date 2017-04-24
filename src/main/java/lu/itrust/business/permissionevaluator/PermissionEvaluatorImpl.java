@@ -131,7 +131,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userCanCreateVersion(Integer analysisId, Principal principal, AnalysisRight right) {
+	public boolean hasPermission(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
@@ -300,7 +300,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
-  /*@Override
+  @Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 			if (analysisId == null || analysisId <= 0)
@@ -316,7 +316,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			TrickLogManager.Persist(e);
 			return false;
 		}
-	}*/
+	}
 
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);

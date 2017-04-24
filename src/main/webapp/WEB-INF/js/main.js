@@ -319,6 +319,12 @@ function isAnalysisType(type, section){
 	return  $("table>tbody>tr[data-trick-type='" + type + "']>td>input:checked", section? section : "#section_analysis").length > 0;
 }
 
+function isArchived(analysisId){
+	return analysisId==undefined? 
+			$("table>tbody>tr[data-trick-archived='true']>td>input:checked","#section_analysis").length > 0 : 
+		$("table>tbody>tr[data-trick-id='"+analysisId+"'][data-trick-archived='true']","#section_analysis").length > 0;
+}
+
 function downloadWordReport(id) {
 	window.location = context + '/Profile/Report/' + id + "/Download";
 	return false;
