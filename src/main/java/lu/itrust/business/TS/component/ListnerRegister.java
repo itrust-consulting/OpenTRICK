@@ -23,8 +23,7 @@ public class ListnerRegister {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-
-
+	
 	@PostConstruct
 	public void registerListner() {
 		UserEncryptListner userEncryptListner = new UserEncryptListner();

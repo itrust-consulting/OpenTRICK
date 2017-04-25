@@ -17,7 +17,7 @@
 			<div class="modal-body" style="padding: 0;">
 				<div style="padding: 5px 20px;">
 					<h5 style="font-weight: bold;">
-						<spring:message code="label.customer.manage.access.info" arguments="${customer.organisation}"
+						<spring:message code="label.customer.manage.access.info" arguments="${customer.organisation},${customer.contactPerson}"
 							text="Organisation: ${customer.organisation}, Contact person: ${customer.contactPerson}" />
 					</h5>
 					<div>
