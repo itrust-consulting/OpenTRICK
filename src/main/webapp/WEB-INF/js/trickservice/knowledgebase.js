@@ -137,19 +137,19 @@ function selectAnalysis(analysisId) {
 	return false;
 }
 
-function deleteAnalysis(analysisId) {
+function deleteAnalysisProfile(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.profile.question.delete", "Are you sure that you want to delete this analysis profile?"));
 	$("#deleteanalysisbuttonYes").unbind().one("click", function () {
 		$("#deleteAnalysisModel").modal('hide');
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url: context + "/Analysis/Delete/" + analysisId,
+			url: context + "/Analysis/Profile/Delete/" + analysisId,
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {

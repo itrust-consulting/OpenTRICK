@@ -327,4 +327,36 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			return null;
 		return analysisId;
 	}
+
+	@Override
+	public boolean hasDeletePermission(Integer analysisId, Principal principal, Boolean isProfile) {
+		try {
+			if (analysisId == null || analysisId <= 0)
+				throw new InvalidParameterException("Invalid analysis id!");
+			else if (!serviceAnalysis.exists(analysisId))
+				throw new NotFoundException("Analysis does not exist!");
+			if (principal == null)
+				return false;
+			return serviceUserAnalysisRight.hasDeletePermission(analysisId, principal.getName(),isProfile);
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return false;
+		}
+	}
+
+	@Override
+	public boolean hasManagementPermission(Integer analysisId, Principal principal) {
+		try {
+			if (analysisId == null || analysisId <= 0)
+				throw new InvalidParameterException("Invalid analysis id!");
+			else if (!serviceAnalysis.exists(analysisId))
+				throw new NotFoundException("Analysis does not exist!");
+			if (principal == null)
+				return false;
+			return serviceUserAnalysisRight.hasManagementPermission(analysisId, principal.getName());
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return false;
+		}
+	}
 }

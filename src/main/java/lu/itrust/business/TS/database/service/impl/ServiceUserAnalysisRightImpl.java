@@ -276,4 +276,15 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
 		return daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, rights);
 	}
+
+	@Override
+	public boolean hasDeletePermission(Integer idAnalysis, String username,Boolean isProfile) {
+		return daoUserAnalysisRight.hasDeletePermission(idAnalysis,username, isProfile);
+	}
+
+	@Override
+	public boolean hasManagementPermission(Integer idAnalysis, String username) {
+		return daoUserAnalysisRight.hasManagementPermission(idAnalysis,username);
+	}
+
 }

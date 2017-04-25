@@ -102,7 +102,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		}
 		return isAuthorised((AnalysisRight) data[0], right, (Boolean) data[1]);
 	}
-	
+
 	/**
 	 * isUserAuthorized: <br>
 	 * Description
@@ -272,5 +272,37 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 
 	private boolean isAuthorised(AnalysisRight accessRight, AnalysisRight current, boolean archived) {
 		return archived ? current == AnalysisRight.READ && accessRight.ordinal() <= AnalysisRight.READ.ordinal() : accessRight.ordinal() <= current.ordinal();
+	}
+
+	@Override
+	public boolean hasDeletePermission(Integer idAnalysis, String username, Boolean isProfile) {
+		return isProfile ? canDeleteProfile(idAnalysis, username) : canDeleteAnalysis(idAnalysis, username);
+	}
+
+	private Boolean canDeleteAnalysis(Integer idAnalysis, String username) {
+		return getSession()
+				.createQuery(
+						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.profile = false and (analysis.owner.login = :username or analysis.archived = false and userRight.user.login = :username and userRight.right in (:rights))",
+						Boolean.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", AnalysisRight.highRightFrom(AnalysisRight.ALL))
+				.getSingleResult();
+	}
+
+	private Boolean canDeleteProfile(Integer idAnalysis, String username) {
+		return getSession().createQuery("select count(*) > 0 From User user inner join user.roles role where user.login = :username and role.type in (:roles)", Boolean.class)
+				.setParameter("username", username).setParameterList("roles", RoleType.InheritedRoles(RoleType.ROLE_CONSULTANT)).getSingleResult()
+				&& getSession().createQuery(
+						"select count(analysis) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.profile = true and  analysis.defaultProfile = false",
+						Boolean.class).setParameter("idAnalysis", idAnalysis).getSingleResult();
+	}
+
+	@Override
+	public boolean hasManagementPermission(Integer idAnalysis, String username) {
+		return getSession()
+				.createQuery(
+						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.archived = false and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))",
+						Boolean.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", AnalysisRight.highRightFrom(AnalysisRight.ALL))
+				.getSingleResult();
 	}
 }

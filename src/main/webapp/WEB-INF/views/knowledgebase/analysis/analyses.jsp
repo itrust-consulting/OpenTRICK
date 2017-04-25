@@ -17,7 +17,7 @@
 						code="label.edit.info" text="Edit info" /></a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span
 							class="glyphicon glyphicon glyphicon-export"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
-			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
+			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAnalysisProfile();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>
 		<table class="table table-hover">

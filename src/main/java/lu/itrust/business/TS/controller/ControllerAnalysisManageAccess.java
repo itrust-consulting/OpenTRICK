@@ -70,7 +70,7 @@ public class ControllerAnalysisManageAccess {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisID}")
-	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.hasManagementPermission(#analysisID, #principal)")
 	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, HttpSession session) throws Exception {
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 		Analysis analysis = serviceAnalysis.get(analysisID);
@@ -96,7 +96,7 @@ public class ControllerAnalysisManageAccess {
 	 * @throws Exception
 	 */
 	@RequestMapping(value="/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#rightsForm.analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.hasManagementPermission(#rightsForm.analysisId, #principal)")
 	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
 		try {
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);

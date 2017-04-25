@@ -325,6 +325,10 @@ function isArchived(analysisId){
 		$("table>tbody>tr[data-trick-id='"+analysisId+"'][data-trick-archived='true']","#section_analysis").length > 0;
 }
 
+function isLinked() {
+	return $("tbody>tr input:checked", "#section_analysis").closest("tr").attr("data-is-linked") === "true";
+}
+
 function downloadWordReport(id) {
 	window.location = context + '/Profile/Report/' + id + "/Download";
 	return false;
@@ -481,8 +485,12 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
+function isOwner(idAnalysis){
+	return idAnalysis === undefined?  $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") === "true" : $("#section_analysis tbody>tr[data-trick-id='"+idAnalysis+"']").attr("data-analysis-owner") === "true" 
+}
+
 function canManageAccess() {
-	return $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") == "true" || hasRight("ALL");
+	return isOwner() || hasRight("ALL");
 }
 
 function selectElement(element) {

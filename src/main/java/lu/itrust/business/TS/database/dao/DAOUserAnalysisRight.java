@@ -54,4 +54,8 @@ public interface DAOUserAnalysisRight {
 
 	public void saveOrUpdate(UserAnalysisRight userAnalysisRight);
 
+	public boolean hasDeletePermission(Integer idAnalysis, String username, Boolean isProfile);
+
+	public boolean hasManagementPermission(Integer idAnalysis, String username);
+
 }

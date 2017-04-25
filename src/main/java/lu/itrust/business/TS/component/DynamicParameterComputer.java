@@ -69,7 +69,7 @@ public class DynamicParameterComputer {
 	 */
 	public void computeForAllAnalysesOfUser(String userName) throws Exception {
 		// Fetch all analyses which the user can access
-		daoIDS.get(userName).getSubscribers().forEach(analysis -> computeForAnalysisAndSource(userName, analysis));
+		daoIDS.get(userName).getSubscribers().parallelStream().forEach(analysis -> computeForAnalysisAndSource(userName, analysis));
 	}
 
 	/**
@@ -82,7 +82,8 @@ public class DynamicParameterComputer {
 		// Find all external sources (i.e. users) which provide dynamic
 		// parameters
 		// Compute dynamic parameters
-		daoIDS.getPrefixesByAnalysisId(analysis.getId()).stream().forEach(prefix -> this.computeForAnalysisAndSource(prefix, analysis));
+		if (!analysis.isArchived())
+			daoIDS.getPrefixesByAnalysisId(analysis.getId()).stream().forEach(prefix -> this.computeForAnalysisAndSource(prefix, analysis));
 	}
 
 	/**
@@ -95,6 +96,8 @@ public class DynamicParameterComputer {
 	 *            The analysis for which parameters shall be recomputed.
 	 */
 	private void computeForAnalysisAndSource(String userName, Analysis analysis) {
+		if (analysis.isArchived())
+			return;
 		// Log
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.compute.dynamicparameters",
 				String.format("Updating dynamic parameters for analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), userName, LogAction.UPDATE,
