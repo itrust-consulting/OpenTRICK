@@ -357,8 +357,10 @@ function sortTable(type, element, number){
 			var value1 = $(selector,a).text() , value2 = $(selector,b).text();
 			return  (number? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, ""))  : naturalSort(value1, value2) ) * order;
 		}).detach().appendTo($tbody);
-		var $tr = $(element).closest("tr");
-		$tr.find(".fa").remove();
+		var $tr = $(element).closest("tr"), $thead = $tr.closest("thead");
+		if($thead.length)
+			$thead.find("a[data-order]>.fa").remove();
+		else $tr.find("a[data-order]>.fa").remove();
 		$tr.find("a[data-order]").attr("data-order", 1);
 		element.setAttribute("data-order", order > 0 ? 0 : 1 );
 		$(order > 0 ? "<i class='fa fa-caret-up' aria-hidden='true' style='margin-left:3px;'/>" :  "<i class='fa fa-caret-down' style='margin-left:3px;' aria-hidden='true' />").appendTo(element);

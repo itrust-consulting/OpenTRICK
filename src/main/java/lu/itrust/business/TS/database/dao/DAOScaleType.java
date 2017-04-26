@@ -42,4 +42,6 @@ public interface DAOScaleType {
 	void deleteAll();
 
 	ScaleType findOneByAnalysisId(Integer analysisId);
+
+	List<ScaleType> findFromAnalysis(Integer idAnalysis);
 }

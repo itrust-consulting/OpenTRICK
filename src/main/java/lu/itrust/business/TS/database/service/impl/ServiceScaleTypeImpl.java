@@ -169,4 +169,9 @@ public class ServiceScaleTypeImpl implements ServiceScaleType {
 	public ScaleType findOneByAnalysisId(Integer analysisId) {
 		return daoScaleType.findOneByAnalysisId(analysisId);
 	}
+
+	@Override
+	public List<ScaleType> findFromAnalysis(Integer idAnalysis) {
+		return daoScaleType.findFromAnalysis(idAnalysis);
+	}
 }

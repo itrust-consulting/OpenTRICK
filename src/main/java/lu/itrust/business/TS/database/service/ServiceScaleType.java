@@ -43,6 +43,8 @@ public interface ServiceScaleType {
 
 	ScaleType findOneByAnalysisId(Integer analysisId);
 
+	List<ScaleType> findFromAnalysis(Integer idAnalysis);
+
 	
 
 	

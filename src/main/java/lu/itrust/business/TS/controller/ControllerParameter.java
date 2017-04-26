@@ -4,6 +4,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -102,6 +103,19 @@ public class ControllerParameter {
 		return "analyses/single/components/parameters/quantitative/home";
 	}
 
+	@RequestMapping(value = "/Impact-scale/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String manageImpactScale(Model model, HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Map<ScaleType, Boolean> impacts = new LinkedHashMap<>();
+		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
+		serviceScaleType.findAll().stream().filter(scale -> !(impacts.containsKey(scale) || scale.getName().equals(Constant.PARAMETER_CATEGORY_IMPACT)))
+				.forEach(scale -> impacts.put(scale, false));
+		model.addAttribute("impacts", impacts);
+		model.addAttribute("langue", locale.getLanguage());
+		return "analyses/single/components/parameters/form/mange-impact";
+	}
+
 	/**
 	 * section: <br>
 	 * Description
@@ -153,7 +167,7 @@ public class ControllerParameter {
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/parameters/qualitative/section-impact-probability";
 	}
-	
+
 	/**
 	 * maturityImplementationRate: <br>
 	 * Description

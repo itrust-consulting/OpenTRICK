@@ -180,8 +180,14 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 
 	@Override
 	public ScaleType findOneByAnalysisId(Integer analysisId) {
-		return getSession().createQuery("Select distinct parameter.type From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis", ScaleType.class).setParameter("idAnalysis", analysisId).setMaxResults(1)
-				.uniqueResultOptional().orElse(null);
+		return getSession().createQuery("Select distinct parameter.type From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis",
+				ScaleType.class).setParameter("idAnalysis", analysisId).setMaxResults(1).uniqueResultOptional().orElse(null);
+	}
+
+	@Override
+	public List<ScaleType> findFromAnalysis(Integer idAnalysis) {
+		return getSession().createQuery("Select distinct parameter.type From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis",
+				ScaleType.class).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 }

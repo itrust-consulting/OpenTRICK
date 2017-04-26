@@ -104,6 +104,24 @@ function findAnalysisId() {
 	return id;
 }
 
+function manageImpactScale(){
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Parameter/Impact-scale/Manage",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
+				}
+			},
+			error: unknowError
+		}).complete(() => $progress.hide());
+	}
+}
+
 function updateScroll(element) {
 	var currentActive = document.activeElement;
 	if (element != currentActive) {

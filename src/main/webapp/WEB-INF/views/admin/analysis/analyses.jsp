@@ -60,8 +60,6 @@
 				<c:forEach items="${analyses}" var="analysis">
 					<tr class='${analysis.archived? "text-muted":""}' data-trick-archived='${analysis.archived}' data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}" data-trick-type='${analysis.type}'>
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
-						<td><spring:message text="${analysis.identifier}" /></td>
-						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
 						<td><c:choose>
 								<c:when test="${analysis.archived}">
 									<span class="glyphicon glyphicon-folder-close" style="margin-right: 5px;" title='<spring:message code="label.analysis.archived"/>'></span>
@@ -69,7 +67,9 @@
 								<c:otherwise>
 									<span class="glyphicon glyphicon-folder-open" style="margin-right: 5px;" title='<spring:message code="label.analysis.editable"/>'></span>
 								</c:otherwise>
-							</c:choose> <spring:message text="${analysis.label}" /></td>
+							</c:choose><spring:message text="${analysis.identifier}" /></td>
+						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
+						<td><spring:message text="${analysis.label}" /></td>
 						<td data-trick-content='text'><spring:message text="${analysis.lastHistory.comment}" /></td>
 						<td data-trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
 						<td><spring:message text="${analysis.creationDate}" /></td>
