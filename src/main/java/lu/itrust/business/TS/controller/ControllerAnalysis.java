@@ -1006,7 +1006,8 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			assessmentAndRiskProfileManager.updateAssetALE(analysis, null);
+			AssessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
+			serviceAnalysis.saveOrUpdate(analysis);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

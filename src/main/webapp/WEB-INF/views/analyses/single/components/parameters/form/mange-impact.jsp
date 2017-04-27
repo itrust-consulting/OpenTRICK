@@ -35,7 +35,7 @@
 							<c:set var="displayName" value="${empty impact.translations[langue]? impact.displayName  :  impact.translations[langue].name}" />
 							<div class="form-group" data-trick-id='${impact.id}'>
 								<div class="col-xs-7">
-									<strong style="vertical-align: middle;"><spring:message code="label.title.parameter.impact.name" arguments="${displayName},${fn:toLowerCase(displayName)}" /></strong>
+									<strong style="vertical-align: middle;"><spring:message text="${displayName}"/></strong>
 								</div>
 								<div class="col-xs-5 text-center">
 									<div class="btn-group" data-toggle="buttons">

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.component.AnalysisImpactManager;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -69,6 +70,9 @@ public class ControllerParameter {
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
 	@Autowired
+	private AnalysisImpactManager analysisImpactManager;
+
+	@Autowired
 	private ServiceScaleType serviceScaleType;
 
 	@Autowired
@@ -108,12 +112,27 @@ public class ControllerParameter {
 	public String manageImpactScale(Model model, HttpSession session, Principal principal, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Map<ScaleType, Boolean> impacts = new LinkedHashMap<>();
+
 		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
 		serviceScaleType.findAll().stream().filter(scale -> !(impacts.containsKey(scale) || scale.getName().equals(Constant.PARAMETER_CATEGORY_IMPACT)))
 				.forEach(scale -> impacts.put(scale, false));
 		model.addAttribute("impacts", impacts);
-		model.addAttribute("langue", locale.getLanguage());
+		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 		return "analyses/single/components/parameters/form/mange-impact";
+	}
+
+	@RequestMapping(value = "/Impact-scale/Manage/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String manageImpactScaleSave(@RequestBody Map<Integer, Boolean> impacts, HttpSession session, Principal principal, Locale locale) {
+		try {
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			return analysisImpactManager.manageImpactScaleSave(idAnalysis, impacts)
+					? JsonMessage.Success(messageSource.getMessage("success.analysis.update.impact_scale", null, "Impacts scales have been updated", locale))
+					: JsonMessage.Warning(messageSource.getMessage("warning.analysis.update.impact_scale", null, "Your analysis has not be updated", locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
 	}
 
 	/**

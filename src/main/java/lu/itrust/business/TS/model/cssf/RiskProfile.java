@@ -30,6 +30,7 @@ import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
@@ -342,6 +343,13 @@ public class RiskProfile implements Cloneable {
 
 	public Boolean isSelected() {
 		return asset.isSelected() && scenario.isSelected();
+	}
+
+	public void remove(ScaleType scaleType) {
+		if(rawProbaImpact!=null)
+			rawProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
+		if(expProbaImpact!=null)
+			expProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
 	}
 
 }
