@@ -302,7 +302,7 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		updateAssetALE(analysis, factory);
+		UpdateAssetALE(analysis, factory);
 	}
 
 	/**
@@ -313,8 +313,7 @@ public class AssessmentAndRiskProfileManager {
 	 * @param factory
 	 * @throws Exception
 	 */
-	@Transactional
-	public void updateAssetALE(Analysis analysis, ValueFactory factory) {
+	public static void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
 		List<Asset> assets = analysis.findSelectedAsset();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
 		try {
@@ -382,7 +381,7 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		updateAssetALE(analysis, factory);
+		UpdateAssetALE(analysis, factory);
 	}
 
 	@Transactional

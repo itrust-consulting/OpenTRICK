@@ -16,7 +16,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		analysisId = selectedAnalysis[0];
 	}
 
-	if (canManageAccess()) {
+	if (!isArchived(analysisId) && canManageAccess()) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/ManageAccess/" + analysisId,
@@ -34,8 +34,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		}).complete(function () {
 			$progress.hide();
 		});
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -87,7 +86,7 @@ function manageAnalysisIDSAccess(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (selectedAnalysis.length != 1)
 		return false;
-	if (canManageAccess() && isAnalysisType("QUANTITATIVE")) {
+	if (!isArchived(selectedAnalysis[0]) && canManageAccess() && isAnalysisType("QUANTITATIVE")) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Manage/IDS/" + selectedAnalysis[0],
@@ -169,7 +168,7 @@ function deleteAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
+	if (isOwner(analysisId) || !isArchived(analysisId) && userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
 		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 		$("button[name='delete']", $modal).unbind().one("click", function () {
 			var $progress = $("#loading-indicator").show();
@@ -192,8 +191,7 @@ function deleteAnalysis(analysisId) {
 			return false;
 		});
 
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -204,7 +202,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			return false;
 		analysisId = selectedAnalysis[0];
 	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
+	if (!isArchived(analysisId) && userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/AnalysisProfile/Add/" + analysisId,
@@ -796,13 +794,14 @@ function addHistory(analysisId) {
 }
 
 function editSingleAnalysis(analysisId) {
+	
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
+	if (!isArchived(analysisId) && userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Edit/" + analysisId,
@@ -862,8 +861,7 @@ function editSingleAnalysis(analysisId) {
 		}).complete(function () {
 			$progress.hide();
 		});
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -874,96 +872,13 @@ function selectAnalysis(analysisId, mode) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY, $progress = $("#loading-indicator").show();
-	setTimeout(() => {
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value);
-	}, 0);
-	return false;
-}
-
-function calculateActionPlan(analysisId) {
-	var analysisID = -1;
-	if (analysisId == null || analysisId == undefined) {
-		var selectedAnalysis = findSelectItemIdBySection("section_analysis");
-		if (!selectedAnalysis.length)
-			return false;
-		while (selectedAnalysis.length) {
-			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
-				analysisID = rowTrickId;
-			} else
-				permissionError();
-		}
-
-	} else {
-		analysisID = analysisId;
+	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	if(open === OPEN_MODE.READ || !isArchived()){
+		$("#loading-indicator").show();
+		setTimeout(() => {
+			window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value);
+		}, 0);
 	}
-
-	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-		$.ajax({
-			url: context + "/Analyis/ActionPlan/Compute",
-			type: "post",
-			data: JSON.stringify({
-				"id": analysisID
-			}),
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined) {
-					application["taskManager"].Start();
-				} else if (response["error"] != undefined)
-					showDialog("#alert-dialog", response["error"]);
-				else
-					unknowError();
-			},
-			error: unknowError
-		});
-	} else
-		permissionError();
-	return false;
-}
-
-function calculateRiskRegister(analysisId) {
-
-	var analysisID = -1;
-
-	if (analysisId == null || analysisId == undefined) {
-
-		var selectedAnalysis = findSelectItemIdBySection("section_analysis");
-		if (!selectedAnalysis.length)
-			return false;
-		while (selectedAnalysis.length) {
-			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
-				analysisID = rowTrickId;
-			} else
-				permissionError();
-		}
-
-	} else {
-		analysisID = analysisId;
-	}
-
-	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-		$.ajax({
-			url: context + "/Analyis/RiskRegister/Compute",
-			type: "post",
-			data: JSON.stringify({
-				"id": analysisID
-			}),
-			async: true,
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined) {
-					application["taskManager"].Start();
-				} else if (response["error"] != undefined)
-					showDialog("#alert-dialog", response["error"]);
-				else
-					unknowError();
-			},
-			error: unknowError
-		});
-	} else
-		permissionError();
 	return false;
 }
 
@@ -1009,6 +924,33 @@ function duplicateAnalysis(form, analyisId) {
 	return false;
 }
 
+function archiveAnalysis(){
+	if (!isArchived() && canManageAccess()) {
+		var $modal = showDialog("#confirm-dialog", MessageResolver("label.analysis.question.archive", "Are you sure that you want to archive the analysis?"));
+		$("button[name='yes']", $modal).unbind().one("click", function () {
+			var $progress = $("#loading-indicator").show(), analysisIds = findSelectItemIdBySection(("section_analysis"));
+			$.ajax({
+				url: context + "/Analysis/Archive/" + analysisIds[0],
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					if (response.success != undefined)
+						reloadSection("section_analysis");
+					else if (response.error != undefined)
+						showDialog("#alert-dialog", response.error)
+					return false;
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
+			$modal.modal("hide");
+			return false;
+		});
+	}
+	return false;
+}
+
 function customerChange(customer, nameFilter) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -1041,7 +983,7 @@ function linkToProject() {
 	var idAnalysis = findSelectItemIdBySection("section_analysis")
 	if (idAnalysis.length != 1)
 		return false;
-	if (userCan(idAnalysis[0], ANALYSIS_RIGHT.ALL)) {
+	if (!isArchived(idAnalysis) && userCan(idAnalysis[0], ANALYSIS_RIGHT.ALL)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Load",
@@ -1098,7 +1040,7 @@ function unLinkToProject() {
 
 	$("tbody>tr input:checked", "#section_analysis").closest("tr").each(function () {
 		var idAnalysis = this.getAttribute("data-trick-id");
-		if (this.getAttribute("data-is-linked") === "true" && userCan(idAnalysis, ANALYSIS_RIGHT.ALL))
+		if (this.getAttribute("data-is-linked") === "true" &&  this.getAttribute("data-trick-archived") === "false"  && userCan(idAnalysis, ANALYSIS_RIGHT.ALL))
 			analyses.push(idAnalysis);
 	});
 	if (analyses.length) {
@@ -1125,6 +1067,4 @@ function unLinkToProject() {
 	return false;
 }
 
-function isLinked() {
-	return $("tbody>tr input:checked", "#section_analysis").closest("tr").attr("data-is-linked") === "true";
-}
+

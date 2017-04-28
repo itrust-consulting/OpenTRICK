@@ -216,7 +216,7 @@ public class ControllerAssessment {
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
-			assessmentAndRiskProfileManager.updateAssetALE(analysis, null);
+			AssessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message

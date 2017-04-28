@@ -19,7 +19,7 @@
 			<li class="dropdown-header"><spring:message code="label.menu.analysis_parameters" text='Analysis parameters' /></li>
 			<c:choose>
 				<c:when test="${type=='QUALITATIVE' }">
-					<li><a href="#tab-parameter" data-toggle="tab" title='<spring:message code="label.title.other.parameters" />' ><spring:message code="label.menu.analysis.parameter" /></a></li>
+					<li><a href="#tab-parameter" data-toggle="tab" title='<spring:message code="label.title.other.parameters" />'><spring:message code="label.menu.analysis.parameter" /></a></li>
 					<li><a href="#tab-parameter-impact-probability" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
 				</c:when>
 				<c:otherwise>
@@ -176,8 +176,14 @@
 				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
 				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
 				<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" /></a></li>
+				<c:if test="${type=='QUALITATIVE'}">
+					<li class="divider"></li>
+					<li class="dropdown-header"><spring:message code="label.title.impact_scale" /></li>
+					<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage" /></a></li>
+				</c:if>
 				<li class="divider"></li>
 				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>
+
 			</c:if>
 		</ul></li>
 	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<spring:message code="label.options" />' class="dropdown-toggle"

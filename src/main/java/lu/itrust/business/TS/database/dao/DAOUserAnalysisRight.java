@@ -25,7 +25,7 @@ public interface DAOUserAnalysisRight {
 	public UserAnalysisRight get(Integer id);
 
 	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis);
-	
+
 	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid);
 
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId);
@@ -54,6 +54,8 @@ public interface DAOUserAnalysisRight {
 
 	public void saveOrUpdate(UserAnalysisRight userAnalysisRight);
 
-	
-	
+	public boolean hasDeletePermission(Integer idAnalysis, String username, Boolean isProfile);
+
+	public boolean hasManagementPermission(Integer idAnalysis, String username);
+
 }

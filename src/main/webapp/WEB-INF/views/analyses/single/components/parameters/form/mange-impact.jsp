@@ -1,0 +1,67 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<div class="modal fade" id="manageImpactModal" tabindex="-1" role="dialog" data-aria-labelledby="manageImpactModal" data-aria-hidden="true" data-backdrop="static"
+	data-keyboard="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<spring:message code="label.title.manage.analysis.impact_scale" text="Manage analysis impact scale" />
+				</h4>
+			</div>
+			<div class="modal-body" style="padding: 5px 20px;">
+				<form id="manage-analysis-impact-scale" action="/Analysis/Prameter/Impact-scale/Manage/Save?${_csrf.parameterName}=${_csrf.token}" method="post" class="form-horizontal">
+					<div>
+						<div>
+							<h4 class="col-xs-7 bordered-bottom" style="padding-left: 0">
+								<spring:message code='label.title.impact_scale' />
+							</h4>
+							<h4 class="col-xs-5 bordered-bottom text-center">
+								<spring:message code='label.action' text="Action" />
+							</h4>
+						</div>
+					</div>
+					<spring:message code="label.action.include" text="Include" var="include" />
+					<spring:message code="label.action.exclude" text="Exclude" var="exclude" />
+					<div class="form-horizontal" style="height: 500px; overflow-x: hidden; clear: both;">
+						<c:forEach items="${impacts.keySet()}" var="impact">
+							<c:set var="defaultValue" value="${impacts[impact]}" />
+							<c:set var="displayName" value="${empty impact.translations[langue]? impact.displayName  :  impact.translations[langue].name}" />
+							<div class="form-group" data-trick-id='${impact.id}'>
+								<div class="col-xs-7">
+									<strong style="vertical-align: middle;"><spring:message text="${displayName}"/></strong>
+								</div>
+								<div class="col-xs-5 text-center">
+									<div class="btn-group" data-toggle="buttons">
+										<label class="btn btn-sm btn-default ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${impact.id}" type="radio" value="true"></label>
+										<label class="btn btn-sm btn-default ${not defaultValue?'active' : ''}">${exclude}<input name="${impact.id}" ${not defaultValue?'checked' : ''} type="radio"
+											value="false"></label>
+									</div>
+								</div>
+								<input name="default-value-${impact.id}" value="${defaultValue}" hidden="true">
+							</div>
+						</c:forEach>
+					</div>
+				</form>
+				<div class='clearfix'></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal" name='save'>
+					<spring:message code="label.action.save" text="Save" />
+				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

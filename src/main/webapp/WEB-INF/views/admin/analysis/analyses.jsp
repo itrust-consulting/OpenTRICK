@@ -10,20 +10,19 @@
 		<jsp:include page="../../template/successErrors.jsp" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
-				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message
-						code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
-						
-			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis') && isAnalysisType('QUANTITATIVE','#section_admin_analysis')"><a href="#"
-						onclick="return manageAnalysisIDSAccess('section_admin_analysis');"> <span class="fa fa-rss-square"></span> <spring:message code="label.menu.manage.ids.access.analysis"
-								text="Manage IDS" /></a></li>
+				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message code="label.menu.manage.access.analysis"
+						text="Manage access rights" /></a></li>
+
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis') && isAnalysisType('QUANTITATIVE','#section_admin_analysis')"><a
+				href="#" onclick="return manageAnalysisIDSAccess('section_admin_analysis');"> <span class="fa fa-rss-square"></span> <spring:message
+						code="label.menu.manage.ids.access.analysis" text="Manage IDS" /></a></li>
 
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return switchCustomer('section_admin_analysis');"> <span class="glyphicon glyphicon-transfer"></span> <spring:message code="label.menu.switch.customer"
 						text="Switch customer" /></a></li>
-						
+
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
-				onclick="return switchOwner('section_admin_analysis');"> <span class="fa fa-exchange fa-sw"></span> <spring:message code="label.menu.switch.owner"
-						text="Switch owner" /></a></li>
+				onclick="return switchOwner('section_admin_analysis');"> <span class="fa fa-exchange fa-sw"></span> <spring:message code="label.menu.switch.owner" text="Switch owner" /></a></li>
 
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span class="glyphicon glyphicon-remove"></span> <spring:message
@@ -59,12 +58,19 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}" data-trick-type='${analysis.type}'>
+					<tr class='${analysis.archived? "text-muted":""}' data-trick-archived='${analysis.archived}' data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}" data-trick-type='${analysis.type}'>
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
-						<td><spring:message text="${analysis.identifier}" /></td>
+						<td><c:choose>
+								<c:when test="${analysis.archived}">
+									<span class="glyphicon glyphicon-folder-close" style="margin-right: 5px;" title='<spring:message code="label.analysis.archived"/>'></span>
+								</c:when>
+								<c:otherwise>
+									<span class="glyphicon glyphicon-folder-open" style="margin-right: 5px;" title='<spring:message code="label.analysis.editable"/>'></span>
+								</c:otherwise>
+							</c:choose><spring:message text="${analysis.identifier}" /></td>
 						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
-						<td data-trick-content='text'><spring:message text="${analysis.label}" /></td>
-						<td><spring:message text="${analysis.lastHistory.comment}" /></td>
+						<td><spring:message text="${analysis.label}" /></td>
+						<td data-trick-content='text'><spring:message text="${analysis.lastHistory.comment}" /></td>
 						<td data-trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
 						<td><spring:message text="${analysis.creationDate}" /></td>
 						<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}" /></td>

@@ -16,6 +16,10 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
  */
 public interface PermissionEvaluator extends org.springframework.security.access.PermissionEvaluator {
 
+	boolean hasDeletePermission(Integer analysisId, Principal principal, Boolean isProfile);
+	
+	boolean hasManagementPermission(Integer analysisId, Principal principal);
+
 	boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right);
 
 	boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right);
@@ -25,5 +29,11 @@ public interface PermissionEvaluator extends org.springframework.security.access
 	boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right);
 
 	boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right);
+	
+	boolean hasPermission(Integer analysisId, Principal principal, AnalysisRight right);
+	
+	
+	
+	
 
 }

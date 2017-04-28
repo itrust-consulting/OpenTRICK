@@ -276,6 +276,9 @@ public class Analysis implements Cloneable {
 	/** Version of the Analysis */
 	@Column(name = "dtVersion", nullable = false, length = 12)
 	private String version;
+	
+	@Column(name = "dtArchived", nullable = false)
+	private boolean archived = false;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -2711,6 +2714,20 @@ public class Analysis implements Cloneable {
 
 		return mappedParameters;
 
+	}
+
+	/**
+	 * @return the archived
+	 */
+	public boolean isArchived() {
+		return archived;
+	}
+
+	/**
+	 * @param archived the archived to set
+	 */
+	public void setArchived(boolean archived) {
+		this.archived = archived;
 	}
 
 }

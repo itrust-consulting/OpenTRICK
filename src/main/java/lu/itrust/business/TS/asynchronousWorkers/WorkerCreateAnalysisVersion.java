@@ -158,6 +158,8 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				copy.setProfile(false);
 
 				copy.setDefaultProfile(false);
+				
+				copy.setArchived(false);
 
 				UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(userName);
 

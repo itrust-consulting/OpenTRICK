@@ -104,6 +104,59 @@ function findAnalysisId() {
 	return id;
 }
 
+function manageImpactScale(){
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Parameter/Impact-scale/Manage",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
+					$("button[name='save']").on("click", e => {
+						var data = {};
+						$(".form-group[data-trick-id]", $view).each(function () {
+							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
+							if (newValue != oldValue)
+								data[$this.attr("data-trick-id")] = newValue;
+						});
+						
+						$progress.show();
+						
+						if (Object.keys(data).length) {
+							$.ajax({
+								url: context + "/Analysis/Parameter/Impact-scale/Manage/Save",
+								type: "post",
+								data: JSON.stringify(data),
+								contentType: "application/json;charset=UTF-8",
+								success: function (response, textStatus, jqXHR) {
+									if (response.error != undefined)
+										showDialog("#alert-dialog", response.error);
+									else if (response.success != undefined) {
+										showDialog("success", response.success);
+										setTimeout(() => window.location.reload(), 1000);
+									} else if (response.warning != undefined)
+										showDialog("warning", response.warning);
+									else 
+										unknowError();
+								},
+								error: unknowError
+							}).complete(function () {
+								$progress.hide();
+							});
+						} else
+							$progress.hide();
+					});
+				}
+			},
+			error: unknowError
+		}).complete(() => $progress.hide());
+	}
+	return false;
+}
+
 function updateScroll(element) {
 	var currentActive = document.activeElement;
 	if (element != currentActive) {

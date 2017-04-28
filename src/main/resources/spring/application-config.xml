@@ -135,8 +135,8 @@
 		<property name="password" value="${app.settings.smtp.password}" />
 		<property name="javaMailProperties">
 			<props>
-				<prop key="mail.smtp.auth">true</prop>
-				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.auth">${app.settings.smtp.auth}</prop>
+				<prop key="mail.smtp.starttls.enable">${app.settings.smtp.starttls}</prop>
 			</props>
 		</property>
 	</bean>

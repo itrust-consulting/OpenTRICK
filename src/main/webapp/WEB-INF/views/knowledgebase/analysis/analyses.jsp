@@ -11,13 +11,13 @@
 		<ul class="nav nav-pills bordered-bottom" id="menu_analysis">
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<spring:message
 						code="label.menu.open.profile" text="Open Profile" /></a></li>
-			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
+			<li class="disabled" data-trick-selectable="true" data-trick-check="!isDefaultProfile()"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
 						code="label.menu.analysis.set_default.profile" text="Set as default" /></a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-align-justify"></span> <spring:message
 						code="label.edit.info" text="Edit info" /></a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span
 							class="glyphicon glyphicon glyphicon-export"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
-			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
+			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isDefaultProfile()" ><a href="#" class="text-danger" onclick="return deleteAnalysisProfile();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>
 		<table class="table table-hover">
@@ -34,7 +34,7 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-type="${analysis.type}" data-trick-rights-id="0" data-empty="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
+					<tr data-trick-id="${analysis.id}" data-trick-profile-default="${analysis.defaultProfile}" onclick="selectElement(this)" data-trick-type="${analysis.type}" data-trick-rights-id="0" data-empty="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_profile_analysis','#menu_analysis');"></td>
 						<td><spring:message text="${analysis.label}"/></td>
 						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>

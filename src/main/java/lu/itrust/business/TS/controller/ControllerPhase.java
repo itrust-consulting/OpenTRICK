@@ -243,7 +243,7 @@ public class ControllerPhase {
 		} catch (Exception e) {
 			// return errors
 			TrickLogManager.Persist(e);
-			errors.put("phase",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("phase", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 		// return empty errors (no errors -> success)
 		return errors;
@@ -277,7 +277,7 @@ public class ControllerPhase {
 			return false;
 		} catch (Exception e) {
 			// set error
-			errors.put("phase",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("phase", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}

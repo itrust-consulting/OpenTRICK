@@ -4,7 +4,7 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
+import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisProfile;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -75,11 +77,14 @@ public class ControllerAnalysisProfile {
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
+	
+	@Autowired
+	private CustomDelete customDelete;
 
 	@Autowired
 	private MessageSource messageSource;
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping("/Add/{analysisId}")
 	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) throws Exception {
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
@@ -137,7 +142,6 @@ public class ControllerAnalysisProfile {
 	// * set default profile
 	// *****************************************************************
 	@RequestMapping(value = "/SetDefaultProfile/{analysisId}", method = RequestMethod.POST)
-	@PreAuthorize(ROLE_MIN_CONSULTANT)
 	public @ResponseBody boolean setDefaultProfile(@PathVariable("analysisId") Integer analysisId, @RequestBody AnalysisType analysisType, Principal principal, HttpSession session)
 			throws Exception {
 		Analysis analysis = serviceAnalysis.get(analysisId);
@@ -162,5 +166,31 @@ public class ControllerAnalysisProfile {
 		model.addAttribute("analyses", serviceAnalysis.getAllProfiles());
 		model.addAttribute("login", principal.getName());
 		return "knowledgebase/analysis/analyses";
+	}
+	
+	/**
+	 * deleteAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.hasDeletePermission(#analysisId, #principal, true)")
+	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, Principal principal, HttpSession session, Locale locale)
+			throws Exception {
+		try {
+			customDelete.deleteAnalysis(analysisId, principal.getName());
+			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+			if (selectedAnalysis != null && selectedAnalysis == analysisId)
+				session.removeAttribute(SELECTED_ANALYSIS);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
+		} catch (Exception e) {
+			// return error message
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
+		}
 	}
 }

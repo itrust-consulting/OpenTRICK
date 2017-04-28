@@ -459,6 +459,7 @@ public class Duplicator {
 			copy.setCreationDate(ts);
 			copy.setLabel(name);
 			copy.setProfile(true);
+			copy.setArchived(false);
 			copy.setData(false);
 			copy.setProject(Constant.EMPTY_STRING);
 			// do not set analysis specific data which are unused for profile

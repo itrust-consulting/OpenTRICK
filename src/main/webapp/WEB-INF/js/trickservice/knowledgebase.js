@@ -108,19 +108,21 @@ function setAsDefaultProfile(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var $progress = $("#loading-indicator").show();
-	$.ajax({
-		url: context + "/AnalysisProfile/SetDefaultProfile/" + analysisId,
-		type: "POST",
-		data: "\"" + $("tr[data-trick-id='" + analysisId + "']", "#section_profile_analysis").attr('data-trick-type') + "\"",
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			reloadSection("section_profile_analysis");
-		},
-		error: unknowError
-	}).complete(function () {
-		$progress.hide();
-	});
+	if(!isDefaultProfile(analysisId)){
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/AnalysisProfile/SetDefaultProfile/" + analysisId,
+			type: "POST",
+			data: "\"" + $("tr[data-trick-id='" + analysisId + "']", "#section_profile_analysis").attr('data-trick-type') + "\"",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				reloadSection("section_profile_analysis");
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+	}
 	return false;
 
 }
@@ -137,35 +139,42 @@ function selectAnalysis(analysisId) {
 	return false;
 }
 
-function deleteAnalysis(analysisId) {
+function deleteAnalysisProfile(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-	$("#deleteanalysisbuttonYes").unbind().one("click", function () {
-		$("#deleteAnalysisModel").modal('hide');
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url: context + "/Analysis/Delete/" + analysisId,
-			type: "POST",
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response.success != undefined)
-					reloadSection("section_profile_analysis");
-				else if (response.error != undefined)
-					showDialog("#alert-dialog", response.error);
-				else
-					unknowError();
-			},
-			error: unknowError
-		}).complete(function () {
-			$progress.hide();
+	
+	if(!isDefaultProfile(analysisId)){
+		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.profile.question.delete", "Are you sure that you want to delete this analysis profile?"));
+		$("#deleteanalysisbuttonYes").unbind().one("click", function () {
+			$("#deleteAnalysisModel").modal('hide');
+			var $progress = $("#loading-indicator").show();
+			$.ajax({
+				url: context + "/AnalysisProfile/Delete/" + analysisId,
+				type: "POST",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					if (response.success != undefined)
+						reloadSection("section_profile_analysis");
+					else if (response.error != undefined)
+						showDialog("#alert-dialog", response.error);
+					else
+						unknowError();
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
+			return false;
 		});
-		return false;
-	});
-	$("#deleteAnalysisModel").modal('show');
+		$("#deleteAnalysisModel").modal('show');
+	}
 	return false;
+}
+
+function isDefaultProfile(idAnalysis){
+	return idAnalysis === undefined?  $("#section_profile_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-profile-default") === "true" : $("#section_profile_analysis tbody>tr[data-trick-id='"+idAnalysis+"']").attr("data-trick-profile-default") === "true";
 }
