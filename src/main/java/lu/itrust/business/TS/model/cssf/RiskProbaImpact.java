@@ -189,9 +189,7 @@ public class RiskProbaImpact implements Cloneable {
 		if (probability != null)
 			probability = (LikelihoodParameter) parameters.get(probability.getKey());
 		this.impactMapper = null;
-		List<ImpactParameter> impacts = new LinkedList<>();
-		this.impacts.forEach(impact -> impacts.add(impact));
-		setImpacts(impacts);
+		setImpacts(this.impacts.stream().map(impact -> (ImpactParameter) parameters.get(impact.getKey())).collect(Collectors.toList()));
 	}
 
 	protected ILevelParameter getValueOrDefault(ILevelParameter value, ILevelParameter defaultValue) {
