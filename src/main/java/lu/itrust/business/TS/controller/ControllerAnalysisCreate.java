@@ -378,7 +378,7 @@ public class ControllerAnalysisCreate {
 
 			} else {
 				analysisForm.getScale().setLevel(analysisForm.getScale().getLevel() + 1);
-				generateLikelihoodParameters(analysis, mappingParameters, 12, analysisForm.getScale().getLevel());
+				generateLikelihoodParameters(analysis, mappingParameters, Constant.DEFAULT_LIKELIHOOD_MAX_VALUE, analysisForm.getScale().getLevel());
 				analysisForm.getImpacts().forEach(generateImpactParameters(analysis, mappingParameters, analysisForm.getScale()));
 			}
 

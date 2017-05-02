@@ -38,7 +38,6 @@ import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -92,7 +91,7 @@ public class ControllerAssessment {
 		loadAssessmentData(model, locale, analysis);
 		if (idScenario < 1) {
 			List<Assessment> assessments = analysis.findSelectedAssessmentByAsset(idAsset);
-			if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+			if (analysis.isQuantitative()) {
 				ALE ale = new ALE(asset.getName(), 0);
 				ALE aleo = new ALE(asset.getName(), 0);
 				ALE alep = new ALE(asset.getName(), 0);
@@ -136,7 +135,7 @@ public class ControllerAssessment {
 		loadAssessmentData(model, locale, analysis);
 		if (idAsset < 1) {
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
-			if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+			if (analysis.isQuantitative()) {
 				ALE ale = new ALE(scenario.getName(), 0);
 				ALE aleo = new ALE(scenario.getName(), 0);
 				ALE alep = new ALE(scenario.getName(), 0);
@@ -344,8 +343,8 @@ public class ControllerAssessment {
 		model.addAttribute("impacts", factory.getImpacts());
 		model.addAttribute("assessment", assessment);
 		model.addAttribute("probabilities", analysis.getLikelihoodParameters());
-		model.addAttribute("dynamics", analysis.getLikelihoodParameters());
-		if (analysis.getType() == AnalysisType.QUALITATIVE) {
+		model.addAttribute("dynamics", analysis.getDynamicParameters());
+		if (analysis.isQualitative()) {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
 			model.addAttribute("computeNextImportance", factory.findImportance(assessment));

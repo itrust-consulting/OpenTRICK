@@ -219,6 +219,8 @@ public class Constant {
 
 	/** Double maximum Value */
 	public static final double DOUBLE_MAX_VALUE = 1.79769313486231e+108;
+	
+	public static final int DEFAULT_LIKELIHOOD_MAX_VALUE = 12;
 
 	/** Asset, Threat (Scenario) and assessment selected sign */
 	public static final String ASSET_SELECTED = "x";

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAsset;
@@ -27,7 +28,6 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
-import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -487,14 +487,11 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
-		IValue value = type == AnalysisType.QUALITATIVE ? factory.findMaxImpactByLevel(assessment.getImpacts()) : factory.findMaxImpactByReal(assessment.getImpacts());
-		assessment.setImpactReal(value == null ? 0D : value.getReal());
+		assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
 		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
-		if (type == AnalysisType.QUANTITATIVE) {
-			assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
-			assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
-		}
+		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
+		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
 		return assessment;
 	}
 

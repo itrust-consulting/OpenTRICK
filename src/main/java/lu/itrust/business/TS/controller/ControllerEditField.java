@@ -412,10 +412,9 @@ public class ControllerEditField {
 					break;
 				case "label":
 					List<ImpactParameter> impactParameters = serviceImpactParameter.findByIdAnalysisAndLevel(idAnalysis, parameter.getLevel());
-					impactParameters.forEach(impact-> impact.setLabel(fieldEditor.getValue().toString()));
+					impactParameters.forEach(impact -> impact.setLabel(fieldEditor.getValue().toString()));
 					serviceImpactParameter.saveOrUpdate(impactParameters);
-					
-
+					break;
 				default:
 					serviceImpactParameter.saveOrUpdate(parameter);
 					break;
@@ -747,13 +746,15 @@ public class ControllerEditField {
 			// compute new ALE
 			if (factory != null) {
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
-				if (netImportance && type == AnalysisType.QUALITATIVE)
+				if (netImportance && AnalysisType.isQualitative(type))
 					result.add(new FieldValue("computedNextImportance", factory.findImportance(assessment)));
-				NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
-				result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
-				result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
-				result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2), format(assessment.getALEP(), numberFormat, 0) + " €"));
+				if (AnalysisType.isQuantitative(type)) {
+					AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
+					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
+					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
+					result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2), format(assessment.getALEP(), numberFormat, 0) + " €"));
+				}
 			}
 			if (impactToDelete != null)
 				serviceAssessment.delete(impactToDelete);

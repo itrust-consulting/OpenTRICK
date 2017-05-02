@@ -76,7 +76,7 @@ public class AnalysisForm {
 	 * @return the riskProfile
 	 */
 	public boolean isRiskProfile() {
-		return riskProfile && type == AnalysisType.QUALITATIVE && asset > 0 && asset == scenario && asset == parameter;
+		return riskProfile && AnalysisType.isQualitative(type) && asset > 0 && asset == scenario && asset == parameter;
 	}
 
 	/**

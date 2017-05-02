@@ -21,12 +21,12 @@ import lu.itrust.business.TS.exception.TrickException;
 public enum ActionPlanMode {
 
 	/** ActionPlanMode Value Constants */
-	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6);
+	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6),APQ(7);
 
 	/** ActionPlanModeValue */
 	private int value = 1;
 
-	private String[] NAMES = {"APN", "APO" , "APP", "APPN", "APPO", "APPP"};
+	private String[] NAMES = {"APN", "APO" , "APP", "APPN", "APPO", "APPP","APQ"};
 	
 	/**
 	 * Constructor:<br>
@@ -58,6 +58,7 @@ public enum ActionPlanMode {
 	 * <li>PHASE_NORMAL (4)</li>
 	 * <li>PHASE_OPTIMISTIC (5)</li>
 	 * <li>PHASE_PESSIMISTIC (6)</li>
+	 * <li>QUALITATIVE (7)</li>
 	 * </ul>
 	 * 
 	 * @param value
