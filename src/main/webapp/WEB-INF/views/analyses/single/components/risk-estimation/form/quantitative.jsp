@@ -76,7 +76,7 @@
 				</td>
 				<td>
 					<div class="input-group" align="right">
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Probability">${probaUnit}</button></span>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Probability,#DynamicParameters">${probaUnit}</button></span>
 						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 						<c:choose>
 							<c:when test="${empty likelihood}">
