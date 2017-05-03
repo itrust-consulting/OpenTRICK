@@ -367,19 +367,24 @@ public class ControllerAnalysisCreate {
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
 			if (analysisForm.getImpacts().isEmpty()) {
-
 				mappingParameters.putAll(serviceRiskAcceptanceParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-
 				mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-
 			} else {
 				analysisForm.getScale().setLevel(analysisForm.getScale().getLevel() + 1);
 				generateLikelihoodParameters(analysis, mappingParameters, Constant.DEFAULT_LIKELIHOOD_MAX_VALUE, analysisForm.getScale().getLevel());
 				analysisForm.getImpacts().forEach(generateImpactParameters(analysis, mappingParameters, analysisForm.getScale()));
+			}
+
+			if (analysisForm.getType().isQuantitative()
+					&& !analysis.getImpactParameters().parallelStream().anyMatch(parameter -> parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))) {
+				ScaleType scaleType = serviceScaleType.findOne(Constant.DEFAULT_IMPACT_NAME);
+				analysis.getImpactParameters().parallelStream().max((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()))
+						.ifPresent(impact -> generateImpactParameters(analysis, mappingParameters, new Scale(scaleType, impact.getLevel() + 1, impact.getValue() * 0.001))
+								.accept(scaleType.getId()));
 			}
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());

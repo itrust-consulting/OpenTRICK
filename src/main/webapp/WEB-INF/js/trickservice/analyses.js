@@ -363,8 +363,8 @@ function customAnalysis(element) {
 						updateVersionSelector: function (identifier) {
 							var instance = this, versions = this.identifiers[identifier], $analysisVersions = $("#analysis-versions", $modalBody);
 							for (var i = 0; i < versions.length; i++) {
-								if (versions[i].type == instance.analysisType) {
-									var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' data-trick-analysis-type='" + instance.analysisType
+								if (instance.analysisType.isSupported(versions[i].type)) {
+									var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' data-trick-analysis-type='" + versions[i].type
 										+ "' title='" + versions[i].label + " v." + versions[i].version + "'>" + versions[i].version + "</li>");
 									$li.appendTo($analysisVersions);
 								}
@@ -435,23 +435,30 @@ function customAnalysis(element) {
 						},
 						checkProfile: function () {
 							var $riskProfile = $modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
-								this.assessmentDisable || this.analysisType != 'QUALITATIVE').closest(".form-group");
+								this.assessmentDisable || !this.analysisType.isQualitative()).closest(".form-group");
 
-							if (this.analysisType == 'QUALITATIVE') {
+							if (this.analysisType.isQualitative()) {
 								$riskProfile.show();
-								$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", true).closest(".form-group").hide();
-								$qualitativeSection.show()
+								if(!this.analysisType.isQuantitative())
+									$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", true).closest(".form-group").hide();
+								else 
+									$modalBody.find("input[name='uncertainty']").prop("disabled", false).closest(".form-group").show();
+								$qualitativeSection.show();
 							} else {
 								$riskProfile.hide();
 								$qualitativeSection.hide();
 								$modalBody.find("input[name='uncertainty']").prop("disabled", false).closest(".form-group").show();
 							}
 
-							$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType + "']").trigger("click");
-
 							var type = this.analysisType;
+							
+							$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType.type + "']").each(function(){
+								if (!type.isSupported(this.getAttribute("data-type")))
+									this.click();
+							});
+							
 							$modalBody.find("select[name='profile']").val("-1").find("option[value!='-1']").each(function () {
-								if (this.getAttribute("data-type") == type)
+								if (type.isSupported(this.getAttribute("data-type")))
 									this.removeAttribute("hidden");
 								else
 									this.setAttribute("hidden", "hidden")
@@ -477,7 +484,7 @@ function customAnalysis(element) {
 						},
 						checkParameter: function () {
 							var trick_id_parameter = $("#analysis-build-parameters .well").attr("data-trick-id") == undefined;
-							if (this.analysisType != 'QUALITATIVE')
+							if (!this.analysisType.isQualitative())
 								this.changeImpactState(true);
 							else if (trick_id_parameter) {
 								if ($impacts.is(":disabled"))
@@ -539,7 +546,7 @@ function customAnalysis(element) {
 
 					$analysisType.on("change", function (e) {
 						if (e.currentTarget.checked) {
-							analysesCaching.analysisType = e.currentTarget.value;
+							analysesCaching.analysisType = ANALYSIS_TYPE.valueOf(e.currentTarget.value);
 							analysesCaching.checkProfile();
 						}
 					});

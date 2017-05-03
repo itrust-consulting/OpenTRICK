@@ -23,7 +23,7 @@
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
 	<c:if
-		test="${isEditable and ( isAnalysisOnly or type == 'QUANTITATIVE' and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+		test="${isEditable and ( isAnalysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>

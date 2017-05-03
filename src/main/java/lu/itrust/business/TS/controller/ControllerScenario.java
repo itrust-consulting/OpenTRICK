@@ -299,7 +299,7 @@ public class ControllerScenario {
 
 			Map<Integer, AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getId, Function.identity()));
 
-			Scenario scenario = buildScenario(idAnalysis, errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
+			Scenario scenario = buildScenario(idAnalysis, errors, assetTypes, value, locale, analysis.isQualitative());
 
 			if (!errors.isEmpty())
 				return results;
@@ -546,7 +546,7 @@ public class ControllerScenario {
 
 	private String loadFormData(Scenario scenario, Model model, Integer idAnalysis, Locale locale) {
 		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-		if (type == AnalysisType.QUALITATIVE)
+		if (AnalysisType.isQualitative(type))
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());

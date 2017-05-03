@@ -74,7 +74,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (asset.getId() < 1)
 			analysis.add(asset);
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
+		if (analysis.isQualitative())
 			createAssessmentAndRiskProfile(asset, analysis);
 		else
 			createAssessment(asset, analysis);
@@ -94,7 +94,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (scenario.getId() < 1)
 			analysis.add(scenario);
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
+		if (analysis.isQualitative())
 			createAssessmentAndRiskProfile(scenario, analysis);
 		else
 			createAssessment(scenario, analysis);
@@ -263,7 +263,7 @@ public class AssessmentAndRiskProfileManager {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
-		if (analysis.getType() == AnalysisType.QUALITATIVE) {
+		if (analysis.isQualitative()) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -302,7 +302,9 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis, factory);
+
+		if (analysis.isQuantitative())
+			UpdateAssetALE(analysis, factory);
 	}
 
 	/**
@@ -346,7 +348,7 @@ public class AssessmentAndRiskProfileManager {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
-		if (analysis.getType() == AnalysisType.QUALITATIVE) {
+		if (analysis.isQualitative()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -381,7 +383,9 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis, factory);
+
+		if (analysis.isQuantitative())
+			UpdateAssetALE(analysis, factory);
 	}
 
 	@Transactional

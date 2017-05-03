@@ -156,7 +156,7 @@
 								</div>
 							</c:if>
 						</c:if>
-						<c:if test="${type=='QUANTITATIVE'}">
+						<c:if test="${type.quantitative}">
 							<jsp:include page="properties.jsp" />
 						</c:if>
 					</form>

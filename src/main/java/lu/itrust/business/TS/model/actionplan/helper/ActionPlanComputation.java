@@ -35,7 +35,6 @@ import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurren
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
@@ -183,7 +182,7 @@ public class ActionPlanComputation {
 		// check if standards to compute is empty -> YES: take all standards;
 		// NO: use
 		// only the standards given
-		if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+		if (analysis.isQuantitative()) {
 
 			if (standards == null || standards.isEmpty())
 				this.standards = this.analysis.getAnalysisStandards();
@@ -248,9 +247,13 @@ public class ActionPlanComputation {
 
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
+			if (analysis.isQuantitative())
+				progress = quantitativeActionPlan();
+			if (analysis.isQualitative())
+				progress = qualitativeActionPlan();
+
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans",
-					this.analysis.getType() == AnalysisType.QUANTITATIVE ? quantitativeActionPlan() : qualitativeActionPlan()));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", progress));
 
 			// save to database
 			sericeAnalysis.saveOrUpdate(analysis);
@@ -273,10 +276,10 @@ public class ActionPlanComputation {
 	private int qualitativeActionPlan() throws Exception {
 		int position[] = { 0 };
 		// get actionplantype by given mode
-		ActionPlanType actionPlanType = serviceActionPlanType.get(ActionPlanMode.APPN.getValue());
+		ActionPlanType actionPlanType = serviceActionPlanType.get(ActionPlanMode.APQ.getValue());
 		// check if the actionplantype exists and add it to database if not
 		if (actionPlanType == null)
-			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(ActionPlanMode.APPN));
+			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(ActionPlanMode.APQ));
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 10));
 
@@ -2490,16 +2493,18 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		// * check if calculation by phase
 		// ****************************************************************
-
-		// calculation by phase ? -> YES
-		if ((apt.getId() == Constant.ACTIONPLAN_PHASE_NORMAL_MODE) || (apt.getId() == Constant.ACTIONPLAN_PHASE_OPTIMISTIC_MODE)
-				|| (apt.getId() == Constant.ACTIONPLAN_PHASE_PESSIMISTIC_MODE)) {
-
+		switch (apt.getActionPlanMode()) {
+		case APPN:
+		case APPO:
+		case APPP:
+		case APQ:
 			// set flag
 			byPhase = true;
-
 			// retrieve first phase number
 			phase = actionPlan.get(0).getMeasure().getPhase().getNumber();
+			break;
+		default:
+			break;
 		}
 
 		// ****************************************************************

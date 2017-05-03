@@ -12,6 +12,7 @@ import lu.itrust.business.TS.exception.TrickException;
  * <li>PHASE_NORMAL (4)</li>
  * <li>PHASE_OPTIMISTIC (5)</li>
  * <li>PHASE_PESSIMISTIC (6)</li>
+ * <li>QUALITATIVE (7) </li>
  * </ul>
  * 
  * @author EOM, BJA, SME

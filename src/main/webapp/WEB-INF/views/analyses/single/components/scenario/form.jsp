@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<div class="modal-body" style="padding-bottom: 5px; padding-top: 5px;">
-				<c:if test="${type == 'QUANTITATIVE' }">
+				<c:if test="${type.quantitative }">
 					<ul id="scenario_form_tabs" class="nav nav-tabs">
 						<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.general" text="General" /></a></li>
 						<li><a href="#tab_scenario_properties" data-toggle="tab" data-helper-content='<spring:message code="help.scenario.properties" />' ><spring:message code="label.menu.properties" text="Properties" /></a></li>
@@ -134,7 +134,7 @@
 							</div>
 						</div>
 					</div>
-					<c:if test="${type == 'QUANTITATIVE' }">
+					<c:if test="${type.quantitative }">
 						<div id="tab_scenario_properties" class="tab-pane" style="padding-top: 17px;">
 							<spring:message text="${empty scenario or scenario.hasControlCharacteristics()?'success':'danger'}" var="cssclass" />
 							<div class="sceneario-sliders">

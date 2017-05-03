@@ -19,7 +19,7 @@
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:set var="implementationRateAttr">
 	<c:choose>
-		<c:when test="${type == 'QUALITATIVE'}">
+		<c:when test="${type=='QUALITATIVE'}">
 			data-trick-min-value='0' data-trick-max-value='100' data-trick-step-value='1'
 		</c:when>
 		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
@@ -143,7 +143,7 @@
 							<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 							<c:set var="dblclickaction">
 								<c:if
-									test="${isEditable and ( analysisOnly or type == 'QUANTITATIVE' and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+									test="${isEditable and ( analysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 									ondblclick="return editMeasure(this,${standardid},${measure.id});"
 								</c:if>
 							</c:set>

@@ -33,7 +33,7 @@
 					<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 					<jsp:include page="./components/itemInformation.jsp" />
 				</c:if>
-				<c:if test="${type=='QUALITATIVE' }">
+				<c:if test="${type.qualitative}">
 					<c:set var="impactTypes" value="${analysis.impacts}" scope="request" />
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
@@ -43,7 +43,7 @@
 					<jsp:include page="./components/risk-information/home.jsp" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />
-					<c:if test="${type=='QUANTITATIVE' }">
+					<c:if test="${type.quantitative}">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
 						<c:set var="assetALE" value="${ales[0]}" scope="request" />
 						<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
@@ -62,7 +62,7 @@
 					<jsp:include page="./components/actionPlan/section.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:if test="${type=='QUALITATIVE'}">
+					<c:if test="${type.qualitative}">
 						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
 						<jsp:include page="./components/riskRegister/home.jsp" />
 					</c:if>
@@ -93,7 +93,7 @@
 		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/risk-estimation.js" />"></script>
-		<c:if test="${type=='QUALITATIVE'}" >
+		<c:if test="${type.qualitative}" >
 			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
 			<script type="text/javascript">
 				<!-- 
@@ -107,11 +107,11 @@
 	</c:if>
 	<script type="text/javascript">
 	<!--
-		application['analysisType'] = '${type}';
+		application['analysisType'] = ANALYSIS_TYPE.valueOf('${type}');
 		application['isProfile'] = ${isProfile};
 		application['openMode'] = OPEN_MODE.valueOf('${open}');
 		application['isLinkedToProject'] = ${isLinkedToProject};
-		application['hasMaturity'] = ${hasMaturity};
+		application['hasMaturity'] = ${hasMaturity==true};
 		application['actionPlanType']  = "${show_uncertainty? 'APPO,APPN,APPP' : 'APPN'}".split(',');
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");

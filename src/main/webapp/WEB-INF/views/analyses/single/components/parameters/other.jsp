@@ -16,7 +16,7 @@
 					<th class="textaligncenter"><spring:message code="label.parameter.simple.internal_setup" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.simple.external_setup" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.simple.default_life_time" /></th>
-					<c:if test="${type=='QUANTITATIVE' }">
+					<c:if test="${type.quantitative }">
 						<th class="textaligncenter"><spring:message code="label.parameter.simple.max_rrf" /></th>
 					</c:if>
 					<th class="textaligncenter"><spring:message code="label.parameter.simple.soa" /></th>
@@ -28,7 +28,7 @@
 					<c:forEach items="${mappedParameters['SINGLE']}" var="parameter">
 						<c:choose>
 							<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
-								<c:if test="${parameter.description!='max_rrf' or type=='QUANTITATIVE' }">
+								<c:if test="${parameter.description!='max_rrf' or type.quantitative}">
 									<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
 										onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 								</c:if>
@@ -53,7 +53,7 @@
 		</table>
 	</fieldset>
 </div>
-<c:if test="${type=='QUALITATIVE'}">
+<c:if test="${type.qualitative}">
 	<spring:message code='label.nil' var="nil" />
 	<spring:message code='label.all' var="all" />
 	<spring:message code='label.compliant' var="compliant" />

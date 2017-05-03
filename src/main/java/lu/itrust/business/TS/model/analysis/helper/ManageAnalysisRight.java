@@ -39,15 +39,6 @@ public class ManageAnalysisRight {
 
 	private DAOUser daoUser;
 
-	@Deprecated
-	public void switchAnalysisToReadOnly(String identifier, int idAnalysis) throws Exception {
-		List<UserAnalysisRight> userAnalysisRights = daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier, idAnalysis);
-		for (UserAnalysisRight userAnalysisRight : userAnalysisRights) {
-			userAnalysisRight.setRight(AnalysisRight.READ);
-			daoUserAnalysisRight.saveOrUpdate(userAnalysisRight);
-		}
-	}
-
 	public void updateAnalysisRights(Principal principal, Integer idAnalysis, JsonNode jsonNode) throws Exception {
 		List<User> users = daoUser.getAll();
 		Analysis analysis = daoAnalysis.get(idAnalysis);

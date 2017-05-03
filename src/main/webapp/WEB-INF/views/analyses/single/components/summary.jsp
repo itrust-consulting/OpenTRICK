@@ -22,7 +22,7 @@
 		</div>
 		<ul id="menu_summary" class="nav nav-pills bordered-bottom">
 			<c:choose>
-				<c:when test="${type=='QUANTITATIVE' }">
+				<c:when test="${type.quantitative }">
 					<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 						<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
 							onclick="return navToogled('#section_summary','#menu_summary,#tabOption','${actionPlanType.name}', true);"><spring:message
@@ -61,7 +61,7 @@
 						<c:set var="implementedcounts" value="${summaryStages.get('label.characteristic.count.measure.implemented')}"></c:set>
 						<c:set var="nonCompliantMeasure27001" value="${summaryStages.get('label.characteristic.count.not_compliant_measure_27001')}"></c:set>
 						<c:set var="nonCompliantMeasure27002" value="${summaryStages.get('label.characteristic.count.not_compliant_measure_27002')}"></c:set>
-						<c:if test="${type=='QUANTITATIVE' }">
+						<c:if test="${type.quantitative}">
 							<c:set var="totalales" value="${summaryStages.get('label.profitability.ale.until.end')}"></c:set>
 							<c:set var="deltaales" value="${summaryStages.get('label.profitability.risk.reduction')}"></c:set>
 							<c:set var="costOfMeasures" value="${summaryStages.get('label.profitability.average_yearly_cost_of_phase')}"></c:set>
@@ -136,7 +136,7 @@
 							</c:forEach>
 						</tr>
 						<c:set var="currentIndex" value="1" />
-						<c:if test="${type=='QUANTITATIVE' }">
+						<c:if test="${type.quantitative}">
 							<tr class="active">
 								<td colspan="${columncount+5}">${currentIndex}.<spring:message code="label.profitability" /></td>
 							</tr>

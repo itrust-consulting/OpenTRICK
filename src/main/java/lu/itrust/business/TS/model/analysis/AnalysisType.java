@@ -8,14 +8,14 @@ package lu.itrust.business.TS.model.analysis;
  *
  */
 public enum AnalysisType {
-	HYBRID, QUALITATIVE, QUANTITATIVE;
+	QUANTITATIVE, HYBRID, QUALITATIVE;
 
 	public boolean isHybrid() {
 		return HYBRID == this;
 	}
 
 	public boolean isQualitative() {
-		return this == QUALITATIVE;
+		return this == QUALITATIVE || isHybrid();
 	}
 
 	public boolean isQuantitative() {
@@ -33,5 +33,5 @@ public enum AnalysisType {
 	public static boolean isQuantitative(AnalysisType type) {
 		return QUANTITATIVE == type || isHybrid(type);
 	}
-	
+
 }

@@ -64,9 +64,9 @@ function saveAssessmentData(e) {
 							else if ($target.tagName = 'SELECT')
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
-						if (application.analysisType == "QUALITATIVE")
+						if (application.analysisType.isQualitative())
 							reloadSection("section_riskregister", undefined, true);
-						else
+						if(application.analysisType.isQuantitative())
 							reloadAssetScenario();
 						reloadAssetScenarioChart();
 						setTimeout(function () {

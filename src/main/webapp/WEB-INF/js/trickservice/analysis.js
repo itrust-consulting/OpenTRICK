@@ -187,7 +187,11 @@ function reloadAssetScenario() {
 }
 
 function reloadAssetScenarioChart() {
-	return application.analysisType == "QUALITATIVE" ? reloadRiskChart() : chartALE();
+	if(application.analysisType.isQualitative())
+		reloadRiskChart();
+	if(application.analysisType.isQuantitative())
+		chartALE();
+	return false;
 }
 
 function isEditable() {

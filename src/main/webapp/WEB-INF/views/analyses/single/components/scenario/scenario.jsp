@@ -41,7 +41,7 @@
 					<th style="width: 3%"><a href="#" onclick="return sortTable('index',this,true)" data-order='0'><spring:message code="label.row.index" /></a></th>
 					<th style="width: 25%"><a href="#" onclick="return sortTable('name',this)" data-order='1'><spring:message code="label.scenario.name" /></a></th>
 					<th style="width: 5%"><a href="#" onclick="return sortTable('type',this)" data-order='1'><spring:message code="label.scenario.type" /></a></th>
-					<c:if test="${type == 'QUANTITATIVE'}">
+					<c:if test="${type.quantitative}">
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<th style="width: 5%"><a href="#" onclick="return sortTable('aleo',this,true)" data-order='1'><spring:message code="label.scenario.aleo" /></a></th>
@@ -69,7 +69,7 @@
 						<td data-trick-field="index" >${status.index+1}</td>
 						<td data-trick-field="name"><spring:message text="${scenario.name}" /></td>
 						<td data-trick-field="type"><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
-						<c:if test="${type == 'QUANTITATIVE'}">
+						<c:if test="${type.quantitative}">
 							<c:choose>
 								<c:when test="${show_uncertainty}">
 									<td data-trick-field="aleo" title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
@@ -85,7 +85,7 @@
 					</tr>
 				</c:forEach>
 			</tbody>
-			<c:if test="${!isProfile and type == 'QUANTITATIVE'}">
+			<c:if test="${!isProfile and type.quantitative}">
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />

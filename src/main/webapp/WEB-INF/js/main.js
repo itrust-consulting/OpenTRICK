@@ -130,6 +130,39 @@ var NOTIFICATION_TYPE = {
 	}
 }
 
+var ANALYSIS_TYPE = {
+	QUANTITATIVE : {
+		type : "QUANTITATIVE",
+		isQualitative : () => false,
+		isQuantitative : () => true,
+		isSupported : type => type ==  "QUANTITATIVE" || type == "HYBRID"
+	},
+	HYBRID : {
+		type : "HYBRID",
+		isQualitative : () => true,
+		isQuantitative : () => true,
+		isSupported : type => true
+	},
+	QUALITATIVE : {
+		type : "QUALITATIVE",
+		isQualitative : () => true,
+		isQuantitative : () => false,
+		isSupported : type => type ==  "QUALITATIVE" || type == "HYBRID"
+	},
+	valueOf : value => {
+		for ( var key in ANALYSIS_TYPE) {
+			if (key == "valueOf")
+				continue;
+			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value){
+				console.log(ANALYSIS_TYPE[key])
+				return ANALYSIS_TYPE[key];
+			}
+		}
+		return undefined;
+	}
+}
+
+
 if (!String.prototype.capitalize) {
 	String.prototype.capitalize = function() {
 		return this.charAt(0).toUpperCase() + this.slice(1);

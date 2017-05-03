@@ -41,6 +41,7 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
  * @version 0.1
  * @since 1/04/2016
  */
+@Deprecated
 public class RiskSheetComputation {
 
 	/***********************************************************************************************

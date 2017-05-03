@@ -15,7 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
@@ -80,9 +79,6 @@ public class MeasureDescription implements Cloneable {
 	 */
 	@Column(name = "dtComputable", nullable = false)
 	private boolean computable = true;
-
-	@Transient
-	private Object[] sortIndex;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -403,56 +399,5 @@ public class MeasureDescription implements Cloneable {
 		this.computable = computable;
 	}
 
-	private void generateSortId() {
-		String[] splited = this.reference.replace(" ", ".").split("\\.");
-		this.sortIndex = new Object[splited.length];
-		for (int i = 0; i < splited.length; i++)
-			this.sortIndex[i] = tryToParse(splited[i]);
-	}
-
-	private static Object tryToParse(String version) {
-		try {
-			if (!version.isEmpty())
-				return Integer.parseInt(version);
-		} catch (NumberFormatException e) {
-		}
-		return version;
-	}
-
-	public int compareTo(MeasureDescription o2) {
-		if (sortIndex == null)
-			generateSortId();
-		if (o2.sortIndex == null)
-			o2.generateSortId();
-		Object[] sort = o2.sortIndex;
-		if (sort.length > sortIndex.length) {
-			for (int i = 0; i < sortIndex.length; i++) {
-				int compare = compare(sortIndex[i], sort[i]);
-				if (compare == 0)
-					continue;
-				return compare;
-			}
-			return sort.length == sortIndex.length ? 0 : -1;
-		} else {
-			for (int i = 0; i < sort.length; i++) {
-				int compare = compare(sortIndex[i], sort[i]);
-				if (compare == 0)
-					continue;
-				return compare;
-			}
-			return sort.length == sortIndex.length ? 0 : 1;
-		}
-	}
-
-	private int compare(Object object, Object object2) {
-		if (object instanceof Integer) {
-			if (object2 instanceof Integer)
-				return Integer.compare((Integer) object, (Integer) object2);
-			return -1;
-		} else if (object2 instanceof Integer)
-			return 1;
-		else
-			return object.toString().compareTo(object2.toString());
-	}
 
 }

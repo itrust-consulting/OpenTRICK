@@ -14,7 +14,7 @@
 	<c:when test="${not empty assessment}">
 		<div id="estimation-ui" data-view='estimation-ui' class='col-lg-10 col-md-9 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
 			<c:choose>
-				<c:when test="${type == 'QUALITATIVE'}">
+				<c:when test="${type.qualitative}">
 					<jsp:include page="../form/qualitative.jsp" />
 				</c:when>
 				<c:otherwise>

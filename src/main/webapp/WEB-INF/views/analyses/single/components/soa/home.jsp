@@ -45,7 +45,7 @@
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />' ><spring:message code="label.measure.status" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />' ><spring:message code="label.measure.ir" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
-							<c:if test="${type == 'QUANTITATIVE' }">
+							<c:if test="${type.quantitative}">
 								<th style="width: 15%;" title='<spring:message code="label.measure.soa.risk" />' ><spring:message code="label.measure.soa.risk" /></th>
 							</c:if>
 							<th title='<spring:message code="label.justification" />' ><spring:message code="label.justification" /></th>
@@ -61,7 +61,7 @@
 									<tr style="background-color: #F8F8F8;" data-trick-id='${measure.id}'>
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 										<td><spring:message text="${measure.measureDescription.reference}" /></td>
-										<td colspan="${type == 'QUANTITATIVE'? '7' : '6' }"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+										<td colspan="${type.quantitative? '7' : '6' }"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									</tr>
 								</c:when>
 								<c:otherwise>
@@ -98,7 +98,7 @@
 										</c:choose>
 										<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										<td>${measure.phase.number}</td>
-										<c:if test="${type == 'QUANTITATIVE' }">
+										<c:if test="${type.quantitative}">
 											<td class='pre'><spring:message text="${measure.measurePropertyList.soaRisk}" /></td>
 										</c:if>
 										<td ${empty measure.measurePropertyList.soaComment? 'class="warning"' : empty css? '' : css} onclick="return editField(this);" data-trick-field="soaComment" 
