@@ -835,7 +835,7 @@ function manageRiskAcceptance() {
 								else if (response.success) {
 									$content.modal("hide");
 									showNotifcation('success', response.success);
-									reloadSection("section_qualitative_parameter");
+									reloadSection("section_parameter_impact_probability");
 								} else
 									unknowError();
 							},
