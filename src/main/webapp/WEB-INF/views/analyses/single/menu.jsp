@@ -17,21 +17,11 @@
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis_parameters" text='Analysis parameters' /></li>
-			<c:choose>
-				<c:when test="${type.qualitative}">
-					<li><a href="#tab-parameter" data-toggle="tab" title='<spring:message code="label.title.other.parameters" />'><spring:message code="label.menu.analysis.parameter" /></a></li>
-					<li><a href="#tab-parameter-impact-probability" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
-					<c:if test="${type.quantitative && hasMaturity}">
-						<li><a href="#tab-parameter-maturity" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.maturity" /></a></li>
-					</c:if>
-				</c:when>
-				<c:otherwise>
-					<li><a href="#tab-parameter" data-toggle="tab"><spring:message code="label.menu.analysis.parameter" /></a></li>
-					<c:if test="${hasMaturity}">
-						<li><a href="#tab-parameter-maturity" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.maturity" /></a></li>
-					</c:if>
-				</c:otherwise>
-			</c:choose>
+			<li><a href="#tab-parameter" data-toggle="tab" title='<spring:message code="label.title.other.parameters" />'><spring:message code="label.menu.analysis.parameter" /></a></li>
+			<li><a href="#tab-parameter-impact-probability" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
+			<c:if test="${(type.quantitative or not type.qualitative) and hasMaturity}">
+				<li><a href="#tab-parameter-maturity" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.maturity" /></a></li>
+			</c:if>
 		</ul></li>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>
 		<ul class="dropdown-menu">
