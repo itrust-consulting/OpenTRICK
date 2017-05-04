@@ -78,8 +78,8 @@
 				<c:when test="${type.qualitative}">
 					<tr>
 						<th rowspan="2" style="width: 10%" title='<spring:message code="label.assessment.scenario" />'><spring:message code="label.assessment.scenario" /></th>
-						<th style="text-align: center;" colspan="${impactTypes.size()}"><spring:message code="label.title.impact" /></th>
 						<th rowspan="2" style="width: 2%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
+						<th style="text-align: center;" colspan="${impactTypes.size()}"><spring:message code="label.title.impact" /></th>
 						<c:if test="${type.quantitative}">
 							<c:choose>
 								<c:when test="${show_uncertainty}">
@@ -147,6 +147,22 @@
 						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 						<c:choose>
 							<c:when test="${type.qualitative}">
+								<c:choose>
+									<c:when test="${empty likelihood}">
+										<spring:message text="${assessment.likelihood}" var="likelihood" />
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);"><spring:message
+												code='label.status.na' /></td>
+									</c:when>
+									<c:otherwise>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
+											title='<spring:message text="${likelihood.variable}"/>'><c:choose>
+												<c:when test="${likelihood.level == 0}">
+													<spring:message code='label.status.na' />
+												</c:when>
+												<c:otherwise>${likelihood.level}</c:otherwise>
+											</c:choose></td>
+									</c:otherwise>
+								</c:choose>
 								<c:if test="${type.quantitative}">
 									<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
 									<c:choose>
@@ -165,6 +181,7 @@
 										</c:otherwise>
 									</c:choose>
 								</c:if>
+
 								<c:forEach items="${impactTypes}" var="impactType">
 									<c:if test="${impactType.name!='IMPACT'}">
 										<spring:message text="${impactType.name}" var="impactName" />
@@ -186,22 +203,7 @@
 										</c:choose>
 									</c:if>
 								</c:forEach>
-								<c:choose>
-									<c:when test="${empty likelihood}">
-										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);"><spring:message
-												code='label.status.na' /></td>
-									</c:when>
-									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
-											title='<spring:message text="${likelihood.variable}"/>'><c:choose>
-												<c:when test="${likelihood.level == 0}">
-													<spring:message code='label.status.na' />
-												</c:when>
-												<c:otherwise>${likelihood.level}</c:otherwise>
-											</c:choose></td>
-									</c:otherwise>
-								</c:choose>
+
 								<c:if test="${type.quantitative}">
 									<c:if test="${show_uncertainty}">
 										<td data-trick-field="uncertainty" data-trick-field-type="double" class="editable" data-trick-min-value="1.0000000000001"

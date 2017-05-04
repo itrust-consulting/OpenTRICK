@@ -708,6 +708,16 @@ tr.form-group-fill th:LAST-CHILD {
 	border-top-right-radius: 4px;
 }
 
+.impact-q-group {
+	margin-top: -17px;
+	margin-bottom: 8px;
+}
+
+.form-control-static.disabled, .form-group-fill .form-control-static.disabled  {
+	background-color: #eee;
+	opacity: 0.8;
+}
+
 td.unselected {
 	background-color: window;
 }

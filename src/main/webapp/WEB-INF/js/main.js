@@ -153,10 +153,8 @@ var ANALYSIS_TYPE = {
 		for ( var key in ANALYSIS_TYPE) {
 			if (key == "valueOf")
 				continue;
-			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value){
-				console.log(ANALYSIS_TYPE[key])
+			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value)
 				return ANALYSIS_TYPE[key];
-			}
 		}
 		return undefined;
 	}

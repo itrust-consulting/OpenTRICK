@@ -36,7 +36,7 @@ function editScenario(rowTrickId, isAdd) {
 						}
 					}).trigger("change");
 
-					if (application.analysisType == "QUANTITATIVE") {
+					if (application.analysisType.isQuantitative()) {
 						$modal.find(".slider").slider({
 							reversed: true
 						}).each(

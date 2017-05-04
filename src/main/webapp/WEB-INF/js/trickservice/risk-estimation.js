@@ -45,6 +45,11 @@ function saveAssessmentData(e) {
 									$element.attr("placeholder", field.value).val(field.value);
 									continue;
 								}
+								
+								if(!$element.length && field.name.startsWith("ALE")){
+									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title",field.title);
+									continue;
+								}
 							}
 							for (var fieldName in field) {
 								switch (fieldName) {

@@ -73,9 +73,12 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.AbstractValue;
+import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
+import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -420,6 +423,19 @@ public class ControllerAnalysisCreate {
 							duplication.setImpact(value);
 						});
 						analysis.add(duplication);
+					}
+
+					if (analysisForm.getType().isQuantitative() && !analysis.getAssessments().isEmpty()) {
+						analysis.getImpactParameters().parallelStream().filter(impact -> impact.isMatch(Constant.DEFAULT_IMPACT_NAME) && impact.getLevel() == 0).findAny()
+								.ifPresent(impact -> {
+									ValueFactory factory = new ValueFactory(analysis.getParameters());
+									analysis.getAssessments().parallelStream().forEach(assessment -> {
+										if (!assessment.getImpacts().parallelStream().anyMatch(value -> value.getParameter().isMatch(Constant.DEFAULT_IMPACT_NAME))) {
+											assessment.getImpacts().add(new RealValue(0d, impact));
+											AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, analysisForm.getType());
+										}
+									});
+								});
 					}
 				}
 
