@@ -287,8 +287,7 @@ function customAnalysis(element) {
 						$modalContent.appendTo("#widget");
 					var modal = new Modal($modalContent), $modalBody = $(modal.modal_body), $emptyText = $modalBody.find("*[dropzone='true']>div:first").text(), $removeText = MessageResolver(
 						"label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector = $("#selector-analysis",
-							$modalBody), $impacts = $("select[name='impacts']", $modalBody), $impactValue = $("input#scale_level", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2"), $qualitativeSection = $(
-								"#analysis_qualitative", $modalBody);
+							$modalBody), $impacts = $("select[name='impacts']", $modalBody), $impactLevelMaxValue = $("input#scale_level,input#scale_maxValue", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2");
 					// load data from database and manage caching
 					analysesCaching = {
 						versions: {},
@@ -443,10 +442,8 @@ function customAnalysis(element) {
 									$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", true).closest(".form-group").hide();
 								else 
 									$modalBody.find("input[name='uncertainty']").prop("disabled", false).closest(".form-group").show();
-								$qualitativeSection.show();
 							} else {
 								$riskProfile.hide();
-								$qualitativeSection.hide();
 								$modalBody.find("input[name='uncertainty']").prop("disabled", false).closest(".form-group").show();
 							}
 
@@ -463,6 +460,17 @@ function customAnalysis(element) {
 								else
 									this.setAttribute("hidden", "hidden")
 							});
+							
+							$modalBody.find("div[data-type].form-group").each(function () {
+								if (type.isSupported(this.getAttribute("data-type")))
+									this.removeAttribute("hidden");
+								else{
+									this.setAttribute("hidden", "hidden");
+									var $input = $("input", this);
+									$input.val($input.attr("placeholder"));
+								}
+							});
+
 
 							$analysisSelector.trigger("change");
 							return this.checkParameter();
@@ -555,9 +563,9 @@ function customAnalysis(element) {
 						var options = this.selectedOptions;
 						if (options[0].value == "-1") {
 							$(options[0]).prop("selected", options.length < 2);
-							$impactValue.prop("disabled", options.length < 2);
+							$impactLevelMaxValue.prop("disabled", options.length < 2);
 						} else
-							$impactValue.prop("disabled", false);
+							$impactLevelMaxValue.prop("disabled", false);
 					});
 
 					$("#analysis-build-parameters").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
