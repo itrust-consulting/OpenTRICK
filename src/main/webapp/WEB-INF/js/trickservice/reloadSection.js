@@ -129,7 +129,7 @@ function findControllerBySection(section, subSection) {
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
 	}
 
-	if ("section_riskregister" == section && application.analysisType != "QUALITATIVE")
+	if ("section_riskregister" == section && !application.analysisType.isQualitative())
 		return undefined;
 
 	if (subSection == null || subSection == undefined)
@@ -142,14 +142,14 @@ function callbackBySection(section) {
 	var callbacks = {
 		"section_asset": function () {
 			reloadSection("section_scenario", undefined, true);
-			if (application.analysisType == "QUALITATIVE")
+			if (application.analysisType.isQualitative())
 				reloadSection("section_riskregister", undefined, true);
 			reloadAssetScenarioChart();
 			return false;
 		},
 		"section_scenario": function () {
 			reloadSection("section_asset", undefined, true);
-			if (application.analysisType == "QUALITATIVE")
+			if (application.analysisType.isQualitative())
 				reloadSection("section_riskregister", undefined, true);
 			reloadAssetScenarioChart();
 			return false;

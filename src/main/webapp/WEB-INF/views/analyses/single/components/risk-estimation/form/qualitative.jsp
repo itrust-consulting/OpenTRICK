@@ -38,8 +38,8 @@
 <div class='form-horizontal form-group-fill' style="border-bottom: 1px solid window">
 	<div class='col-sm-4'>
 		<div class="form-group">
-			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label> <strong class='col-xs-6 form-control-static'><spring:message
-					code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}" /></strong>
+			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label> <div class='col-xs-6'><strong class='form-control form-control-static'><spring:message
+					code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}" /></strong></div>
 		</div>
 	</div>
 	<div class='col-sm-4'>
@@ -338,7 +338,7 @@
 
 <c:if test="${type.quantitative}">
 	<div class='form-horizontal form-group-fill impact-q-group'>
-		<c:set var="colClass" value="col-sm-${show_uncertainty? '3' : '6'}" />
+		<c:set var="colClass" value="${show_uncertainty? 'col-sm-3' : 'col-lg-3 col-sm-6'}" />
 		<div class='${colClass}'>
 			<div class="form-group">
 				<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
@@ -369,22 +369,22 @@
 		<c:if test="${show_uncertainty}">
 			<div class='${colClass}'>
 				<div class="form-group">
-					<label class="control-label col-xs-8"><spring:message code="label.title.aleo" /></label> <label data-name='ALEO' class='form-control-static numeric col-xs-3 disabled'
-						title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+					<label class="control-label col-xs-8"><spring:message code="label.title.aleo" /></label> <div class='col-xs-4'><label data-name='ALEO' class='form-control form-control-static numeric disabled'
+						title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label></div>
 				</div>
 			</div>
 		</c:if>
-		<div class='${colClass}'>
+		<div class='${colClass} ${show_uncertainty?"" : "pull-sm-right"}'>
 			<div class="form-group">
-				<label class="control-label col-xs-8"><spring:message code="label.title.ale" /></label> <label data-name='ALE' class='form-control-static numeric disabled col-xs-3'
-					title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+				<label class="control-label col-xs-8"><spring:message code="label.title.ale" /></label> <div class='col-xs-4'><label data-name='ALE' class='form-control form-control-static numeric disabled'
+					title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label></div>
 			</div>
 		</div>
 		<c:if test="${show_uncertainty}">
 			<div class='${colClass}'>
 				<div class="form-group">
-					<label class="control-label col-xs-8"><spring:message code="label.title.alep" /></label> <label data-name="ALEP" class="form-control-static numeric disabled col-xs-3"
-						title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+					<label class="control-label col-xs-8"><spring:message code="label.title.alep" /></label> <div class='col-xs-4'> <label data-name="ALEP" class="form-control form-control-static numeric disabled"
+						title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label></div>
 
 				</div>
 			</div>
