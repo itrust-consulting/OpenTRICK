@@ -271,7 +271,7 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
 							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
 					} else {
@@ -292,7 +292,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
 						if (assessment != null) {
 							analysis.getAssessments().remove(assessment);
@@ -344,7 +344,7 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	public void updateRiskDendencies(Analysis analysis, ValueFactory factory) {
+	public static void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
@@ -356,7 +356,7 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
 							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
 					} else {
@@ -374,7 +374,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
 						if (assessment != null)
 							analysis.getAssessments().remove(assessment);
@@ -440,7 +440,7 @@ public class AssessmentAndRiskProfileManager {
 			ValueFactory valueFactory) {
 		if (!mappedAssessments.containsKey(id)) {
 			if (scenario.hasInfluenceOnAsset(asset))
-				generateAssessment(assessments, valueFactory, asset, scenario);
+				GenerateAssessment(assessments, valueFactory, asset, scenario);
 		} else if (!scenario.hasInfluenceOnAsset(asset)) {
 			Assessment assessment = mappedAssessments.get(id);
 			assessments.remove(assessment);
@@ -483,7 +483,7 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	private void generateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
+	private static void GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
 		Assessment assessment;
 		assessment = new Assessment(asset, scenario);
 		factory.getImpactNames().forEach(impact -> assessment.setImpact(factory.findValue(0D, impact)));

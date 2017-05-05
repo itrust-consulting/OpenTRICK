@@ -1322,9 +1322,9 @@ public class Analysis implements Cloneable {
 	@OrderBy("type,level")
 	@SuppressWarnings("unchecked")
 	public List<ImpactParameter> getImpactParameters() {
-		List<ImpactParameter> impacts = (List<ImpactParameter>) parameters.get(Constant.PARAMETER_CATEGORY_IMPACT);
+		List<ImpactParameter> impacts = (List<ImpactParameter>) getParameters().get(Constant.PARAMETER_CATEGORY_IMPACT);
 		if (impacts == null)
-			parameters.put(Constant.PARAMETER_CATEGORY_IMPACT, impacts = new ArrayList<>());
+			getParameters().put(Constant.PARAMETER_CATEGORY_IMPACT, impacts = new ArrayList<>());
 		return impacts;
 	}
 
@@ -1407,9 +1407,9 @@ public class Analysis implements Cloneable {
 	@OrderBy("level")
 	@SuppressWarnings("unchecked")
 	public List<LikelihoodParameter> getLikelihoodParameters() {
-		List<LikelihoodParameter> parameters = (List<LikelihoodParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD);
+		List<LikelihoodParameter> parameters = (List<LikelihoodParameter>) this.getParameters().get(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD);
 		if (parameters == null)
-			this.parameters.put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, parameters = new ArrayList<>());
+			this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, parameters = new ArrayList<>());
 		return parameters;
 	}
 
@@ -1419,9 +1419,9 @@ public class Analysis implements Cloneable {
 	@Cascade(CascadeType.ALL)
 	@SuppressWarnings("unchecked")
 	public List<MaturityParameter> getMaturityParameters() {
-		List<MaturityParameter> parameters = (List<MaturityParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_MATURITY);
+		List<MaturityParameter> parameters = (List<MaturityParameter>) this.getParameters().get(Constant.PARAMETER_CATEGORY_MATURITY);
 		if (parameters == null)
-			this.parameters.put(Constant.PARAMETER_CATEGORY_MATURITY, parameters = new ArrayList<>());
+			this.getParameters().put(Constant.PARAMETER_CATEGORY_MATURITY, parameters = new ArrayList<>());
 		return parameters;
 	}
 
@@ -1453,7 +1453,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public double getParameter(String name, double defaultValue) {
-		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.getDescription().equals(name))
+		return getParameters().values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.getDescription().equals(name))
 				.map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
 
@@ -1467,7 +1467,7 @@ public class Analysis implements Cloneable {
 	 *         the parameter was not found
 	 */
 	public double getParameter(String type, String name, double defaultValue) {
-		return parameters.values().stream().flatMap(parametersList -> parametersList.stream()).filter(parameter -> parameter.isMatch(type, name))
+		return getParameters().values().stream().flatMap(parametersList -> parametersList.stream()).filter(parameter -> parameter.isMatch(type, name))
 				.map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
 
@@ -1617,7 +1617,7 @@ public class Analysis implements Cloneable {
 	public List<SimpleParameter> getSimpleParameters() {
 		List<SimpleParameter> parameters = (List<SimpleParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_SIMPLE);
 		if (parameters == null)
-			this.parameters.put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters = new ArrayList<>());
+			this.getParameters().put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters = new ArrayList<>());
 		return parameters;
 	}
 
@@ -1716,7 +1716,7 @@ public class Analysis implements Cloneable {
 	 * @param impacts
 	 */
 	public void groupExtended(List<LikelihoodParameter> probabilities, List<ImpactParameter> impacts) {
-		this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter instanceof IBoundedParameter)
+		this.getParameters().values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter instanceof IBoundedParameter)
 				.map(parameter -> (IBoundedParameter) parameter).forEach(parameter -> {
 					if ((parameter instanceof ImpactParameter) && parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 						impacts.add((ImpactParameter) parameter);
@@ -1752,7 +1752,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public boolean hasParameterType(String type) {
-		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).anyMatch(parameter -> parameter.isMatch(type));
+		return this.getParameters().values().stream().flatMap(paramters -> paramters.stream()).anyMatch(parameter -> parameter.isMatch(type));
 	}
 
 	public boolean hasPhase(int number) {
@@ -2108,7 +2108,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public void setDynamicParameters(List<DynamicParameter> parameters) {
-		this.parameters.put(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC, parameters);
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC, parameters);
 	}
 
 	/**
@@ -2167,7 +2167,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public void setImpactParameters(List<ImpactParameter> impacts) {
-		parameters.put(Constant.PARAMETER_CATEGORY_IMPACT, impacts);
+		getParameters().put(Constant.PARAMETER_CATEGORY_IMPACT, impacts);
 	}
 
 	/**
@@ -2204,11 +2204,11 @@ public class Analysis implements Cloneable {
 	}
 
 	public void setLikelihoodParameters(List<LikelihoodParameter> parameters) {
-		this.parameters.put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, parameters);
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, parameters);
 	}
 
 	public void setMaturityParameters(List<MaturityParameter> parameters) {
-		this.parameters.put(Constant.PARAMETER_CATEGORY_MATURITY, parameters);
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_MATURITY, parameters);
 	}
 
 	/**
@@ -2262,7 +2262,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public void setRiskAcceptanceParameters(List<RiskAcceptanceParameter> parameters) {
-		this.parameters.put(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE, parameters);
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE, parameters);
 	}
 
 	/**
@@ -2316,7 +2316,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public void setSimpleParameters(List<SimpleParameter> parameters) {
-		this.parameters.put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters);
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters);
 	}
 
 	/**
@@ -2734,13 +2734,24 @@ public class Analysis implements Cloneable {
 	public boolean isHybrid() {
 		return AnalysisType.isHybrid(type);
 	}
-	
+
 	public boolean isQuantitative() {
 		return AnalysisType.isQuantitative(type);
 	}
 
 	public boolean isQualitative() {
 		return AnalysisType.isQualitative(type);
+	}
+
+	public void updateType() {
+		List<ScaleType> scaleTypes = getImpacts();
+		if (scaleTypes.isEmpty())
+			this.type = AnalysisType.QUALITATIVE;
+		else if (scaleTypes.size() == 1)
+			this.type = scaleTypes.get(0).getName().equals(Constant.DEFAULT_IMPACT_NAME) ? AnalysisType.QUANTITATIVE : AnalysisType.QUALITATIVE;
+		else if (scaleTypes.stream().anyMatch(scaleType -> scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)))
+			this.type = AnalysisType.HYBRID;
+		else this.type = AnalysisType.QUALITATIVE;
 	}
 
 }

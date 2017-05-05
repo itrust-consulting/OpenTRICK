@@ -144,9 +144,6 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 public class ControllerAnalysis {
 
 	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
 	private CustomDelete customDelete;
 
 	@Autowired
@@ -1129,7 +1126,7 @@ public class ControllerAnalysis {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
+				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {

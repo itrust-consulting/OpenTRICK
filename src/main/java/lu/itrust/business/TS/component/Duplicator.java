@@ -85,8 +85,6 @@ public class Duplicator {
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
-	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	public Duplicator() {
 	}
@@ -97,7 +95,6 @@ public class Duplicator {
 		this.daoStandard = new DAOStandardHBM(session);
 		this.daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 		this.daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
-		this.assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
 
 	}
 
@@ -241,7 +238,7 @@ public class Duplicator {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 95)));
 
-			assessmentAndRiskProfileManager.updateRiskDendencies(copy, null);
+			AssessmentAndRiskProfileManager.UpdateRiskDendencies(copy, null);
 
 			return copy;
 		} finally {

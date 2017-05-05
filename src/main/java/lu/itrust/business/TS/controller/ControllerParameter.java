@@ -114,8 +114,7 @@ public class ControllerParameter {
 		Map<ScaleType, Boolean> impacts = new LinkedHashMap<>();
 
 		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
-		serviceScaleType.findAll().stream().filter(scale -> !(impacts.containsKey(scale) || scale.getName().equals(Constant.PARAMETER_CATEGORY_IMPACT)))
-				.forEach(scale -> impacts.put(scale, false));
+		serviceScaleType.findAll().stream().filter(scale -> !impacts.containsKey(scale)).forEach(scale -> impacts.put(scale, false));
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 		return "analyses/single/components/parameters/form/mange-impact";

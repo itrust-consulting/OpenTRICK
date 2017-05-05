@@ -164,9 +164,6 @@ public class ControllerAnalysisCreate {
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
 	private ServiceScaleType serviceScaleType;
 
 	@Autowired
@@ -483,7 +480,7 @@ public class ControllerAnalysisCreate {
 					for (RiskProfile riskProfile : riskProfiles)
 						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters, measures));
 				}
-				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
+				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			}
 
 			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1)

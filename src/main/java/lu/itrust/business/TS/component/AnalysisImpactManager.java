@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOImpactParameter;
@@ -22,6 +23,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
@@ -44,7 +46,7 @@ public class AnalysisImpactManager {
 
 	@Autowired
 	private DAOScaleType daoScaleType;
-	
+
 	@Transactional
 	public boolean manageImpactScaleSave(Integer idAnalysis, Map<Integer, Boolean> impacts) {
 		Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -62,7 +64,8 @@ public class AnalysisImpactManager {
 				change[0] |= addImpactScale(id, maxLevel, maxValue, labels, analysis);
 		});
 		if (change[0]) {
-			AssessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
+			analysis.updateType();
+			AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			daoAnalysis.saveOrUpdate(analysis);
 			parameters.entrySet().stream().filter(entry -> !impacts.getOrDefault(entry.getKey(), true)).forEach(entry -> daoImpactParameter.delete(entry.getValue()));
 		}
@@ -99,8 +102,11 @@ public class AnalysisImpactManager {
 			return false;
 		ImpactParameter.ComputeScales(impacts);
 		ImpactParameter impactParameter = impacts.get(0);
-		analysis.getAssessments().stream().forEach(assessment -> assessment.getImpacts().add(new Value(impactParameter)));
-		impacts.parallelStream().forEach(impact -> {
+		if (impactParameter.isMatch(Constant.DEFAULT_IMPACT_NAME))
+			analysis.getAssessments().stream().forEach(assessment -> assessment.getImpacts().add(new RealValue(0d, impactParameter)));
+		else
+			analysis.getAssessments().stream().forEach(assessment -> assessment.getImpacts().add(new Value(impactParameter)));
+		impacts.forEach(impact -> {
 			impact.setLabel(labels.getOrDefault(impact.getLevel(), ""));
 			analysis.getImpactParameters().add(impact);
 		});

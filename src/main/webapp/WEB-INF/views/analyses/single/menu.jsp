@@ -181,11 +181,9 @@
 				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
 				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
 				<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" /></a></li>
-				<c:if test="${type.qualitative}">
-					<li class="divider"></li>
-					<li class="dropdown-header"><spring:message code="label.title.impact_scale" /></li>
-					<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage" /></a></li>
-				</c:if>
+				<li class="divider"></li>
+				<li class="dropdown-header"><spring:message code="label.title.impact_scale" /></li>
+				<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage" /></a></li>
 				<li class="divider"></li>
 				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>
 			</c:if>
