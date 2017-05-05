@@ -362,7 +362,7 @@ public class RiskSheetComputation {
 			if (assessment.isUsable()) {
 				String key = getKey(assessment);
 				// update ALE numerator
-				helper.getNetALEs().put(key, helper.getFactory().computeALEByLevel(assessment));
+				helper.getNetALEs().put(key, helper.getFactory().computeALE(assessment));
 				helper.getRiskRegisters().put(key, new RiskRegisterItem(assessment.getScenario(), assessment.getAsset()));
 			}
 		}
@@ -430,7 +430,7 @@ public class RiskSheetComputation {
 
 				String key = getKey(tma.getAssessment());
 				// compute deltaALE
-				computeDeltaALEs(helper.getDeltaALEs(), helper.getFactory().computeALEByLevel(tma.getAssessment()), tma, key, helper.getFactory());
+				computeDeltaALEs(helper.getDeltaALEs(), helper.getFactory().computeALE(tma.getAssessment()), tma, key, helper.getFactory());
 				// compute RawALE
 				computeRawALE(helper.getRawALEs(), helper.getNetALEs(), tma, key, helper.getFactory());
 

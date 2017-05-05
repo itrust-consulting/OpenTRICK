@@ -78,7 +78,6 @@ import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.AbstractValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
-import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;

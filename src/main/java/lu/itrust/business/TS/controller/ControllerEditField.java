@@ -754,6 +754,10 @@ public class ControllerEditField {
 					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
 					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
 					result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2), format(assessment.getALEP(), numberFormat, 0) + " €"));
+					if (fieldEditor.getFieldName().equals("IMPACT"))
+						result.add(new FieldValue("IMPACT", null, assessment.getImpact("IMPACT").getVariable()));
+					else if (fieldEditor.getFieldName().equals("likelihood"))
+						result.add(new FieldValue("likelihood", null, format(assessment.getLikelihoodReal(), numberFormat, 3)));
 				}
 			}
 			if (impactToDelete != null)
@@ -1419,40 +1423,6 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
-
-	/*
-	 * @RequestMapping(value = "/RiskRegister/{elementID}", method =
-	 * RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	 * 
-	 * @PreAuthorize(
-	 * "@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)"
-	 * ) public @ResponseBody String riskRegister(@PathVariable int
-	 * elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
-	 * Locale locale, Principal principal) { try { Integer idAnalysis =
-	 * (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS); if
-	 * (fieldEditor.getFieldName().matches("strategy|owner")) { RiskRegisterItem
-	 * registerItem = serviceRiskRegister.get(elementID); try {
-	 * PropertyAccessorFactory.forBeanPropertyAccess(registerItem).
-	 * setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
-	 * serviceRiskRegister.saveOrUpdate(registerItem); return
-	 * JsonMessage.Success(messageSource.getMessage(
-	 * "success.risk_register.updated", null,
-	 * "Risk register was successfully updated", locale)); } catch
-	 * (TrickException e) { TrickLogManager.Persist(e); return
-	 * JsonMessage.Error(messageSource.getMessage(e.getCode(),
-	 * e.getParameters(), e.getMessage(), locale)); } catch (Exception e) {
-	 * TrickLogManager.Persist(e); return
-	 * JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null,
-	 * "Data cannot be saved", locale)); } } else return
-	 * JsonMessage.Error(messageSource.getMessage(
-	 * "error.edit.field.unsupported", null, "Field cannot be edited", locale));
-	 * } catch (TrickException e) { TrickLogManager.Persist(e); return
-	 * JsonMessage.Error(messageSource.getMessage(e.getCode(),
-	 * e.getParameters(), e.getMessage(), locale)); } catch (Exception e) { //
-	 * return error TrickLogManager.Persist(e); return
-	 * JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field",
-	 * null, "An unknown error occurred while updating field", locale)); } }
-	 */
 
 	/**
 	 * setFieldData: <br>
