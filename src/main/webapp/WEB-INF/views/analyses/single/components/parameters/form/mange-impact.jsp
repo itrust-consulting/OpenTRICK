@@ -38,8 +38,8 @@
 							</div>
 							<div class="col-xs-5 text-center">
 								<div class="btn-group" data-toggle="buttons">
-									<label class="btn btn-sm btn-success ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${quantitativeImpact.id}" type="radio"
-										value="true"></label> <label class="btn btn-sm btn-warning ${not defaultValue?'active' : ''}">${exclude}<input name="${quantitativeImpact.id}"
+									<label class="btn btn-sm btn-default ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${quantitativeImpact.id}" type="radio"
+										value="true"></label> <label class="btn btn-sm btn-danger ${not defaultValue?'active' : ''}">${exclude}<input name="${quantitativeImpact.id}"
 										${not defaultValue?'checked' : ''} type="radio" value="false"></label>
 								</div>
 							</div>
@@ -57,8 +57,8 @@
 								</div>
 								<div class="col-xs-5 text-center">
 									<div class="btn-group" data-toggle="buttons">
-										<label class="btn btn-sm btn-success ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${impact.id}" type="radio" value="true"></label>
-										<label class="btn btn-sm btn-warning ${not defaultValue?'active' : ''}">${exclude}<input name="${impact.id}" ${not defaultValue?'checked' : ''} type="radio"
+										<label class="btn btn-sm btn-default ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${impact.id}" type="radio" value="true"></label>
+										<label class="btn btn-sm btn-danger ${not defaultValue?'active' : ''}">${exclude}<input name="${impact.id}" ${not defaultValue?'checked' : ''} type="radio"
 											value="false" ></label>
 									</div>
 								</div>
