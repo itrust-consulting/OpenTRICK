@@ -39,13 +39,12 @@ $(document).ready(function () {
 
 	}, 100);
 
-	// Periodically reload assessment values
-	/*
-	 * window.setInterval(function () { reloadAssetScenario();
-	 * loadChartDynamicParameterEvolution();
-	 * loadChartDynamicAleEvolutionByAssetType();
-	 * loadChartDynamicAleEvolution(); }, 300000);
-	 */ // every 30s
+	// Periodically dynamic charts
+	window.setInterval(function () {
+		loadChartDynamicParameterEvolution();
+		loadChartDynamicAleEvolutionByAssetType();
+		loadChartDynamicAleEvolution();
+	}, 30000); // every 30s  
 });
 
 $.fn.loadOrUpdateChart = function (parameters) {
@@ -836,7 +835,7 @@ function manageRiskAcceptance() {
 								else if (response.success) {
 									$content.modal("hide");
 									showNotifcation('success', response.success);
-									reloadSection("section_qualitative_parameter");
+									reloadSection("section_parameter_impact_probability");
 								} else
 									unknowError();
 							},
@@ -906,7 +905,7 @@ function loadChartDynamicParameterEvolution() {
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
-							options: aleEvolutionOptions(chart.title)
+							options: dynamicParameterEvolutionOptions(chart.title)
 						}));
 
 					}

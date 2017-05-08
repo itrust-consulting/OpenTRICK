@@ -558,7 +558,8 @@ function generateDataList(id) {
 }
 
 function displayParameters(name, title) {
-	var view = new Modal(undefined, $(name).html()), $legend = $(view.modal_body).find("legend").remove();
+	var html = $(name).map(function() { return this.innerHTML; }).get().join("");
+	var view = new Modal(undefined, html), $legend = $(view.modal_body).find("legend").remove().slice(0, 1);
 	$(view.modal_footer).remove();
 	$(view.modal_body).find("tbody").css({
 		"text-align": "center"

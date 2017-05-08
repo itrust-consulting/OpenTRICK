@@ -36,6 +36,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAODynamicParameter;
+import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.DAOImpactParameter;
 import lu.itrust.business.TS.database.dao.DAOLikelihoodParameter;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
@@ -43,7 +44,6 @@ import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAORiskAcceptanceParameter;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOSimpleParameter;
-import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -73,7 +73,6 @@ import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-import lu.itrust.business.TS.usermanagement.RoleType;
 
 /**
  * ChartGenerator.java: <br>
@@ -146,7 +145,7 @@ public class ChartGenerator {
 	private DAOSimpleParameter daoSimpleParameter;
 
 	@Autowired
-	private DAOUserAnalysisRight daoUserAnalysisRight;
+	private DAOIDS daoIDS;
 
 	@Autowired
 	private DynamicRiskComputer dynamicRiskComputer;
@@ -612,8 +611,7 @@ public class ChartGenerator {
 	 */
 	public Chart dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
 		// Find the user names of all sources involved
-		List<String> sourceUserNames = daoUserAnalysisRight.getAllFromAnalysis(idAnalysis).stream().map(userRight -> userRight.getUser())
-				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
 
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter
@@ -634,10 +632,9 @@ public class ChartGenerator {
 		// For each dynamic parameter, construct a series of values
 		Map<String, Map<Long, Double>> data = new HashMap<>();
 		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
-			// Add x-axis values to a list in reverse order (we use
-			// Collections.reverse() later on)
-			xAxisValues.add(timeEnd);
-			chart.getLabels().add(deltaTimeToString(timeUpperBound - timeEnd));
+			// Add x-axis values to a list in reverse order
+			xAxisValues.add(0, timeEnd);
+			chart.getLabels().add(0, deltaTimeToString(timeUpperBound - timeEnd));
 			// Fetch data
 			for (String sourceUserName : sourceUserNames) {
 				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName,
@@ -652,7 +649,6 @@ public class ChartGenerator {
 			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
 				nextTimeIntervalSize = (int) (nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
 		}
-		Collections.reverse(xAxisValues);
 		for (String parameterName : data.keySet()) {
 			Dataset<String> dataset = new Dataset<String>(parameterName, getColor(chart.getDatasets().size()));
 			for (long timeEnd : xAxisValues)
@@ -881,8 +877,7 @@ public class ChartGenerator {
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved
-		final List<String> sourceUserNames = daoUserAnalysisRight.getAllFromAnalysis(analysis.getId()).stream().map(userRight -> userRight.getUser())
-				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysis(analysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
 
 		// Fetch ALE evolution data grouped by scenario and time
 		final List<Long> xAxisValues = new ArrayList<>(); // populated within

@@ -328,14 +328,46 @@ function aleEvolutionOptions(title) {
 			}
 		}, scales: {
 			xAxes: [{
-				stacked: true
+				stacked: false
 			}],
 			yAxes: [{
-				stacked: true,
+				stacked: false,
 				ticks: {
 					mim: 0,
 					userCallback: function (value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
+					}
+				}
+			}]
+		}
+	};
+}
+
+function dynamicParameterEvolutionOptions(title) {
+	return {
+		legend: {
+			position: 'bottom',
+		},
+		title: {
+			display: title != undefined,
+			fontSize: Chart.defaults.global.defaultTitleFontSize,
+			text: title
+		}, tooltips: {
+			callbacks: {
+				label: function (item, data) {
+					return application.numberFormat.format(item.yLabel);
+				}
+			}
+		}, scales: {
+			xAxes: [{
+				stacked: false
+			}],
+			yAxes: [{
+				stacked: false,
+				ticks: {
+					mim: 0,
+					userCallback: function (value, index, values) {
+						return application.numberFormat.format(value);
 					}
 				}
 			}]

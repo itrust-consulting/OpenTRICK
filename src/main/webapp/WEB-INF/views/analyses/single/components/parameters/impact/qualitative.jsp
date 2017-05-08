@@ -5,9 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <c:set var="impactLanguage" value="${fn:toUpperCase(language)}" />
-<c:if test="${type.quantitative}">
-	<jsp:include page="financial.jsp" />
-</c:if>
 <c:forEach items="${impactTypes}" var="impactType">
 	<c:if test="${impactType.name!='IMPACT'}">
 		<spring:message text="${impactType.name}" var="impactName" />

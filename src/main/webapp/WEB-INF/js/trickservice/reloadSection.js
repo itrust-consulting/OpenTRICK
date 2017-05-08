@@ -115,8 +115,6 @@ function findControllerBySection(section, subSection) {
 		"section_soa": "/Analysis/Standard/SOA",
 		"section_ids": "/Admin/IDS/Section",
 		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
-		"section_qualitative_parameter": "/Analysis/Parameter/Qualitative/Section",
-		"section_quantitative_parameter": "/Analysis/Parameter/Quantitative/Section",
 		"section_parameter_impact_probability": "/Analysis/Parameter/Impact-probability/Section",
 		"section_risk-information_risk":"/Analysis/Risk-information/Section/Risk",
 		"section_risk-information_vul":"/Analysis/Risk-information/Section/Vul",
@@ -181,10 +179,6 @@ function callbackBySection(section) {
 					application["standard-caching"].clear();
 			}
 		},
-		"section_qualitative_parameter": function () {
-			reloadRiskChart(true)// load chart + rebuild tables.
-		}
-
 	};
 
 	if (section.match("^section_standard_"))

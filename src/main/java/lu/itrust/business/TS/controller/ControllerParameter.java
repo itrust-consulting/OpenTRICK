@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
@@ -38,8 +37,6 @@ import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
-import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
@@ -81,32 +78,6 @@ public class ControllerParameter {
 	@Autowired
 	private MessageSource messageSource;
 
-	/**
-	 * section: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Quantitative/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String quantitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<IParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
-		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
-		model.addAttribute("type", AnalysisType.QUANTITATIVE);
-		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
-		AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
-		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
-		return "analyses/single/components/parameters/quantitative/home";
-	}
-
 	@RequestMapping(value = "/Impact-scale/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageImpactScale(Model model, HttpSession session, Principal principal, Locale locale) {
@@ -144,35 +115,6 @@ public class ControllerParameter {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Qualitative/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String qualitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		ScaleType scaleType = serviceScaleType.findOneByAnalysisId(idAnalysis);
-		List<IParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		int level = parameters.size() - 1;
-		parameters.addAll(serviceImpactParameter.findByTypeAndAnalysisId(scaleType, idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
-		parameters.addAll(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, idAnalysis));
-		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
-		model.addAttribute("isEditable", !OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE)).isReadOnly());
-		model.addAttribute("type", AnalysisType.QUALITATIVE);
-		model.addAttribute("maxImportance", level * level);
-		model.addAttribute("impactLabel", scaleType == null ? null : scaleType.getName());
-		return "analyses/single/components/parameters/qualitative/section-other";
-	}
-
-	/**
-	 * section: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
 	@RequestMapping(value = "/Impact-probability/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String impactSection(Model model, HttpSession session, Principal principal) throws Exception {
@@ -181,9 +123,14 @@ public class ControllerParameter {
 		List<IParameter> parameters = new LinkedList<>(impactParameters);
 		model.addAttribute("impactTypes", impactParameters.parallelStream().map(ImpactParameter::getType).distinct().collect(Collectors.toList()));
 		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		return "analyses/single/components/parameters/qualitative/section-impact-probability";
+		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
+		AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
+		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
+		return "analyses/single/components/parameters/impact_probability";
 	}
 
 	/**

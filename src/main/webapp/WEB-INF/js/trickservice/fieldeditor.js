@@ -754,12 +754,7 @@ function editField(element, controller, id, field, type) {
 		if (controller == null || controller == undefined)
 			controller = FieldEditor.prototype.__findControllor(element);
 		if (controller == "LikelihoodParameter" || controller == "ImpactParameter") {
-			if (application.analysisType.type === "QUANTITATIVE")
-				fieldEditor = new ExtendedFieldEditor("section_quantitative_parameter", element);
-			else if (controller == "LikelihoodParameter")
-				fieldEditor = new ExtendedFieldEditor("section_qualitative_parameter", element);
-			else
-				fieldEditor = new ExtendedFieldEditor("section_parameter_impact", element);
+			fieldEditor = new ExtendedFieldEditor("section_parameter_impact_probability", element);
 		} else if (controller == "Assessment") {
 			field = element.getAttribute("data-trick-field");
 			var fieldImpact = [ "comment", "hiddenComment", "uncertainty", "owner" ];
