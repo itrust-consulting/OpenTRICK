@@ -30,23 +30,42 @@
 					<spring:message code="label.action.include" text="Include" var="include" />
 					<spring:message code="label.action.exclude" text="Exclude" var="exclude" />
 					<div class="form-horizontal" style="height: 500px; overflow-x: hidden; clear: both;">
+						<c:set var="defaultValue" value="${impacts.remove(quantitativeImpact)}" />
+						<c:set var="displayName" value="${empty quantitativeImpact.translations[langue]? quantitativeImpact.displayName  :  quantitativeImpact.translations[langue].name}" />
+						<div class="form-group" data-trick-id='${quantitativeImpact.id}' style="margin-bottom: 0">
+							<div class="col-xs-7">
+								<strong style="vertical-align: middle;"><spring:message text="${displayName}" /></strong>
+							</div>
+							<div class="col-xs-5 text-center">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-sm btn-success ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${quantitativeImpact.id}" type="radio"
+										value="true"></label> <label class="btn btn-sm btn-warning ${not defaultValue?'active' : ''}">${exclude}<input name="${quantitativeImpact.id}"
+										${not defaultValue?'checked' : ''} type="radio" value="false"></label>
+								</div>
+							</div>
+							<input name="default-value-${quantitativeImpact.id}" value="${defaultValue}" hidden="true">
+						</div>
+						<h5 class="bordered-bottom text-muted" style="margin-top: 0">
+							<spring:message code="label.analysis.type.qualitative" />
+						</h5>
 						<c:forEach items="${impacts.keySet()}" var="impact">
 							<c:set var="defaultValue" value="${impacts[impact]}" />
 							<c:set var="displayName" value="${empty impact.translations[langue]? impact.displayName  :  impact.translations[langue].name}" />
 							<div class="form-group" data-trick-id='${impact.id}'>
 								<div class="col-xs-7">
-									<strong style="vertical-align: middle;"><spring:message text="${displayName}"/></strong>
+									<strong style="vertical-align: middle;"><spring:message text="${displayName}" /></strong>
 								</div>
 								<div class="col-xs-5 text-center">
 									<div class="btn-group" data-toggle="buttons">
-										<label class="btn btn-sm btn-default ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${impact.id}" type="radio" value="true"></label>
-										<label class="btn btn-sm btn-default ${not defaultValue?'active' : ''}">${exclude}<input name="${impact.id}" ${not defaultValue?'checked' : ''} type="radio"
+										<label class="btn btn-sm btn-success ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${impact.id}" type="radio" value="true"></label>
+										<label class="btn btn-sm btn-warning ${not defaultValue?'active' : ''}">${exclude}<input name="${impact.id}" ${not defaultValue?'checked' : ''} type="radio"
 											value="false"></label>
 									</div>
 								</div>
 								<input name="default-value-${impact.id}" value="${defaultValue}" hidden="true">
 							</div>
 						</c:forEach>
+
 					</div>
 				</form>
 				<div class='clearfix'></div>

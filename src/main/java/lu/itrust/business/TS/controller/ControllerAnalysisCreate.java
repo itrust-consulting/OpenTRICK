@@ -385,6 +385,8 @@ public class ControllerAnalysisCreate {
 						.ifPresent(impact -> generateImpactParameters(analysis, mappingParameters, new Scale(scaleType, impact.getLevel() + 1, impact.getValue() * 0.001))
 								.accept(scaleType.getId()));
 			}
+			
+			analysis.updateType();
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
 			Map<Integer, Asset> mappingAssets = assets.isEmpty() ? null : new LinkedHashMap<Integer, Asset>(assets.size());
@@ -421,7 +423,7 @@ public class ControllerAnalysisCreate {
 						analysis.add(duplication);
 					}
 
-					if (analysisForm.getType().isQuantitative() && !analysis.getAssessments().isEmpty()) {
+					if (analysis.isQuantitative() && !analysis.getAssessments().isEmpty()) {
 						analysis.getImpactParameters().parallelStream().filter(impact -> impact.isMatch(Constant.DEFAULT_IMPACT_NAME) && impact.getLevel() == 0).findAny()
 								.ifPresent(impact -> {
 									ValueFactory factory = new ValueFactory(analysis.getParameters());
