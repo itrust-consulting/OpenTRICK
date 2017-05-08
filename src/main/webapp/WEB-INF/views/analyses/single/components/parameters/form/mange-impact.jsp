@@ -31,7 +31,7 @@
 					<spring:message code="label.action.exclude" text="Exclude" var="exclude" />
 					<div class="form-horizontal" style="height: 500px; overflow-x: hidden; clear: both;">
 						<c:set var="defaultValue" value="${impacts.remove(quantitativeImpact)}" />
-						<c:set var="displayName" value="${empty quantitativeImpact.translations[langue]? quantitativeImpact.displayName  :  quantitativeImpact.translations[langue].name}" />
+						<spring:message code='label.analysis.quantitative.impact' var="displayName"/>
 						<div class="form-group" data-trick-id='${quantitativeImpact.id}' style="margin-bottom: 0">
 							<div class="col-xs-7">
 								<strong style="vertical-align: middle;"><spring:message text="${displayName}" /></strong>
@@ -59,7 +59,7 @@
 									<div class="btn-group" data-toggle="buttons">
 										<label class="btn btn-sm btn-success ${defaultValue?'active' : ''}">${include}<input ${defaultValue?'checked' : ''} name="${impact.id}" type="radio" value="true"></label>
 										<label class="btn btn-sm btn-warning ${not defaultValue?'active' : ''}">${exclude}<input name="${impact.id}" ${not defaultValue?'checked' : ''} type="radio"
-											value="false"></label>
+											value="false" ></label>
 									</div>
 								</div>
 								<input name="default-value-${impact.id}" value="${defaultValue}" hidden="true">
@@ -71,7 +71,7 @@
 				<div class='clearfix'></div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal" name='save'>
+				<button type="button" class="btn btn-primary" name='save'>
 					<spring:message code="label.action.save" text="Save" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
