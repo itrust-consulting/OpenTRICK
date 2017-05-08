@@ -23,6 +23,7 @@
 <spring:message code='label.title.acro.raw' text='RAW' var="raw" />
 <spring:message code='label.title.acro.net' text='NET' var="net" />
 <spring:message code='label.title.acro.exp' text='EXP' var="exp" />
+<spring:message code='label.status.na' var="naValue" />
 <spring:message text="${assessment.owner}" var="owner" />
 <spring:message text="${riskProfile.identifier}" var="identifier" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
@@ -38,8 +39,10 @@
 <div class='form-horizontal form-group-fill' style="border-bottom: 1px solid window">
 	<div class='col-sm-4'>
 		<div class="form-group">
-			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label> <div class='col-xs-6'><strong class='form-control form-control-static'><spring:message
-					code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}" /></strong></div>
+			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label>
+			<div class='col-xs-6'>
+				<strong class='form-control form-control-static'><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}" /></strong>
+			</div>
 		</div>
 	</div>
 	<div class='col-sm-4'>
@@ -105,9 +108,7 @@
 									<c:forEach items="${probabilities}" var="parameter">
 										<option value="${parameter.id}" title='<spring:message text="${parameter.label}"/>'>
 											<c:choose>
-												<c:when test="${parameter.level == 0}">
-													<spring:message code='label.status.na' />
-												</c:when>
+												<c:when test="${parameter.level == 0}">${naValue}</c:when>
 												<c:otherwise>${parameter.level}</c:otherwise>
 											</c:choose>
 										</option>
@@ -118,9 +119,7 @@
 								<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='${riskProfile.rawProbaImpact.probability.id}' data-trick-type='integer'>
 									<c:forEach items="${probabilities}" var="parameter">
 										<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probability==parameter?"selected='selected'" :""} title='<spring:message text="${parameter.label}"/>'><c:choose>
-												<c:when test="${parameter.level == 0}">
-													<spring:message code='label.status.na' />
-												</c:when>
+												<c:when test="${parameter.level == 0}">${naValue}</c:when>
 												<c:otherwise>${parameter.level}</c:otherwise>
 											</c:choose></option>
 									</c:forEach>
@@ -144,9 +143,7 @@
 										<select class="form-control" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
 											<c:forEach items="${impacts[impactType.name]}" var="parameter">
 												<option value="${parameter.id}" title='<spring:message text="${parameter.label}"/>'><c:choose>
-														<c:when test="${parameter.level == 0}">
-															<spring:message code='label.status.na' />
-														</c:when>
+														<c:when test="${parameter.level == 0}">${naValue}</c:when>
 														<c:otherwise>${parameter.level}</c:otherwise>
 													</c:choose></option>
 											</c:forEach>
@@ -156,9 +153,7 @@
 										<select class="form-control" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
 											<c:forEach items="${impacts[impactType.name]}" var="parameter">
 												<option value="${parameter.id}" ${impact==parameter? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
-														<c:when test="${parameter.level == 0}">
-															<spring:message code='label.status.na' />
-														</c:when>
+														<c:when test="${parameter.level == 0}">${naValue}</c:when>
 														<c:otherwise>${parameter.level}</c:otherwise>
 													</c:choose></option>
 											</c:forEach>
@@ -191,6 +186,9 @@
 									<spring:message text="${assessment.likelihood}" var="probaValue" />
 									<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${probaValue}" placeholder="${probaValue}"
 										data-trick-type='string'>
+								</c:when>
+								<c:when test="${likelihood['class'].simpleName=='RealValue' && likelihood.real==0}">
+									<input name="likelihood" class="form-control" value="${naValue}" list="dataList-parameter-probability" title="0" placeholder="${naValue}" data-trick-type='string'>
 								</c:when>
 								<c:otherwise>
 									<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="probaValue" />
@@ -369,22 +367,31 @@
 		<c:if test="${show_uncertainty}">
 			<div class='${colClass}'>
 				<div class="form-group">
-					<label class="control-label col-xs-8"><spring:message code="label.title.aleo" /></label> <div class='col-xs-4'><label data-name='ALEO' class='form-control form-control-static numeric disabled'
-						title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label></div>
+					<label class="control-label col-xs-8"><spring:message code="label.title.aleo" /></label>
+					<div class='col-xs-4'>
+						<label data-name='ALEO' class='form-control form-control-static numeric disabled' title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber
+								value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+					</div>
 				</div>
 			</div>
 		</c:if>
 		<div class='${colClass} ${show_uncertainty?"" : "pull-sm-right"}'>
 			<div class="form-group">
-				<label class="control-label col-xs-8"><spring:message code="label.title.ale" /></label> <div class='col-xs-4'><label data-name='ALE' class='form-control form-control-static numeric disabled'
-					title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label></div>
+				<label class="control-label col-xs-8"><spring:message code="label.title.ale" /></label>
+				<div class='col-xs-4'>
+					<label data-name='ALE' class='form-control form-control-static numeric disabled' title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber
+							value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+				</div>
 			</div>
 		</div>
 		<c:if test="${show_uncertainty}">
 			<div class='${colClass}'>
 				<div class="form-group">
-					<label class="control-label col-xs-8"><spring:message code="label.title.alep" /></label> <div class='col-xs-4'> <label data-name="ALEP" class="form-control form-control-static numeric disabled"
-						title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label></div>
+					<label class="control-label col-xs-8"><spring:message code="label.title.alep" /></label>
+					<div class='col-xs-4'>
+						<label data-name="ALEP" class="form-control form-control-static numeric disabled" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber
+								value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+					</div>
 
 				</div>
 			</div>

@@ -36,7 +36,7 @@
 			<tbody>
 				<c:if test="${type.quantitative}">
 					<tr data-trick-class="LikelihoodParameter" hidden="true">
-						<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
+						<td data-trick-field="acronym" colspan="3"><spring:message code='label.status.na' /></td>
 						<td data-trick-field="value" colspan="3">0</td>
 					</tr>
 				</c:if>

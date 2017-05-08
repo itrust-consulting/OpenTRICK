@@ -707,7 +707,7 @@ public class ControllerEditField {
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
 				factory = createFactoryForAssessment(idAnalysis);
 				List<Object> acronyms = Collections.emptyList();
-				if (fieldEditor.getValue().equals("NA"))
+				if (fieldEditor.getValue().toString().equalsIgnoreCase("na"))
 					assessment.setLikelihood("0");
 				else {
 					acronyms = new LinkedList<>(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));

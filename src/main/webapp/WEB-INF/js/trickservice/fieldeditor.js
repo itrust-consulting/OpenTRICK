@@ -117,8 +117,7 @@ function FieldEditor(element, validator) {
 						width = '80';
 				}
 			}
-			$fieldEditor = $(this.fieldEditor)
-
+			$fieldEditor = $(this.fieldEditor);
 		} else {
 			$td = $element;
 			this.fieldEditor = document.createElement("select");
@@ -585,10 +584,8 @@ function AssessmentExtendedParameterEditor(element) {
 			var that = this, $element = $(this.element);
 			if ($element.find("select,input,textarea").length)
 				return true;
-			
 			this.dataListName = undefined;
 			this.acromyms = [];
-			
 			if (!this.LoadData())
 				return true;
 			this.fieldEditor = document.createElement("input");
@@ -596,7 +593,10 @@ function AssessmentExtendedParameterEditor(element) {
 			this.fieldEditor.setAttribute("class", "form-control");
 			this.fieldEditor.setAttribute("class", "form-control");
 			this.fieldEditor.setAttribute("placeholder", this.defaultValue);
-			this.fieldEditor.setAttribute("value", this.defaultValue);
+			if (this.element.hasAttribute("data-real-value")){
+				this.realValue = this.element.getAttribute("data-real-value");
+				this.fieldEditor.setAttribute("value", this.realValue);
+			}else this.fieldEditor.setAttribute("value", this.defaultValue);
 			this.fieldEditor.setAttribute("style", "padding: 4px; width:100px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
 			this.backupData.width = $element.width();
 			this.backupData.orginalStyle = $element.attr("style");
