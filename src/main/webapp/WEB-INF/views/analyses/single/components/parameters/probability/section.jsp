@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<div class="col-md-6">
+<div class="col-md-6 probability-likelihood">
 	<fieldset id="Scale_Probability">
 		<legend>
 			<c:choose>
@@ -85,7 +85,7 @@
 	</fieldset>
 </div>
 <c:if test="${type.quantitative and showDynamicAnalysis}">
-	<div class="col-md-6">
+	<div class="col-md-6 probability-dynamic">
 		<fieldset id="DynamicParameters">
 			<legend>
 				<spring:message code="label.parameter.dynamic.probability" />

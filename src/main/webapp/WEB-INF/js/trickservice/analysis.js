@@ -114,9 +114,16 @@ function manageImpactScale(){
 				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
+					
+					//load view static error message
+					$("[data-lang-code]", $view).each(function(){
+						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
+					});
+					
+					$(".form-group input[value='false']:not(:checked)").one("change",(e) => showDialog("warning",MessageResolver("info.manage.impact.remove")));
+					
 					$("button[name='save']").on("click", e => {
 						var data = {}, notEmpty = false;
-					
 						$(".form-group[data-trick-id]", $view).each(function () {
 							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
@@ -124,8 +131,8 @@ function manageImpactScale(){
 							notEmpty|= newValue === 'true';
 						});
 						
-						if(false && !notEmpty){
-							showDialog("#alert-dialog",MessageResolver(""))
+						if(!notEmpty){
+							showDialog("#alert-dialog",MessageResolver("error.manage.impact.empty"));
 							return false;
 						}
 						

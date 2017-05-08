@@ -78,8 +78,13 @@
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
+			
 		</div>
 		<!-- /.modal-content -->
+		<div class="hidden">
+			<code data-lang-code='error.manage.impact.empty'><spring:message code="error.manage.impact.empty"/></code>
+			<code data-lang-code='info.manage.impact.remove'><spring:message code="info.manage.impact.remove"/></code>
+		</div>
 	</div>
 	<!-- /.modal-dialog -->
 </div>

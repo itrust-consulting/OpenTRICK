@@ -16,16 +16,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<jsp:include page="probability/section.jsp" />
-		</div>
-		<div class="row">
-			<c:if test="${type.quantitative}">
-				<jsp:include page="impact/financial.jsp" />
-			</c:if>
-			<c:if test="${type.qualitative}">
-				<jsp:include page="impact/qualitative.jsp" />
-			</c:if>
-		</div>
+		<jsp:include page="probability/section.jsp" />
+		<c:if test="${type.quantitative}">
+			<jsp:include page="impact/financial.jsp" />
+		</c:if>
+		<c:if test="${type.qualitative}">
+			<jsp:include page="impact/qualitative.jsp" />
+		</c:if>
 	</div>
 </div>

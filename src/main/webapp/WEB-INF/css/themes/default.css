@@ -767,9 +767,15 @@ a#main_menu_profile {
 	margin-top: -5px;
 }
 
-.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve {
+.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve, 
+.probability-likelihood + .impact-qualitaitve, 
+.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve, 
+.probability-dynamic + .impact-qualitaitve, 
+.probability-dynamic + .impact-quantitaitve 
+ {
 	clear: left;
 }
+
 
 @media ( min-width : 992px) {
 	.max-height {
