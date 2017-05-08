@@ -3,17 +3,25 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<div class="col-md-6">
+<div class="col-md-6 impact-quantitaitve">
 	<fieldset id="Scale_Impact">
 		<legend>
-			<spring:message code="label.title.parameter.extended.impact" />
+			<c:choose>
+				<c:when test="${type.qualitative}">
+					<spring:message code="label.title.parameter.quantitative.impact" />
+				</c:when>
+				<c:otherwise>
+					<spring:message code="label.title.parameter.extended.impact" />
+				</c:otherwise>
+			</c:choose>
+			
 		</legend>
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
 					<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
-					<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
+					<th class="textaligncenter" width="50%"><spring:message code="label.parameter.qualification" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
 					<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>

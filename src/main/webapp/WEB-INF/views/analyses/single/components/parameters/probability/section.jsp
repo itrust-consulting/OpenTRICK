@@ -20,12 +20,12 @@
 				<tr>
 					<th width="5%" class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 					<c:if test="${type.qualitative}">
-						<th class="textaligncenter" width="20%"><spring:message code="label.parameter.label" /></th>
+						<th class="textaligncenter" width="${type.quantitative?'10' : '20' }%"><spring:message code="label.parameter.label" /></th>
 					</c:if>
-					<c:if test="${type.quantitative }">
+					<c:if test="${type.quantitative}">
 						<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
 					</c:if>
-					<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
+					<th class="textaligncenter" ${type.qualitative?'width="50%"' : '' }><spring:message code="label.parameter.qualification" /></th>
 					<c:if test="${type.quantitative}">
 						<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
 						<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>

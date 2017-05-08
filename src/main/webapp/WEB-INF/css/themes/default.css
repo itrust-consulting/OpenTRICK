@@ -767,6 +767,9 @@ a#main_menu_profile {
 	margin-top: -5px;
 }
 
+.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve {
+	clear: left;
+}
 
 @media ( min-width : 992px) {
 	.max-height {

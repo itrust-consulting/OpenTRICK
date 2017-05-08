@@ -139,7 +139,7 @@ function refreshEstimation(type) {
 	var $current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item.active");
 	if (!$current.length)
 		$current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item:first");
-	$current.trigger("click");
+	$current.trigger("click")
 }
 
 function updateEstimationSelect(type, elements, status) {
@@ -198,8 +198,8 @@ function updateEstimationIteam(type, item) {
 		}
 	}
 	if (!$option.parent().length) {
-		$link.appendTo("div[data-trick-content='" + type + "']>div.list-group", $tabSection).on("click", changeAssessment);
 		$option.appendTo($selector);
+		$link.appendTo("div[data-trick-content='" + type + "']>div.list-group", $tabSection).on("click", changeAssessment);
 	}
 
 	if ($tabSection.is(":visible"))
@@ -312,7 +312,11 @@ AssessmentHelder.prototype = {
 	}, updateContent: function () {
 		var $current = this.getCurrent(activeSelector).find("option:selected"), type = $current.attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']", this.$tabSection);
 		if (type == undefined) {
-			if (this.getOther(activeSelector).find("option[data-trick-type]:visible").length)
+			var hasElement = this.getOther(activeSelector).find("option[data-trick-type]").filter(function(){
+				return $(this).css("display")!='none';//fix chrome issue
+			}).length > 0;
+			
+			if (hasElement)
 				this.getCurrent(activeSelector).trigger("change");
 		}
 		else {

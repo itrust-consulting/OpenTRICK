@@ -9,7 +9,7 @@
 	<c:if test="${impactType.name!='IMPACT'}">
 		<spring:message text="${impactType.name}" var="impactName" />
 		<c:set var="displayName" value="${empty impactType.translations[impactLanguage]? impactType.displayName  :  impactType.translations[impactLanguage].name}" />
-		<div class="col-md-6">
+		<div class="col-md-6 impact-qualitaitve">
 			<fieldset id="Scale_Impact_${impactName}">
 				<legend>
 					<spring:message code="label.title.parameter.impact.name" arguments="${displayName},${fn:toLowerCase(displayName)}" />

@@ -148,40 +148,53 @@
 						<c:choose>
 							<c:when test="${type.qualitative}">
 								<c:choose>
-									<c:when test="${empty likelihood}">
-										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);"><spring:message
-												code='label.status.na' /></td>
+									<c:when test="${type.quantitative}">
+										<c:choose>
+											<c:when test="${empty likelihood}">
+												<spring:message text="${assessment.likelihood}" var="likelihood" />
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+											</c:when>
+											<c:otherwise>
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
+													title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,3)}" /></td>
+											</c:otherwise>
+										</c:choose>
+										<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+										<c:choose>
+											<c:when test="${empty impact}">
+												<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" title='0 &euro;' onclick="return editField(this);">0</td>
+											</c:when>
+											<c:otherwise>
+												<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${impact.variable}'><c:choose>
+														<c:when test="${impact.real < 10000}">
+															<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" />
+														</c:when>
+														<c:otherwise>
+															<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" />
+														</c:otherwise>
+													</c:choose></td>
+											</c:otherwise>
+										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
-											title='<spring:message text="${likelihood.variable}"/>'><c:choose>
-												<c:when test="${likelihood.level == 0}">
-													<spring:message code='label.status.na' />
-												</c:when>
-												<c:otherwise>${likelihood.level}</c:otherwise>
-											</c:choose></td>
+										<c:choose>
+											<c:when test="${empty likelihood}">
+												<spring:message text="${assessment.likelihood}" var="likelihood" />
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);"><spring:message
+														code='label.status.na' /></td>
+											</c:when>
+											<c:otherwise>
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
+													title='<spring:message text="${likelihood.variable}"/>'><c:choose>
+														<c:when test="${likelihood.level == 0}">
+															<spring:message code='label.status.na' />
+														</c:when>
+														<c:otherwise>${likelihood.level}</c:otherwise>
+													</c:choose></td>
+											</c:otherwise>
+										</c:choose>
 									</c:otherwise>
 								</c:choose>
-								<c:if test="${type.quantitative}">
-									<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
-									<c:choose>
-										<c:when test="${empty impact}">
-											<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" title='0 &euro;' onclick="return editField(this);">0</td>
-										</c:when>
-										<c:otherwise>
-											<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${impact.variable}'><c:choose>
-													<c:when test="${impact.real < 10000}">
-														<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" />
-													</c:when>
-													<c:otherwise>
-														<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" />
-													</c:otherwise>
-												</c:choose></td>
-										</c:otherwise>
-									</c:choose>
-								</c:if>
-
 								<c:forEach items="${impactTypes}" var="impactType">
 									<c:if test="${impactType.name!='IMPACT'}">
 										<spring:message text="${impactType.name}" var="impactName" />
