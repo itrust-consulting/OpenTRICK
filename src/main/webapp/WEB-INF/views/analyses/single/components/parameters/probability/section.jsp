@@ -43,7 +43,7 @@
 				<c:set var="length" value="${mappedParameters['PROBA'].size()-1}" />
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
 					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}" ${type == 'QUALITATIVE' and parameter.level==0? 'style="display:none"':''}>
-						<td data-trick-field="level" class="textaligncenter"><c:choose>
+						<td data-trick-field="level" class="textaligncenter" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />'><c:choose>
 								<c:when test="${parameter.level==0}">
 									<spring:message code='label.status.na' />
 								</c:when>
@@ -53,7 +53,7 @@
 							</c:choose></td>
 
 						<c:if test="${type.qualitative}">
-							<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message text="${parameter.label}" /></td>
+							<td data-trick-field="label" class="textaligncenter"><spring:message text="${parameter.label}" /></td>
 						</c:if>
 						<c:if test="${type.quantitative}">
 							<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
