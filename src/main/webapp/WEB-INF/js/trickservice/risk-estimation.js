@@ -190,9 +190,9 @@ function updateEstimationIteam(type, item) {
 				$option.attr("data-trick-selected", item[key]);
 				$link.attr("data-trick-selected", item[key]);
 				if (item[key]=="true")
-					$option.show();
+					$option.removeClass("hidden");
 				else {
-					$option.hide();
+					$option.addClass("hidden");
 					$link.hide();
 				}
 		}
@@ -312,11 +312,7 @@ AssessmentHelder.prototype = {
 	}, updateContent: function () {
 		var $current = this.getCurrent(activeSelector).find("option:selected"), type = $current.attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']", this.$tabSection);
 		if (type == undefined) {
-			var hasElement = this.getOther(activeSelector).find("option[data-trick-type]").filter(function(){
-				return $(this).css("display")!='none';//fix chrome issue
-			}).length > 0;
-			
-			if (hasElement)
+			if (this.getOther(activeSelector).find("option[data-trick-type]:not(.hidden)").length)
 				this.getCurrent(activeSelector).trigger("change");
 		}
 		else {
