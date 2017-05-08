@@ -44,7 +44,7 @@ $(document).ready(function () {
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
 		loadChartDynamicAleEvolution();
-	}, 30000); // every 30s  
+	}, 30000); // every 30s
 });
 
 $.fn.loadOrUpdateChart = function (parameters) {
@@ -115,16 +115,23 @@ function manageImpactScale(){
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					$("button[name='save']").on("click", e => {
-						var data = {};
+						var data = {}, notEmpty = false;
+					
 						$(".form-group[data-trick-id]", $view).each(function () {
 							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
 								data[$this.attr("data-trick-id")] = newValue;
+							notEmpty|= newValue === 'true';
 						});
 						
-						$progress.show();
+						if(false && !notEmpty){
+							showDialog("#alert-dialog",MessageResolver(""))
+							return false;
+						}
 						
 						if (Object.keys(data).length) {
+							
+							$progress.show();
 							$.ajax({
 								url: context + "/Analysis/Parameter/Impact-scale/Manage/Save",
 								type: "post",
@@ -145,8 +152,9 @@ function manageImpactScale(){
 							}).complete(function () {
 								$progress.hide();
 							});
-						} else
-							$progress.hide();
+						}
+						
+						$view.modal("hide");
 					});
 				}
 			},
