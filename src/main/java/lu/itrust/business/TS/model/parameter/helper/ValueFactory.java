@@ -169,7 +169,7 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		IBoundedParameter parameter = (IBoundedParameter) parameters.get(mid);
 		if (parameter.getBounds().isInRange(value))
-			return value == parameter.getValue() ? new Value(parameter) : new RealValue(value, parameter);
+			return value != parameter.getValue() || parameter.isMatch(Constant.DEFAULT_IMPACT_NAME) ? new RealValue(value, parameter) : new Value(parameter);
 		else if (mid == 0)
 			return new RealValue(value, parameter);
 		else if (parameter.getBounds().getFrom() > value)
