@@ -86,6 +86,7 @@ public class ControllerParameter {
 
 		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
 		serviceScaleType.findAll().stream().filter(scale -> !impacts.containsKey(scale)).forEach(scale -> impacts.put(scale, false));
+		model.addAttribute("quantitativeImpact", impacts.keySet().stream().filter(impact -> impact.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny().orElse(null));
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 		return "analyses/single/components/parameters/form/mange-impact";
