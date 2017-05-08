@@ -31,6 +31,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurrentInvestment;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
@@ -335,8 +336,14 @@ public class ActionPlanComputation {
 
 		computeSummary(actionPlanType.getActionPlanMode());
 
-		analysis.getSummaries().forEach(
-				summary -> summary.getConformances().forEach(conformance -> conformance.setAnalysisStandard(analysisStandards.get(conformance.getAnalysisStandard().getId()))));
+		// Only use those analysis standards that the user selected 
+		for (SummaryStage s : analysis.getSummaries()) {
+			for (SummaryStandardConformance c : s.getConformances()) {
+				AnalysisStandard as = analysisStandards.get(c.getAnalysisStandard().getId());
+				if (as != null)
+					c.setAnalysisStandard(as);
+			}
+		}
 
 		return 95;
 	}
