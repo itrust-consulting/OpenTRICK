@@ -20,7 +20,9 @@
 			<jsp:include page="probability/section.jsp" />
 		</div>
 		<div class="row">
-			<jsp:include page="impact/financial.jsp" />
+			<c:if test="${type.quantitative}">
+				<jsp:include page="impact/financial.jsp" />
+			</c:if>
 			<c:if test="${type.qualitative}">
 				<jsp:include page="impact/qualitative.jsp" />
 			</c:if>
