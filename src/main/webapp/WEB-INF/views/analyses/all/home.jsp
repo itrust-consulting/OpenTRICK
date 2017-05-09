@@ -32,7 +32,7 @@
 								text="Manage Access Rights" /></a></li>
 
 					<c:if test="${allowIDS}">
-						<li class="disabled" data-trick-selectable="true" data-trick-check="!!isArchived() && canManageAccess() && isAnalysisType('QUANTITATIVE')"><a href="#"
+						<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && canManageAccess() && isAnalysisType('QUANTITATIVE')"><a href="#"
 							onclick="return manageAnalysisIDSAccess('section_analysis');"> <span class="fa fa-rss-square"></span> <spring:message code="label.menu.manage.ids.access.analysis"
 									text="Manage IDS" /></a></li>
 					</c:if>

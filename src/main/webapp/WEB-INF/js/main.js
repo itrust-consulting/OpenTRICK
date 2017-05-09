@@ -11,7 +11,7 @@ function Application() {
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
 	this.editingModeFroceAbort = false;
-	this.analysisType = '';
+	this.analysisType = {};
 	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	this.timeoutSetting = {
 		idle : 720000,
@@ -157,7 +157,10 @@ var ANALYSIS_TYPE = {
 				return ANALYSIS_TYPE[key];
 		}
 		return undefined;
-	}
+	},
+	isHybrid : value => value ==='HYBRID',
+	isQuantitative : value => value === 'QUANTITATIVE',
+	isQualitative : value => value === 'QUALITATIVE'
 }
 
 
@@ -347,7 +350,14 @@ function getScrollbarWidth() {
 }
 
 function isAnalysisType(type, section){
-	return  $("table>tbody>tr[data-trick-type='" + type + "']>td>input:checked", section? section : "#section_analysis").length > 0;
+	var analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section? section : "#section_analysis").closest("tr").attr("data-trick-type");
+	return  analysisType && analysisType.isSupported(trType);
+}
+
+function findAnalysisType(section, idAnalysis){
+	if(Object.keys(application.analysisType).length)
+		return application.analysisType.type;
+	return 	 $("table>tbody>tr[data-trick-id='"+idAnalysis+"'][data-trick-type]", section).attr("data-trick-type");
 }
 
 function isArchived(analysisId){
