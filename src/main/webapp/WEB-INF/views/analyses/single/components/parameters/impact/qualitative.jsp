@@ -17,7 +17,7 @@
 				<table class="table table-hover table-fixed-header-analysis table-condensed">
 					<thead>
 						<tr>
-							<th width='5%' class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+							<th width='1%' class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 							<th width='20%' class="textaligncenter"><spring:message code="label.parameter.label" /></th>
 							<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
 						</tr>

@@ -19,8 +19,8 @@
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
-					<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
-					<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+					<th class="textaligncenter" width="1%"><spring:message code="label.parameter.level" /></th>
+					<th class="textaligncenter" width="1%"><spring:message code="label.parameter.acronym" /></th>
 					<th class="textaligncenter" width="50%"><spring:message code="label.parameter.qualification" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
 					<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>

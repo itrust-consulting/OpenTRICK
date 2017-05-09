@@ -18,12 +18,12 @@
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
-					<th width="5%" class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+					<th width="1%" class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 					<c:if test="${type.qualitative}">
 						<th class="textaligncenter" width="${type.quantitative?'10' : '20' }%"><spring:message code="label.parameter.label" /></th>
 					</c:if>
 					<c:if test="${type.quantitative}">
-						<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+						<th class="textaligncenter" width="1%"><spring:message code="label.parameter.acronym" /></th>
 					</c:if>
 					<th class="textaligncenter" ${type.qualitative?'width="50%"' : '' }><spring:message code="label.parameter.qualification" /></th>
 					<c:if test="${type.quantitative}">
