@@ -82,7 +82,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 		// run = paragraph.getRuns().get(0);
 
-		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
+		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APQ);
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 
@@ -154,7 +154,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		if (paragraph == null)
 			return;
 
-		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
+		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APQ);
 
 		if (summary.isEmpty()) {
 			paragraphsToDelete.add(paragraph);
@@ -403,6 +403,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			while (!paragraphOrigin.getRuns().isEmpty())
 				paragraphOrigin.removeRun(0);
 			List<ScaleType> scaleTypes = analysis.getImpacts();
+			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			int colLength = 4 + scaleTypes.size(), colIndex = 0;
 			for (Asset asset : assessementsByAsset.keySet()) {
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
@@ -521,7 +522,8 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				buildImpactProbabilityTable(paragraph, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
 						analysis.getLikelihoodParameters());
 			else {
-				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().collect(Collectors.groupingBy(ImpactParameter::getType));
+				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().filter(parameter -> !parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))
+						.collect(Collectors.groupingBy(ImpactParameter::getType));
 				generateImpactList(impacts.keySet());
 				for (ScaleType scaleType : impacts.keySet()) {
 					Translation title = scaleType.get(languuage);

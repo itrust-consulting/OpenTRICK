@@ -54,32 +54,44 @@ function exportAnalysisSOA(analysisId) {
 	return false;
 }
 
-function exportAnalysisReport(analysisId) {
+function exportAnalysisReport(analysisId, type) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
+	if(type == null || type == undefined)
+		type = findAnalysisType("#section_analysis", analysisId);
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url: context + "/Analysis/Export/Report/" + analysisId,
-			type: "get",
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
-					application["taskManager"].Start();
-				else if (response["error"] != undefined)
-					showDialog("#alert-dialog", response["error"]);
-				else
-					unknowError();
-			},
-			error: unknowError
-		}).complete(()  =>$progress.hide());
+		if(ANALYSIS_TYPE.isHybrid(type)){
+			var $dialogModal = $("#analysis-export-dialog");
+			$dialogModal.modal("show").find("button[name='export']").unbind("click").one("click", (e) => {
+				$dialogModal.modal("hide");
+				exportProcessing(analysisId, e.currentTarget.getAttribute("data-trick-type"));
+			});
+		}else exportProcessing(analysisId, type);
 	} else
 		permissionError();
 	return false;
+}
+
+function exportProcessing(analysisId, type){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Export/Report/" + analysisId+"/"+ type,
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (response["success"] != undefined)
+				application["taskManager"].Start();
+			else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else
+				unknowError();
+		},
+		error: unknowError
+	}).complete(()  =>$progress.hide());
 }
 
 function exportRiskSheet(idAnalysis, report) {
