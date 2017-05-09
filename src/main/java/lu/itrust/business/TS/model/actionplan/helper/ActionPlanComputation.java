@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.naming.directory.InvalidAttributesException;
 
@@ -248,6 +249,10 @@ public class ActionPlanComputation {
 
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
+			// Reset previously computed action plans
+			// This is needed to assure that the action plan list is actually empty
+			analysis.setActionPlans(new ArrayList<ActionPlanEntry>(0));
+
 			if (analysis.isQuantitative())
 				progress = quantitativeActionPlan();
 			if (analysis.isQualitative())
@@ -317,11 +322,16 @@ public class ActionPlanComputation {
 
 		this.standards = tmpAnalysisStandards.values().stream().collect(Collectors.toList());
 
-		analysis.setActionPlans(actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
+		// N.B.: can append the newly computed action plan to the previous one
+		// since the action plans got reset at the very beginning of the computation (see calculateActionPlans()).
+		// Appending is even required, since in MIXED-style analyses, the quantitative AND qualitative action plans are computed!
+		Stream<ActionPlanEntry> prevActionPlans = analysis.getActionPlans().stream();
+		Stream<ActionPlanEntry> newActionPlans = actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
 			actionPlan.setPosition(position[0]++);
 			actionPlan.setOrder((actionPlan.getPosition() + 1) + "");
 			return actionPlan;
-		}).collect(Collectors.toList()));
+		});
+		analysis.setActionPlans(Stream.concat(prevActionPlans, newActionPlans).collect(Collectors.toList()));
 
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 70));
