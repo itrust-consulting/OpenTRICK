@@ -75,6 +75,7 @@ import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -405,13 +406,13 @@ public class ControllerAnalysisStandard {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/{standardId}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/{standardId}/Compliance/{type}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart compliance(@PathVariable Integer standardId, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Chart compliance(@PathVariable Integer standardId, @PathVariable ActionPlanMode type, HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == standardId)
-				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale)).findAny().orElse(new Chart());
+				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale)).findAny().orElse(new Chart());
 	}
 
 	/**
@@ -422,12 +423,12 @@ public class ControllerAnalysisStandard {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Compliances/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody List<Chart> compliances(HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody List<Chart> compliances(@PathVariable ActionPlanMode type, HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale))
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale))
 				.collect(Collectors.toList());
 	}
 

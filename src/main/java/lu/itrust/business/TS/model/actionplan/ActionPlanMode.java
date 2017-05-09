@@ -4,7 +4,7 @@ import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * ActionPlanMode <br>
- * <b>There are 6 modes:</b>
+ * <b>There are 7 modes:</b>
  * <ul>
  * <li>NORMAL (1)</li>
  * <li>OPTIMISTIC (2)</li>
@@ -63,11 +63,11 @@ public enum ActionPlanMode {
 	 * </ul>
 	 * 
 	 * @param value
-	 *            ActionPlanmode value from 1 to 6
+	 *            ActionPlanmode value from 1 to 7
 	 * @return ActionplanMode
 	 * @throws TrickException 
 	 * @throws IllegalArgumentException
-	 *             when value is not between 1 and 6
+	 *             when value is not between 1 and 7
 	 */
 	public static ActionPlanMode valueOf(int value) throws TrickException {
 		ActionPlanMode[] values = values();

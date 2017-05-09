@@ -112,7 +112,8 @@
 		application['openMode'] = OPEN_MODE.valueOf('${open}');
 		application['isLinkedToProject'] = ${isLinkedToProject};
 		application['hasMaturity'] = ${hasMaturity==true};
-		application['actionPlanType']  = "${show_uncertainty? 'APPO,APPN,APPP' : 'APPN'}".split(',');
+		application['actionPlanType']  = "${type=='QUALITATIVE'? 'APQ' : show_uncertainty? 'APPO,APPN,APPP,APQ' : 'APPN,APQ'}".split(',');
+		application['complianceType']  = "${type=='QUALITATIVE'? 'APQ' : type == 'QUANTITATIVE'? 'APPN,APQ' : 'APPN,APQ'}".split(',');
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");
 		resolveMessage("info.leave.page.in_mode_editing", "<spring:message code='info.leave.page.in_mode_editing' />");

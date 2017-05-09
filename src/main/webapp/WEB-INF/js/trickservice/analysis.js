@@ -599,16 +599,21 @@ function updateMeasureEffience(reference) {
 
 function compliances() {
 	var $section = $("#tab-chart-compliance");
-	if ($section.is(":visible"))
-		loadComplianceChart(context + "/Analysis/Standard/Compliances");
+	if ($section.is(":visible")){
+		for (let type of application['complianceType'])
+			loadComplianceChart(context + "/Analysis/Standard/Compliances/"+type);
+		
+	}
 	else $section.attr("data-update-required", "true");
 	return false;
 }
 
 function compliance(standard) {
 	var $section = $("#tab-chart-compliance");
-	if ($section.is(":visible"))
-		loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance");
+	if ($section.is(":visible")){
+		for (let type of application['complianceType'])
+			loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance/"+type);
+	}
 	else
 		$section.attr("data-update-required", "true");
 	return false;
