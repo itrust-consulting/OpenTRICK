@@ -41,7 +41,6 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
  * @version 0.1
  * @since 1/04/2016
  */
-@Deprecated
 public class RiskSheetComputation {
 
 	/***********************************************************************************************
@@ -52,18 +51,6 @@ public class RiskSheetComputation {
 	private Analysis analysis = null;
 
 	private ValueFactory factory;
-
-	/** Value to identify reputation impact like max impact */
-	public static final int MAX_IMPACT_REPUTATION = 0;
-
-	/** Value to identify operational impact like max impact */
-	public static final int MAX_IMPACT_OPERATIONAL = 1;
-
-	/** Value to identify legal impact like max impact */
-	public static final int MAX_IMPACT_LEGAL = 2;
-
-	/** Value to identify financial impact like max impact */
-	public static final int MAX_IMPACT_FINANCIAL = 3;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -80,29 +67,6 @@ public class RiskSheetComputation {
 	public RiskSheetComputation(Analysis analysis) {
 		this.analysis = analysis;
 	}
-
-	public List<TMA> generateTMAs(Analysis analysis, ValueFactory factory, int mandatoryPhase) throws TrickException {
-		List<TMA> tmas = new ArrayList<TMA>();
-
-		List<Phase> usePhases = analysis.getPhases();
-
-		List<Measure> useMeasures = new ArrayList<Measure>();
-
-		for (int i = 0; i < usePhases.size(); i++) {
-			if (usePhases.get(i).getNumber() == 0)
-				continue;
-			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true,
-					analysis.getAnalysisStandards()));
-			if (mandatoryPhase == usePhases.get(i).getNumber())
-				break;
-		}
-		return tmas;
-
-	}
-
-	/***********************************************************************************************
-	 * Methods
-	 **********************************************************************************************/
 
 	/**
 	 * computeRiskRegister: <br>
@@ -161,61 +125,140 @@ public class RiskSheetComputation {
 	}
 
 	/***********************************************************************************************
+	 * Methods
+	 **********************************************************************************************/
+
+	public MessageHandler computeRiskRegister(CSSFFilter filter) {
+		// create a messagehandler object
+		ComputationHelper helper = null;
+		try {
+			System.out.println("Risk Register calculation...");
+			List<ILevelParameter> impactParameters = this.analysis.getImpactParameters().stream().collect(Collectors.toList());
+			this.analysis.getLikelihoodParameters().forEach(probability -> impactParameters.add(probability));
+			int mandatoryPhase = this.analysis.getSimpleParameters().stream()
+					.filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE)).map(SimpleParameter::getValue).findAny().orElse(0D)
+					.intValue();
+			// ****************************************************************
+			// * calculate RiskRegister using CSSFComputation
+			// ****************************************************************
+			helper = new ComputationHelper(impactParameters);
+			setFactory(helper.getFactory());
+			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, helper.getFactory(), mandatoryPhase), helper, filter));
+			return null;
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return new MessageHandler(e);
+		} finally {
+			if (helper != null) {
+				helper.destroy();
+			}
+		}
+	}
+
+	/***********************************************************************************************
 	 * Print on Screen
 	 **********************************************************************************************/
 
-	/**
-	 * printRegister: <br>
-	 * Prints the Risk Register Items into the console.
-	 * 
-	 * @param registers
-	 *            The Risk Register to print on console
-	 */
-	public static void printRegister(List<RiskRegisterItem> registers) {
+	public List<TMA> generateTMAs(Analysis analysis, ValueFactory factory, int mandatoryPhase) throws TrickException {
+		List<TMA> tmas = new ArrayList<TMA>();
 
-		// check if register is not empty
-		if (registers == null || registers.isEmpty())
-			return;
-		// print header line
-		System.out.println("ID | Position | idScenario | idAsset | Cat. | Risk title  |  RAW evaluation " + "|Net Evaluation | Expected Importance | Response stategy");
-		// print each risk register item
-		for (RiskRegisterItem registerItem : registers)
-			print(registerItem);
-	}
+		List<Phase> usePhases = analysis.getPhases();
 
-	public static void print(RiskRegisterItem registerItem) {
-		System.out.println("--------------------------------------------------------------------" + "----------------------------------------");
-		System.out.print(registerItem.getId() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId() + " | "
-				+ registerItem.getScenario().getType().getName() + " | " + registerItem.getScenario().getName());
-		printRiskRegisterItem(registerItem.getRawEvaluation());
-		printRiskRegisterItem(registerItem.getNetEvaluation());
-		printRiskRegisterItem(registerItem.getExpectedEvaluation());
-		System.out.println();
-	}
+		List<Measure> useMeasures = new ArrayList<Measure>();
 
-	/**
-	 * printRiskRegisterItem: <br>
-	 * Prints the single Risk Register Result into the console.
-	 * 
-	 * @param evaluationResult
-	 */
-	public static void printRiskRegisterItem(EvaluationResult evaluationResult) {
-
-		// check if result is not null
-		if (evaluationResult != null) {
-
-			// print the probability, impact and importance
-			System.out.print("|" + evaluationResult.getProbability() + "|" + evaluationResult.getImpact() + "|" + evaluationResult.getImportance() + "|");
-		} else {
-
-			// print null
-			System.out.print("|null|null|null");
+		for (int i = 0; i < usePhases.size(); i++) {
+			if (usePhases.get(i).getNumber() == 0)
+				continue;
+			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true,
+					analysis.getAnalysisStandards()));
+			if (mandatoryPhase == usePhases.get(i).getNumber())
+				break;
 		}
+		return tmas;
+
+	}
+
+	public Analysis getAnalysis() {
+		return analysis;
+	}
+
+	/**
+	 * @return the factory
+	 */
+	public ValueFactory getFactory() {
+		return factory;
 	}
 
 	/***********************************************************************************************
 	 * Main Method
 	 **********************************************************************************************/
+
+	/**
+	 * @param factory
+	 *            the factory to set
+	 */
+	public void setFactory(ValueFactory factory) {
+		this.factory = factory;
+	}
+
+	/**
+	 * computeImpactAndProbability: <br>
+	 * Computes "Expected Importance" and update riskRegisters.<br />
+	 * Computes X, Pa and Ia:
+	 * <ul>
+	 * <li>Key = Scenario id</li>
+	 * <li>Pc = riskRegisters[key].netEvaluation.Probability</li>
+	 * <li>Ic = riskRegisters[key].netEvaluation.Impact</li>
+	 * <li>Ra = importance</li>
+	 * <li>X = probabilityRelativeImpacts[key][0]
+	 * /probabilityRelativeImpacts[Key][1]</li>
+	 * <li>Pa = Pc*( Ra /( Pc * Ic ) ) ^ X</li>
+	 * <li>Ia = Ra / Pa</li>
+	 * </ul>
+	 *
+	 * @param riskRegisters
+	 *            the Risk Register Item
+	 * @param probabilityRelativeImpacts
+	 *            the list of probability relative impacts
+	 * @throws TrickException
+	 */
+	public static EvaluationResult computeImpactAndProbability(final double x, final double currentImpact, final double currentProbability, final double importance)
+			throws TrickException {
+
+		if (Double.isNaN(x)) {
+			System.err.println("A nan was detected X: " + x);
+			return new EvaluationResult(0, 0);
+		}
+
+		// System.out.println("Caractere: " + x);
+
+		// compute importance repport
+		double rapportImportance = importance / (currentImpact * currentProbability);
+
+		if (Double.isNaN(rapportImportance)) {
+			System.err.println("A nan was detected rapportImportance: " + importance + "/ (" + currentImpact + "*" + currentProbability + ")");
+			return new EvaluationResult(0, 0);
+		}
+
+		// retirve likelihood level
+		double probability = currentProbability * Math.pow(rapportImportance, x);
+
+		if (Double.isNaN(probability)) {
+			System.err.println("A nan was detected probability: " + probability);
+			return new EvaluationResult(0, 0);
+		}
+
+		// retrieve impact level
+		double impact = currentImpact * Math.pow(rapportImportance, 1.0 - x);
+
+		if (Double.isNaN(impact)) {
+			System.err.println("A nan was detected impact: " + impact);
+			return new EvaluationResult(0, 0);
+		}
+
+		// return the evaluation result
+		return new EvaluationResult(probability, impact);
+	}
 
 	/**
 	 * CSSFComputation: <br>
@@ -278,63 +321,208 @@ public class RiskSheetComputation {
 	}
 
 	/**
-	 * cssfFinalComputation: <br>
-	 * Computes last nessesary computations on raw and excepted evaluation.
+	 * expectedImportanceComputation: <br>
+	 * update expected importance in riskRegisters.<br>
+	 * steps:
+	 * <ul>
+	 * <li>{@link #computeProbabilityRelativeImpact(List, List) Computation of
+	 * Probability Relative Impact}</li>
+	 * <li>{@link #computeExpectedImportance(Map, Map) Merge All}</li>
+	 * </ul>
 	 * 
 	 * @param riskRegisters
-	 *            The Risk Register to compute
-	 * @param netALEs
-	 *            The netALE List
-	 * @param impacts
-	 *            The Impacts List
-	 * @param probabilityRelativeImpacts
-	 *            The probability relative impacts
-	 * @param rawALEs
-	 *            The raw ALE List
-	 * @param deltaALEs
+	 *            The Risk Register Item
+	 * @param netImpact
+	 *            The netImpact value
+	 * @param netProbability
+	 *            The netProbability value
+	 * @param deltaALE
 	 *            The delta ALE List
-	 * @param parameters
-	 *            The Parameters List
+	 * @param netALE
+	 *            The net ALE List
+	 * @param probabilityRelativeImpact
+	 *            The probability relative impact list
 	 * @throws TrickException
 	 */
-	private static void cssfFinalComputation(ComputationHelper helper) {
+	public static void expectedImportanceComputation(RiskRegisterItem riskRegisters, final Double deltaALE, final double netALE, final double[] probabilityRelativeImpact)
+			throws TrickException {
 
-		// parse all risk register items
+		// retrieve net impact
+		double netImpact = riskRegisters.getNetEvaluation().getImpact();
+		// retrieve net importance
+		double netProbability = riskRegisters.getNetEvaluation().getProbability();
+		// retrieve net importance
+		double importanceNet = riskRegisters.getNetEvaluation().getImportance();
 
-		helper.getRiskRegisters().forEach((key, registerItem) -> {
-			// extract the scenario ID
+		if (deltaALE == null) {
+			riskRegisters.setExpectedEvaluation(new EvaluationResult(netProbability, netImpact));
+			return;
+		}
 
-			// retrieve for this scenario the netALE value
-			double netALE = helper.getNetALEs().get(key);
+		// compute quantitative value
+		// double quantitativeValue = netALE / importanceNet;
 
-			// retrieve for this scenario the deltaALE value
-			Double deltaALE = helper.getDeltaALEs().get(key);
+		// compute delta Importance
+		// double deltaImp = deltaALE / quantitativeValue;
 
-			// retrieve for this scenario the probability relative Impacts value
-			double[] probabilityRelativeImpact = helper.getProbabilityRelativeImpacts().get(key);
+		// compute expected importance
+		double expImportance = importanceNet - deltaALE;
 
-			// retrieve for this scenario the rawALE value
-			Double rawALE = helper.getRawALEs().get(key);
+		if (expImportance < 0) {
+			riskRegisters.setExpectedEvaluation(new EvaluationResult(0, 0));
+			System.err.println("Expected importance " + expImportance + "<0 for " + riskRegisters.getScenario().getName());
+		} else {
+			// computation of proportional strength
+			double x = probabilityRelativeImpact[0] / probabilityRelativeImpact[1];
 
-			// retrieve for this scenario the impact value
-			double netImpact = helper.getNetALEs().get(key);
-
-			// retrieve for this scenario the probability value
-			double netProbability = netALE / netImpact;
-
-			// determine netImpact and netProbability level from input data.
-			registerItem.getNetEvaluation().setImpact(netImpact);
-
-			registerItem.getNetEvaluation().setProbability(Double.isNaN(netProbability) ? 0 : netProbability);
-
-			// calculate the last step of expected Evaluation
-			expectedImportanceComputation(registerItem, deltaALE, netALE, probabilityRelativeImpact);
-
-			// calculate the last step of raw evaluation Evaluation
-			rawEvaluationComputation(registerItem, netALE, rawALE, probabilityRelativeImpact);
-		});
-
+			// update expected importance
+			riskRegisters.setExpectedEvaluation(computeImpactAndProbability(x, netImpact, netProbability, expImportance));
+		}
 	}
+
+	public static void print(RiskRegisterItem registerItem) {
+		System.out.println("--------------------------------------------------------------------" + "----------------------------------------");
+		System.out.print(registerItem.getId() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId() + " | "
+				+ registerItem.getScenario().getType().getName() + " | " + registerItem.getScenario().getName());
+		printRiskRegisterItem(registerItem.getRawEvaluation());
+		printRiskRegisterItem(registerItem.getNetEvaluation());
+		printRiskRegisterItem(registerItem.getExpectedEvaluation());
+		System.out.println();
+	}
+
+	/***********************************************************************************************
+	 * NET EVALUATION - END
+	 **********************************************************************************************/
+
+	/***********************************************************************************************
+	 * RAW EVALUATION - BEGIN
+	 **********************************************************************************************/
+
+	/**
+	 * printRegister: <br>
+	 * Prints the Risk Register Items into the console.
+	 * 
+	 * @param registers
+	 *            The Risk Register to print on console
+	 */
+	public static void printRegister(List<RiskRegisterItem> registers) {
+
+		// check if register is not empty
+		if (registers == null || registers.isEmpty())
+			return;
+		// print header line
+		System.out.println("ID | Position | idScenario | idAsset | Cat. | Risk title  |  RAW evaluation " + "|Net Evaluation | Expected Importance | Response stategy");
+		// print each risk register item
+		for (RiskRegisterItem registerItem : registers)
+			print(registerItem);
+	}
+
+	/**
+	 * printRiskRegisterItem: <br>
+	 * Prints the single Risk Register Result into the console.
+	 * 
+	 * @param evaluationResult
+	 */
+	public static void printRiskRegisterItem(EvaluationResult evaluationResult) {
+
+		// check if result is not null
+		if (evaluationResult != null) {
+
+			// print the probability, impact and importance
+			System.out.print("|" + evaluationResult.getProbability() + "|" + evaluationResult.getImpact() + "|" + evaluationResult.getImportance() + "|");
+		} else {
+
+			// print null
+			System.out.print("|null|null|null");
+		}
+	}
+
+	/**
+	 * rawEvaluationComputation: <br>
+	 * Compute Raw evaluation. for a given risk register.
+	 * 
+	 * @param riskRegisters
+	 *            The Risk Register
+	 * @param netALEs
+	 *            The calculated Net ALE list
+	 * @param rawALEs
+	 *            The calculated Raw ALE list
+	 * @param probabilityRelativeImpacts
+	 *            the calculated relativeimpact list
+	 * @throws TrickException
+	 * @see #computeRawALE(Map, Map, List, List)
+	 */
+	public static void rawEvaluationComputation(RiskRegisterItem riskRegisters, final double netALE, final Double rawALE, double[] probabilityRelativeImpact)
+			throws TrickException {
+
+		// retrieve net impact
+		double netImpact = riskRegisters.getNetEvaluation().getImpact();
+
+		// retrieve net importance
+		double netProbability = riskRegisters.getNetEvaluation().getProbability();
+
+		// retrieve net importance
+		// double netImportance =
+		// riskRegisters.getNetEvaluation().getImportance();
+
+		// compute scale point of importance
+		// double impScalePoint = netALE / netImportance;
+
+		if (rawALE == null) {
+			riskRegisters.setRawEvaluation(new EvaluationResult(netProbability, netImpact));
+			return;
+		}
+
+		/**
+		 * Computes "Expected Importance" and update riskRegisters.<br />
+		 * Computes X, Pa and Ia:
+		 * <ul>
+		 * <li>Key = Scenario id</li>
+		 * <li>Pc = riskRegisters[key].netEvaluation.Probability</li>
+		 * <li>Ic = riskRegisters[key].netEvaluation.Impact</li>
+		 * <li>Ra = rawImportance</li>
+		 * <li>X = probabilityRelativeImpacts[key][0] /
+		 * probabilityRelativeImpacts[Key][1]</li>
+		 * <li>Pa = Pc*( Ra /( Pc * Ic ) ) ^ X</li>
+		 * <li>Ia = Ra / Pa</li>
+		 * </ul>
+		 */
+		// computation of proportional strength
+		double x = probabilityRelativeImpact[0] / probabilityRelativeImpact[1];
+
+		// update raw evaluation
+		riskRegisters.setRawEvaluation(computeImpactAndProbability(x, netImpact, netProbability, rawALE));
+	}
+
+	/**
+	 * computeDeltaALEs: <br>
+	 * Sum deltaALE for a given TMA and store inside deltaALEs parameter.
+	 * 
+	 * @param deltaALEs
+	 *            The given List to store the Sum of DeltaALE of given TMA entry
+	 * @param tma
+	 *            The TMA entry to retrieve delta ALE from
+	 * @param parameters
+	 *            The List of Parameters
+	 * @throws TrickException
+	 */
+	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, String key, ValueFactory valueFactory) throws TrickException {
+
+		double currentDeltaALE = TMA.calculateDeltaALE(deltaALEs.containsKey(key) ? ALE - deltaALEs.get(key) : ALE, tma.getRRF(), tma.getMeasure(), valueFactory);
+		// retireve existing summed value of this scneario and add current
+		// deltaALE, if none exist
+		// use the current as new value
+		deltaALEs.put(key, deltaALEs.containsKey(key) ? deltaALEs.get(key) + currentDeltaALE : currentDeltaALE);
+		// update deltaALE
+	}
+
+	/***********************************************************************************************
+	 * RAW EVALUATION - END
+	 **********************************************************************************************/
+
+	/***********************************************************************************************
+	 * Expected Importance EVALUATION - BEGIN
+	 **********************************************************************************************/
 
 	/**
 	 * computeNetALE: <br>
@@ -366,6 +554,70 @@ public class RiskSheetComputation {
 				helper.getRiskRegisters().put(key, new RiskRegisterItem(assessment.getScenario(), assessment.getAsset()));
 			}
 		}
+	}
+
+	/**
+	 * computeProbabilityRelativeImpact: <br>
+	 * Final goal, compute X = (Preventive + 0,5* Detective) / (Preventive +
+	 * Detective + Limitative + Preventive).<br />
+	 * Here, we compute numerator and denominator.
+	 * <ul>
+	 * <li>Key = Scenario id</li>
+	 * <li>Numerator = value[0]</li>
+	 * <li>Denominator = value[1]</li>
+	 * </ul>
+	 * 
+	 * @return Map(String,double[2]) where key = scenario name, value[0] =
+	 *         Numerator and value[1] = Denominator
+	 */
+	private static void computeProbabilityRelativeImpact(Map<String, double[]> probabilityRelativeImpacts, String key, SecurityCriteria criteria) {
+
+		// use exisisting value or initialise new
+		double[] probabilityRelativeImpact = probabilityRelativeImpacts.containsKey(key) ? probabilityRelativeImpacts.get(key) : new double[] { 0, 0 };
+
+		// compute numerator
+		probabilityRelativeImpact[0] += (criteria.getPreventive() + criteria.getDetective() * 0.5);
+
+		// Compute Denominator
+		probabilityRelativeImpact[1] += (criteria.getPreventive() + criteria.getDetective() + criteria.getLimitative() + criteria.getCorrective());
+
+		// save final compute
+		probabilityRelativeImpacts.put(key, probabilityRelativeImpact);
+	}
+
+	/**
+	 * computeRawALE: <br>
+	 * Compute the Raw ALE and store the value inside the given rawALEs list.
+	 * 
+	 * @param rawALEs
+	 *            The List of raw ALEs
+	 * @param netALEs
+	 *            The List of net ALEs
+	 * @param tma
+	 *            The TMA Entry
+	 * @param parameters
+	 *            The SimpleParameter List
+	 */
+	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, String key, ValueFactory valueFactory) {
+
+		// Retrieve current rawALE of the scenario ID if it does not exist take
+		// the start value of
+		// the netALE of this scenario
+		double rawALE = rawALEs.containsKey(key) ? rawALEs.get(key) : netALEs.get(key);
+
+		// Retrieve implementation rate of the measure and transform it to
+		// percentage
+		double ImplementationRate = tma.getMeasure().getImplementationRateValue(valueFactory) * 0.01;
+
+		// calculate new RAW ALE using formula
+		rawALE /= (1.0 - tma.getRRF() * ImplementationRate);
+		/*
+		 * System.out.println(tma.getAssessment().getScenario().getName() +
+		 * ", RRF: " + tma.getRRF() + ", ImplementationRate: " +
+		 * ImplementationRate);
+		 */
+		// update rawALE
+		rawALEs.put(key, rawALE);
 	}
 
 	/**
@@ -442,339 +694,70 @@ public class RiskSheetComputation {
 
 	}
 
+	/**
+	 * cssfFinalComputation: <br>
+	 * Computes last nessesary computations on raw and excepted evaluation.
+	 * 
+	 * @param riskRegisters
+	 *            The Risk Register to compute
+	 * @param netALEs
+	 *            The netALE List
+	 * @param impacts
+	 *            The Impacts List
+	 * @param probabilityRelativeImpacts
+	 *            The probability relative impacts
+	 * @param rawALEs
+	 *            The raw ALE List
+	 * @param deltaALEs
+	 *            The delta ALE List
+	 * @param parameters
+	 *            The Parameters List
+	 * @throws TrickException
+	 */
+	private static void cssfFinalComputation(ComputationHelper helper) {
+
+		// parse all risk register items
+
+		helper.getRiskRegisters().forEach((key, registerItem) -> {
+			// extract the scenario ID
+
+			// retrieve for this scenario the netALE value
+			double netALE = helper.getNetALEs().get(key);
+
+			// retrieve for this scenario the deltaALE value
+			Double deltaALE = helper.getDeltaALEs().get(key);
+
+			// retrieve for this scenario the probability relative Impacts value
+			double[] probabilityRelativeImpact = helper.getProbabilityRelativeImpacts().get(key);
+
+			// retrieve for this scenario the rawALE value
+			Double rawALE = helper.getRawALEs().get(key);
+
+			// retrieve for this scenario the impact value
+			double netImpact = helper.getNetALEs().get(key);
+
+			// retrieve for this scenario the probability value
+			double netProbability = netALE / netImpact;
+
+			// determine netImpact and netProbability level from input data.
+			registerItem.getNetEvaluation().setImpact(netImpact);
+
+			registerItem.getNetEvaluation().setProbability(Double.isNaN(netProbability) ? 0 : netProbability);
+
+			// calculate the last step of expected Evaluation
+			expectedImportanceComputation(registerItem, deltaALE, netALE, probabilityRelativeImpact);
+
+			// calculate the last step of raw evaluation Evaluation
+			rawEvaluationComputation(registerItem, netALE, rawALE, probabilityRelativeImpact);
+		});
+
+	}
+
 	/***********************************************************************************************
 	 * NET EVALUATION - BEGIN
 	 **********************************************************************************************/
 
 	private static String getKey(Assessment assessment) {
 		return assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
-	}
-
-	/***********************************************************************************************
-	 * NET EVALUATION - END
-	 **********************************************************************************************/
-
-	/***********************************************************************************************
-	 * RAW EVALUATION - BEGIN
-	 **********************************************************************************************/
-
-	/**
-	 * computeDeltaALEs: <br>
-	 * Sum deltaALE for a given TMA and store inside deltaALEs parameter.
-	 * 
-	 * @param deltaALEs
-	 *            The given List to store the Sum of DeltaALE of given TMA entry
-	 * @param tma
-	 *            The TMA entry to retrieve delta ALE from
-	 * @param parameters
-	 *            The List of Parameters
-	 * @throws TrickException
-	 */
-	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, String key, ValueFactory valueFactory) throws TrickException {
-
-		double currentDeltaALE = TMA.calculateDeltaALE(deltaALEs.containsKey(key) ? ALE - deltaALEs.get(key) : ALE, tma.getRRF(), tma.getMeasure(), valueFactory);
-		// retireve existing summed value of this scneario and add current
-		// deltaALE, if none exist
-		// use the current as new value
-		deltaALEs.put(key, deltaALEs.containsKey(key) ? deltaALEs.get(key) + currentDeltaALE : currentDeltaALE);
-		// update deltaALE
-	}
-
-	/**
-	 * computeRawALE: <br>
-	 * Compute the Raw ALE and store the value inside the given rawALEs list.
-	 * 
-	 * @param rawALEs
-	 *            The List of raw ALEs
-	 * @param netALEs
-	 *            The List of net ALEs
-	 * @param tma
-	 *            The TMA Entry
-	 * @param parameters
-	 *            The SimpleParameter List
-	 */
-	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, String key, ValueFactory valueFactory) {
-
-		// Retrieve current rawALE of the scenario ID if it does not exist take
-		// the start value of
-		// the netALE of this scenario
-		double rawALE = rawALEs.containsKey(key) ? rawALEs.get(key) : netALEs.get(key);
-
-		// Retrieve implementation rate of the measure and transform it to
-		// percentage
-		double ImplementationRate = tma.getMeasure().getImplementationRateValue(valueFactory) * 0.01;
-
-		// calculate new RAW ALE using formula
-		rawALE /= (1.0 - tma.getRRF() * ImplementationRate);
-		/*
-		 * System.out.println(tma.getAssessment().getScenario().getName() +
-		 * ", RRF: " + tma.getRRF() + ", ImplementationRate: " +
-		 * ImplementationRate);
-		 */
-		// update rawALE
-		rawALEs.put(key, rawALE);
-	}
-
-	/**
-	 * computeProbabilityRelativeImpact: <br>
-	 * Final goal, compute X = (Preventive + 0,5* Detective) / (Preventive +
-	 * Detective + Limitative + Preventive).<br />
-	 * Here, we compute numerator and denominator.
-	 * <ul>
-	 * <li>Key = Scenario id</li>
-	 * <li>Numerator = value[0]</li>
-	 * <li>Denominator = value[1]</li>
-	 * </ul>
-	 * 
-	 * @return Map(String,double[2]) where key = scenario name, value[0] =
-	 *         Numerator and value[1] = Denominator
-	 */
-	private static void computeProbabilityRelativeImpact(Map<String, double[]> probabilityRelativeImpacts, String key, SecurityCriteria criteria) {
-
-		// use exisisting value or initialise new
-		double[] probabilityRelativeImpact = probabilityRelativeImpacts.containsKey(key) ? probabilityRelativeImpacts.get(key) : new double[] { 0, 0 };
-
-		// compute numerator
-		probabilityRelativeImpact[0] += (criteria.getPreventive() + criteria.getDetective() * 0.5);
-
-		// Compute Denominator
-		probabilityRelativeImpact[1] += (criteria.getPreventive() + criteria.getDetective() + criteria.getLimitative() + criteria.getCorrective());
-
-		// save final compute
-		probabilityRelativeImpacts.put(key, probabilityRelativeImpact);
-	}
-
-	/**
-	 * rawEvaluationComputation: <br>
-	 * Compute Raw evaluation. for a given risk register.
-	 * 
-	 * @param riskRegisters
-	 *            The Risk Register
-	 * @param netALEs
-	 *            The calculated Net ALE list
-	 * @param rawALEs
-	 *            The calculated Raw ALE list
-	 * @param probabilityRelativeImpacts
-	 *            the calculated relativeimpact list
-	 * @throws TrickException
-	 * @see #computeRawALE(Map, Map, List, List)
-	 */
-	public static void rawEvaluationComputation(RiskRegisterItem riskRegisters, final double netALE, final Double rawALE, double[] probabilityRelativeImpact)
-			throws TrickException {
-
-		// retrieve net impact
-		double netImpact = riskRegisters.getNetEvaluation().getImpact();
-
-		// retrieve net importance
-		double netProbability = riskRegisters.getNetEvaluation().getProbability();
-
-		// retrieve net importance
-		// double netImportance =
-		// riskRegisters.getNetEvaluation().getImportance();
-
-		// compute scale point of importance
-		// double impScalePoint = netALE / netImportance;
-
-		if (rawALE == null) {
-			riskRegisters.setRawEvaluation(new EvaluationResult(netProbability, netImpact));
-			return;
-		}
-
-		/**
-		 * Computes "Expected Importance" and update riskRegisters.<br />
-		 * Computes X, Pa and Ia:
-		 * <ul>
-		 * <li>Key = Scenario id</li>
-		 * <li>Pc = riskRegisters[key].netEvaluation.Probability</li>
-		 * <li>Ic = riskRegisters[key].netEvaluation.Impact</li>
-		 * <li>Ra = rawImportance</li>
-		 * <li>X = probabilityRelativeImpacts[key][0] /
-		 * probabilityRelativeImpacts[Key][1]</li>
-		 * <li>Pa = Pc*( Ra /( Pc * Ic ) ) ^ X</li>
-		 * <li>Ia = Ra / Pa</li>
-		 * </ul>
-		 */
-		// computation of proportional strength
-		double x = probabilityRelativeImpact[0] / probabilityRelativeImpact[1];
-
-		// update raw evaluation
-		riskRegisters.setRawEvaluation(computeImpactAndProbability(x, netImpact, netProbability, rawALE));
-	}
-
-	/***********************************************************************************************
-	 * RAW EVALUATION - END
-	 **********************************************************************************************/
-
-	/***********************************************************************************************
-	 * Expected Importance EVALUATION - BEGIN
-	 **********************************************************************************************/
-
-	/**
-	 * expectedImportanceComputation: <br>
-	 * update expected importance in riskRegisters.<br>
-	 * steps:
-	 * <ul>
-	 * <li>{@link #computeProbabilityRelativeImpact(List, List) Computation of
-	 * Probability Relative Impact}</li>
-	 * <li>{@link #computeExpectedImportance(Map, Map) Merge All}</li>
-	 * </ul>
-	 * 
-	 * @param riskRegisters
-	 *            The Risk Register Item
-	 * @param netImpact
-	 *            The netImpact value
-	 * @param netProbability
-	 *            The netProbability value
-	 * @param deltaALE
-	 *            The delta ALE List
-	 * @param netALE
-	 *            The net ALE List
-	 * @param probabilityRelativeImpact
-	 *            The probability relative impact list
-	 * @throws TrickException
-	 */
-	public static void expectedImportanceComputation(RiskRegisterItem riskRegisters, final Double deltaALE, final double netALE, final double[] probabilityRelativeImpact)
-			throws TrickException {
-
-		// retrieve net impact
-		double netImpact = riskRegisters.getNetEvaluation().getImpact();
-		// retrieve net importance
-		double netProbability = riskRegisters.getNetEvaluation().getProbability();
-		// retrieve net importance
-		double importanceNet = riskRegisters.getNetEvaluation().getImportance();
-
-		if (deltaALE == null) {
-			riskRegisters.setExpectedEvaluation(new EvaluationResult(netProbability, netImpact));
-			return;
-		}
-
-		// compute quantitative value
-		// double quantitativeValue = netALE / importanceNet;
-
-		// compute delta Importance
-		// double deltaImp = deltaALE / quantitativeValue;
-
-		// compute expected importance
-		double expImportance = importanceNet - deltaALE;
-
-		if (expImportance < 0) {
-			riskRegisters.setExpectedEvaluation(new EvaluationResult(0, 0));
-			System.err.println("Expected importance " + expImportance + "<0 for " + riskRegisters.getScenario().getName());
-		} else {
-			// computation of proportional strength
-			double x = probabilityRelativeImpact[0] / probabilityRelativeImpact[1];
-
-			// update expected importance
-			riskRegisters.setExpectedEvaluation(computeImpactAndProbability(x, netImpact, netProbability, expImportance));
-		}
-	}
-
-	/**
-	 * computeImpactAndProbability: <br>
-	 * Computes "Expected Importance" and update riskRegisters.<br />
-	 * Computes X, Pa and Ia:
-	 * <ul>
-	 * <li>Key = Scenario id</li>
-	 * <li>Pc = riskRegisters[key].netEvaluation.Probability</li>
-	 * <li>Ic = riskRegisters[key].netEvaluation.Impact</li>
-	 * <li>Ra = importance</li>
-	 * <li>X = probabilityRelativeImpacts[key][0]
-	 * /probabilityRelativeImpacts[Key][1]</li>
-	 * <li>Pa = Pc*( Ra /( Pc * Ic ) ) ^ X</li>
-	 * <li>Ia = Ra / Pa</li>
-	 * </ul>
-	 *
-	 * @param riskRegisters
-	 *            the Risk Register Item
-	 * @param probabilityRelativeImpacts
-	 *            the list of probability relative impacts
-	 * @throws TrickException
-	 */
-	public static EvaluationResult computeImpactAndProbability(final double x, final double currentImpact, final double currentProbability, final double importance)
-			throws TrickException {
-
-		if (Double.isNaN(x)) {
-			System.err.println("A nan was detected X: " + x);
-			return new EvaluationResult(0, 0);
-		}
-
-		// System.out.println("Caractere: " + x);
-
-		// compute importance repport
-		double rapportImportance = importance / (currentImpact * currentProbability);
-
-		if (Double.isNaN(rapportImportance)) {
-			System.err.println("A nan was detected rapportImportance: " + importance + "/ (" + currentImpact + "*" + currentProbability + ")");
-			return new EvaluationResult(0, 0);
-		}
-
-		// retirve likelihood level
-		double probability = currentProbability * Math.pow(rapportImportance, x);
-
-		if (Double.isNaN(probability)) {
-			System.err.println("A nan was detected probability: " + probability);
-			return new EvaluationResult(0, 0);
-		}
-
-		// retrieve impact level
-		double impact = currentImpact * Math.pow(rapportImportance, 1.0 - x);
-
-		if (Double.isNaN(impact)) {
-			System.err.println("A nan was detected impact: " + impact);
-			return new EvaluationResult(0, 0);
-		}
-
-		// return the evaluation result
-		return new EvaluationResult(probability, impact);
-	}
-
-	public Analysis getAnalysis() {
-		return analysis;
-	}
-
-	public MessageHandler computeRiskRegister(CSSFFilter filter) {
-		// create a messagehandler object
-		ComputationHelper helper = null;
-		try {
-			System.out.println("Risk Register calculation...");
-			List<ILevelParameter> impactParameters = this.analysis.getImpactParameters().stream().collect(Collectors.toList());
-			this.analysis.getLikelihoodParameters().forEach(probability -> impactParameters.add(probability));
-			int mandatoryPhase = this.analysis.getSimpleParameters().stream()
-					.filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE)).map(SimpleParameter::getValue).findAny().orElse(0D)
-					.intValue();
-			// ****************************************************************
-			// * calculate RiskRegister using CSSFComputation
-			// ****************************************************************
-			helper = new ComputationHelper(impactParameters);
-			setFactory(helper.getFactory());
-			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, helper.getFactory(), mandatoryPhase), helper, filter));
-			// print risk register into console
-			// printRegister(this.analysis.getRiskRegisters());
-			return null;
-		} catch (Exception e) {
-			// print error message
-			System.out.println("Risk Register calculation and saving failed!");
-			TrickLogManager.Persist(e);
-			return new MessageHandler(e);
-		} finally {
-			if (helper != null) {
-				helper.destroy();
-			}
-		}
-	}
-
-	/**
-	 * @return the factory
-	 */
-	public ValueFactory getFactory() {
-		return factory;
-	}
-
-	/**
-	 * @param factory
-	 *            the factory to set
-	 */
-	public void setFactory(ValueFactory factory) {
-		this.factory = factory;
 	}
 }

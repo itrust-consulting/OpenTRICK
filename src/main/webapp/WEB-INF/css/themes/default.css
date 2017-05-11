@@ -699,6 +699,11 @@ tr.form-group-fill th:LAST-CHILD {
 	border-radius: 4px;
 }
 
+.form-group-fill .form-control.form-control-static{
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
 .form-horizontal.form-group-fill {
 	padding-top: 5px;
 }

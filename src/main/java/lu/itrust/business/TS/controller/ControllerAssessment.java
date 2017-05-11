@@ -348,6 +348,8 @@ public class ControllerAssessment {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
 			model.addAttribute("computeNextImportance", factory.findImportance(assessment));
+			if(analysis.isQuantitative())
+				model.addAttribute("riskRegister", analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario));
 		}
 	}
 

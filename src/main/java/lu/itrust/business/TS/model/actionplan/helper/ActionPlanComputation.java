@@ -23,7 +23,6 @@ import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
-import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -78,8 +77,6 @@ public class ActionPlanComputation {
 	 **********************************************************************************************/
 
 	private DAOActionPlanType serviceActionPlanType;
-
-	private DAOAnalysis sericeAnalysis;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -148,9 +145,8 @@ public class ActionPlanComputation {
 	 * @param sericeAnalysis
 	 * @param analysis
 	 */
-	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, Analysis analysis) {
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, Analysis analysis) {
 		this.serviceActionPlanType = serviceActionPlanType;
-		this.sericeAnalysis = sericeAnalysis;
 		this.analysis = analysis;
 	}
 
@@ -171,12 +167,11 @@ public class ActionPlanComputation {
 	 * @param standards
 	 * @param uncertainty
 	 */
-	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
 			List<AnalysisStandard> standards, boolean uncertainty, MessageSource messageSource) {
 
 		// initialise variables
 		this.serviceActionPlanType = serviceActionPlanType;
-		this.sericeAnalysis = sericeAnalysis;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idTask = idTask;
 		this.analysis = analysis;
@@ -259,10 +254,7 @@ public class ActionPlanComputation {
 				progress = qualitativeActionPlan();
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", progress));
-
-			// save to database
-			sericeAnalysis.saveOrUpdate(analysis);
+		
 			return null;
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);

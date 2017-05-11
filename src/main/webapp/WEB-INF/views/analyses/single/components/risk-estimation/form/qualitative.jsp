@@ -27,6 +27,7 @@
 <spring:message text="${assessment.owner}" var="owner" />
 <spring:message text="${riskProfile.identifier}" var="identifier" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
+<c:set var="cssHeader" value="${type.quantitative && show_uncertainty? 'col-sm-3' : 'col-sm-4'}" />
 <div class="page-header tab-content-header hidden-xs">
 	<div class="container">
 		<div class="row-fluid">
@@ -37,7 +38,7 @@
 	</div>
 </div>
 <div class='form-horizontal form-group-fill' style="border-bottom: 1px solid window">
-	<div class='col-sm-4'>
+	<div class='${cssHeader}'>
 		<div class="form-group">
 			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label>
 			<div class='col-xs-6'>
@@ -45,7 +46,7 @@
 			</div>
 		</div>
 	</div>
-	<div class='col-sm-4'>
+	<div class='${cssHeader}'>
 		<div class="form-group">
 			<label class="control-label col-xs-6"><spring:message code="label.title.risk_identifier" /></label>
 			<div class='col-xs-6'>
@@ -53,7 +54,7 @@
 			</div>
 		</div>
 	</div>
-	<div class='col-sm-4'>
+	<div class='${cssHeader}'>
 		<div class="form-group">
 			<label class="control-label col-xs-6"> <spring:message code="label.title.owner" text="Owner" />
 			</label>
@@ -62,6 +63,17 @@
 			</div>
 		</div>
 	</div>
+	<c:if test="${type.quantitative && show_uncertainty}">
+		<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
+		<div class='${cssHeader}'>
+			<div class="form-group">
+				<label class="control-label col-xs-6"><spring:message code="label.title.uncertainty" /></label>
+				<div class='col-xs-6'>
+					<input name="uncertainty" class="form-control numeric" data-trick-type='double' value='${uncertainty}' placeholder="${uncertainty}">
+				</div>
+			</div>
+		</div>
+	</c:if>
 	<div class="clearfix"></div>
 </div>
 <table class='table form-group-fill'>
@@ -79,6 +91,18 @@
 			</c:choose>
 			<th class="form-estimation form-estimation-left" rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"
 					text="Importance" /></th>
+			<c:if test="${type.quantitative}">
+				<th class="form-estimation form-estimation-left form-estimation-right" rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message
+						code="label.analysis.quantitative.impact" /></th>
+				<c:choose>
+					<c:when test="${show_uncertainty}">
+						<th colspan="3" style="text-align: center; vertical-align: middle; min-width: 270px;"><spring:message code="label.title.ale" /></th>
+					</c:when>
+					<c:otherwise>
+						<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.ale" /></th>
+					</c:otherwise>
+				</c:choose>
+			</c:if>
 		</tr>
 		<tr>
 			<c:forEach items="${impactTypes}" var="impactType">
@@ -89,6 +113,11 @@
 							text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue].name}" /></th>
 				</c:if>
 			</c:forEach>
+			<c:if test="${type.quantitative and show_uncertainty}">
+				<th class='text-center' title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
+				<th class="text-center" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
+				<th class="text-center" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+			</c:if>
 		</tr>
 	</thead>
 	<tbody>
@@ -166,6 +195,44 @@
 				</c:forEach>
 				<td class='form-estimation  form-estimation-left'><input name="rawComputedImportance" disabled="disabled" class="form-control numeric"
 					value="${riskProfile.computedRawImportance}"></td>
+				<c:if test="${type.quantitative}">
+					<td class='form-estimation form-estimation-left form-estimation-right'><c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+						<div class="input-group">
+							<span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+							<c:choose>
+								<c:when test="${empty impact}">
+									<label data-name="IMPACT-RAW" class="form-control form-control-static text-right disabled" data-trick-type='string' title="i0">${naValue}</label>
+								</c:when>
+								<c:otherwise>
+									<c:choose>
+										<c:when test="${impact.real<10000}">
+											<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+										</c:when>
+										<c:otherwise>
+											<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+										</c:otherwise>
+									</c:choose>
+									<label data-name="IMPACT" class="form-control form-control-static text-right disabled" data-trick-type='string' title="${impact.variable}">${impactValue}</label>
+								</c:otherwise>
+							</c:choose>
+						</div></td>
+					<c:if test="${show_uncertainty}">
+						<td><div class="input-group">
+								<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALEO-RAW' class='form-control form-control-static numeric disabled'
+									title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+							</div></td>
+					</c:if>
+					<td><div class="input-group">
+							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALE-RAW' class='form-control form-control-static numeric disabled'
+								title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+						</div></td>
+					<c:if test="${show_uncertainty}">
+						<td><div class="input-group">
+								<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name="ALEP-RAW" class="form-control form-control-static numeric disabled"
+									title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+							</div></td>
+					</c:if>
+				</c:if>
 			</tr>
 		</c:if>
 		<!-- NET -->
@@ -250,6 +317,45 @@
 				</c:if>
 			</c:forEach>
 			<td class='form-estimation  form-estimation-left'><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+			<c:if test="${type.quantitative}">
+				<td class='form-estimation form-estimation-left form-estimation-right'><c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+					<div class="input-group">
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Impact">k&euro;</button></span>
+						<c:choose>
+							<c:when test="${empty impact}">
+								<input name="IMPACT" class="form-control text-right" value='0' list="dataList-parameter-impact" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:otherwise>
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+									</c:otherwise>
+								</c:choose>
+								<input name="IMPACT" class="form-control text-right" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
+									title="${impact.variable}">
+							</c:otherwise>
+						</c:choose>
+					</div></td>
+				<c:if test="${show_uncertainty}">
+					<td><div class="input-group">
+							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALEO' class='form-control form-control-static numeric disabled'
+								title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+						</div></td>
+				</c:if>
+				<td><div class="input-group">
+						<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALE' class='form-control form-control-static numeric disabled'
+							title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+					</div></td>
+				<c:if test="${show_uncertainty}">
+					<td><div class="input-group">
+							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name="ALEP" class="form-control form-control-static numeric disabled"
+								title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+						</div></td>
+				</c:if>
+			</c:if>
 		</tr>
 		<!-- EXP -->
 		<tr class="form-group-exp">
@@ -330,76 +436,47 @@
 			</c:forEach>
 			<td class='form-estimation  form-estimation-left'><input name="expComputedImportance" disabled="disabled" class="form-control numeric"
 				value="${riskProfile.computedExpImportance}"></td>
+			<c:if test="${type.quantitative}">
+				<td class='form-estimation form-estimation-left form-estimation-right'><c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+					<div class="input-group">
+						<span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+						<c:choose>
+							<c:when test="${empty impact}">
+								<label data-name="IMPACT-EXP" class="form-control form-control-static disabled text-right" title="i0">0</label>
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:otherwise>
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+									</c:otherwise>
+								</c:choose>
+								<label data-name="IMPACT-EXP" class="form-control form-control-static disabled text-right" title="${impact.variable}">${impactValue}</label>
+							</c:otherwise>
+						</c:choose>
+					</div></td>
+				<c:if test="${show_uncertainty}">
+					<td><div class="input-group">
+							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALEO-EXP' class='form-control form-control-static numeric disabled'
+								title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+						</div></td>
+				</c:if>
+				<td><div class="input-group">
+						<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALE-EXP' class='form-control form-control-static numeric disabled'
+							title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+					</div></td>
+				<c:if test="${show_uncertainty}">
+					<td><div class="input-group">
+							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name="ALEP-EXP" class="form-control form-control-static numeric disabled"
+								title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+						</div></td>
+				</c:if>
+			</c:if>
 		</tr>
 	</tbody>
 </table>
-
-<c:if test="${type.quantitative}">
-	<div class='form-horizontal form-group-fill impact-q-group'>
-		<c:set var="colClass" value="${show_uncertainty? 'col-sm-3' : 'col-lg-3 col-sm-6'}" />
-		<div class='${colClass}'>
-			<div class="form-group">
-				<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
-				<label class="control-label col-xs-6"><spring:message code="label.analysis.quantitative.impact" /></label>
-				<div class="col-xs-6 input-group">
-					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Impact">k&euro;</button></span>
-					<c:choose>
-						<c:when test="${empty impact}">
-							<input name="IMPACT" class="form-control text-right" value='0' list="dataList-parameter-impact" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
-						</c:when>
-						<c:otherwise>
-							<c:choose>
-								<c:when test="${impact.real<10000}">
-									<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
-								</c:when>
-								<c:otherwise>
-									<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
-								</c:otherwise>
-							</c:choose>
-							<input name="IMPACT" class="form-control text-right" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
-								title="${impact.variable}">
-						</c:otherwise>
-					</c:choose>
-				</div>
-
-			</div>
-		</div>
-		<c:if test="${show_uncertainty}">
-			<div class='${colClass}'>
-				<div class="form-group">
-					<label class="control-label col-xs-8"><spring:message code="label.title.aleo" /></label>
-					<div class='col-xs-4'>
-						<label data-name='ALEO' class='form-control form-control-static numeric disabled' title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber
-								value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
-					</div>
-				</div>
-			</div>
-		</c:if>
-		<div class='${colClass} ${show_uncertainty?"" : "pull-sm-right"}'>
-			<div class="form-group">
-				<label class="control-label col-xs-8"><spring:message code="label.title.ale" /></label>
-				<div class='col-xs-4'>
-					<label data-name='ALE' class='form-control form-control-static numeric disabled' title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber
-							value="${fct:round(assessment.ALE*0.001,1)}" /></label>
-				</div>
-			</div>
-		</div>
-		<c:if test="${show_uncertainty}">
-			<div class='${colClass}'>
-				<div class="form-group">
-					<label class="control-label col-xs-8"><spring:message code="label.title.alep" /></label>
-					<div class='col-xs-4'>
-						<label data-name="ALEP" class="form-control form-control-static numeric disabled" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber
-								value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
-					</div>
-
-				</div>
-			</div>
-		</c:if>
-		<div class="clearfix"></div>
-	</div>
-
-</c:if>
 
 <div class='form-group form-group-fill'>
 	<spring:message code="label.comment_argumentation" text="Comment / Argumentation" var='comment' />
