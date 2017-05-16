@@ -76,39 +76,39 @@
 			</fieldset>
 			<div class="col-md-9 wrap">
 				<ul class="nav nav-tabs nav-tab risk-evolution col-xs-12" role='nav-tabs'>
-					<li class='active' data-type='QUANTITATIVE HYBRID'><a id="heading-total-aLE" role='tab' role='button' data-toggle='tab' href="#tab-total-ale"> <spring:message
+					<li class='active' data-type='QUANTITATIVE'><a id="heading-total-aLE" role='tab' role='button' data-toggle='tab' href="#tab-total-ale"> <spring:message
 								code='label.title.total_ale' text="Total ALE" />
 					</a></li>
-					<li data-type='QUANTITATIVE HYBRID'><a id="heading-ale-scenario-type" role='tab' role='button' data-toggle='tab' href="#tab-ale-scenario-type"> <spring:message
+					<li data-type='QUANTITATIVE'><a id="heading-ale-scenario-type" role='tab' role='button' data-toggle='tab' href="#tab-ale-scenario-type"> <spring:message
 								code='label.title.ale_by.scenario_type' text="ALE by scenario type" />
 					</a></li>
-					<li data-type='QUANTITATIVE HYBRID'><a id="heading-ale-asset-type" role='tab' role='button' data-toggle='tab' href="#tab-ale-asset-type"> <spring:message
+					<li data-type='QUANTITATIVE'><a id="heading-ale-asset-type" role='tab' role='button' data-toggle='tab' href="#tab-ale-asset-type"> <spring:message
 								code='label.title.ale_by.asset_type' text="ALE by asset type" />
 					</a></li>
-					<li data-type='QUANTITATIVE HYBRID'><a id="heading-ale-scenario" role='tab' role='button' data-toggle='tab' href="#tab-ale-scenario"> <spring:message
+					<li data-type='QUANTITATIVE'><a id="heading-ale-scenario" role='tab' role='button' data-toggle='tab' href="#tab-ale-scenario"> <spring:message
 								code='label.title.ale_by.scenario' text="ALE By Scenario" />
 					</a></li>
-					<li data-type='QUANTITATIVE HYBRID'><a id="heading-ale-Asset" role='tab' role='button' data-toggle='tab' href="#tab-ale-asset"> <spring:message
+					<li data-type='QUANTITATIVE'><a id="heading-ale-Asset" role='tab' role='button' data-toggle='tab' href="#tab-ale-asset"> <spring:message
 								code='label.title.ale_by.asset' text="ALE by asset" />
 					</a></li>
 
-					<li class='hidden' data-type='QUALITATIVE HYBRID'><a id="heading-total-risk" role='tab' role='button' data-toggle='tab' href="#tab-total-risk"> <spring:message
+					<li class='hidden' data-type='QUALITATIVE'><a id="heading-total-risk" role='tab' role='button' data-toggle='tab' href="#tab-total-risk"> <spring:message
 								code='label.title.total_risk' text="Total risk" />
 					</a></li>
-					<li class='hidden' data-type='QUALITATIVE HYBRID'><a id="heading-risk-scenario-type" role='tab' role='button' data-toggle='tab' href="#tab-risk-scenario-type"> <spring:message
+					<li class='hidden' data-type='QUALITATIVE'><a id="heading-risk-scenario-type" role='tab' role='button' data-toggle='tab' href="#tab-risk-scenario-type"> <spring:message
 								code='label.title.risk_by.scenario_type' text="Risk by scenario type" />
 					</a></li>
-					<li class='hidden' data-type='QUALITATIVE HYBRID'><a id="heading-risk-asset-type" role='tab' role='button' data-toggle='tab' href="#tab-risk-asset-type"> <spring:message
+					<li class='hidden' data-type='QUALITATIVE'><a id="heading-risk-asset-type" role='tab' role='button' data-toggle='tab' href="#tab-risk-asset-type"> <spring:message
 								code='label.title.risk_by.asset_type' text="Risk by asset type" />
 					</a></li>
-					<li class='hidden' data-type='QUALITATIVE HYBRID'><a id="heading-risk-scenario" role='tab' role='button' data-toggle='tab' href="#tab-risk-scenario"> <spring:message
+					<li class='hidden' data-type='QUALITATIVE'><a id="heading-risk-scenario" role='tab' role='button' data-toggle='tab' href="#tab-risk-scenario"> <spring:message
 								code='label.title.risk_by.scenario' text="Risk By Scenario" />
 					</a></li>
-					<li class='hidden' data-type='QUALITATIVE HYBRID'><a id="heading-risk-asset" role='tab' role='button' data-toggle='tab' href="#tab-risk-asset"> <spring:message
+					<li class='hidden' data-type='QUALITATIVE'><a id="heading-risk-asset" role='tab' role='button' data-toggle='tab' href="#tab-risk-asset"> <spring:message
 								code='label.title.risk_by.asset' text="Risk by asset" />
 					</a></li>
 
-					<li data-type='QUANTITATIVE QUALITATIVE HYBRID'><a id="heading-compliance" role='tab' role='button' data-toggle='tab' href="#tab-compliance"> <spring:message code='label.title.compliance'
+					<li data-type='QUANTITATIVE QUALITATIVE'><a id="heading-compliance" role='tab' role='button' data-toggle='tab' href="#tab-compliance"> <spring:message code='label.title.compliance'
 								text="Compliance" />
 					</a></li>
 
