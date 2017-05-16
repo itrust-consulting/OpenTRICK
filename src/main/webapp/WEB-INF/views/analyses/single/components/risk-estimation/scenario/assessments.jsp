@@ -46,11 +46,18 @@
 			<c:when test="${type.qualitative}">
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${impactScaleMenu} <span class="caret"></span></a>
 					<ul class="dropdown-menu">
+						<c:if test="${type.quantitative}">
+							<li><a href="#" onclick='return displayParameters("#Scale_Impact", "<spring:message code='label.title.parameter.quantitative.impact'/>")'><spring:message
+										code="label.analysis.quantitative.impact" /></a></li>
+							<li class="dropdown-header"><spring:message code="label.analysis.type.qualitative" /></li>
+						</c:if>
 						<c:forEach items="${impactTypes}" var="impactType">
 							<spring:message var="impactName" text="${impactType.name}" />
-							<li><a href="#" onclick='return displayParameters("#Scale_Impact_${impactName}")'><spring:message
-										code="label.title.parameter.extended.impact.${fn:toLowerCase(impactName)}"
-										text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[langue].name}" /></a></li>
+							<c:if test="${impactName!='IMPACT'}">
+								<li><a href="#" onclick='return displayParameters("#Scale_Impact_${impactName}")'><spring:message
+											code="label.title.parameter.extended.impact.${fn:toLowerCase(impactName)}"
+											text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[langue].name}" /></a></li>
+							</c:if>
 						</c:forEach>
 					</ul></li>
 				<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
@@ -102,7 +109,8 @@
 					</tr>
 					<tr>
 						<c:if test="${type.quantitative}">
-							<th style="width: 2%" title='<spring:message code="label.title.impact" />'><spring:message code="label.assessment.impact" /></th>
+							<th style="width: 2%" title='<spring:message
+												code="label.analysis.type.quantitative" />'><spring:message code="label.assessment.impact" /></th>
 						</c:if>
 						<c:forEach items="${impactTypes}" var="impactType">
 							<c:if test="${impactType.name !='IMPACT'}">

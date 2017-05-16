@@ -346,7 +346,12 @@ public class ValueFactory {
 	}
 
 	public IValue findMaxImpactByReal(List<? extends IValue> impacts) {
-		return impacts == null ? null : impacts.stream().filter(type -> type.equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+		return impacts == null ? null : impacts.stream().filter(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+	}
+	
+	public Double findRealValue(List<? extends IValue> impacts) {
+		IValue value = findMaxImpactByReal(impacts);
+		return value == null ? 0d : value.getReal();
 	}
 
 	/**

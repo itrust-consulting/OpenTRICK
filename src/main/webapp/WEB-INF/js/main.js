@@ -151,12 +151,16 @@ var ANALYSIS_TYPE = {
 	},
 	valueOf : value => {
 		for ( var key in ANALYSIS_TYPE) {
-			if (key == "valueOf")
+			if (typeof key === "function")
 				continue;
 			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value)
 				return ANALYSIS_TYPE[key];
 		}
 		return undefined;
+	},
+	isSupported : (typeName, value) => {
+		var type = ANALYSIS_TYPE.valueOf(typeName);
+		return type && type.isSupported(value);
 	},
 	isHybrid : value => value ==='HYBRID',
 	isQuantitative : value => value === 'QUANTITATIVE',

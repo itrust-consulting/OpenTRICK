@@ -44,7 +44,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#get(int)
 	 */
 	@Override
-	public RiskRegisterItem get(Integer id)  {
+	public RiskRegisterItem get(Integer id) {
 		return (RiskRegisterItem) getSession().get(RiskRegisterItem.class, id);
 	}
 
@@ -55,17 +55,17 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId)  {
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskregisterItemId) {
 		String query = "Select count(riskregisterItem)>0 From Analysis as analysis inner join analysis.riskRegisters as riskregisterItem where analysis.id = :analysisid and riskregisterItem.id = ";
 		query += ":riskregisterItemId";
 		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskregisterItemId", riskregisterItemId).getSingleResult();
 	}
 
 	/*
-	 * @Override public RiskRegisterItem getByScenario(Scenario scenario)  { return
-	 * (RiskRegisterItem)
-	 * getSession().createQuery("From RiskRegister where scenario = :scenario").setParameter
-	 * ("scenario", scenario); }
+	 * @Override public RiskRegisterItem getByScenario(Scenario scenario) {
+	 * return (RiskRegisterItem)
+	 * getSession().createQuery("From RiskRegister where scenario = :scenario").
+	 * setParameter ("scenario", scenario); }
 	 */
 	/**
 	 * getAllFromAnalysisId: <br>
@@ -75,7 +75,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId)  {
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) {
 		String query = "SELECT riskregister FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregister WHERE analysis.id= :analysisID order by riskregister.netEvaluation.importance desc, riskregister.expectedEvaluation.importance desc, riskregister.rawEvaluation.importance desc";
 		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).getResultList();
 	}
@@ -87,7 +87,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#save(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void save(RiskRegisterItem riskRegisterItem)  {
+	public void save(RiskRegisterItem riskRegisterItem) {
 		getSession().save(riskRegisterItem);
 	}
 
@@ -98,7 +98,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem)  {
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) {
 		getSession().saveOrUpdate(riskRegisterItem);
 	}
 
@@ -109,25 +109,30 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#delete(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void delete(RiskRegisterItem riskRegisterItem)  {
+	public void delete(RiskRegisterItem riskRegisterItem) {
 		getSession().delete(riskRegisterItem);
 	}
 
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisID)  {
-		for(RiskRegisterItem riskItem : getAllFromAnalysis(analysisID))
+	public void deleteAllFromAnalysis(Integer analysisID) {
+		for (RiskRegisterItem riskItem : getAllFromAnalysis(analysisID))
 			getSession().delete(riskItem);
 	}
 
 	@Override
 	public void delete(Integer id) {
 		getSession().createQuery("Delete From RiskRegisterItem where id = :id").setParameter("id", id).executeUpdate();
-		
+
 	}
 
 	@Override
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
 		return (RiskRegisterItem) getSession().merge(riskRegister);
-		
+	}
+
+	@Override
+	public RiskRegisterItem getByAssetIdAndScenarioId(int idAsset, int idScenario) {
+		return getSession().createQuery("FROM RiskRegisterItem where asset.id = :idAsset and scenario.id = :idScenario", RiskRegisterItem.class).setParameter("idAsset", idAsset)
+				.setParameter("idScenario", idScenario).uniqueResultOptional().orElse(null);
 	}
 }

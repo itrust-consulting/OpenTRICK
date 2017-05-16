@@ -30,4 +30,6 @@ public interface DAORiskRegister {
 	public void delete(Integer integer);
 
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister);
+
+	public RiskRegisterItem getByAssetIdAndScenarioId(int idAsset, int idScenario);
 }

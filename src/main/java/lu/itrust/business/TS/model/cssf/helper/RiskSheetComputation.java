@@ -550,8 +550,11 @@ public class RiskSheetComputation {
 			if (assessment.isUsable()) {
 				String key = getKey(assessment);
 				// update ALE numerator
-				helper.getNetALEs().put(key, helper.getFactory().computeALE(assessment));
-				helper.getRiskRegisters().put(key, new RiskRegisterItem(assessment.getScenario(), assessment.getAsset()));
+				RiskRegisterItem riskRegisterItem = new RiskRegisterItem(assessment.getScenario(), assessment.getAsset());
+				riskRegisterItem.getNetEvaluation().setImpact(helper.getFactory().findRealValue(assessment.getImpacts()));
+				riskRegisterItem.getNetEvaluation().setProbability(helper.getFactory().findExpValue(assessment.getLikelihood()));
+				helper.getNetALEs().put(key, riskRegisterItem.getNetEvaluation().getImportance());
+				helper.getRiskRegisters().put(key, riskRegisterItem );
 			}
 		}
 	}
@@ -604,7 +607,6 @@ public class RiskSheetComputation {
 		// the start value of
 		// the netALE of this scenario
 		double rawALE = rawALEs.containsKey(key) ? rawALEs.get(key) : netALEs.get(key);
-
 		// Retrieve implementation rate of the measure and transform it to
 		// percentage
 		double ImplementationRate = tma.getMeasure().getImplementationRateValue(valueFactory) * 0.01;
@@ -682,7 +684,7 @@ public class RiskSheetComputation {
 
 				String key = getKey(tma.getAssessment());
 				// compute deltaALE
-				computeDeltaALEs(helper.getDeltaALEs(), helper.getFactory().computeALE(tma.getAssessment()), tma, key, helper.getFactory());
+				computeDeltaALEs(helper.getDeltaALEs(), helper.getRiskRegisters().get(key).getNetEvaluation().getImportance(), tma, key, helper.getFactory());
 				// compute RawALE
 				computeRawALE(helper.getRawALEs(), helper.getNetALEs(), tma, key, helper.getFactory());
 
@@ -732,17 +734,6 @@ public class RiskSheetComputation {
 
 			// retrieve for this scenario the rawALE value
 			Double rawALE = helper.getRawALEs().get(key);
-
-			// retrieve for this scenario the impact value
-			double netImpact = helper.getNetALEs().get(key);
-
-			// retrieve for this scenario the probability value
-			double netProbability = netALE / netImpact;
-
-			// determine netImpact and netProbability level from input data.
-			registerItem.getNetEvaluation().setImpact(netImpact);
-
-			registerItem.getNetEvaluation().setProbability(Double.isNaN(netProbability) ? 0 : netProbability);
 
 			// calculate the last step of expected Evaluation
 			expectedImportanceComputation(registerItem, deltaALE, netALE, probabilityRelativeImpact);

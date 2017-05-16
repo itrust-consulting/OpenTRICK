@@ -28,6 +28,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -328,7 +329,7 @@ public class AssessmentAndRiskProfileManager {
 				if (assessments == null)
 					continue;
 				for (Assessment assessment : assessments) {
-					ComputeAlE(assessment, factory, analysis.getType());
+					ComputeAlE(assessment, factory);
 					ale += assessment.getALE();
 					aleo += assessment.getALEO();
 					alep += assessment.getALEP();
@@ -490,8 +491,15 @@ public class AssessmentAndRiskProfileManager {
 		assessments.add(assessment);
 	}
 
-	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
-		assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
+	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory) {
+		return ComputeAlE(assessment, null, factory);
+	}
+
+	public static Assessment ComputeAlE(Assessment assessment, IValue value, ValueFactory factory) {
+		if (value == null || !value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
+			assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
+		else
+			assessment.setImpactReal(value.getReal());
 		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
 		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
@@ -501,7 +509,7 @@ public class AssessmentAndRiskProfileManager {
 
 	public static void ComputeAlE(List<Assessment> assessments, List<AbstractProbability> parameters, AnalysisType type) {
 		ValueFactory factory = new ValueFactory(parameters);
-		assessments.forEach(assessment -> ComputeAlE(assessment, factory, type));
+		assessments.forEach(assessment -> ComputeAlE(assessment, factory));
 	}
 
 	/**

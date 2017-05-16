@@ -168,17 +168,17 @@
 								<label for="scope" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.advance.scope" />'><spring:message
 										code="label.analysis.scope" text="Scope" /></label>
 								<div class="col-sm-9" id="analysis-build-scope" data-trick-name="scope" dropzone="true">
-									<div class="well well-sm">
+									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 									<input name="scope" value="-1" hidden="true">
 								</div>
 							</div>
-							<div class="form-group">
+							<div class="form-group" >
 								<label for="riskInformation" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.advance.risk_information" />'><spring:message
 										code="label.analysis.risk_information" text="Risk information" /></label>
 								<div class="col-sm-9" id="analysis-build-riskInformation" data-trick-name="riskInformation" dropzone="true">
-									<div class="well well-sm">
+									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 									<input name="riskInformation" value="-1" hidden="true">
@@ -188,7 +188,7 @@
 								<label for="parameters" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.advance.parameters" />'> <spring:message
 										code="label.analysis.parameters" text="Parameters" /></label>
 								<div class="col-sm-9" id="analysis-build-parameters" data-trick-name="parameter" dropzone="true">
-									<div class="well well-sm">
+									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 									<input name="parameter" value="-1" hidden="true">
@@ -198,7 +198,7 @@
 								<label for="assets" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.advance.assets" />'> <spring:message
 										code="label.analysis.assets" text="Assets" /></label>
 								<div class="col-sm-9" id="analysis-build-assets" data-trick-name="asset" dropzone="true">
-									<div class="well well-sm">
+									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 									<input name="asset" value="-1" hidden="true">
@@ -207,8 +207,8 @@
 							<div class="form-group">
 								<label for="scenarios" class="col-sm-3 control-label" title='<spring:message code="label.analysis.scenarios" />'
 									data-helper-content='<spring:message code="help.analysis.advance.scenarios" />'> <spring:message code="label.scenarios" /></label>
-								<div class="col-sm-9" id="analysis-build-scenarios" dropzone="true" data-trick-name="scenario">
-									<div class="well well-sm">
+								<div class="col-sm-9" id="analysis-build-scenarios" dropzone="true" data-trick-name="scenario" >
+									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 									<input name="scenario" value="-1" hidden="true">
@@ -232,7 +232,7 @@
 								<label for="standards" class="col-sm-3 control-label" title='<spring:message code="label.analysis.standards" text="Standards" />'
 									data-helper-content='<spring:message code="help.analysis.advance.standards" />'><spring:message code="label.analysis.standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
-									<div class="well well-sm" style="height: 170px; overflow-y: auto; resize: vertical;">
+									<div class="well well-sm" style="height: 170px; overflow-y: auto; resize: vertical;" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 								</div>

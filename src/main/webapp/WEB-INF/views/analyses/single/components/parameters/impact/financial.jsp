@@ -29,16 +29,16 @@
 			</thead>
 			<tbody>
 				<c:set var="length" value="${mappedParameters['IMPACT'].size()-1}" />
+				<c:set var='mod2'  value="${length mod 2 != 0}"/>
 				<c:forEach items="${mappedParameters['IMPACT'] }" var="parameter" varStatus="status">
 					<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
-						<!--<td>${itemInformation.id}</td>-->
 						<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 						<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message
 								text="${parameter.acronym}" /></td>
 						<td data-trick-field="description" data-trick-field-type="string" class="editable textaligncenter" onclick="return editField(this);"><spring:message
 								text="${parameter.description}" /></td>
 						<td data-trick-field="value" data-trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
-							${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="editable textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
+							${mod2 or parameter.level mod 2==0? 'onclick="return editField(this);" class="editable textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
 								value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
 						<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
 						<td class="textaligncenter"><c:choose>

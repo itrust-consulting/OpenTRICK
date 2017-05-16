@@ -449,10 +449,7 @@ function customAnalysis(element) {
 
 							var type = this.analysisType;
 							
-							$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType.type + "']").each(function(){
-								if (!type.isSupported(this.getAttribute("data-type")))
-									this.click();
-							});
+							
 							
 							$modalBody.find("select[name='profile']").val("-1").find("option[value!='-1']").each(function () {
 								if (type.isSupported(this.getAttribute("data-type")))
@@ -505,6 +502,9 @@ function customAnalysis(element) {
 							$impacts.val('-1').prop("disabled", enable).trigger("change");
 							return this;
 						},
+						isCustomSupported : function(value, target) {
+							return target=='HYBRID' || value === target;
+						},
 						nameAnalysisStandard: function () {
 							$("#analysis-build-standards label").each(
 								function (i) {
@@ -555,6 +555,13 @@ function customAnalysis(element) {
 					$analysisType.on("change", function (e) {
 						if (e.currentTarget.checked) {
 							analysesCaching.analysisType = ANALYSIS_TYPE.valueOf(e.currentTarget.value);
+							$("#analysis-build-parameters,#analysis-build-assets,#analysis-build-scenarios",$modalBody ).find("div.well[data-supported]").attr("data-supported", e.currentTarget.value);
+							$("div.well[data-supported]",$modalBody).each(function(){
+								var target = this.getAttribute("data-supported");
+								$("a[data-trick-type-control]",this).filter(function(){
+									return !analysesCaching.isCustomSupported(this.getAttribute("data-trick-type-control"),target);
+								}).click();
+							});
 							analysesCaching.checkProfile();
 						}
 					});
@@ -575,7 +582,9 @@ function customAnalysis(element) {
 
 					$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
 						{
-							accept: "li.list-group-item",
+							accept: function(ele){
+								return analysesCaching.isCustomSupported(ele.attr('data-trick-analysis-type'),this.getAttribute('data-supported')) && ele.hasClass("list-group-item");
+							},
 							activeClass: "warning",
 							drop: function (event, ui) {
 								var $this = $(this), $parent = $this.parent();

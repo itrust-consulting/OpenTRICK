@@ -430,7 +430,7 @@ public class ControllerAnalysisCreate {
 									analysis.getAssessments().parallelStream().forEach(assessment -> {
 										if (!assessment.getImpacts().parallelStream().anyMatch(value -> value.getParameter().isMatch(Constant.DEFAULT_IMPACT_NAME))) {
 											assessment.getImpacts().add(new RealValue(0d, impact));
-											AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, analysisForm.getType());
+											AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
 										}
 									});
 								});

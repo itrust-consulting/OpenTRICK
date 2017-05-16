@@ -196,7 +196,16 @@
 				<td class='form-estimation  form-estimation-left'><input name="rawComputedImportance" disabled="disabled" class="form-control numeric"
 					value="${riskProfile.computedRawImportance}"></td>
 				<c:if test="${type.quantitative}">
-					<td class='form-estimation form-estimation-left form-estimation-right'><c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+					<td class='form-estimation form-estimation-left form-estimation-right'><c:choose>
+							<c:when test="${empty riskRegister}">
+								<c:set var="impact" value="${valueFactory.findValue(0.0, 'IMPACT')}" />
+								<c:set var="aleRaw" value="${0}" />
+							</c:when>
+							<c:otherwise>
+								<c:set var="impact" value="${valueFactory.findValue(riskRegister.rawEvaluation.impact, 'IMPACT')}" />
+								<c:set var="aleRaw" value="${riskRegister.rawEvaluation.importance}" />
+							</c:otherwise>
+						</c:choose>
 						<div class="input-group">
 							<span class="input-group-addon" style="padding: 1px;">k&euro;</span>
 							<c:choose>
@@ -205,8 +214,14 @@
 								</c:when>
 								<c:otherwise>
 									<c:choose>
-										<c:when test="${impact.real<10000}">
+										<c:when test="${impact.real<100}">
 											<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+										</c:when>
+										<c:when test="${impact.real<1000}">
+											<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
+										</c:when>
+										<c:when test="${impact.real<10000}">
+											<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
 										</c:when>
 										<c:otherwise>
 											<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
@@ -217,19 +232,21 @@
 							</c:choose>
 						</div></td>
 					<c:if test="${show_uncertainty}">
+						<c:set var="aleoRaw" value="${aleRaw /  assessment.uncertainty}" />
 						<td><div class="input-group">
 								<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALEO-RAW' class='form-control form-control-static numeric disabled'
-									title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+									title="<fmt:formatNumber value="${aleoRaw}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleoRaw*0.001,1)}" /></label>
 							</div></td>
 					</c:if>
 					<td><div class="input-group">
 							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALE-RAW' class='form-control form-control-static numeric disabled'
-								title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+								title="<fmt:formatNumber value="${aleRaw}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleRaw*0.001,1)}" /></label>
 						</div></td>
 					<c:if test="${show_uncertainty}">
+						<c:set var="alepRaw" value="${aleRaw *  assessment.uncertainty}" />
 						<td><div class="input-group">
 								<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name="ALEP-RAW" class="form-control form-control-static numeric disabled"
-									title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+									title="<fmt:formatNumber value="${alepRaw}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alepRaw*0.001,1)}" /></label>
 							</div></td>
 					</c:if>
 				</c:if>
@@ -327,8 +344,14 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${impact.real<10000}">
+									<c:when test="${impact.real<100}">
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<1000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
 									</c:when>
 									<c:otherwise>
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
@@ -437,7 +460,17 @@
 			<td class='form-estimation  form-estimation-left'><input name="expComputedImportance" disabled="disabled" class="form-control numeric"
 				value="${riskProfile.computedExpImportance}"></td>
 			<c:if test="${type.quantitative}">
-				<td class='form-estimation form-estimation-left form-estimation-right'><c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+				<c:choose>
+					<c:when test="${empty riskRegister}">
+						<c:set var="impact" value="${valueFactory.findValue(0.0, 'IMPACT')}" />
+						<c:set var="aleExp" value="${0}" />
+					</c:when>
+					<c:otherwise>
+						<c:set var="impact" value="${valueFactory.findValue(riskRegister.expectedEvaluation.impact, 'IMPACT')}" />
+						<c:set var="aleExp" value="${riskRegister.expectedEvaluation.importance}" />
+					</c:otherwise>
+				</c:choose>
+				<td class='form-estimation form-estimation-left form-estimation-right'>
 					<div class="input-group">
 						<span class="input-group-addon" style="padding: 1px;">k&euro;</span>
 						<c:choose>
@@ -446,8 +479,14 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${impact.real<10000}">
+									<c:when test="${impact.real<100}">
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<1000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
 									</c:when>
 									<c:otherwise>
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
@@ -456,21 +495,24 @@
 								<label data-name="IMPACT-EXP" class="form-control form-control-static disabled text-right" title="${impact.variable}">${impactValue}</label>
 							</c:otherwise>
 						</c:choose>
-					</div></td>
+					</div>
+				</td>
 				<c:if test="${show_uncertainty}">
+					<c:set var="aleoExp" value="${aleExp /  assessment.uncertainty}" />
 					<td><div class="input-group">
 							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALEO-EXP' class='form-control form-control-static numeric disabled'
-								title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></label>
+								title="<fmt:formatNumber value="${aleoExp}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleoExp*0.001,1)}" /></label>
 						</div></td>
 				</c:if>
 				<td><div class="input-group">
 						<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALE-EXP' class='form-control form-control-static numeric disabled'
-							title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></label>
+							title="<fmt:formatNumber value="${aleoExp}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleoExp*0.001,1)}" /></label>
 					</div></td>
 				<c:if test="${show_uncertainty}">
+					<c:set var="alepExp" value="${aleExp *  assessment.uncertainty}" />
 					<td><div class="input-group">
 							<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name="ALEP-EXP" class="form-control form-control-static numeric disabled"
-								title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></label>
+								title="<fmt:formatNumber value="${alepExp}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alepExp*0.001,1)}" /></label>
 						</div></td>
 				</c:if>
 			</c:if>

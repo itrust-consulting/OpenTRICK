@@ -52,6 +52,7 @@ import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
+import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.exception.TrickException;
@@ -62,6 +63,7 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
@@ -78,7 +80,9 @@ import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
@@ -165,6 +169,9 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
 	private ServiceRiskProfile serviceRiskProfile;
@@ -408,7 +415,7 @@ public class ControllerEditField {
 					parameter.setValue(parameter.getValue() * 1000);
 					List<ImpactParameter> parameters = serviceImpactParameter.findByTypeAndAnalysisId(parameter.getType(), idAnalysis);
 					ImpactParameter.ComputeScales(parameters);
-					serviceImpactParameter.saveOrUpdate(parameters);
+					UpdateAssessment(idAnalysis, parameter.getType(), parameters);
 					break;
 				case "label":
 					List<ImpactParameter> impactParameters = serviceImpactParameter.findByIdAnalysisAndLevel(idAnalysis, parameter.getLevel());
@@ -433,6 +440,38 @@ public class ControllerEditField {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
+	}
+
+	private void UpdateAssessment(Integer idAnalysis, ScaleType type, List<ImpactParameter> parameters) {
+		List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(idAnalysis);
+		if (!assessments.isEmpty()) {
+			ValueFactory factory = new ValueFactory(parameters);
+			factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+			factory.add(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+			assessments.forEach(assessment -> {
+				assessment.getImpacts().stream().filter(value -> (value instanceof RealValue) && value.getName().equals(type.getName())).findAny().ifPresent(value -> {
+					IValue impact = factory.findValue(value.getReal(), type.getName());
+					((RealValue) value).setParameter(impact.getParameter());
+					AssessmentAndRiskProfileManager.ComputeAlE(assessment, value, factory);
+					serviceAssessment.saveOrUpdate(assessment);
+				});
+			});
+		}
+		serviceImpactParameter.saveOrUpdate(parameters);
+	}
+
+	private void UpdateAssessment(Integer idAnalysis, List<LikelihoodParameter> parameters) {
+		List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(idAnalysis);
+		if (assessments.isEmpty()) {
+			ValueFactory factory = new ValueFactory(parameters);
+			factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+			factory.add(serviceImpactParameter.findByTypeAndAnalysisId(Constant.DEFAULT_IMPACT_NAME, idAnalysis));
+			assessments.forEach(assessment -> {
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
+				serviceAssessment.saveOrUpdate(assessment);
+			});
+		}
+		serviceLikelihoodParameter.saveOrUpdate(parameters);
 	}
 
 	/**
@@ -479,7 +518,7 @@ public class ControllerEditField {
 					parameter.setValue(parameter.getValue());
 					List<LikelihoodParameter> parameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
 					ParameterManager.ComputeLikehoodValue(parameters);
-					serviceLikelihoodParameter.saveOrUpdate(parameters);
+					UpdateAssessment(idAnalysis, parameters);
 				} else
 					serviceLikelihoodParameter.saveOrUpdate(parameter);
 
@@ -744,12 +783,14 @@ public class ControllerEditField {
 			}
 			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
 			// compute new ALE
-			if (factory != null) {
+			if (factory != null || fieldEditor.getFieldName().equals("uncertainty")) {
+				if (factory == null)
+					factory = createFactoryForAssessment(idAnalysis);
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 				if (netImportance && AnalysisType.isQualitative(type))
 					result.add(new FieldValue("computedNextImportance", factory.findImportance(assessment)));
 				if (AnalysisType.isQuantitative(type)) {
-					AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+					AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
 					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
 					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
@@ -758,6 +799,26 @@ public class ControllerEditField {
 						result.add(new FieldValue("IMPACT", null, assessment.getImpact("IMPACT").getVariable()));
 					else if (fieldEditor.getFieldName().equals("likelihood"))
 						result.add(new FieldValue("likelihood", null, format(assessment.getLikelihoodReal(), numberFormat, 3)));
+					else {
+						RiskRegisterItem registerItem = serviceRiskRegister.getByAssetIdAndScenarioId(assessment.getAsset().getId(), assessment.getScenario().getId());
+						if (registerItem != null) {
+							double uncertainty = assessment.getUncertainty(), qUncertainty = 1.0 / uncertainty;
+
+							result.add(new FieldValue("ALE-RAW", format(registerItem.getRawEvaluation().getImportance() * .001, numberFormat, 2),
+									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
+							result.add(new FieldValue("ALEO-RAW", format(registerItem.getRawEvaluation().getImportance() * qUncertainty * .001, numberFormat, 2),
+									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
+							result.add(new FieldValue("ALEP-RAW", format(registerItem.getRawEvaluation().getImportance() * uncertainty * .001, numberFormat, 2),
+									format(registerItem.getRawEvaluation().getImportance() * assessment.getUncertainty(), numberFormat, 0) + " €"));
+
+							result.add(new FieldValue("ALE-EXP", format(registerItem.getExpectedEvaluation().getImportance() * .001, numberFormat, 2),
+									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0) + " €"));
+							result.add(new FieldValue("ALEO-EXP", format(registerItem.getExpectedEvaluation().getImportance() * qUncertainty * .001, numberFormat, 2),
+									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0) + " €"));
+							result.add(new FieldValue("ALEP-EXP", format(registerItem.getExpectedEvaluation().getImportance() * uncertainty * .001, numberFormat, 2),
+									format(registerItem.getExpectedEvaluation().getImportance() * assessment.getUncertainty(), numberFormat, 0) + " €"));
+						}
+					}
 				}
 			}
 			if (impactToDelete != null)

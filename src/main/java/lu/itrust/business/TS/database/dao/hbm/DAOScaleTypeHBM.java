@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOScaleType;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
@@ -188,6 +189,15 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	public List<ScaleType> findFromAnalysis(Integer idAnalysis) {
 		return getSession().createQuery("Select distinct parameter.type From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis",
 				ScaleType.class).setParameter("idAnalysis", idAnalysis).getResultList();
+	}
+
+	@Override
+	public ScaleType findOneQualitativeByAnalysisId(Integer idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select distinct parameter.type From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis and parameter.type.name <> :quantitative",
+						ScaleType.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("quantitative", Constant.DEFAULT_IMPACT_NAME).setMaxResults(1).uniqueResultOptional().orElse(null);
 	}
 
 }

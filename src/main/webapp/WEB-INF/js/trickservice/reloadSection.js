@@ -115,6 +115,7 @@ function findControllerBySection(section, subSection) {
 		"section_soa": "/Analysis/Standard/SOA",
 		"section_ids": "/Admin/IDS/Section",
 		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
+		"section_parameter": "/Analysis/Parameter/Section",
 		"section_parameter_impact_probability": "/Analysis/Parameter/Impact-probability/Section",
 		"section_risk-information_risk":"/Analysis/Risk-information/Section/Risk",
 		"section_risk-information_vul":"/Analysis/Risk-information/Section/Vul",
@@ -178,7 +179,13 @@ function callbackBySection(section) {
 					// manage measure
 					application["standard-caching"].clear();
 			}
-		},
+		},"section_parameter" : () =>{
+			if(application.analysisType.isQualitative())
+				reloadRiskChart(true);
+		}, "section_parameter_impact_probability": () => {
+			if(application.analysisType.isQualitative())
+				reloadRiskChart(true);
+		}
 	};
 
 	if (section.match("^section_standard_"))

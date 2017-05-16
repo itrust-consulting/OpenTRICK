@@ -22,17 +22,12 @@ Chart.plugins.register({
 				var meta = chartInstance.getDatasetMeta(i);
 				if (!meta.hidden) {
 					meta.data.forEach(function(element, index) {
-						var fontSize = 20;
-						if (dataset.data.length < 6)
-							fontSize = 30;
-						else if (dataset.data.length < 3)
-							fontSize = 40;
 						ctx.fillStyle = '#333';
 						ctx.textAlign = 'center';
 						ctx.textBaseline = 'middle';
-						ctx.font = Chart.helpers.fontString(fontSize, "normal", Chart.defaults.global.defaultFontFamily);
-						var dataString = dataset.data[index].toString(), position = element.tooltipPosition();
-						ctx.fillText(dataString, position.x, position.y);
+						ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, "normal", Chart.defaults.global.defaultFontFamily);
+						var dataString = "#"+dataset.data[index], position = element.tooltipPosition();
+						ctx.fillText(dataString=="#"? "" : dataString, position.x, position.y);
 					});
 				}
 			});

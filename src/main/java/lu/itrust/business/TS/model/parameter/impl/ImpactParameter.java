@@ -274,6 +274,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 					prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
 				else
 					prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
+				current.setValue(Math.sqrt(prev.getValue() * next.getValue()));
 				current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
 				next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
 			}

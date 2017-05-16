@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tab-parameter">
-	<div class='section row'>
+	<div class='section row' id='section_parameter'>
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -16,8 +16,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="row">
 		<div class="col-md-6">
 			<fieldset>
 				<legend>
