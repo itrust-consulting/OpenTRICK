@@ -59,32 +59,4 @@
 			</div>
 		</div>
 	</div>
-	<div id="sm-countdown-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none; z-index: 5000;" data-aria-hidden="true"
-		data-backdrop="static" data-keyboard="false">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4>
-						<spring:message code='info.session.timeout.title' text="Session Timeout" />
-					</h4>
-				</div>
-				<div class="modal-body" style="padding-bottom: 0;">
-					<p>
-						<spring:message code='info.session.timeout.text' text="Your session will expire in" />
-						<span id="sm-countdown">
-							<!-- Placeholder for dynamic countdown -->
-						</span>
-					</p>
-					<p style="text-align: right; padding-bottom: 0;">
-						<spring:message code='info.session.timeout.continuetext' text="Click \"Continue\" to keep working!" />
-					</p>
-				</div>
-				<div class="modal-footer" style="margin-top: 0;">
-					<button id="sm-continuebutton" type="button" name="continue" class="btn btn-primary" data-dismiss="modal">
-						<spring:message code="label.action.continue" text="Continue" />
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
 </div>

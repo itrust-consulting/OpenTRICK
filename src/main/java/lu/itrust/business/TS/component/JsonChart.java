@@ -7,6 +7,7 @@ package lu.itrust.business.TS.component;
  * @author eomar
  *
  */
+@Deprecated
 public class JsonChart {
 
 	private String chart;

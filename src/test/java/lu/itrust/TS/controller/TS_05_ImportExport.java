@@ -418,7 +418,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public synchronized void test_06_ExportReport() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
-		this.mockMvc.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(get("/Analysis/Export/Report/" + idAnalysis+"/QUANTITATIVE").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {

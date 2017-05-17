@@ -4,7 +4,7 @@ import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * ActionPlanMode <br>
- * <b>There are 6 modes:</b>
+ * <b>There are 7 modes:</b>
  * <ul>
  * <li>NORMAL (1)</li>
  * <li>OPTIMISTIC (2)</li>
@@ -12,6 +12,7 @@ import lu.itrust.business.TS.exception.TrickException;
  * <li>PHASE_NORMAL (4)</li>
  * <li>PHASE_OPTIMISTIC (5)</li>
  * <li>PHASE_PESSIMISTIC (6)</li>
+ * <li>QUALITATIVE (7) </li>
  * </ul>
  * 
  * @author EOM, BJA, SME
@@ -21,12 +22,12 @@ import lu.itrust.business.TS.exception.TrickException;
 public enum ActionPlanMode {
 
 	/** ActionPlanMode Value Constants */
-	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6);
+	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6),APQ(7);
 
 	/** ActionPlanModeValue */
 	private int value = 1;
 
-	private String[] NAMES = {"APN", "APO" , "APP", "APPN", "APPO", "APPP"};
+	private String[] NAMES = {"APN", "APO" , "APP", "APPN", "APPO", "APPP","APQ"};
 	
 	/**
 	 * Constructor:<br>
@@ -58,14 +59,15 @@ public enum ActionPlanMode {
 	 * <li>PHASE_NORMAL (4)</li>
 	 * <li>PHASE_OPTIMISTIC (5)</li>
 	 * <li>PHASE_PESSIMISTIC (6)</li>
+	 * <li>QUALITATIVE (7)</li>
 	 * </ul>
 	 * 
 	 * @param value
-	 *            ActionPlanmode value from 1 to 6
+	 *            ActionPlanmode value from 1 to 7
 	 * @return ActionplanMode
 	 * @throws TrickException 
 	 * @throws IllegalArgumentException
-	 *             when value is not between 1 and 6
+	 *             when value is not between 1 and 7
 	 */
 	public static ActionPlanMode valueOf(int value) throws TrickException {
 		ActionPlanMode[] values = values();

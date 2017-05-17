@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAsset;
@@ -74,7 +75,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (asset.getId() < 1)
 			analysis.add(asset);
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
+		if (analysis.isQualitative())
 			createAssessmentAndRiskProfile(asset, analysis);
 		else
 			createAssessment(asset, analysis);
@@ -94,7 +95,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (scenario.getId() < 1)
 			analysis.add(scenario);
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
+		if (analysis.isQualitative())
 			createAssessmentAndRiskProfile(scenario, analysis);
 		else
 			createAssessment(scenario, analysis);
@@ -263,7 +264,7 @@ public class AssessmentAndRiskProfileManager {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
-		if (analysis.getType() == AnalysisType.QUALITATIVE) {
+		if (analysis.isQualitative()) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -271,7 +272,7 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
 							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
 					} else {
@@ -292,7 +293,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
 						if (assessment != null) {
 							analysis.getAssessments().remove(assessment);
@@ -302,7 +303,9 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis, factory);
+
+		if (analysis.isQuantitative())
+			UpdateAssetALE(analysis, factory);
 	}
 
 	/**
@@ -326,7 +329,7 @@ public class AssessmentAndRiskProfileManager {
 				if (assessments == null)
 					continue;
 				for (Assessment assessment : assessments) {
-					ComputeAlE(assessment, factory, analysis.getType());
+					ComputeAlE(assessment, factory);
 					ale += assessment.getALE();
 					aleo += assessment.getALEO();
 					alep += assessment.getALEP();
@@ -342,11 +345,11 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	public void updateRiskDendencies(Analysis analysis, ValueFactory factory) {
+	public static void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
-		if (analysis.getType() == AnalysisType.QUALITATIVE) {
+		if (analysis.isQualitative()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -354,7 +357,7 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
 							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
 					} else {
@@ -372,7 +375,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
-							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
 						if (assessment != null)
 							analysis.getAssessments().remove(assessment);
@@ -381,7 +384,9 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis, factory);
+
+		if (analysis.isQuantitative())
+			UpdateAssetALE(analysis, factory);
 	}
 
 	@Transactional
@@ -436,7 +441,7 @@ public class AssessmentAndRiskProfileManager {
 			ValueFactory valueFactory) {
 		if (!mappedAssessments.containsKey(id)) {
 			if (scenario.hasInfluenceOnAsset(asset))
-				generateAssessment(assessments, valueFactory, asset, scenario);
+				GenerateAssessment(assessments, valueFactory, asset, scenario);
 		} else if (!scenario.hasInfluenceOnAsset(asset)) {
 			Assessment assessment = mappedAssessments.get(id);
 			assessments.remove(assessment);
@@ -479,28 +484,32 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	private void generateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
+	private static void GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
 		Assessment assessment;
 		assessment = new Assessment(asset, scenario);
 		factory.getImpactNames().forEach(impact -> assessment.setImpact(factory.findValue(0D, impact)));
 		assessments.add(assessment);
 	}
 
-	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
-		IValue value = type == AnalysisType.QUALITATIVE ? factory.findMaxImpactByLevel(assessment.getImpacts()) : factory.findMaxImpactByReal(assessment.getImpacts());
-		assessment.setImpactReal(value == null ? 0D : value.getReal());
+	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory) {
+		return ComputeAlE(assessment, null, factory);
+	}
+
+	public static Assessment ComputeAlE(Assessment assessment, IValue value, ValueFactory factory) {
+		if (value == null || !value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
+			assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
+		else
+			assessment.setImpactReal(value.getReal());
 		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
-		if (type == AnalysisType.QUANTITATIVE) {
-			assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
-			assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
-		}
+		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
+		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
 		return assessment;
 	}
 
 	public static void ComputeAlE(List<Assessment> assessments, List<AbstractProbability> parameters, AnalysisType type) {
 		ValueFactory factory = new ValueFactory(parameters);
-		assessments.forEach(assessment -> ComputeAlE(assessment, factory, type));
+		assessments.forEach(assessment -> ComputeAlE(assessment, factory));
 	}
 
 	/**

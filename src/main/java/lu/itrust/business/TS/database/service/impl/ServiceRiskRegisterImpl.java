@@ -123,4 +123,9 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 		daoRiskRegister.deleteAllFromAnalysis(analysisID);
 
 	}
+
+	@Override
+	public RiskRegisterItem getByAssetIdAndScenarioId(int idAsset, int idScenario) {
+		return daoRiskRegister.getByAssetIdAndScenarioId(idAsset,idScenario);
+	}
 }

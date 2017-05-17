@@ -169,7 +169,7 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		IBoundedParameter parameter = (IBoundedParameter) parameters.get(mid);
 		if (parameter.getBounds().isInRange(value))
-			return value == parameter.getValue() ? new Value(parameter) : new RealValue(value, parameter);
+			return value != parameter.getValue() || parameter.isMatch(Constant.DEFAULT_IMPACT_NAME) ? new RealValue(value, parameter) : new Value(parameter);
 		else if (mid == 0)
 			return new RealValue(value, parameter);
 		else if (parameter.getBounds().getFrom() > value)
@@ -298,7 +298,9 @@ public class ValueFactory {
 	}
 
 	public int findImpactLevel(List<? extends IValue> impacts) {
-		return impacts == null ? 0 : impacts.stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel).orElse(0);
+		return impacts == null ? 0
+				: impacts.stream().filter(value -> !value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel)
+						.orElse(0);
 	}
 
 	public int findImpactLevel(IValue... impacts) {
@@ -322,11 +324,15 @@ public class ValueFactory {
 	}
 
 	public IValue findMaxImpactByLevel(Object value) {
-		return impacts == null ? null : impacts.keySet().stream().map(type -> findValue(value, type)).max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
+		return impacts == null ? null
+				: impacts.keySet().stream().filter(type -> !type.equals(Constant.DEFAULT_IMPACT_NAME)).map(type -> findValue(value, type))
+						.max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 	}
 
 	public IValue findMinImpactByLevel(Object value) {
-		return impacts == null ? null : impacts.keySet().stream().map(type -> findValue(value, type)).min((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
+		return impacts == null ? null
+				: impacts.keySet().stream().filter(type -> !type.equals(Constant.DEFAULT_IMPACT_NAME)).map(type -> findValue(value, type))
+						.min((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 	}
 
 	public int findImpactLevelByMaxLevel(double value) {
@@ -340,7 +346,12 @@ public class ValueFactory {
 	}
 
 	public IValue findMaxImpactByReal(List<? extends IValue> impacts) {
-		return impacts == null ? null : impacts.stream().max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+		return impacts == null ? null : impacts.stream().filter(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+	}
+	
+	public Double findRealValue(List<? extends IValue> impacts) {
+		IValue value = findMaxImpactByReal(impacts);
+		return value == null ? 0d : value.getReal();
 	}
 
 	/**
@@ -377,8 +388,8 @@ public class ValueFactory {
 		this.impactMapper = impactMapper;
 	}
 
-	public Double computeALEByLevel(Assessment assessment) {
-		IValue value = findMaxImpactByLevel(assessment.getImpacts());
+	public Double computeALE(Assessment assessment) {
+		IValue value = findMaxImpactByReal(assessment.getImpacts());
 		return value == null ? 0 : value.getReal() * findExpValue(assessment.getLikelihood());
 	}
 

@@ -75,6 +75,7 @@ public class TMA {
 		switch (mode) {
 		case APN:
 		case APPN:
+		case APQ:
 			this.ALE = this.assessment.getALE();
 			break;
 		case APO:

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.naming.directory.InvalidAttributesException;
 
@@ -22,7 +23,6 @@ import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
-import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -31,11 +31,11 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurrentInvestment;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
@@ -77,8 +77,6 @@ public class ActionPlanComputation {
 	 **********************************************************************************************/
 
 	private DAOActionPlanType serviceActionPlanType;
-
-	private DAOAnalysis sericeAnalysis;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -147,9 +145,8 @@ public class ActionPlanComputation {
 	 * @param sericeAnalysis
 	 * @param analysis
 	 */
-	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, Analysis analysis) {
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, Analysis analysis) {
 		this.serviceActionPlanType = serviceActionPlanType;
-		this.sericeAnalysis = sericeAnalysis;
 		this.analysis = analysis;
 	}
 
@@ -170,12 +167,11 @@ public class ActionPlanComputation {
 	 * @param standards
 	 * @param uncertainty
 	 */
-	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
 			List<AnalysisStandard> standards, boolean uncertainty, MessageSource messageSource) {
 
 		// initialise variables
 		this.serviceActionPlanType = serviceActionPlanType;
-		this.sericeAnalysis = sericeAnalysis;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idTask = idTask;
 		this.analysis = analysis;
@@ -183,7 +179,7 @@ public class ActionPlanComputation {
 		// check if standards to compute is empty -> YES: take all standards;
 		// NO: use
 		// only the standards given
-		if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+		if (analysis.isQuantitative()) {
 
 			if (standards == null || standards.isEmpty())
 				this.standards = this.analysis.getAnalysisStandards();
@@ -248,12 +244,17 @@ public class ActionPlanComputation {
 
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
-			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans",
-					this.analysis.getType() == AnalysisType.QUANTITATIVE ? quantitativeActionPlan() : qualitativeActionPlan()));
+			// Reset previously computed action plans
+			// This is needed to assure that the action plan list is actually empty
+			analysis.setActionPlans(new ArrayList<ActionPlanEntry>(0));
 
-			// save to database
-			sericeAnalysis.saveOrUpdate(analysis);
+			if (analysis.isQuantitative())
+				progress = quantitativeActionPlan();
+			if (analysis.isQualitative())
+				progress = qualitativeActionPlan();
+
+			// send feedback
+		
 			return null;
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -273,10 +274,10 @@ public class ActionPlanComputation {
 	private int qualitativeActionPlan() throws Exception {
 		int position[] = { 0 };
 		// get actionplantype by given mode
-		ActionPlanType actionPlanType = serviceActionPlanType.get(ActionPlanMode.APPN.getValue());
+		ActionPlanType actionPlanType = serviceActionPlanType.get(ActionPlanMode.APQ.getValue());
 		// check if the actionplantype exists and add it to database if not
 		if (actionPlanType == null)
-			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(ActionPlanMode.APPN));
+			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(ActionPlanMode.APQ));
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 10));
 
@@ -313,11 +314,16 @@ public class ActionPlanComputation {
 
 		this.standards = tmpAnalysisStandards.values().stream().collect(Collectors.toList());
 
-		analysis.setActionPlans(actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
+		// N.B.: can append the newly computed action plan to the previous one
+		// since the action plans got reset at the very beginning of the computation (see calculateActionPlans()).
+		// Appending is even required, since in MIXED-style analyses, the quantitative AND qualitative action plans are computed!
+		Stream<ActionPlanEntry> prevActionPlans = analysis.getActionPlans().stream();
+		Stream<ActionPlanEntry> newActionPlans = actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
 			actionPlan.setPosition(position[0]++);
 			actionPlan.setOrder((actionPlan.getPosition() + 1) + "");
 			return actionPlan;
-		}).collect(Collectors.toList()));
+		});
+		analysis.setActionPlans(Stream.concat(prevActionPlans, newActionPlans).collect(Collectors.toList()));
 
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 70));
@@ -332,8 +338,14 @@ public class ActionPlanComputation {
 
 		computeSummary(actionPlanType.getActionPlanMode());
 
-		analysis.getSummaries().forEach(
-				summary -> summary.getConformances().forEach(conformance -> conformance.setAnalysisStandard(analysisStandards.get(conformance.getAnalysisStandard().getId()))));
+		// Only use those analysis standards that the user selected 
+		for (SummaryStage s : analysis.getSummaries()) {
+			for (SummaryStandardConformance c : s.getConformances()) {
+				AnalysisStandard as = analysisStandards.get(c.getAnalysisStandard().getId());
+				if (as != null)
+					c.setAnalysisStandard(as);
+			}
+		}
 
 		return 95;
 	}
@@ -2490,16 +2502,18 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		// * check if calculation by phase
 		// ****************************************************************
-
-		// calculation by phase ? -> YES
-		if ((apt.getId() == Constant.ACTIONPLAN_PHASE_NORMAL_MODE) || (apt.getId() == Constant.ACTIONPLAN_PHASE_OPTIMISTIC_MODE)
-				|| (apt.getId() == Constant.ACTIONPLAN_PHASE_PESSIMISTIC_MODE)) {
-
+		switch (apt.getActionPlanMode()) {
+		case APPN:
+		case APPO:
+		case APPP:
+		case APQ:
 			// set flag
 			byPhase = true;
-
 			// retrieve first phase number
 			phase = actionPlan.get(0).getMeasure().getPhase().getNumber();
+			break;
+		default:
+			break;
 		}
 
 		// ****************************************************************

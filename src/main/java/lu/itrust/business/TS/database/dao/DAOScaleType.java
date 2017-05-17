@@ -44,4 +44,6 @@ public interface DAOScaleType {
 	ScaleType findOneByAnalysisId(Integer analysisId);
 
 	List<ScaleType> findFromAnalysis(Integer idAnalysis);
+
+	ScaleType findOneQualitativeByAnalysisId(Integer idAnalysis);
 }

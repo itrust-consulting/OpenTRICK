@@ -108,7 +108,7 @@
 								code='label.title.risk_by.asset' text="Risk by asset" />
 					</a></li>
 
-					<li data-type='ALL'><a id="heading-compliance" role='tab' role='button' data-toggle='tab' href="#tab-compliance"> <spring:message code='label.title.compliance'
+					<li data-type='QUANTITATIVE QUALITATIVE'><a id="heading-compliance" role='tab' role='button' data-toggle='tab' href="#tab-compliance"> <spring:message code='label.title.compliance'
 								text="Compliance" />
 					</a></li>
 

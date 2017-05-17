@@ -69,7 +69,7 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize);
 
-	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType analysisType);
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType ...analysisTypes);
 
 	public List<Analysis> getAllNotEmpty();
 
@@ -83,7 +83,7 @@ public interface ServiceAnalysis {
 
 	public List<String> getAllNotEmptyVersion(String identfier);
 
-	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType analysisType);
+	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType ... analysisTypes);
 
 	public List<Analysis> getAllProfiles();
 

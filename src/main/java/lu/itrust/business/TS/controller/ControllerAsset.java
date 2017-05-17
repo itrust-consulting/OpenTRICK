@@ -45,6 +45,7 @@ import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -297,10 +298,12 @@ public class ControllerAsset {
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		loadAnalysisSettings(model, integer);
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(integer);
 		// load all assets of analysis to model
-		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
+		if(AnalysisType.isQuantitative(type))
+			model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
+		model.addAttribute("type", type);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analyses/single/components/asset/asset";

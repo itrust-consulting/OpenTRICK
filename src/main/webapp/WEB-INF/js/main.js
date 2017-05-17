@@ -11,7 +11,7 @@ function Application() {
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
 	this.editingModeFroceAbort = false;
-	this.analysisType = '';
+	this.analysisType = {};
 	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	this.timeoutSetting = {
 		idle : 720000,
@@ -129,6 +129,44 @@ var NOTIFICATION_TYPE = {
 		return undefined;
 	}
 }
+
+var ANALYSIS_TYPE = {
+	QUANTITATIVE : {
+		type : "QUANTITATIVE",
+		isQualitative : () => false,
+		isQuantitative : () => true,
+		isSupported : type => type ==  "QUANTITATIVE" || type == "HYBRID"
+	},
+	HYBRID : {
+		type : "HYBRID",
+		isQualitative : () => true,
+		isQuantitative : () => true,
+		isSupported : type => true
+	},
+	QUALITATIVE : {
+		type : "QUALITATIVE",
+		isQualitative : () => true,
+		isQuantitative : () => false,
+		isSupported : type => type ==  "QUALITATIVE" || type == "HYBRID"
+	},
+	valueOf : value => {
+		for ( var key in ANALYSIS_TYPE) {
+			if (typeof key === "function")
+				continue;
+			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value)
+				return ANALYSIS_TYPE[key];
+		}
+		return undefined;
+	},
+	isSupported : (typeName, value) => {
+		var type = ANALYSIS_TYPE.valueOf(typeName);
+		return type && type.isSupported(value);
+	},
+	isHybrid : value => value ==='HYBRID',
+	isQuantitative : value => value === 'QUANTITATIVE',
+	isQualitative : value => value === 'QUALITATIVE'
+}
+
 
 if (!String.prototype.capitalize) {
 	String.prototype.capitalize = function() {
@@ -316,7 +354,14 @@ function getScrollbarWidth() {
 }
 
 function isAnalysisType(type, section){
-	return  $("table>tbody>tr[data-trick-type='" + type + "']>td>input:checked", section? section : "#section_analysis").length > 0;
+	var analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section? section : "#section_analysis").closest("tr").attr("data-trick-type");
+	return  analysisType && analysisType.isSupported(trType);
+}
+
+function findAnalysisType(section, idAnalysis){
+	if(Object.keys(application.analysisType).length)
+		return application.analysisType.type;
+	return 	 $("table>tbody>tr[data-trick-id='"+idAnalysis+"'][data-trick-type]", section).attr("data-trick-type");
 }
 
 function isArchived(analysisId){

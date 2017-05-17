@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.cssf.tools;
 
 import java.util.Comparator;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 /**
@@ -40,9 +41,9 @@ public class NetImportanceComparator implements Comparator<RiskRegisterItem> {
 			if (result == 0) {
 				result = Double.compare(o1.getRawEvaluation().getImportance(), o2.getRawEvaluation().getImportance());
 				if (result == 0) {
-					result = String.CASE_INSENSITIVE_ORDER.compare(o2.getScenario().getName(),o1.getScenario().getName());//inverse order
+					result = NaturalOrderComparator.compareTo(o2.getScenario().getName(),o1.getScenario().getName());//inverse order
 					if (result == 0) {
-						result = String.CASE_INSENSITIVE_ORDER.compare(o2.getAsset().getName(),o1.getAsset().getName());//inverse order
+						result = NaturalOrderComparator.compareTo(o2.getAsset().getName(),o1.getAsset().getName());//inverse order
 					}
 				}
 			}

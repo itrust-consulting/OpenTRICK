@@ -496,7 +496,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 					while (row.getTableCells().size() < 6)
 						row.addNewTableCell();
 					setCellText(row.getCell(0), assessment.getScenario().getName());
-					IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+					IValue impact = assessment.getImpact(Constant.DEFAULT_IMPACT_NAME);
 					if (impact == null)
 						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
 					setCellText(row.getCell(1), kEuroFormat.format(impact.getReal() * 0.001), ParagraphAlignment.CENTER);
@@ -624,7 +624,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 		String parmetertype = "";
-		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+		if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 			parmetertype = "Impact";
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Proba";
@@ -672,20 +672,20 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				setCellText(row.getCell(2), parameter.getDescription());
 				Double value = 0.;
 				value = parameter.getValue();
-				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
 					row.getCell(3).setColor(SUB_HEADER_COLOR);
 				value = parameter.getBounds().getFrom();
-				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(4), kEuroFormat.format(value));
 				if (parameter.getLevel() == length)
 					addCellNumber(row.getCell(5), "+∞");
 				else {
 					value = parameter.getBounds().getTo();
-					if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 						value *= 0.001;
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}

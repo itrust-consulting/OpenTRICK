@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -319,11 +320,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType analysisType) {
-		return getSession()
-				.createQuery(
-						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.analysis.type = :type and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
-				.setParameter("username", username).setParameterList("rights", rights).setParameter("type", analysisType).setParameterList("standards", standards).getResultList();
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType... analysisTypes) {
+		return analysisTypes.length < 1 ? Collections.emptyList()
+				: getSession()
+						.createQuery(
+								"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.analysis.type in :type and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
+						.setParameter("username", username).setParameterList("rights", rights).setParameterList("types", analysisTypes).setParameterList("standards", standards)
+						.getResultList();
 	}
 
 	/**
@@ -385,11 +388,12 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType analysisType) {
-		return getSession()
-				.createQuery(
-						"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysis.type = :type and analysisStandard.standard in :standards")
-				.setParameterList("standards", standards).setParameter("type", analysisType).getResultList();
+	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType... analysisTypes) {
+		return analysisTypes.length < 1 ? Collections.emptyList()
+				: getSession()
+						.createQuery(
+								"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysis.type in :type and analysisStandard.standard in :standards")
+						.setParameterList("standards", standards).setParameterList("types", analysisTypes).getResultList();
 	}
 
 	/**

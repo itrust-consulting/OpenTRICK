@@ -75,6 +75,7 @@ import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -405,13 +406,13 @@ public class ControllerAnalysisStandard {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/{standardId}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/{standardId}/Compliance/{type}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart compliance(@PathVariable Integer standardId, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Chart compliance(@PathVariable Integer standardId, @PathVariable ActionPlanMode type, HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == standardId)
-				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale)).findAny().orElse(new Chart());
+				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale)).findAny().orElse(new Chart());
 	}
 
 	/**
@@ -422,12 +423,12 @@ public class ControllerAnalysisStandard {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Compliances/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody List<Chart> compliances(HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody List<Chart> compliances(@PathVariable ActionPlanMode type, HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, locale))
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale))
 				.collect(Collectors.toList());
 	}
 
@@ -620,7 +621,7 @@ public class ControllerAnalysisStandard {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String getAvailableStandards(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		model.addAttribute("availableStandards", serviceAnalysis.getAnalysisTypeById(idAnalysis) == AnalysisType.QUANTITATIVE ? serviceStandard.getAllNotInAnalysis(idAnalysis)
+		model.addAttribute("availableStandards", AnalysisType.isQuantitative(serviceAnalysis.getAnalysisTypeById(idAnalysis)) ? serviceStandard.getAllNotInAnalysis(idAnalysis)
 				: serviceStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis));
 		return "analyses/single/components/standards/standard/form/import";
 	}
@@ -649,7 +650,7 @@ public class ControllerAnalysisStandard {
 			AnalysisStandard analysisStandard = null;
 			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 			Object implementationRate = null;
-			if (standard.getType() == StandardType.MATURITY && analysis.getType() == AnalysisType.QUANTITATIVE) {
+			if (standard.getType() == StandardType.MATURITY && analysis.isQuantitative()) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
 				implementationRate = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
@@ -797,7 +798,7 @@ public class ControllerAnalysisStandard {
 
 			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
 
-			if (type != AnalysisType.QUALITATIVE) {
+			if (type == AnalysisType.QUANTITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
 				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 					excludes.put(category, true);
@@ -954,7 +955,7 @@ public class ControllerAnalysisStandard {
 				measure.setAnalysisStandard(analysisStandard);
 			}
 
-			if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
+			if (AnalysisType.isQuantitative(type) && measureForm.getProperties() == null) {
 				errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 				return result;
 			}
@@ -1495,7 +1496,7 @@ public class ControllerAnalysisStandard {
 
 		description.setComputable(measureForm.isComputable());
 
-		if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
+		if (AnalysisType.isQuantitative(type) && measureForm.getProperties() == null) {
 			errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 			return errors;
 		}
@@ -1505,7 +1506,7 @@ public class ControllerAnalysisStandard {
 			if (assetMeasure.getMeasurePropertyList() == null)
 				assetMeasure.setMeasurePropertyList(new MeasureProperties());
 
-			if (type == AnalysisType.QUANTITATIVE)
+			if (AnalysisType.isQuantitative(type))
 				measureForm.getProperties().copyTo(assetMeasure.getMeasurePropertyList());
 
 			List<MeasureAssetValue> assetValues = new ArrayList<MeasureAssetValue>(measureForm.getAssetValues().size());
@@ -1535,7 +1536,7 @@ public class ControllerAnalysisStandard {
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
 			if (normalMeasure.getMeasurePropertyList() == null)
 				normalMeasure.setMeasurePropertyList(new MeasureProperties());
-			if (type == AnalysisType.QUANTITATIVE)
+			if (AnalysisType.isQuantitative(type))
 				measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
 			updateAssetTypeValues(normalMeasure, measureForm.getAssetValues(), errors, locale);
 		}

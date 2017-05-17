@@ -73,9 +73,11 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.AbstractValue;
+import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -160,9 +162,6 @@ public class ControllerAnalysisCreate {
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
-
-	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServiceScaleType serviceScaleType;
@@ -367,20 +366,27 @@ public class ControllerAnalysisCreate {
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
 			if (analysisForm.getImpacts().isEmpty()) {
-
 				mappingParameters.putAll(serviceRiskAcceptanceParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-
 				mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-
 			} else {
 				analysisForm.getScale().setLevel(analysisForm.getScale().getLevel() + 1);
-				generateLikelihoodParameters(analysis, mappingParameters, 12, analysisForm.getScale().getLevel());
+				generateLikelihoodParameters(analysis, mappingParameters, Constant.DEFAULT_LIKELIHOOD_MAX_VALUE, analysisForm.getScale().getLevel());
 				analysisForm.getImpacts().forEach(generateImpactParameters(analysis, mappingParameters, analysisForm.getScale()));
 			}
+
+			if (analysisForm.getType().isQuantitative()
+					&& !analysis.getImpactParameters().parallelStream().anyMatch(parameter -> parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))) {
+				ScaleType scaleType = serviceScaleType.findOne(Constant.DEFAULT_IMPACT_NAME);
+				analysis.getImpactParameters().parallelStream().max((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()))
+						.ifPresent(impact -> generateImpactParameters(analysis, mappingParameters, new Scale(scaleType, impact.getLevel() + 1, impact.getValue() * 0.001))
+								.accept(scaleType.getId()));
+			}
+			
+			analysis.updateType();
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
 			Map<Integer, Asset> mappingAssets = assets.isEmpty() ? null : new LinkedHashMap<Integer, Asset>(assets.size());
@@ -415,6 +421,19 @@ public class ControllerAnalysisCreate {
 							duplication.setImpact(value);
 						});
 						analysis.add(duplication);
+					}
+
+					if (analysis.isQuantitative() && !analysis.getAssessments().isEmpty()) {
+						analysis.getImpactParameters().parallelStream().filter(impact -> impact.isMatch(Constant.DEFAULT_IMPACT_NAME) && impact.getLevel() == 0).findAny()
+								.ifPresent(impact -> {
+									ValueFactory factory = new ValueFactory(analysis.getParameters());
+									analysis.getAssessments().parallelStream().forEach(assessment -> {
+										if (!assessment.getImpacts().parallelStream().anyMatch(value -> value.getParameter().isMatch(Constant.DEFAULT_IMPACT_NAME))) {
+											assessment.getImpacts().add(new RealValue(0d, impact));
+											AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
+										}
+									});
+								});
 					}
 				}
 
@@ -463,7 +482,7 @@ public class ControllerAnalysisCreate {
 					for (RiskProfile riskProfile : riskProfiles)
 						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters, measures));
 				}
-				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
+				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			}
 
 			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1)

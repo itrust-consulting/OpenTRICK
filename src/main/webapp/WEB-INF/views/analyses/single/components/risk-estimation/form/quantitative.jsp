@@ -61,8 +61,14 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${impact.real<10000}">
+									<c:when test="${impact.real<100}">
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<1000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
 									</c:when>
 									<c:otherwise>
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />

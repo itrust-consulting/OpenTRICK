@@ -26,4 +26,6 @@ public interface ServiceRiskRegister {
 	public void delete(RiskRegisterItem riskRegisterItem);
 	
 	public void deleteAllFromAnalysis(Integer analysisID);
+
+	public RiskRegisterItem getByAssetIdAndScenarioId(int idAsset, int idScenario);
 }

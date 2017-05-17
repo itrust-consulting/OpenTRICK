@@ -323,8 +323,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType analysisType) {
-		return daoAnalysis.getAllHasRightsAndContainsStandard(username, rights, standards, analysisType);
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType ... analysisTypes) {
+		return daoAnalysis.getAllHasRightsAndContainsStandard(username, rights, standards, analysisTypes);
 	}
 
 	/**
@@ -383,8 +383,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType analysisType) {
-		return daoAnalysis.getAllProfileContainsStandard(standards, analysisType);
+	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType ... analysisTypes) {
+		return daoAnalysis.getAllProfileContainsStandard(standards, analysisTypes);
 	}
 
 	/**

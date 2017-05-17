@@ -51,6 +51,7 @@ import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
@@ -497,7 +498,9 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, Locale locale) {
+	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, ActionPlanMode actionPlanMode, Locale locale) {
+
+		AnalysisType analysisType = daoAnalysis.getAnalysisTypeById(idAnalysis);
 
 		ValueFactory factory = new ValueFactory(daoDynamicParameter.findByAnalysisId(idAnalysis));
 
@@ -506,9 +509,12 @@ public class ChartGenerator {
 		List<Measure> measures = analysisStandard.getMeasures().stream()
 				.filter(measure -> measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 				.collect(Collectors.toList());
+		String title = analysisType.isHybrid() ? actionPlanMode == ActionPlanMode.APQ
+				? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance for qualitative", locale)
+				: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance for quantitative", locale)
+				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale);
 
-		Chart chart = new Chart(standard.getId(),
-				messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale));
+		Chart chart = new Chart(standard.getId()+"_"+actionPlanMode, title);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
 
@@ -528,7 +534,7 @@ public class ChartGenerator {
 		if (!dataset.getData().isEmpty())
 			chart.getDatasets().add(dataset);
 
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), ActionPlanMode.APPN);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), actionPlanMode);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 

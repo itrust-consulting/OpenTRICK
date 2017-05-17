@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import freemarker.template.utility.NullArgumentException;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 
@@ -49,6 +50,8 @@ public class SummaryStandardConformance {
 	 * @param conformance
 	 */
 	public SummaryStandardConformance(AnalysisStandard analysisStandard, double conformance) {
+		if (analysisStandard == null)
+			throw new NullArgumentException("analysisStandard");
 		this.analysisStandard = analysisStandard;
 		this.conformance = conformance;
 	}
@@ -89,6 +92,8 @@ public class SummaryStandardConformance {
 	 * @param analysisStandard
 	 */
 	public void setAnalysisStandard(AnalysisStandard analysisStandard) {
+		if (analysisStandard == null)
+			throw new NullArgumentException("analysisStandard");
 		this.analysisStandard = analysisStandard;
 	}
 

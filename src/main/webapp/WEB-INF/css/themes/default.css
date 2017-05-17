@@ -699,6 +699,11 @@ tr.form-group-fill th:LAST-CHILD {
 	border-radius: 4px;
 }
 
+.form-group-fill .form-control.form-control-static{
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
 .form-horizontal.form-group-fill {
 	padding-top: 5px;
 }
@@ -706,6 +711,15 @@ tr.form-group-fill th:LAST-CHILD {
 .form-horizontal.form-group-fill .form-control {
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
+}
+
+.impact-q-group {
+	margin-top: -17px;
+	margin-bottom: 8px;
+}
+
+.form-control-static.disabled, .form-group-fill .form-control-static.disabled  {
+	background-color: #eee;
 }
 
 td.unselected {
@@ -758,6 +772,16 @@ a#main_menu_profile {
 	margin-top: -5px;
 }
 
+.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve, 
+.probability-likelihood + .impact-qualitaitve, 
+.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve, 
+.probability-dynamic + .impact-qualitaitve, 
+.probability-dynamic + .impact-quantitaitve 
+ {
+	clear: left;
+}
+
+
 @media ( min-width : 992px) {
 	.max-height {
 		height: 100%;
@@ -804,4 +828,41 @@ a#main_menu_profile {
 			height: calc(100% - 250px);
 		}
 	}
+}
+
+@media (min-width: 768px) {
+    .pull-sm-left {
+        float: left !important;
+    }
+    .pull-sm-right {
+        float: right !important;
+    }
+    .pull-sm-none {
+        float: none !important;
+    }
+}
+@media (min-width: 992px) {
+    .pull-md-left {
+        float: left !important;
+    }
+    .pull-md-right {
+        float: right !important;
+    }
+    .pull-md-none {
+        float: none !important;
+    }
+}
+@media (min-width: 1200px) {
+    .pull-lg-left {
+        float: left !important;
+    }
+    .pull-lg-right {
+        float: right !important;
+    }
+    .pull-lg-none {
+        float: none !important;
+    }
+}
+.pull-none {
+    float: none !important;
 }

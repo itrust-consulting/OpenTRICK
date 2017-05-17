@@ -379,7 +379,7 @@ function setupMeasureManager($content) {
 		});
 	}
 
-	if (application.analysisType == "QUANTITATIVE") {
+	if (application.analysisType.isQuantitative()) {
 		$content.find(".slider").slider({
 			reversed: true
 		}).each(function () {
@@ -402,7 +402,7 @@ function saveMeasure(form, callback) {
 	data.assetValues = [];
 	if ($assetTab.length) {
 		data.type = "ASSET";
-		if (application.analysisType == "QUANTITATIVE") {
+		if (application.analysisType.isQuantitative()) {
 			$("#tab_properties #values input[id^='property_asset']", $form).each(function () {
 				data.assetValues.push({
 					id: this.name,
