@@ -47,8 +47,9 @@
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${impactScaleMenu} <span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<c:if test="${type.quantitative}">
+							<li class="dropdown-header"><spring:message code="label.analysis.type.quantitative" /></li>
 							<li><a href="#" onclick='return displayParameters("#Scale_Impact", "<spring:message code='label.title.parameter.quantitative.impact'/>")'><spring:message
-										code="label.analysis.quantitative.impact" /></a></li>
+										code="label.title.impact" /></a></li>
 							<li class="dropdown-header"><spring:message code="label.analysis.type.qualitative" /></li>
 						</c:if>
 						<c:forEach items="${impactTypes}" var="impactType">
