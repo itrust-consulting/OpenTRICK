@@ -42,6 +42,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
@@ -125,22 +126,24 @@ public class ControllerParameter {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 		List<IParameter> parameters = new LinkedList<>(serviceSimpleParameter.findByAnalysisId(idAnalysis));
-		if(analysisType.isQualitative()){
+		if (analysisType.isQualitative()) {
+			List<LikelihoodParameter> likelihoodParameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
 			model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 			ScaleType scaleType = serviceScaleType.findOneQualitativeByAnalysisId(idAnalysis);
 			parameters.addAll(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
-			parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-			if(scaleType!=null){
+			parameters.addAll(likelihoodParameters);
+			if (scaleType != null) {
 				parameters.addAll(serviceImpactParameter.findByTypeAndAnalysisId(scaleType, idAnalysis));
 				model.addAttribute("impactLabel", scaleType.getName());
 			}
+			int level = likelihoodParameters.size()-1;
+			model.addAttribute("maxImportance", level * level);
 		}
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/parameters/other";
 	}
-	
-	
+
 	/**
 	 * section: <br>
 	 * Description
@@ -168,7 +171,6 @@ public class ControllerParameter {
 		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
 		return "analyses/single/components/parameters/impact_probability";
 	}
-
 
 	/**
 	 * maturityImplementationRate: <br>

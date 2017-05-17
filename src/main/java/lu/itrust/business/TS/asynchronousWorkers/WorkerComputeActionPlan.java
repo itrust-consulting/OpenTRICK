@@ -179,7 +179,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				if (reloadSection) {
 					if (analysis.isHybrid())
 						messageHandler.setAsyncCallback(
-								new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);riskEstimationUpdate();"));
+								new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);riskEstimationUpdate(true);"));
 					else
 						messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);"));
 				}

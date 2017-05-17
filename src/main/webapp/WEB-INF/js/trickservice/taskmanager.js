@@ -146,8 +146,10 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					}, 5000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
-						if (reponse.asyncCallback.args != null && reponse.asyncCallback.args.length)
-							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
+						if (reponse.asyncCallback.args != null && reponse.asyncCallback.args.length){
+							if(window[reponse.asyncCallback.action])
+								window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
+						}
 						else
 							eval(reponse.asyncCallback.action);
 					} else if (reponse.taskName != null && reponse.taskName != undefined)

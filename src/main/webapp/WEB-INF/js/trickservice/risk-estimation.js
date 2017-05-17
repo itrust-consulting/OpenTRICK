@@ -216,10 +216,12 @@ function removeEstimation(type, elements) {
 	return false;
 }
 
-function riskEstimationUpdate() {
+function riskEstimationUpdate(force) {
 	if (helper == undefined)
 		initialiseRiskEstimation();
 	if (helper.$tabSection.is(":visible")) {
+		if(force===true)
+			helper.invalidate = true;
 		updateRiskEstimationNavigation();
 		helper.updateContent();
 	} else

@@ -11,7 +11,6 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.value.IValue;
-import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**

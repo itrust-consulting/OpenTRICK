@@ -41,7 +41,7 @@
 					</tr>
 				</c:if>
 				<c:set var="length" value="${mappedParameters['PROBA'].size()-1}" />
-				<c:set var='mod2'  value="${length mod 2 != 0}"/>
+				<c:set var='mod2' value="${length mod 2 != 0}" />
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
 					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}" ${type == 'QUALITATIVE' and parameter.level==0? 'style="display:none"':''}>
 						<td data-trick-field="level" class="textaligncenter" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />'><c:choose>
@@ -52,13 +52,20 @@
 									<spring:message text="${parameter.level}" />
 								</c:otherwise>
 							</c:choose></td>
-							
+
 						<c:if test="${type.quantitative}">
 							<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
 						</c:if>
-						
+
 						<c:if test="${type.qualitative}">
-							<td data-trick-field="label" class="textaligncenter"><spring:message text="${parameter.label}" /></td>
+							<td data-trick-field="label" class="textaligncenter"><c:choose>
+									<c:when test="${parameter.level==0}">
+										<spring:message code='label.parameter.label.na' text="${parameter.label}" />
+									</c:when>
+									<c:otherwise>
+										<spring:message text="${parameter.label}" />
+									</c:otherwise>
+								</c:choose></td>
 						</c:if>
 
 						<td data-trick-field="description" data-trick-field-type="string" class="editable textaligncenter" onclick="return editField(this);"><spring:message

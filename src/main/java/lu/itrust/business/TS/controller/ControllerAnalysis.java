@@ -899,6 +899,8 @@ public class ControllerAnalysis {
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
 				model.addAttribute("impactLabel", analysis.getImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
 						.map(ScaleType::getName).orElse(null));
+				int level = analysis.getLikelihoodParameters().size() - 1;
+				model.addAttribute("maxImportance", level * level);
 			}
 
 			if (analysis.isQuantitative())
@@ -911,7 +913,7 @@ public class ControllerAnalysis {
 				model.addAttribute("hasMaturity", hasMaturity);
 			}
 
-			int level = analysis.getLikelihoodParameters().size() - 1;
+			
 			if (!analysis.isProfile()) {
 				Map<String, List<RiskInformation>> riskInformations = RiskInformationManager.Split(analysis.getRiskInformations());
 				if (!riskInformations.containsKey(Constant.RI_TYPE_RISK))
@@ -922,7 +924,7 @@ public class ControllerAnalysis {
 					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
-			model.addAttribute("maxImportance", level * level);
+			
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
