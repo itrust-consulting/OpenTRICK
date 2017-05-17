@@ -77,6 +77,7 @@ import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -316,6 +317,8 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("valueFactory", factory);
 
+		loadAnalysisSettings(model, idAnalysis);
+
 		return "analyses/single/components/standards/standard/standards";
 	}
 
@@ -337,6 +340,7 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		model.addAttribute("measure", measure);
+		loadAnalysisSettings(model, idAnalysis);
 		loadEfficience(model, idAnalysis, measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
@@ -359,6 +363,15 @@ public class ControllerAnalysisStandard {
 				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
 		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, loadMaturityParameters(idAnalysis), false,
 				new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
+	}
+
+	private void loadAnalysisSettings(Model model, Integer integer) {
+		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT,
+				dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
+		model.addAttribute("showHiddenComment", Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
+		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
+		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
 	}
 
 	private List<IParameter> loadMaturityParameters(Integer idAnalysis) {

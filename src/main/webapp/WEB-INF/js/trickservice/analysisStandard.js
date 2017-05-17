@@ -20,7 +20,7 @@ $(document).ready(function () {
 	});
 
 	$("#measure-collection-selector").on("change", function () {
-		$("[id^='section_standard_'][id!='" + this.value + "']:visible").hide();
+		$("[id^='tab-standard-'][id!='" + this.value + "']:visible").hide();
 		triggerCaller($("#" + this.value).show());
 	}).trigger("change");
 

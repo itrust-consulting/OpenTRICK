@@ -166,7 +166,6 @@ public class ControllerTask {
 
 	@RequestMapping("/Exist")
 	public @ResponseBody boolean hasTask(Principal principal) {
-
 		// check if user has a task
 		return serviceTaskFeedback.userHasTask(principal.getName());
 	}

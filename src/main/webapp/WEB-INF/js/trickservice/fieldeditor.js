@@ -459,7 +459,7 @@ function MaturityMeasureFieldEditor(element) {
 	this.implementations = [];
 
 	MaturityMeasureFieldEditor.prototype.LoadData = function() {
-		var $implementationRates = $("#Maturity_implementation_rate tr[data-trick-class='Parameter']");
+		var $implementationRates = $("#Maturity_implementation_rate tr[data-trick-class='SimpleParameter']");
 		if (!$implementationRates.length)
 			return true;
 		for (var i = 0; i < $implementationRates.length; i++) {

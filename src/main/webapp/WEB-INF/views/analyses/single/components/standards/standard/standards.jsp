@@ -19,20 +19,20 @@
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:set var="implementationRateAttr">
 	<c:choose>
-		<c:when test="${type=='QUALITATIVE'}">
+		<c:when test="${type=='QUALITATIVE' or not showDynamicAnalysis}">
 			data-trick-min-value='0' data-trick-max-value='100' data-trick-step-value='1'
 		</c:when>
 		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
 	</c:choose>
 </c:set>
-<div class="tab-pane" id="tab-standards">
+<div class="tab-pane" id="tab-standards" data-callback='checkForCollectionUpdate'>
 	<div class="page-header tab-content-header">
 		<div class="container">
 			<div class="row-fluid">
 				<h3>
 					<span class="col-sm-4" style="display:block; padding: 5px;"><spring:message code="label.title.analysis.measures_by_collection" /></span> <span class="col-sm-8"> <select id='measure-collection-selector' class="form-control" style="max-width: 280px;">
 							<c:forEach items="${standards}" var="standard" varStatus="varStatus">
-								<option value="section_standard_${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message text="${standard.label}" /></option>
+								<option value="tab-standard-${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message text="${standard.label}" /></option>
 								<c:if test="${varStatus.index==0 }">
 									<c:set var="firstStandard" value="${standard}" />
 								</c:if>
@@ -47,8 +47,8 @@
 		<c:set var="standardType" value="${selectedStandard.type}" />
 		<c:set var="standardid" value="${selectedStandard.id }" />
 		<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" />
-		<div id="tab-standard-${standardid}" data-trick-id="${standardid}">
-			<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}" style="display: ${firstStandard == selectedStandard? '' : 'none'}">
+		<div id="tab-standard-${standardid}" data-trick-id="${standardid}" data-targetable='true' style="display: ${firstStandard == selectedStandard? '' : 'none'}" >
+			<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}" >
 				<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
 					<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
 						<c:if test="${analysisOnly and isEditable}">

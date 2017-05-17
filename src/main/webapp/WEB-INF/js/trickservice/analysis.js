@@ -492,6 +492,10 @@ function loadRiskHeatMap() {
 
 }
 
+function checkForCollectionUpdate(){
+	triggerCaller($("div[id~='tab-standard-']:visible"));
+}
+
 function loadRiskChart(url, name, container, canvas) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -547,7 +551,7 @@ function updateMeasureEffience(reference) {
 	var $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
 	if (!$standard27002.length)
 		return;
-	var $tabPane = $standard27002.closest(".tab-pane"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
+	var $tabPane = $standard27002.closest("div[data-targetable='true']"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
 	if (updateRequired && triggerName == "reloadSection")
 		return;
 	var data = [], chapters = application["parameter-27002-efficience"];
@@ -576,12 +580,11 @@ function updateMeasureEffience(reference) {
 				$tabPane.attr("data-update-required", updateRequired).attr("data-trigger", triggerName);
 		}
 	}
-
 	if (!data.length)
 		return;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: context + "/Analysis/Standard/Compute-efficience",
+		url: context + "/Analysis/Standard/Compute-efficiency",
 		type: "post",
 		data: JSON.stringify(data),
 		contentType: "application/json;charset=UTF-8",

@@ -1163,20 +1163,15 @@ $(document)
 						});
 				
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-
 							forceCloseToolTips();
-
 							if (application.shownScrollTop) {
 								$bodyHtml.animate({
 									scrollTop : 0
 								}, 20);
 							}
-
 							var hash = e.target.getAttribute("href"), $target = $(hash);
-
 							callBackCaller($target);
 							triggerCaller($target);
-
 							if (!application["no-update-hash"])
 								window.location.hash = $target.attr("id");
 						});
