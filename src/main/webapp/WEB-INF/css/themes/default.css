@@ -498,7 +498,9 @@ datalist {
 .modal-md{
 	width: 700px;
 }
-
+.modal-mdl{
+	width: 750px;
+}
 .popover-danger {
 	background-color: #f2dede;
 	border-color: #ebccd1;
@@ -784,8 +786,6 @@ a#main_menu_profile {
 table.form-group-fill, .form-horizontal.form-group-fill{
 	margin-bottom: 8px;
 }
-
-
 
 @media ( min-width : 992px) {
 	.max-height {
