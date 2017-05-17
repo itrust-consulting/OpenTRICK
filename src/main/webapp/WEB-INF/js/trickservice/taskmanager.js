@@ -134,17 +134,20 @@ function TaskManager(title) {
 				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined)
 					instance.progressBars[taskId] = instance.createProgressBar(taskId);
 
-				if (reponse.message != null) {
-					instance.progressBars[taskId].Update(reponse.progress, reponse.message);
+				if (reponse.message != null){
+					if(reponse.flag <3)
+						showDialog("error", reponse.message);
+					else if(reponse.flag>3)
+						showDialog("success", reponse.message);
+					else instance.progressBars[taskId].Update(reponse.progress, reponse.message);
 				}
+				
 				if (reponse.flag == 3) {
 					setTimeout(function () {
 						instance.UpdateStatus(taskId);
 					}, 1500);
 				} else {
-					setTimeout(function () {
-						instance.Remove(taskId);
-					}, 5000);
+					instance.Remove(taskId);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
 						if (reponse.asyncCallback.args != null && reponse.asyncCallback.args.length){
 							if(window[reponse.asyncCallback.action])
