@@ -817,7 +817,7 @@ function manageRiskAcceptance() {
 							$removeBtn.appendTo($("<td/>").appendTo($tr));
 							$("<td><input name='label' class='form-control'></td>").appendTo($tr);
 							$div.appendTo($("<td />").appendTo($tr));
-							$("<td><textarea name='description' class='form-control' rows='1' /></td>").appendTo($tr);
+							$("<td><textarea name='description' class='form-control resize_vectical_only' rows='1' /></td>").appendTo($tr);
 							$inputColor.appendTo($("<td />").appendTo($tr));
 							$trParent.before($tr);
 							$removeBtn.on("click", actionDelete);
