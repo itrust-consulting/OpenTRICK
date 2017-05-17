@@ -535,7 +535,7 @@ table.rrf-values th {
 }
 
 .range-group .range-text {
-	min-width: 15%;
+	min-width: 30%;
 	display: inline-block;
 	text-align: center;
 	padding: 6px 12px;
@@ -547,7 +547,7 @@ table.rrf-values th {
 }
 
 .range-group .range-input {
-	width: 70%;
+	width: 60%;
 	display: inline-block;
 	vertical-align: middle;
 }

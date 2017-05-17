@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="modalRiskAcceptanceForm" tabindex="-1" role="dialog" data-aria-labelledby="riskAcceptanceForm" style="z-index: 1042" data-aria-hidden="true"
 	data-backdrop="static" data-keyboard="true">
-	<div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
