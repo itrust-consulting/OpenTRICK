@@ -781,6 +781,11 @@ a#main_menu_profile {
 	clear: left;
 }
 
+table.form-group-fill, .form-horizontal.form-group-fill{
+	margin-bottom: 8px;
+}
+
+
 
 @media ( min-width : 992px) {
 	.max-height {

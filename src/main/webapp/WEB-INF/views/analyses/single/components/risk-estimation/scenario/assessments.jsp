@@ -61,7 +61,25 @@
 							</c:if>
 						</c:forEach>
 					</ul></li>
-				<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
+				<c:choose>
+					<c:when test="${type.quantitative}">
+						<c:choose>
+							<c:when test="${showDynamicAnalysis}">
+								<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">${probabilityScaleMenu} <span class="caret"></span></a>
+									<ul class="dropdown-menu">
+										<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleTitle}</a></li>
+										<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersTitle}</a></li>
+									</ul></li>
+							</c:when>
+							<c:otherwise>
+								<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
+							</c:otherwise>
+						</c:choose>
+					</c:when>
+					<c:otherwise>
+						<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
+					</c:otherwise>
+				</c:choose>
 			</c:when>
 			<c:otherwise>
 				<li><a href="#" onclick='return displayParameters("#Scale_Impact", "${impactScaleTitle}")'>${impactScaleMenu}</a></li>
@@ -74,7 +92,7 @@
 							</ul></li>
 					</c:when>
 					<c:otherwise>
-						<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleTitle}</a></li>
+						<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
 					</c:otherwise>
 				</c:choose>
 			</c:otherwise>
