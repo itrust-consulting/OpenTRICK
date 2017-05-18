@@ -136,9 +136,7 @@ public abstract class AbstractWordExporter {
 		OutputStream outputStream = null;
 
 		try {
-
 			setAnalysis(analysis);
-
 			switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
@@ -149,11 +147,9 @@ public abstract class AbstractWordExporter {
 				locale = Locale.ENGLISH;
 				languageAlpha2 = "EN";
 			}
-
+			
 			kEuroFormat.setMaximumFractionDigits(1);
-
 			numberFormat.setMaximumFractionDigits(0);
-
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", increase(1)));// 1%
 			workFile = new File(
 					String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));

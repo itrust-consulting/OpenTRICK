@@ -54,6 +54,29 @@ function exportAnalysisSOA(analysisId) {
 	return false;
 }
 
+function exportRawActionPlan(analysisId, type) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_analysis");
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	if(type == null || type == undefined)
+		type = findAnalysisType("#section_analysis", analysisId);
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
+		if(ANALYSIS_TYPE.isHybrid(type)){
+			var $dialogModal = $("#analysis-export-raw-action-plan-dialog");
+			$dialogModal.modal("show").find("button[name='export']").unbind("click").one("click", (e) => {
+				$dialogModal.modal("hide");
+				window.location = context + "/Analysis/Export/Raw-Action-plan/"+analysisId+"/"+e.currentTarget.getAttribute("data-trick-type");
+			});
+		}else window.location = context + "/Analysis/Export/Raw-Action-plan/"+analysisId+"/"+type;
+	} else
+		permissionError();
+	return false;
+}
+
+
 function exportAnalysisReport(analysisId, type) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");

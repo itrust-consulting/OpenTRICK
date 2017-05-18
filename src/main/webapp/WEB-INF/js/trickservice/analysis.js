@@ -545,7 +545,7 @@ function loadRiskChart(url, name, container, canvas) {
 }
 
 
-function updateMeasureEffience(reference) {
+function updateMeasureEffience(reference,force) {
 	if (!application.hasMaturity)
 		return;
 	var $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
@@ -555,7 +555,7 @@ function updateMeasureEffience(reference) {
 	if (updateRequired && triggerName == "reloadSection")
 		return;
 	var data = [], chapters = application["parameter-27002-efficience"];
-	if ($standard27002.is(":visible")) {
+	if ($standard27002.is(":visible") || force) {
 		if (Array.isArray(chapters)) {
 			data = chapters;
 			delete application["parameter-27002-efficience"];

@@ -19,7 +19,7 @@
 			<li class="dropdown-header"><spring:message code="label.menu.analysis_parameters" text='Analysis parameters' /></li>
 			<li><a href="#tab-parameter" data-toggle="tab" title='<spring:message code="label.title.other.parameters" />'><spring:message code="label.menu.analysis.parameter" /></a></li>
 			<li><a href="#tab-parameter-impact-probability" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
-			<c:if test="${(type.quantitative or not type.qualitative) and hasMaturity}">
+			<c:if test="${type.quantitative and hasMaturity}">
 				<li><a href="#tab-parameter-maturity" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.maturity" /></a></li>
 			</c:if>
 		</ul></li>
@@ -139,7 +139,16 @@
 							</a></li>
 						</c:when>
 					</c:choose>
-					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
+					<li>
+						<c:choose>
+							<c:when test="${type.hybrid}">
+								<a href="#" onclick="return exportRawActionPlan('${analysis.id}','${type}')"><spring:message code="label.raw_action_plan" /></a>
+							</c:when>
+							<c:otherwise>
+								<a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}/${type}" download><spring:message code="label.raw_action_plan" /></a>
+							</c:otherwise>
+						</c:choose>
+					</li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
@@ -168,6 +177,10 @@
 				</c:if>
 			</c:if>
 			<c:if test="${not isProfile and isEditable}">
+				<c:if test="${type.quantitative and hasMaturity}">
+					<li class="dropdown-header"><spring:message code="label.title.maturity" /></li>
+					<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
+				</c:if>
 				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
 				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
 				<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" /></a></li>
