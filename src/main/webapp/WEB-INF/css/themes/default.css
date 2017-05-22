@@ -783,7 +783,7 @@ a#main_menu_profile {
 	clear: left;
 }
 
-table.form-group-fill, .form-horizontal.form-group-fill{
+table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	margin-bottom: 8px;
 }
 

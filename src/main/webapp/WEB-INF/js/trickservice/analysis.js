@@ -816,7 +816,7 @@ function manageRiskAcceptance() {
 						function () {
 							var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
 								"<span class='range-text'>0</span>").appendTo($div), $range = $(
-									"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control'>");
+									"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
 							$removeBtn.appendTo($("<td/>").appendTo($tr));
 							$("<td><input name='label' class='form-control'></td>").appendTo($tr);
 							$div.appendTo($("<td />").appendTo($tr));

@@ -37,7 +37,7 @@
 		</div>
 	</div>
 </div>
-<div class='form-horizontal form-group-fill' style="border-bottom: 1px solid window">
+<div class='form-horizontal form-group-fill' style="margin-bottom: 4px;">
 	<div class='${cssHeader}'>
 		<div class="form-group">
 			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label>
@@ -76,9 +76,9 @@
 	</c:if>
 	<div class="clearfix"></div>
 </div>
-<table class='table form-group-fill'>
+<table class='table form-no-fill'>
 	<thead>
-		<tr>
+		<tr class='form-group-fill'>
 			<th width="15px" rowspan="2"></th>
 			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
 			<c:choose>
@@ -104,7 +104,7 @@
 				</c:choose>
 			</c:if>
 		</tr>
-		<tr>
+		<tr class='form-group-fill'>
 			<c:forEach items="${impactTypes}" var="impactType">
 				<c:if test="${impactType.name!='IMPACT'}">
 					<spring:message code="label.title.assessment.impact_${fn:toLowerCase(impactType.name)}"
@@ -506,7 +506,7 @@
 				</c:if>
 				<td><div class="input-group">
 						<span class="input-group-addon" style="padding: 1px;">k&euro;</span> <label data-name='ALE-EXP' class='form-control form-control-static numeric disabled'
-							title="<fmt:formatNumber value="${aleoExp}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleoExp*0.001,1)}" /></label>
+							title="<fmt:formatNumber value="${aleExp}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleExp*0.001,1)}" /></label>
 					</div></td>
 				<c:if test="${show_uncertainty}">
 					<c:set var="alepExp" value="${aleExp *  assessment.uncertainty}" />
@@ -552,9 +552,9 @@
 			onclick="return false"><i class="fa fa-minus-square-o" aria-hidden="true"></i> <spring:message code='label.action.hide.additional.field' /></a></li>
 	</ul>
 	<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
-	<table id="riskProfileMeasure" class="table table-hover">
+	<table id="riskProfileMeasure" class="table table-hover form-no-fill">
 		<thead>
-			<tr>
+			<tr class='form-group-fill'>
 				<c:if test="${isEditable}">
 					<th style="width: 2%; padding-bottom: 5px;" title='<spring:message code="label.measure.norm" />'><input type="checkbox" data-menu-controller='menu_estimation_action_plan'
 						onchange="return checkControlChange(this,'estimation_action_plan')"></th>

@@ -41,6 +41,7 @@ import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
@@ -119,6 +120,7 @@ public class ControllerRiskRegister {
 		model.put("riskregister", analysis.getRiskRegisters());
 		model.put("valueFactory", valueFactory);
 		model.put("language", analysis.getLanguage().getAlpha2());
+		loadAnalysisSettings(model, analysis);
 		// return view
 		return "analyses/single/components/riskRegister/home";
 	}
@@ -220,6 +222,13 @@ public class ControllerRiskRegister {
 		// execute task
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_register", null, "Start to export risk register", analysisLocale));
+	}
+
+	private void loadAnalysisSettings(Map<String, Object> model, Analysis analysis) {
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		model.put("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
+		model.put("showRawColumn", analysis.getSetting(rawSetting));
+		model.put("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 	}
 
 	@Value("${app.settings.risk_sheet.french.template.name}")

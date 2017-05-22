@@ -16,7 +16,7 @@
 	</div>
 </div>
 <div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog"  data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
-	<div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>

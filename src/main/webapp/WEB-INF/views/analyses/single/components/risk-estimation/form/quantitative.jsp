@@ -18,7 +18,7 @@
 	</div>
 </div>
 <div class="form-group">
-	<table class='table'>
+	<table class='table form-no-fill'>
 		<thead>
 			<c:choose>
 				<c:when test="${show_uncertainty}">
