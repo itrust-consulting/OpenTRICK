@@ -69,6 +69,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 		paragraph = findTableAnchor("<ActionPlan>");
 
+		setCurrentParagraphId(TS_TAB_TEXT_2);
+		
 		// run = paragraph.getRuns().get(0);
 
 		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
@@ -154,6 +156,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 		table.setStyleID("TableTSSummary");
+		
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		// set header
 
@@ -465,6 +469,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			run.setText(String.format("%s k€", kEuroFormat.format(totalale * 0.001)));
 
 			paragraph.setStyle("TSAssessmentTotalALE");
+			
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 
 			for (ALE ale : ales) {
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
@@ -524,6 +530,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		if (paragraph != null) {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 			table.setStyleID("TableTSAsset");
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 			// set header
 			row = table.getRow(0);
 			for (int i = 1; i < 6; i++)
@@ -630,6 +637,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			parmetertype = "Proba";
 
 		paragraph = findTableAnchor("<" + parmetertype + ">");
+		
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -170,7 +171,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		if (getMessageHandler() == null)
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", 100));
 		if (getAsyncCallback() == null)
-			setAsyncCallback(new AsyncCallback("window.location.assign", "context+'/Analysis'"));
+			setAsyncCallback(new AsyncCallback("gotToPage", "/Analysis/All"));
 		getMessageHandler().setAsyncCallback(getAsyncCallback());
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();
@@ -275,6 +276,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	protected synchronized void OnStarted() throws Exception {
 		setWorking(true);
 		setStarted(new Timestamp(System.currentTimeMillis()));
+		setName(TaskName.IMPORT_ANALYSIS);
 	}
 
 	public AsyncCallback getAsyncCallback() {

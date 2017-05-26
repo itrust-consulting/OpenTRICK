@@ -10,50 +10,58 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public enum TaskName {
-	
-	IMPORT_ANALYSIS("label.import.analysis", "reloadSection(\"section_analysis\")"), EXPORT_ANALYSIS("label.compute.risk_register","\"downloadExportedSqLite()\""), COMPUTE_ACTION_PLAN("label.compute.actionPlan","\"reloadSection(\"section_actionplans\")\""), COMPUTE_RISK_REGISTER("label.compute.risk_register","\"reloadSection(\"section_riskregisters\")\"");
-	
-	@JsonProperty
-	private String name;
-	
-	@JsonProperty
+
+	COMPUTE_ACTION_PLAN("label.title.compute.action_plan"), COMPUTE_RISK_REGISTER("label.title.compute.risk_register"), CREATE_ANALYSIS_PROFILE(
+			"label.title.create.analysis.profile"), CREATE_ANALYSIS_VERSION("label.title.create.analysis.version"), EXPORT_ANALYSIS(
+					"label.title.export.analysis"), EXPORT_ANALYSIS_REPORT("label.title.export.analysis.report"), EXPORT_SOA("label.title.export.soa"), GENERATE_TICKETS(
+							"label.title.generate.ticket"), IMPORT_ANALYSIS("label.title.import.analysis"), INSTALL_APPLICATION(
+									"label.title.install.application"), RESET_ANALYSIS_RIGHT("label.title.reset.analysis.right"), IMPORT_MEASURE_COLLECTION(
+											"label.title.import.measure.collection"), COMPUTE_DYNAMIC_PARAMETER("label.title.compute.dynamic.parameter"), EXPORT_RISK_REGISTER(
+													"label.title.export.risk_register"), EXPORT_RISK_SHEET("label.title.export.risk_sheet");
 	private String action;
-	
-	TaskName(String name){
+
+
+	private String name;
+
+	TaskName(String name) {
 		this.setName(name);
 		this.setAction(null);
 	}
-	
-	TaskName(String name, String redirect){
+
+	TaskName(String name, String redirect) {
 		this.setName(name);
 		this.setAction(redirect);
 	}
 
 	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
 	 * @return the action
 	 */
+	@JsonProperty
 	public String getAction() {
 		return action;
 	}
 
 	/**
-	 * @param action the redirect to set
+	 * @return the name
+	 */
+	@JsonProperty
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param action
+	 *            the redirect to set
 	 */
 	public void setAction(String action) {
 		this.action = action;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 }

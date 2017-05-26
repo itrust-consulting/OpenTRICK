@@ -55,9 +55,6 @@
 					</c:choose>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="taskmanager" id='main_menu_task'><spring:message code="label.background.task" /> <span
-							id="task-counter" class="fa badge">0</span></a>
-						<ul class="dropdown-menu" id="task-manager"></ul></li>
 					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile" id='main_menu_profile'> <sec:authentication
 								var="currentUsername" property="name" /> <c:choose>
 								<c:when test="${not empty currentUsername }">

@@ -74,21 +74,24 @@ public class ControllerTask {
 			if (worker == null) {
 				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted", locale));
 				asyncResult.setFlag(0);
-			} else if (worker.isCanceled()) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted", locale));
-				asyncResult.setFlag(1);
-			} else if (worker.getError() != null) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", locale));
-				asyncResult.setFlag(2);
-			} else if (worker.isWorking()) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", locale));
-				asyncResult.setFlag(3);
-			} else if (serviceTaskFeedback.messageCount(id) > 1) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
-				asyncResult.setFlag(4);
 			} else {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
-				asyncResult.setFlag(5);
+				asyncResult.setTaskName(worker.getName());
+				if (worker.isCanceled()) {
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted", locale));
+					asyncResult.setFlag(1);
+				} else if (worker.getError() != null) {
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", locale));
+					asyncResult.setFlag(2);
+				} else if (worker.isWorking()) {
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", locale));
+					asyncResult.setFlag(3);
+				} else if (serviceTaskFeedback.messageCount(id) > 1) {
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
+					asyncResult.setFlag(4);
+				} else {
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
+					asyncResult.setFlag(5);
+				}
 			}
 
 			// check if message exists or set null
@@ -96,7 +99,6 @@ public class ControllerTask {
 
 				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(), locale));
 				asyncResult.setProgress(messageHandler.getProgress());
-				asyncResult.setTaskName(messageHandler.getTaskName());
 				asyncResult.setAsyncCallback(messageHandler.getAsyncCallback());
 				if (messageHandler.getException() != null) {
 					asyncResult.setFlag(2);

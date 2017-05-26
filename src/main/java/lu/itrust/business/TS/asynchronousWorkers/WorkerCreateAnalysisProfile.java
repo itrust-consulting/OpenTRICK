@@ -23,6 +23,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -258,6 +259,11 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	@Override
 	public Date getFinished() {
 		return finished;
+	}
+
+	@Override
+	public TaskName getName() {
+		return TaskName.CREATE_ANALYSIS_PROFILE;
 	}
 
 }

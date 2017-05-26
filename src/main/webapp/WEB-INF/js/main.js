@@ -263,6 +263,10 @@ function showStaticDialog(dialog, message, title, url) {
 	}
 }
 
+function gotToPage(page){
+	window.location.assign(context+page);
+}
+
 function showNotifcation(type, message, icon, url, title) {
 	return $.notify({
 		title : title,

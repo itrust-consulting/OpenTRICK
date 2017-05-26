@@ -39,6 +39,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -154,6 +155,7 @@ public class WorkerSOAExport extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
+				setName(TaskName.EXPORT_SOA);
 			}
 			session = getSessionFactory().openSession();
 			initialiseDAO(session);

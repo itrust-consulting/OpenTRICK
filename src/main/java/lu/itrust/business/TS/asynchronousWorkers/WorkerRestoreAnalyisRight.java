@@ -21,6 +21,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -340,6 +341,11 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	@Override
 	public Date getFinished() {
 		return finished;
+	}
+
+	@Override
+	public TaskName getName() {
+		return TaskName.RESET_ANALYSIS_RIGHT;
 	}
 
 }

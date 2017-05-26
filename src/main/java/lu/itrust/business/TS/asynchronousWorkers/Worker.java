@@ -6,6 +6,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.util.Date;
 
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.TaskName;
 
 /**
  * @author eom
@@ -20,6 +21,8 @@ public interface Worker extends Runnable {
 	boolean isWorking();
 
 	boolean isCanceled();
+	
+	TaskName getName();
 
 	Exception getError();
 

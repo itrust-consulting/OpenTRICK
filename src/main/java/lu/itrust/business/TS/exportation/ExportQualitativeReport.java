@@ -89,6 +89,8 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSActionPlan");
+			
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 
 			row = table.getRow(0);
 
@@ -167,6 +169,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 		table.setStyleID("TableTSSummary");
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		// set header
 
@@ -398,6 +401,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 		paragraphOrigin = findTableAnchor("<Assessment>");
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
 			while (!paragraphOrigin.getRuns().isEmpty())
@@ -468,6 +472,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSAsset");
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 
 			// set header
 
@@ -518,6 +523,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		paragraph = findTableAnchor("<" + parmetertype + ">");
 
 		if (paragraph != null) {
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 			if (parmetertype == "Proba")
 				buildImpactProbabilityTable(paragraph, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
 						analysis.getLikelihoodParameters());
@@ -561,6 +567,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		titleParagraph.setStyle("TSEstimationTitle");
 		XWPFTable table = document.insertNewTbl(paragraph.getCTP().newCursor());
 		table.setStyleID("TableTS" + type);
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 		// set header
 		XWPFTableRow row = table.getRow(0);
 		for (int i = 1; i < 3; i++) {
@@ -674,6 +681,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		if (paragraph != null) {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 			table.setStyleID("TableTSRiskAcceptance");
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 			// set header
 			row = table.getRow(0);
 			for (int i = 1; i < 2; i++)

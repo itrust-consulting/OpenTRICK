@@ -9,6 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.TaskName;
 
 public class WorkerComputeDynamicParameters implements Worker {
 	
@@ -183,6 +184,11 @@ public class WorkerComputeDynamicParameters implements Worker {
 			if (poolManager != null)
 				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public TaskName getName() {
+		return TaskName.COMPUTE_DYNAMIC_PARAMETER;
 	}
 
 }

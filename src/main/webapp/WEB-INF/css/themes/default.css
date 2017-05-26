@@ -787,6 +787,15 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	margin-bottom: 8px;
 }
 
+[data-notify="progressbar"] {
+	margin-bottom: 0px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+	height: 5px;
+}
+
 @media ( min-width : 992px) {
 	.max-height {
 		height: 100%;

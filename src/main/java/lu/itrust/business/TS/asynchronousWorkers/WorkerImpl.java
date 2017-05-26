@@ -5,10 +5,13 @@ import java.util.Date;
 import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.TaskName;
 
 public abstract class WorkerImpl implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+	
+	private TaskName name;
 
 	private Date started = null;
 
@@ -166,6 +169,23 @@ public abstract class WorkerImpl implements Worker {
 	 */
 	protected void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+
+	/**
+	 * @return the name
+	 */
+	@Override
+	public TaskName getName() {
+		return name;
+	}
+
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(TaskName name) {
+		this.name = name;
 	}
 
 	
