@@ -120,6 +120,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
 					for (XWPFRun run : paragraph2.getRuns())
 						run.setBold(true);
+					paragraph2.setAlignment(ParagraphAlignment.LEFT);
 				}
 				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(), true);
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getRiskCount()));
@@ -419,7 +420,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				row = table.getRow(0);
 				while (row.getTableCells().size() < colLength)
 					row.addNewTableCell();
-				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale),ParagraphAlignment.LEFT);
 				for (ScaleType scaleType : scaleTypes)
 					setCellText(row.getCell(colIndex++), scaleType.getShortName(languageAlpha2), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
@@ -483,7 +484,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			// set header
 			setCellText(row.getCell(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
-			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale));
+			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale),ParagraphAlignment.LEFT);
 			setCellText(row.getCell(2), getMessage("report.asset.title.type", null, "Type", locale));
 			setCellText(row.getCell(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
 			setCellText(row.getCell(4), getMessage("report.asset.title.comment", null, "Comment", locale));

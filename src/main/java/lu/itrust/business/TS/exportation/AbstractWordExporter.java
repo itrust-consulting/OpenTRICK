@@ -62,9 +62,9 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 public abstract class AbstractWordExporter {
 
 	public static final String TS_TAB_TEXT_1 = "TSTabText1";
-	
+
 	public static final String TS_TAB_TEXT_2 = "TSTabText2";
-	
+
 	public static final String TS_TAB_TEXT_3 = "TSTabText3";
 
 	public static final String DEFAULT_PARAGRAHP_STYLE = TS_TAB_TEXT_2;
@@ -106,7 +106,7 @@ public abstract class AbstractWordExporter {
 	protected List<XWPFParagraph> paragraphsToDelete = new LinkedList<>();
 
 	protected ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	private String currentParagraphId;
 
 	private String contextPath;
@@ -155,7 +155,7 @@ public abstract class AbstractWordExporter {
 				locale = Locale.ENGLISH;
 				languageAlpha2 = "EN";
 			}
-			
+
 			kEuroFormat.setMaximumFractionDigits(1);
 			numberFormat.setMaximumFractionDigits(0);
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", increase(1)));// 1%
@@ -176,7 +176,7 @@ public abstract class AbstractWordExporter {
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.data", "Printing data", increase(2)));// 5%
-			
+
 			setCurrentParagraphId(DEFAULT_PARAGRAHP_STYLE);
 
 			generatePlaceholders();
@@ -537,7 +537,7 @@ public abstract class AbstractWordExporter {
 		XWPFTableRow row = null;
 
 		paragraph = findTableAnchor("<Scope>");
-		
+
 		setCurrentParagraphId(AbstractWordExporter.TS_TAB_TEXT_2);
 
 		List<ItemInformation> iteminformations = analysis.getItemInformations();
@@ -567,7 +567,8 @@ public abstract class AbstractWordExporter {
 			// set data
 			for (ItemInformation iteminfo : iteminformations) {
 				row = table.createRow();
-				setCellText(row.getCell(0), getMessage("report.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
+				setCellText(row.getCell(0), getMessage("report.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale),
+						ParagraphAlignment.LEFT);
 				addCellParagraph(row.getCell(1), iteminfo.getValue());
 			}
 		}
@@ -597,7 +598,7 @@ public abstract class AbstractWordExporter {
 			boolean isFirst = true;
 
 			Comparator<Measure> comparator = new MeasureComparator();
-			
+
 			setCurrentParagraphId(TS_TAB_TEXT_3);
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
@@ -658,7 +659,7 @@ public abstract class AbstractWordExporter {
 						row.createCell();
 					setCellText(row.getCell(0), measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
-					setCellText(row.getCell(1), description == null ? "" : description.getDomain());
+					setCellText(row.getCell(1), description == null ? "" : description.getDomain(), ParagraphAlignment.LEFT);
 					if (!measure.getMeasureDescription().isComputable()) {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
@@ -738,7 +739,7 @@ public abstract class AbstractWordExporter {
 			for (Scenario scenario : scenarios) {
 				row = table.createRow();
 				setCellText(row.getCell(0), "" + (number++));
-				addCellParagraph(row.getCell(1), scenario.getName());
+				setCellText(row.getCell(1), scenario.getName(), ParagraphAlignment.LEFT);
 				addCellParagraph(row.getCell(2), scenario.getDescription());
 			}
 		}
@@ -802,7 +803,8 @@ public abstract class AbstractWordExporter {
 					setCellText(row.getCell(0), riskinfo.getChapter());
 					setCellText(row.getCell(1),
 							getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
-									riskinfo.getLabel(), locale));
+									riskinfo.getLabel(), locale),
+							ParagraphAlignment.LEFT);
 					String color = riskinfo.getChapter().matches("\\d(\\.0){2}") ? HEADER_COLOR : HEADER_COLOR;
 					if (riskinfo.getCategory().equals("Threat")) {
 						for (int i = 0; i < 3; i++)
@@ -896,7 +898,8 @@ public abstract class AbstractWordExporter {
 	}
 
 	/**
-	 * @param currentParagraphId the currentParagraphId to set
+	 * @param currentParagraphId
+	 *            the currentParagraphId to set
 	 */
 	public void setCurrentParagraphId(String currentParagraphId) {
 		this.currentParagraphId = currentParagraphId;
