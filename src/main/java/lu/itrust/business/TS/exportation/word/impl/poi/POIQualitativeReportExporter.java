@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.exportation;
+package lu.itrust.business.TS.exportation.word.impl.poi;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,11 +55,11 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @author eomar
  *
  */
-public class ExportQualitativeReport extends AbstractWordExporter {
+public class POIQualitativeReportExporter extends POIWordExporter {
 
 	private List<ColorBound> colorBounds = Collections.emptyList();
 
-	public ExportQualitativeReport(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String realPath) {
+	public POIQualitativeReportExporter(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String realPath) {
 		setMessageSource(messageSource);
 		setServiceTaskFeedback(serviceTaskFeedback);
 		setContextPath(realPath);

@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.exportation;
+package lu.itrust.business.TS.exportation.word.impl.poi;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -50,12 +50,12 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @version
  * @since May 27, 2014
  */
-public class ExportQuantitativeReport extends AbstractWordExporter {
+public class POIQuantitativeReportExporter extends POIWordExporter {
 
-	public ExportQuantitativeReport() {
+	public POIQuantitativeReportExporter() {
 	}
 
-	public ExportQuantitativeReport(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String contextPath) {
+	public POIQuantitativeReportExporter(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String contextPath) {
 		setMessageSource(messageSource);
 		setContextPath(contextPath);
 		setServiceTaskFeedback(serviceTaskFeedback);
