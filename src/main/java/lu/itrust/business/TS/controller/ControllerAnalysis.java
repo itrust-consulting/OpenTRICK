@@ -88,8 +88,8 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.ExportReport;
-import lu.itrust.business.TS.exportation.word.impl.poi.POIQualitativeReportExporter;
-import lu.itrust.business.TS.exportation.word.impl.poi.POIQuantitativeReportExporter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQualitativeReportExporter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQuantitativeReportExporter;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
@@ -473,8 +473,8 @@ public class ControllerAnalysis {
 		try {
 			AnalysisType analysisType = type == null ? serviceAnalysis.getAnalysisTypeById(analysisId) : type;
 			ExportReport exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
-					? new POIQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
-					: new POIQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
+					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
+					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
