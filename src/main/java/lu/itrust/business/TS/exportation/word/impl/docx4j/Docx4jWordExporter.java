@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -51,11 +52,13 @@ import org.docx4j.wml.CTTblPrBase.TblStyle;
 import org.docx4j.wml.CTTblPrBase.TblStyleColBandSize;
 import org.docx4j.wml.ContentAccessor;
 import org.docx4j.wml.Document;
+import org.docx4j.wml.FldChar;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
+import org.docx4j.wml.STFldCharType;
 import org.docx4j.wml.Style;
 import org.docx4j.wml.Styles;
 import org.docx4j.wml.Tbl;
@@ -103,7 +106,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private WordprocessingMLPackage wordMLPackage = null;
 
-	private Document document = null;
+	protected Document document = null;
 
 	protected String idTask;
 
@@ -188,7 +191,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.asset", "Printing asset table", increase(5)));// 15%
 
-		//generateAssets();
+		generateAssets();
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.scenario", "Printing scenario table", increase(5)));// 20%
 
@@ -196,7 +199,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.estimation", "Printing estimation table", increase(5)));// 25%
 
-		// generateAssessements();
+		generateAssessements();
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.threat", "Printing threat table", increase(5)));// 30%
 
@@ -559,18 +562,21 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		this.workFile = workFile;
 	}
 
-	protected XWPFRun addCellNumber(XWPFTableCell cell, String number) {
+	protected R addCellNumber(Tc cell, String number) {
 		return addCellNumber(cell, number, false);
 	}
 
-	protected XWPFRun addCellNumber(XWPFTableCell cell, String number, boolean isBold) {
-		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle(getCurrentParagraphId());
-		paragraph.setAlignment(ParagraphAlignment.RIGHT);
-		XWPFRun run = paragraph.createRun();
-		run.setBold(isBold);
-		run.setText(number);
-		return run;
+	protected R addCellNumber(Tc cell, String number, boolean isBold) {
+		P paragraph = cell.getContent().size() == 1 ? (P) cell.getContent().get(0) : addCellParagraph(cell);
+		setStyle(paragraph, getCurrentParagraphId());
+		setText(paragraph, number, createAlignment("right"));
+		R r = (R) paragraph.getContent().get(0);
+		if (isBold) {
+			if (r.getRPr() != null)
+				r.setRPr(factory.createRPr());
+			r.getRPr().setB(factory.createBooleanDefaultTrue());
+		}
+		return r;
 	}
 
 	protected P addCellParagraph(Tc cell, String text) {
@@ -591,7 +597,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return p;
 	}
 
-	private P setStyle(P p, String styleId) {
+	protected P setStyle(P p, String styleId) {
 		if (p.getPPr() == null)
 			p.setPPr(factory.createPPr());
 		if (p.getPPr().getPStyle() == null)
@@ -599,6 +605,45 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		p.getPPr().getPStyle().setVal(styleId);
 		return p;
 	}
+
+	protected R setText(R r, String message) {
+		Text text = factory.createText();
+		text.setValue(message);
+		r.getContent().add(text);
+		return r;
+	}
+	
+	protected R setInstrText(R r, String content) {
+		Text text = factory.createText();
+		JAXBElement<Text> textWrapped = factory.createRInstrText(text);
+		r.getContent().add(textWrapped);
+		text.setValue(content);
+		text.setSpace("preserve");
+		return r;
+	}
+	
+	protected P addTableCaption(String value) {
+		P paragraph = setStyle(factory.createP(), "Caption");
+		paragraph.getContent().add(setText(factory.createR(), getMessage("report.capttion.table.name", null, "Table", locale)));
+		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
+		paragraph.getContent().add(setInstrText(factory.createR(),"SEQ Table \\* ARABIC "));
+		paragraph.getContent().add(createSpecialRun(STFldCharType.SEPARATE));
+		paragraph.getContent().add(setText(factory.createR(), "1"));
+		paragraph.getContent().add(createSpecialRun(STFldCharType.END));
+		paragraph.getContent().add(setText(factory.createR(),": "+value));
+		return paragraph;
+		
+		
+	}
+
+	protected R createSpecialRun(STFldCharType type) {
+		R run = factory.createR();
+		FldChar fldChar = factory.createFldChar();
+		fldChar.setFldCharType(type);
+		run.getContent().add(fldChar);
+		return run;
+	}
+
 
 	private P addCellParagraph(Tc cell) {
 		P p = factory.createP();
@@ -624,9 +669,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateActionPlanSummary() throws Exception;
 
-	protected abstract void generateAssessements();
+	protected abstract void generateAssessements() throws XPathBinderAssociationIsPartialException, JAXBException;
 
-	protected abstract void generateAssets(String name, List<Asset> assets);
+	protected abstract void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException;
 
 	@SuppressWarnings("unchecked")
 	protected void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
@@ -723,7 +768,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		setText(paragraph, text, alignment);
 	}
 
-	private void setText(P paragraph, String content, TextAlignment alignment) {
+	protected void setText(P paragraph, String content) {
+		setText(paragraph, content, null);
+	}
+
+	protected void setText(P paragraph, String content, TextAlignment alignment) {
 		if (alignment != null) {
 			if (paragraph.getPPr() == null)
 				setStyle(paragraph, getCurrentParagraphId());
@@ -740,7 +789,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void writeChart(ReportExcelSheet reportExcelSheet) throws Exception;
 
-	private void generateAssets() {
+	private void generateAssets() throws XPathBinderAssociationIsPartialException, JAXBException {
 		generateAssets("Asset", analysis.findSelectedAssets());
 		generateAssets("AssetNoSelected", analysis.findNoAssetSelected());
 	}
@@ -761,7 +810,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			// initialise table with 1 row and 1 column after the paragraph
 			// cursor
 			Tbl table = createTable("TableTSScope", iteminformations.size() + 1, 2);
-			
+
 			TextAlignment alignment = createAlignment("left");
 
 			List<Object> trs = table.getContent();
@@ -786,13 +835,13 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 	}
 
-	private void setRepeatHeader(Tr row) {
+	protected void setRepeatHeader(Tr row) {
 		if (row.getTrPr() == null)
 			row.setTrPr(factory.createTrPr());
 		row.getTrPr().getCnfStyleOrDivIdOrGridBefore().add(factory.createCTTrPrBaseTblHeader(factory.createBooleanDefaultTrue()));
 	}
 
-	private Tbl createTable(String styleId, int rows, int cols) {
+	protected Tbl createTable(String styleId, int rows, int cols) {
 		int writableWidthTwips = wordMLPackage.getDocumentModel().getSections().get(0).getPageDimensions().getWritableWidthTwips();
 		int cellWidthTwips = new Double(Math.floor((writableWidthTwips / cols))).intValue();
 		Tbl table = TblFactory.createTable(rows, cols, cellWidthTwips);
@@ -949,14 +998,14 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 	}
 
-	private TextAlignment createAlignment(String value) {
+	protected TextAlignment createAlignment(String value) {
 		TextAlignment alignment = factory.createPPrBaseTextAlignment();
 		alignment.setVal(value);
 		return alignment;
 	}
 
 	private void generateThreats() throws XPathBinderAssociationIsPartialException, JAXBException {
-		
+
 		List<RiskInformation> riskInformations = analysis.getRiskInformations();
 
 		Map<String, List<RiskInformation>> riskmapping = RiskInformationManager.Split(riskInformations);
@@ -977,20 +1026,22 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					if (isFirst) {
 						// set header
 						if (riskinfo.getCategory().equals("Threat")) {
-							table = createTable("TableTS" + key, elements.size()+1, 6);
+							table = createTable("TableTS" + key, elements.size() + 1, 6);
 							row = (Tr) table.getContent().get(0);
 							setCellText((Tc) row.getContent().get(0), getMessage(String.format("report.risk_information.title.%s", "id"), null, "Id", locale));
-							setCellText((Tc) row.getContent().get(1), getMessage(String.format("report.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
+							setCellText((Tc) row.getContent().get(1),
+									getMessage(String.format("report.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
 							setCellText((Tc) row.getContent().get(2), getMessage(String.format("report.risk_information.title.%s", "acro"), null, "Acro", locale));
 							setCellText((Tc) row.getContent().get(3), getMessage(String.format("report.risk_information.title.%s", "expo"), null, "Expo.", locale), alignmentLeft);
 							setCellText((Tc) row.getContent().get(4), getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
 							setCellText((Tc) row.getContent().get(5), getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
 							setRepeatHeader(row);
 						} else {
-							table = createTable("TableTS" + key, elements.size()+1, 5);
+							table = createTable("TableTS" + key, elements.size() + 1, 5);
 							row = (Tr) table.getContent().get(0);
 							setCellText((Tc) row.getContent().get(0), getMessage(String.format("report.risk_information.title.%s", "id"), null, "Id", locale));
-							setCellText((Tc) row.getContent().get(1), getMessage(String.format("report.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
+							setCellText((Tc) row.getContent().get(1),
+									getMessage(String.format("report.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
 							setCellText((Tc) row.getContent().get(2), getMessage(String.format("report.risk_information.title.%s", "expo"), null, "Expo.", locale), alignmentLeft);
 							setCellText((Tc) row.getContent().get(3), getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
 							setCellText((Tc) row.getContent().get(4), getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
@@ -1027,10 +1078,10 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 	}
 
-	private void setColor(Tc tc, String color) {
-		if(tc.getTcPr()==null)
+	protected void setColor(Tc tc, String color) {
+		if (tc.getTcPr() == null)
 			tc.setTcPr(factory.createTcPr());
-		if(tc.getTcPr().getShd()==null)
+		if (tc.getTcPr().getShd() == null)
 			tc.getTcPr().setShd(factory.createCTShd());
 		tc.getTcPr().getShd().setFill(color);
 	}

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -20,6 +22,12 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
+import org.docx4j.wml.P;
+import org.docx4j.wml.PPrBase.TextAlignment;
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.Tc;
+import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.constants.Constant;
@@ -528,41 +536,35 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void generateAssets(String name, List<Asset> assets) {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-		paragraph = findTableAnchor(name);
+	protected void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraph = findTableAnchor(name);
 		if (paragraph != null) {
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-			table.setStyleID("TableTSAsset");
 			setCurrentParagraphId(TS_TAB_TEXT_2);
+			Tbl table = createTable("TableTSAsset", assets.size() + 1, 6);
+			Tr row = (Tr) table.getContent().get(0);
+			TextAlignment alignment = createAlignment("left");
 			// set header
-			row = table.getRow(0);
-			for (int i = 1; i < 6; i++)
-				row.addNewTableCell();
-			// set header
-			setCellText(row.getCell(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
-			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale));
-			setCellText(row.getCell(2), getMessage("report.asset.title.type", null, "Type", locale));
-			setCellText(row.getCell(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
-			setCellText(row.getCell(4), getMessage("report.asset.title.ale", null, "ALE(k€)", locale));
-			setCellText(row.getCell(5), getMessage("report.asset.title.comment", null, "Comment", locale));
+			setCellText((Tc) row.getContent().get(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
+			setCellText((Tc) row.getContent().get(1), getMessage("report.asset.title.name", null, "Name", locale));
+			setCellText((Tc) row.getContent().get(2), getMessage("report.asset.title.type", null, "Type", locale));
+			setCellText((Tc) row.getContent().get(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
+			setCellText((Tc) row.getContent().get(4), getMessage("report.asset.title.ale", null, "ALE(k€)", locale));
+			setCellText((Tc) row.getContent().get(5), getMessage("report.asset.title.comment", null, "Comment", locale));
+			setRepeatHeader(row);
 			int number = 1;
 			// set data
 			for (Asset asset : assets) {
-				row = table.createRow();
-				setCellText(row.getCell(0), "" + (number++));
-				setCellText(row.getCell(1), asset.getName(), ParagraphAlignment.LEFT);
-				setCellText(row.getCell(2), getDisplayName(asset.getAssetType()));
-				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
-				row.getCell(4).setColor(LIGHT_CELL_COLOR);
-				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
-				addCellParagraph(row.getCell(5), asset.getComment());
+				row = (Tr) table.getContent().get(number);
+				setCellText((Tc) row.getContent().get(0), "" + (number++));
+				setCellText((Tc) row.getContent().get(1), asset.getName(), alignment);
+				setCellText((Tc) row.getContent().get(2), getDisplayName(asset.getAssetType()));
+				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(asset.getValue() * 0.001));
+				setColor(((Tc) row.getContent().get(4)), LIGHT_CELL_COLOR);
+				addCellNumber((Tc) row.getContent().get(4), kEuroFormat.format(asset.getALE() * 0.001));
+				addCellParagraph((Tc) row.getContent().get(5), asset.getComment());
 			}
+			document.getContent().add(document.getContent().indexOf(paragraph), table);
 		}
-		if (paragraph != null)
-			paragraphsToDelete.add(paragraph);
 	}
 
 	protected void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {

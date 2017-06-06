@@ -13,6 +13,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -24,6 +27,16 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
+import org.docx4j.wml.FldChar;
+import org.docx4j.wml.P;
+import org.docx4j.wml.PPrBase.TextAlignment;
+import org.docx4j.wml.R;
+import org.docx4j.wml.STFldCharType;
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.Tc;
+import org.docx4j.wml.Text;
+import org.docx4j.wml.Tr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STShd;
@@ -89,7 +102,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSActionPlan");
-			
+
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 
 			row = table.getRow(0);
@@ -396,56 +409,46 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 * generateAssessements()
 	 */
 	@Override
-	protected void generateAssessements() {
-		XWPFParagraph paragraph = null;
-		XWPFParagraph paragraphOrigin = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-		paragraphOrigin = findTableAnchor("<Assessment>");
+	protected void generateAssessements() throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraphOrigin = findTableAnchor("<Assessment>");
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
-			while (!paragraphOrigin.getRuns().isEmpty())
-				paragraphOrigin.removeRun(0);
 			List<ScaleType> scaleTypes = analysis.getImpacts();
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
-			int colLength = 4 + scaleTypes.size(), colIndex = 0;
+			int colLength = 4 + scaleTypes.size(), colIndex = 0, rawLength = 0;
+			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
 			for (Asset asset : assessementsByAsset.keySet()) {
-				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-				paragraph.createRun().setText(asset.getName());
-				paragraph.setStyle("TSEstimationTitle");
-				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-				table = document.insertNewTbl(paragraph.getCTP().newCursor());
-				table.setStyleID("TableTSAssessment");
-				row = table.getRow(0);
-				while (row.getTableCells().size() < colLength)
-					row.addNewTableCell();
-				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale),ParagraphAlignment.LEFT);
+				P paragraph = factory.createP();
+				setText(paragraph, asset.getName());
+				setStyle(paragraph, "TSEstimationTitle");
+				document.getContent().add(document.getContent().indexOf(paragraphOrigin), paragraph);
+				List<Assessment> assessments = assessementsByAsset.get(asset);
+				Tbl table = createTable("TableTSAssessment", assessments.size() + 1, colLength);
+				Tr row = (Tr) table.getContent().get(rawLength = 0);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale), alignmentLeft);
 				for (ScaleType scaleType : scaleTypes)
-					setCellText(row.getCell(colIndex++), scaleType.getShortName(languageAlpha2), ParagraphAlignment.CENTER);
-				setCellText(row.getCell(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
-				setCellText(row.getCell(colIndex++), getMessage("report.assessment.owner", null, "Owner", locale));
-				setCellText(row.getCell(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
-
-				for (Assessment assessment : assessementsByAsset.get(asset)) {
-					row = table.createRow();
-					while (row.getTableCells().size() < colLength)
-						row.addNewTableCell();
+					setCellText((Tc) row.getContent().get(colIndex++), scaleType.getShortName(languageAlpha2), alignmentCenter);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), alignmentCenter);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.owner", null, "Owner", locale));
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
+				for (Assessment assessment : assessments) {
+					row = (Tr) table.getContent().get(rawLength++);
 					colIndex = 0;
-					setCellText(row.getCell(colIndex++), assessment.getScenario().getName());
+					setCellText((Tc) row.getContent().get(colIndex++), assessment.getScenario().getName());
 					for (ScaleType scaleType : scaleTypes) {
 						IValue impact = assessment.getImpact(scaleType.getName());
-						setCellText(row.getCell(colIndex++), impact == null || impact.getLevel() == 0 ? getMessage("label.status.na", null, "na", locale) : impact.getLevel() + "",
-								ParagraphAlignment.CENTER);
+						setCellText((Tc) row.getContent().get(colIndex++),
+								impact == null || impact.getLevel() == 0 ? getMessage("label.status.na", null, "na", locale) : impact.getLevel() + "", alignmentCenter);
 					}
 					int probaLevel = valueFactory.findProbLevel(assessment.getLikelihood());
-					setCellText(row.getCell(colIndex++), probaLevel == 0 ? getMessage("label.status.na", null, "na", locale) : probaLevel + "", ParagraphAlignment.CENTER);
-					addCellParagraph(row.getCell(colIndex++), assessment.getOwner());
-					addCellParagraph(row.getCell(colIndex++), assessment.getComment());
+					setCellText((Tc) row.getContent().get(colIndex++), probaLevel == 0 ? getMessage("label.status.na", null, "na", locale) : probaLevel + "", alignmentCenter);
+					addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
+					addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getComment());
 				}
-				paragraph.createRun().setText(getMessage("report.assessment.table.caption", new Object[] { asset.getName() },
-						String.format("Risk estimation for the asset %s", asset.getName()), locale));
-				paragraph.setStyle("Caption");
+				document.getContent().add(document.getContent().indexOf(paragraphOrigin), table);
+				document.getContent().add(document.getContent().indexOf(paragraphOrigin), addTableCaption(getMessage("report.assessment.table.caption",
+						new Object[] { asset.getName() }, String.format("Risk estimation for the asset %s", asset.getName()), locale)));
 				colIndex = 0;
 			}
 			assessementsByAsset.clear();
@@ -461,49 +464,32 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 * java.lang.String, java.util.List)
 	 */
 	@Override
-	protected void generateAssets(String name, List<Asset> assets) {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findTableAnchor(name);
-
+	protected void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraph = (P) findTableAnchor(name);
 		if (paragraph != null) {
-
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-			table.setStyleID("TableTSAsset");
 			setCurrentParagraphId(TS_TAB_TEXT_2);
-
+			Tbl table = createTable("TableTSAsset", assets.size() + 1, 5);
+			Tr row = (Tr) table.getContent().get(0);
+			TextAlignment alignment = createAlignment("left");
 			// set header
-
-			row = table.getRow(0);
-
-			for (int i = 1; i < 5; i++)
-				row.addNewTableCell();
-
-			// set header
-			setCellText(row.getCell(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
-			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale),ParagraphAlignment.LEFT);
-			setCellText(row.getCell(2), getMessage("report.asset.title.type", null, "Type", locale));
-			setCellText(row.getCell(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
-			setCellText(row.getCell(4), getMessage("report.asset.title.comment", null, "Comment", locale));
-
+			setCellText((Tc) row.getContent().get(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
+			setCellText((Tc) row.getContent().get(1), getMessage("report.asset.title.name", null, "Name", locale));
+			setCellText((Tc) row.getContent().get(2), getMessage("report.asset.title.type", null, "Type", locale));
+			setCellText((Tc) row.getContent().get(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
+			setCellText((Tc) row.getContent().get(4), getMessage("report.asset.title.comment", null, "Comment", locale));
+			setRepeatHeader(row);
 			int number = 1;
-
 			// set data
 			for (Asset asset : assets) {
-				row = table.createRow();
-				setCellText(row.getCell(0), "" + (number++));
-				setCellText(row.getCell(1), asset.getName());
-				setCellText(row.getCell(2), asset.getAssetType().getName());
-				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
-				addCellParagraph(row.getCell(4), asset.getComment());
+				row = (Tr) table.getContent().get(number);
+				setCellText((Tc) row.getContent().get(0), "" + (number++));
+				setCellText((Tc) row.getContent().get(1), asset.getName(), alignment);
+				setCellText((Tc) row.getContent().get(2), getDisplayName(asset.getAssetType()));
+				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(asset.getValue() * 0.001));
+				addCellParagraph((Tc) row.getContent().get(4), asset.getComment());
 			}
+			document.getContent().add(document.getContent().indexOf(paragraph), table);
 		}
-
-		if (paragraph != null)
-			paragraphsToDelete.add(paragraph);
 	}
 
 	/*
