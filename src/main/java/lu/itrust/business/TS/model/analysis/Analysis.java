@@ -899,13 +899,7 @@ public class Analysis implements Cloneable {
 	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
-		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
-		for (int i = 0; i < this.actionPlans.size(); i++) {
-			if (this.actionPlans.get(i).getActionPlanType().getActionPlanMode() == mode) {
-				ape.add(this.actionPlans.get(i));
-			}
-		}
-		return ape;
+		return this.actionPlans.stream().filter(actionPlan -> actionPlan.getActionPlanType().getActionPlanMode() == mode).collect(Collectors.toList());
 	}
 
 	/**
@@ -2751,7 +2745,8 @@ public class Analysis implements Cloneable {
 			this.type = scaleTypes.get(0).getName().equals(Constant.DEFAULT_IMPACT_NAME) ? AnalysisType.QUANTITATIVE : AnalysisType.QUALITATIVE;
 		else if (scaleTypes.stream().anyMatch(scaleType -> scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)))
 			this.type = AnalysisType.HYBRID;
-		else this.type = AnalysisType.QUALITATIVE;
+		else
+			this.type = AnalysisType.QUALITATIVE;
 	}
 
 }

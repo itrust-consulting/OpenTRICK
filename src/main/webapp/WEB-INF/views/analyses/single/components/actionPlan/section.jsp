@@ -31,6 +31,7 @@
 						<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
 							onclick="return navToogled('#section_actionplans','#menu_actionplans,#tabOption','${apt}',true);"> <spring:message code="label.title.plan_type.${fn:toLowerCase(apt)}" />
 						</a></li>
+						
 					</c:forEach>
 				</c:if>
 				<c:if test="${isLinkedToProject}">
@@ -57,13 +58,14 @@
 				<c:if test="${isLinkedToProject or  actionplansplitted.size()>1}">
 					<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 				</c:if>
-				<c:if test="${type.quantitative}">
+				<c:set value="${type.quantitative and not empty actionplansplitted['APPN']}"  var="quantitativeMenu" />
+				<c:if test="${quantitativeMenu}">
 					<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <spring:message
 								code="label.action_plan_assets.show" /></a></li>
 				</c:if>
 			</c:if>
 			<c:choose>
-				<c:when test="${type.quantitative}">
+				<c:when test="${quantitativeMenu}">
 					<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${empty analysisId? analysis.id : analysisId}')"><i class="glyphicon glyphicon-expand"></i>
 							<spring:message code="label.action.compute" /></a></li>
 				</c:when>

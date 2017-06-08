@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.naming.directory.InvalidAttributesException;
 
@@ -309,21 +308,19 @@ public class ActionPlanComputation {
 				entry.setRiskCount(entry.getRiskCount() + 1);
 			}
 		}
-
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 60));
-
+		
 		this.standards = tmpAnalysisStandards.values().stream().collect(Collectors.toList());
-
+		
 		// N.B.: can append the newly computed action plan to the previous one
 		// since the action plans got reset at the very beginning of the computation (see calculateActionPlans()).
 		// Appending is even required, since in MIXED-style analyses, the quantitative AND qualitative action plans are computed!
-		Stream<ActionPlanEntry> prevActionPlans = analysis.getActionPlans().stream();
-		Stream<ActionPlanEntry> newActionPlans = actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
+	
+		actionPlanEntries.values().stream().sorted(qualitativeComparator()).forEach(actionPlan -> {
 			actionPlan.setPosition(position[0]++);
 			actionPlan.setOrder((actionPlan.getPosition() + 1) + "");
-			return actionPlan;
+			this.analysis.getActionPlans().add(actionPlan);
 		});
-		analysis.setActionPlans(Stream.concat(prevActionPlans, newActionPlans).collect(Collectors.toList()));
 
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 70));

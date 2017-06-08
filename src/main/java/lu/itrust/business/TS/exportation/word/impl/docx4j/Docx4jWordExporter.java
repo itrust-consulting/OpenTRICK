@@ -1,20 +1,17 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,34 +20,22 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xwpf.usermodel.BreakType;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.docx4j.XmlUtils;
+import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
-import org.docx4j.model.styles.StyleUtil;
 import org.docx4j.model.table.TblFactory;
 import org.docx4j.openpackaging.contenttype.CTOverride;
 import org.docx4j.openpackaging.contenttype.ContentTypeManager;
 import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.wml.Body;
-import org.docx4j.wml.CTOdso.Table;
-import org.docx4j.wml.CTRPrChange.RPr;
-import org.docx4j.wml.CTTblPrBase;
-import org.docx4j.wml.CTTblPrBase.TblStyle;
-import org.docx4j.wml.CTTblPrBase.TblStyleColBandSize;
-import org.docx4j.wml.ContentAccessor;
+import org.docx4j.openpackaging.parts.Part;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.wml.Br;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.FldChar;
 import org.docx4j.wml.ObjectFactory;
@@ -58,6 +43,8 @@ import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
+import org.docx4j.wml.R.Tab;
+import org.docx4j.wml.STBrType;
 import org.docx4j.wml.STFldCharType;
 import org.docx4j.wml.Style;
 import org.docx4j.wml.Styles;
@@ -66,14 +53,9 @@ import org.docx4j.wml.TblPr;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
-import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
@@ -217,7 +199,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.action.plan", "Printing action plan table", increase(5)));// 45%
 
-		// generateActionPlan();
+		generateActionPlan();
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.summary", "Printing summary table", increase(5)));// 55%
 
@@ -225,13 +207,13 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.measure", "Printing measure table", increase(5)));// 60%
 
-		// generateMeasures();
+		generateMeasures();
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart", "Printing chart", increase(5)));// 70%
 
-		// generateGraphics();
+		generateGraphics();
 
-		// updateProperties();
+		updateProperties();
 
 		wordMLPackage.save(workFile);
 
@@ -612,7 +594,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		r.getContent().add(text);
 		return r;
 	}
-	
+
 	protected R setInstrText(R r, String content) {
 		Text text = factory.createText();
 		JAXBElement<Text> textWrapped = factory.createRInstrText(text);
@@ -621,19 +603,20 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		text.setSpace("preserve");
 		return r;
 	}
-	
+
 	protected P addTableCaption(String value) {
 		P paragraph = setStyle(factory.createP(), "Caption");
-		paragraph.getContent().add(setText(factory.createR(), getMessage("report.capttion.table.name", null, "Table", locale)));
+		R run = setText(factory.createR(), getMessage("report.capttion.table.name", null, "Table", locale));
+		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text).forEach(text -> text.setSpace("preserve"));
+		paragraph.getContent().add(run);
 		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
-		paragraph.getContent().add(setInstrText(factory.createR(),"SEQ Table \\* ARABIC "));
+		paragraph.getContent().add(setInstrText(factory.createR(), "SEQ Table \\* ARABIC "));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.SEPARATE));
 		paragraph.getContent().add(setText(factory.createR(), "1"));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.END));
-		paragraph.getContent().add(setText(factory.createR(),": "+value));
+		paragraph.getContent().add(setText(factory.createR(), (languageAlpha2.equals("FR") ? "\u00A0:\u00A0" : ": ") + value));
 		return paragraph;
-		
-		
+
 	}
 
 	protected R createSpecialRun(STFldCharType type) {
@@ -643,7 +626,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		run.getContent().add(fldChar);
 		return run;
 	}
-
 
 	private P addCellParagraph(Tc cell) {
 		P p = factory.createP();
@@ -768,11 +750,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		setText(paragraph, text, alignment);
 	}
 
-	protected void setText(P paragraph, String content) {
-		setText(paragraph, content, null);
+	protected P setText(P paragraph, String content) {
+		return setText(paragraph, content, null);
 	}
 
-	protected void setText(P paragraph, String content, TextAlignment alignment) {
+	protected P setText(P paragraph, String content, TextAlignment alignment) {
 		if (alignment != null) {
 			if (paragraph.getPPr() == null)
 				setStyle(paragraph, getCurrentParagraphId());
@@ -784,7 +766,36 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		text.setValue(content);
 		r.getContent().add(text);
 		paragraph.getContent().add(r);
+		return paragraph;
 
+	}
+
+	protected P addText(P paragraph, String value) {
+		R run = factory.createR();
+		Text text = factory.createText();
+		run.getContent().add(text);
+		text.setValue(value);
+		paragraph.getContent().add(run);
+		return paragraph;
+	}
+
+	protected void addTab(P paragraph) {
+		Tab tab = factory.createRTab();
+		R run = factory.createR();
+		run.getContent().add(tab);
+		paragraph.getContent().add(run);
+	}
+
+	protected P setText(P paragraph, String content, boolean bold) {
+		R r = factory.createR();
+		Text text = factory.createText();
+		r.getContent().add(text);
+		text.setValue(content);
+		if (r.getRPr() == null)
+			r.setRPr(factory.createRPr());
+		r.getRPr().setB(factory.createBooleanDefaultTrue());
+		paragraph.getContent().add(r);
+		return paragraph;
 	}
 
 	protected abstract void writeChart(ReportExcelSheet reportExcelSheet) throws Exception;
@@ -795,9 +806,14 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void generateGraphics() throws Exception {
-		for (PackagePart packagePart : this.document.getPackage().getParts())
-			if (packagePart.getPartName().getExtension().contains("xls"))
-				writeChart(new ReportExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath)));
+		for (Entry<PartName, Part>  entry : this.wordMLPackage.getParts().getParts().entrySet()){
+			if (entry.getKey().getExtension().equals("xlsx")){
+				//((EmbeddedPackagePart)entry.getValue()).
+				//System.out.println(entry.getKey().getName());
+			}
+		//writeChart(new ReportExcelSheet(entry.getValue().getPackage(), String.format("%s/WEB-INF/tmp/", contextPath)));
+		
+		}
 	}
 
 	private void generateItemInformation() throws Exception {
@@ -831,6 +847,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						alignment);
 				addCellParagraph((Tc) row.getContent().get(1), iteminfo.getValue());
 			}
+
 			document.getContent().add(document.getContent().indexOf(paragraph), table);
 		}
 	}
@@ -842,8 +859,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected Tbl createTable(String styleId, int rows, int cols) {
-		int writableWidthTwips = wordMLPackage.getDocumentModel().getSections().get(0).getPageDimensions().getWritableWidthTwips();
-		int cellWidthTwips = new Double(Math.floor((writableWidthTwips / cols))).intValue();
+		//int writableWidthTwips = wordMLPackage.getDocumentModel().getSections().get(0).getPageDimensions().getWritableWidthTwips();
+		int cellWidthTwips = 1; //new Double(Math.floor((writableWidthTwips / cols))).intValue();
 		Tbl table = TblFactory.createTable(rows, cols, cellWidthTwips);
 		Style value = styles.get(styleId);
 		if (value != null)
@@ -852,28 +869,18 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void generateMeasures() {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findTableAnchor("<Measures>");
-
-		// run = paragraph.getRuns().get(0);
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 		Map<String, Double> expressionParameters = this.analysis.getDynamicParameters().stream()
 				.collect(Collectors.toMap(DynamicParameter::getAcronym, DynamicParameter::getValue));
 
-		if (paragraph != null && analysisStandards.size() > 0) {
+		if (analysisStandards.size() > 0) {
 
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
-			boolean isFirst = true;
+			setCurrentParagraphId(TS_TAB_TEXT_3);
 
 			Comparator<Measure> comparator = new MeasureComparator();
 
-			setCurrentParagraphId(TS_TAB_TEXT_3);
+			TextAlignment alignmentLeft = createAlignment("left");
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 
@@ -882,81 +889,67 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				if (analysisStandard.getMeasures().isEmpty())
 					continue;
 
-				if (isFirst)
-					isFirst = false;
-				else
-					paragraph = document.createParagraph();
+				document.getContent().add(addBreak(factory.createP(), STBrType.PAGE));
 
-				paragraph.createRun().addBreak(BreakType.PAGE);
+				P paragraph = setText(setStyle(factory.createP(), "TSMeasureTitle"), analysisStandard.getStandard().getLabel());
 
-				paragraph = document.createParagraph();
+				document.getContent().add(paragraph);
 
-				paragraph.setStyle("TSMeasureTitle");
+				Tbl table = createTable("TableTSMeasure", analysisStandard.getMeasures().size() + 1, 16);
 
-				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
+				document.getContent().add(table);
 
-				paragraph = document.createParagraph();
+				Tr row = (Tr) table.getContent().get(0);
 
-				paragraph.setAlignment(ParagraphAlignment.CENTER);
+				setCellText((Tc) row.getContent().get(0), getMessage("report.measure.reference", null, "Ref.", locale));
+				setCellText((Tc) row.getContent().get(1), getMessage("report.measure.domain", null, "Domain", locale));
+				setCellText((Tc) row.getContent().get(2), getMessage("report.measure.status", null, "ST", locale));
+				setCellText((Tc) row.getContent().get(3), getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
+				setCellText((Tc) row.getContent().get(4), getMessage("report.measure.internal.workload", null, "IS(md)", locale));
+				setCellText((Tc) row.getContent().get(5), getMessage("report.measure.external.workload", null, "ES(md)", locale));
+				setCellText((Tc) row.getContent().get(6), getMessage("report.measure.investment", null, "INV(k€)", locale));
+				setCellText((Tc) row.getContent().get(7), getMessage("report.measure.life_time", null, "LT(y)", locale));
+				setCellText((Tc) row.getContent().get(8), getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
+				setCellText((Tc) row.getContent().get(9), getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
+				setCellText((Tc) row.getContent().get(10), getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
+				setCellText((Tc) row.getContent().get(11), getMessage("report.measure.cost", null, "CS(k€)", locale));
+				setCellText((Tc) row.getContent().get(12), getMessage("report.measure.phase", null, "P", locale));
+				setCellText((Tc) row.getContent().get(13), getMessage("report.measure.responsible", null, "Resp.", locale));
+				setCellText((Tc) row.getContent().get(14), getMessage("report.measure.to_do", null, "To Do", locale));
+				setCellText((Tc) row.getContent().get(15), getMessage("report.measure.comment", null, "Comment", locale));
 
-				table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-				table.setStyleID("TableTSMeasure");
-				// set header
-				row = table.getRow(0);
-
-				while (row.getTableCells().size() < 16)
-					row.createCell();
-
-				setCellText(row.getCell(0), getMessage("report.measure.reference", null, "Ref.", locale));
-				setCellText(row.getCell(1), getMessage("report.measure.domain", null, "Domain", locale));
-				setCellText(row.getCell(2), getMessage("report.measure.status", null, "ST", locale));
-				setCellText(row.getCell(3), getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
-				setCellText(row.getCell(4), getMessage("report.measure.internal.workload", null, "IS(md)", locale));
-				setCellText(row.getCell(5), getMessage("report.measure.external.workload", null, "ES(md)", locale));
-				setCellText(row.getCell(6), getMessage("report.measure.investment", null, "INV(k€)", locale));
-				setCellText(row.getCell(7), getMessage("report.measure.life_time", null, "LT(y)", locale));
-				setCellText(row.getCell(8), getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
-				setCellText(row.getCell(9), getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
-				setCellText(row.getCell(10), getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
-				setCellText(row.getCell(11), getMessage("report.measure.cost", null, "CS(k€)", locale));
-				setCellText(row.getCell(12), getMessage("report.measure.phase", null, "P", locale));
-				setCellText(row.getCell(13), getMessage("report.measure.responsible", null, "Resp.", locale));
-				setCellText(row.getCell(14), getMessage("report.measure.to_do", null, "To Do", locale));
-				setCellText(row.getCell(15), getMessage("report.measure.comment", null, "Comment", locale));
+				setRepeatHeader(row);
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
+				int index = 1;
+
 				for (Measure measure : analysisStandard.getMeasures()) {
-					row = table.createRow();
-					while (row.getTableCells().size() < 2)
-						row.createCell();
-					setCellText(row.getCell(0), measure.getMeasureDescription().getReference());
+					row = (Tr) table.getContent().get(index++);
+					setCellText((Tc) row.getContent().get(0), measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
-					setCellText(row.getCell(1), description == null ? "" : description.getDomain(), ParagraphAlignment.LEFT);
+					setCellText((Tc) row.getContent().get(1), description == null ? "" : description.getDomain(), alignmentLeft);
 					if (!measure.getMeasureDescription().isComputable()) {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
-							row.getCell(i).setColor(color);
+							setColor((Tc) row.getContent().get(i), color);
 					} else {
-						while (row.getTableCells().size() < 16)
-							row.createCell();
-						setCellText(row.getCell(2), getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
-						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
-						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
-						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
-						addCellNumber(row.getCell(6), numberFormat.format(measure.getInvestment() * 0.001));
-						addCellNumber(row.getCell(7), numberFormat.format(measure.getLifetime()));
-						addCellNumber(row.getCell(8), kEuroFormat.format(measure.getInternalMaintenance()));
-						addCellNumber(row.getCell(9), kEuroFormat.format(measure.getExternalMaintenance()));
-						addCellNumber(row.getCell(10), numberFormat.format(measure.getRecurrentInvestment() * 0.001));
-						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
-						addCellParagraph(row.getCell(12), measure.getPhase().getNumber() + "");
-						addCellParagraph(row.getCell(13), measure.getResponsible());
-						addCellParagraph(row.getCell(14), measure.getToDo());
+						setCellText((Tc) row.getContent().get(2), getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
+						addCellNumber((Tc) row.getContent().get(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
+						addCellNumber((Tc) row.getContent().get(4), kEuroFormat.format(measure.getInternalWL()));
+						addCellNumber((Tc) row.getContent().get(5), kEuroFormat.format(measure.getExternalWL()));
+						addCellNumber((Tc) row.getContent().get(6), numberFormat.format(measure.getInvestment() * 0.001));
+						addCellNumber((Tc) row.getContent().get(7), numberFormat.format(measure.getLifetime()));
+						addCellNumber((Tc) row.getContent().get(8), kEuroFormat.format(measure.getInternalMaintenance()));
+						addCellNumber((Tc) row.getContent().get(9), kEuroFormat.format(measure.getExternalMaintenance()));
+						addCellNumber((Tc) row.getContent().get(10), numberFormat.format(measure.getRecurrentInvestment() * 0.001));
+						addCellNumber((Tc) row.getContent().get(11), numberFormat.format(measure.getCost() * 0.001));
+						addCellParagraph((Tc) row.getContent().get(12), measure.getPhase().getNumber() + "");
+						addCellParagraph((Tc) row.getContent().get(13), measure.getResponsible());
+						addCellParagraph((Tc) row.getContent().get(14), measure.getToDo());
 						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue(expressionParameters) >= 100) {
 							for (int i = 0; i < 16; i++)
-								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
+								setColor((Tc) row.getContent().get(i), DEFAULT_CELL_COLOR);
 							if (measure.getImplementationRateValue(expressionParameters) < 100) {
 								if (analysisStandard.getStandard().is(Constant.STANDARD_27002))
 									nonApplicableMeasure27002++;
@@ -964,16 +957,25 @@ public abstract class Docx4jWordExporter implements ExportReport {
 									nonApplicableMeasure27001++;
 							}
 						} else {
-							row.getCell(0).setColor(SUB_HEADER_COLOR);
-							row.getCell(1).setColor(SUB_HEADER_COLOR);
-							row.getCell(11).setColor(measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
+							setColor((Tc) row.getContent().get(0), SUB_HEADER_COLOR);
+							setColor((Tc) row.getContent().get(1), SUB_HEADER_COLOR);
+							setColor((Tc) row.getContent().get(11), measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
 						}
 					}
-					addCellParagraph(row.getCell(15), measure.getComment());
+					addCellParagraph((Tc) row.getContent().get(15), measure.getComment());
 				}
 			}
 		}
 
+	}
+
+	private P addBreak(P paragraph, STBrType type) {
+		R run = factory.createR();
+		Br br = factory.createBr();
+		run.getContent().add(br);
+		br.setType(type);
+		paragraph.getContent().add(run);
+		return paragraph;
 	}
 
 	private void generateScenarios() throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -1094,41 +1096,43 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		this.progress = progress;
 	}
 
-	private void updateProperties() {
+	private void updateProperties() throws Docx4JException {
 		Optional<SimpleParameter> maxImplParameter = analysis.getSimpleParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD))
 				.findAny();
 		if (maxImplParameter.isPresent()) {
-			CTProperty soaThresholdProperty = document.getProperties().getCustomProperties().getProperty(MAX_IMPL);
+			if (wordMLPackage.getDocPropsCustomPart() == null)
+				wordMLPackage.addDocPropsCustomPart();
+			Property soaThresholdProperty = wordMLPackage.getDocPropsCustomPart().getProperty(MAX_IMPL);
 			if (soaThresholdProperty == null)
-				document.getProperties().getCustomProperties().addProperty(MAX_IMPL, maxImplParameter.get().getValue().intValue());
+				wordMLPackage.getDocPropsCustomPart().setProperty(MAX_IMPL, maxImplParameter.get().getValue().intValue() + "");
 			else
 				soaThresholdProperty.setLpwstr(maxImplParameter.get().getValue().intValue() + "");
 		}
 
-		CTProperty nonApplicable = document.getProperties().getCustomProperties().getProperty(_27001_NA_MEASURES);
+		Property nonApplicable = wordMLPackage.getDocPropsCustomPart().getProperty(_27001_NA_MEASURES);
 		if (nonApplicable == null)
-			document.getProperties().getCustomProperties().addProperty(_27001_NA_MEASURES, nonApplicableMeasure27001);
+			wordMLPackage.getDocPropsCustomPart().setProperty(_27001_NA_MEASURES, nonApplicableMeasure27001 + "");
 		else
 			nonApplicable.setLpwstr(String.valueOf(nonApplicableMeasure27001));
 
-		nonApplicable = document.getProperties().getCustomProperties().getProperty(_27002_NA_MEASURES);
+		nonApplicable = wordMLPackage.getDocPropsCustomPart().getProperty(_27002_NA_MEASURES);
 
 		if (nonApplicable == null)
-			document.getProperties().getCustomProperties().addProperty(_27002_NA_MEASURES, nonApplicableMeasure27002);
+			wordMLPackage.getDocPropsCustomPart().setProperty(_27002_NA_MEASURES, nonApplicableMeasure27002 + "");
 		else
 			nonApplicable.setLpwstr(String.valueOf(nonApplicableMeasure27002));
 
-		document.getProperties().getCoreProperties().setCategory(analysis.getCustomer().getOrganisation());
-		document.getProperties().getCoreProperties().setCreator(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
-		document.enforceUpdateFields();
+		wordMLPackage.getDocPropsCorePart().getContents().setCategory(analysis.getCustomer().getOrganisation());
+		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
+		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
+				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
+		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 
-	public static void MergeCell(XWPFTableRow row, int begin, int size, String color) {
-		int length = begin + size;
-		for (int i = 0; i < length; i++) {
-			XWPFTableCell cell = row.getCell(i);
-			if (cell == null)
-				cell = row.addNewTableCell();
+	public static void MergeCell(Tr row, int begin, int size, String color) {
+		//int length = begin + size;
+		/*for (int i = 0; i < length; i++) {
+			Tc cell = (Tc) row.getContent().get(i);
 			if (color != null)
 				cell.setColor(color);
 			if (i < begin)
@@ -1137,7 +1141,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.RESTART);
 			else
 				cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.CONTINUE);
-		}
+		}*/
 	}
 
 	/*
@@ -1147,11 +1151,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	 */
 	@Override
 	public void close() {
-		/*
-		 * if (getDocument() != null) { try { getDocument().close(); } catch
-		 * (IOException e) { TrickLogManager.Persist(e); } }
-		 */
-
 	}
 
 }
