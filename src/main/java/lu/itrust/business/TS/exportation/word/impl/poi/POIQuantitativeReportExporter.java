@@ -25,7 +25,7 @@ import org.springframework.context.MessageSource;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
+import lu.itrust.business.TS.exportation.helper.POIExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -565,13 +565,13 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 			paragraphsToDelete.add(paragraph);
 	}
 
-	protected void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	protected void generateEvolutionOfProfitabilityGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null || analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
 		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {
 			if (xssfSheet.getRow(rowIndex) == null)
@@ -715,7 +715,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 	}
 
 	@Override
-	protected void writeChart(ReportExcelSheet reportExcelSheet) throws Exception {
+	protected void writeChart(POIExcelSheet reportExcelSheet) throws Exception {
 		try {
 			switch (reportExcelSheet.getName()) {
 			case "Compliance27001":
@@ -757,7 +757,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 		}
 	}
 
-	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByAssetGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -772,7 +772,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -791,7 +791,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 		}
 	}
 
-	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByAssetTypeGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -806,7 +806,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -825,7 +825,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 		}
 	}
 
-	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByScenarioGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -841,7 +841,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -861,7 +861,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 
 	}
 
-	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByScenarioTypeGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -876,7 +876,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -895,7 +895,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 		}
 	}
 
-	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateBudgetGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 
 		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
@@ -903,7 +903,7 @@ public class POIQuantitativeReportExporter extends POIWordExporter {
 		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {
 			if (xssfSheet.getRow(rowIndex) == null)

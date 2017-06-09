@@ -16,27 +16,19 @@ import javax.xml.bind.JAXBException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
-import org.docx4j.wml.R.Tab;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
-import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
+import lu.itrust.business.TS.exportation.helper.Docx4jExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -128,61 +120,35 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	@Override
 	protected void generateActionPlanSummary() throws Exception {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findTableAnchor("<Summary>");
-
+		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
 
 		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
 
-		if (summary.isEmpty()) {
-			paragraphsToDelete.add(paragraph);
-			return;
-		}
-
 		// initialise table with 1 row and 1 column after the paragraph
 		// cursor
 
-		table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-		table.setStyleID("TableTSSummary");
-
 		setCurrentParagraphId(TS_TAB_TEXT_2);
+		Tbl table = createTable("TableTSSummary", 30, summary.size() + 1);
 
 		// set header
-
-		row = table.getRow(0);
-
-		for (int i = 1; i < 3; i++)
-			row.addNewTableCell();
-
 		int rownumber = 0;
 
 		while (rownumber < 30) {
-
-			if (rownumber == 0)
-				row = table.getRow(rownumber);
-			else
-				row = table.createRow();
-
+			Tr row = (Tr) table.getContent().get(rownumber);
 			switch (rownumber) {
 			case 0: {
 				int cellnumber = 0;
 				setCellText((Tc) row.getContent().get(cellnumber), getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
 				for (SummaryStage stage : summary) {
-					XWPFTableCell cell = (Tc) row.getContent().get(++cellnumber);
-					if (cell == null)
-						cell = row.addNewTableCell();
-					setCellText(cell, stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
-							: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
+					setCellText((Tc) row.getContent().get(++cellnumber),
+							stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
+									: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
 				}
+				setRepeatHeader(row);
 				break;
 			}
-
 			case 1:
 				MergeCell(row, 0, summary.size() + 1, null);
 				setCellText((Tc) row.getContent().get(0), "1	" + getMessage("report.summary_stage.phase_duration", null, "Phase duration", locale));
@@ -311,14 +277,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			case 18: {
 				MergeCell(row, 0, summary.size() + 1, null);
 				setCellText((Tc) row.getContent().get(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
-				// mrege columns
 				break;
 			}
 
 			case 19: {
 				MergeCell(row, 0, summary.size() + 1, null);
 				setCellText((Tc) row.getContent().get(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
-				// mrege columns
 				break;
 			}
 			case 20: {
@@ -348,7 +312,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-
 			case 23: {
 				int cellnumber = 0;
 				setCellText((Tc) row.getContent().get(cellnumber),
@@ -416,8 +379,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
-		paragraphsToDelete.add(paragraph);
-
+		document.getContent().add(document.getContent().indexOf(paragraph), table);
 	}
 
 	@Override
@@ -530,13 +492,13 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	protected void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	protected void generateEvolutionOfProfitabilityGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null || analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
 		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {
 			if (xssfSheet.getRow(rowIndex) == null)
@@ -598,36 +560,25 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void generateExtendedParameters(String type) throws Exception {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
 		String parmetertype = "";
 		if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 			parmetertype = "Impact";
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Proba";
 
-		paragraph = findTableAnchor("<" + parmetertype + ">");
+		P paragraph = findTableAnchor(parmetertype);
 
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 
 		if (paragraph != null && parameters.size() > 0) {
-			XWPFParagraph title = document.insertNewParagraph(paragraph.getCTP().newCursor());
-			title.createRun().setText(getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
-			title.setStyle("TSEstimationTitle");
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-			table.setStyleID("TableTS" + parmetertype);
-			// set header
-			row = table.getRow(0);
-			for (int i = 1; i < 6; i++) {
-				XWPFTableCell cell = (Tc) row.getContent().get(i);
-				if (cell != null)
-					cell.setColor(HEADER_COLOR);
-				else
-					row.addNewTableCell().setColor(HEADER_COLOR);
-			}
+			P title = setText(setStyle(factory.createP(), "TSEstimationTitle"), getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
+			document.getContent().add(document.getContent().indexOf(paragraph), title);
+			Tbl table = createTable("TableTS" + parmetertype, parameters.size() + 1, 6);
+			Tr row = (Tr) table.getContent().get(0);
+			for (int i = 1; i < 6; i++)
+				setColor((Tc) row.getContent().get(i), HEADER_COLOR);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.parameter.level", null, "Level", locale));
 			setCellText((Tc) row.getContent().get(1), getMessage("report.parameter.acronym", null, "Acro", locale));
 			setCellText((Tc) row.getContent().get(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
@@ -640,13 +591,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			setCellText((Tc) row.getContent().get(4), getMessage("report.parameter.value.from", null, "Value From", locale));
 			setCellText((Tc) row.getContent().get(5), getMessage("report.parameter.value.to", null, "Value To", locale));
 
+			setRepeatHeader(row);
+
 			int countrow = 0, length = parameters.size() - 1;
 			// set data
 			for (IBoundedParameter parameter : parameters) {
-				row = table.createRow();
-
-				while (row.getTableCells().size() < 6)
-					row.addNewTableCell();
+				row = (Tr) table.getContent().get(countrow + 1);
 				setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel());
 				setCellText((Tc) row.getContent().get(1), parameter.getAcronym());
 				setCellText((Tc) row.getContent().get(2), parameter.getDescription());
@@ -656,7 +606,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					value *= 0.001;
 				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
-					(Tc) row.getContent().get(3).setColor(SUB_HEADER_COLOR);
+					setColor((Tc) row.getContent().get(3), SUB_HEADER_COLOR);
 				value = parameter.getBounds().getFrom();
 				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 					value *= 0.001;
@@ -670,17 +620,20 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					addCellNumber((Tc) row.getContent().get(5), kEuroFormat.format(value));
 				}
 				for (int i = 4; i < 6; i++)
-					(Tc) row.getContent().get(i).setColor(SUB_HEADER_COLOR);
+					setColor((Tc) row.getContent().get(i), SUB_HEADER_COLOR);
+				;
 				countrow++;
 			}
+			document.getContent().add(document.getContent().indexOf(paragraph), table);
 		}
-		if (paragraph != null)
-			paragraphsToDelete.add(paragraph);
-
 	}
 
 	@Override
-	protected void writeChart(ReportExcelSheet reportExcelSheet) throws Exception {
+	protected void generateOtherData() {
+	}
+
+	@Override
+	protected void writeChart(Docx4jExcelSheet reportExcelSheet) throws Exception {
 		try {
 			switch (reportExcelSheet.getName()) {
 			case "Compliance27001":
@@ -722,7 +675,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByAssetGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -737,7 +690,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -756,7 +709,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByAssetTypeGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -771,7 +724,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -790,7 +743,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByScenarioGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -806,7 +759,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -826,7 +779,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateALEByScenarioTypeGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -841,7 +794,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowCount = 0;
 		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
@@ -860,7 +813,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	private void generateBudgetGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 
 		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
@@ -868,7 +821,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {
 			if (xssfSheet.getRow(rowIndex) == null)
@@ -927,10 +880,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			xssfSheet.getRow(rowIndex).getCell(7).setCellValue(Double.parseDouble(dataCurrentCost.get(i)));
 			xssfSheet.getRow(rowIndex++).getCell(8).setCellValue(Double.parseDouble(dataTotalPhaseCost.get(i)));
 		}
-	}
-
-	@Override
-	protected void generateOtherData() {
 	}
 
 }

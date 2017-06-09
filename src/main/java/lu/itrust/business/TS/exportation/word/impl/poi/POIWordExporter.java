@@ -39,7 +39,7 @@ import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
+import lu.itrust.business.TS.exportation.helper.POIExcelSheet;
 import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -589,7 +589,7 @@ public abstract class POIWordExporter implements ExportReport {
 	protected abstract void generateAssets(String name, List<Asset> assets);
 
 	@SuppressWarnings("unchecked")
-	protected void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	protected void generateComplianceGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
@@ -597,7 +597,7 @@ public abstract class POIWordExporter implements ExportReport {
 		ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
 		if (measures == null)
 			return;
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, factory);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
@@ -673,7 +673,7 @@ public abstract class POIWordExporter implements ExportReport {
 			paragraph.setAlignment(alignment);
 	}
 
-	protected abstract void writeChart(ReportExcelSheet reportExcelSheet) throws Exception;
+	protected abstract void writeChart(POIExcelSheet reportExcelSheet) throws Exception;
 
 	private void generateAssets() {
 		generateAssets("<Asset>", analysis.findSelectedAssets());
@@ -683,7 +683,7 @@ public abstract class POIWordExporter implements ExportReport {
 	private void generateGraphics() throws Exception {
 		for (PackagePart packagePart : this.document.getPackage().getParts())
 			if (packagePart.getPartName().getExtension().contains("xls"))
-				writeChart(new ReportExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath)));
+				writeChart(new POIExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath)));
 	}
 
 	private void generateItemInformation() throws Exception {

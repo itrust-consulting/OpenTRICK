@@ -16,7 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author eomar
  *
  */
-public class ReportExcelSheet {
+public class POIExcelSheet implements IExcelSheet {
 
 	private String name;
 
@@ -28,25 +28,38 @@ public class ReportExcelSheet {
 
 	private File file = null;
 
-	public ReportExcelSheet() {
+	public POIExcelSheet() {
 	}
 
-	public ReportExcelSheet(PackagePart packagePart, String tempPath) throws IOException, InvalidFormatException {
+	public POIExcelSheet(PackagePart packagePart, String tempPath) throws IOException, InvalidFormatException {
 		setTempPath(tempPath);
 		setPackagePart(packagePart);
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#getName()
+	 */
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#setName(java.lang.String)
+	 */
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#getPackagePart()
+	 */
+	@Override
 	public PackagePart getPackagePart() {
 		return packagePart;
 	}
+
 
 	public void setPackagePart(PackagePart packagePart) throws IOException, InvalidFormatException {
 		this.packagePart = packagePart;
@@ -57,7 +70,11 @@ public class ReportExcelSheet {
 		}
 	}
 
-	public XSSFWorkbook getXssfWorkbook() {
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#getXssfWorkbook()
+	 */
+	@Override
+	public XSSFWorkbook getWorkbook() {
 		return xssfWorkbook;
 	}
 
@@ -67,6 +84,10 @@ public class ReportExcelSheet {
 			setName(this.xssfWorkbook.getSheetAt(0).getSheetName());
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#save()
+	 */
+	@Override
 	public boolean save() throws OpenXML4JException, IOException {
 		try {
 			if (this.xssfWorkbook == null || this.packagePart == null)
@@ -77,25 +98,62 @@ public class ReportExcelSheet {
 				if(!file.delete())
 					file.deleteOnExit();
 			}
+			if(this.xssfWorkbook!=null)
+				this.xssfWorkbook.close();
 		}
 
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#getTempPath()
+	 */
+	@Override
 	public String getTempPath() {
 		return tempPath;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#setTempPath(java.lang.String)
+	 */
+	@Override
 	public void setTempPath(String tempPath) {
 		this.tempPath = tempPath;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#getFile()
+	 */
+	@Override
 	public File getFile() {
 		return file;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#setFile(java.io.File)
+	 */
+	@Override
 	public void setFile(File file) {
 		this.file = file;
 	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#setPackagePart(org.apache.poi.openxml4j.opc.PackagePart)
+	 */
+	@Override
+	public void setPackagePart(Object packagePart) throws Exception {
+		setPackagePart((PackagePart)packagePart);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.helper.IExcelSheet#setXssfWorkbook(org.apache.poi.xssf.usermodel.XSSFWorkbook)
+	 */
+	@Override
+	public void setWorkbook(Object workbook) {
+		setXssfWorkbook((XSSFWorkbook) workbook);
+	}
+	
+	
 
 }

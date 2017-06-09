@@ -13,33 +13,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
-import org.docx4j.wml.FldChar;
+import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
-import org.docx4j.wml.STFldCharType;
+import org.docx4j.wml.STShd;
+import org.docx4j.wml.STVerticalJc;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
-import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STShd;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
@@ -49,7 +38,7 @@ import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
+import lu.itrust.business.TS.exportation.helper.Docx4jExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -146,57 +135,28 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 */
 	@Override
 	protected void generateActionPlanSummary() throws Exception {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findTableAnchor("<Summary>");
-
+		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
-
 		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APQ);
-
-		if (summary.isEmpty()) {
-			paragraphsToDelete.add(paragraph);
-			return;
-		}
-
 		// initialise table with 1 row and 1 column after the paragraph
 		// cursor
-
-		table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-		table.setStyleID("TableTSSummary");
+		Tbl table = createTable("TableTSSummary", 24, summary.size() + 1);
 		setCurrentParagraphId(TS_TAB_TEXT_2);
-
 		// set header
-
-		row = table.getRow(0);
-
-		for (int i = 1; i < 3; i++)
-			row.addNewTableCell();
-
 		int rownumber = 0;
-
 		while (rownumber < 24) {
 
-			if (rownumber == 0)
-				row = table.getRow(rownumber);
-			else
-				row = table.createRow();
+			Tr row = (Tr) table.getContent().get(rownumber);
 
 			switch (rownumber) {
 			case 0: {
 				int cellnumber = 0;
 				setCellText((Tc) row.getContent().get(cellnumber), getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
-				for (SummaryStage stage : summary) {
-					XWPFTableCell cell = (Tc) row.getContent().get(++cellnumber);
-					if (cell == null)
-						cell = row.addNewTableCell();
-					setCellText(cell, stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
-							: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
-				}
+				for (SummaryStage stage : summary)
+					setCellText((Tc) row.getContent().get(++cellnumber),
+							stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
+									: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
 				break;
 			}
 
@@ -285,14 +245,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			case 12: {
 				MergeCell(row, 0, summary.size() + 1, null);
 				setCellText((Tc) row.getContent().get(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
-				// mrege columns
 				break;
 			}
 
 			case 13: {
 				MergeCell(row, 0, summary.size() + 1, null);
 				setCellText((Tc) row.getContent().get(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
-				// mrege columns
 				break;
 			}
 			case 14: {
@@ -390,7 +348,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
-		paragraphsToDelete.add(paragraph);
+		document.getContent().add(document.getContent().indexOf(paragraph), table);
 
 	}
 
@@ -492,15 +450,13 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 */
 	@Override
 	protected void generateExtendedParameters(String type) throws Exception {
-		XWPFParagraph paragraph = null;
 		String parmetertype = "", languuage = locale.getLanguage().toUpperCase();
 		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 			parmetertype = "Impact";
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Proba";
 
-		paragraph = findTableAnchor("<" + parmetertype + ">");
-
+		P paragraph = findTableAnchor("<" + parmetertype + ">");
 		if (paragraph != null) {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			if (parmetertype == "Proba")
@@ -516,61 +472,50 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				}
 
 			}
-			paragraphsToDelete.add(paragraph);
 		}
 
 	}
 
-	private void generateImpactList(Set<ScaleType> impacts) {
-
-		XWPFParagraph paragraph = findTableAnchor("<impact-list>");
-		if (paragraph == null)
+	private void generateImpactList(Set<ScaleType> impacts) throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraph = findTableAnchor("impact_list");
+		if (paragraph == null || impacts.isEmpty())
 			return;
-		String style = "BulletL1";
-		while (!paragraph.getRuns().isEmpty())
-			paragraph.removeRun(0);
 		boolean isFirst = true;
+		String style = "BulletL1";
+		paragraph.getContent().removeIf(value -> value instanceof R);
+		setStyle(paragraph, style);
+		List<Object> contents = new ArrayList<>(impacts.size() - 1);
 		for (ScaleType scaleType : impacts) {
-			if (!isFirst)
-				paragraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
-			else
+			if (isFirst) {
 				isFirst = false;
-			paragraph.setStyle(style);
-			paragraph.createRun().setText(scaleType.getTranslate(languageAlpha2));
+				setText(paragraph, scaleType.getTranslate(languageAlpha2));
+			} else
+				contents.add(setText(setStyle(factory.createP(), style), scaleType.getTranslate(languageAlpha2)));
 		}
+		document.getContent().addAll(document.getContent().indexOf(paragraph) + 1, contents);
 	}
 
-	private void buildImpactProbabilityTable(XWPFParagraph paragraph, String title, String type, List<? extends IBoundedParameter> parameters) {
-		XWPFParagraph titleParagraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
-		titleParagraph.createRun().setText(title);
-		titleParagraph.setStyle("TSEstimationTitle");
-		XWPFTable table = document.insertNewTbl(paragraph.getCTP().newCursor());
-		table.setStyleID("TableTS" + type);
+	private void buildImpactProbabilityTable(P paragraph, String title, String type, List<? extends IBoundedParameter> parameters) {
+		P titleParagraph = setText(setStyle(factory.createP(), "TSEstimationTitle"), title);
+		document.getContent().add(document.getContent().indexOf(paragraph) + 1, titleParagraph);
+		Tbl table = createTable("TableTS" + type, parameters.size() + 1, 3);
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 		// set header
-		XWPFTableRow row = table.getRow(0);
-		for (int i = 1; i < 3; i++) {
-			XWPFTableCell cell = (Tc) row.getContent().get(i);
-			if (cell != null)
-				cell.setColor(HEADER_COLOR);
-			else
-				row.addNewTableCell().setColor(HEADER_COLOR);
-		}
+		Tr row = (Tr) table.getContent().get(0);
+		for (int i = 1; i < 3; i++)
+			setColor((Tc) row.getContent().get(i), HEADER_COLOR);
 		setCellText((Tc) row.getContent().get(0), getMessage("report.parameter.level", null, "Level", locale));
 		setCellText((Tc) row.getContent().get(1), getMessage("report.parameter.label", null, "Label", locale));
 		setCellText((Tc) row.getContent().get(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
-		// set data
 		for (IBoundedParameter parameter : parameters) {
 			if (parameter.getLevel() == 0)
 				continue;
-			row = table.createRow();
-			while (row.getTableCells().size() < 3)
-				row.addNewTableCell();
+			row = (Tr) table.getContent().get(parameter.getLevel());
 			setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel());
 			setCellText((Tc) row.getContent().get(1), parameter.getLabel());
 			setCellText((Tc) row.getContent().get(2), parameter.getDescription());
-
 		}
+		document.getContent().add(document.getContent().indexOf(paragraph), table);
 	}
 
 	/*
@@ -578,10 +523,10 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 * 
 	 * @see
 	 * lu.itrust.business.TS.exportation.AbstractWordExporter#writeChart(lu.
-	 * itrust.business.TS.exportation.helper.ReportExcelSheet)
+	 * itrust.business.TS.exportation.helper.PODocx4jExcelSheet)
 	 */
 	@Override
-	protected void writeChart(ReportExcelSheet reportExcelSheet) throws Exception {
+	protected void writeChart(Docx4jExcelSheet reportExcelSheet) throws Exception {
 		try {
 			switch (reportExcelSheet.getName()) {
 			case "Compliance27001":
@@ -614,21 +559,21 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private void generateRiskByAssetGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByAssetGraphic(Docx4jExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessmentByAsset = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
 		generateRiskGraphic(reportExcelSheet, assessmentByAsset);
 	}
 
-	private void generateRiskByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByAssetTypeGraphic(Docx4jExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(getDisplayName(a1.getAsset().getAssetType()), getDisplayName(a2.getAsset().getAssetType()));
 		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getAsset().getAssetType())));
 		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
-	private void generateRiskByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByScenarioGraphic(Docx4jExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
@@ -636,7 +581,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
-	private void generateRiskByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByScenarioTypeGraphic(Docx4jExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(getDisplayName(a1.getScenario().getType()), getDisplayName(a2.getScenario().getType()));
 		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getScenario().getType())));
@@ -644,7 +589,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void generateOtherData() {
+	protected void generateOtherData() throws XPathBinderAssociationIsPartialException, JAXBException {
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.risk_heat.map", "Printing risk heat map", increase(3)));
 		generateRiskHeatMap();
 
@@ -652,40 +597,36 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		generateRiskAcceptance();
 	}
 
-	private void generateRiskAcceptance() {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-		paragraph = findTableAnchor("<risk-acceptance>");
+	private void generateRiskAcceptance() throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraph = findTableAnchor("risk_acceptance");
 		if (paragraph != null) {
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-			table.setStyleID("TableTSRiskAcceptance");
+			Tbl table = createTable("TableTSRiskAcceptance", analysis.getRiskAcceptanceParameters().size() + 1, 2);
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			// set header
-			row = table.getRow(0);
-			for (int i = 1; i < 2; i++)
-				row.addNewTableCell();
+			Tr row = (Tr) table.getContent().get(0);
+			TextAlignment alignmentCenter = createAlignment("center");
 			// set header
-			table.getRow(0).getCell(0).setText(getMessage("report.risk_acceptance.title.level", null, "Risk level", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.risk_acceptance.title.acceptance.criteria", null, "Risk acceptance criteria", locale));
-			// set data
+			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_acceptance.title.level", null, "Risk level", locale));
+			setCellText((Tc) row.getContent().get(1), getMessage("report.risk_acceptance.title.acceptance.criteria", null, "Risk acceptance criteria", locale));
+			int index = 1;
 			for (RiskAcceptanceParameter parameter : analysis.getRiskAcceptanceParameters()) {
-				row = table.createRow();
-				XWPFTableCell cell = (Tc) row.getContent().get(0);
-				addCellParagraph(cell, parameter.getLabel()).setAlignment(ParagraphAlignment.CENTER);
+				row = (Tr) table.getContent().get(index++);
+				Tc cell = (Tc) row.getContent().get(0);
+				addCellParagraph(cell, parameter.getLabel());
+				setAlignment(cell, alignmentCenter);
 				addCellParagraph(cell, getMessage("report.risk_acceptance.importance_threshold.value", new Object[] { parameter.getValue().intValue() },
 						"Importance threshold: " + parameter.getValue().intValue(), locale), true);
 				addCellParagraph((Tc) row.getContent().get(1), parameter.getDescription());
 				if (!parameter.getColor().isEmpty())
-					cell.setColor(parameter.getColor().substring(1));
+					setColor(cell, parameter.getColor().substring(1));
 			}
+			document.getContent().add(document.getContent().indexOf(paragraph), table);
 		}
-
-		if (paragraph != null)
-			paragraphsToDelete.add(paragraph);
 	}
 
-	private void generateRiskHeatMap() {
+	
+
+	private void generateRiskHeatMap() throws XPathBinderAssociationIsPartialException, JAXBException {
 		Chart chart = ChartGenerator.generateRiskHeatMap(analysis, valueFactory);
 		generateRiskHeatMap(chart, "<risk-heat-map-summary>");
 		generateRiskHeatMap(chart, "<risk-heat-map>");
@@ -704,84 +645,69 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void generateRiskHeatMap(Chart chart, String anchor) {
-		XWPFParagraph paragraphOriginal = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-		int rowIndex = 0;
-		paragraphOriginal = findTableAnchor(anchor);
+	private void generateRiskHeatMap(Chart chart, String anchor) throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraphOriginal = findTableAnchor(anchor);
 		if (paragraphOriginal != null) {
-			XWPFParagraph paragraph = document.insertNewParagraph(paragraphOriginal.getCTP().newCursor());
-			paragraph.setStyle("BodyOfText");
+			P paragraph = setStyle(factory.createP(), "BodyOfText");
 			int index[] = { chart.getLegends().size() };
 			chart.getLegends().forEach(legend -> {
-				XWPFRun run = paragraph.createRun();
-				run.setText(legend.getLabel());
-				CTRPr pr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
-				CTShd cTShd = pr.isSetShd() ? pr.getShd() : pr.addNewShd();
-				cTShd.setVal(STShd.CLEAR);
-				cTShd.setColor("auto");
-				cTShd.setFill(legend.getColor().substring(1));
+				R run = setText(factory.createR(), legend.getLabel());
+				if (run.getRPr() == null)
+					run.setRPr(factory.createRPr());
+				if (run.getRPr().getShd() == null)
+					run.getRPr().setShd(factory.createCTShd());
+				run.getRPr().getShd().setColor("auto");
+				run.getRPr().getShd().setVal(STShd.CLEAR);
+				run.getRPr().getShd().setFill(legend.getColor().substring(1));
 				if (--index[0] > 0) {
-					paragraph.createRun().addTab();
-					paragraph.createRun().addTab();
+					addTab(paragraph);
+					addTab(paragraph);
 				}
 			});
-
-			paragraph.setAlignment(ParagraphAlignment.CENTER);
-
-			table = document.insertNewTbl(paragraphOriginal.getCTP().newCursor());
-			table.setStyleID("TableTSRiskHeatMap");
+			TextAlignment alignmentCenter = createAlignment("center");
+			CTVerticalJc verticalJc = createVerticalAlignment(STVerticalJc.CENTER);
+			setAlignment(paragraph, alignmentCenter);
+			document.getContent().add(document.getContent().indexOf(paragraphOriginal), paragraph);
+			Tbl table = createTable("TableTSRiskHeatMap", chart.getLabels().size() + 2, chart.getLabels().size() + 2);
 			// set header
-			row = table.getRow(rowIndex++);
-			for (int i = 1; i < chart.getLabels().size() + 2; i++)
-				row.addNewTableCell();
+			Tr row = (Tr) table.getContent().get(0);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_heat_map.title.impact", null, "Impact", locale));
+			int rowIndex = 1;
 			for (int i = 0; i < chart.getDatasets().size(); i++) {
 				Dataset<List<String>> dataset = (Dataset<List<String>>) chart.getDatasets().get(i);
-				if (i > 0) {
-					row = table.getRow(rowIndex++);
-					if (row == null)
-						row = table.createRow();
-				}
-				XWPFTableCell cell = (Tc) row.getContent().get(1);
-				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
-				addCellParagraph(cell, dataset.getLabel()).setAlignment(ParagraphAlignment.CENTER);
-				cell.setColor(LIGHT_CELL_COLOR);
+				Tc cell = (Tc) row.getContent().get(1);
+				setVerticalAlignment(cell, verticalJc);
+				setAlignment(addCellParagraph(cell, dataset.getLabel()), alignmentCenter);
+				setColor(cell, LIGHT_CELL_COLOR);
 				for (int j = 0; j < dataset.getData().size(); j++) {
 					cell = (Tc) row.getContent().get(j + 2);
-					cell.setVerticalAlignment(XWPFVertAlign.CENTER);
+					setVerticalAlignment(cell, verticalJc);
 					Object data = dataset.getData().get(j);
 					if (data instanceof Integer)
-						addCellParagraph(cell, data.toString()).setAlignment(ParagraphAlignment.CENTER);
+						setAlignment(addCellParagraph(cell, data.toString()), alignmentCenter);
 					else
-						addCellParagraph(cell, "").setAlignment(ParagraphAlignment.CENTER);
-					cell.setColor(dataset.getBackgroundColor().get(j).substring(1));
+						setAlignment(addCellParagraph(cell, ""), alignmentCenter);
+					setColor(cell, dataset.getBackgroundColor().get(j).substring(1));
 				}
 			}
-			row = table.getRow(rowIndex++);
-			if (row == null)
-				row = table.createRow();
+			row = (Tr) table.getContent().get(rowIndex++);
 			for (int i = 0; i < chart.getLabels().size(); i++) {
-				XWPFTableCell cell = (Tc) row.getContent().get(i + 2);
-				cell.setVerticalAlignment(XWPFVertAlign.CENTER);
-				addCellParagraph(cell, chart.getLabels().get(i)).setAlignment(ParagraphAlignment.CENTER);
-				cell.setColor(LIGHT_CELL_COLOR);
+				Tc cell = (Tc) row.getContent().get(i + 2);
+				setVerticalAlignment(cell, verticalJc);
+				setAlignment(addCellParagraph(cell, chart.getLabels().get(i)), alignmentCenter);
+				setColor(cell, LIGHT_CELL_COLOR);
 			}
 
-			row = table.getRow(rowIndex);
-			if (row == null)
-				row = table.createRow();
+			row = (Tr) table.getContent().get(rowIndex);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
+			document.getContent().add(document.getContent().indexOf(paragraphOriginal), table);
 		}
-
-		if (paragraphOriginal != null)
-			paragraphsToDelete.add(paragraphOriginal);
+		
 
 	}
 
-	private void generateRiskGraphic(ReportExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessmentByAsset) {
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+	private void generateRiskGraphic(Docx4jExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessmentByAsset) {
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		XSSFRow row = getRow(xssfSheet, 1), colors = getRow(xssfSheet, 0);
 		for (int i = 0; i < colorBounds.size(); i++) {
 			XSSFCell cell = getCell(row, i + 1, CellType.STRING), color = getCell(colors, i + 1, CellType.STRING);
@@ -808,19 +734,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private XSSFRow getRow(XSSFSheet xssfSheet, int index) {
-		XSSFRow row = xssfSheet.getRow(index);
-		if (row == null)
-			row = xssfSheet.createRow(index);
-		return row;
-	}
-
-	private XSSFCell getCell(XSSFRow row, int index, CellType cellType) {
-		XSSFCell cell = (Tc) row.getContent().get(index);
-		if (cell == null)
-			cell = row.createCell(index, cellType);
-		return cell;
-	}
+	
 
 	private void clearColorBoundCount() {
 		colorBounds.parallelStream().forEach(color -> color.setCount(0));
