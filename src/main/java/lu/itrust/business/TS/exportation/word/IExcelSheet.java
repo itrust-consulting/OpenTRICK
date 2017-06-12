@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.exportation.helper;
+package lu.itrust.business.TS.exportation.word;
 
 import java.io.File;
 

@@ -38,11 +38,11 @@ import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.Docx4jExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
@@ -738,6 +738,11 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 	private void clearColorBoundCount() {
 		colorBounds.parallelStream().forEach(color -> color.setCount(0));
+	}
+
+	@Override
+	protected AnalysisType getType() {
+		return AnalysisType.QUALITATIVE;
 	}
 
 }

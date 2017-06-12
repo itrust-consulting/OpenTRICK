@@ -63,11 +63,22 @@ import org.springframework.context.MessageSource;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.Docx4jExcelSheet;
+import lu.itrust.business.TS.exportation.word.DocxFormatter;
 import lu.itrust.business.TS.exportation.word.ExportReport;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jActionPlanFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jAssessmentFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jAssetFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jImpactProbaFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskInformationFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScenarioFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScopeFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jSummaryFormatter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
@@ -92,6 +103,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected Document document = null;
 
 	protected ObjectFactory factory = null;
+
+	private static volatile DocxFormatter docxFormatter = null;
 
 	protected String idTask;
 
@@ -226,10 +239,14 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		generateGraphics();
 
 		updateProperties();
+		
+		document.getContent().parallelStream().forEach(data -> getDocxFormatter().format(data, getType()));
 
 		wordMLPackage.save(workFile);
 
 	}
+
+	protected abstract AnalysisType getType();
 
 	/*
 	 * (non-Javadoc)
@@ -1011,6 +1028,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
 							setColor((Tc) row.getContent().get(i), color);
+						//MergeCell(row, 1, 14, color);
 					} else {
 						setCellText((Tc) row.getContent().get(2), getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 						addCellNumber((Tc) row.getContent().get(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
@@ -1204,6 +1222,34 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @return the docxFormatter
+	 */
+	public static DocxFormatter getDocxFormatter() {
+		if (docxFormatter == null) {
+			synchronized (Docx4jWordExporter.class) {
+				if (docxFormatter == null)
+					docxFormatter = buildFormatter();
+
+			}
+
+		}
+		return docxFormatter;
+	}
+
+	private static DocxFormatter buildFormatter() {
+		Docx4jFormatter docx4jFormatter = new Docx4jSummaryFormatter();
+		docx4jFormatter = new Docx4jScopeFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jScenarioFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jRiskInformationFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jMeasureFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jImpactProbaFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jAssetFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jAssessmentFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jActionPlanFormatter(docx4jFormatter);
+		return docx4jFormatter;
 	}
 
 }

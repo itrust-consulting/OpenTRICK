@@ -39,7 +39,6 @@ import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.POIExcelSheet;
 import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;

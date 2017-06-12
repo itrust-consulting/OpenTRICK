@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.exportation.helper;
+package lu.itrust.business.TS.exportation.word.impl.poi;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +11,8 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import lu.itrust.business.TS.exportation.word.IExcelSheet;
 
 /**
  * @author eomar

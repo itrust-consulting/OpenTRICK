@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.exportation.helper;
+package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,6 +13,8 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
 import org.springframework.util.FileCopyUtils;
+
+import lu.itrust.business.TS.exportation.word.IExcelSheet;
 
 /**
  * @author eomar
