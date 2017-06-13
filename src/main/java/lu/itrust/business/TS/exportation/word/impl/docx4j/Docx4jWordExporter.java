@@ -24,7 +24,6 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.docx4j.XmlUtils;
 import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
@@ -38,6 +37,7 @@ import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
 import org.docx4j.wml.Br;
+import org.docx4j.wml.CTBookmark;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.FldChar;
@@ -239,7 +239,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		generateGraphics();
 
 		updateProperties();
-		
+
 		document.getContent().parallelStream().forEach(data -> getDocxFormatter().format(data, getType()));
 
 		wordMLPackage.save(workFile);
@@ -652,9 +652,10 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
-		final String xpath = "//w:bookmarkStart[@w:name='" + name + "']/..";
-		List<Object> objects = wordMLPackage.getMainDocumentPart().getJAXBNodesViaXPath(xpath, false);
-		return objects.stream().findFirst().map(paragraph -> (P) XmlUtils.unwrap(paragraph)).orElse(null);
+		return (P) document.getContent().parallelStream().filter(p -> (p instanceof P) && ((P) p).getContent().parallelStream().anyMatch(
+				b -> (b instanceof JAXBElement) && ((JAXBElement<?>) b).getValue() instanceof CTBookmark && ((CTBookmark) ((JAXBElement<?>) b).getValue()).getName().equals(name)))
+				.findAny().orElse(null);
+
 	}
 
 	protected String formatLikelihood(String likelihood) {
@@ -663,6 +664,50 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		} catch (Exception e) {
 			return likelihood;
 		}
+	}
+
+	protected int findIndex(Object reference) {
+		return document.getContent().indexOf(reference);
+	}
+
+	protected boolean insertBofore(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().add(index, element);
+		return true;
+	}
+
+	protected boolean insertAfter(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().add(index + 1, element);
+		return true;
+	}
+
+	protected boolean replace(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().set(index, element);
+		return true;
+	}
+
+	protected boolean insertAllBefore(Object reference, List<Object> elements) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().addAll(index, elements);
+		return true;
+	}
+
+	protected boolean insertAllAfter(Object reference, List<Object> elements) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().addAll(index + 1, elements);
+		return true;
 	}
 
 	protected abstract void generateActionPlan() throws Exception;
@@ -773,7 +818,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected P setAlignment(P paragraph, TextAlignment alignment) {
 		if (paragraph.getPPr() != null)
 			paragraph.setPPr(factory.createPPr());
-		paragraph.getPPr().setTextAlignment(alignment);
+		if (paragraph.getParent() instanceof Tc) {
+			if (paragraph.getPPr().getJc() == null)
+				paragraph.getPPr().setJc(factory.createJc());
+			paragraph.getPPr().getJc().setVal(JcEnumeration.fromValue(alignment.getVal()));
+		} else
+			paragraph.getPPr().setTextAlignment(alignment);
 		return paragraph;
 	}
 
@@ -846,7 +896,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		if (alignment != null) {
 			if (paragraph.getPPr() == null)
 				setStyle(paragraph, getCurrentParagraphId());
-			paragraph.getPPr().setTextAlignment(alignment);
+			if (paragraph.getParent() instanceof Tc) {
+				if (paragraph.getPPr().getJc() == null)
+					paragraph.getPPr().setJc(factory.createJc());
+				paragraph.getPPr().getJc().setVal(JcEnumeration.fromValue(alignment.getVal()));
+			} else
+				paragraph.getPPr().setTextAlignment(alignment);
 		}
 		paragraph.getContent().removeIf(r -> r instanceof R);
 		R r = factory.createR();
@@ -913,7 +968,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private void generateAssets() throws XPathBinderAssociationIsPartialException, JAXBException {
 		generateAssets("Asset", analysis.findSelectedAssets());
-		generateAssets("AssetNoSelected", analysis.findNoAssetSelected());
+		generateAssets("AssetNotSelected", analysis.findNoAssetSelected());
 	}
 
 	private void generateGraphics() throws Exception {
@@ -954,8 +1009,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						alignment);
 				addCellParagraph((Tc) row.getContent().get(1), iteminfo.getValue());
 			}
-
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 	}
 
@@ -1028,7 +1082,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
 							setColor((Tc) row.getContent().get(i), color);
-						//MergeCell(row, 1, 14, color);
+						MergeCell(row, 1, 14, color);
 					} else {
 						setCellText((Tc) row.getContent().get(2), getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 						addCellNumber((Tc) row.getContent().get(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
@@ -1083,7 +1137,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				setCellText((Tc) row.getContent().get(1), scenario.getName(), alignment);
 				addCellParagraph((Tc) row.getContent().get(2), scenario.getDescription());
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 	}
 
@@ -1156,7 +1210,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						addCellParagraph((Tc) row.getContent().get(4), riskinfo.getComment());
 					}
 				}
-				document.getContent().add(document.getContent().indexOf(paragraph), table);
+				insertBofore(paragraph, table);
 			}
 		}
 	}

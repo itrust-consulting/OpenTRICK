@@ -43,7 +43,7 @@ public class Docx4jAssessmentFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 1947, 370, 267, 876, 601, 2851 } : new int[] { 1947, 370, 267, 876, 601, 2851 });
+		int[] cols = (type.isQualitative() ? new int[] { 3947, 370, 419, 455, 432, 2851 } : new int[] { 1947, 370, 267, 876, 601, 2851 });
 		table.getTblPr().getTblW().setType("auto");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
 		for (int i = 0; i < cols.length; i++)

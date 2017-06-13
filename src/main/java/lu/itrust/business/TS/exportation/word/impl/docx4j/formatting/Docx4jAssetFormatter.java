@@ -42,7 +42,7 @@ public class Docx4jAssetFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 272, 865, 964, 857, 731, 865 } : new int[] { 272, 865, 964, 857, 731, 865 });
+		int[] cols = (type.isQualitative() ? new int[] { 272, 865, 453, 920, 1143} : new int[] { 272, 865, 964, 857, 731, 865 });
 		table.getTblPr().getTblW().setType("auto");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
 		for (int i = 0; i < cols.length; i++)

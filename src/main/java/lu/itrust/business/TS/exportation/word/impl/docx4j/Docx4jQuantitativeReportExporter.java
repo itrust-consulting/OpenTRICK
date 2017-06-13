@@ -113,7 +113,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(11), entry.getMeasure().getPhase().getNumber() + "");
 				addCellNumber((Tc) row.getContent().get(12), entry.getMeasure().getResponsible());
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 
 	}
@@ -379,7 +379,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
-		document.getContent().add(document.getContent().indexOf(paragraph), table);
+		insertBofore(paragraph, table);
 	}
 
 	@Override
@@ -401,6 +401,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			totalale += assessment.getALE();
 
 		if (paragraphOrigin != null && assessments.size() > 0) {
+
+			List<Object> contents = new LinkedList<>();
+
 			Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
 			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
 			AssessmentAndRiskProfileManager.SplitAssessment(assessments, alesmap, assessementsmap);
@@ -414,19 +417,25 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			setText(paragraph, getMessage("report.assessment.total_ale.assets", null, "Total ALE for all assets", locale));
 			addTab(paragraph);
 			addText(paragraph, String.format("%s k€", kEuroFormat.format(totalale * 0.001)));
-			document.getContent().add(document.getContent().indexOf(paragraphOrigin), paragraph);
+			
+			contents.add(paragraph);
+			
 			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
 			for (ALE ale : ales) {
 				paragraph = factory.createP();
 				setText(paragraph, ale.getAssetName());
 				setStyle(paragraph, "TSEstimationTitle");
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), paragraph);
+
+				contents.add(paragraph);
+
 				paragraph = factory.createP();
 				setText(paragraph, getMessage("report.assessment.total.ale.for.asset", null, "Total ALE of asset", locale));
 				addTab(paragraph);
 				setText(paragraph, String.format("%s k€", kEuroFormat.format(ale.getValue() * 0.001)), true);
 				setStyle(paragraph, "TSAssessmentTotalALE");
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), paragraph);
+
+				contents.add(paragraph);
+
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				Tbl table = createTable("TableTSAssessment", assessmentsofasset.size() + 1, 6);
 				Tr row = (Tr) table.getContent().get(0);
@@ -450,12 +459,15 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					addCellParagraph((Tc) row.getContent().get(4), assessment.getOwner());
 					addCellParagraph((Tc) row.getContent().get(5), assessment.getComment());
 				}
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), table);
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), addTableCaption(getMessage("report.assessment.table.caption",
-						new Object[] { ale.getAssetName() }, String.format("Risk estimation for the asset %s", ale.getAssetName()), locale)));
+				
+				contents.add(table);
+				contents.add(addTableCaption(getMessage("report.assessment.table.caption", new Object[] { ale.getAssetName() },
+						String.format("Risk estimation for the asset %s", ale.getAssetName()), locale)));
 			}
+			insertAllAfter(paragraphOrigin, contents);
 			assessementsmap.clear();
 			ales.clear();
+			contents.clear();
 		}
 
 	}
@@ -488,7 +500,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(4), kEuroFormat.format(asset.getALE() * 0.001));
 				addCellParagraph((Tc) row.getContent().get(5), asset.getComment());
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 	}
 
@@ -574,7 +586,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 		if (paragraph != null && parameters.size() > 0) {
 			P title = setText(setStyle(factory.createP(), "TSEstimationTitle"), getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
-			document.getContent().add(document.getContent().indexOf(paragraph), title);
+			insertBofore(paragraph, title);
 			Tbl table = createTable("TableTS" + parmetertype, parameters.size() + 1, 6);
 			Tr row = (Tr) table.getContent().get(0);
 			for (int i = 1; i < 6; i++)
@@ -621,10 +633,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				}
 				for (int i = 4; i < 6; i++)
 					setColor((Tc) row.getContent().get(i), SUB_HEADER_COLOR);
-				;
 				countrow++;
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 	}
 

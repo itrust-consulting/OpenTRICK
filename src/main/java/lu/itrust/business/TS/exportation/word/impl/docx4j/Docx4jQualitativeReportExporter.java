@@ -6,6 +6,7 @@ package lu.itrust.business.TS.exportation.word.impl.docx4j;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -83,6 +84,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 			Tbl table = createTable("TableTSActionPlan", actionplan.size() + 1, 11);
+			TextAlignment alignment = createAlignment("left");
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Tr row = (Tr) table.getContent().get(0);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
@@ -97,6 +99,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			setCellText((Tc) row.getContent().get(9), getMessage("report.measure.phase", null, "P", locale));
 			setCellText((Tc) row.getContent().get(10), getMessage("report.measure.responsable", null, "Resp.", locale));
 			setRepeatHeader(row);
+
 			int nr = 1;
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
@@ -112,6 +115,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 					r.getRPr().setB(factory.createBooleanDefaultTrue());
 				});
 				addCellParagraph((Tc) row.getContent().get(3), entry.getMeasure().getToDo(), true);
+				setAlignment((Tc) row.getContent().get(3), alignment);
 				addCellNumber((Tc) row.getContent().get(4), numberFormat.format(entry.getRiskCount()));
 				addCellNumber((Tc) row.getContent().get(5), numberFormat.format(entry.getMeasure().getCost() * 0.001));
 				numberFormat.setMaximumFractionDigits(1);
@@ -122,7 +126,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(9), entry.getMeasure().getPhase().getNumber() + "");
 				addCellNumber((Tc) row.getContent().get(10), entry.getMeasure().getResponsible());
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 
 	}
@@ -348,7 +352,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
-		document.getContent().add(document.getContent().indexOf(paragraph), table);
+		insertBofore(paragraph, table);
 
 	}
 
@@ -365,6 +369,9 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
 			List<ScaleType> scaleTypes = analysis.getImpacts();
+
+			List<Object> contents = new LinkedList<>();
+
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			int colLength = 4 + scaleTypes.size(), colIndex = 0, rawLength = 0;
 			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
@@ -372,16 +379,23 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				P paragraph = factory.createP();
 				setText(paragraph, asset.getName());
 				setStyle(paragraph, "TSEstimationTitle");
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), paragraph);
+
+				contents.add(paragraph);
+
 				List<Assessment> assessments = assessementsByAsset.get(asset);
 				Tbl table = createTable("TableTSAssessment", assessments.size() + 1, colLength);
+
 				Tr row = (Tr) table.getContent().get(rawLength = 0);
+
 				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale), alignmentLeft);
+
 				for (ScaleType scaleType : scaleTypes)
 					setCellText((Tc) row.getContent().get(colIndex++), scaleType.getShortName(languageAlpha2), alignmentCenter);
+
 				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), alignmentCenter);
 				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.owner", null, "Owner", locale));
 				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
+
 				for (Assessment assessment : assessments) {
 					row = (Tr) table.getContent().get(rawLength++);
 					colIndex = 0;
@@ -396,11 +410,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 					addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
 					addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getComment());
 				}
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), table);
-				document.getContent().add(document.getContent().indexOf(paragraphOrigin), addTableCaption(getMessage("report.assessment.table.caption",
-						new Object[] { asset.getName() }, String.format("Risk estimation for the asset %s", asset.getName()), locale)));
+				contents.add(table);
+				contents.add(addTableCaption(getMessage("report.assessment.table.caption", new Object[] { asset.getName() },
+						String.format("Risk estimation for the asset %s", asset.getName()), locale)));
 				colIndex = 0;
 			}
+			insertAllAfter(paragraphOrigin, contents);
 			assessementsByAsset.clear();
 		}
 
@@ -438,7 +453,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(asset.getValue() * 0.001));
 				addCellParagraph((Tc) row.getContent().get(4), asset.getComment());
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 	}
 
@@ -477,7 +492,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	private void generateImpactList(Set<ScaleType> impacts) throws XPathBinderAssociationIsPartialException, JAXBException {
-		P paragraph = findTableAnchor("impact_list");
+		P paragraph = findTableAnchor("ImpactList");
 		if (paragraph == null || impacts.isEmpty())
 			return;
 		boolean isFirst = true;
@@ -492,7 +507,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			} else
 				contents.add(setText(setStyle(factory.createP(), style), scaleType.getTranslate(languageAlpha2)));
 		}
-		document.getContent().addAll(document.getContent().indexOf(paragraph) + 1, contents);
+		insertAllAfter(paragraph, contents);
 	}
 
 	private void buildImpactProbabilityTable(P paragraph, String title, String type, List<? extends IBoundedParameter> parameters) {
@@ -515,7 +530,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			setCellText((Tc) row.getContent().get(1), parameter.getLabel());
 			setCellText((Tc) row.getContent().get(2), parameter.getDescription());
 		}
-		document.getContent().add(document.getContent().indexOf(paragraph), table);
+		insertBofore(paragraph, table);
 	}
 
 	/*
@@ -598,7 +613,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	private void generateRiskAcceptance() throws XPathBinderAssociationIsPartialException, JAXBException {
-		P paragraph = findTableAnchor("risk_acceptance");
+		P paragraph = findTableAnchor("RiskAcceptance");
 		if (paragraph != null) {
 			Tbl table = createTable("TableTSRiskAcceptance", analysis.getRiskAcceptanceParameters().size() + 1, 2);
 			setCurrentParagraphId(TS_TAB_TEXT_2);
@@ -620,16 +635,14 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				if (!parameter.getColor().isEmpty())
 					setColor(cell, parameter.getColor().substring(1));
 			}
-			document.getContent().add(document.getContent().indexOf(paragraph), table);
+			insertBofore(paragraph, table);
 		}
 	}
 
-	
-
 	private void generateRiskHeatMap() throws XPathBinderAssociationIsPartialException, JAXBException {
 		Chart chart = ChartGenerator.generateRiskHeatMap(analysis, valueFactory);
-		generateRiskHeatMap(chart, "<risk-heat-map-summary>");
-		generateRiskHeatMap(chart, "<risk-heat-map>");
+		generateRiskHeatMap(chart, "RiskHeatMapSummary");
+		generateRiskHeatMap(chart, "RiskHeatMap");
 		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
 		colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
@@ -667,7 +680,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			TextAlignment alignmentCenter = createAlignment("center");
 			CTVerticalJc verticalJc = createVerticalAlignment(STVerticalJc.CENTER);
 			setAlignment(paragraph, alignmentCenter);
-			document.getContent().add(document.getContent().indexOf(paragraphOriginal), paragraph);
+			insertBofore(paragraphOriginal, paragraph);
 			Tbl table = createTable("TableTSRiskHeatMap", chart.getLabels().size() + 2, chart.getLabels().size() + 2);
 			// set header
 			Tr row = (Tr) table.getContent().get(0);
@@ -700,9 +713,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 			row = (Tr) table.getContent().get(rowIndex);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
-			document.getContent().add(document.getContent().indexOf(paragraphOriginal), table);
+			insertBofore(paragraphOriginal, table);
 		}
-		
 
 	}
 
@@ -733,8 +745,6 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			}
 		}
 	}
-
-	
 
 	private void clearColorBoundCount() {
 		colorBounds.parallelStream().forEach(color -> color.setCount(0));
