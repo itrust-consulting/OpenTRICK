@@ -25,7 +25,6 @@ import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
-import org.docx4j.wml.STShd;
 import org.docx4j.wml.STVerticalJc;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
@@ -383,9 +382,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				contents.add(paragraph);
 
 				List<Assessment> assessments = assessementsByAsset.get(asset);
+
 				Tbl table = createTable("TableTSAssessment", assessments.size() + 1, colLength);
 
 				Tr row = (Tr) table.getContent().get(rawLength = 0);
+
+				setRepeatHeader(row);
 
 				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale), alignmentLeft);
 
@@ -397,9 +399,9 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
 
 				for (Assessment assessment : assessments) {
-					row = (Tr) table.getContent().get(rawLength++);
+					row = (Tr) table.getContent().get(++rawLength);
 					colIndex = 0;
-					setCellText((Tc) row.getContent().get(colIndex++), assessment.getScenario().getName());
+					setCellText((Tc) row.getContent().get(colIndex++), assessment.getScenario().getName(), alignmentLeft);
 					for (ScaleType scaleType : scaleTypes) {
 						IValue impact = assessment.getImpact(scaleType.getName());
 						setCellText((Tc) row.getContent().get(colIndex++),
@@ -471,11 +473,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Proba";
 
-		P paragraph = findTableAnchor("<" + parmetertype + ">");
+		P paragraph = findTableAnchor(parmetertype);
 		if (paragraph != null) {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
+			List<Object> contents = new LinkedList<>();
 			if (parmetertype == "Proba")
-				buildImpactProbabilityTable(paragraph, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
+				buildImpactProbabilityTable(contents, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
 						analysis.getLikelihoodParameters());
 			else {
 				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().filter(parameter -> !parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))
@@ -483,10 +486,10 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				generateImpactList(impacts.keySet());
 				for (ScaleType scaleType : impacts.keySet()) {
 					Translation title = scaleType.get(languuage);
-					buildImpactProbabilityTable(paragraph, title == null ? scaleType.getDisplayName() : title.getName(), parmetertype, impacts.get(scaleType));
+					buildImpactProbabilityTable(contents, title == null ? scaleType.getDisplayName() : title.getName(), parmetertype, impacts.get(scaleType));
 				}
-
 			}
+			insertAllBefore(paragraph, contents);
 		}
 
 	}
@@ -507,15 +510,13 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			} else
 				contents.add(setText(setStyle(factory.createP(), style), scaleType.getTranslate(languageAlpha2)));
 		}
-		insertAllAfter(paragraph, contents);
+		insertAllBefore(paragraph, contents);
 	}
 
-	private void buildImpactProbabilityTable(P paragraph, String title, String type, List<? extends IBoundedParameter> parameters) {
-		P titleParagraph = setText(setStyle(factory.createP(), "TSEstimationTitle"), title);
-		document.getContent().add(document.getContent().indexOf(paragraph) + 1, titleParagraph);
+	private void buildImpactProbabilityTable(List<Object> contents, String title, String type, List<? extends IBoundedParameter> parameters) {
+		contents.add(setText(setStyle(factory.createP(), "TSEstimationTitle"), title));
 		Tbl table = createTable("TableTS" + type, parameters.size() + 1, 3);
 		setCurrentParagraphId(TS_TAB_TEXT_2);
-		// set header
 		Tr row = (Tr) table.getContent().get(0);
 		for (int i = 1; i < 3; i++)
 			setColor((Tc) row.getContent().get(i), HEADER_COLOR);
@@ -530,7 +531,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			setCellText((Tc) row.getContent().get(1), parameter.getLabel());
 			setCellText((Tc) row.getContent().get(2), parameter.getDescription());
 		}
-		insertBofore(paragraph, table);
+		contents.add(table);
 	}
 
 	/*
@@ -661,26 +662,20 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	private void generateRiskHeatMap(Chart chart, String anchor) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraphOriginal = findTableAnchor(anchor);
 		if (paragraphOriginal != null) {
-			P paragraph = setStyle(factory.createP(), "BodyOfText");
-			int index[] = { chart.getLegends().size() };
-			chart.getLegends().forEach(legend -> {
-				R run = setText(factory.createR(), legend.getLabel());
-				if (run.getRPr() == null)
-					run.setRPr(factory.createRPr());
-				if (run.getRPr().getShd() == null)
-					run.getRPr().setShd(factory.createCTShd());
-				run.getRPr().getShd().setColor("auto");
-				run.getRPr().getShd().setVal(STShd.CLEAR);
-				run.getRPr().getShd().setFill(legend.getColor().substring(1));
-				if (--index[0] > 0) {
-					addTab(paragraph);
-					addTab(paragraph);
-				}
-			});
+			setCurrentParagraphId(TS_TAB_TEXT_2);
+			Tbl legends = createTable("TableTSHeatMapLegend", 1, chart.getLegends().size());
 			TextAlignment alignmentCenter = createAlignment("center");
+			Tr legendRow = (Tr) legends.getContent().get(0);
+			int index[] = { 0 };
+			chart.getLegends().forEach(legend -> {
+				Tc column = (Tc) legendRow.getContent().get(index[0]++);
+				setCellText(column, legend.getLabel(), alignmentCenter);
+				setColor(column, legend.getColor().substring(1));
+			});
+
 			CTVerticalJc verticalJc = createVerticalAlignment(STVerticalJc.CENTER);
-			setAlignment(paragraph, alignmentCenter);
-			insertBofore(paragraphOriginal, paragraph);
+			insertBofore(paragraphOriginal, legends);
+			insertBofore(paragraphOriginal, setStyle(factory.createP(), "Endlist"));
 			Tbl table = createTable("TableTSRiskHeatMap", chart.getLabels().size() + 2, chart.getLabels().size() + 2);
 			// set header
 			Tr row = (Tr) table.getContent().get(0);
@@ -688,6 +683,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			int rowIndex = 1;
 			for (int i = 0; i < chart.getDatasets().size(); i++) {
 				Dataset<List<String>> dataset = (Dataset<List<String>>) chart.getDatasets().get(i);
+				if (i > 0)
+					row = (Tr) table.getContent().get(rowIndex++);
 				Tc cell = (Tc) row.getContent().get(1);
 				setVerticalAlignment(cell, verticalJc);
 				setAlignment(addCellParagraph(cell, dataset.getLabel()), alignmentCenter);
@@ -710,9 +707,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				setAlignment(addCellParagraph(cell, chart.getLabels().get(i)), alignmentCenter);
 				setColor(cell, LIGHT_CELL_COLOR);
 			}
-
 			row = (Tr) table.getContent().get(rowIndex);
-			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_heat_map.title.probability", null, "Probability", locale));
+			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_heat_map.title.probability", null, "Probability", locale), alignmentCenter);
 			insertBofore(paragraphOriginal, table);
 		}
 

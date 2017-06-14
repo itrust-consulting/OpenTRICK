@@ -39,8 +39,6 @@ public class Docx4jSummaryFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		table.getTblPr().getTblW().setType("auto");
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
 		table.getTblGrid().getGridCol().get(0).setW(BigInteger.valueOf(3558));
 		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {
 			if (tc.getTcPr() == null)

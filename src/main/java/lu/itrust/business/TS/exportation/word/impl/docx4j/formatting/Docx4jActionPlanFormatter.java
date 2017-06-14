@@ -43,10 +43,8 @@ public class Docx4jActionPlanFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 360, 1111, 534, 3061, 585, 653, 480, 516, 547, 569, 517, 187, 508 }
-				: new int[] { 360, 1111, 534, 3061, 585, 653, 480, 516, 547, 569, 517, 187, 508 });
-		table.getTblPr().getTblW().setType("auto");
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
+		int[] cols = (type.isQualitative() ? new int[] { 187, 534, 734, 4061, 187, 500, 500, 500, 500, 187, 508 }
+				: new int[] { 187, 534, 734, 4061, 500, 653, 480, 500, 500, 500, 500, 187, 508 });
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {

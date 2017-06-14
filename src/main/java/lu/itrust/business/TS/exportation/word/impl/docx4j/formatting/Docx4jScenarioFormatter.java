@@ -44,8 +44,6 @@ public class Docx4jScenarioFormatter extends Docx4jFormatter {
 		if (!isSupported(table))
 			return false;
 		int[] cols = { 272, 3216, 6140 };
-		table.getTblPr().getTblW().setType("auto");
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {

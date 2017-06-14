@@ -16,14 +16,12 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
  * @author eomar
  *
  */
-public class Docx4jAssetFormatter extends Docx4jFormatter {
-	
-	
+public class Docx4jHeatMapLegendFormatter extends Docx4jFormatter {
 
 	/**
 	 * 
 	 */
-	public Docx4jAssetFormatter() {
+	public Docx4jHeatMapLegendFormatter() {
 		this(null);
 	}
 
@@ -31,20 +29,25 @@ public class Docx4jAssetFormatter extends Docx4jFormatter {
 	 * @param next
 	 * @param support
 	 */
-	public Docx4jAssetFormatter(Docx4jFormatter next) {
-		super(next, "TableTSAsset");
+	public Docx4jHeatMapLegendFormatter(Docx4jFormatter next) {
+		super(next, "TableTSHeatMapLegend");
+		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter#formatMe(org.docx4j.wml.Tbl)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.
+	 * Docx4jFormatter#formatMe(org.docx4j.wml.Tbl,
+	 * lu.itrust.business.TS.model.analysis.AnalysisType)
 	 */
 	@Override
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 272, 865, 453, 920, 1143} : new int[] { 272, 865, 964, 857, 731, 865 });
-		for (int i = 0; i < cols.length; i++)
-			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
+		int size = table.getTblGrid().getGridCol().size();
+		for (int i = 0; i < size; i++)
+			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(120));
 		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {
 			if (tc.getTcPr() == null)
 				tc.setTcPr(Context.getWmlObjectFactory().createTcPr());

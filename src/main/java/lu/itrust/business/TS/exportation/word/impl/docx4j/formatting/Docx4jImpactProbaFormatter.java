@@ -41,9 +41,7 @@ public class Docx4jImpactProbaFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] {493, 784, 6737, 746, 488, 380 } : new int[] {493, 784, 6737, 746, 488, 380});
-		table.getTblPr().getTblW().setType("auto");
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
+		int[] cols = (type.isQualitative() ? new int[] {626, 812, 6737} : new int[] {493, 784, 6737, 746, 488, 380});
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {

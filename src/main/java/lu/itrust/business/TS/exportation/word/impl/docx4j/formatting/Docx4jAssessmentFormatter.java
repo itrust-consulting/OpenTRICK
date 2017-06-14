@@ -43,9 +43,7 @@ public class Docx4jAssessmentFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 3947, 370, 419, 455, 432, 2851 } : new int[] { 1947, 370, 267, 876, 601, 2851 });
-		table.getTblPr().getTblW().setType("auto");
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
+		int[] cols = (type.isQualitative() ? createWith(table.getTblGrid().getGridCol().size()) : new int[] { 1947, 370, 267, 876, 601, 2851 });
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {
@@ -57,6 +55,17 @@ public class Docx4jAssessmentFormatter extends Docx4jFormatter {
 			tc.getTcPr().getTcW().setW(BigInteger.valueOf(0));
 		});
 		return true;
+	}
+
+	private int[] createWith(int size) {
+		int cols [] = new int [size];
+		cols[0] = 1947;
+		cols[size-3] = 370;
+		cols[size-2] = 601;
+		cols[size-1] = 4851;
+		for (int i = 1; i < (cols.length-3); i++)
+			cols[i] = 470;
+		return cols;
 	}
 
 }

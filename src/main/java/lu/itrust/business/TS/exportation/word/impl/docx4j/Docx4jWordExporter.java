@@ -69,8 +69,11 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jActio
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jAssessmentFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jAssetFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jHeatMapLegendFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jImpactProbaFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskAcceptanceFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskHeatMapFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskInformationFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScenarioFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScopeFormatter;
@@ -98,13 +101,13 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 
 public abstract class Docx4jWordExporter implements ExportReport {
 
+	private static volatile DocxFormatter docxFormatter = null;
+
 	protected Analysis analysis = null;
 
 	protected Document document = null;
 
 	protected ObjectFactory factory = null;
-
-	private static volatile DocxFormatter docxFormatter = null;
 
 	protected String idTask;
 
@@ -245,8 +248,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		wordMLPackage.save(workFile);
 
 	}
-
-	protected abstract AnalysisType getType();
 
 	/*
 	 * (non-Javadoc)
@@ -640,8 +641,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		table.getTblPr().getJc().setVal(JcEnumeration.CENTER);
 		if (table.getTblPr().getTblW() == null)
 			table.getTblPr().setTblW(factory.createTblWidth());
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
-		table.getTblPr().getTblW().setType("pct");
+		table.getTblPr().getTblW().setType("auto");
+		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
 		return table;
 	}
 
@@ -649,6 +650,10 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		CTVerticalJc ctVerticalJc = factory.createCTVerticalJc();
 		ctVerticalJc.setVal(alignment);
 		return ctVerticalJc;
+	}
+
+	protected int findIndex(Object reference) {
+		return document.getContent().indexOf(reference);
 	}
 
 	protected P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -664,50 +669,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		} catch (Exception e) {
 			return likelihood;
 		}
-	}
-
-	protected int findIndex(Object reference) {
-		return document.getContent().indexOf(reference);
-	}
-
-	protected boolean insertBofore(Object reference, Object element) {
-		int index = findIndex(reference);
-		if (index == -1)
-			return false;
-		document.getContent().add(index, element);
-		return true;
-	}
-
-	protected boolean insertAfter(Object reference, Object element) {
-		int index = findIndex(reference);
-		if (index == -1)
-			return false;
-		document.getContent().add(index + 1, element);
-		return true;
-	}
-
-	protected boolean replace(Object reference, Object element) {
-		int index = findIndex(reference);
-		if (index == -1)
-			return false;
-		document.getContent().set(index, element);
-		return true;
-	}
-
-	protected boolean insertAllBefore(Object reference, List<Object> elements) {
-		int index = findIndex(reference);
-		if (index == -1)
-			return false;
-		document.getContent().addAll(index, elements);
-		return true;
-	}
-
-	protected boolean insertAllAfter(Object reference, List<Object> elements) {
-		int index = findIndex(reference);
-		if (index == -1)
-			return false;
-		document.getContent().addAll(index + 1, elements);
-		return true;
 	}
 
 	protected abstract void generateActionPlan() throws Exception;
@@ -815,6 +776,48 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return style == null ? null : (TblPr) style.getTblPr();
 	}
 
+	protected abstract AnalysisType getType();
+
+	protected boolean insertAfter(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().add(index + 1, element);
+		return true;
+	}
+
+	protected boolean insertAllAfter(Object reference, List<Object> elements) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().addAll(index + 1, elements);
+		return true;
+	}
+
+	protected boolean insertAllBefore(Object reference, List<Object> elements) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().addAll(index, elements);
+		return true;
+	}
+
+	protected boolean insertBofore(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().add(index, element);
+		return true;
+	}
+
+	protected boolean replace(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().set(index, element);
+		return true;
+	}
+
 	protected P setAlignment(P paragraph, TextAlignment alignment) {
 		if (paragraph.getPPr() != null)
 			paragraph.setPPr(factory.createPPr());
@@ -842,14 +845,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		P paragraph = (P) cell.getContent().get(0);
 		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, getCurrentParagraphId()));
 		setText(paragraph, text, alignment);
-	}
-
-	protected void setColor(Tc tc, String color) {
-		if (tc.getTcPr() == null)
-			tc.setTcPr(factory.createTcPr());
-		if (tc.getTcPr().getShd() == null)
-			tc.getTcPr().setShd(factory.createCTShd());
-		tc.getTcPr().getShd().setFill(color);
 	}
 
 	protected R setInstrText(R r, String content) {
@@ -913,9 +908,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	}
 
-	protected R setText(R r, String message) {
+	protected R setText(R r, String value) {
 		Text text = factory.createText();
-		text.setValue(message);
+		text.setValue(value == null ? "" : value);
 		r.getContent().add(text);
 		return r;
 	}
@@ -1256,28 +1251,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 
-	public void MergeCell(Tr row, int begin, int size, String color) {
-		int length = begin + size;
-		for (int i = 0; i < length; i++) {
-			Tc cell = (Tc) row.getContent().get(i);
-			if (color != null)
-				setColor(cell, color);
-			if (i < begin)
-				continue;
-			else {
-				if (cell.getTcPr() == null)
-					cell.setTcPr(factory.createTcPr());
-				if (i == begin) {
-					cell.getTcPr().setHMerge(factory.createTcPrInnerHMerge());
-					cell.getTcPr().getHMerge().setVal("restart");
-				} else {
-					cell.getTcPr().setHMerge(factory.createTcPrInnerHMerge());
-					cell.getTcPr().getHMerge().setVal("continue");
-				}
-			}
-		}
-	}
-
 	/**
 	 * @return the docxFormatter
 	 */
@@ -1293,8 +1266,63 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return docxFormatter;
 	}
 
+	public static void MergeCell(Tr row, int begin, int size, String color) {
+		int length = begin + size;
+		for (int i = 0; i < length; i++) {
+			Tc cell = (Tc) row.getContent().get(i);
+			if (color != null)
+				setColor(cell, color);
+			if (i < begin)
+				continue;
+			else {
+				if (cell.getTcPr() == null)
+					cell.setTcPr(Context.getWmlObjectFactory().createTcPr());
+				if (i == begin) {
+					cell.getTcPr().setHMerge(Context.getWmlObjectFactory().createTcPrInnerHMerge());
+					cell.getTcPr().getHMerge().setVal("restart");
+				} else {
+					cell.getTcPr().setHMerge(Context.getWmlObjectFactory().createTcPrInnerHMerge());
+					cell.getTcPr().getHMerge().setVal("continue");
+				}
+			}
+		}
+	}
+
+	public static void setColor(Tc tc, String color) {
+		if (tc.getTcPr() == null)
+			tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
+		if (tc.getTcPr().getShd() == null)
+			tc.getTcPr().setShd(Context.getWmlObjectFactory().createCTShd());
+		tc.getTcPr().getShd().setFill(color);
+	}
+
+	public static void VerticalMergeCell(List<?> rows, int col, int begin, int size, String color) {
+		int length = begin + size;
+		for (int i = 0; i < length; i++) {
+			Tc cell = (Tc) ((Tr) rows.get(i)).getContent().get(col);
+			if (color != null)
+				setColor(cell, color);
+			if (i < begin)
+				continue;
+			else {
+				if (cell.getTcPr() == null)
+					cell.setTcPr(Context.getWmlObjectFactory().createTcPr());
+				if (i == begin) {
+					cell.getTcPr().setVMerge(Context.getWmlObjectFactory().createTcPrInnerVMerge());
+					cell.getTcPr().getVMerge().setVal("restart");
+				} else {
+					cell.getTcPr().setVMerge(Context.getWmlObjectFactory().createTcPrInnerVMerge());
+					cell.getTcPr().getVMerge().setVal("continue");
+				}
+			}
+		}
+	}
+
 	private static DocxFormatter buildFormatter() {
-		Docx4jFormatter docx4jFormatter = new Docx4jSummaryFormatter();
+		Docx4jFormatter docx4jFormatter = new Docx4jRiskAcceptanceFormatter();
+		docx4jFormatter = new Docx4jHeatMapLegendFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jRiskHeatMapFormatter(docx4jFormatter);
+		docx4jFormatter = new Docx4jSummaryFormatter(docx4jFormatter);
 		docx4jFormatter = new Docx4jScopeFormatter(docx4jFormatter);
 		docx4jFormatter = new Docx4jScenarioFormatter(docx4jFormatter);
 		docx4jFormatter = new Docx4jRiskInformationFormatter(docx4jFormatter);

@@ -39,7 +39,7 @@ public class Docx4jMeasureFormatter extends Docx4jFormatter {
 		if (!isSupported(table))
 			return false;
 		int[] headers = { 1017, 1975, 779, 636, 878, 910, 988, 675, 878, 878, 898, 758, 493, 779, 2254, 2254 },
-				cols = { 732, 2193, 438, 438, 438, 438, 438, 438, 438, 438, 438, 438, 219, 716, 6064, 6064 }, mergeCols = { 732, sum(1, 15, cols), 6064 };
+				cols = { 732, 2193, 238, 338, 338, 338, 338, 238, 338, 338, 338, 338, 219, 416, 6064, 6064 }, mergeCols = { 732, sum(1, 15, cols), 6064 };
 		table.getTblPr().getTblW().setType("dxa");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(16157));
 		for (int i = 0; i < headers.length; i++)
