@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.naming.directory.InvalidAttributesException;
 
@@ -31,7 +31,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
+import lu.itrust.business.TS.model.actionplan.summary.computation.impl.SummaryComputationQualitative;
 import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurrentInvestment;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
@@ -245,7 +245,8 @@ public class ActionPlanComputation {
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
 			// Reset previously computed action plans
-			// This is needed to assure that the action plan list is actually empty
+			// This is needed to assure that the action plan list is actually
+			// empty
 			analysis.setActionPlans(new ArrayList<ActionPlanEntry>(0));
 
 			if (analysis.isQuantitative())
@@ -254,7 +255,7 @@ public class ActionPlanComputation {
 				progress = qualitativeActionPlan();
 
 			// send feedback
-		
+
 			return null;
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -281,7 +282,7 @@ public class ActionPlanComputation {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 10));
 
-		Map<Integer, AnalysisStandard> tmpAnalysisStandards = new LinkedHashMap<>(), analysisStandards = new LinkedHashMap<>();
+		Map<Integer, AnalysisStandard> tmpAnalysisStandards = new LinkedHashMap<>();
 
 		Map<String, ActionPlanEntry> actionPlanEntries = new LinkedHashMap<>();
 		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
@@ -299,7 +300,8 @@ public class ActionPlanComputation {
 						else
 							continue;
 						analysisStandard.setId(measure.getAnalysisStandard().getId());
-						analysisStandards.put(measure.getAnalysisStandard().getId(), measure.getAnalysisStandard());
+						// analysisStandards.put(measure.getAnalysisStandard().getId(),
+						// measure.getAnalysisStandard());
 					}
 					analysisStandard.getMeasures().add(measure);
 					if (measure.getImplementationRateValue(factory) >= 100)
@@ -312,40 +314,16 @@ public class ActionPlanComputation {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.generation", "Generation action plan from risk profile", 60));
 
-		this.standards = tmpAnalysisStandards.values().stream().collect(Collectors.toList());
-
-		// N.B.: can append the newly computed action plan to the previous one
-		// since the action plans got reset at the very beginning of the computation (see calculateActionPlans()).
-		// Appending is even required, since in MIXED-style analyses, the quantitative AND qualitative action plans are computed!
-		Stream<ActionPlanEntry> prevActionPlans = analysis.getActionPlans().stream();
-		Stream<ActionPlanEntry> newActionPlans = actionPlanEntries.values().stream().sorted(qualitativeComparator()).map(actionPlan -> {
+		actionPlanEntries.values().stream().sorted(qualitativeComparator()).forEach(actionPlan -> {
 			actionPlan.setPosition(position[0]++);
 			actionPlan.setOrder((actionPlan.getPosition() + 1) + "");
-			return actionPlan;
+			analysis.getActionPlans().add(actionPlan);
 		});
-		analysis.setActionPlans(Stream.concat(prevActionPlans, newActionPlans).collect(Collectors.toList()));
 
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 70));
 
-		parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-
-		parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-
-		soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
-
-		generatePreImplementedMeasures();
-
-		computeSummary(actionPlanType.getActionPlanMode());
-
-		// Only use those analysis standards that the user selected 
-		for (SummaryStage s : analysis.getSummaries()) {
-			for (SummaryStandardConformance c : s.getConformances()) {
-				AnalysisStandard as = analysisStandards.get(c.getAnalysisStandard().getId());
-				if (as != null)
-					c.setAnalysisStandard(as);
-			}
-		}
+		new SummaryComputationQualitative(analysis, new LinkedList<>(tmpAnalysisStandards.values())).compute(ActionPlanMode.APQ);
 
 		return 95;
 	}
@@ -369,7 +347,7 @@ public class ActionPlanComputation {
 
 	protected int quantitativeActionPlan() throws Exception {
 
-		generatePreImplementedMeasures();
+		generateQuantitativePreImplementedMeasures();
 
 		// ***************************************************************
 		// * compute Action Plan - normal mode - Phase //
@@ -526,7 +504,7 @@ public class ActionPlanComputation {
 		return progress;
 	}
 
-	private void generatePreImplementedMeasures() {
+	private void generateQuantitativePreImplementedMeasures() {
 		this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 				if (measure.getImplementationRateValue(factory) >= 100)

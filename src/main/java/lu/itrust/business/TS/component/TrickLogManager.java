@@ -216,7 +216,7 @@ public class TrickLogManager {
 			if (e instanceof TrickException)
 				return Persist((TrickException) e);
 			printStream = new PrintStream(outStream = new ByteArrayOutputStream());
-			if(e.getCause()!=null)
+			if (e.getCause() != null)
 				e.getCause().printStackTrace(printStream);
 			e.printStackTrace(printStream);
 			String stackTrace = outStream.toString();
@@ -240,8 +240,13 @@ public class TrickLogManager {
 	}
 
 	public static boolean Persist(TrickException e) {
-		if (e == null)
-			return false;
-		return Persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
+		try {
+			if (e == null)
+				return false;
+			return Persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
+		} finally {
+			if (e != null && instance.logger.isDebugEnabled())
+				e.printStackTrace();
+		}
 	}
 }
