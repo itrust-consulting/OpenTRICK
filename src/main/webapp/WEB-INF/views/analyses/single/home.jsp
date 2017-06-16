@@ -100,7 +100,6 @@
 					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}};
 					resolveMessage("label.title.impact", "<spring:message code='label.title.impact' />");
 					resolveMessage("label.title.likelihood", "<spring:message code='label.title.likelihood' />");
-					
 				-->
 			</script>
 		</c:if>
@@ -113,8 +112,8 @@
 		application['isLinkedToProject'] = ${isLinkedToProject};
 		application['hasMaturity'] = ${hasMaturity==true};
 		application['isDynamic']= ${type.quantitative && showDynamicAnalysis};
-		application['actionPlanType']  = "${type=='QUALITATIVE'? 'APQ' : show_uncertainty? 'APPO,APPN,APPP,APQ' : 'APPN,APQ'}".split(',');
-		application['complianceType']  = "${type=='QUALITATIVE'? 'APQ' : type == 'QUANTITATIVE'? 'APPN,APQ' : 'APPN,APQ'}".split(',');
+		application['actionPlanType']  = "${type=='QUALITATIVE'? 'APQ' : type == 'QUANTITATIVE'? show_uncertainty? 'APPO,APPN,APPP' : 'APPN' : show_uncertainty? 'APPO,APPN,APPP,APQ' : 'APPN,APQ'}".split(',');
+		application['complianceType']  = "${type=='QUALITATIVE'? 'APQ' : type == 'QUANTITATIVE'? 'APPN' : 'APPN,APQ'}".split(',');
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");
 		resolveMessage("info.leave.page.in_mode_editing", "<spring:message code='info.leave.page.in_mode_editing' />");

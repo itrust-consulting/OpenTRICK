@@ -31,9 +31,7 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 public class SummaryComputationQualitative extends SummaryComputation {
 
 	private Map<String, AnalysisStandard> analysisStandards;
-
-	private Map<String, Boolean> selectedMeasures;
-
+	
 	/**
 	 * 
 	 */
@@ -61,8 +59,8 @@ public class SummaryComputationQualitative extends SummaryComputation {
 	}
 
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
-		setSelectedMeasures(
-				analysisStandards.stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).collect(Collectors.toMap(Measure::getKey, measure -> true)));
+		
+		Map<String, Boolean> selectedMeasures =		analysisStandards.stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).collect(Collectors.toMap(Measure::getKey, measure -> true));
 
 		getAnalysisStandards().values().stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
@@ -93,7 +91,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 		for (ActionPlanEntry actionPlanEntry : getActionPlans()) {
 			int measurePhase = actionPlanEntry.getMeasure().getPhase().getNumber();
-			if (measurePhase != phase) {
+			if (measurePhase > phase) {
 				for (int i = phase; i < measurePhase; i++) {
 					generateStage("Phase " + i, false, i);
 					resetCurrentData();
@@ -182,20 +180,23 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			for (Measure measure : analysisStandard.getMeasures()) {
 				double imprate = measure.getImplementationRateValue((ValueFactory) null);
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
 					if (isFirst && imprate >= Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
 						getCurrentValues().implementedCount++;
-					else if (helper.measures.contains(measure)) {
-						numerator += (1.0 - imprate * 0.01);
-						getCurrentValues().measureCount++;
-					}
-					denominator++;
-					if (imprate < getSoa() && measure instanceof NormalMeasure) {
-						if (measure.getPhase().getNumber() > number || !getSelectedMeasures().containsKey(measure.getKey()))
-							if (helper.standard.getStandard().is(Constant.STANDARD_27001))
-								getCurrentValues().notCompliantMeasure27001Count++;
-							else if (helper.standard.getStandard().is(Constant.STANDARD_27002))
-								getCurrentValues().notCompliantMeasure27002Count++;
+					else {
+						boolean isSelected = helper.measures.contains(measure);
+						if (isSelected){
+							numerator += (1.0 - imprate * 0.01);
+							getCurrentValues().measureCount++;
+						}
+						if (imprate < getSoa() && measure instanceof NormalMeasure) {
+							if (!isSelected || measure.getPhase().getNumber() > number)
+								if (helper.standard.getStandard().is(Constant.STANDARD_27001))
+									getCurrentValues().notCompliantMeasure27001Count++;
+								else if (helper.standard.getStandard().is(Constant.STANDARD_27002))
+									getCurrentValues().notCompliantMeasure27002Count++;
+						}
 					}
 
 				}
@@ -297,20 +298,4 @@ public class SummaryComputationQualitative extends SummaryComputation {
 	public void setAnalysisStandards(Map<String, AnalysisStandard> analysisStandards) {
 		this.analysisStandards = analysisStandards;
 	}
-
-	/**
-	 * @return the selectedMeasures
-	 */
-	public Map<String, Boolean> getSelectedMeasures() {
-		return selectedMeasures;
-	}
-
-	/**
-	 * @param selectedMeasures
-	 *            the selectedMeasures to set
-	 */
-	public void setSelectedMeasures(Map<String, Boolean> selectedMeasures) {
-		this.selectedMeasures = selectedMeasures;
-	}
-
 }

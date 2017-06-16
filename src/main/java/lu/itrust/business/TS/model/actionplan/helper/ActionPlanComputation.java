@@ -300,8 +300,6 @@ public class ActionPlanComputation {
 						else
 							continue;
 						analysisStandard.setId(measure.getAnalysisStandard().getId());
-						// analysisStandards.put(measure.getAnalysisStandard().getId(),
-						// measure.getAnalysisStandard());
 					}
 					analysisStandard.getMeasures().add(measure);
 					if (measure.getImplementationRateValue(factory) >= 100)
