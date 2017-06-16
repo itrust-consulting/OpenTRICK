@@ -6,8 +6,10 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +44,7 @@ import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.FldChar;
 import org.docx4j.wml.JcEnumeration;
+import org.docx4j.wml.Numbering;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
@@ -239,6 +242,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart", "Printing chart", increase(5)));// 70%
 
+		generatePhase();
+
 		generateGraphics();
 
 		updateProperties();
@@ -247,6 +252,38 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		wordMLPackage.save(workFile);
 
+	}
+
+	private void generatePhase() throws Docx4JException, JAXBException {
+		Numbering numbering = wordMLPackage.getMainDocumentPart().getNumberingDefinitionsPart().getContents();
+		BigInteger abstractNumId = numbering.getAbstractNum().parallelStream()
+				.filter(abstractNum -> !abstractNum.getLvl().isEmpty() && abstractNum.getLvl().get(0).getLvlText().getVal().startsWith("Phase"))
+				.map(abstractNum -> abstractNum.getAbstractNumId()).findAny().orElse(null);
+		if (abstractNumId == null)
+			return;
+		BigInteger numId = numbering.getNum().parallelStream().filter(num -> num.getAbstractNumId().getVal().equals(abstractNumId)).map(num -> num.getNumId()).findAny()
+				.orElse(null);
+		P paragraphOriginal = findTableAnchor("Phase");
+		if (paragraphOriginal == null)
+			return;
+		List<Object> contents = new LinkedList<>();
+		analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0).forEach(phase -> {
+			P paragraph = setStyle(factory.createP(), "ListParagraph");
+			Calendar begin = Calendar.getInstance(), end = Calendar.getInstance();
+			begin.setTime(phase.getBeginDate());
+			end.setTime(phase.getEndDate());
+			setText(paragraph,
+					getMessage("report.risk.treatment.plan.summary",
+							new Object[] { (begin.get(Calendar.MONTH) + 1) + "", begin.get(Calendar.YEAR) + "", (end.get(Calendar.MONTH) + 1) + "", end.get(Calendar.YEAR) + "" },
+							null, locale));
+			paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
+			paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
+			paragraph.getPPr().getNumPr().getNumId().setVal(numId);
+			paragraph.getPPr().getNumPr().setIlvl(factory.createPPrBaseNumPrIlvl());
+			paragraph.getPPr().getNumPr().getIlvl().setVal(BigInteger.valueOf(0));
+			contents.add(paragraph);
+		});
+		insertAllBefore(paragraphOriginal, contents);
 	}
 
 	/*
