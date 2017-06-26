@@ -619,15 +619,11 @@ public class ChartGenerator {
 		// Find the user names of all sources involved
 		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
 
+		/*
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter
-																						// returns
-																						// -1
-																						// in
-																						// case
-																						// of
-																						// a
-																						// failure
+		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
+		*/
+		final double minimumProbability = 0.0;
 
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();
@@ -658,7 +654,7 @@ public class ChartGenerator {
 		for (String parameterName : data.keySet()) {
 			Dataset<String> dataset = new Dataset<String>(parameterName, getColor(chart.getDatasets().size()));
 			for (long timeEnd : xAxisValues)
-				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, 0.0));
+				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, minimumProbability));
 			chart.getDatasets().add(dataset);
 		}
 		chart.setYTitle(messageSource.getMessage("label.parameter.value", null, "Value", locale));

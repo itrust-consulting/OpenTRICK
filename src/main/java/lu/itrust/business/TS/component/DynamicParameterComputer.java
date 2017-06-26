@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -104,7 +103,10 @@ public class DynamicParameterComputer {
 				analysis.getIdentifier(), analysis.getVersion());
 
 		// Get parameters
+		/*
 		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
+		*/
+		final double minimumProbability = 0.0;
 
 		/**
 		 * The maximum timestamp for all notifications to consider. Points to
