@@ -94,11 +94,14 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		User user = getSession().createQuery("FROM User as user where user.login = :username", User.class).setParameter("username", username).uniqueResultOptional().orElse(null);
 		Boolean isProfile = getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id", Boolean.class).setParameter("id", idAnalysis)
 				.uniqueResultOptional().orElse(false);
-		if (data == null && isProfile) {
-			if (user.isAutorised(RoleType.ROLE_CONSULTANT))
-				data = new Object[] { AnalysisRight.ALL, false };
-			else
-				data = new Object[] { AnalysisRight.READ, false };
+		if (data == null) {
+			if (isProfile) {
+				if (user.isAutorised(RoleType.ROLE_CONSULTANT))
+					data = new Object[] { AnalysisRight.ALL, false };
+				else
+					data = new Object[] { AnalysisRight.READ, false };
+			} else
+				return false;
 		}
 		return isAuthorised((AnalysisRight) data[0], right, (Boolean) data[1]);
 	}
@@ -291,9 +294,10 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	private Boolean canDeleteProfile(Integer idAnalysis, String username) {
 		return getSession().createQuery("select count(*) > 0 From User user inner join user.roles role where user.login = :username and role.type in (:roles)", Boolean.class)
 				.setParameter("username", username).setParameterList("roles", RoleType.GreaterRoles(RoleType.ROLE_CONSULTANT)).getSingleResult()
-				&& getSession().createQuery(
-						"select count(*) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.profile = true and  analysis.defaultProfile = false",
-						Boolean.class).setParameter("idAnalysis", idAnalysis).getSingleResult();
+				&& getSession()
+						.createQuery("select count(*) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.profile = true and  analysis.defaultProfile = false",
+								Boolean.class)
+						.setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 	@Override

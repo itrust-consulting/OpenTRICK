@@ -230,7 +230,7 @@ public class ControllerAnalysis {
 		session.removeAttribute(OPEN_MODE);
 		session.removeAttribute(SELECTED_ANALYSIS);
 		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
-		return LoadUserAnalyses(session, principal, model);
+		return LoadUserAnalyses(session, principal, model, null);
 	}
 
 	/**
@@ -801,7 +801,7 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		return LoadUserAnalyses(request.getSession(), principal, model);
+		return LoadUserAnalyses(request.getSession(), principal, model, null);
 	}
 
 	// *****************************************************************
@@ -825,25 +825,13 @@ public class ControllerAnalysis {
 			name = "ALL";
 		session.setAttribute(CURRENT_CUSTOMER, idCustomer);
 		session.setAttribute(FILTER_ANALYSIS_NAME, name);
-		List<String> names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), idCustomer);
-		if (name.equalsIgnoreCase("ALL") || !names.contains(name))
-			model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), idCustomer));
-		else
-			model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), idCustomer, name));
-		model.addAttribute("analysisSelectedName", name);
-		model.addAttribute("customer", idCustomer);
-		model.addAttribute("names", names);
-		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		model.addAttribute("login", principal.getName());
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return "redirect:/Logout";
-		loadUserSettings(principal, model, user);
+			throw new AccessDeniedException("Access denied");
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
-
-		return "analyses/all/home";
+		return LoadUserAnalyses(session, principal, model, user);
 	}
 
 	/**
@@ -913,7 +901,6 @@ public class ControllerAnalysis {
 				model.addAttribute("hasMaturity", hasMaturity);
 			}
 
-			
 			if (!analysis.isProfile()) {
 				Map<String, List<RiskInformation>> riskInformations = RiskInformationManager.Split(analysis.getRiskInformations());
 				if (!riskInformations.containsKey(Constant.RI_TYPE_RISK))
@@ -924,7 +911,7 @@ public class ControllerAnalysis {
 					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
-			
+
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
@@ -1222,12 +1209,11 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model) throws Exception {
+	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
 		List<String> names = null;
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
-		User user = null;
 		if (customer == null || nameFilter == null) {
 			user = serviceUser.get(principal.getName());
 			if (user == null)
