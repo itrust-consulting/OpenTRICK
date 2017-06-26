@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -123,12 +125,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
-
-		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
-
-		// initialise table with 1 row and 1 column after the paragraph
-		// cursor
-
+		List<SummaryStage> summary = getSummaryStage();
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 		Tbl table = createTable("TableTSSummary", 30, summary.size() + 1);
 
@@ -383,7 +380,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void generateAssessements() throws XPathBinderAssociationIsPartialException, JAXBException {
+	protected void generateAssessements() throws Exception {
 
 		P paragraphOrigin = findTableAnchor("Assessment");
 
@@ -391,14 +388,24 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 		Collections.sort(assessments, new AssessmentComparator());
 
+		Map<String, Double> aleByAssetTypes = new LinkedHashMap<>();
+
 		DecimalFormat assessmentFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 		assessmentFormat.setMinimumFractionDigits(1);
 		assessmentFormat.setMaximumFractionDigits(1);
 
 		double totalale = 0;
 
-		for (Assessment assessment : assessments)
+		for (Assessment assessment : assessments) {
 			totalale += assessment.getALE();
+			String assetType = assessment.getAsset().getAssetType().getName().toUpperCase();
+			aleByAssetTypes.put(assetType, aleByAssetTypes.getOrDefault(assetType, 0D) + assessment.getALE());
+		}
+
+		for (Entry<String, Double> entry : aleByAssetTypes.entrySet())
+			setCustomProperty(entry.getKey() + "_Rsk", entry.getValue() * 0.001);
+
+		setCustomProperty("TOTAL_ALE_VALUE", totalale * 0.001);
 
 		if (paragraphOrigin != null && assessments.size() > 0) {
 
@@ -417,9 +424,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			setText(paragraph, getMessage("report.assessment.total_ale.assets", null, "Total ALE for all assets", locale));
 			addTab(paragraph);
 			addText(paragraph, String.format("%s k€", kEuroFormat.format(totalale * 0.001)));
-			
+
 			contents.add(paragraph);
-			
+
 			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
 			for (ALE ale : ales) {
 				paragraph = factory.createP();
@@ -459,7 +466,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					addCellParagraph((Tc) row.getContent().get(4), assessment.getOwner());
 					addCellParagraph((Tc) row.getContent().get(5), assessment.getComment());
 				}
-				
+
 				contents.add(table);
 				contents.add(addTableCaption(getMessage("report.assessment.table.caption", new Object[] { ale.getAssetName() },
 						String.format("Risk estimation for the asset %s", ale.getAssetName()), locale)));
@@ -640,7 +647,15 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void generateOtherData() {
+	protected void generateOtherData() throws Exception {
+		Map<String, Double> assetTypeValues = analysis.findSelectedAssets().stream()
+				.collect(Collectors.groupingBy(asset -> asset.getAssetType().getName(), Collectors.summingDouble(Asset::getValue)));
+		double assetTotalValue = 0;
+		for (Entry<String, Double> entry : assetTypeValues.entrySet()) {
+			assetTotalValue += entry.getValue();
+			setCustomProperty(entry.getKey().toUpperCase() + "_Val", entry.getValue() * 0.001);
+		}
+		setCustomProperty("TOTAL_ASSET_VAL", assetTotalValue * 0.001);
 	}
 
 	@Override
@@ -896,6 +911,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	@Override
 	protected AnalysisType getType() {
 		return AnalysisType.QUANTITATIVE;
+	}
+
+	@Override
+	protected List<SummaryStage> getSummaryStage() {
+
+		return analysis.getSummary(ActionPlanMode.APPN);
 	}
 
 }

@@ -141,7 +141,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
-		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APQ);
+		List<SummaryStage> summary = getSummaryStage();
 		// initialise table with 1 row and 1 column after the paragraph
 		// cursor
 		Tbl table = createTable("TableTSSummary", 24, summary.size() + 1);
@@ -749,6 +749,11 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	@Override
 	protected AnalysisType getType() {
 		return AnalysisType.QUALITATIVE;
+	}
+
+	@Override
+	protected List<SummaryStage> getSummaryStage() {
+		return analysis.getSummary(ActionPlanMode.APQ);
 	}
 
 }

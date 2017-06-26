@@ -35,6 +35,7 @@ import org.docx4j.openpackaging.contenttype.ContentTypeManager;
 import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.DocPropsCustomPart;
 import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
@@ -83,6 +84,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScope
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jSummaryFormatter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -267,24 +269,32 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		if (paragraphOriginal == null)
 			return;
 		List<Object> contents = new LinkedList<>();
-		analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0).forEach(phase -> {
-			P paragraph = setStyle(factory.createP(), "ListParagraph");
-			Calendar begin = Calendar.getInstance(), end = Calendar.getInstance();
-			begin.setTime(phase.getBeginDate());
-			end.setTime(phase.getEndDate());
-			setText(paragraph,
-					getMessage("report.risk.treatment.plan.summary",
-							new Object[] { (begin.get(Calendar.MONTH) + 1) + "", begin.get(Calendar.YEAR) + "", (end.get(Calendar.MONTH) + 1) + "", end.get(Calendar.YEAR) + "" },
-							null, locale));
-			paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
-			paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
-			paragraph.getPPr().getNumPr().getNumId().setVal(numId);
-			paragraph.getPPr().getNumPr().setIlvl(factory.createPPrBaseNumPrIlvl());
-			paragraph.getPPr().getNumPr().getIlvl().setVal(BigInteger.valueOf(0));
-			contents.add(paragraph);
-		});
+		List<SummaryStage> summaryStages = getSummaryStage();
+		setCustomProperty("PHASE_COUNT", summaryStages.size()-1);
+		analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0 && summaryStages.stream().anyMatch(stage -> stage.getStage().equals("Phase " + phase.getNumber())))
+				.forEach(phase -> {
+					SummaryStage summaryStage = summaryStages.stream().filter(stage -> stage.getStage().equals("Phase " + phase.getNumber())).findAny().orElse(null);
+					P paragraph = setStyle(factory.createP(), "ListParagraph");
+					Calendar begin = Calendar.getInstance(), end = Calendar.getInstance();
+					begin.setTime(phase.getBeginDate());
+					end.setTime(phase.getEndDate());
+					int monthBegin = begin.get(Calendar.MONTH) + 1, monthEnd = end.get(Calendar.MONTH) + 1;
+					setText(paragraph, getMessage("report.risk.treatment.plan.summary", new Object[] { (monthBegin < 10 ? "0" : "") + monthBegin, begin.get(Calendar.YEAR) + "",
+							(monthEnd < 10 ? "0" : "") + monthEnd, end.get(Calendar.YEAR) + "", summaryStage.getImplementedMeasuresCount() + "" }, null, locale));
+					paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
+					paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
+					paragraph.getPPr().getNumPr().getNumId().setVal(numId);
+					paragraph.getPPr().getNumPr().setIlvl(factory.createPPrBaseNumPrIlvl());
+					paragraph.getPPr().getNumPr().getIlvl().setVal(BigInteger.valueOf(0));
+					paragraph.getPPr().setInd(factory.createPPrBaseInd());
+					paragraph.getPPr().getInd().setHanging(BigInteger.valueOf(993));
+					paragraph.getPPr().getInd().setLeft(BigInteger.valueOf(993));
+					contents.add(paragraph);
+				});
 		insertAllBefore(paragraphOriginal, contents);
 	}
+
+	protected abstract List<SummaryStage> getSummaryStage();
 
 	/*
 	 * (non-Javadoc)
@@ -712,7 +722,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateActionPlanSummary() throws Exception;
 
-	protected abstract void generateAssessements() throws XPathBinderAssociationIsPartialException, JAXBException;
+	protected abstract void generateAssessements() throws Exception;
 
 	protected abstract void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException;
 
@@ -775,7 +785,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateExtendedParameters(String type) throws Exception;
 
-	protected abstract void generateOtherData() throws XPathBinderAssociationIsPartialException, JAXBException;
+	protected abstract void generateOtherData() throws XPathBinderAssociationIsPartialException, JAXBException, Exception;
 
 	protected XSSFCell getCell(XSSFRow row, int index, CellType cellType) {
 		XSSFCell cell = row.getCell(index);
@@ -996,6 +1006,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		Styles styles = this.wordMLPackage.getMainDocumentPart().getStyleDefinitionsPart().getContents();
 
 		this.styles = styles.getStyle().parallelStream().collect(Collectors.toMap(Style::getStyleId, Function.identity()));
+
+		if (wordMLPackage.getDocPropsCustomPart() == null)
+			wordMLPackage.addDocPropsCustomPart();
 	}
 
 	private void generateAssets() throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -1258,34 +1271,36 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	private void updateProperties() throws Docx4JException {
 		Optional<SimpleParameter> maxImplParameter = analysis.getSimpleParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD))
 				.findAny();
-		if (maxImplParameter.isPresent()) {
-			if (wordMLPackage.getDocPropsCustomPart() == null)
-				wordMLPackage.addDocPropsCustomPart();
-			Property soaThresholdProperty = wordMLPackage.getDocPropsCustomPart().getProperty(MAX_IMPL);
-			if (soaThresholdProperty == null)
-				wordMLPackage.getDocPropsCustomPart().setProperty(MAX_IMPL, maxImplParameter.get().getValue().intValue() + "");
-			else
-				soaThresholdProperty.setLpwstr(maxImplParameter.get().getValue().intValue() + "");
-		}
-
-		Property nonApplicable = wordMLPackage.getDocPropsCustomPart().getProperty(_27001_NA_MEASURES);
-		if (nonApplicable == null)
-			wordMLPackage.getDocPropsCustomPart().setProperty(_27001_NA_MEASURES, nonApplicableMeasure27001 + "");
-		else
-			nonApplicable.setLpwstr(String.valueOf(nonApplicableMeasure27001));
-
-		nonApplicable = wordMLPackage.getDocPropsCustomPart().getProperty(_27002_NA_MEASURES);
-
-		if (nonApplicable == null)
-			wordMLPackage.getDocPropsCustomPart().setProperty(_27002_NA_MEASURES, nonApplicableMeasure27002 + "");
-		else
-			nonApplicable.setLpwstr(String.valueOf(nonApplicableMeasure27002));
-
+		if (maxImplParameter.isPresent()) 
+			setCustomProperty(MAX_IMPL, maxImplParameter.get().getValue());
+		setCustomProperty(_27001_NA_MEASURES, nonApplicableMeasure27001);
+		setCustomProperty(_27002_NA_MEASURES, nonApplicableMeasure27002);
 		wordMLPackage.getDocPropsCorePart().getContents().setCategory(analysis.getCustomer().getOrganisation());
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
 				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
+	}
+
+	protected void setCustomProperty(String name, Object value) throws Docx4JException {
+		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
+		if (property == null) {
+			org.docx4j.docProps.custom.ObjectFactory factory = new org.docx4j.docProps.custom.ObjectFactory();
+			property = factory.createPropertiesProperty();
+			property.setName(name);
+			wordMLPackage.getDocPropsCustomPart();
+			property.setFmtid(DocPropsCustomPart.fmtidValLpwstr); // Magic
+																	// string
+			property.setPid(wordMLPackage.getDocPropsCustomPart().getNextPid());
+			wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
+		}
+
+		if (value instanceof Number)
+			property.setI4(((Number) value).intValue());
+		else if (value instanceof Boolean)
+			property.setBool((Boolean) value);
+		else
+			property.setLpwstr(value.toString());
 	}
 
 	/**
