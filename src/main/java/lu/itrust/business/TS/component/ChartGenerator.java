@@ -1280,6 +1280,10 @@ public class ChartGenerator {
 		}
 		return compliances;
 	}
+	
+	public static double ComputeCompliance(AnalysisStandard analysisStandard,ValueFactory factory){
+		 return ComputeComplianceBefore(analysisStandard.getMeasures(), factory).values().parallelStream().mapToDouble(compliance -> ((double)compliance[1]/(int)compliance[0])).average().orElse(0);
+	}
 
 	/**
 	 * Converts a time difference (in seconds) into a human-readable string.

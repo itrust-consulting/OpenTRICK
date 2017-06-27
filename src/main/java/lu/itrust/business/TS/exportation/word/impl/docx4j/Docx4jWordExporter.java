@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -94,7 +93,6 @@ import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -270,7 +268,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			return;
 		List<Object> contents = new LinkedList<>();
 		List<SummaryStage> summaryStages = getSummaryStage();
-		setCustomProperty("PHASE_COUNT", summaryStages.size()-1);
+		setCustomProperty("PHASE_COUNT", summaryStages.size() - 1);
 		analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0 && summaryStages.stream().anyMatch(stage -> stage.getStage().equals("Phase " + phase.getNumber())))
 				.forEach(phase -> {
 					SummaryStage summaryStage = summaryStages.stream().filter(stage -> stage.getStage().equals("Phase " + phase.getNumber())).findAny().orElse(null);
@@ -280,7 +278,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					end.setTime(phase.getEndDate());
 					int monthBegin = begin.get(Calendar.MONTH) + 1, monthEnd = end.get(Calendar.MONTH) + 1;
 					setText(paragraph, getMessage("report.risk.treatment.plan.summary", new Object[] { (monthBegin < 10 ? "0" : "") + monthBegin, begin.get(Calendar.YEAR) + "",
-							(monthEnd < 10 ? "0" : "") + monthEnd, end.get(Calendar.YEAR) + "", summaryStage.getImplementedMeasuresCount() + "" }, null, locale));
+							(monthEnd < 10 ? "0" : "") + monthEnd, end.get(Calendar.YEAR) + "", summaryStage.getMeasureCount() + "" }, null, locale));
 					paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
 					paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
 					paragraph.getPPr().getNumPr().getNumId().setVal(numId);
@@ -294,7 +292,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		insertAllBefore(paragraphOriginal, contents);
 	}
 
-	protected abstract List<SummaryStage> getSummaryStage();
+	protected List<SummaryStage> getSummaryStage() {
+		return analysis.getSummary(getActionPlanType());
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -757,7 +757,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 		}
 
-		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(ActionPlanMode.APPN);
+		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(getActionPlanType());
 
 		if (!actionPlanMeasures.isEmpty()) {
 			List<Phase> phases = analysis.findUsablePhase();
@@ -782,6 +782,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			}
 		}
 	}
+
+	protected abstract ActionPlanMode getActionPlanType();
 
 	protected abstract void generateExtendedParameters(String type) throws Exception;
 
@@ -1269,16 +1271,25 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void updateProperties() throws Docx4JException {
-		Optional<SimpleParameter> maxImplParameter = analysis.getSimpleParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD))
-				.findAny();
-		if (maxImplParameter.isPresent()) 
-			setCustomProperty(MAX_IMPL, maxImplParameter.get().getValue());
 		setCustomProperty(_27001_NA_MEASURES, nonApplicableMeasure27001);
 		setCustomProperty(_27002_NA_MEASURES, nonApplicableMeasure27002);
+		
+		setCustomProperty(MAX_IMPL, analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD))
+				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+		
+		setCustomProperty("EXTERNAL_WL_VAL", analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
+				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+		
+		setCustomProperty("INTERNAL_WL_VAL", analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
+				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+		
 		wordMLPackage.getDocPropsCorePart().getContents().setCategory(analysis.getCustomer().getOrganisation());
+		
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
+		
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
 				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
+		
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 

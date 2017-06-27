@@ -752,8 +752,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected List<SummaryStage> getSummaryStage() {
-		return analysis.getSummary(ActionPlanMode.APQ);
+	protected ActionPlanMode getActionPlanType() {
+		return ActionPlanMode.APQ;
 	}
 
 }

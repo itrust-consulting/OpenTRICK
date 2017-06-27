@@ -27,6 +27,7 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -72,6 +73,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
 		if (!(paragraph == null || actionplan.isEmpty())) {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
+			TextAlignment alignment = createAlignment("left");
 			Tbl table = createTable("TableTSActionPlan", actionplan.size() + 1, 13);
 			Tr row = (Tr) table.getContent().get(0);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
@@ -103,6 +105,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					r.getRPr().setB(factory.createBooleanDefaultTrue());
 				});
 				addCellParagraph((Tc) row.getContent().get(3), entry.getMeasure().getToDo(), true);
+				setAlignment((Tc) row.getContent().get(3), alignment);
 				addCellNumber((Tc) row.getContent().get(4), numberFormat.format(entry.getTotalALE() * 0.001));
 				addCellNumber((Tc) row.getContent().get(5), numberFormat.format(entry.getDeltaALE() * 0.001));
 				addCellNumber((Tc) row.getContent().get(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
@@ -376,7 +379,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
+		
 		insertBofore(paragraph, table);
+		
+		if(!summary.isEmpty()){
+			setCustomProperty("FINAL_ALE_VAL", summary.get(summary.size()-1).getTotalALE()*0.001);
+		}
 	}
 
 	@Override
@@ -405,7 +413,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		for (Entry<String, Double> entry : aleByAssetTypes.entrySet())
 			setCustomProperty(entry.getKey() + "_Rsk", entry.getValue() * 0.001);
 
-		setCustomProperty("TOTAL_ALE_VALUE", totalale * 0.001);
+		setCustomProperty("TOTAL_ALE_VAL", totalale * 0.001);
 
 		if (paragraphOrigin != null && assessments.size() > 0) {
 
@@ -655,7 +663,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			assetTotalValue += entry.getValue();
 			setCustomProperty(entry.getKey().toUpperCase() + "_Val", entry.getValue() * 0.001);
 		}
+		
 		setCustomProperty("TOTAL_ASSET_VAL", assetTotalValue * 0.001);
+		
+		Double compliance = analysis.getAnalysisStandards().stream().mapToDouble(analysisStandard -> ChartGenerator.ComputeCompliance(analysisStandard, valueFactory)).average().orElse(0);
+		
+		setCustomProperty("CURRENT_COMPLIANCE", compliance);
 	}
 
 	@Override
@@ -914,9 +927,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected List<SummaryStage> getSummaryStage() {
-
-		return analysis.getSummary(ActionPlanMode.APPN);
+	protected ActionPlanMode getActionPlanType() {
+		return ActionPlanMode.APPN;
 	}
 
 }
