@@ -25,6 +25,19 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.docx4j.dml.chart.CTAxDataSource;
+import org.docx4j.dml.chart.CTNumData;
+import org.docx4j.dml.chart.CTNumDataSource;
+import org.docx4j.dml.chart.CTNumRef;
+import org.docx4j.dml.chart.CTNumVal;
+import org.docx4j.dml.chart.CTRadarChart;
+import org.docx4j.dml.chart.CTRadarSer;
+import org.docx4j.dml.chart.CTSerTx;
+import org.docx4j.dml.chart.CTStrData;
+import org.docx4j.dml.chart.CTStrRef;
+import org.docx4j.dml.chart.CTStrVal;
+import org.docx4j.dml.chart.CTUnsignedInt;
+import org.docx4j.dml.chart.SerContent;
 import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
@@ -37,6 +50,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.DocPropsCustomPart;
 import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.DrawingML.Chart;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
@@ -726,7 +740,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	protected void generateComplianceGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
@@ -735,6 +749,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
 		if (measures == null)
 			return;
+		Chart chart = (Chart) wordMLPackage.getParts().get(reportExcelSheet.getPackagePart().getOwningRelationshipPart().getSourceP().getPartName());
+		CTRadarChart radarChart = (CTRadarChart) chart.getJaxbElement().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
+				.filter(web -> web instanceof CTRadarChart).findAny().orElse(null);
+		if (radarChart == null)
+			return;
+		radarChart.getSer().clear();
 		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, factory);
 		int rowCount = 0;
@@ -745,6 +765,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		xssfSheet.getRow(rowCount).createCell(1);
 		xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
 		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
+		CTRadarSer ser = createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, phaseLabel, new CTRadarSer());
+		ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
 		for (String key : compliances.keySet()) {
 			Object[] compliance = compliances.get(key);
 			if (xssfSheet.getRow(rowCount) == null)
@@ -753,9 +775,27 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				xssfSheet.getRow(rowCount).createCell(0);
 			if (xssfSheet.getRow(rowCount).getCell(1) == null)
 				xssfSheet.getRow(rowCount).createCell(1, CellType.NUMERIC);
+
+			double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
+
+			CTStrVal catName = new CTStrVal();
+			catName.setV(key);
+			catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
+			ser.getCat().getStrRef().getStrCache().getPt().add(catName);
+
+			CTNumVal numVal = new CTNumVal();
+			numVal.setV(value + "");
+			numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
+			ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
+
 			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(value);
 		}
+
+		ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+		ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+
+		radarChart.getSer().add(ser);
 
 		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(getActionPlanType());
 
@@ -763,24 +803,84 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			List<Phase> phases = analysis.findUsablePhase();
 			int columnIndex = 2;
 			for (Phase phase : phases) {
+				phaseLabel = getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale);
+				char col = (char) (((int) 'A') + columnIndex);
+				ser = createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
 				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, factory);
 				if (xssfSheet.getRow(rowCount = 0) == null)
 					xssfSheet.createRow(rowCount);
 				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
 					xssfSheet.getRow(rowCount).createCell(columnIndex);
-				xssfSheet.getRow(rowCount++).getCell(columnIndex)
-						.setCellValue(getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale));
+				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(phaseLabel);
+				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
 					if (xssfSheet.getRow(rowCount) == null)
 						xssfSheet.createRow(rowCount);
 					if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
 						xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
-					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
+
+					double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
+
+					CTNumVal numVal = new CTNumVal();
+					numVal.setV(value + "");
+					numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
+					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
+
+					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(value);
 				}
+
+				ser.getVal().getNumRef().setF(String.format("%s!$%s$2:$%s$%d", reportExcelSheet.getName(), col, col, ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+
+				radarChart.getSer().add(ser);
+
 				columnIndex++;
 			}
 		}
+	}
+
+	private <T extends SerContent> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel, T ser) {
+
+		setupTitle(reference, index, phaseLabel, ser);
+
+		ser.setCat(cat);
+
+		ser.setVal(new CTNumDataSource());
+
+		ser.getVal().setNumRef(new CTNumRef());
+
+		ser.getVal().getNumRef().setNumCache(new CTNumData());
+
+		return ser;
+	}
+
+	private <T extends SerContent> T createChart(String reference, long index, String phaseLabel, T ser) {
+
+		CTAxDataSource ctAxDataSource = new CTAxDataSource();
+
+		ctAxDataSource.setStrRef(new CTStrRef());
+
+		ctAxDataSource.getStrRef().setStrCache(new CTStrData());
+
+		return createChart(ctAxDataSource, reference, index, phaseLabel, ser);
+
+	}
+
+	private <T extends SerContent> void setupTitle(String reference, long index, String phaseLabel, T ser) {
+		ser.setOrder(new CTUnsignedInt());
+		ser.getOrder().setVal(index);
+		ser.setIdx(new CTUnsignedInt());
+		ser.getIdx().setVal(index);
+		ser.setTx(new CTSerTx());
+		ser.getTx().setStrRef(new CTStrRef());
+		ser.getTx().getStrRef().setStrCache(new CTStrData());
+		ser.getTx().getStrRef().setF(reference);
+		CTStrVal valTitle = new CTStrVal();
+		valTitle.setIdx(0);
+		valTitle.setV(phaseLabel);
+		ser.getTx().getStrRef().getStrCache().getPt().add(valTitle);
+		ser.getTx().getStrRef().getStrCache().setPtCount(new CTUnsignedInt());
+		ser.getTx().getStrRef().getStrCache().getPtCount().setVal(ser.getTx().getStrRef().getStrCache().getPt().size());
 	}
 
 	protected abstract ActionPlanMode getActionPlanType();
@@ -1273,23 +1373,23 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	private void updateProperties() throws Docx4JException {
 		setCustomProperty(_27001_NA_MEASURES, nonApplicableMeasure27001);
 		setCustomProperty(_27002_NA_MEASURES, nonApplicableMeasure27002);
-		
-		setCustomProperty(MAX_IMPL, analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD))
-				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
-		
+
+		setCustomProperty(MAX_IMPL,
+				analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+
 		setCustomProperty("EXTERNAL_WL_VAL", analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
 				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
-		
+
 		setCustomProperty("INTERNAL_WL_VAL", analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
 				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
-		
+
 		wordMLPackage.getDocPropsCorePart().getContents().setCategory(analysis.getCustomer().getOrganisation());
-		
+
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
-		
+
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
 				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
-		
+
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 
