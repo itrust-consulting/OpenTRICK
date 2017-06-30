@@ -545,14 +545,6 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	protected void writeChart(Docx4jExcelSheet reportExcelSheet) throws Exception {
 		try {
 			switch (reportExcelSheet.getName()) {
-			case "Compliance27001":
-			case "Compliance27002":
-				if (reportExcelSheet.getName().equalsIgnoreCase("Compliance27001"))
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27001", "Printing compliance 27001 excel sheet", increase(2)));// 72%
-				else
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27002", "Printing compliance 27002 excel sheet", increase(2)));// 74%
-				generateComplianceGraphic(reportExcelSheet);
-				break;
 			case "RiskByScenarioType":
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.scenario.type", "Printing risk by scenario type excel sheet", increase(3)));// 77%
 				generateRiskByScenarioTypeGraphic(reportExcelSheet);
@@ -754,6 +746,14 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	@Override
 	protected ActionPlanMode getActionPlanType() {
 		return ActionPlanMode.APQ;
+	}
+
+	@Override
+	protected void createMissingGraphics() {
+		
+		
+	
+		
 	}
 
 }

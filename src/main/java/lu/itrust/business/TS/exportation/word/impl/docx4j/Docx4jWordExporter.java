@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +26,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.docx4j.dml.CTRegularTextRun;
 import org.docx4j.dml.chart.CTAxDataSource;
 import org.docx4j.dml.chart.CTNumData;
 import org.docx4j.dml.chart.CTNumDataSource;
@@ -32,12 +34,14 @@ import org.docx4j.dml.chart.CTNumRef;
 import org.docx4j.dml.chart.CTNumVal;
 import org.docx4j.dml.chart.CTRadarChart;
 import org.docx4j.dml.chart.CTRadarSer;
+import org.docx4j.dml.chart.CTRelId;
 import org.docx4j.dml.chart.CTSerTx;
 import org.docx4j.dml.chart.CTStrData;
 import org.docx4j.dml.chart.CTStrRef;
 import org.docx4j.dml.chart.CTStrVal;
 import org.docx4j.dml.chart.CTUnsignedInt;
 import org.docx4j.dml.chart.SerContent;
+import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
@@ -46,16 +50,20 @@ import org.docx4j.openpackaging.contenttype.CTOverride;
 import org.docx4j.openpackaging.contenttype.ContentTypeManager;
 import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.DocPropsCustomPart;
 import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.DrawingML.Chart;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
+import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBehaviour;
+import org.docx4j.relationships.Relationship;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Document;
+import org.docx4j.wml.Drawing;
 import org.docx4j.wml.FldChar;
 import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.Numbering;
@@ -126,6 +134,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected ObjectFactory factory = null;
 
+	protected org.docx4j.dml.wordprocessingDrawing.ObjectFactory drawingFactory = null;
+
+	protected org.docx4j.dml.ObjectFactory dmlFactory = null;
+
+	protected org.docx4j.dml.chart.ObjectFactory chartFactory = null;
+
 	protected String idTask;
 
 	protected DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
@@ -153,6 +167,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	private int nonApplicableMeasure27001 = 0;
 
 	private int nonApplicableMeasure27002 = 0;
+
+	private Long drawingIndex = null;
 
 	private int progress;
 
@@ -656,11 +672,26 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected P addTableCaption(String value) {
 		P paragraph = setStyle(factory.createP(), "Caption");
-		R run = setText(factory.createR(), getMessage("report.capttion.table.name", null, "Table", locale));
+		R run = setText(factory.createR(), getMessage("report.caption.table.name", null, "Table", locale));
 		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text).forEach(text -> text.setSpace("preserve"));
 		paragraph.getContent().add(run);
 		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
 		paragraph.getContent().add(setInstrText(factory.createR(), "SEQ Table \\* ARABIC "));
+		paragraph.getContent().add(createSpecialRun(STFldCharType.SEPARATE));
+		paragraph.getContent().add(setText(factory.createR(), "1"));
+		paragraph.getContent().add(createSpecialRun(STFldCharType.END));
+		paragraph.getContent().add(setText(factory.createR(), (languageAlpha2.equals("FR") ? "\u00A0:\u00A0" : ": ") + value));
+		return paragraph;
+
+	}
+
+	protected P addFigureCaption(String value) {
+		P paragraph = setStyle(factory.createP(), "Caption");
+		R run = setText(factory.createR(), getMessage("report.caption.figure.name", null, "Figure", locale));
+		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text).forEach(text -> text.setSpace("preserve"));
+		paragraph.getContent().add(run);
+		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
+		paragraph.getContent().add(setInstrText(factory.createR(), "SEQ Figure \\* ARABIC "));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.SEPARATE));
 		paragraph.getContent().add(setText(factory.createR(), "1"));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.END));
@@ -740,102 +771,134 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException;
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
-	protected void generateComplianceGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
-		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
-		ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
-		if (measures == null)
-			return;
-		Chart chart = (Chart) wordMLPackage.getParts().get(reportExcelSheet.getPackagePart().getOwningRelationshipPart().getSourceP().getPartName());
-		CTRadarChart radarChart = (CTRadarChart) chart.getJaxbElement().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
-				.filter(web -> web instanceof CTRadarChart).findAny().orElse(null);
-		if (radarChart == null)
-			return;
-		radarChart.getSer().clear();
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, factory);
-		int rowCount = 0;
-		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		xssfSheet.getRow(rowCount).createCell(0);
-		xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
-		CTRadarSer ser = createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, phaseLabel, new CTRadarSer());
-		ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
-		for (String key : compliances.keySet()) {
-			Object[] compliance = compliances.get(key);
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1, CellType.NUMERIC);
+	protected void generateComplianceGraphic() throws OpenXML4JException, IOException, Docx4JException, JAXBException {
 
-			double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
+		Map<String, Part> parts = createComplianceGraphicParts();
 
-			CTStrVal catName = new CTStrVal();
-			catName.setV(key);
-			catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
-			ser.getCat().getStrRef().getStrCache().getPt().add(catName);
+		List<Phase> phases = analysis.findUsablePhase();
 
-			CTNumVal numVal = new CTNumVal();
-			numVal.setV(value + "");
-			numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
-			ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
+		for (Entry<String, Part> entry : parts.entrySet()) {
 
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(value);
-		}
+			String path = entry.getValue().getRelationshipsPart().getRelationships().getRelationship().parallelStream().filter(r -> r.getTarget().endsWith(".xlsx"))
+					.map(Relationship::getTarget).findAny().orElse(null);
+			if (path == null)
+				continue;
 
-		ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
-		ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+			Part excel = wordMLPackage.getParts().get(new PartName("/word" + path.replace("..", "")));
+			if (excel == null)
+				continue;
 
-		radarChart.getSer().add(ser);
+			Docx4jExcelSheet reportExcelSheet = null;
+			try {
+				reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", contextPath));
+				Chart chart = (Chart) entry.getValue();
+				CTRadarChart radarChart = (CTRadarChart) chart.getContents().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
+						.filter(web -> web instanceof CTRadarChart).findAny().orElse(null);
+				if (radarChart == null)
+					continue;
+				radarChart.getSer().clear();
 
-		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(getActionPlanType());
+				CTRegularTextRun r = (CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0);
 
-		if (!actionPlanMeasures.isEmpty()) {
-			List<Phase> phases = analysis.findUsablePhase();
-			int columnIndex = 2;
-			for (Phase phase : phases) {
-				phaseLabel = getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale);
-				char col = (char) (((int) 'A') + columnIndex);
-				ser = createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
-				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, factory);
-				if (xssfSheet.getRow(rowCount = 0) == null)
+				if (entry.getKey().equals(Constant.STANDARD_27001) || entry.getKey().equals(Constant.STANDARD_27002))
+					r.setT(getMessage("report.compliance.iso", new Object[] { entry.getKey() }, "Compliance ISO " + entry.getKey(), locale));
+				else{
+					r.setT(getMessage("report.compliance.custom", new Object[] { entry.getKey() }, "Compliance " + entry.getKey(), locale));
+					reportExcelSheet.getWorkbook().setSheetName(0, "Compliance" + entry.getKey());
+				}
+
+				List<Measure> measures = analysis.getAnalysisStandards().stream().filter(analysisStandard -> analysisStandard.getStandard().is(entry.getKey()))
+						.map(AnalysisStandard::getMeasures).findAny().orElse(Collections.emptyList());
+
+				XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
+				Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, valueFactory);
+				int rowCount = 0;
+				String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
+				if (xssfSheet.getRow(rowCount) == null)
 					xssfSheet.createRow(rowCount);
-				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-					xssfSheet.getRow(rowCount).createCell(columnIndex);
-				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(phaseLabel);
+				xssfSheet.getRow(rowCount).createCell(0);
+				xssfSheet.getRow(rowCount).createCell(1);
+				xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
+				xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
+				CTRadarSer ser = createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, phaseLabel, new CTRadarSer());
 				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
 					if (xssfSheet.getRow(rowCount) == null)
 						xssfSheet.createRow(rowCount);
-					if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-						xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
+					if (xssfSheet.getRow(rowCount).getCell(0) == null)
+						xssfSheet.getRow(rowCount).createCell(0);
+					if (xssfSheet.getRow(rowCount).getCell(1) == null)
+						xssfSheet.getRow(rowCount).createCell(1, CellType.NUMERIC);
 
 					double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
+
+					CTStrVal catName = new CTStrVal();
+					catName.setV(key);
+					catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
+					ser.getCat().getStrRef().getStrCache().getPt().add(catName);
 
 					CTNumVal numVal = new CTNumVal();
 					numVal.setV(value + "");
 					numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 
-					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(value);
+					xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
+					xssfSheet.getRow(rowCount++).getCell(1).setCellValue(value);
 				}
 
-				ser.getVal().getNumRef().setF(String.format("%s!$%s$2:$%s$%d", reportExcelSheet.getName(), col, col, ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+				ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+				ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
 
 				radarChart.getSer().add(ser);
 
-				columnIndex++;
+				Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(getActionPlanType());
+
+				if (!actionPlanMeasures.isEmpty()) {
+
+					int columnIndex = 2;
+					for (Phase phase : phases) {
+						phaseLabel = getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale);
+						char col = (char) (((int) 'A') + columnIndex);
+						ser = createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
+						compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, valueFactory);
+						if (xssfSheet.getRow(rowCount = 0) == null)
+							xssfSheet.createRow(rowCount);
+						if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
+							xssfSheet.getRow(rowCount).createCell(columnIndex);
+						xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(phaseLabel);
+						ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
+						for (String key : compliances.keySet()) {
+							Object[] compliance = compliances.get(key);
+							if (xssfSheet.getRow(rowCount) == null)
+								xssfSheet.createRow(rowCount);
+							if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
+								xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
+
+							double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
+
+							CTNumVal numVal = new CTNumVal();
+							numVal.setV(value + "");
+							numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
+							ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
+
+							xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(value);
+						}
+
+						ser.getVal().getNumRef()
+								.setF(String.format("%s!$%s$2:$%s$%d", reportExcelSheet.getName(), col, col, ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+
+						radarChart.getSer().add(ser);
+
+						columnIndex++;
+					}
+				}
+			} finally {
+				if (reportExcelSheet != null)
+					reportExcelSheet.save();
+
 			}
+
 		}
 	}
 
@@ -1105,6 +1168,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		factory = Context.getWmlObjectFactory();
 
+		chartFactory = new org.docx4j.dml.chart.ObjectFactory();
+
+		dmlFactory = new org.docx4j.dml.ObjectFactory();
+
+		drawingFactory = new org.docx4j.dml.wordprocessingDrawing.ObjectFactory();
+
 		Styles styles = this.wordMLPackage.getMainDocumentPart().getStyleDefinitionsPart().getContents();
 
 		this.styles = styles.getStyle().parallelStream().collect(Collectors.toMap(Style::getStyleId, Function.identity()));
@@ -1119,11 +1188,15 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void generateGraphics() throws Exception {
+		createMissingGraphics();
+		generateComplianceGraphic();
 		for (Entry<PartName, Part> entry : this.wordMLPackage.getParts().getParts().entrySet()) {
 			if (entry.getKey().getExtension().equals("xlsx"))
 				writeChart(new Docx4jExcelSheet((EmbeddedPackagePart) entry.getValue(), String.format("%s/WEB-INF/tmp/", contextPath)));
 		}
 	}
+
+	protected abstract void createMissingGraphics();
 
 	private void generateItemInformation() throws Exception {
 		setCurrentParagraphId(ExportReport.TS_TAB_TEXT_2);
@@ -1266,6 +1339,16 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	}
 
+	private synchronized Long findDrawingId() throws XPathBinderAssociationIsPartialException, JAXBException {
+		if (drawingIndex == null) {
+			drawingIndex = document.getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
+					.filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> i instanceof Inline)
+					.mapToLong(i -> ((Inline) i).getDocPr().getId()).max().orElse(0);
+		}
+		return ++drawingIndex;
+	}
+
 	private void generateScenarios() throws XPathBinderAssociationIsPartialException, JAXBException {
 		List<Scenario> scenarios = analysis.findSelectedScenarios();
 		P paragraph = findTableAnchor("Scenario");
@@ -1286,6 +1369,117 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			}
 			insertBofore(paragraph, table);
 		}
+	}
+
+	protected Map<String, Part> createComplianceGraphicParts() throws Docx4JException, JAXBException {
+		Map<String, Part> parts = new LinkedHashMap<>();
+		parts.put(Constant.STANDARD_27001, findChart("ChartCompliance27001"));
+		parts.put(Constant.STANDARD_27002, findChart("ChartCompliance27002"));
+		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream()
+				.filter(analysisStandard -> !(analysisStandard.getStandard().is(Constant.STANDARD_27001) || analysisStandard.getStandard().is(Constant.STANDARD_27002)))
+				.collect(Collectors.toList());
+		if (!analysisStandards.isEmpty()) {
+			P collectionCustom = findTableAnchor("AdditionalCollection");
+			Chart part = (Chart) parts.get(Constant.STANDARD_27001);
+			if (collectionCustom != null) {
+				List<Object> contents = new LinkedList<>();
+				for (AnalysisStandard analysisStandard : analysisStandards) {
+					ClonePartResult result = cloneChart(part, analysisStandard.getStandard().getLabel(), "Compliance" + analysisStandard.getStandard().getLabel());
+
+					parts.put(analysisStandard.getStandard().getLabel(), result.getPart());
+
+					contents.add(setText(setStyle(factory.createP(), "Heading3"), getMessage("report.additional.collection.title",
+							new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel(), locale)));
+
+					contents.add(setText(setStyle(factory.createP(), "BodyOfText"), getMessage("report.additional.collection.description",
+							new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel(), locale)));
+
+					contents.add(result.getP());
+
+					contents.add(addFigureCaption(getMessage("report.additional.collection.caption", new Object[] { analysisStandard.getStandard().getLabel() },
+							analysisStandard.getStandard().getLabel(), locale)));
+
+				}
+				insertAllBefore(collectionCustom, contents);
+			}
+		}
+		return parts;
+	}
+
+	private ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
+		Part copy = PartClone.clone(part, null);
+		Relationship relationship = wordMLPackage.getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+		for (Relationship re : part.getRelationshipsPart().getContents().getRelationship()) {
+			if (re.getTarget().startsWith(".."))
+				copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
+						AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+			else
+				copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word/charts/" + re.getTarget())), null), AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+		}
+		return new ClonePartResult(copy, relationship, createGraphic(name, description, relationship.getId()));
+	}
+
+	private P createGraphic(String name, String description, String refId) throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraph = setStyle(factory.createP(), "FigurewithCaption");
+		R run = factory.createR();
+		run.setRPr(factory.createRPr());
+		run.getRPr().setNoProof(factory.createBooleanDefaultTrue());
+		Drawing drawing = factory.createDrawing();
+		paragraph.getContent().add(run);
+		run.getContent().add(factory.createRDrawing(drawing));
+		Inline inline = drawingFactory.createInline();
+		drawing.getAnchorOrInline().add(inline);
+		inline.setDocPr(dmlFactory.createCTNonVisualDrawingProps());
+		inline.getDocPr().setDescr(description);
+		inline.getDocPr().setName(name);
+		inline.getDocPr().setId(findDrawingId());
+		inline.setGraphic(dmlFactory.createGraphic());
+		inline.setExtent(dmlFactory.createCTPositiveSize2D());
+		inline.getExtent().setCx(5486400);
+		inline.getExtent().setCy(3200400);
+		inline.setEffectExtent(drawingFactory.createCTEffectExtent());
+		inline.getEffectExtent().setB(0);
+		inline.getEffectExtent().setL(0);
+		inline.getEffectExtent().setR(0);
+		inline.getEffectExtent().setT(0);
+		inline.setDistB(0L);
+		inline.setDistL(0L);
+		inline.setDistT(0L);
+		inline.setDistR(0L);
+		inline.setCNvGraphicFramePr(dmlFactory.createCTNonVisualGraphicFrameProperties());
+		inline.getGraphic().setGraphicData(dmlFactory.createGraphicData());
+		inline.getGraphic().getGraphicData().setUri("http://schemas.openxmlformats.org/drawingml/2006/chart");
+		CTRelId relId = chartFactory.createCTRelId();
+		relId.setId(refId);
+		inline.getGraphic().getGraphicData().getAny().add(chartFactory.createChart(relId));
+		return paragraph;
+	}
+
+	private Part findChart(String name) throws InvalidFormatException, XPathBinderAssociationIsPartialException, JAXBException {
+		String id = findChartId(name);
+		if (id == null)
+			return null;
+		Relationship relationship = wordMLPackage.getMainDocumentPart().getRelationshipsPart().getRelationships().getRelationship().parallelStream()
+				.filter(part -> part.getId().equals(id)).findAny().orElse(null);
+		if (relationship == null)
+			return null;
+		return wordMLPackage.getParts().get(new PartName("/word/" + relationship.getTarget()));
+	}
+
+	private String findChartId(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
+		P paragraph = findTableAnchor(name);
+		if (paragraph == null)
+			return document.getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
+					.filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
+					.filter(i -> (i instanceof Inline) && ((Inline) i).getDocPr() != null && name.equals(((Inline) i).getDocPr().getDescr()))
+					.flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream()).map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny()
+					.orElse(null);
+		else
+			return paragraph.getContent().parallelStream().filter(r -> r instanceof R).flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
+					.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
+					.filter(i -> (i instanceof Inline)).flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream())
+					.map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny().orElse(null);
 	}
 
 	private void generateThreats() throws XPathBinderAssociationIsPartialException, JAXBException {
