@@ -94,12 +94,6 @@ public class ChartGenerator {
 
 	private static final String INTERNAL_WORKLOAD_COST = "internal.workload.cost";
 
-	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
-	private List<String> defaultColors;
-
-	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
-	private List<String> staticColors;
-
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
@@ -956,18 +950,18 @@ public class ChartGenerator {
 
 	}
 
-	private String getColor(int i, String defaultValue) {
-		return defaultColors == null || defaultColors.isEmpty() ? defaultValue
-				: i < 0 ? defaultColors.get(0) : i >= defaultColors.size() ? defaultColors.get(i % defaultColors.size()) : defaultColors.get(i);
+	public static String getColor(int i, String defaultValue) {
+		return getDefaultColors() == null || getDefaultColors().isEmpty() ? defaultValue
+				: i < 0 ? getDefaultColors().get(0) : i >= getDefaultColors().size() ? getDefaultColors().get(i % getDefaultColors().size()) : getDefaultColors().get(i);
 	}
 
-	private String getColor(int i) {
+	public static String getColor(int i) {
 		return getColor(i, null);
 	}
 
-	private String getStaticColor(int i) {
-		return staticColors == null || staticColors.isEmpty() ? getColor(i)
-				: i < 0 ? staticColors.get(0) : i >= staticColors.size() ? staticColors.get(i % staticColors.size()) : staticColors.get(i);
+	public static String getStaticColor(int i) {
+		return getStaticColors() == null || getStaticColors().isEmpty() ? getColor(i)
+				: i < 0 ? getStaticColors().get(0) : i >= getStaticColors().size() ? getStaticColors().get(i % getStaticColors().size()) : getStaticColors().get(i);
 	}
 
 	private void buildSingleALESerie(Chart chart, ALEChart data) {
@@ -1448,6 +1442,36 @@ public class ChartGenerator {
 	@Value("${app.settings.ale.chart.content.size}")
 	public void setAleChartSize(int aleChartSize) {
 		Constant.CHAR_MULTI_CONTENT_SIZE = aleChartSize;
+	}
+
+	/**
+	 * @return the defaultColors
+	 */
+	public static List<String> getDefaultColors() {
+		return Constant.DEFAULT_COLORS;
+	}
+
+	/**
+	 * @param defaultColors the defaultColors to set
+	 */
+	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
+	public void setDefaultColors(List<String> defaultColors) {
+		Constant.DEFAULT_COLORS = defaultColors;
+	}
+
+	/**
+	 * @return the staticColors
+	 */
+	public static List<String> getStaticColors() {
+		return Constant.STATIC_COLORS;
+	}
+
+	/**
+	 * @param staticColors the staticColors to set
+	 */
+	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
+	public  void setStaticColors(List<String> staticColors) {
+		Constant.STATIC_COLORS = staticColors;
 	}
 
 }
