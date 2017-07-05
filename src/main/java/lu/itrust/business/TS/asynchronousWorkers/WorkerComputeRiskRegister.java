@@ -18,6 +18,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
@@ -379,6 +380,11 @@ public class WorkerComputeRiskRegister implements Worker {
 	@Override
 	public Date getFinished() {
 		return finished;
+	}
+
+	@Override
+	public TaskName getName() {
+		return TaskName.COMPUTE_RISK_REGISTER;
 	}
 
 }

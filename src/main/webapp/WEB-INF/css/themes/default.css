@@ -498,7 +498,9 @@ datalist {
 .modal-md{
 	width: 700px;
 }
-
+.modal-mdl{
+	width: 750px;
+}
 .popover-danger {
 	background-color: #f2dede;
 	border-color: #ebccd1;
@@ -535,7 +537,7 @@ table.rrf-values th {
 }
 
 .range-group .range-text {
-	min-width: 15%;
+	min-width: 30%;
 	display: inline-block;
 	text-align: center;
 	padding: 6px 12px;
@@ -547,7 +549,7 @@ table.rrf-values th {
 }
 
 .range-group .range-input {
-	width: 70%;
+	width: 60%;
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -699,6 +701,11 @@ tr.form-group-fill th:LAST-CHILD {
 	border-radius: 4px;
 }
 
+.form-group-fill .form-control.form-control-static{
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
 .form-horizontal.form-group-fill {
 	padding-top: 5px;
 }
@@ -706,6 +713,15 @@ tr.form-group-fill th:LAST-CHILD {
 .form-horizontal.form-group-fill .form-control {
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
+}
+
+.impact-q-group {
+	margin-top: -17px;
+	margin-bottom: 8px;
+}
+
+.form-control-static.disabled, .form-group-fill .form-control-static.disabled  {
+	background-color: #eee;
 }
 
 td.unselected {
@@ -758,6 +774,28 @@ a#main_menu_profile {
 	margin-top: -5px;
 }
 
+.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve, 
+.probability-likelihood + .impact-qualitaitve, 
+.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve, 
+.probability-dynamic + .impact-qualitaitve, 
+.probability-dynamic + .impact-quantitaitve 
+ {
+	clear: left;
+}
+
+table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
+	margin-bottom: 8px;
+}
+
+[data-notify="progressbar"] {
+	margin-bottom: 0px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+	height: 5px;
+}
+
 @media ( min-width : 992px) {
 	.max-height {
 		height: 100%;
@@ -804,4 +842,41 @@ a#main_menu_profile {
 			height: calc(100% - 250px);
 		}
 	}
+}
+
+@media (min-width: 768px) {
+    .pull-sm-left {
+        float: left !important;
+    }
+    .pull-sm-right {
+        float: right !important;
+    }
+    .pull-sm-none {
+        float: none !important;
+    }
+}
+@media (min-width: 992px) {
+    .pull-md-left {
+        float: left !important;
+    }
+    .pull-md-right {
+        float: right !important;
+    }
+    .pull-md-none {
+        float: none !important;
+    }
+}
+@media (min-width: 1200px) {
+    .pull-lg-left {
+        float: left !important;
+    }
+    .pull-lg-right {
+        float: right !important;
+    }
+    .pull-lg-none {
+        float: none !important;
+    }
+}
+.pull-none {
+    float: none !important;
 }

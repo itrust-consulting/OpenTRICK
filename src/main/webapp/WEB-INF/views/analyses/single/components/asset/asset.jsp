@@ -45,7 +45,7 @@
 					<th style="width: 20%"><a href="#" onclick="return sortTable('name',this)" data-order='1'><spring:message code="label.asset.name" /></a></th>
 					<th style="width: 8%"><a href="#" onclick="return sortTable('type',this)" data-order='1'><spring:message code="label.asset.type" /></a></th>
 					<th style="width: 6%"><a href="#" onclick="return sortTable('value',this,true)" data-order='1'><spring:message code="label.asset.value" /></a></th>
-					<c:if test="${type == 'QUANTITATIVE'}">
+					<c:if test="${type.quantitative}">
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<th style="width: 5%"><a href="#" onclick="return sortTable('aleo',this,true)" data-order='1'><spring:message code="label.asset.aleo" /></a></th>
@@ -79,7 +79,7 @@
 						<td data-trick-field="name"><spring:message text="${asset.name}" /></td>
 						<td data-trick-field="type"><spring:message code="label.asset_type.${fn:toLowerCase(asset.assetType.name)}" /></td>
 						<td data-trick-field="value" title='<fmt:formatNumber value="${fct:round(asset.value,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(asset.value*0.001,0)}" /></td>
-						<c:if test="${type == 'QUANTITATIVE'}">
+						<c:if test="${type.quantitative}">
 							<c:choose>
 								<c:when test="${show_uncertainty}">
 									<td data-trick-field="aleo" title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
@@ -102,7 +102,7 @@
 				<tr class="panel-footer" style="font-weight: bold;">
 					<td colspan="4"><spring:message code="label.total.ale" /></td>
 					<td title='<fmt:formatNumber value="${fct:round(totalAssetValue,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(totalAssetValue*0.001,0)}" /></td>
-					<c:if test="${type == 'QUANTITATIVE'}">
+					<c:if test="${type.quantitative}">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(assetALE)" var="ale" />
 						<c:choose>
 							<c:when test="${show_uncertainty}">

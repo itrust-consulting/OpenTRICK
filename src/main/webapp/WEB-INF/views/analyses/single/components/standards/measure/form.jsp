@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="modalMeasureForm" tabindex="-1" role="dialog" data-aria-labelledby="measureForm" style="z-index: 1042" data-aria-hidden="true">
-	<div class="modal-dialog" style="min-width: 50%;">
+	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -156,7 +156,7 @@
 								</div>
 							</c:if>
 						</c:if>
-						<c:if test="${type=='QUANTITATIVE'}">
+						<c:if test="${type.quantitative}">
 							<jsp:include page="properties.jsp" />
 						</c:if>
 					</form>

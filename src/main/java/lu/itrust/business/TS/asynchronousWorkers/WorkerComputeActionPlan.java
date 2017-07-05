@@ -6,6 +6,9 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -17,6 +20,7 @@ import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.hbm.DAOActionPlanHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOActionPlanSummaryHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOActionPlanTypeHBM;
@@ -24,13 +28,18 @@ import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssessmentHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAORiskProfileHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAORiskRegisterHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -52,9 +61,13 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 	private DAOAnalysis daoAnalysis;
 
+	private DAORiskRegister daoRiskRegister;
+
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
+
+	private Map<String, RiskRegisterItem> oldRiskRegisters;
 
 	private int idAnalysis;
 
@@ -75,6 +88,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		daoActionPlanSummary = new DAOActionPlanSummaryHBM(session);
 		daoActionPlanType = new DAOActionPlanTypeHBM(session);
 		daoAnalysis = new DAOAnalysisHBM(session);
+		daoRiskRegister = new DAORiskRegisterHBM(session);
 		assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
 		assessmentAndRiskProfileManager.setDaoAnalysis(daoAnalysis);
 		assessmentAndRiskProfileManager.setDaoAsset(new DAOAssetHBM(session));
@@ -123,6 +137,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
+				setName(TaskName.COMPUTE_ACTION_PLAN);
 			}
 
 			session = getSessionFactory().openSession();
@@ -148,13 +163,28 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, getId(), analysis, analysisStandards,
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, serviceTaskFeedback, getId(), analysis, analysisStandards,
 					this.uncertainty, this.messageSource);
 			if (computation.calculateActionPlans() == null) {
+				MessageHandler messageHandler = null;
+				if (analysis.isHybrid()) {
+					saveRiskRegister(analysis);
+					if ((messageHandler = computeRiskRegister(analysis)) == null)
+						updateRiskRegister(analysis.getRiskRegisters());
+					else
+						throw new TrickException(messageHandler.getCode(), messageHandler.getMessage(), messageHandler.getException(), messageHandler.getParameters());
+				}
+				serviceTaskFeedback.send(getId(), new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 95));
+				daoAnalysis.saveOrUpdate(analysis);
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
-				if (reloadSection)
-					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);"));
+				messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
+				if (reloadSection) {
+					if (analysis.isHybrid())
+						messageHandler.setAsyncCallback(
+								new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);riskEstimationUpdate(true);"));
+					else
+						messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);"));
+				}
 				serviceTaskFeedback.send(getId(), messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			} else
@@ -202,6 +232,28 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 			}
 
 		}
+	}
+
+	private void updateRiskRegister(List<RiskRegisterItem> registerItems) {
+		if (oldRiskRegisters == null || oldRiskRegisters.isEmpty())
+			return;
+		for (int i = 0; i < registerItems.size(); i++) {
+			RiskRegisterItem registerItem = registerItems.get(i), oldRegisterItem = oldRiskRegisters.remove(registerItem.getKey());
+			if (oldRegisterItem == null)
+				continue;
+			registerItems.set(i, oldRegisterItem.merge(registerItem));
+		}
+		oldRiskRegisters.values().stream().forEach(riskRegisterItem -> daoRiskRegister.delete(riskRegisterItem));
+
+	}
+
+	private MessageHandler computeRiskRegister(Analysis analysis) {
+		return new RiskSheetComputation(analysis).computeRiskRegister(new CSSFFilter(-1, -1, -1, 0, 0));
+	}
+
+	private void saveRiskRegister(Analysis analysis) {
+		oldRiskRegisters = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
+		analysis.getRiskRegisters().clear();
 	}
 
 	/*

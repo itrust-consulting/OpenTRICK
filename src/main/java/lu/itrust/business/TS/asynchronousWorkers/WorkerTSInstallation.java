@@ -18,6 +18,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOTrickServiceHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -55,6 +56,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		Session session = null;
 		try {
 			super.OnStarted();
+			setName(TaskName.INSTALL_APPLICATION);
 			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profiles", 1));
 			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);

@@ -210,21 +210,18 @@ public class ControllerRRF {
 
 			model.addAttribute("measures", splittedmeasures);
 			model.addAttribute(SCENARIOS, ScenarioManager.SplitByType(scenarios));
-
 			Measure measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-
 			if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
 				model.addAttribute("standardid", normalMeasure.getAnalysisStandard().getStandard().getId());
 				model.addAttribute("measureid", normalMeasure.getId());
 				model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
-				if (type == AnalysisType.QUALITATIVE) {
+				if (AnalysisType.isQualitative(type))
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
-				} else {
+				else
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
-				}
 				model.addAttribute(PREVENTIVE, normalMeasure.getMeasurePropertyList().getPreventive());
 				model.addAttribute(DETECTIVE, normalMeasure.getMeasurePropertyList().getDetective());
 				model.addAttribute(LIMITATIVE, normalMeasure.getMeasurePropertyList().getLimitative());
@@ -253,11 +250,10 @@ public class ControllerRRF {
 				model.addAttribute("measureid", assetMeasure.getId());
 				model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-				if (type == AnalysisType.QUALITATIVE) {
+				if (AnalysisType.isQualitative(type))
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
-				} else {
+				else
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
-				}
 				model.addAttribute(PREVENTIVE, assetMeasure.getMeasurePropertyList().getPreventive());
 				model.addAttribute(DETECTIVE, assetMeasure.getMeasurePropertyList().getDetective());
 				model.addAttribute(LIMITATIVE, assetMeasure.getMeasurePropertyList().getLimitative());
@@ -389,11 +385,10 @@ public class ControllerRRF {
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
 			model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
-			if (type == AnalysisType.QUALITATIVE) {
+			if (AnalysisType.isQualitative(type))
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
-			} else {
+			else
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
-			}
 			model.addAttribute(PREVENTIVE, normalMeasure.getMeasurePropertyList().getPreventive());
 			model.addAttribute(DETECTIVE, normalMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute(LIMITATIVE, normalMeasure.getMeasurePropertyList().getLimitative());
@@ -410,7 +405,6 @@ public class ControllerRRF {
 				if (normalMeasure.getAssetTypeValueByAssetType(assetType) == null)
 					normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
 			}
-
 			if (assetTypeValues.size() != size)
 				serviceMeasure.saveOrUpdate(measure);
 			model.addAttribute("assetTypeValues", assetTypeValues);
@@ -420,11 +414,10 @@ public class ControllerRRF {
 			model.addAttribute("measureid", assetMeasure.getId());
 			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-			if (type == AnalysisType.QUALITATIVE) {
+			if (AnalysisType.isQualitative(type))
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
-			} else {
+			else
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
-			}
 			model.addAttribute(PREVENTIVE, assetMeasure.getMeasurePropertyList().getPreventive());
 			model.addAttribute(DETECTIVE, assetMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute(LIMITATIVE, assetMeasure.getMeasurePropertyList().getLimitative());
@@ -544,9 +537,9 @@ public class ControllerRRF {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
 		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()));
-		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards, AnalysisType.QUANTITATIVE);
-		analyses.addAll(
-				serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards, AnalysisType.QUANTITATIVE));
+		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards, AnalysisType.QUANTITATIVE, AnalysisType.HYBRID);
+		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards,
+				AnalysisType.QUANTITATIVE, AnalysisType.HYBRID));
 		analyses.removeIf(analysis -> analysis.getId() == idAnalysis);
 		Collections.sort(analyses, new AnalysisComparator());
 		List<Customer> customers = new ArrayList<Customer>();
@@ -598,7 +591,7 @@ public class ControllerRRF {
 			writeScenario(analysis.getScenarios(),
 					/* assetTypes, analysis.getAssets() , */ workbook, locale);
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
-				writeMeasure(analysis.getType() == AnalysisType.QUALITATIVE, analysisStandard, assetTypes, workbook, locale);
+				writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, workbook, locale);
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");

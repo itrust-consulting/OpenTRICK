@@ -36,6 +36,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAODynamicParameter;
+import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.DAOImpactParameter;
 import lu.itrust.business.TS.database.dao.DAOLikelihoodParameter;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
@@ -43,7 +44,6 @@ import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAORiskAcceptanceParameter;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOSimpleParameter;
-import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -51,6 +51,7 @@ import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
@@ -73,7 +74,6 @@ import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-import lu.itrust.business.TS.usermanagement.RoleType;
 
 /**
  * ChartGenerator.java: <br>
@@ -146,7 +146,7 @@ public class ChartGenerator {
 	private DAOSimpleParameter daoSimpleParameter;
 
 	@Autowired
-	private DAOUserAnalysisRight daoUserAnalysisRight;
+	private DAOIDS daoIDS;
 
 	@Autowired
 	private DynamicRiskComputer dynamicRiskComputer;
@@ -498,7 +498,9 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, Locale locale) {
+	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, ActionPlanMode actionPlanMode, Locale locale) {
+
+		AnalysisType analysisType = daoAnalysis.getAnalysisTypeById(idAnalysis);
 
 		ValueFactory factory = new ValueFactory(daoDynamicParameter.findByAnalysisId(idAnalysis));
 
@@ -507,9 +509,12 @@ public class ChartGenerator {
 		List<Measure> measures = analysisStandard.getMeasures().stream()
 				.filter(measure -> measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 				.collect(Collectors.toList());
+		String title = analysisType.isHybrid() ? actionPlanMode == ActionPlanMode.APQ
+				? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance for qualitative", locale)
+				: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance for quantitative", locale)
+				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale);
 
-		Chart chart = new Chart(standard.getId(),
-				messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale));
+		Chart chart = new Chart(standard.getId()+"_"+actionPlanMode, title);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
 
@@ -529,7 +534,7 @@ public class ChartGenerator {
 		if (!dataset.getData().isEmpty())
 			chart.getDatasets().add(dataset);
 
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), ActionPlanMode.APPN);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), actionPlanMode);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
@@ -612,18 +617,13 @@ public class ChartGenerator {
 	 */
 	public Chart dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
 		// Find the user names of all sources involved
-		List<String> sourceUserNames = daoUserAnalysisRight.getAllFromAnalysis(idAnalysis).stream().map(userRight -> userRight.getUser())
-				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
 
+		/*
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter
-																						// returns
-																						// -1
-																						// in
-																						// case
-																						// of
-																						// a
-																						// failure
+		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
+		*/
+		final double minimumProbability = 0.0;
 
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();
@@ -634,10 +634,9 @@ public class ChartGenerator {
 		// For each dynamic parameter, construct a series of values
 		Map<String, Map<Long, Double>> data = new HashMap<>();
 		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
-			// Add x-axis values to a list in reverse order (we use
-			// Collections.reverse() later on)
-			xAxisValues.add(timeEnd);
-			chart.getLabels().add(deltaTimeToString(timeUpperBound - timeEnd));
+			// Add x-axis values to a list in reverse order
+			xAxisValues.add(0, timeEnd);
+			chart.getLabels().add(0, deltaTimeToString(timeUpperBound - timeEnd));
 			// Fetch data
 			for (String sourceUserName : sourceUserNames) {
 				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName,
@@ -652,11 +651,10 @@ public class ChartGenerator {
 			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
 				nextTimeIntervalSize = (int) (nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
 		}
-		Collections.reverse(xAxisValues);
 		for (String parameterName : data.keySet()) {
 			Dataset<String> dataset = new Dataset<String>(parameterName, getColor(chart.getDatasets().size()));
 			for (long timeEnd : xAxisValues)
-				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, 0.0));
+				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, minimumProbability));
 			chart.getDatasets().add(dataset);
 		}
 		chart.setYTitle(messageSource.getMessage("label.parameter.value", null, "Value", locale));
@@ -881,8 +879,7 @@ public class ChartGenerator {
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved
-		final List<String> sourceUserNames = daoUserAnalysisRight.getAllFromAnalysis(analysis.getId()).stream().map(userRight -> userRight.getUser())
-				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysis(analysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
 
 		// Fetch ALE evolution data grouped by scenario and time
 		final List<Long> xAxisValues = new ArrayList<>(); // populated within

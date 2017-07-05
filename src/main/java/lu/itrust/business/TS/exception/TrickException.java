@@ -26,13 +26,13 @@ public class TrickException extends RuntimeException {
 		super(message);
 		this.code = code;
 	}
-	
+
 	/**
 	 * @param code
 	 * @param message
 	 */
 	public TrickException(String code, String message, Exception e) {
-		super(message,e);
+		super(message, e);
 		this.code = code;
 	}
 
@@ -44,6 +44,16 @@ public class TrickException extends RuntimeException {
 	public TrickException(String code, String meassage, Object[] parameters) {
 		super(meassage);
 		this.code = code;
+		this.parameters = parameters;
+	}
+
+	/**
+	 * @param code
+	 * @param meassage
+	 * @param parameters
+	 */
+	public TrickException(String code, String meassage, Exception e, Object[] parameters) {
+		this(code, meassage, e);
 		this.parameters = parameters;
 	}
 

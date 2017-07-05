@@ -36,6 +36,7 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
@@ -46,6 +47,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
@@ -123,6 +125,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
+				setName(TaskName.EXPORT_RISK_SHEET);
 			}
 			session = getSessionFactory().openSession();
 			daoAnalysis = new DAOAnalysisHBM(session);
@@ -220,6 +223,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 
 			List<ScaleType> scaleTypes = analysis.getImpacts();
+			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			CSSFFilter cssfFilter = cssfExportForm.getFilter();
 			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 			List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
@@ -416,6 +420,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			if (cssfExportForm.hasOwner())
 				estimations.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
 			List<ScaleType> types = analysis.getImpacts();
+			types.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			for (Estimation estimation : estimations) {
 				RiskProfile riskProfile = estimation.getRiskProfile();
 				addRiskSheetHeader(document, estimation.getRiskProfile(), isFirst);

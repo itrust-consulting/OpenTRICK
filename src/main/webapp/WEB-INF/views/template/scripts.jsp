@@ -34,6 +34,21 @@
 		resolveMessage("error.session.expire.monitor", "<spring:message code='error.session.expire.monitor' />");
 		resolveMessage("info.session.expire.in.x.seconds", "<spring:message code='info.session.expire.in.x.seconds' />");
 		resolveMessage("info.session.expire.in.x.minutes", "<spring:message code='info.session.expire.in.x.minutes' />");
+		resolveMessage("label.title.compute.action_plan", "<spring:message code='label.title.compute.action_plan' />");
+		resolveMessage("label.title.compute.risk_register", "<spring:message code='label.title.compute.risk_register' />");
+		resolveMessage("label.title.create.analysis.profile", "<spring:message code='label.title.create.analysis.profile' />");
+		resolveMessage("label.title.create.analysis.version", "<spring:message code='label.title.create.analysis.version' />");
+		resolveMessage("label.title.export.analysis", "<spring:message code='label.title.export.analysis' />");
+		resolveMessage("label.title.export.analysis.report", "<spring:message code='label.title.export.analysis.report' />");
+		resolveMessage("label.title.export.soa", "<spring:message code='label.title.export.soa' />");
+		resolveMessage("label.title.generate.ticket", "<spring:message code='label.title.generate.ticket' />");
+		resolveMessage("label.title.import.analysis", "<spring:message code='label.title.import.analysis' />");
+		resolveMessage("label.title.install.application", "<spring:message code='label.title.install.application' />");
+		resolveMessage("label.title.reset.analysis.right", "<spring:message code='label.title.reset.analysis.right' />");
+		resolveMessage("label.title.import.measure.collection", "<spring:message code='label.title.import.measure.collection' />");
+		resolveMessage("label.title.compute.dynamic.parameter", "<spring:message code='label.title.compute.dynamic.parameter' />");
+		resolveMessage("label.title.export.risk_register", "<spring:message code='label.title.export.risk_register' />");
+		resolveMessage("label.title.export.risk_sheet", "<spring:message code='label.title.export.risk_sheet' />");
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>

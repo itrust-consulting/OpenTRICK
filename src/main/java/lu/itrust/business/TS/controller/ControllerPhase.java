@@ -105,7 +105,7 @@ public class ControllerPhase {
 		try {
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
+System.out.println(elementID);
 			// check if phase can be deleted
 			if (!servicePhase.canBeDeleted(elementID))
 				return JsonMessage.Error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", locale));

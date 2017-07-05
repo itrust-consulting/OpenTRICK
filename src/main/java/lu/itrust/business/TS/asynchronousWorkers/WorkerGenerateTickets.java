@@ -21,6 +21,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -75,6 +76,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
+				setName(TaskName.GENERATE_TICKETS);
 			}
 			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);

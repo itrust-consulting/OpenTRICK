@@ -42,6 +42,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
@@ -81,32 +82,6 @@ public class ControllerParameter {
 	@Autowired
 	private MessageSource messageSource;
 
-	/**
-	 * section: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Quantitative/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String quantitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<IParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
-		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
-		model.addAttribute("type", AnalysisType.QUANTITATIVE);
-		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
-		AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
-		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
-		return "analyses/single/components/parameters/quantitative/home";
-	}
-
 	@RequestMapping(value = "/Impact-scale/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageImpactScale(Model model, HttpSession session, Principal principal, Locale locale) {
@@ -114,8 +89,8 @@ public class ControllerParameter {
 		Map<ScaleType, Boolean> impacts = new LinkedHashMap<>();
 
 		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
-		serviceScaleType.findAll().stream().filter(scale -> !(impacts.containsKey(scale) || scale.getName().equals(Constant.PARAMETER_CATEGORY_IMPACT)))
-				.forEach(scale -> impacts.put(scale, false));
+		serviceScaleType.findAll().stream().filter(scale -> !impacts.containsKey(scale)).forEach(scale -> impacts.put(scale, false));
+		model.addAttribute("quantitativeImpact", impacts.keySet().stream().filter(impact -> impact.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny().orElse(null));
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 		return "analyses/single/components/parameters/form/mange-impact";
@@ -145,23 +120,28 @@ public class ControllerParameter {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Qualitative/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String qualitativeSection(Model model, HttpSession session, Principal principal) throws Exception {
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		ScaleType scaleType = serviceScaleType.findOneByAnalysisId(idAnalysis);
-		List<IParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		int level = parameters.size() - 1;
-		parameters.addAll(serviceImpactParameter.findByTypeAndAnalysisId(scaleType, idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
-		parameters.addAll(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, idAnalysis));
+		AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+		List<IParameter> parameters = new LinkedList<>(serviceSimpleParameter.findByAnalysisId(idAnalysis));
+		if (analysisType.isQualitative()) {
+			List<LikelihoodParameter> likelihoodParameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
+			model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
+			ScaleType scaleType = serviceScaleType.findOneQualitativeByAnalysisId(idAnalysis);
+			parameters.addAll(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
+			parameters.addAll(likelihoodParameters);
+			if (scaleType != null) {
+				parameters.addAll(serviceImpactParameter.findByTypeAndAnalysisId(scaleType, idAnalysis));
+				model.addAttribute("impactLabel", scaleType.getName());
+			}
+			int level = likelihoodParameters.size()-1;
+			model.addAttribute("maxImportance", level * level);
+		}
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
-		model.addAttribute("isEditable", !OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE)).isReadOnly());
-		model.addAttribute("type", AnalysisType.QUALITATIVE);
-		model.addAttribute("maxImportance", level * level);
-		model.addAttribute("impactLabel", scaleType == null ? null : scaleType.getName());
-		return "analyses/single/components/parameters/qualitative/section-other";
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
+		return "analyses/single/components/parameters/other";
 	}
 
 	/**
@@ -182,9 +162,14 @@ public class ControllerParameter {
 		List<IParameter> parameters = new LinkedList<>(impactParameters);
 		model.addAttribute("impactTypes", impactParameters.parallelStream().map(ImpactParameter::getType).distinct().collect(Collectors.toList()));
 		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		return "analyses/single/components/parameters/qualitative/section-impact-probability";
+		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
+		AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
+		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
+		return "analyses/single/components/parameters/impact_probability";
 	}
 
 	/**

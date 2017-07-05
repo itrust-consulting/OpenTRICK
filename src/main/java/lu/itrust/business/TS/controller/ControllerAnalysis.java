@@ -144,9 +144,6 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 public class ControllerAnalysis {
 
 	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
 	private CustomDelete customDelete;
 
 	@Autowired
@@ -233,7 +230,7 @@ public class ControllerAnalysis {
 		session.removeAttribute(OPEN_MODE);
 		session.removeAttribute(SELECTED_ANALYSIS);
 		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
-		return LoadUserAnalyses(session, principal, model);
+		return LoadUserAnalyses(session, principal, model, null);
 	}
 
 	/**
@@ -454,11 +451,11 @@ public class ControllerAnalysis {
 	// * reload customer section by pageindex
 	// *****************************************************************
 
-	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.hasPermission(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
+	public void exportRawActionPlan(@PathVariable Integer idAnalysis, @PathVariable AnalysisType type, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		exportRawActionPlan(response, analysis, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
+		exportRawActionPlan(response, analysis, type == null ? analysis.getType() : type, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
 	}
 
 	/**
@@ -470,11 +467,11 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Export/Report/{analysisId}/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
+	public @ResponseBody String exportReport(@PathVariable Integer analysisId, @PathVariable AnalysisType type, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
-			AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(analysisId);
+			AnalysisType analysisType = type == null ? serviceAnalysis.getAnalysisTypeById(analysisId) : type;
 			AbstractWordExporter exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
 					? new ExportQuantitativeReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
 					: new ExportQualitativeReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
@@ -804,7 +801,7 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		return LoadUserAnalyses(request.getSession(), principal, model);
+		return LoadUserAnalyses(request.getSession(), principal, model, null);
 	}
 
 	// *****************************************************************
@@ -828,25 +825,13 @@ public class ControllerAnalysis {
 			name = "ALL";
 		session.setAttribute(CURRENT_CUSTOMER, idCustomer);
 		session.setAttribute(FILTER_ANALYSIS_NAME, name);
-		List<String> names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), idCustomer);
-		if (name.equalsIgnoreCase("ALL") || !names.contains(name))
-			model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), idCustomer));
-		else
-			model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), idCustomer, name));
-		model.addAttribute("analysisSelectedName", name);
-		model.addAttribute("customer", idCustomer);
-		model.addAttribute("names", names);
-		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		model.addAttribute("login", principal.getName());
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return "redirect:/Logout";
-		loadUserSettings(principal, model, user);
+			throw new AccessDeniedException("Access denied");
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
-
-		return "analyses/all/home";
+		return LoadUserAnalyses(session, principal, model, user);
 	}
 
 	/**
@@ -895,20 +880,27 @@ public class ControllerAnalysis {
 			model.addAttribute("show_uncertainty", analysis.isUncertainty());
 			model.addAttribute("type", analysis.getType());
 			model.addAttribute("standards", standards);
-			model.addAttribute("hasMaturity", hasMaturity);
 			model.addAttribute("showHiddenComment", analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT));
-			if (analysis.getType() == AnalysisType.QUALITATIVE) {
+
+			if (analysis.isQualitative()) {
 				model.addAttribute("showRawColumn", analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
-				model.addAttribute("impactLabel", analysis.getImpacts().stream().findAny().map(ScaleType::getName).orElse(null));
-			} else
+				model.addAttribute("impactLabel", analysis.getImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
+						.map(ScaleType::getName).orElse(null));
+				int level = analysis.getLikelihoodParameters().size() - 1;
+				model.addAttribute("maxImportance", level * level);
+			}
+
+			if (analysis.isQuantitative())
 				model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 
-			if (hasMaturity)
+			if (analysis.isHybrid() && hasMaturity) {
 				model.addAttribute("effectImpl27002",
 						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
 								analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
-			int level = analysis.getLikelihoodParameters().size() - 1;
+				model.addAttribute("hasMaturity", hasMaturity);
+			}
+
 			if (!analysis.isProfile()) {
 				Map<String, List<RiskInformation>> riskInformations = RiskInformationManager.Split(analysis.getRiskInformations());
 				if (!riskInformations.containsKey(Constant.RI_TYPE_RISK))
@@ -919,7 +911,7 @@ public class ControllerAnalysis {
 					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
-			model.addAttribute("maxImportance", level * level);
+
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
@@ -1036,12 +1028,13 @@ public class ControllerAnalysis {
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("label.measure.phase", null, "Phase", locale));
-		if (type == AnalysisType.QUANTITATIVE) {
+		if (type == AnalysisType.QUALITATIVE)
+			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale));
+		else if (type == AnalysisType.QUANTITATIVE) {
 			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
 			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
 			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
-		} else
-			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale));
+		}
 	}
 
 	/**
@@ -1123,7 +1116,7 @@ public class ControllerAnalysis {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
+				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {
@@ -1167,7 +1160,7 @@ public class ControllerAnalysis {
 		return client;
 	}
 
-	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {
+	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, AnalysisType type, String username, Locale locale) throws IOException {
 		XSSFWorkbook workbook = null;
 		try {
 			List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
@@ -1178,18 +1171,21 @@ public class ControllerAnalysis {
 			if (row == null)
 				row = sheet.createRow(0);
 
-			int colCount = analysis.getType() == AnalysisType.QUANTITATIVE ? 21 : 19;
+			int colCount = type == AnalysisType.QUANTITATIVE ? 21 : 19;
 
 			for (int i = 0; i < colCount; i++) {
 				if (row.getCell(i) == null)
 					row.createCell(i, CellType.STRING);
 			}
-			addActionPLanHeader(row, analysis.getType(), locale);
-			for (ActionPlanEntry actionPlanEntry : analysis.getActionPlan(ActionPlanMode.APPN)) {
+			addActionPLanHeader(row, type, locale);
+
+			List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type == AnalysisType.QUANTITATIVE ? ActionPlanMode.APPN : ActionPlanMode.APQ);
+
+			for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, colCount, actionPlanEntry, analysis.getType(), expressionParameters, locale);
+				writeActionPLanData(row, colCount, actionPlanEntry, type, expressionParameters, locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
@@ -1213,12 +1209,11 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model) throws Exception {
+	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
 		List<String> names = null;
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
-		User user = null;
 		if (customer == null || nameFilter == null) {
 			user = serviceUser.get(principal.getName());
 			if (user == null)

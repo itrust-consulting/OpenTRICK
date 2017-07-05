@@ -45,6 +45,11 @@ function saveAssessmentData(e) {
 									$element.attr("placeholder", field.value).val(field.value);
 									continue;
 								}
+								
+								if(!$element.length && field.name.startsWith("ALE")){
+									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title",field.title);
+									continue;
+								}
 							}
 							for (var fieldName in field) {
 								switch (fieldName) {
@@ -64,9 +69,9 @@ function saveAssessmentData(e) {
 							else if ($target.tagName = 'SELECT')
 								$target.attr("title", $target.find("option:selected").attr('title'));
 						}
-						if (application.analysisType == "QUALITATIVE")
+						if (application.analysisType.isQualitative())
 							reloadSection("section_riskregister", undefined, true);
-						else
+						if(application.analysisType.isQuantitative())
 							reloadAssetScenario();
 						reloadAssetScenarioChart();
 						setTimeout(function () {
@@ -134,7 +139,7 @@ function refreshEstimation(type) {
 	var $current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item.active");
 	if (!$current.length)
 		$current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item:first");
-	$current.trigger("click");
+	$current.trigger("click")
 }
 
 function updateEstimationSelect(type, elements, status) {
@@ -185,16 +190,16 @@ function updateEstimationIteam(type, item) {
 				$option.attr("data-trick-selected", item[key]);
 				$link.attr("data-trick-selected", item[key]);
 				if (item[key]=="true")
-					$option.show();
+					$option.removeClass("hidden");
 				else {
-					$option.hide();
+					$option.addClass("hidden");
 					$link.hide();
 				}
 		}
 	}
 	if (!$option.parent().length) {
-		$link.appendTo("div[data-trick-content='" + type + "']>div.list-group", $tabSection).on("click", changeAssessment);
 		$option.appendTo($selector);
+		$link.appendTo("div[data-trick-content='" + type + "']>div.list-group", $tabSection).on("click", changeAssessment);
 	}
 
 	if ($tabSection.is(":visible"))
@@ -211,10 +216,12 @@ function removeEstimation(type, elements) {
 	return false;
 }
 
-function riskEstimationUpdate() {
+function riskEstimationUpdate(force) {
 	if (helper == undefined)
 		initialiseRiskEstimation();
 	if (helper.$tabSection.is(":visible")) {
+		if(force===true)
+			helper.invalidate = true;
 		updateRiskEstimationNavigation();
 		helper.updateContent();
 	} else
@@ -307,7 +314,7 @@ AssessmentHelder.prototype = {
 	}, updateContent: function () {
 		var $current = this.getCurrent(activeSelector).find("option:selected"), type = $current.attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-selected='true']", this.$tabSection);
 		if (type == undefined) {
-			if (this.getOther(activeSelector).find("option[data-trick-type]:visible").length)
+			if (this.getOther(activeSelector).find("option[data-trick-type]:not(.hidden)").length)
 				this.getCurrent(activeSelector).trigger("change");
 		}
 		else {
@@ -553,7 +560,8 @@ function generateDataList(id) {
 }
 
 function displayParameters(name, title) {
-	var view = new Modal(undefined, $(name).html()), $legend = $(view.modal_body).find("legend").remove();
+	var html = $(name).map(function() { return this.innerHTML; }).get().join("");
+	var view = new Modal(undefined, html), $legend = $(view.modal_body).find("legend").remove().slice(0, 1);
 	$(view.modal_footer).remove();
 	$(view.modal_body).find("tbody").css({
 		"text-align": "center"

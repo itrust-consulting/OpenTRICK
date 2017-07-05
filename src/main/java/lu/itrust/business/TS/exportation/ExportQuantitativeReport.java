@@ -69,6 +69,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 		paragraph = findTableAnchor("<ActionPlan>");
 
+		setCurrentParagraphId(TS_TAB_TEXT_2);
+
 		// run = paragraph.getRuns().get(0);
 
 		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
@@ -109,6 +111,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
 					for (XWPFRun run : paragraph2.getRuns())
 						run.setBold(true);
+					paragraph2.setAlignment(ParagraphAlignment.LEFT);
 				}
 				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(), true);
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
@@ -154,6 +157,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 		table.setStyleID("TableTSSummary");
+
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		// set header
 
@@ -428,6 +433,10 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 		Collections.sort(assessments, new AssessmentComparator());
 
+		DecimalFormat assessmentFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+		assessmentFormat.setMinimumFractionDigits(1);
+		assessmentFormat.setMaximumFractionDigits(1);
+
 		double totalale = 0;
 
 		for (Assessment assessment : assessments)
@@ -466,6 +475,8 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 
 			paragraph.setStyle("TSAssessmentTotalALE");
 
+			setCurrentParagraphId(TS_TAB_TEXT_2);
+
 			for (ALE ale : ales) {
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 				paragraph.createRun().setText(ale.getAssetName());
@@ -477,14 +488,14 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				run = paragraph.createRun();
 				run.setText(String.format("%s k€", kEuroFormat.format(ale.getValue() * 0.001)));
 				run.setBold(true);
-				paragraph.setStyle("TSAssessmentTotalALEByAsset");
+				paragraph.setStyle("TSAssessmentTotalALE");
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 				table.setStyleID("TableTSAssessment");
 				row = table.getRow(0);
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-				setCellText(row.getCell(0), getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				setCellText(row.getCell(0), getMessage("report.assessment.scenarios", null, "Scenarios", locale), ParagraphAlignment.LEFT);
 				setCellText(row.getCell(1), getMessage("report.assessment.impact.financial", null, "Fin.", locale), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(2), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(3), getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
@@ -495,13 +506,14 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 					row = table.createRow();
 					while (row.getTableCells().size() < 6)
 						row.addNewTableCell();
-					setCellText(row.getCell(0), assessment.getScenario().getName());
-					IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+					setCellText(row.getCell(0), assessment.getScenario().getName(), ParagraphAlignment.LEFT);
+					IValue impact = assessment.getImpact(Constant.DEFAULT_IMPACT_NAME);
 					if (impact == null)
 						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
 					setCellText(row.getCell(1), kEuroFormat.format(impact.getReal() * 0.001), ParagraphAlignment.CENTER);
 					setCellText(row.getCell(2), formatLikelihood(assessment.getLikelihood()), ParagraphAlignment.CENTER);
-					addCellNumber(row.getCell(3), kEuroFormat.format(assessment.getALE() * 0.001));
+					addCellNumber(row.getCell(3),
+							assessment.getALE() == 0 ? kEuroFormat.format(assessment.getALE() * 0.001) : assessmentFormat.format(assessment.getALE() * 0.001));
 					addCellParagraph(row.getCell(4), assessment.getOwner());
 					addCellParagraph(row.getCell(5), assessment.getComment());
 				}
@@ -524,6 +536,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		if (paragraph != null) {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 			table.setStyleID("TableTSAsset");
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 			// set header
 			row = table.getRow(0);
 			for (int i = 1; i < 6; i++)
@@ -540,7 +553,7 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 			for (Asset asset : assets) {
 				row = table.createRow();
 				setCellText(row.getCell(0), "" + (number++));
-				setCellText(row.getCell(1), asset.getName());
+				setCellText(row.getCell(1), asset.getName(), ParagraphAlignment.LEFT);
 				setCellText(row.getCell(2), getDisplayName(asset.getAssetType()));
 				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
 				row.getCell(4).setColor(LIGHT_CELL_COLOR);
@@ -624,12 +637,14 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 		String parmetertype = "";
-		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+		if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 			parmetertype = "Impact";
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Proba";
 
 		paragraph = findTableAnchor("<" + parmetertype + ">");
+
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 
@@ -672,20 +687,20 @@ public class ExportQuantitativeReport extends AbstractWordExporter {
 				setCellText(row.getCell(2), parameter.getDescription());
 				Double value = 0.;
 				value = parameter.getValue();
-				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
 					row.getCell(3).setColor(SUB_HEADER_COLOR);
 				value = parameter.getBounds().getFrom();
-				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(4), kEuroFormat.format(value));
 				if (parameter.getLevel() == length)
 					addCellNumber(row.getCell(5), "+∞");
 				else {
 					value = parameter.getBounds().getTo();
-					if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 						value *= 0.001;
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}

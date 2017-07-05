@@ -115,8 +115,7 @@ function findControllerBySection(section, subSection) {
 		"section_soa": "/Analysis/Standard/SOA",
 		"section_ids": "/Admin/IDS/Section",
 		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
-		"section_qualitative_parameter": "/Analysis/Parameter/Qualitative/Section",
-		"section_quantitative_parameter": "/Analysis/Parameter/Quantitative/Section",
+		"section_parameter": "/Analysis/Parameter/Section",
 		"section_parameter_impact_probability": "/Analysis/Parameter/Impact-probability/Section",
 		"section_risk-information_risk":"/Analysis/Risk-information/Section/Risk",
 		"section_risk-information_vul":"/Analysis/Risk-information/Section/Vul",
@@ -129,7 +128,7 @@ function findControllerBySection(section, subSection) {
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
 	}
 
-	if ("section_riskregister" == section && application.analysisType != "QUALITATIVE")
+	if ("section_riskregister" == section && !application.analysisType.isQualitative())
 		return undefined;
 
 	if (subSection == null || subSection == undefined)
@@ -142,14 +141,14 @@ function callbackBySection(section) {
 	var callbacks = {
 		"section_asset": function () {
 			reloadSection("section_scenario", undefined, true);
-			if (application.analysisType == "QUALITATIVE")
+			if (application.analysisType.isQualitative())
 				reloadSection("section_riskregister", undefined, true);
 			reloadAssetScenarioChart();
 			return false;
 		},
 		"section_scenario": function () {
 			reloadSection("section_asset", undefined, true);
-			if (application.analysisType == "QUALITATIVE")
+			if (application.analysisType.isQualitative())
 				reloadSection("section_riskregister", undefined, true);
 			reloadAssetScenarioChart();
 			return false;
@@ -180,11 +179,13 @@ function callbackBySection(section) {
 					// manage measure
 					application["standard-caching"].clear();
 			}
-		},
-		"section_qualitative_parameter": function () {
-			reloadRiskChart(true)// load chart + rebuild tables.
+		},"section_parameter" : () =>{
+			if(application.analysisType.isQualitative())
+				reloadRiskChart(true);
+		}, "section_parameter_impact_probability": () => {
+			if(application.analysisType.isQualitative())
+				reloadRiskChart(true);
 		}
-
 	};
 
 	if (section.match("^section_standard_"))

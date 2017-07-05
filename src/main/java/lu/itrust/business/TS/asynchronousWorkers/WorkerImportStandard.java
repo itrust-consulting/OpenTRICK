@@ -31,6 +31,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
@@ -534,6 +535,11 @@ public class WorkerImportStandard implements Worker {
 	@Override
 	public Date getFinished() {
 		return finished;
+	}
+
+	@Override
+	public TaskName getName() {
+		return TaskName.IMPORT_MEASURE_COLLECTION;
 	}
 
 }

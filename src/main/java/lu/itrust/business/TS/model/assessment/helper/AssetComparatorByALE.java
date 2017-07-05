@@ -2,12 +2,13 @@ package lu.itrust.business.TS.model.assessment.helper;
 
 import java.util.Comparator;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
+
 public class AssetComparatorByALE implements Comparator<ALE> {
 
 	@Override
 	public int compare(ALE o1, ALE o2) {
 		int comp = Double.compare(o2.getValue(), o1.getValue());
-		return comp == 0 ? o2.getAssetName().toLowerCase().compareTo(o1.getAssetName().toLowerCase())
-				: comp;
+		return comp == 0 ? NaturalOrderComparator.compareTo(o2.getAssetName(), o1.getAssetName()) : comp;
 	}
 }

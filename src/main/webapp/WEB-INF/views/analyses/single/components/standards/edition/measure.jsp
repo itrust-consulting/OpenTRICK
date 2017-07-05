@@ -42,7 +42,7 @@
 				<button type="button" class="btn btn-xs btn-link" ${lang=='FR'? 'disabled' : ''} lang="FR" data-flag-disabled='${fr_disabled}' data-flag-enabled='${fr_enabled}' ><img alt="Français" src="${lang=='FR'? fr_disabled : fr_enabled}"></button>
 			</div>
 			</c:if>
-			<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
+			<div id="description" class='well well-sm form-no-fill' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
 		</fieldset>
 		<fieldset>
 			<c:if test="${measureDescription.computable}">
@@ -88,7 +88,7 @@
 			<spring:message code="label.metric.keuro" var="metricKEuro" />
 			<spring:message code="label.metric.man_day" var="metricMd" />
 			<div class='form-group'>
-				<table class="table table-condensed">
+				<table class="table table-condensed form-no-fill">
 					<thead>
 						<tr class="form-group-fill">
 							<th colspan="2" style="text-align: center;"><spring:message code="label.actual.status" /></th>

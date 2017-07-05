@@ -82,13 +82,15 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 		// run = paragraph.getRuns().get(0);
 
-		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
+		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APQ);
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSActionPlan");
+			
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 
 			row = table.getRow(0);
 
@@ -118,6 +120,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
 					for (XWPFRun run : paragraph2.getRuns())
 						run.setBold(true);
+					paragraph2.setAlignment(ParagraphAlignment.LEFT);
 				}
 				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(), true);
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getRiskCount()));
@@ -154,7 +157,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		if (paragraph == null)
 			return;
 
-		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
+		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APQ);
 
 		if (summary.isEmpty()) {
 			paragraphsToDelete.add(paragraph);
@@ -167,6 +170,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 		table.setStyleID("TableTSSummary");
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 
 		// set header
 
@@ -398,11 +402,13 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 		paragraphOrigin = findTableAnchor("<Assessment>");
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
 			while (!paragraphOrigin.getRuns().isEmpty())
 				paragraphOrigin.removeRun(0);
 			List<ScaleType> scaleTypes = analysis.getImpacts();
+			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			int colLength = 4 + scaleTypes.size(), colIndex = 0;
 			for (Asset asset : assessementsByAsset.keySet()) {
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
@@ -414,7 +420,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 				row = table.getRow(0);
 				while (row.getTableCells().size() < colLength)
 					row.addNewTableCell();
-				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				setCellText(row.getCell(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale),ParagraphAlignment.LEFT);
 				for (ScaleType scaleType : scaleTypes)
 					setCellText(row.getCell(colIndex++), scaleType.getShortName(languageAlpha2), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
@@ -467,6 +473,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSAsset");
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 
 			// set header
 
@@ -477,7 +484,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 			// set header
 			setCellText(row.getCell(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
-			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale));
+			setCellText(row.getCell(1), getMessage("report.asset.title.name", null, "Name", locale),ParagraphAlignment.LEFT);
 			setCellText(row.getCell(2), getMessage("report.asset.title.type", null, "Type", locale));
 			setCellText(row.getCell(3), getMessage("report.asset.title.value", null, "Value(k€)", locale));
 			setCellText(row.getCell(4), getMessage("report.asset.title.comment", null, "Comment", locale));
@@ -517,11 +524,13 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		paragraph = findTableAnchor("<" + parmetertype + ">");
 
 		if (paragraph != null) {
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 			if (parmetertype == "Proba")
 				buildImpactProbabilityTable(paragraph, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
 						analysis.getLikelihoodParameters());
 			else {
-				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().collect(Collectors.groupingBy(ImpactParameter::getType));
+				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().filter(parameter -> !parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))
+						.collect(Collectors.groupingBy(ImpactParameter::getType));
 				generateImpactList(impacts.keySet());
 				for (ScaleType scaleType : impacts.keySet()) {
 					Translation title = scaleType.get(languuage);
@@ -559,6 +568,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		titleParagraph.setStyle("TSEstimationTitle");
 		XWPFTable table = document.insertNewTbl(paragraph.getCTP().newCursor());
 		table.setStyleID("TableTS" + type);
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 		// set header
 		XWPFTableRow row = table.getRow(0);
 		for (int i = 1; i < 3; i++) {
@@ -672,6 +682,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		if (paragraph != null) {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 			table.setStyleID("TableTSRiskAcceptance");
+			setCurrentParagraphId(TS_TAB_TEXT_2);
 			// set header
 			row = table.getRow(0);
 			for (int i = 1; i < 2; i++)

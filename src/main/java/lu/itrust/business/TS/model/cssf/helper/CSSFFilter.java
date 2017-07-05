@@ -4,6 +4,8 @@
 package lu.itrust.business.TS.model.cssf.helper;
 
 /**
+ * For direct, indirect and cia : -2 : exclude  -1: all, 0: conform
+ * 
  * @author eomar
  *
  */
@@ -14,7 +16,7 @@ public class CSSFFilter {
 	private int indirect = 5;
 	
 	/**
-	 * -1: exclude, 0: all
+	 * -2: exclude  -1: all, 0: conform
 	 */
 	private int cia = -1;
 

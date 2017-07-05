@@ -23,7 +23,7 @@
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
 	<c:if
-		test="${isEditable and ( isAnalysisOnly or type == 'QUANTITATIVE' and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+		test="${isEditable and ( isAnalysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
@@ -41,7 +41,7 @@
 </c:set>
 <c:set var="implementationRateAttr">
 	<c:choose>
-		<c:when test="${type == 'QUALITATIVE'}">
+		<c:when test="${type == 'QUALITATIVE' or not showDynamicAnalysis }">
 			data-trick-min-value='0' data-trick-max-value='100' data-trick-step-value='1'
 		</c:when>
 		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
@@ -124,7 +124,7 @@
 					<td ${css} data-trick-field="implementationRate" ${implementationRateAttr} data-trick-field-type="string" data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
 						 title="${implementationRateValue} %" onclick="return editField(this);">${implementationRateValue}</td>
 					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
-						<td data-trick-field='mer'><c:choose>
+						<td class="text-center" data-trick-field='mer'><c:choose>
 								<c:when test="${empty effectImpl27002}">0</c:when>
 								<c:otherwise>
 									<fmt:formatNumber value="${effectImpl27002}" maxFractionDigits="0" minFractionDigits="0" />

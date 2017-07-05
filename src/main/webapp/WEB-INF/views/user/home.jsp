@@ -18,7 +18,7 @@
 				<li><a href="#tab-sqlite" data-toggle="tab"><spring:message code="label.menu.sqlite" text="My sqlites" /></a></li>
 				<li><a href="#tab-report" data-toggle="tab"><spring:message code="label.menu.report" text="My reports" /></a></li>
 				<c:if test="${enabledOTP}">
-					<li><a href="#tab-otp" data-toggle="tab"><spring:message code="label.menu.otp.options" text="Sign-in settings" /></a></li>
+					<li><a href="#tab-otp" data-toggle="tab"><spring:message code="label.menu.otp.options" text="My sign-in settings" /></a></li>
 				</c:if>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>

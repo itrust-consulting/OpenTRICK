@@ -18,7 +18,7 @@
 	</div>
 </div>
 <div class="form-group">
-	<table class='table'>
+	<table class='table form-no-fill'>
 		<thead>
 			<c:choose>
 				<c:when test="${show_uncertainty}">
@@ -61,8 +61,14 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${impact.real<10000}">
+									<c:when test="${impact.real<100}">
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<1000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
+									</c:when>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
 									</c:when>
 									<c:otherwise>
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
@@ -76,7 +82,7 @@
 				</td>
 				<td>
 					<div class="input-group" align="right">
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Probability">${probaUnit}</button></span>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Probability,#DynamicParameters">${probaUnit}</button></span>
 						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 						<c:choose>
 							<c:when test="${empty likelihood}">

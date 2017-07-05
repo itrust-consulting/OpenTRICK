@@ -14,8 +14,8 @@ public class MeasureComparator implements NaturalOrderComparator<Measure> {
 
 	@Override
 	public int compare(Measure o1, Measure o2) {
-		int standard = o1.getMeasureDescription().getStandard().getLabel().compareToIgnoreCase(o2.getMeasureDescription().getStandard().getLabel());
-		return standard == 0? NaturalOrderComparator.compareTo(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference()) : standard;
+		int standard = NaturalOrderComparator.compareTo(o1.getMeasureDescription().getStandard().getLabel(), o2.getMeasureDescription().getStandard().getLabel());
+		return standard == 0 ? NaturalOrderComparator.compareTo(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference()) : standard;
 	}
 
 }

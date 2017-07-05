@@ -427,11 +427,11 @@ public class ImportAnalysis {
 			AssessmentAndRiskProfileManager assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
 
 			// Update values of dynamic parameters
-			if (this.analysis.getType() == AnalysisType.QUANTITATIVE)
+			if (this.analysis.isQuantitative())
 				new DynamicParameterComputer(session, daoAnalysis, assessmentAndRiskProfileManager).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
-			assessmentAndRiskProfileManager.updateRiskDendencies(analysis, factory);
+			AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, factory);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
@@ -727,7 +727,7 @@ public class ImportAnalysis {
 					if (getVersion() == null)
 						setVersion("2.3");
 				}
-				if (analysis.getType() == AnalysisType.QUANTITATIVE)
+				if (analysis.isQuantitative())
 					analysis.setUncertainty(getBoolean(rs, "uncertainty"));
 				else
 					analysis.setUncertainty(false);
@@ -1011,9 +1011,10 @@ public class ImportAnalysis {
 				tmpAssessment.setALEP(tmpAssessment.getALE() * tmpAssessment.getUncertainty());
 
 				if (isCompability1X()) {
-					if (analysis.getType() == AnalysisType.QUANTITATIVE)
+					if (analysis.isQuantitative())
 						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, tmpAssessment.getImpactReal());
-					else {
+
+					if (analysis.isQualitative()) {
 						for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
 							setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
 					}
@@ -1406,7 +1407,7 @@ public class ImportAnalysis {
 				ImpactParameter impactParameter = new ImpactParameter();
 				if (!isCompability1X()) {
 					impactParameter.setType(impactTypes.get(getString(rs, "type").toUpperCase()));
-					if (analysis.getType() == AnalysisType.QUALITATIVE)
+					if (analysis.isQualitative())
 						impactParameter.setLabel(getString(rs, Constant.LABEL_IMPACT, ""));
 				}
 				impactParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
@@ -1453,9 +1454,9 @@ public class ImportAnalysis {
 		try {
 			impactTypes = new LinkedHashMap<>();
 			if (isCompability1X()) {
-				if (analysis.getType() == AnalysisType.QUANTITATIVE)
+				if (analysis.isQuantitative())
 					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, Constant.DEFAULT_IMPACT_SHORT_NAME, "");
-				else {
+				if (analysis.isQualitative()) {
 					for (int i = 0; i < Constant.DEFAULT_IMPACT_TYPE_NAMES.length; i++)
 						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], Constant.DEFAULT_IMPACT_TYPE_SHORT_NAMES[i], "i");
 				}
@@ -1612,7 +1613,7 @@ public class ImportAnalysis {
 	 */
 	private void importMaturityMeasures() throws Exception {
 
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
+		if (!analysis.isQuantitative())
 			return;
 
 		System.out.println("Import maturity measures");
@@ -1912,7 +1913,7 @@ public class ImportAnalysis {
 
 		System.out.println("Import Maturity Parameters");
 
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
+		if (!analysis.isQuantitative())
 			return;
 
 		// ****************************************************************
@@ -2453,7 +2454,7 @@ public class ImportAnalysis {
 				// * create instance
 				// ****************************************************************
 				LikelihoodParameter likelihoodParameter = new LikelihoodParameter();
-				if (!isCompability1X() && analysis.getType() == AnalysisType.QUALITATIVE)
+				if (!isCompability1X() && analysis.isQualitative())
 					likelihoodParameter.setLabel(getString(rs, Constant.LABEL_POTENTIALITY, ""));
 				likelihoodParameter.setDescription(rs.getString(Constant.NAME_POTENTIALITY));
 				likelihoodParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
@@ -2601,7 +2602,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				tempRI = new RiskInformation();
 				tempRI.setCategory(Constant.RI_TYPE_RISK + "_" + rs.getString(Constant.RI_TYPE));
-				
+
 				if (hasCustom) {
 					tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
 					tempRI.setCustom(rs.getBoolean(Constant.RI_CUSTOM));
@@ -2609,7 +2610,7 @@ public class ImportAnalysis {
 					tempRI.setChapter("7" + rs.getString(Constant.RI_LEVEL).substring(1));
 				else
 					tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
-				
+
 				tempRI.setLabel(rs.getString(Constant.RI_NAME));
 				tempRI.setAcronym(Constant.EMPTY_STRING);
 				tempRI.setExposed(rs.getString(Constant.RI_EXPO));
@@ -2631,7 +2632,7 @@ public class ImportAnalysis {
 	}
 
 	private void importRiskProfile() throws SQLException {
-		if (analysis.getType() == AnalysisType.QUANTITATIVE)
+		if (!analysis.isQualitative())
 			return;
 		ResultSet resultSet = null;
 
@@ -3133,7 +3134,7 @@ public class ImportAnalysis {
 				this.analysis.add(simpleParameter);
 			}
 
-			if (!isCompability1X() && analysis.getType() == AnalysisType.QUALITATIVE) {
+			if (!isCompability1X() && analysis.isQualitative()) {
 				// close result
 				rs.close();
 				parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);

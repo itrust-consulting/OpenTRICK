@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="modalRiskAcceptanceForm" tabindex="-1" role="dialog" data-aria-labelledby="riskAcceptanceForm" style="z-index: 1042" data-aria-hidden="true"
 	data-backdrop="static" data-keyboard="true">
-	<div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-mdl">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -22,9 +22,9 @@
 							<tr>
 								<th><spring:message code="label.action" /></th>
 								<th style="width: 15%" class="textaligncenter"><spring:message code="label.parameter.label" /></th>
-								<th style="width: 25%" class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
-								<th style="width: 45%" class="textaligncenter"><spring:message code="label.description" /></th>
-								<th style="width: 15%" class="textaligncenter"><spring:message code="label.color" /></th>
+								<th style="width: 27%" class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
+								<th style="width: 55%" class="textaligncenter"><spring:message code="label.description" /></th>
+								<th class="textaligncenter" style="min-width: 50px;"><spring:message code="label.color" /></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -40,8 +40,8 @@
 											<span class='range-text'>${value}</span> <input class="range-input" name="value" type="range" value="${value}" min='1' max='${maxImportance}'>
 										</div>
 									</td>
-									<td><textarea rows="1" class="form-control" name="description"><spring:message text="${parameter.description}"/></textarea></td>
-									<td><input type="color" class='form-control' name="color" value="${parameter.color}"></td>
+									<td><textarea rows="1" class="form-control resize_vectical_only" name="description"><spring:message text="${parameter.description}"/></textarea></td>
+									<td><input type="color" class='form-control form-control-static' name="color" value="${parameter.color}"></td>
 								</tr>
 							</c:forEach>
 							<tr data-trick-max-value='${maxImportance}' class='panel-footer'>

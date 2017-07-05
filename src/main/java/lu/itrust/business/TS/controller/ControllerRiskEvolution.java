@@ -7,12 +7,14 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -135,20 +137,22 @@ public class ControllerRiskEvolution {
 
 	@RequestMapping(value = "/Type/{type}/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable AnalysisType type, @PathVariable Integer id, Principal principal) {
-		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), type, AnalysisRight.highRightFrom(AnalysisRight.READ));
+		List<AnalysisBaseInfo> collection1 = serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), type, AnalysisRight.highRightFrom(AnalysisRight.READ));
+		List<AnalysisBaseInfo> collection2 = serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisType.HYBRID, AnalysisRight.highRightFrom(AnalysisRight.READ));
+		return Stream.concat(collection1.stream(), collection2.stream()).collect(Collectors.toList());
 	}
 
 	@RequestMapping(value = "/Type/{type}/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable AnalysisType type, @PathVariable Integer id, @PathVariable String identifier,
-			Principal principal) {
-		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, type,
-				AnalysisRight.highRightFrom(AnalysisRight.READ));
+	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable AnalysisType type, @PathVariable Integer id, @PathVariable String identifier, Principal principal) {
+		List<AnalysisBaseInfo> collection1 = serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, type, AnalysisRight.highRightFrom(AnalysisRight.READ));
+		List<AnalysisBaseInfo> collection2 = serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisType.HYBRID, AnalysisRight.highRightFrom(AnalysisRight.READ));
+		return Stream.concat(collection1.stream(), collection2.stream()).collect(Collectors.toList());
 	}
 
 	@RequestMapping
 	public String home(Principal principal, HttpSession session, Model model) throws Exception {
 		LoadUserAnalyses(session, principal, model);
-		model.addAttribute("types", AnalysisType.values());
+		model.addAttribute("types", Arrays.stream(AnalysisType.values()).filter(type -> type != AnalysisType.HYBRID).toArray());
 		return "analyses/risk-evolution/home";
 	}
 

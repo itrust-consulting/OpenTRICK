@@ -299,7 +299,7 @@ public class ControllerScenario {
 
 			Map<Integer, AssetType> assetTypes = serviceAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getId, Function.identity()));
 
-			Scenario scenario = buildScenario(idAnalysis, errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
+			Scenario scenario = buildScenario(idAnalysis, errors, assetTypes, value, locale, analysis.isQuantitative());
 
 			if (!errors.isEmpty())
 				return results;
@@ -425,7 +425,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private Scenario buildScenario(Integer idAnalysis, Map<String, Object> errors, Map<Integer, AssetType> assetTypes, String source, Locale locale, boolean cssf) {
+	private Scenario buildScenario(Integer idAnalysis, Map<String, Object> errors, Map<Integer, AssetType> assetTypes, String source, Locale locale, boolean isQuantitative) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -460,7 +460,6 @@ public class ControllerScenario {
 				scenario.setType(scenarioType);
 				// set category according to value of scenario type
 				scenario.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
-
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			}
@@ -505,7 +504,7 @@ public class ControllerScenario {
 			for (JsonNode assetNode : assetValues)
 				scenario.addApplicable(serviceAsset.get(assetNode.asInt(-1)));
 
-			if (!cssf) {
+			if (isQuantitative) {
 				scenario.setAccidental(jsonNode.get("accidental").asInt());
 
 				scenario.setEnvironmental(jsonNode.get("environmental").asInt());
@@ -546,7 +545,7 @@ public class ControllerScenario {
 
 	private String loadFormData(Scenario scenario, Model model, Integer idAnalysis, Locale locale) {
 		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-		if (type == AnalysisType.QUALITATIVE)
+		if (AnalysisType.isQualitative(type))
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());

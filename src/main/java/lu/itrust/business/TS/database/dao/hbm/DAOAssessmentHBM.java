@@ -321,4 +321,5 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	public void delete(IValue impact) {
 		getSession().delete(impact);
 	}
+
 }

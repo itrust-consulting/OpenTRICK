@@ -16,7 +16,9 @@ public class AsyncResult {
 
 	private int flag = 0;
 
-	private TaskName taskName;
+	private String name;
+
+	private String action;
 
 	private String status;
 
@@ -49,17 +51,11 @@ public class AsyncResult {
 	 * @param message
 	 */
 	public AsyncResult(TaskName taskName, String status, String taskID, String message) {
-		this.taskName = taskName;
+		setTaskName(taskName);
 		this.status = status;
 		this.taskID = taskID;
 		this.message = message;
-	}
 
-	/**
-	 * @return the taskName
-	 */
-	public TaskName getTaskName() {
-		return taskName;
 	}
 
 	/**
@@ -67,7 +63,10 @@ public class AsyncResult {
 	 *            the taskName to set
 	 */
 	public void setTaskName(TaskName taskName) {
-		this.taskName = taskName;
+		if (taskName != null) {
+			setName(taskName.getName());
+			setAction(taskName.getAction());
+		}
 	}
 
 	/**
@@ -158,6 +157,36 @@ public class AsyncResult {
 	 */
 	public void setAsyncCallback(AsyncCallback asyncCallback) {
 		this.asyncCallback = asyncCallback;
+	}
+
+	/**
+	 * @return the action
+	 */
+	public String getAction() {
+		return action;
+	}
+
+	/**
+	 * @param action
+	 *            the action to set
+	 */
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

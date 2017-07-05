@@ -17,9 +17,9 @@ $(document).ready(function () {
 
 		$customer.trigger('change');
 
-		$(".risk-evolution li[data-type!='" + analysisType + "'][data-type!='ALL']").addClass('hidden');
+		$(".risk-evolution li:not([data-type~='" + analysisType + "'])").addClass('hidden');
 
-		$(".risk-evolution li[data-type='" + analysisType + "']").removeClass('hidden');
+		$(".risk-evolution li[data-type~='" + analysisType + "']").removeClass('hidden');
 
 		if ($(".risk-evolution li.active:hidden").length)
 			$(".risk-evolution li:visible:first>a").trigger("click");

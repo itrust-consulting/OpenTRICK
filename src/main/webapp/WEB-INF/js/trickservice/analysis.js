@@ -39,13 +39,14 @@ $(document).ready(function () {
 
 	}, 100);
 
-	// Periodically reload assessment values
-	/*
-	 * window.setInterval(function () { reloadAssetScenario();
-	 * loadChartDynamicParameterEvolution();
-	 * loadChartDynamicAleEvolutionByAssetType();
-	 * loadChartDynamicAleEvolution(); }, 300000);
-	 */ // every 30s
+	// Periodically dynamic charts
+	if(application.isDynamic){
+		window.setInterval(function () {
+			loadChartDynamicParameterEvolution();
+			loadChartDynamicAleEvolutionByAssetType();
+			loadChartDynamicAleEvolution();
+		}, 30000); // every 30s
+	}
 });
 
 $.fn.loadOrUpdateChart = function (parameters) {
@@ -115,17 +116,31 @@ function manageImpactScale(){
 				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
+					
+					// load view static error message
+					$("[data-lang-code]", $view).each(function(){
+						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
+					});
+					
+					$(".form-group input[value='false']:not(:checked)").one("change",(e) => showDialog("warning",MessageResolver("info.manage.impact.remove")));
+					
 					$("button[name='save']").on("click", e => {
-						var data = {};
+						var data = {}, notEmpty = false;
 						$(".form-group[data-trick-id]", $view).each(function () {
 							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
 								data[$this.attr("data-trick-id")] = newValue;
+							notEmpty|= newValue === 'true';
 						});
 						
-						$progress.show();
+						if(!notEmpty){
+							showDialog("#alert-dialog",MessageResolver("error.manage.impact.empty"));
+							return false;
+						}
 						
 						if (Object.keys(data).length) {
+							
+							$progress.show();
 							$.ajax({
 								url: context + "/Analysis/Parameter/Impact-scale/Manage/Save",
 								type: "post",
@@ -146,8 +161,9 @@ function manageImpactScale(){
 							}).complete(function () {
 								$progress.hide();
 							});
-						} else
-							$progress.hide();
+						}
+						
+						$view.modal("hide");
 					});
 				}
 			},
@@ -187,7 +203,11 @@ function reloadAssetScenario() {
 }
 
 function reloadAssetScenarioChart() {
-	return application.analysisType == "QUALITATIVE" ? reloadRiskChart() : chartALE();
+	if(application.analysisType.isQualitative())
+		reloadRiskChart();
+	if(application.analysisType.isQuantitative())
+		chartALE();
+	return false;
 }
 
 function isEditable() {
@@ -472,6 +492,10 @@ function loadRiskHeatMap() {
 
 }
 
+function checkForCollectionUpdate(){
+	triggerCaller($("div[id~='tab-standard-']:visible"));
+}
+
 function loadRiskChart(url, name, container, canvas) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -521,17 +545,17 @@ function loadRiskChart(url, name, container, canvas) {
 }
 
 
-function updateMeasureEffience(reference) {
+function updateMeasureEffience(reference,force) {
 	if (!application.hasMaturity)
 		return;
 	var $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
 	if (!$standard27002.length)
 		return;
-	var $tabPane = $standard27002.closest(".tab-pane"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
+	var $tabPane = $standard27002.closest("div[data-targetable='true']"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
 	if (updateRequired && triggerName == "reloadSection")
 		return;
 	var data = [], chapters = application["parameter-27002-efficience"];
-	if ($standard27002.is(":visible")) {
+	if ($standard27002.is(":visible") || force) {
 		if (Array.isArray(chapters)) {
 			data = chapters;
 			delete application["parameter-27002-efficience"];
@@ -556,12 +580,11 @@ function updateMeasureEffience(reference) {
 				$tabPane.attr("data-update-required", updateRequired).attr("data-trigger", triggerName);
 		}
 	}
-
 	if (!data.length)
 		return;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: context + "/Analysis/Standard/Compute-efficience",
+		url: context + "/Analysis/Standard/Compute-efficiency",
 		type: "post",
 		data: JSON.stringify(data),
 		contentType: "application/json;charset=UTF-8",
@@ -581,16 +604,21 @@ function updateMeasureEffience(reference) {
 
 function compliances() {
 	var $section = $("#tab-chart-compliance");
-	if ($section.is(":visible"))
-		loadComplianceChart(context + "/Analysis/Standard/Compliances");
+	if ($section.is(":visible")){
+		for (let type of application['complianceType'])
+			loadComplianceChart(context + "/Analysis/Standard/Compliances/"+type);
+		
+	}
 	else $section.attr("data-update-required", "true");
 	return false;
 }
 
 function compliance(standard) {
 	var $section = $("#tab-chart-compliance");
-	if ($section.is(":visible"))
-		loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance");
+	if ($section.is(":visible")){
+		for (let type of application['complianceType'])
+			loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance/"+type);
+	}
 	else
 		$section.attr("data-update-required", "true");
 	return false;
@@ -788,11 +816,11 @@ function manageRiskAcceptance() {
 						function () {
 							var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
 								"<span class='range-text'>0</span>").appendTo($div), $range = $(
-									"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control'>");
+									"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
 							$removeBtn.appendTo($("<td/>").appendTo($tr));
 							$("<td><input name='label' class='form-control'></td>").appendTo($tr);
 							$div.appendTo($("<td />").appendTo($tr));
-							$("<td><textarea name='description' class='form-control' rows='1' /></td>").appendTo($tr);
+							$("<td><textarea name='description' class='form-control resize_vectical_only' rows='1' /></td>").appendTo($tr);
 							$inputColor.appendTo($("<td />").appendTo($tr));
 							$trParent.before($tr);
 							$removeBtn.on("click", actionDelete);
@@ -832,7 +860,7 @@ function manageRiskAcceptance() {
 								else if (response.success) {
 									$content.modal("hide");
 									showNotifcation('success', response.success);
-									reloadSection("section_qualitative_parameter");
+									reloadSection(["section_parameter_impact_probability","section_parameter"]);
 								} else
 									unknowError();
 							},
@@ -902,7 +930,7 @@ function loadChartDynamicParameterEvolution() {
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
-							options: aleEvolutionOptions(chart.title)
+							options: dynamicParameterEvolutionOptions(chart.title)
 						}));
 
 					}
