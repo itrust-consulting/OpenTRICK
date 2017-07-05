@@ -18,7 +18,21 @@ import javax.xml.bind.JAXBException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.docx4j.dml.CTRegularTextRun;
+import org.docx4j.dml.chart.CTBarChart;
+import org.docx4j.dml.chart.CTBarSer;
+import org.docx4j.dml.chart.CTBoolean;
+import org.docx4j.dml.chart.CTNumFmt;
+import org.docx4j.dml.chart.CTNumVal;
+import org.docx4j.dml.chart.CTStrVal;
+import org.docx4j.dml.chart.CTValAx;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.parts.Part;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.DrawingML.Chart;
+import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
+import org.docx4j.relationships.Relationship;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
@@ -28,6 +42,7 @@ import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -379,11 +394,11 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
-		
+
 		insertBofore(paragraph, table);
-		
-		if(!summary.isEmpty()){
-			setCustomProperty("FINAL_ALE_VAL", summary.get(summary.size()-1).getTotalALE()*0.001);
+
+		if (!summary.isEmpty()) {
+			setCustomProperty("FINAL_ALE_VAL", summary.get(summary.size() - 1).getTotalALE() * 0.001);
 		}
 	}
 
@@ -663,11 +678,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			assetTotalValue += entry.getValue();
 			setCustomProperty(entry.getKey().toUpperCase() + "_Val", entry.getValue() * 0.001);
 		}
-		
+
 		setCustomProperty("TOTAL_ASSET_VAL", assetTotalValue * 0.001);
-		
-		Double compliance = analysis.getAnalysisStandards().stream().mapToDouble(analysisStandard -> ChartGenerator.ComputeCompliance(analysisStandard, valueFactory)).average().orElse(0);
-		
+
+		Double compliance = analysis.getAnalysisStandards().stream().mapToDouble(analysisStandard -> ChartGenerator.ComputeCompliance(analysisStandard, valueFactory)).average()
+				.orElse(0);
+
 		setCustomProperty("CURRENT_COMPLIANCE", compliance);
 	}
 
@@ -675,22 +691,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	protected void writeChart(Docx4jExcelSheet reportExcelSheet) throws Exception {
 		try {
 			switch (reportExcelSheet.getName()) {
-			case "ALEByScenarioType":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario.type", "Printing ALE by scenario type excel sheet", increase(3)));// 77%
-				generateALEByScenarioTypeGraphic(reportExcelSheet);
-				break;
-			case "ALEByScenario":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario", "Printing ALE by scenario excel sheet", increase(5)));// 82%
-				generateALEByScenarioGraphic(reportExcelSheet);
-				break;
-			case "ALEByAssetType":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset.type", "Printing ALE by asset type excel sheet", increase(2)));// 84%
-				generateALEByAssetTypeGraphic(reportExcelSheet);
-				break;
-			case "ALEByAsset":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset", "Printing ALE by asset excel sheet", increase(5)));// 89%
-				generateALEByAssetGraphic(reportExcelSheet);
-				break;
 			case "EvolutionOfProfitability":
 				serviceTaskFeedback.send(idTask,
 						new MessageHandler("info.printing.chart.data.evolution.of.profitability", "Printing evolution of profitability  excel sheet", increase(7)));// 96%
@@ -706,113 +706,36 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	private void generateALEByAssetGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
+	private void generateALEByAssetTypeGraphic() throws Exception {
 		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getId());
-			if (ale == null) {
-				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset", null, "Asset", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
-	}
-
-	private void generateALEByAssetTypeGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		List<Assessment> assessments = analysis.getSelectedAssessments();
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
-			if (ale == null) {
+			if (ale == null)
 				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getName(), 0));
-				ales2.add(ale);
-			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset_type", null, "Asset type", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
+
+		generateALEChart(ales, "ChartALEByAssetType", getMessage("report.chart.title.asset.type", null, "Asset type", locale),
+				getMessage("report.chart.asset.type", null, "Asset type", locale), "AleByAssetType", "report.chart.asset.type.index");
+
 	}
 
-	private void generateALEByScenarioGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
+	private void generateALEByScenarioGraphic() throws Exception {
 		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getScenario().getId());
-			if (ale == null) {
+			if (ale == null)
 				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
-				ales2.add(ale);
-			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario", null, "Scenario", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
-
+		generateALEChart(ales, "ChartALEByScenario", getMessage("report.chart.title.scenario", null, "Scenario", locale),
+				getMessage("report.chart.scenario", null, "Scenario", locale), "AleBySceanrio", "report.chart.scenario.index");
 	}
 
-	private void generateALEByScenarioTypeGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
+	private void generateALEByScenarioTypeGraphic() throws Exception {
+
 		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
@@ -824,24 +747,10 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario_type", null, "Scenario type", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
+
+		generateALEChart(ales, "ChartALEByScenarioType", getMessage("report.chart.title.scenario.type", null, "Scenario type", locale),
+				getMessage("report.chart.scenario.type", null, "Scenario type", locale), "AleBySceanrioType", "report.chart.scenario.type.index");
+
 	}
 
 	private void generateBudgetGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
@@ -924,9 +833,141 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void createMissingGraphics() {
+	protected void updateGraphics() throws Exception {
+		generateALEByAssetGraphic();
+		generateALEByAssetTypeGraphic();
+		generateALEByScenarioGraphic();
+		generateALEByScenarioTypeGraphic();
+	}
+
+	private void generateALEByAssetGraphic() throws Exception {
+
+		List<Assessment> assessments = analysis.getSelectedAssessments();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getId());
+			if (ale == null)
+				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		}
+		generateALEChart(ales, "ChartALEByAsset", getMessage("report.chart.title.asset", null, "ALE By Asset", locale), getMessage("report.chart.asset", null, "Asset", locale),
+				"AleByAsset", "report.chart.asset.index");
+	}
+
+	private void generateALEChart(Map<Integer, ALE> ales, String chartName, String title, String column, String name, String multiTitleCode) throws Exception {
+		List<ALE> ales2 = ales.values().parallelStream().sorted(new AssetComparatorByALE()).collect(Collectors.toList());
+		if (ales2.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
+			generateALEChart(ales2, (Chart) findChart(chartName), title, column);
+		else {
+			List<Part> parts = duplicateAleChart(ales.size(), chartName, name);
+			int count = parts.size(), divisor = Math.floorDiv(ales2.size(), count);
+			for (int i = 0; i < count; i++)
+				generateALEChart(ales2.subList(i * divisor, i == (count - 1) ? ales2.size() : (i + 1) * divisor), (Chart) parts.get(i),
+						getMessage(multiTitleCode, new Object[] { i + 1, count }, null, locale), column);
+		}
+	}
+
+	private void generateALEChart(List<ALE> ales, Chart chart, String title, String name) throws Exception {
+		if (chart == null)
+			return;
+		String path = chart.getRelationshipsPart().getRelationships().getRelationship().parallelStream().filter(r -> r.getTarget().endsWith(".xlsx")).map(Relationship::getTarget)
+				.findAny().orElse(null);
+		if (path == null)
+			return;
+		Part excel = wordMLPackage.getParts().get(new PartName("/word" + path.replace("..", "")));
+		if (excel == null)
+			return;
+		Docx4jExcelSheet reportExcelSheet = null;
+		try {
+			reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", contextPath));
+			CTBarChart barChart = (CTBarChart) chart.getContents().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
+					.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
+			if (barChart == null)
+				return;
+			XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
+			CTRegularTextRun r = (CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0);
+			r.setT(title);
+			String numberFormat = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[>0.01]#0\\,0\\k\\€;0\\k\\€";
+			chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream().filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
+					.forEach(valAx -> {
+						valAx.getNumFmt().setSourceLinked(false);
+						valAx.getNumFmt().setFormatCode(numberFormat);
+					});
+
+			barChart.getSer().clear();
+
+			CTBarSer ser = createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, name, new CTBarSer());
+
+			ser.getVal().getNumRef().getNumCache().setFormatCode(numberFormat);
 	
-		
+			if (barChart.getDLbls().getShowVal() == null)
+				barChart.getDLbls().setShowVal(new CTBoolean());
+
+			barChart.getDLbls().getShowVal().setVal(true);
+
+			if (barChart.getDLbls().getNumFmt() == null)
+				barChart.getDLbls().setNumFmt(new CTNumFmt());
+
+			barChart.getDLbls().getNumFmt().setFormatCode(numberFormat);
+
+			int rowCount = 0;
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(name);
+			for (ALE ale : ales) {
+				if (xssfSheet.getRow(rowCount) == null)
+					xssfSheet.createRow(rowCount);
+				if (xssfSheet.getRow(rowCount).getCell(0) == null)
+					xssfSheet.getRow(rowCount).createCell(0);
+				if (xssfSheet.getRow(rowCount).getCell(1) == null)
+					xssfSheet.getRow(rowCount).createCell(1);
+				xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+				xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+
+				CTStrVal catName = new CTStrVal();
+				catName.setV(ale.getAssetName());
+				catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
+				ser.getCat().getStrRef().getStrCache().getPt().add(catName);
+
+				CTNumVal numVal = new CTNumVal();
+				numVal.setV(ale.getValue() + "");
+				numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
+				ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
+			}
+
+			ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
+			ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
+
+			barChart.getSer().add(ser);
+
+		} finally {
+			if (reportExcelSheet != null)
+				reportExcelSheet.save();
+		}
+
+	}
+
+	private List<Part> duplicateAleChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
+		int count = 1;
+		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
+			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE).getDivisor();
+		Part part = findChart(chartName);
+		if (part == null)
+			return Collections.emptyList();
+		List<Part> parts = new ArrayList<>(count);
+		parts.add(part);
+		if (count > 1) {
+			List<Object> contents = new LinkedList<>();
+			for (int i = 1; i < count; i++) {
+				ClonePartResult result = cloneChart((Chart) part, name + i, name + i);
+				contents.add(result.getP());
+				parts.add(result.getPart());
+			}
+			insertAllAfter(findTableAnchor(chartName), contents);
+		}
+		return parts;
 	}
 
 }

@@ -40,6 +40,7 @@ import org.docx4j.dml.chart.CTStrData;
 import org.docx4j.dml.chart.CTStrRef;
 import org.docx4j.dml.chart.CTStrVal;
 import org.docx4j.dml.chart.CTUnsignedInt;
+import org.docx4j.dml.chart.CTValAx;
 import org.docx4j.dml.chart.SerContent;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.docProps.custom.Properties.Property;
@@ -154,7 +155,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected ValueFactory valueFactory = null;
 
-	private String contextPath;
+	protected String contextPath;
 
 	private String currentParagraphId;
 
@@ -176,7 +177,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private Map<String, Style> styles = Collections.emptyMap();
 
-	private WordprocessingMLPackage wordMLPackage = null;
+	protected WordprocessingMLPackage wordMLPackage = null;
 
 	private File workFile;
 
@@ -745,7 +746,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected int findIndex(Object reference) {
-		return document.getContent().indexOf(reference);
+		return reference == null ? -1 : document.getContent().indexOf(reference);
 	}
 
 	protected P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -802,10 +803,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 				if (entry.getKey().equals(Constant.STANDARD_27001) || entry.getKey().equals(Constant.STANDARD_27002))
 					r.setT(getMessage("report.compliance.iso", new Object[] { entry.getKey() }, "Compliance ISO " + entry.getKey(), locale));
-				else{
+				else {
 					r.setT(getMessage("report.compliance.custom", new Object[] { entry.getKey() }, "Compliance " + entry.getKey(), locale));
-					reportExcelSheet.getWorkbook().setSheetName(0, "Compliance" + entry.getKey());
+					reportExcelSheet.setName("Compliance" + entry.getKey());
+					reportExcelSheet.getWorkbook().setSheetName(0,reportExcelSheet.getName());
 				}
+
+				chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream().filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
+						.forEach(valAx -> {
+							valAx.getNumFmt().setSourceLinked(false);
+							valAx.getNumFmt().setFormatCode("0%");
+						});
 
 				List<Measure> measures = analysis.getAnalysisStandards().stream().filter(analysisStandard -> analysisStandard.getStandard().is(entry.getKey()))
 						.map(AnalysisStandard::getMeasures).findAny().orElse(Collections.emptyList());
@@ -847,8 +855,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					xssfSheet.getRow(rowCount++).getCell(1).setCellValue(value);
 				}
 
-				ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
-				ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+				ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
+				ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
 
 				radarChart.getSer().add(ser);
 
@@ -886,7 +894,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						}
 
 						ser.getVal().getNumRef()
-								.setF(String.format("%s!$%s$2:$%s$%d", reportExcelSheet.getName(), col, col, ser.getCat().getStrRef().getStrCache().getPt().size() + 3));
+								.setF(String.format("%s!$%s$2:$%s$%d", reportExcelSheet.getName(), col, col, ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
 
 						radarChart.getSer().add(ser);
 
@@ -917,7 +925,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return ser;
 	}
 
-	private <T extends SerContent> T createChart(String reference, long index, String phaseLabel, T ser) {
+	protected <T extends SerContent> T createChart(String reference, long index, String title, T ser) {
 
 		CTAxDataSource ctAxDataSource = new CTAxDataSource();
 
@@ -925,11 +933,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		ctAxDataSource.getStrRef().setStrCache(new CTStrData());
 
-		return createChart(ctAxDataSource, reference, index, phaseLabel, ser);
+		return createChart(ctAxDataSource, reference, index, title, ser);
 
 	}
 
-	private <T extends SerContent> void setupTitle(String reference, long index, String phaseLabel, T ser) {
+	protected <T extends SerContent> void setupTitle(String reference, long index, String title, T ser) {
 		ser.setOrder(new CTUnsignedInt());
 		ser.getOrder().setVal(index);
 		ser.setIdx(new CTUnsignedInt());
@@ -940,7 +948,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		ser.getTx().getStrRef().setF(reference);
 		CTStrVal valTitle = new CTStrVal();
 		valTitle.setIdx(0);
-		valTitle.setV(phaseLabel);
+		valTitle.setV(title);
 		ser.getTx().getStrRef().getStrCache().getPt().add(valTitle);
 		ser.getTx().getStrRef().getStrCache().setPtCount(new CTUnsignedInt());
 		ser.getTx().getStrRef().getStrCache().getPtCount().setVal(ser.getTx().getStrRef().getStrCache().getPt().size());
@@ -1188,15 +1196,15 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void generateGraphics() throws Exception {
-		createMissingGraphics();
 		generateComplianceGraphic();
+		updateGraphics();
 		for (Entry<PartName, Part> entry : this.wordMLPackage.getParts().getParts().entrySet()) {
 			if (entry.getKey().getExtension().equals("xlsx"))
 				writeChart(new Docx4jExcelSheet((EmbeddedPackagePart) entry.getValue(), String.format("%s/WEB-INF/tmp/", contextPath)));
 		}
 	}
 
-	protected abstract void createMissingGraphics();
+	protected abstract void updateGraphics() throws Exception;
 
 	private void generateItemInformation() throws Exception {
 		setCurrentParagraphId(ExportReport.TS_TAB_TEXT_2);
@@ -1233,7 +1241,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 	}
 
-	private void generateMeasures() {
+	private void generateMeasures() throws XPathBinderAssociationIsPartialException, JAXBException {
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 		Map<String, Double> expressionParameters = this.analysis.getDynamicParameters().stream()
@@ -1246,6 +1254,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			Comparator<Measure> comparator = new MeasureComparator();
 
 			TextAlignment alignmentLeft = createAlignment("left");
+
+			List<Object> contents = new LinkedList<>();
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 
@@ -1334,6 +1344,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					}
 					addCellParagraph((Tc) row.getContent().get(15), measure.getComment());
 				}
+
+				if (!(analysisStandard.getStandard().is(Constant.STANDARD_27001) || analysisStandard.getStandard().is(Constant.STANDARD_27002)))
+					contents.add(setText(setStyle(factory.createP(), "ListParagraph"), analysisStandard.getStandard().getLabel()));
+			}
+
+			if (!contents.isEmpty()) {
+				P paragraph = findTableAnchor("ListCollection");
+				if (paragraph != null) {
+					contents.parallelStream().forEach(p -> ((P) p).setPPr(paragraph.getPPr()));
+					insertAllAfter(paragraph, contents);
+				}
 			}
 		}
 
@@ -1406,7 +1427,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return parts;
 	}
 
-	private ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
+	protected ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
 		Part copy = PartClone.clone(part, null);
 		Relationship relationship = wordMLPackage.getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
 		for (Relationship re : part.getRelationshipsPart().getContents().getRelationship()) {
@@ -1455,7 +1476,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return paragraph;
 	}
 
-	private Part findChart(String name) throws InvalidFormatException, XPathBinderAssociationIsPartialException, JAXBException {
+	protected Part findChart(String name) throws InvalidFormatException, XPathBinderAssociationIsPartialException, JAXBException {
 		String id = findChartId(name);
 		if (id == null)
 			return null;

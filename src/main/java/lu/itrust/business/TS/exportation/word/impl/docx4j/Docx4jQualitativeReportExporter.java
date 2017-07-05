@@ -749,7 +749,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void createMissingGraphics() {
+	protected void updateGraphics() {
 		
 		
 	

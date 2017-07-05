@@ -94,15 +94,6 @@ public class ChartGenerator {
 
 	private static final String INTERNAL_WORKLOAD_COST = "internal.workload.cost";
 
-	@Value("${app.settings.ale.chart.content.max.size}")
-	private int aleChartMaxSize;
-
-	@Value("${app.settings.ale.chart.single.content.max.size}")
-	private int aleChartSingleMaxSize;
-
-	@Value("${app.settings.ale.chart.content.size}")
-	private int aleChartSize;
-
 	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
 	private List<String> defaultColors;
 
@@ -180,17 +171,17 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales, new AssetComparatorByALE());
 		try {
-			if (ales.size() <= aleChartSingleMaxSize)
+			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
-			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
+			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
-			List<Chart> charts = new ArrayList<>(multiplicator);
-			for (int i = 0; i < multiplicator; i++) {
-				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
+			for (int i = 0; i < distribution.getDivisor(); i++) {
+				List<ALE> aleSubList = ales.subList(i * multiplicator, i == (distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
-						String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList));
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, distribution.getDivisor() },
+						String.format("ALE by Asset %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
 			}
 			return charts;
 		} finally {
@@ -228,17 +219,17 @@ public class ChartGenerator {
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
-			if (ales.size() <= aleChartSingleMaxSize)
+			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
-			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
+			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
-			List<Chart> charts = new ArrayList<>(multiplicator);
-			for (int i = 0; i < multiplicator; i++) {
-				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
+			for (int i = 0; i < distribution.getDivisor(); i++) {
+				List<ALE> aleSubList = ales.subList(i * multiplicator, i == (distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, multiplicator },
-						String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList));
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, distribution.getDivisor() },
+						String.format("ALE by Asset Type %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
 			}
 			return charts;
 		} finally {
@@ -271,17 +262,17 @@ public class ChartGenerator {
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
-			if (ales.size() <= aleChartSingleMaxSize)
+			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
-			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
+			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
-			List<Chart> charts = new ArrayList<>(multiplicator);
-			for (int i = 0; i < multiplicator; i++) {
-				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>( distribution.getDivisor());
+			for (int i = 0; i <  distribution.getDivisor(); i++) {
+				List<ALE> aleSubList = ales.subList(i * multiplicator, i == ( distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
-						String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList));
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1,  distribution.getDivisor() },
+						String.format("ALE by Scenario %d/%d", i + 1,  distribution.getDivisor()), locale), aleSubList));
 			}
 			return charts;
 		} finally {
@@ -317,17 +308,17 @@ public class ChartGenerator {
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
 
-			if (ales.size() <= aleChartSingleMaxSize)
+			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
-			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
+			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
-			List<Chart> charts = new ArrayList<>(multiplicator);
-			for (int i = 0; i < multiplicator; i++) {
-				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
+			for (int i = 0; i < distribution.getDivisor(); i++) {
+				List<ALE> aleSubList = ales.subList(i * multiplicator, i == (distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, multiplicator },
-						String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList));
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, distribution.getDivisor() },
+						String.format("ALE by Scenario Type %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
 			}
 			return charts;
 		} finally {
@@ -509,12 +500,15 @@ public class ChartGenerator {
 		List<Measure> measures = analysisStandard.getMeasures().stream()
 				.filter(measure -> measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 				.collect(Collectors.toList());
-		String title = analysisType.isHybrid() ? actionPlanMode == ActionPlanMode.APQ
-				? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance for qualitative", locale)
-				: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance for quantitative", locale)
+		String title = analysisType.isHybrid()
+				? actionPlanMode == ActionPlanMode.APQ
+						? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getLabel() },
+								standard.getLabel() + " measure compliance for qualitative", locale)
+						: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getLabel() },
+								standard.getLabel() + " measure compliance for quantitative", locale)
 				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale);
 
-		Chart chart = new Chart(standard.getId()+"_"+actionPlanMode, title);
+		Chart chart = new Chart(standard.getId() + "_" + actionPlanMode, title);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
 
@@ -1141,7 +1135,7 @@ public class ChartGenerator {
 	}
 
 	public List<Chart> generateAssessmentRiskChart(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<ColorBound> colorBounds) {
-		Distribution distribution = Distribution.Distribut(assessments.size(), aleChartSize, aleChartMaxSize);
+		Distribution distribution = Distribution.Distribut(assessments.size(), getAleChartSize(), getAleChartMaxSize());
 		int multiplicator = Math.floorDiv(assessments.size(), distribution.getDivisor()), index = 1;
 		List<Chart> charts = new ArrayList<>(multiplicator);
 		Map<String, Dataset<String>> datasets = new LinkedHashMap<>();
@@ -1280,9 +1274,10 @@ public class ChartGenerator {
 		}
 		return compliances;
 	}
-	
-	public static double ComputeCompliance(AnalysisStandard analysisStandard,ValueFactory factory){
-		 return ComputeComplianceBefore(analysisStandard.getMeasures(), factory).values().parallelStream().mapToDouble(compliance -> ((double)compliance[1]/(int)compliance[0])).average().orElse(0);
+
+	public static double ComputeCompliance(AnalysisStandard analysisStandard, ValueFactory factory) {
+		return ComputeComplianceBefore(analysisStandard.getMeasures(), factory).values().parallelStream().mapToDouble(compliance -> ((double) compliance[1] / (int) compliance[0]))
+				.average().orElse(0);
 	}
 
 	/**
@@ -1405,6 +1400,54 @@ public class ChartGenerator {
 		}
 		chart.setSettings(riskAcceptanceParameters);
 		return chart;
+	}
+
+	/**
+	 * @return the aleChartMaxSize
+	 */
+	protected int getAleChartMaxSize() {
+		return Constant.CHAR_MULTI_CONTENT_MAX_SIZE;
+	}
+
+	/**
+	 * @param aleChartMaxSize
+	 *            the aleChartMaxSize to set
+	 */
+	@Value("${app.settings.ale.chart.content.max.size}")
+	public void setAleChartMaxSize(int aleChartMaxSize) {
+		Constant.CHAR_MULTI_CONTENT_MAX_SIZE = aleChartMaxSize;
+	}
+
+	/**
+	 * @return the aleChartSingleMaxSize
+	 */
+	protected int getAleChartSingleMaxSize() {
+		return Constant.CHAR_SINGLE_CONTENT_MAX_SIZE;
+	}
+
+	/**
+	 * @param aleChartSingleMaxSize
+	 *            the aleChartSingleMaxSize to set
+	 */
+	@Value("${app.settings.ale.chart.single.content.max.size}")
+	public void setAleChartSingleMaxSize(int aleChartSingleMaxSize) {
+		Constant.CHAR_SINGLE_CONTENT_MAX_SIZE = aleChartSingleMaxSize;
+	}
+
+	/**
+	 * @return the aleChartSize
+	 */
+	protected int getAleChartSize() {
+		return Constant.CHAR_MULTI_CONTENT_SIZE;
+	}
+
+	/**
+	 * @param aleChartSize
+	 *            the aleChartSize to set
+	 */
+	@Value("${app.settings.ale.chart.content.size}")
+	public void setAleChartSize(int aleChartSize) {
+		Constant.CHAR_MULTI_CONTENT_SIZE = aleChartSize;
 	}
 
 }

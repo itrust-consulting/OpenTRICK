@@ -695,4 +695,10 @@ public class Constant {
 
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
 
+	public static int CHAR_MULTI_CONTENT_MAX_SIZE = 12;
+
+	public static int CHAR_SINGLE_CONTENT_MAX_SIZE = 14;
+
+	public static int CHAR_MULTI_CONTENT_SIZE = 10;
+
 }
