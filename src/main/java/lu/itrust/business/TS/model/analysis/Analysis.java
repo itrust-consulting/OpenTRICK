@@ -2,7 +2,6 @@ package lu.itrust.business.TS.model.analysis;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -2479,45 +2478,9 @@ public class Analysis implements Cloneable {
 	 *            end date (should be biggest date)
 	 * @return
 	 */
+	@Deprecated
 	public static final double getYearsDifferenceBetweenTwoDates(Date beginDate, Date endDate) {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		double result = 0;
-		double yearInMiliseconds = 0;
-		Calendar calendarBeginDate = Calendar.getInstance();
-		Calendar calendarEndDate = Calendar.getInstance();
-
-		// ****************************************************************
-		// * calculate duration of years between two dates
-		// ****************************************************************
-
-		// ****************************************************************
-		// check if dates are null
-		// ****************************************************************
-		if ((beginDate == null) || (endDate == null)) {
-
-			// set defualt duration of 1 year
-			result = 1.;
-		}
-
-		// set year in miliseconds
-		yearInMiliseconds = 1000L * 60 * 60 * 24 * 365.25;
-
-		// ****************************************************************
-		// * set values for begin and end date
-		// ****************************************************************
-		calendarBeginDate.setTime(beginDate);
-		calendarEndDate.setTime(endDate);
-
-		// calculate difference between two dates
-		result = Math.abs((calendarEndDate.getTimeInMillis() - calendarBeginDate.getTimeInMillis()) / yearInMiliseconds);
-
-		// ****************************************************************
-		// * return difference of two dates in years
-		// ****************************************************************
-		return result;
+		return Phase.ComputeDiff(beginDate, endDate);
 	}
 
 	/**

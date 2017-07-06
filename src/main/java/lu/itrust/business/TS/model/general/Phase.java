@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.model.general;
 
 import java.sql.Date;
+import java.util.Calendar;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -36,7 +37,7 @@ public class Phase implements Cloneable {
 
 	/** phase identifier, unsaved value = -1 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idPhase")
 	private int id = -1;
 
@@ -273,6 +274,62 @@ public class Phase implements Cloneable {
 		phase.id = -1;
 		phase.analysis = analysis;
 		return phase;
+	}
+	
+	public double getTime() {
+		return ComputeDiff(beginDate, endDate);
+	}
+
+	/**
+	 * ComputeDiff : <br>
+	 * This method Calculates an Double Value that Indicates the Difference
+	 * between two Dates. It is used to Calculate the Size of the Phase in
+	 * Years.
+	 * 
+	 * @param beginDate
+	 *            begin date (should be smallest date)
+	 * @param endDate
+	 *            end date (should be biggest date)
+	 * @return
+	 */
+	public static double ComputeDiff(java.util.Date beginDate, java.util.Date endDate) {
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		double result = 0;
+		double yearInMiliseconds = 0;
+		Calendar calendarBeginDate = Calendar.getInstance();
+		Calendar calendarEndDate = Calendar.getInstance();
+
+		// ****************************************************************
+		// * calculate duration of years between two dates
+		// ****************************************************************
+
+		// ****************************************************************
+		// check if dates are null
+		// ****************************************************************
+		if ((beginDate == null) || (endDate == null)) {
+
+			// set defualt duration of 1 year
+			result = 1.;
+		}
+
+		// set year in miliseconds
+		yearInMiliseconds = 1000L * 60 * 60 * 24 * 365.25;
+
+		// ****************************************************************
+		// * set values for begin and end date
+		// ****************************************************************
+		calendarBeginDate.setTime(beginDate);
+		calendarEndDate.setTime(endDate);
+
+		// calculate difference between two dates
+		result = Math.abs((calendarEndDate.getTimeInMillis() - calendarBeginDate.getTimeInMillis()) / yearInMiliseconds);
+
+		// ****************************************************************
+		// * return difference of two dates in years
+		// ****************************************************************
+		return result;
 	}
 
 }

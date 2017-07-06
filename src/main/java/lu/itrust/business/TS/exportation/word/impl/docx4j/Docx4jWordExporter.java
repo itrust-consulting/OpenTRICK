@@ -87,6 +87,7 @@ import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exportation.word.DocxFormatter;
@@ -1198,10 +1199,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	private void generateGraphics() throws Exception {
 		generateComplianceGraphic();
 		updateGraphics();
-		for (Entry<PartName, Part> entry : this.wordMLPackage.getParts().getParts().entrySet()) {
-			if (entry.getKey().getExtension().equals("xlsx"))
-				writeChart(new Docx4jExcelSheet((EmbeddedPackagePart) entry.getValue(), String.format("%s/WEB-INF/tmp/", contextPath)));
-		}
 	}
 
 	protected abstract void updateGraphics() throws Exception;
@@ -1430,13 +1427,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
 		Part copy = PartClone.clone(part, null);
 		Relationship relationship = wordMLPackage.getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-		for (Relationship re : part.getRelationshipsPart().getContents().getRelationship()) {
-			if (re.getTarget().startsWith(".."))
-				copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
-						AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-			else
-				copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word/charts/" + re.getTarget())), null), AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-		}
+		part.getRelationshipsPart().getContents().getRelationship().stream().sorted((r1,r2)-> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
+			try {
+				if (re.getTarget().startsWith(".."))
+					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
+							AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+				else
+					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word/charts/" + re.getTarget())), null), AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
 		return new ClonePartResult(copy, relationship, createGraphic(name, description, relationship.getId()));
 	}
 

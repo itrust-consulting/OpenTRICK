@@ -30,6 +30,7 @@ import org.docx4j.dml.chart.CTNumFmt;
 import org.docx4j.dml.chart.CTNumVal;
 import org.docx4j.dml.chart.CTStrVal;
 import org.docx4j.dml.chart.CTValAx;
+import org.docx4j.dml.chart.STDispBlanksAs;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.Part;
@@ -75,6 +76,8 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @since May 27, 2014
  */
 public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
+
+	private static final String NUMBER_FORMAT = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[>0.509]#\\k\\€;#,##0\\k\\€";
 
 	public Docx4jQuantitativeReportExporter() {
 	}
@@ -688,22 +691,35 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				.orElse(0);
 
 		setCustomProperty("CURRENT_COMPLIANCE", compliance);
+
+		List<Phase> phases = analysis.findUsablePhase();
+
+		double time = 0, sumRosi = 0, sumDRosi = 0;
+		for (SummaryStage stage : getSummaryStage()) {
+			Phase phase = phases.stream().filter(p -> stage.getStage().equals("Phase " + p.getNumber())).findAny().orElse(null);
+			if (phase == null)
+				continue;
+			time += phase.getTime();
+			sumRosi += stage.getROSI();
+			sumDRosi += stage.getRelativeROSI();
+		}
+
+		if (time == 0)
+			time = 1;
+
+		double avRosi = sumRosi / (time*1000), avDRosi = sumDRosi / time;
+		
+		setCustomProperty("AV_ROSI_VAL", avRosi);
+		
+		setCustomProperty("AV_DROSI_VAL", (int)avDRosi);
+		
+		setCustomProperty("GAIN_VAL", 1+ avDRosi);
+		
+
 	}
 
 	@Override
 	protected void writeChart(Docx4jExcelSheet reportExcelSheet) throws Exception {
-		/*
-		 * try { switch (reportExcelSheet.getName()) { case
-		 * "EvolutionOfProfitability": serviceTaskFeedback.send(idTask, new
-		 * MessageHandler("info.printing.chart.data.evolution.of.profitability",
-		 * "Printing evolution of profitability  excel sheet", increase(7)));//
-		 * 96% generateEvolutionOfProfitabilityGraphic(reportExcelSheet); break;
-		 * case "Budget": serviceTaskFeedback.send(idTask, new
-		 * MessageHandler("info.printing.chart.data.budget",
-		 * "Printing budget excel sheet", increase(2)));// 98%
-		 * generateBudgetGraphic(reportExcelSheet); break; } } finally {
-		 * reportExcelSheet.save(); }
-		 */
 	}
 
 	private void generateEvolutionOfProfitabilityGraphic() throws Exception {
@@ -727,12 +743,14 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
 			if (barChart == null)
 				return;
-			String numberFormat = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[<1]#0\\,0\\k\\€;0\\k\\€";
+
 			chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream().filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
 					.forEach(valAx -> {
 						valAx.getNumFmt().setSourceLinked(false);
-						valAx.getNumFmt().setFormatCode(numberFormat);
+						valAx.getNumFmt().setFormatCode(NUMBER_FORMAT);
 					});
+
+			chart.getContents().getChart().getDispBlanksAs().setVal(STDispBlanksAs.GAP);
 
 			barChart.getSer().clear();
 
@@ -744,8 +762,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			if (barChart.getDLbls().getNumFmt() == null)
 				barChart.getDLbls().setNumFmt(new CTNumFmt());
 
-			barChart.getDLbls().getNumFmt().setFormatCode(numberFormat);
-			
+			barChart.getDLbls().getNumFmt().setFormatCode(NUMBER_FORMAT);
 
 			docx4jExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", contextPath));
 			String[] dataName = { "ALE", "COST", "ROSI", "LOST" };
@@ -759,7 +776,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				CTBarSer ser = createChart(String.format("%s!$A$%s", docx4jExcelSheet.getName(), i + 2), i,
 						getMessage("label.title.chart.evolution_profitability." + dataName[i].toLowerCase(), null, null, locale), new CTBarSer());
 				profiltabilityDatasets.put(dataName[i], ser);
-				ser.getVal().getNumRef().getNumCache().setFormatCode(numberFormat);
+				ser.getVal().getNumRef().getNumCache().setFormatCode(NUMBER_FORMAT);
 
 				barChart.getSer().add(ser);
 				getCell(getRow(xssfSheet, i + 1), 0, CellType.STRING).setCellValue(dataName[i]);
@@ -892,75 +909,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	private void generateBudgetGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-
-		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
-			return;
-
-		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		int rowIndex = 1;
-		for (Phase phase : usesPhases.values()) {
-			if (xssfSheet.getRow(rowIndex) == null)
-				xssfSheet.createRow(rowIndex);
-			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
-				xssfSheet.getRow(rowIndex).createCell(0);
-			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
-		}
-
-		List<String> dataInternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
-
-		List<String> dataExternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
-
-		List<String> dataInternalMaintenace = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
-
-		List<String> dataExternalMaintenance = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
-
-		List<String> dataInvestment = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT);
-
-		List<String> dataImplementPHaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
-
-		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST);
-
-		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
-
-		for (int j = 1; j < 9; j++) {
-			if (xssfSheet.getRow(0) == null)
-				xssfSheet.createRow(0);
-			if (xssfSheet.getRow(0).getCell(j) == null)
-				xssfSheet.getRow(0).createCell(j);
-		}
-		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale));
-		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale));
-		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale));
-		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale));
-		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale));
-		xssfSheet.getRow(0).getCell(6)
-				.setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST, null, "Total implement cost of phase", locale));
-		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST, null, "Current cost", locale));
-		xssfSheet.getRow(0).getCell(8).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale));
-
-		rowIndex = 1;
-		for (int i = 0; i < dataInternalWorkload.size(); i++) {
-			for (int j = 1; j < 9; j++) {
-				if (xssfSheet.getRow(rowIndex) == null)
-					xssfSheet.createRow(rowIndex);
-				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j, CellType.NUMERIC);
-			}
-			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataInternalMaintenace.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataExternalMaintenance.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataInvestment.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataImplementPHaseCost.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(7).setCellValue(Double.parseDouble(dataCurrentCost.get(i)));
-			xssfSheet.getRow(rowIndex++).getCell(8).setCellValue(Double.parseDouble(dataTotalPhaseCost.get(i)));
-		}
-	}
-
 	@Override
 	protected AnalysisType getType() {
 		return AnalysisType.QUANTITATIVE;
@@ -995,11 +943,11 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	private void generateALEChart(Map<Integer, ALE> ales, String chartName, String title, String column, String name, String multiTitleCode) throws Exception {
-		List<ALE> ales2 = ales.values().parallelStream().sorted(new AssetComparatorByALE()).collect(Collectors.toList());
+		List<ALE> ales2 = ales.values().parallelStream().filter(ale -> ale.getValue() > 0).sorted(new AssetComparatorByALE()).collect(Collectors.toList());
 		if (ales2.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
 			generateALEChart(ales2, (Chart) findChart(chartName), title, column);
 		else {
-			List<Part> parts = duplicateAleChart(ales.size(), chartName, name);
+			List<Part> parts = duplicateAleChart(ales2.size(), chartName, name);
 			int count = parts.size(), divisor = Math.floorDiv(ales2.size(), count);
 			for (int i = 0; i < count; i++)
 				generateALEChart(ales2.subList(i * divisor, i == (count - 1) ? ales2.size() : (i + 1) * divisor), (Chart) parts.get(i),
@@ -1027,18 +975,20 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 			CTRegularTextRun r = (CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0);
 			r.setT(title);
-			String numberFormat = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[<1]#0\\,0\\k\\€;0\\k\\€";
+
 			chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream().filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
 					.forEach(valAx -> {
 						valAx.getNumFmt().setSourceLinked(false);
-						valAx.getNumFmt().setFormatCode(numberFormat);
+						valAx.getNumFmt().setFormatCode(NUMBER_FORMAT);
 					});
+
+			chart.getContents().getChart().getDispBlanksAs().setVal(STDispBlanksAs.GAP);
 
 			barChart.getSer().clear();
 
 			CTBarSer ser = createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, name, new CTBarSer());
 
-			ser.getVal().getNumRef().getNumCache().setFormatCode(numberFormat);
+			ser.getVal().getNumRef().getNumCache().setFormatCode(NUMBER_FORMAT);
 
 			if (barChart.getDLbls().getShowVal() == null)
 				barChart.getDLbls().setShowVal(new CTBoolean());
@@ -1048,7 +998,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			if (barChart.getDLbls().getNumFmt() == null)
 				barChart.getDLbls().setNumFmt(new CTNumFmt());
 
-			barChart.getDLbls().getNumFmt().setFormatCode(numberFormat);
+			barChart.getDLbls().getNumFmt().setFormatCode(NUMBER_FORMAT);
 
 			int rowCount = 0;
 			if (xssfSheet.getRow(rowCount) == null)
@@ -1064,13 +1014,13 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				if (xssfSheet.getRow(rowCount).getCell(1) == null)
 					xssfSheet.getRow(rowCount).createCell(1);
 				xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-				
+
 				CTStrVal catName = new CTStrVal();
 				catName.setV(ale.getAssetName());
-				catName.setIdx(rowCount-1);
+				catName.setIdx(rowCount - 1);
 				ser.getCat().getStrRef().getStrCache().getPt().add(catName);
 				CTNumVal numVal = new CTNumVal();
-				numVal.setIdx(rowCount-1);
+				numVal.setIdx(rowCount - 1);
 				if (ale.getValue() > 0) {
 					numVal.setV(ale.getValue() + "");
 					xssfSheet.getRow(rowCount).getCell(1).setCellValue(ale.getValue());

@@ -2752,7 +2752,7 @@ public class ActionPlanComputation {
 		if (phasenumber > 0) {
 			for (Phase phase : this.analysis.getPhases()) {
 				if (phase.getNumber() == phasenumber)
-					phasetime = Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate());
+					phasetime = phase.getTime();
 			}
 		}
 
