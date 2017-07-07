@@ -20,7 +20,21 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.docx4j.dml.CTRegularTextRun;
+import org.docx4j.dml.chart.CTBarChart;
+import org.docx4j.dml.chart.CTBarSer;
+import org.docx4j.dml.chart.CTBoolean;
+import org.docx4j.dml.chart.CTNumFmt;
+import org.docx4j.dml.chart.CTNumVal;
+import org.docx4j.dml.chart.CTStrVal;
+import org.docx4j.dml.chart.CTValAx;
+import org.docx4j.dml.chart.STDispBlanksAs;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
+import org.docx4j.openpackaging.exceptions.InvalidFormatException;
+import org.docx4j.openpackaging.parts.Part;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
+import org.docx4j.relationships.Relationship;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
@@ -44,7 +58,10 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.assessment.helper.ALE;
+import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
@@ -571,7 +588,33 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		Map<String, List<Assessment>> assessmentByAsset = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
-		generateRiskGraphic(reportExcelSheet, assessmentByAsset);
+
+		if (assessments.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE) {
+			generateRiskGraphic((Part) null, "Risk par asset", "RiskByAsset", assessments);
+		} else {
+			generateRiskGraphic((Part) null, "Risk par asset", "RiskByAsset", assessments);
+		}
+
+	}
+
+	private void generateALEChart(Map<String, List<Assessment>> assessmentByAsset, String chartName, String title, String name, String multiTitleCode) throws Exception {
+		List<Entry<String, List<Assessment>>> assessments = assessmentByAsset.entrySet().stream().filter(entry -> {
+			clearColorBoundCount();
+			entry.getValue().forEach(assessment -> {
+				int importance = valueFactory.findImportance(assessment);
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+			});
+			return colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0);
+		}).collect(Collectors.toList());
+		if (assessments.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
+			generateRiskGraphic(findChart(chartName), title, assessments);
+		else {
+			List<Part> parts = duplicateAleChart(ales2.size(), chartName, name);
+			int count = parts.size(), divisor = Math.floorDiv(ales2.size(), count);
+			for (int i = 0; i < count; i++)
+				generateALEChart(ales2.subList(i * divisor, i == (count - 1) ? ales2.size() : (i + 1) * divisor), (Chart) parts.get(i),
+						getMessage(multiTitleCode, new Object[] { i + 1, count }, null, locale), column);
+		}
 	}
 
 	private void generateRiskByAssetTypeGraphic(Docx4jExcelSheet reportExcelSheet) {
@@ -706,7 +749,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	private void generateRiskGraphic(Docx4jExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessmentByAsset) {
+	private void generateRiskGraphic(Docx4jExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessments) {
 		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		XSSFRow row = getRow(xssfSheet, 1), colors = getRow(xssfSheet, 0);
 		for (int i = 0; i < colorBounds.size(); i++) {
@@ -717,7 +760,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 		int rowIndex = 2;
 
-		for (Entry<String, List<Assessment>> entry : assessmentByAsset.entrySet()) {
+		for (Entry<String, List<Assessment>> entry : assessments.entrySet()) {
 			clearColorBoundCount();
 			entry.getValue().forEach(assessment -> {
 				int importance = valueFactory.findImportance(assessment);
@@ -732,6 +775,97 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 					getCell(row, i + 1, CellType.NUMERIC).setCellValue(colorBounds.get(i).getCount());
 			}
 		}
+	}
+
+	private void generateRiskGraphic(Part part, String title, String name, List<Entry<String, List<Assessment>>> assessmentEntries) throws Exception {
+
+		if (part == null || colorBounds.isEmpty() || assessmentEntries.isEmpty())
+			return;
+		String path = part.getRelationshipsPart().getRelationships().getRelationship().parallelStream().filter(r -> r.getTarget().endsWith(".xlsx")).map(Relationship::getTarget)
+				.findAny().orElse(null);
+		if (path == null)
+			return;
+		Part excel = wordMLPackage.getParts().get(new PartName("/word" + path.replace("..", "")));
+		if (excel == null)
+			return;
+		Docx4jExcelSheet reportExcelSheet = null;
+		try {
+
+			org.docx4j.openpackaging.parts.DrawingML.Chart chart = (org.docx4j.openpackaging.parts.DrawingML.Chart) part;
+
+			reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", contextPath));
+
+			CTBarChart barChart = (CTBarChart) chart.getContents().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
+					.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
+
+			if (barChart == null)
+				return;
+
+			((CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0)).setT(title);
+
+			chart.getContents().getChart().getDispBlanksAs().setVal(STDispBlanksAs.GAP);
+
+			barChart.getSer().clear();
+
+			XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
+
+			XSSFRow row = getRow(xssfSheet, 0);
+
+			for (int i = 0; i < colorBounds.size(); i++) {
+				CTBarSer ser = createChart(String.format("%s!$%s$1", reportExcelSheet.getName(), (char) ('B' + i)), 0, name, new CTBarSer());
+				setColor(ser, colorBounds.get(i).getColor());
+				barChart.getSer().add(ser);
+				getCell(row, i + 1, CellType.STRING).setCellValue(colorBounds.get(i).getLabel());
+			}
+
+			CTBarSer barSer = barChart.getSer().get(0);
+
+			for (Entry<String, List<Assessment>> entry : assessmentEntries) {
+				CTStrVal catName = new CTStrVal();
+				catName.setV(entry.getKey());
+				catName.setIdx(barSer.getCat().getStrRef().getStrCache().getPt().size());
+				barSer.getCat().getStrRef().getStrCache().getPt().add(catName);
+				getCell(getRow(xssfSheet, barSer.getCat().getStrRef().getStrCache().getPt().size()), 0, CellType.STRING).setCellValue(catName.getV());
+			}
+
+			barSer.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), assessmentEntries.size() + 1));
+
+			for (int i = 1; i < colorBounds.size(); i++)
+				barChart.getSer().get(i).setCat(barSer.getCat());
+
+			int rowIndex = 1;
+
+			for (Entry<String, List<Assessment>> entry : assessmentEntries) {
+				clearColorBoundCount();
+				entry.getValue().forEach(assessment -> {
+					int importance = valueFactory.findImportance(assessment);
+					colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+				});
+
+				row = getRow(xssfSheet, rowIndex++);
+				getCell(row, 0, CellType.STRING).setCellValue(entry.getKey());
+				for (int i = 0; i < colorBounds.size(); i++) {
+					CTBarSer ser = barChart.getSer().get(i);
+					CTNumVal numVal = new CTNumVal();
+					numVal.setIdx(rowIndex - 2);
+					if (colorBounds.get(i).getCount() > 0) {
+						getCell(row, i + 1, CellType.NUMERIC).setCellValue(colorBounds.get(i).getCount());
+						numVal.setV(colorBounds.get(i).getCount() + "");
+					}
+					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
+				}
+			}
+
+			for (int i = 0; i < colorBounds.size(); i++) {
+				CTBarSer ser = barChart.getSer().get(i);
+				char col = (char) ('B' + i);
+				ser.getVal().getNumRef().setF(String.format("%s!$%s$2:$%s$%d", reportExcelSheet.getName(), col, col, ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
+			}
+		} finally {
+			if (reportExcelSheet != null)
+				reportExcelSheet.save();
+		}
+
 	}
 
 	private void clearColorBoundCount() {
@@ -750,10 +884,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 	@Override
 	protected void updateGraphics() {
-		
-		
-	
-		
+
 	}
 
 }

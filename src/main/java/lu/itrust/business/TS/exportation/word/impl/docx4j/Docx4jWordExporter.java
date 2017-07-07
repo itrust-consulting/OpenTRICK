@@ -27,7 +27,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.docx4j.dml.CTRegularTextRun;
+import org.docx4j.dml.CTSRgbColor;
+import org.docx4j.dml.CTShapeProperties;
+import org.docx4j.dml.CTSolidColorFillProperties;
 import org.docx4j.dml.chart.CTAxDataSource;
+import org.docx4j.dml.chart.CTBarSer;
 import org.docx4j.dml.chart.CTNumData;
 import org.docx4j.dml.chart.CTNumDataSource;
 import org.docx4j.dml.chart.CTNumRef;
@@ -807,7 +811,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				else {
 					r.setT(getMessage("report.compliance.custom", new Object[] { entry.getKey() }, "Compliance " + entry.getKey(), locale));
 					reportExcelSheet.setName("Compliance" + entry.getKey());
-					reportExcelSheet.getWorkbook().setSheetName(0,reportExcelSheet.getName());
+					reportExcelSheet.getWorkbook().setSheetName(0, reportExcelSheet.getName());
 				}
 
 				chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream().filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
@@ -1427,7 +1431,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
 		Part copy = PartClone.clone(part, null);
 		Relationship relationship = wordMLPackage.getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-		part.getRelationshipsPart().getContents().getRelationship().stream().sorted((r1,r2)-> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
+		part.getRelationshipsPart().getContents().getRelationship().stream().sorted((r1, r2) -> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
 			try {
 				if (re.getTarget().startsWith(".."))
 					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
@@ -1608,26 +1612,57 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
-
+	
 	protected void setCustomProperty(String name, Object value) throws Docx4JException {
-		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
-		if (property == null) {
-			org.docx4j.docProps.custom.ObjectFactory factory = new org.docx4j.docProps.custom.ObjectFactory();
-			property = factory.createPropertiesProperty();
-			property.setName(name);
-			wordMLPackage.getDocPropsCustomPart();
-			property.setFmtid(DocPropsCustomPart.fmtidValLpwstr); // Magic
-																	// string
-			property.setPid(wordMLPackage.getDocPropsCustomPart().getNextPid());
-			wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
-		}
-
-		if (value instanceof Number)
-			property.setI4(((Number) value).intValue());
-		else if (value instanceof Boolean)
-			property.setBool((Boolean) value);
+		if (value instanceof Number) {
+			if (value instanceof Double)
+				createProperty(name, false).setR8(((Number) value).doubleValue());
+			else
+				createProperty(name, false).setI4(((Number) value).intValue());
+		} else if (value instanceof Boolean)
+			createProperty(name, false).setBool((Boolean) value);
 		else
-			property.setLpwstr(value.toString());
+			createProperty(name, false).setLpwstr(value.toString());
+	}
+
+	protected Property getProperty(String name) throws Docx4JException {
+		return createProperty(name, true);
+	}
+	
+	protected void setColor(CTBarSer ser, String color) {
+		if (ser.getSpPr() == null) {
+			ser.setSpPr(new CTShapeProperties());
+			ser.getSpPr().setSolidFill(new CTSolidColorFillProperties());
+			ser.getSpPr().getSolidFill().setSrgbClr(getColor(color));
+		}
+	}
+	
+	protected CTSRgbColor getColor(String color) {
+		CTSRgbColor rgbColor = new CTSRgbColor();
+		rgbColor.setVal(color.substring(1));
+		return rgbColor;
+	}
+
+
+	protected Property createProperty(String name, boolean resued) throws Docx4JException {
+		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
+		if (!(property == null || resued)) {
+			wordMLPackage.getDocPropsCustomPart().getContents().getProperty().remove(property);
+			property = createProperty(name);
+		} else if (property == null)
+			property = createProperty(name);
+		return property;
+	}
+
+	protected Property createProperty(String name) throws Docx4JException {
+		org.docx4j.docProps.custom.ObjectFactory factory = new org.docx4j.docProps.custom.ObjectFactory();
+		Property property = factory.createPropertiesProperty();
+		property.setName(name);
+		wordMLPackage.getDocPropsCustomPart();
+		property.setFmtid(DocPropsCustomPart.fmtidValLpwstr);
+		property.setPid(wordMLPackage.getDocPropsCustomPart().getNextPid());
+		wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
+		return property;
 	}
 
 	/**

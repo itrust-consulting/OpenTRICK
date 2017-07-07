@@ -404,7 +404,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		insertBofore(paragraph, table);
 
 		if (!summary.isEmpty()) {
-			setCustomProperty("FINAL_ALE_VAL", summary.get(summary.size() - 1).getTotalALE() * 0.001);
+			setCustomProperty("FINAL_ALE_VAL", (long) (summary.get(summary.size() - 1).getTotalALE() * 0.001));
 		}
 	}
 
@@ -432,9 +432,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 
 		for (Entry<String, Double> entry : aleByAssetTypes.entrySet())
-			setCustomProperty(entry.getKey() + "_Rsk", entry.getValue() * 0.001);
+			setCustomProperty(entry.getKey() + "_Rsk", (long) (entry.getValue() * 0.001));
 
-		setCustomProperty("TOTAL_ALE_VAL", totalale * 0.001);
+		setCustomProperty("TOTAL_ALE_VAL", (long) (totalale * 0.001));
 
 		if (paragraphOrigin != null && assessments.size() > 0) {
 
@@ -682,39 +682,46 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		double assetTotalValue = 0;
 		for (Entry<String, Double> entry : assetTypeValues.entrySet()) {
 			assetTotalValue += entry.getValue();
-			setCustomProperty(entry.getKey().toUpperCase() + "_Val", entry.getValue() * 0.001);
+			setCustomProperty(entry.getKey().toUpperCase() + "_Val", (long) (entry.getValue() * 0.001));
 		}
+		
+		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+		decimalFormat.setMaximumFractionDigits(1);
 
-		setCustomProperty("TOTAL_ASSET_VAL", assetTotalValue * 0.001);
+		setCustomProperty("TOTAL_ASSET_VAL", decimalFormat.format(assetTotalValue * 0.001));
 
 		Double compliance = analysis.getAnalysisStandards().stream().mapToDouble(analysisStandard -> ChartGenerator.ComputeCompliance(analysisStandard, valueFactory)).average()
 				.orElse(0);
 
-		setCustomProperty("CURRENT_COMPLIANCE", compliance);
+		setCustomProperty("CURRENT_COMPLIANCE", compliance.longValue());
 
 		List<Phase> phases = analysis.findUsablePhase();
 
-		double time = 0, sumRosi = 0, sumDRosi = 0;
+		double time = 0, sumRosi = 0, sumDRosi = 0, sumCost = 0;
 		for (SummaryStage stage : getSummaryStage()) {
 			Phase phase = phases.stream().filter(p -> stage.getStage().equals("Phase " + p.getNumber())).findAny().orElse(null);
 			if (phase == null)
 				continue;
 			time += phase.getTime();
 			sumRosi += stage.getROSI();
-			sumDRosi += stage.getRelativeROSI();
+			sumDRosi += stage.getRelativeROSI() * stage.getCostOfMeasures();
+			sumCost += stage.getCostOfMeasures();
 		}
 
 		if (time == 0)
 			time = 1;
+		if (sumCost == 0)
+			sumCost = 1;
 
-		double avRosi = sumRosi / (time*1000), avDRosi = sumDRosi / time;
+		double avRosi = sumRosi / (time * 1000), avDRosi = sumDRosi / (time * sumCost);
+
+		setCustomProperty("AV_ROSI_VAL", decimalFormat.format(avRosi));
+
+		setCustomProperty("AV_DROSI_VAL", (long) avDRosi);
 		
-		setCustomProperty("AV_ROSI_VAL", avRosi);
+		decimalFormat.setMaximumFractionDigits(2);
 		
-		setCustomProperty("AV_DROSI_VAL", (int)avDRosi);
-		
-		setCustomProperty("GAIN_VAL", 1+ avDRosi);
-		
+		setCustomProperty("GAIN_VAL", decimalFormat.format(1 + avDRosi * 0.01));
 
 	}
 
@@ -779,8 +786,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				ser.getVal().getNumRef().getNumCache().setFormatCode(NUMBER_FORMAT);
 
 				barChart.getSer().add(ser);
-				getCell(getRow(xssfSheet, i + 1), 0, CellType.STRING).setCellValue(dataName[i]);
 				setColor(ser, ChartGenerator.getStaticColor(colorIndex[i]));
+				
+				getCell(getRow(xssfSheet, i + 1), 0, CellType.STRING).setCellValue(dataName[i]);
 
 			}
 
@@ -848,19 +856,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	private void setColor(CTBarSer ser, String color) {
-		if (ser.getSpPr() == null) {
-			ser.setSpPr(new CTShapeProperties());
-			ser.getSpPr().setSolidFill(new CTSolidColorFillProperties());
-			ser.getSpPr().getSolidFill().setSrgbClr(getColor(color));
-		}
-	}
-
-	private CTSRgbColor getColor(String color) {
-		CTSRgbColor rgbColor = new CTSRgbColor();
-		rgbColor.setVal(color.substring(1));
-		return rgbColor;
-	}
+	
+	
 
 	private void generateALEByAssetTypeGraphic() throws Exception {
 		List<Assessment> assessments = analysis.getSelectedAssessments();
