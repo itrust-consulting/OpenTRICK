@@ -854,12 +854,18 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					ser.getCat().getStrRef().getStrCache().getPt().add(catName);
 
 					CTNumVal numVal = new CTNumVal();
-					numVal.setV(value + "");
+
 					numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 
 					xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
-					xssfSheet.getRow(rowCount++).getCell(1).setCellValue(value);
+					if (Double.isNaN(value))
+						value = 0;
+
+					numVal.setV(value + "");
+					xssfSheet.getRow(rowCount).getCell(1).setCellValue(value);
+
+					rowCount++;
 				}
 
 				ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
@@ -890,14 +896,19 @@ public abstract class Docx4jWordExporter implements ExportReport {
 							if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
 								xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
 
-							double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
-
 							CTNumVal numVal = new CTNumVal();
-							numVal.setV(value + "");
 							numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 							ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 
-							xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(value);
+							double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
+
+							if (Double.isNaN(value))
+								value = 0;
+							
+							numVal.setV(value + "");
+							xssfSheet.getRow(rowCount).getCell(columnIndex).setCellValue(value);
+
+							rowCount++;
 						}
 
 						ser.getVal().getNumRef()
@@ -1614,7 +1625,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
-	
+
 	protected void setCustomProperty(String name, Object value) throws Docx4JException {
 		if (value instanceof Number) {
 			if (value instanceof Double)
@@ -1630,7 +1641,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected Property getProperty(String name) throws Docx4JException {
 		return createProperty(name, true);
 	}
-	
+
 	protected void setColor(CTBarSer ser, String color) {
 		if (ser.getSpPr() == null) {
 			ser.setSpPr(new CTShapeProperties());
@@ -1638,13 +1649,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			ser.getSpPr().getSolidFill().setSrgbClr(getColor(color));
 		}
 	}
-	
+
 	protected CTSRgbColor getColor(String color) {
 		CTSRgbColor rgbColor = new CTSRgbColor();
 		rgbColor.setVal(color.substring(1));
 		return rgbColor;
 	}
-
 
 	protected Property createProperty(String name, boolean resued) throws Docx4JException {
 		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
@@ -1666,7 +1676,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
 		return property;
 	}
-	
+
 	protected List<Part> duplicateChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
 		int count = 1;
 		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
@@ -1687,7 +1697,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 		return parts;
 	}
-
 
 	/**
 	 * @return the docxFormatter
