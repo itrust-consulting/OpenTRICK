@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
@@ -47,11 +48,7 @@ public class ActionPlanSummaryManager {
 	public static final String LABEL_CHARACTERISTIC = "label.characteristic";
 
 	public static List<String> extractPhaseRow(List<SummaryStage> summaryStages) {
-		List<String> phases = new ArrayList<String>();
-		for (SummaryStage summaryStage : summaryStages)
-			if (!phases.contains(summaryStage.getStage()))
-				phases.add(summaryStage.getStage());
-		return phases;
+		return summaryStages.stream().map(SummaryStage::getStage).distinct().collect(Collectors.toList());
 	}
 
 	public static Map<String, Phase> buildPhase(List<Phase> phases, List<String> extractedPhases) {

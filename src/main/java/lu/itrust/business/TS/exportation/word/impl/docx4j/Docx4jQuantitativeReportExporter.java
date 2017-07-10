@@ -679,7 +679,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			assetTotalValue += entry.getValue();
 			setCustomProperty(entry.getKey().toUpperCase() + "_Val", (long) (entry.getValue() * 0.001));
 		}
-		
+
 		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 		decimalFormat.setMaximumFractionDigits(1);
 
@@ -713,9 +713,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		setCustomProperty("AV_ROSI_VAL", decimalFormat.format(avRosi));
 
 		setCustomProperty("AV_DROSI_VAL", (long) avDRosi);
-		
+
 		decimalFormat.setMaximumFractionDigits(2);
-		
+
 		setCustomProperty("GAIN_VAL", decimalFormat.format(1 + avDRosi * 0.01));
 
 	}
@@ -725,8 +725,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	private void generateEvolutionOfProfitabilityGraphic() throws Exception {
-		List<Phase> phases = analysis.findUsablePhase();
-		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildChartData(getSummaryStage(), phases);
+		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildChartData(getSummaryStage(), analysis.getPhases());
 		if (summaries.isEmpty())
 			return;
 		Chart chart = (Chart) findChart("ChartRentability");
@@ -782,12 +781,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 				barChart.getSer().add(ser);
 				setColor(ser, ChartGenerator.getStaticColor(colorIndex[i]));
-				
+
 				getCell(getRow(xssfSheet, i + 1), 0, CellType.STRING).setCellValue(dataName[i]);
 
 			}
 
-			Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(getSummaryStage()));
+			Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(getSummaryStage()));
 
 			CTBarSer barSer = profiltabilityDatasets.get(dataName[0]);
 
@@ -850,9 +849,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 
 	}
-
-	
-	
 
 	private void generateALEByAssetTypeGraphic() throws Exception {
 		List<Assessment> assessments = analysis.getSelectedAssessments();
@@ -1033,5 +1029,4 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	
 }
