@@ -124,7 +124,7 @@
 			<version>${org.springframework.security.version}</version>
 		</dependency>
 
-		<!-- OTP + QrCode-->
+		<!-- OTP + QrCode -->
 		<dependency>
 			<groupId>org.jboss.aerogear</groupId>
 			<artifactId>aerogear-otp-java</artifactId>
@@ -240,6 +240,12 @@
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-scratchpad</artifactId>
 			<version>${org.apache.poi.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.docx4j</groupId>
+			<artifactId>docx4j</artifactId>
+			<version>3.3.5</version>
 		</dependency>
 
 		<!-- Email -->

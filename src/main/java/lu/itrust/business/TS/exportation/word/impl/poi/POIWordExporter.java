@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.exportation;
+package lu.itrust.business.TS.exportation.word.impl.poi;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,9 +36,10 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
+import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -59,45 +60,19 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
-public abstract class AbstractWordExporter {
+public abstract class POIWordExporter implements ExportReport {
 
-	public static final String TS_TAB_TEXT_1 = "TSTabText1";
-
-	public static final String TS_TAB_TEXT_2 = "TSTabText2";
-
-	public static final String TS_TAB_TEXT_3 = "TSTabText3";
-
-	public static final String DEFAULT_PARAGRAHP_STYLE = TS_TAB_TEXT_2;
-
-	protected static final String HEADER_COLOR = "CCC0D9";
-
-	protected static final String SUB_HEADER_COLOR = "E5DFEC";
-
-	private static final String _27001_NA_MEASURES = "27001_NA_MEASURES";
-
-	private static final String _27002_NA_MEASURES = "27002_NA_MEASURES";
-
-	private static final String DEFAULT_CELL_COLOR = "FFFFFF";
-
-	private static final String MAX_IMPL = "MAX_IMPL";
-
-	private static final String SUPER_HEAD_COLOR = HEADER_COLOR;
-
-	protected static final String LIGHT_CELL_COLOR = SUB_HEADER_COLOR;
-
-	private static final String ZERO_COST_COLOR = "e6b8b7";
+	
 
 	protected Analysis analysis = null;
 
 	protected XWPFDocument document = null;
 
-	protected ValueFactory valueFactory = null;
-
 	protected String idTask;
 
-	protected String languageAlpha2 = null;
-
 	protected DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+
+	protected String languageAlpha2 = null;
 
 	protected Locale locale = null;
 
@@ -107,9 +82,11 @@ public abstract class AbstractWordExporter {
 
 	protected ServiceTaskFeedback serviceTaskFeedback;
 
-	private String currentParagraphId;
+	protected ValueFactory valueFactory = null;
 
 	private String contextPath;
+
+	private String currentParagraphId;
 
 	private int maxProgress;
 
@@ -127,17 +104,13 @@ public abstract class AbstractWordExporter {
 
 	private File workFile;
 
-	/**
-	 * exportToWordDocument: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param analysisId
-	 * @param context
-	 * @param serviceAnalysis
-	 * 
-	 * @return
-	 * @throws Exception
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * exportToWordDocument(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
+	@Override
 	public void exportToWordDocument(Analysis analysis) throws Exception {
 		InputStream inputStream = null;
 
@@ -255,70 +228,162 @@ public abstract class AbstractWordExporter {
 		}
 	}
 
-	protected abstract void generateOtherData();
-
-	/**
-	 * getAnalysis: <br>
-	 * Returns the analysis field value.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The value of the analysis field
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getAnalysis(
+	 * )
 	 */
+	@Override
 	public Analysis getAnalysis() {
 		return analysis;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getContextPath()
+	 */
+	@Override
 	public String getContextPath() {
 		return contextPath;
 	}
 
-	/**
-	 * getDocument: <br>
-	 * Returns the document field value.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The value of the document field
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getCurrentParagraphId()
+	 */
+	@Override
+	public String getCurrentParagraphId() {
+		return currentParagraphId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getDocument(
+	 * )
 	 */
 	public XWPFDocument getDocument() {
 		return document;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getIdTask()
+	 */
+	@Override
 	public String getIdTask() {
 		return idTask;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getLocale()
+	 */
+	@Override
 	public Locale getLocale() {
 		return locale;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getMaxProgress()
+	 */
+	@Override
 	public int getMaxProgress() {
 		if (maxProgress <= 0)
 			return 100;
 		return maxProgress;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getMessageSource()
+	 */
+	@Override
 	public MessageSource getMessageSource() {
 		return messageSource;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getMinProgress()
+	 */
+	@Override
 	public int getMinProgress() {
 		return minProgress;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getProgress(
+	 * )
+	 */
+	@Override
 	public int getProgress() {
 		return progress;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getReportName()
+	 */
+	@Override
 	public String getReportName() {
 		return reportName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * getServiceTaskFeedback()
+	 */
+	@Override
 	public ServiceTaskFeedback getServiceTaskFeedback() {
 		return serviceTaskFeedback;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getWorkFile(
+	 * )
+	 */
+	@Override
 	public File getWorkFile() {
 		return workFile;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#increase(
+	 * int)
+	 */
+	@Override
 	public int increase(int value) {
 		if (!(value < 0 || value > 100)) {
 			progress += value;
@@ -328,60 +393,139 @@ public abstract class AbstractWordExporter {
 		return (int) (minProgress + (maxProgress - minProgress) * 0.01 * progress);
 	}
 
-	/**
-	 * setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setAnalysis(
+	 * lu.itrust.business.TS.model.analysis.Analysis)
 	 */
+	@Override
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setContextPath(java.lang.String)
+	 */
+	@Override
 	public void setContextPath(String contextPath) {
 		this.contextPath = contextPath;
 	}
 
-	/**
-	 * setDocument: <br>
-	 * Sets the Field "document" with a value.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param document
-	 *            The Value to set the document field
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setCurrentParagraphId(java.lang.String)
+	 */
+	@Override
+	public void setCurrentParagraphId(String currentParagraphId) {
+		this.currentParagraphId = currentParagraphId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setDocument(
+	 * org.apache.poi.xwpf.usermodel.XWPFDocument)
 	 */
 	public void setDocument(XWPFDocument document) {
 		this.document = document;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setIdTask(
+	 * java.lang.String)
+	 */
+	@Override
 	public void setIdTask(String idTask) {
 		this.idTask = idTask;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setLocale(
+	 * java.util.Locale)
+	 */
+	@Override
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setMaxProgress(int)
+	 */
+	@Override
 	public void setMaxProgress(int maxProgress) {
 		this.maxProgress = maxProgress;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setMessageSource(org.springframework.context.MessageSource)
+	 */
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setMinProgress(int)
+	 */
+	@Override
 	public void setMinProgress(int minProgress) {
 		this.minProgress = minProgress;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setReportName(java.lang.String)
+	 */
+	@Override
 	public void setReportName(String reportName) {
 		this.reportName = reportName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
+	 * setServiceTaskFeedback(lu.itrust.business.TS.database.service.
+	 * ServiceTaskFeedback)
+	 */
+	@Override
 	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setWorkFile(
+	 * java.io.File)
+	 */
+	@Override
 	public void setWorkFile(File workFile) {
 		this.workFile = workFile;
 	}
@@ -444,7 +588,7 @@ public abstract class AbstractWordExporter {
 	protected abstract void generateAssets(String name, List<Asset> assets);
 
 	@SuppressWarnings("unchecked")
-	protected void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+	protected void generateComplianceGraphic(POIExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
@@ -452,7 +596,7 @@ public abstract class AbstractWordExporter {
 		ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
 		if (measures == null)
 			return;
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, factory);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
@@ -502,8 +646,22 @@ public abstract class AbstractWordExporter {
 
 	protected abstract void generateExtendedParameters(String type) throws Exception;
 
+	protected abstract void generateOtherData();
+
+	protected String getDisplayName(AssetType type) {
+		return getMessage("label.asset_type." + type.getName().toLowerCase(), null, type.getName(), locale);
+	}
+
+	protected String getDisplayName(ScenarioType type) {
+		return getMessage("label.scenario.type." + type.getName().toLowerCase(), null, type.getName(), locale);
+	}
+
 	protected String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
 		return messageSource.getMessage(code, parameters, defaultMessage, locale);
+	}
+
+	protected void setCellText(XWPFTableCell cell, String text) {
+		setCellText(cell, text, null);
 	}
 
 	protected void setCellText(XWPFTableCell cell, String text, ParagraphAlignment alignment) {
@@ -514,11 +672,7 @@ public abstract class AbstractWordExporter {
 			paragraph.setAlignment(alignment);
 	}
 
-	protected void setCellText(XWPFTableCell cell, String text) {
-		setCellText(cell, text, null);
-	}
-
-	protected abstract void writeChart(ReportExcelSheet reportExcelSheet) throws Exception;
+	protected abstract void writeChart(POIExcelSheet reportExcelSheet) throws Exception;
 
 	private void generateAssets() {
 		generateAssets("<Asset>", analysis.findSelectedAssets());
@@ -528,7 +682,7 @@ public abstract class AbstractWordExporter {
 	private void generateGraphics() throws Exception {
 		for (PackagePart packagePart : this.document.getPackage().getParts())
 			if (packagePart.getPartName().getExtension().contains("xls"))
-				writeChart(new ReportExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath)));
+				writeChart(new POIExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath)));
 	}
 
 	private void generateItemInformation() throws Exception {
@@ -538,7 +692,7 @@ public abstract class AbstractWordExporter {
 
 		paragraph = findTableAnchor("<Scope>");
 
-		setCurrentParagraphId(AbstractWordExporter.TS_TAB_TEXT_2);
+		setCurrentParagraphId(ExportReport.TS_TAB_TEXT_2);
 
 		List<ItemInformation> iteminformations = analysis.getItemInformations();
 
@@ -865,14 +1019,6 @@ public abstract class AbstractWordExporter {
 		document.enforceUpdateFields();
 	}
 
-	protected String getDisplayName(ScenarioType type) {
-		return getMessage("label.scenario.type." + type.getName().toLowerCase(), null, type.getName(), locale);
-	}
-
-	protected String getDisplayName(AssetType type) {
-		return getMessage("label.asset_type." + type.getName().toLowerCase(), null, type.getName(), locale);
-	}
-
 	public static void MergeCell(XWPFTableRow row, int begin, int size, String color) {
 		int length = begin + size;
 		for (int i = 0; i < length; i++) {
@@ -890,19 +1036,21 @@ public abstract class AbstractWordExporter {
 		}
 	}
 
-	/**
-	 * @return the currentParagraphId
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.exportation.word.ExportReport#close()
 	 */
-	public String getCurrentParagraphId() {
-		return currentParagraphId;
+	@Override
+	public void close() {
+		if(getDocument()!=null){
+			try {
+				getDocument().close();
+			} catch (IOException e) {
+				TrickLogManager.Persist(e);
+			}
+		}
+		
 	}
-
-	/**
-	 * @param currentParagraphId
-	 *            the currentParagraphId to set
-	 */
-	public void setCurrentParagraphId(String currentParagraphId) {
-		this.currentParagraphId = currentParagraphId;
-	}
+	
+	
 
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.exportation;
+package lu.itrust.business.TS.exportation.word.impl.poi;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +36,6 @@ import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -55,11 +54,11 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @author eomar
  *
  */
-public class ExportQualitativeReport extends AbstractWordExporter {
+public class POIQualitativeReportExporter extends POIWordExporter {
 
 	private List<ColorBound> colorBounds = Collections.emptyList();
 
-	public ExportQualitativeReport(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String realPath) {
+	public POIQualitativeReportExporter(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String realPath) {
 		setMessageSource(messageSource);
 		setServiceTaskFeedback(serviceTaskFeedback);
 		setContextPath(realPath);
@@ -600,10 +599,10 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 	 * 
 	 * @see
 	 * lu.itrust.business.TS.exportation.AbstractWordExporter#writeChart(lu.
-	 * itrust.business.TS.exportation.helper.ReportExcelSheet)
+	 * itrust.business.TS.exportation.helper.POIExcelSheet)
 	 */
 	@Override
-	protected void writeChart(ReportExcelSheet reportExcelSheet) throws Exception {
+	protected void writeChart(POIExcelSheet reportExcelSheet) throws Exception {
 		try {
 			switch (reportExcelSheet.getName()) {
 			case "Compliance27001":
@@ -636,21 +635,21 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		}
 	}
 
-	private void generateRiskByAssetGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByAssetGraphic(POIExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessmentByAsset = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
 		generateRiskGraphic(reportExcelSheet, assessmentByAsset);
 	}
 
-	private void generateRiskByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByAssetTypeGraphic(POIExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(getDisplayName(a1.getAsset().getAssetType()), getDisplayName(a2.getAsset().getAssetType()));
 		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getAsset().getAssetType())));
 		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
-	private void generateRiskByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByScenarioGraphic(POIExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
@@ -658,7 +657,7 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 		generateRiskGraphic(reportExcelSheet, assessments);
 	}
 
-	private void generateRiskByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateRiskByScenarioTypeGraphic(POIExcelSheet reportExcelSheet) {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(getDisplayName(a1.getScenario().getType()), getDisplayName(a2.getScenario().getType()));
 		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getScenario().getType())));
@@ -802,8 +801,8 @@ public class ExportQualitativeReport extends AbstractWordExporter {
 
 	}
 
-	private void generateRiskGraphic(ReportExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessmentByAsset) {
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+	private void generateRiskGraphic(POIExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessmentByAsset) {
+		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
 		XSSFRow row = getRow(xssfSheet, 1), colors = getRow(xssfSheet, 0);
 		for (int i = 0; i < colorBounds.size(); i++) {
 			XSSFCell cell = getCell(row, i + 1, CellType.STRING), color = getCell(colors, i + 1, CellType.STRING);

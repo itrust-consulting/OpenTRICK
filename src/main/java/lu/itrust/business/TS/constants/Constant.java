@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.constants;
 
+import java.util.List;
+
 /**
  * Constant: <br>
  * This Class contains all the Constants used inside TRICK Service.<br>
@@ -694,5 +696,15 @@ public class Constant {
 	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
 
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
+
+	public static int CHAR_MULTI_CONTENT_MAX_SIZE = 12;
+
+	public static int CHAR_SINGLE_CONTENT_MAX_SIZE = 14;
+
+	public static int CHAR_MULTI_CONTENT_SIZE = 10;
+
+	public static List<String> STATIC_COLORS;
+	
+	public static List<String> DEFAULT_COLORS;
 
 }

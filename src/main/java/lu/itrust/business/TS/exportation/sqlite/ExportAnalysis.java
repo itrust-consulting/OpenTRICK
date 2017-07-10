@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.exportation;
+package lu.itrust.business.TS.exportation.sqlite;
 
 import java.sql.SQLException;
 import java.text.DateFormat;

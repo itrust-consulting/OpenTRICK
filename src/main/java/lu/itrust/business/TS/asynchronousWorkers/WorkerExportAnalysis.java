@@ -33,7 +33,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserSqLiteHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.ExportAnalysis;
+import lu.itrust.business.TS.exportation.sqlite.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
