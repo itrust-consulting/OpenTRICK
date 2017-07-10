@@ -20,9 +20,6 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.docx4j.dml.CTRegularTextRun;
-import org.docx4j.dml.CTSRgbColor;
-import org.docx4j.dml.CTShapeProperties;
-import org.docx4j.dml.CTSolidColorFillProperties;
 import org.docx4j.dml.chart.CTBarChart;
 import org.docx4j.dml.chart.CTBarSer;
 import org.docx4j.dml.chart.CTBoolean;
@@ -32,7 +29,6 @@ import org.docx4j.dml.chart.CTStrVal;
 import org.docx4j.dml.chart.CTValAx;
 import org.docx4j.dml.chart.STDispBlanksAs;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.DrawingML.Chart;
@@ -47,7 +43,6 @@ import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -869,8 +864,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 
-		generateALEChart(ales, "ChartALEByAssetType", getMessage("report.chart.title.asset.type", null, "Asset type", locale),
-				getMessage("report.chart.asset.type", null, "Asset type", locale), "AleByAssetType", "report.chart.asset.type.index");
+		generateALEChart(ales, "ChartALEByAssetType", getMessage("report.chart.ale.title.asset.type", null, "Asset type", locale),
+				getMessage("report.chart.asset.type", null, "Asset type", locale), "AleByAssetType", "report.chart.ale.title.asset.type.index");
 
 	}
 
@@ -883,8 +878,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		generateALEChart(ales, "ChartALEByScenario", getMessage("report.chart.title.scenario", null, "Scenario", locale),
-				getMessage("report.chart.scenario", null, "Scenario", locale), "AleBySceanrio", "report.chart.scenario.index");
+		generateALEChart(ales, "ChartALEByScenario", getMessage("report.chart.ale.title.scenario", null, "Scenario", locale),
+				getMessage("report.chart.scenario", null, "Scenario", locale), "AleBySceanrio", "report.chart.ale.title.scenario.index");
 	}
 
 	private void generateALEByScenarioTypeGraphic() throws Exception {
@@ -901,8 +896,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 
-		generateALEChart(ales, "ChartALEByScenarioType", getMessage("report.chart.title.scenario.type", null, "Scenario type", locale),
-				getMessage("report.chart.scenario.type", null, "Scenario type", locale), "AleBySceanrioType", "report.chart.scenario.type.index");
+		generateALEChart(ales, "ChartALEByScenarioType", getMessage("report.chart.ale.title.scenario.type", null, "Scenario type", locale),
+				getMessage("report.chart.scenario.type", null, "Scenario type", locale), "AleBySceanrioType", "report.chart.ale.title.scenario.type.index");
 
 	}
 
@@ -935,8 +930,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		generateALEChart(ales, "ChartALEByAsset", getMessage("report.chart.title.asset", null, "ALE By Asset", locale), getMessage("report.chart.asset", null, "Asset", locale),
-				"AleByAsset", "report.chart.asset.index");
+		generateALEChart(ales, "ChartALEByAsset", getMessage("report.chart.ale.title.asset", null, "ALE By Asset", locale), getMessage("report.chart.asset", null, "Asset", locale),
+				"AleByAsset", "report.chart.ale.title.asset.index");
 	}
 
 	private void generateALEChart(Map<Integer, ALE> ales, String chartName, String title, String column, String name, String multiTitleCode) throws Exception {
@@ -944,7 +939,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		if (ales2.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
 			generateALEChart(ales2, (Chart) findChart(chartName), title, column);
 		else {
-			List<Part> parts = duplicateAleChart(ales2.size(), chartName, name);
+			List<Part> parts = duplicateChart(ales2.size(), chartName, name);
 			int count = parts.size(), divisor = Math.floorDiv(ales2.size(), count);
 			for (int i = 0; i < count; i++)
 				generateALEChart(ales2.subList(i * divisor, i == (count - 1) ? ales2.size() : (i + 1) * divisor), (Chart) parts.get(i),
@@ -1038,25 +1033,5 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	private List<Part> duplicateAleChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
-		int count = 1;
-		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
-			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE).getDivisor();
-		Part part = findChart(chartName);
-		if (part == null)
-			return Collections.emptyList();
-		List<Part> parts = new ArrayList<>(count);
-		parts.add(part);
-		if (count > 1) {
-			List<Object> contents = new LinkedList<>();
-			for (int i = 1; i < count; i++) {
-				ClonePartResult result = cloneChart((Chart) part, name + i, name + i);
-				contents.add(result.getP());
-				parts.add(result.getPart());
-			}
-			insertAllAfter(findTableAnchor(chartName), contents);
-		}
-		return parts;
-	}
-
+	
 }

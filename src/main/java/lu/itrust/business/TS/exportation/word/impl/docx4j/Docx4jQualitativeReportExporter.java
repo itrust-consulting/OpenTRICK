@@ -17,20 +17,16 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.docx4j.dml.CTRegularTextRun;
+import org.docx4j.dml.CTTextParagraph;
 import org.docx4j.dml.chart.CTBarChart;
 import org.docx4j.dml.chart.CTBarSer;
-import org.docx4j.dml.chart.CTBoolean;
-import org.docx4j.dml.chart.CTNumFmt;
 import org.docx4j.dml.chart.CTNumVal;
 import org.docx4j.dml.chart.CTStrVal;
-import org.docx4j.dml.chart.CTValAx;
 import org.docx4j.dml.chart.STDispBlanksAs;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
-import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
@@ -58,10 +54,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.ALE;
-import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
@@ -560,44 +553,18 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 */
 	@Override
 	protected void writeChart(Docx4jExcelSheet reportExcelSheet) throws Exception {
-		try {
-			switch (reportExcelSheet.getName()) {
-			case "RiskByScenarioType":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.scenario.type", "Printing risk by scenario type excel sheet", increase(3)));// 77%
-				generateRiskByScenarioTypeGraphic(reportExcelSheet);
-				break;
-			case "RiskByScenario":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.scenario", "Printing risk by scenario excel sheet", increase(5)));// 82%
-				generateRiskByScenarioGraphic(reportExcelSheet);
-				break;
-			case "RiskByAssetType":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.asset.type", "Printing risk by asset type excel sheet", increase(2)));// 84%
-				generateRiskByAssetTypeGraphic(reportExcelSheet);
-				break;
-			case "RiskByAsset":
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.risk.by.asset", "Printing risk by asset excel sheet", increase(5)));// 89%
-				generateRiskByAssetGraphic(reportExcelSheet);
-				break;
-			}
-		} finally {
-			reportExcelSheet.save();
-		}
 	}
 
-	private void generateRiskByAssetGraphic(Docx4jExcelSheet reportExcelSheet) {
+	private void generateRiskByAssetGraphic() throws Exception {
 		Map<String, List<Assessment>> assessmentByAsset = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
 
-		if (assessments.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE) {
-			generateRiskGraphic((Part) null, "Risk par asset", "RiskByAsset", assessments);
-		} else {
-			generateRiskGraphic((Part) null, "Risk par asset", "RiskByAsset", assessments);
-		}
+		generateRiskChart(assessmentByAsset, "RiskByAsset", "report.chart.risk.title.asset", "Risk par asset", "report.chart.risk.title.asset.index");
 
 	}
 
-	private void generateALEChart(Map<String, List<Assessment>> assessmentByAsset, String chartName, String title, String name, String multiTitleCode) throws Exception {
+	private void generateRiskChart(Map<String, List<Assessment>> assessmentByAsset, String chartName, String title, String name, String multiTitleCode) throws Exception {
 		List<Entry<String, List<Assessment>>> assessments = assessmentByAsset.entrySet().stream().filter(entry -> {
 			clearColorBoundCount();
 			entry.getValue().forEach(assessment -> {
@@ -607,43 +574,42 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			return colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0);
 		}).collect(Collectors.toList());
 		if (assessments.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
-			generateRiskGraphic(findChart(chartName), title, assessments);
+			generateRiskGraphic(findChart(chartName), getMessage(title, null, null, locale), assessments);
 		else {
-			List<Part> parts = duplicateAleChart(ales2.size(), chartName, name);
-			int count = parts.size(), divisor = Math.floorDiv(ales2.size(), count);
+			List<Part> parts = duplicateChart(assessments.size(), chartName, name);
+			int count = parts.size(), divisor = Math.floorDiv(assessments.size(), count);
 			for (int i = 0; i < count; i++)
-				generateALEChart(ales2.subList(i * divisor, i == (count - 1) ? ales2.size() : (i + 1) * divisor), (Chart) parts.get(i),
-						getMessage(multiTitleCode, new Object[] { i + 1, count }, null, locale), column);
+				generateRiskGraphic(parts.get(i), getMessage(multiTitleCode, new Object[] { i + 1, count }, null, locale),
+						assessments.subList(i * divisor, i == (count - 1) ? assessments.size() : (i + 1) * divisor));
 		}
 	}
 
-	private void generateRiskByAssetTypeGraphic(Docx4jExcelSheet reportExcelSheet) {
+	private void generateRiskByAssetTypeGraphic() throws Exception {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(getDisplayName(a1.getAsset().getAssetType()), getDisplayName(a2.getAsset().getAssetType()));
 		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getAsset().getAssetType())));
-		generateRiskGraphic(reportExcelSheet, assessments);
+		generateRiskChart(assessments, "RiskByAssetType", "report.chart.risk.title.asset.type", "Risk par asset type", "report.chart.risk.title.asset.type.index");
 	}
 
-	private void generateRiskByScenarioGraphic(Docx4jExcelSheet reportExcelSheet) {
+	private void generateRiskByScenarioGraphic() throws Exception {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
 		}).collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
 
-		generateRiskGraphic(reportExcelSheet, assessments);
+		generateRiskChart(assessments, "RiskByScenario", "report.chart.risk.title.scenario", "Risk par scenario", "report.chart.risk.title.scenario.index");
 	}
 
-	private void generateRiskByScenarioTypeGraphic(Docx4jExcelSheet reportExcelSheet) {
+	private void generateRiskByScenarioTypeGraphic() throws Exception {
 		Map<String, List<Assessment>> assessments = analysis.getAssessments().parallelStream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			return NaturalOrderComparator.compareTo(getDisplayName(a1.getScenario().getType()), getDisplayName(a2.getScenario().getType()));
 		}).collect(Collectors.groupingBy(assessment -> getDisplayName(assessment.getScenario().getType())));
-		generateRiskGraphic(reportExcelSheet, assessments);
+		generateRiskChart(assessments, "RiskByScenarioType", "report.chart.risk.title.scenario.type", "Risk par scenario type", "report.chart.risk.title.scenario.type.index");
 	}
 
 	@Override
 	protected void generateOtherData() throws XPathBinderAssociationIsPartialException, JAXBException {
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.risk_heat.map", "Printing risk heat map", increase(3)));
 		generateRiskHeatMap();
-
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.risk_acceptance", "Printing risk acceptance table", increase(2)));
 		generateRiskAcceptance();
 	}
@@ -749,35 +715,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 	}
 
-	private void generateRiskGraphic(Docx4jExcelSheet reportExcelSheet, Map<String, List<Assessment>> assessments) {
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		XSSFRow row = getRow(xssfSheet, 1), colors = getRow(xssfSheet, 0);
-		for (int i = 0; i < colorBounds.size(); i++) {
-			XSSFCell cell = getCell(row, i + 1, CellType.STRING), color = getCell(colors, i + 1, CellType.STRING);
-			cell.setCellValue(colorBounds.get(i).getLabel());
-			color.setCellValue(colorBounds.get(i).getColor().substring(1));
-		}
-
-		int rowIndex = 2;
-
-		for (Entry<String, List<Assessment>> entry : assessments.entrySet()) {
-			clearColorBoundCount();
-			entry.getValue().forEach(assessment -> {
-				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
-			});
-			if (!colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0))
-				continue;
-			row = getRow(xssfSheet, rowIndex++);
-			getCell(row, 0, CellType.STRING).setCellValue(entry.getKey());
-			for (int i = 0; i < colorBounds.size(); i++) {
-				if (colorBounds.get(i).getCount() > 0)
-					getCell(row, i + 1, CellType.NUMERIC).setCellValue(colorBounds.get(i).getCount());
-			}
-		}
-	}
-
-	private void generateRiskGraphic(Part part, String title, String name, List<Entry<String, List<Assessment>>> assessmentEntries) throws Exception {
+	private void generateRiskGraphic(Part part, String title, List<Entry<String, List<Assessment>>> assessmentEntries) throws Exception {
 
 		if (part == null || colorBounds.isEmpty() || assessmentEntries.isEmpty())
 			return;
@@ -801,7 +739,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			if (barChart == null)
 				return;
 
-			((CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0)).setT(title);
+			CTTextParagraph p = chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0);
+			
+			while (p.getEGTextRun().size()>1)
+				p.getEGTextRun().remove(1);
+
+			((CTRegularTextRun) p.getEGTextRun().get(0)).setT(title);
 
 			chart.getContents().getChart().getDispBlanksAs().setVal(STDispBlanksAs.GAP);
 
@@ -812,7 +755,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			XSSFRow row = getRow(xssfSheet, 0);
 
 			for (int i = 0; i < colorBounds.size(); i++) {
-				CTBarSer ser = createChart(String.format("%s!$%s$1", reportExcelSheet.getName(), (char) ('B' + i)), 0, name, new CTBarSer());
+				CTBarSer ser = createChart(String.format("%s!$%s$1", reportExcelSheet.getName(), (char) ('B' + i)), i, colorBounds.get(i).getLabel(), new CTBarSer());
 				setColor(ser, colorBounds.get(i).getColor());
 				barChart.getSer().add(ser);
 				getCell(row, i + 1, CellType.STRING).setCellValue(colorBounds.get(i).getLabel());
@@ -883,8 +826,11 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	@Override
-	protected void updateGraphics() {
-
+	protected void updateGraphics() throws Exception {
+		generateRiskByAssetGraphic();
+		generateRiskByAssetTypeGraphic();
+		generateRiskByScenarioGraphic();
+		generateRiskByScenarioTypeGraphic();
 	}
 
 }

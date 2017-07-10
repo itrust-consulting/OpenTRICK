@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -91,6 +92,7 @@ import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -1664,6 +1666,28 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
 		return property;
 	}
+	
+	protected List<Part> duplicateChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
+		int count = 1;
+		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
+			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE).getDivisor();
+		Part part = findChart(chartName);
+		if (part == null)
+			return Collections.emptyList();
+		List<Part> parts = new ArrayList<>(count);
+		parts.add(part);
+		if (count > 1) {
+			List<Object> contents = new LinkedList<>();
+			for (int i = 1; i < count; i++) {
+				ClonePartResult result = cloneChart((Chart) part, name + i, name + i);
+				contents.add(result.getP());
+				parts.add(result.getPart());
+			}
+			insertAllAfter(findTableAnchor(chartName), contents);
+		}
+		return parts;
+	}
+
 
 	/**
 	 * @return the docxFormatter
