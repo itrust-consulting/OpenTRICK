@@ -772,8 +772,9 @@ function customAnalysis(element) {
 							$(modal.modal_dialog).find("button").prop("disabled", false);
 							$progress.hide();
 						});
-					})
+					});
 					$analysisType.trigger("change");
+					$impacts.trigger("change");
 					modal.Show();
 				}
 				return false;
