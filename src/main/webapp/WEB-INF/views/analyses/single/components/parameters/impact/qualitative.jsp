@@ -19,7 +19,7 @@
 						<tr>
 							<th width='1%' class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 							<th width='20%' class="textaligncenter"><spring:message code="label.parameter.label" /></th>
-							<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
+							<th><spring:message code="label.parameter.qualification" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -35,7 +35,7 @@
 									</c:choose></td>
 								<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message
 										text="${parameter.label}" /></td>
-								<td data-trick-field="description" data-trick-field-type="string" class="editable textaligncenter" onclick="return editField(this);"><spring:message
+								<td data-trick-field="description" data-trick-content="text"  data-trick-field-type="string" class="editable" onclick="return editField(this);"><spring:message
 										text="${parameter.description}" /></td>
 							</tr>
 						</c:forEach>

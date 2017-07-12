@@ -25,7 +25,7 @@
 					<c:if test="${type.qualitative}">
 						<th class="textaligncenter" width="${type.quantitative?'10' : '20' }%"><spring:message code="label.parameter.label" /></th>
 					</c:if>
-					<th class="textaligncenter" ${type.qualitative?'width="50%"' : '' }><spring:message code="label.parameter.qualification" /></th>
+					<th ${type.qualitative?'width="50%"' : '' }><spring:message code="label.parameter.qualification" /></th>
 					<c:if test="${type.quantitative}">
 						<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
 						<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
@@ -68,7 +68,7 @@
 								</c:choose></td>
 						</c:if>
 
-						<td data-trick-field="description" data-trick-field-type="string" class="editable textaligncenter" onclick="return editField(this);"><spring:message
+						<td data-trick-field="description" data-trick-content="text" data-trick-field-type="string" class="editable" onclick="return editField(this);"><spring:message
 								text="${parameter.description}" /></td>
 						<c:if test="${type.quantitative}">
 							<c:set var="parameterValue">

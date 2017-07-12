@@ -21,7 +21,7 @@
 				<tr>
 					<th class="textaligncenter" width="1%"><spring:message code="label.parameter.level" /></th>
 					<th class="textaligncenter" width="1%"><spring:message code="label.parameter.acronym" /></th>
-					<th class="textaligncenter" width="50%"><spring:message code="label.parameter.qualification" /></th>
+					<th width="50%"><spring:message code="label.parameter.qualification" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
 					<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
 					<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
@@ -35,7 +35,7 @@
 						<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 						<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message
 								text="${parameter.acronym}" /></td>
-						<td data-trick-field="description" data-trick-field-type="string" class="editable textaligncenter" onclick="return editField(this);"><spring:message
+						<td data-trick-field="description" data-trick-content="text" data-trick-field-type="string" class="editable" onclick="return editField(this);"><spring:message
 								text="${parameter.description}" /></td>
 						<td data-trick-field="value" data-trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
 							${mod2 or parameter.level mod 2==0? 'onclick="return editField(this);" class="editable textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber

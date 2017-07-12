@@ -117,20 +117,20 @@
 						</c:if>
 					</c:otherwise>
 				</c:choose>
+				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
 				<c:if test="${isEditable}">
 					<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
 					<c:if test="${type.quantitative and hasMaturity}">
-						<li class="dropdown-header"><spring:message code="label.title.maturity" /></li>
 						<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
 					</c:if>
 				</c:if>
 				<c:if test="${canExport and isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
+					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:if test="${not empty soas}">
 						<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>
 					</c:if>
-					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:choose>
 						<c:when test="${type.qualitative}">
 							<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
@@ -156,7 +156,7 @@
 
 				<c:if test="${type.quantitative}">
 					<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
-					<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.edit.rrf" /></a></li>
+					<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.edit" /></a></li>
 					<c:if test="${isProfile or isEditable}">
 						<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
 						<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
@@ -168,20 +168,16 @@
 					</c:if>
 					<li class="divider"></li>
 				</c:if>
-				<li><a><spring:message code="label.title.edit_mode" />
-					<span class='btn-group btn-group-xs text-right pull-right' data-toggle="buttons">
-						 <span role="enterEditMode" class="btn btn-default" onclick="return enableEditMode()"><spring:message
-									code="label.action.edit_mode.open" /></span> <span role="leaveEditMode" class="btn btn-default active" onclick="return disableEditMode()"><spring:message
-									code="label.action.edit_mode.close" /></span>
-						
-					</span><span class='clearfix'></span></a></li>
+				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
+				<li><a class='btn-group btn-group-xs clearfix'><span role="enterEditMode" class="btn btn-default" onclick="return enableEditMode()"><spring:message
+								code="label.action.edit_mode.open" /></span> <span role="leaveEditMode" class="btn btn-default active disabled" onclick="return disableEditMode()"><spring:message
+								code="label.action.edit_mode.close" /></span> </a></li>
 				<c:if test="${not isProfile and isEditable}">
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
 			<c:if test="${not isProfile and isEditable}">
 				<li class="dropdown-header"><spring:message code="label.menu.settings" /></li>
-				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
 				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>
 				<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage.impact" /></a></li>
 				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>

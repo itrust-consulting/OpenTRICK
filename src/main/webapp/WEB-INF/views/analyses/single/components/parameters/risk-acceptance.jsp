@@ -25,7 +25,7 @@
 			<tr>
 				<th class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
 				<th style="width: 20%" class="textaligncenter"><spring:message code="label.parameter.label" /></th>
-				<th style="width: 50%" class="textaligncenter"><spring:message code="label.description" /></th>
+				<th style="width: 50%"><spring:message code="label.description" /></th>
 				<th class="textaligncenter"><spring:message code="label.color" /></th>
 			</tr>
 		</thead>
@@ -56,7 +56,7 @@
 							<c:set var="prevValue" value="${value}" />
 							<td class='textaligncenter editable' data-trick-field='label' data-trick-field-type='string' onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
 							<spring:message text="${parameter.color}" var="color" />
-							<td class='textaligncenter editable' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message
+							<td class='editable' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message
 									text="${parameter.description}" /></td>
 							<td style="background-color: ${color};" data-trick-field='color'></td>
 						</tr>
