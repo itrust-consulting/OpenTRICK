@@ -44,25 +44,25 @@ public class Docx4jMeasureFormatter extends Docx4jFormatter {
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(16157));
 		for (int i = 0; i < headers.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(headers[i]));
-		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols));
+		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "dxa"));
 		return true;
 	}
 
-	private int sum(int i, int j, int[] cols) {
+	public static int sum(int i, int j, int[] cols) {
 		int value = 0;
 		for (; i < j; i++)
 			value += cols[i];
 		return value;
 	}
 
-	protected void updateRow(Tr tr, int[] cols) {
+	public static void updateRow(Tr tr, int[] cols, String type) {
 		for (int i = 0; i < cols.length; i++) {
 			Tc tc = (Tc) tr.getContent().get(i);
 			if (tc.getTcPr() == null)
 				tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
 			if (tc.getTcPr().getTcW() == null)
 				tc.getTcPr().setTcW(Context.getWmlObjectFactory().createTblWidth());
-			tc.getTcPr().getTcW().setType("dxa");
+			tc.getTcPr().getTcW().setType(type);
 			tc.getTcPr().getTcW().setW(BigInteger.valueOf(cols[i]));
 		}
 	}
