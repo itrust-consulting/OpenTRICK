@@ -158,7 +158,7 @@ public class ControllerProfile {
 		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
-		String extension = ReportType.getExtension(wordReport.getType());
+		String extension = ReportType.getExtension(wordReport.getType(), wordReport.getFilename());
 
 		// set response contenttype to sqlite
 		response.setContentType(extension);

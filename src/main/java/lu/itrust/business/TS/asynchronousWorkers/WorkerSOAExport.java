@@ -9,7 +9,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx
 
 import java.io.File;
 import java.math.BigInteger;
-import java.net.URI;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,9 +17,6 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.docx4j.model.table.TblFactory;
-import org.docx4j.openpackaging.contenttype.CTOverride;
-import org.docx4j.openpackaging.contenttype.ContentTypeManager;
-import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.Jc;
@@ -232,8 +228,8 @@ public class WorkerSOAExport extends WorkerImpl {
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
+			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			File doctemplate = new File(String.format("%s/data/%s.docx", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
 			wordMLPackage = createDocument(doctemplate, workFile);
 			document = wordMLPackage.getMainDocumentPart().getContents();
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
@@ -370,9 +366,6 @@ public class WorkerSOAExport extends WorkerImpl {
 
 	private WordprocessingMLPackage createDocument(File doctemplate, File workFile) throws Exception {
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doctemplate);
-		ContentTypeManager contentTypeManager = wordMLPackage.getContentTypeManager();
-		CTOverride ctOverride = contentTypeManager.getOverrideContentType().get(new URI("/word/document.xml"));
-		ctOverride.setContentType(ContentTypes.WORDPROCESSINGML_DOCUMENT_MACROENABLED);
 		wordMLPackage.save(workFile);
 		return WordprocessingMLPackage.load(workFile);
 	}

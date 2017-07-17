@@ -3,7 +3,6 @@ package lu.itrust.business.TS.exportation.word.impl.docx4j;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -52,9 +51,6 @@ import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
 import org.docx4j.model.table.TblFactory;
-import org.docx4j.openpackaging.contenttype.CTOverride;
-import org.docx4j.openpackaging.contenttype.ContentTypeManager;
-import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -222,7 +218,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		numberFormat.setMaximumFractionDigits(0);
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", increase(1)));// 1%
 		workFile = new File(
-				String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+				String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docx", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 		if (!workFile.exists())
 			workFile.createNewFile();
 
@@ -1178,13 +1174,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private void createDocumentFromTemplate() throws Docx4JException, URISyntaxException {
 
-		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName)));
-
-		ContentTypeManager contentTypeManager = wordMLPackage.getContentTypeManager();
-
-		CTOverride ctOverride = contentTypeManager.getOverrideContentType().get(new URI("/word/document.xml"));
-
-		ctOverride.setContentType(ContentTypes.WORDPROCESSINGML_DOCUMENT_MACROENABLED);
+		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(new File(String.format("%s/WEB-INF/data/%s.docx", contextPath, reportName)));
 
 		wordMLPackage.save(workFile);
 
@@ -1735,12 +1725,13 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 	}
 
-	public static void setColor(Tc tc, String color) {
+	public static Tc setColor(Tc tc, String color) {
 		if (tc.getTcPr() == null)
 			tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
 		if (tc.getTcPr().getShd() == null)
 			tc.getTcPr().setShd(Context.getWmlObjectFactory().createCTShd());
 		tc.getTcPr().getShd().setFill(color);
+		return tc;
 	}
 
 	public static void VerticalMergeCell(List<?> rows, int col, int begin, int size, String color) {
