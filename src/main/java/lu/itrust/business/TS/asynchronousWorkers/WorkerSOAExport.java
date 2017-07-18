@@ -229,7 +229,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			format = new SimpleDateFormat("dd/MM/yyyy");
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
 			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/%s.docx", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
+			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
 			wordMLPackage = createDocument(doctemplate, workFile);
 			document = wordMLPackage.getMainDocumentPart().getContents();
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));

@@ -33,6 +33,7 @@ import org.docx4j.jaxb.Context;
 import org.docx4j.model.table.TblFactory;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.BooleanDefaultTrue;
+import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.Jc;
 import org.docx4j.wml.JcEnumeration;
@@ -41,9 +42,11 @@ import org.docx4j.wml.PPr;
 import org.docx4j.wml.PPrBase.PStyle;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
+import org.docx4j.wml.STVerticalJc;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.TblWidth;
 import org.docx4j.wml.Tc;
+import org.docx4j.wml.TcPr;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.docx4j.wml.TrPr;
@@ -96,7 +99,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	public static String P_STYLE = "BodyOfText";
 
-	public static String TC_P_STYLE = "TabText1";
+	public static String TC_P_STYLE = "TabText2";
 
 	private String alpha2 = "EN";
 
@@ -507,9 +510,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		Tr row = (Tr) table.getContent().get(0);
 		TextAlignment alignment = new TextAlignment();
 		alignment.setVal("center");
-		setCellText((Tc) row.getContent().get(0), getMessage("report.risk_sheet.probability", "Probability (P)"));
+		setCellText(setVAlignment((Tc) row.getContent().get(0), "center"), getMessage("report.risk_sheet.probability", "Probability (P)"));
 		setCellText((Tc) row.getContent().get(1), getMessage("report.risk_sheet.impact", "Impact (i)"), alignment);
-		setCellText((Tc) row.getContent().get(types.size() + 1), getMessage("report.risk_sheet.importance", "Importance"));
+		setCellText(setVAlignment((Tc) row.getContent().get(types.size() + 1), "center"), getMessage("report.risk_sheet.importance", "Importance"));
 
 		if (row.getTrPr() == null)
 			row.setTrPr(new TrPr());
@@ -520,7 +523,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		int index = 1;
 		for (ScaleType scaleType : types)
 			setCellText((Tc) row.getContent().get(index++), getMessage("label.impact." + scaleType.getName().toLowerCase(),
-					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()));
+					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()), alignment);
 
 		if (row.getTrPr() == null)
 			row.setTrPr(new TrPr());
@@ -547,6 +550,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		VerticalMergeCell(table.getContent(), index, 0, 2, null);
 		MergeCell((Tr) table.getContent().get(0), 1, index - 1, null);
 		document.getContent().add(format(table));
+	}
+
+	private Tc setVAlignment(Tc tc, String alignment) {
+		if (tc.getTcPr() == null)
+			tc.setTcPr(new TcPr());
+		if (tc.getTcPr().getVAlign() == null)
+			tc.getTcPr().setVAlign(new CTVerticalJc());
+		tc.getTcPr().getVAlign().setVal(STVerticalJc.fromValue(alignment));
+		return tc;
 	}
 
 	private void addTable(Document document, String title, RiskProfile riskProfile) {
@@ -629,7 +641,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 			List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
 			workFile = new File(
-					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.xlsx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+					String.format("%s/tmp/RISK_SHEET_%d_%s_v%s.xlsx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
 			addHeader(sheet, scaleTypes);
@@ -691,8 +703,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					Estimation.IdComparator());
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
-					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/%s.docx", rootPath, analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
+					String.format("%s/tmp/RISK_SHEET_%d_%s_v%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
 			WordprocessingMLPackage wordprocessingMLPackage = createDocument(doctemplate, workFile);
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));

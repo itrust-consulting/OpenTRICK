@@ -182,7 +182,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public void send(MessageHandler handler) {
-		Queue<MessageHandler> queue = messageHandlers.get(handler.getIdTask());
+		Queue<MessageHandler> queue = messageHandlers.get(handler.getIdTask()+"");
 		if (queue == null)
 			return;
 		queue.add(handler);

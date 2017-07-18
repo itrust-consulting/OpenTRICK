@@ -18,6 +18,7 @@ import lu.itrust.business.TS.exportation.word.IExcelSheet;
  * @author eomar
  *
  */
+@Deprecated
 public class POIExcelSheet implements IExcelSheet {
 
 	private String name;

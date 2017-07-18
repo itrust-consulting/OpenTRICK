@@ -49,6 +49,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @version
  * @since May 27, 2014
  */
+@Deprecated
 public class POIQuantitativeReportExporter extends POIWordExporter {
 
 	public POIQuantitativeReportExporter() {

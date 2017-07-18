@@ -60,6 +60,7 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
+@Deprecated
 public abstract class POIWordExporter implements ExportReport {
 
 	

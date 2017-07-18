@@ -218,7 +218,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		numberFormat.setMaximumFractionDigits(0);
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", increase(1)));// 1%
 		workFile = new File(
-				String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docx", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+				String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 		if (!workFile.exists())
 			workFile.createNewFile();
 
@@ -1174,7 +1174,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private void createDocumentFromTemplate() throws Docx4JException, URISyntaxException {
 
-		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(new File(String.format("%s/WEB-INF/data/%s.docx", contextPath, reportName)));
+		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(new File(String.format("%s/WEB-INF/data/docx/%s.docx", contextPath, reportName)));
 
 		wordMLPackage.save(workFile);
 

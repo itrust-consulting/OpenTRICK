@@ -54,6 +54,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @author eomar
  *
  */
+@Deprecated
 public class POIQualitativeReportExporter extends POIWordExporter {
 
 	private List<ColorBound> colorBounds = Collections.emptyList();

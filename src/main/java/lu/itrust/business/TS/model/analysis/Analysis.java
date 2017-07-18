@@ -1695,7 +1695,7 @@ public class Analysis implements Cloneable {
 			if (assessments == null)
 				assetAssessments.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
 			assessments.add(assessment);
-			assessments = assetAssessments.get(assessment.getScenario());
+			assessments = scenarioAssessments.get(assessment.getScenario());
 			if (assessments == null)
 				scenarioAssessments.put(assessment.getScenario(), assessments = new ArrayList<Assessment>());
 			assessments.add(assessment);
