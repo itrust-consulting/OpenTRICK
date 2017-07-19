@@ -9,10 +9,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -23,15 +19,12 @@ import java.util.Locale;
 
 import javax.xml.bind.JAXBElement;
 
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.jaxb.Context;
 import org.docx4j.model.table.TblFactory;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Document;
@@ -55,6 +48,14 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
+import org.xlsx4j.sml.CTMergeCell;
+import org.xlsx4j.sml.CTRst;
+import org.xlsx4j.sml.CTXstringWhitespace;
+import org.xlsx4j.sml.Cell;
+import org.xlsx4j.sml.ObjectFactory;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.STCellType;
+import org.xlsx4j.sml.Worksheet;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -345,20 +346,16 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		this.username = username;
 	}
 
-	private void addEstimation(XSSFSheet sheet, List<Estimation> estimations, List<ScaleType> types, String title, int startIndex) {
-		XSSFRow row = getRow(sheet, startIndex++);
+	private void addEstimation(Worksheet worksheet,ObjectFactory factory, List<Estimation> estimations, List<ScaleType> types) {
 		int size = 16 + types.size() * 3;
-		for (int i = 0; i < size; i++) {
-			if (row.getCell(i) == null)
-				row.createCell(i, CellType.STRING);
-		}
-		// setCellString(row, 0, title);
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, size - 1));
 		for (Estimation estimation : estimations) {
+			Row row = factory.createRow();
+			for (int i = 0; i < size; i++)
+				row.getC().add(factory.createCell());
+			worksheet.getSheetData().getRow().add(row);
 			String scenarioType = estimation.getScenario().getType().getName();
 			String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType);
 			int index = 0;
-			row = getRow(sheet, startIndex++);
 			setCellString(row, index++, estimation.getIdentifier());
 			setCellString(row, index++, category);
 			setCellString(row, index++, estimation.getScenario().getName());
@@ -431,46 +428,103 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setpStyleId(P_STYLE);
 	}
 
-	private void addHeader(XSSFSheet sheet, List<ScaleType> types) {
+	private void addHeader(Worksheet worksheet, ObjectFactory factory, List<ScaleType> types) {
 		int rowCount = showRawColumn ? types.size() * 3 + 16 : types.size() * 2 + 14;
-		XSSFRow row = sheet.getRow(0), row1 = sheet.getRow(1);
-		if (row == null)
-			row = sheet.createRow(0);
-		if (row1 == null)
-			row1 = sheet.createRow(1);
+		Row row = factory.createRow(), row1 = factory.createRow();
 		for (int i = 0; i < rowCount; i++) {
-			if (row.getCell(i) == null)
-				row.createCell(i, CellType.STRING);
-			if (row1.getCell(i) == null)
-				row1.createCell(i, CellType.STRING);
+			row.getC().add(factory.createCell());
+			row1.getC().add(factory.createCell());
 		}
+		
+		worksheet.getSheetData().getRow().add(row);
+		worksheet.getSheetData().getRow().add(row1);
 
 		int step = 2, size = types.size() + step, netIndex = (showRawColumn ? 6 + types.size() : 4), expIndex = netIndex + types.size() + step,
 				index = expIndex + types.size() + step;
-		row.getCell(0).setCellValue(getMessage("report.risk_sheet.risk_id", "Risk ID"));
-		row.getCell(1).setCellValue(getMessage("report.risk_sheet.risk_category", "Category"));
-		row.getCell(2).setCellValue(getMessage("report.risk_sheet.title", "Title"));
-		row.getCell(3).setCellValue(getMessage("report.risk_sheet.risk_owner", "Risk owner"));
+		setValue(row.getC().get(0), getMessage("report.risk_sheet.risk_id", "Risk ID"));
+		setValue(row.getC().get(1), getMessage("report.risk_sheet.risk_category", "Category"));
+		setValue(row.getC().get(2), getMessage("report.risk_sheet.title", "Title"));
+		setValue(row.getC().get(3), getMessage("report.risk_sheet.risk_owner", "Risk owner"));
 		if (showRawColumn)
-			row.getCell(4).setCellValue(getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"));
-		row.getCell(netIndex).setCellValue(getMessage("report.risk_sheet.net_evaluation", "Net evaluation"));
-		row.getCell(expIndex).setCellValue(getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.risk_description", "Risk description"));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.argumentation", "Argumentation"));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.risk_treatment", "Risk treatment"));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.response", "Response strategy"));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.action_plan", "Action plan"));
+			setValue(row.getC().get(4), getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"));
+		setValue(row.getC().get(netIndex), getMessage("report.risk_sheet.net_evaluation", "Net evaluation"));
+		setValue(row.getC().get(expIndex), getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.risk_description", "Risk description"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.argumentation", "Argumentation"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.risk_treatment", "Risk treatment"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.response", "Response strategy"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.action_plan", "Action plan"));
 		if (showRawColumn)
 			printEvaluationHeader(row1, types, 4);
 		printEvaluationHeader(row1, types, netIndex);
 		printEvaluationHeader(row1, types, expIndex);
-		for (int i = 0; i < 4; i++)
-			sheet.addMergedRegion(new CellRangeAddress(0, 1, i, i));
-		for (int i = 4; i <= expIndex; i += size)
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, i, i + size - 1));
-		for (int i = expIndex + types.size() + 2; i < index; i++)
-			sheet.addMergedRegion(new CellRangeAddress(0, 1, i, i));
+		
+		worksheet.setMergeCells(factory.createCTMergeCells());
+		
+		for (int i = 0; i < 4; i++) {
+			CTMergeCell mergeCell = factory.createCTMergeCell();
+			worksheet.getMergeCells().getMergeCell().add(mergeCell);
+			mergeCell.setRef(getAddress(1, i, 2, i));
+		}
+
+		for (int i = 4; i <= expIndex; i += size) {
+			CTMergeCell mergeCell = factory.createCTMergeCell();
+			worksheet.getMergeCells().getMergeCell().add(mergeCell);
+			mergeCell.setRef(getAddress(1, i, 1, i + size - 1));
+		}
+
+		for (int i = expIndex + types.size() + 2; i < index; i++) {
+			CTMergeCell mergeCell = factory.createCTMergeCell();
+			worksheet.getMergeCells().getMergeCell().add(mergeCell);
+			mergeCell.setRef(getAddress(1, i, 2, i));
+		}
+	}
+	
+	/**
+     * Takes in a 0-based base-10 column and returns a ALPHA-26
+     *  representation.
+     * eg column #3 -> D
+     */
+    public static String numToColString(int col) {
+        // Excel counts column A as the 1st column, we
+        //  treat it as the 0th one
+        int excelColNum = col + 1;
+
+        StringBuilder colRef = new StringBuilder(2);
+        int colRemain = excelColNum;
+
+        while(colRemain > 0) {
+            int thisPart = colRemain % 26;
+            if(thisPart == 0) { thisPart = 26; }
+            colRemain = (colRemain - thisPart) / 26;
+
+            // The letter A is at 65
+            char colChar = (char)(thisPart+64);
+            colRef.insert(0, colChar);
+        }
+
+        return colRef.toString();
+    }
+
+	/**
+	 * 
+	 * @param row1
+	 *            >= 1
+	 * @param col1
+	 *            >= 0
+	 * @param row2
+	 *            >= 1
+	 * @param col2
+	 *            >= 0
+	 * @return address
+	 */
+	private String getAddress(int row1, int col1, int row2, int col2) {
+		assert row1 >= 1;
+		assert row2 >= 1;
+		assert col1 >= 0;
+		assert col2 >= 0;
+		return String.format("%s%d:%s%d", numToColString(col1), row1, numToColString(col2), row2);
 	}
 
 	private void addRiskSheetHeader(Document document, RiskProfile riskProfile, boolean isFirst) {
@@ -618,14 +672,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return table;
 	}
 
-	private long exportData() throws FileNotFoundException, IOException {
-		XSSFWorkbook workbook = null;
-		OutputStream outputStream = null;
+	private long exportData() throws Exception {
 		File workFile = null;
 		try {
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
-			workbook = new XSSFWorkbook();
-			XSSFSheet sheet = workbook.createSheet();
+			ObjectFactory factory = org.xlsx4j.jaxb.Context.getsmlObjectFactory();
+			SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+			WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
+					messageSource.getMessage("label.raw.risk_sheet", null, "Raw risk sheet", locale), 1);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			locale = new Locale(analysis.getLanguage().getAlpha2());
 			if (locale.getLanguage().equals("fr"))
@@ -644,38 +698,22 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					String.format("%s/tmp/RISK_SHEET_%d_%s_v%s.xlsx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
-			addHeader(sheet, scaleTypes);
+			addHeader(worksheetPart.getContents(), factory, scaleTypes);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
-			addEstimation(sheet, directs, scaleTypes, "Direct", 2);
+			addEstimation(worksheetPart.getContents(), factory, directs, scaleTypes);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
 			if (!indirects.isEmpty())
-				addEstimation(sheet, indirects, scaleTypes, "Indirect", directs.size() + 3);
+				addEstimation(worksheetPart.getContents(), factory, indirects, scaleTypes);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
 			if (!cias.isEmpty())
-				addEstimation(sheet, cias, scaleTypes, "CIA", directs.size() + indirects.size() + 3);
+				addEstimation(worksheetPart.getContents(), factory, cias, scaleTypes);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
-			workbook.write(outputStream = new FileOutputStream(workFile));
-			outputStream.flush();
+			spreadsheetMLPackage.save(workFile);
 			WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), daoUser.get(username), workFile.getName(),
 					workFile.length(), FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			return report.getId();
 		} finally {
-			if (outputStream != null) {
-				try {
-					outputStream.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			if (workbook != null) {
-				try {
-					workbook.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
 			if (workFile != null && !workFile.delete())
 				workFile.deleteOnExit();
 		}
@@ -817,20 +855,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return pStyleId;
 	}
 
-	private XSSFRow getRow(XSSFSheet sheet, int index) {
-		XSSFRow row = sheet.getRow(index);
-		return row == null ? sheet.createRow(index) : row;
-	}
-
-	private void printEvaluationHeader(XSSFRow row, List<ScaleType> types, int index) {
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.probability", "Probability (P)"));
+	private void printEvaluationHeader(Row row, List<ScaleType> types, int index) {
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.probability", "Probability (P)"));
 		for (ScaleType scaleType : types)
-			row.getCell(index++).setCellValue(getMessage("label.impact." + scaleType.getName().toLowerCase(),
+			setValue(row.getC().get(index++), getMessage("label.impact." + scaleType.getName().toLowerCase(),
 					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()));
-		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.importance", "Importance"));
+		setValue(row.getC().get(index++), getMessage("report.risk_sheet.importance", "Importance"));
 	}
 
-	private void printRiskProba(XSSFRow row, int index, List<ScaleType> scaleTypes, RiskProbaImpact probaImpact) {
+	private void printRiskProba(Row row, int index, List<ScaleType> scaleTypes, RiskProbaImpact probaImpact) {
 		if (probaImpact == null)
 			probaImpact = new RiskProbaImpact();
 		setCellInt(row, index++, probaImpact.getProbabilityLevel());
@@ -842,18 +875,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setCellInt(row, index++, probaImpact.getImportance());
 	}
 
-	private void setCellInt(XSSFRow row, int index, int value) {
-		XSSFCell cell = row.getCell(index);
-		if (cell == null)
-			cell = row.createCell(index, CellType.NUMERIC);
-		cell.setCellValue(value);
+	private void setCellInt(Row row, int index, int value) {
+		setValue(row.getC().get(index), value);
 	}
 
-	private void setCellString(XSSFRow row, int index, String value) {
-		XSSFCell cell = row.getCell(index);
-		if (cell == null)
-			cell = row.createCell(index, CellType.STRING);
-		cell.setCellValue(value);
+	private void setCellString(Row row, int index, String value) {
+		setValue(row.getC().get(index), value);
 	}
 
 	private void setCellText(Tc tc, String text) {
@@ -900,6 +927,22 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		paragraph.getContent().add(r);
 		return paragraph;
 
+	}
+
+	private void setValue(Cell cell, int value) {
+		cell.setT(STCellType.N);
+		cell.setV(value + "");
+	}
+
+	private void setValue(Cell cell, String value) {
+		if (value == null)
+			value = "";
+		CTXstringWhitespace ctXstringWhitespace = org.xlsx4j.jaxb.Context.getsmlObjectFactory().createCTXstringWhitespace();
+		ctXstringWhitespace.setValue(value);
+		CTRst ctRst = new CTRst();
+		ctRst.setT(ctXstringWhitespace);
+		cell.setIs(ctRst);
+		cell.setT(STCellType.INLINE_STR);
 	}
 
 }
