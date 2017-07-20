@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -27,6 +29,9 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.SessionFactory;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumn;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumns;
@@ -45,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -371,29 +377,19 @@ public class ControllerKnowledgeBaseStandard {
 		if (standard == null)
 			return "404";
 
-		XSSFWorkbook workbook = null;
-
 		try {
-
-			workbook = new XSSFWorkbook(request.getServletContext().getRealPath(template));
-
-			XSSFSheet sheet = null;
-			XSSFTable table = null;
-
-			/**
-			 * Standard
-			 */
-
-			sheet = workbook.getSheet("NormInfo");
-
-			for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
-				table = sheet.getTables().get(indexTable);
-
-				if (table.getName().equals("TableNormInfo")) {
-					break;
-				}
-			}
+			
+			File workFile = new File(request.getServletContext().getRealPath(String.format("/WEB-INF/tmp/TMP_Standard_%d_%d.xlsx", idStandard, System.nanoTime())));
+			FileUtils.copyFile(new File(request.getServletContext().getRealPath(template)), workFile);
+			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+			WorkbookPart workbook = mlPackage.getWorkbookPart();
+			SheetData sheet = findSheet(workbook, "NormInfo");
+			
+			TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormInfo");
+			
+			tablePart.getContents().getRef();
+			
+			
 
 			int row, namecol, versioncol, desccol, computablecol;
 
@@ -520,11 +516,6 @@ public class ControllerKnowledgeBaseStandard {
 			// update the "ref" attribute
 			table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
 
-			// System.out.println("Rows: ("+(ref1.getRow()+1)
-			// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1)
-			// +
-			// ":"+ colnumber +")");
-
 			row = 1;
 
 			for (MeasureDescription measuredescription : measuredescriptions) {
@@ -591,13 +582,6 @@ public class ControllerKnowledgeBaseStandard {
 
 			}
 
-			/**
-			 * Output
-			 */
-
-			ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
-
-			workbook.write(standardFile);
 
 			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
 
@@ -605,9 +589,6 @@ public class ControllerKnowledgeBaseStandard {
 
 			// set response contenttype to sqlite
 			response.setContentType("xlsx");
-
-			// set sqlite file size as response size
-			response.setContentLength(standardFile.size());
 
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
@@ -617,7 +598,7 @@ public class ControllerKnowledgeBaseStandard {
 			// creates on the
 			// client side the sqlite file)
 
-			response.getOutputStream().write(standardFile.toByteArray());
+			response.getOutputStream()
 
 			/**
 			 * Log

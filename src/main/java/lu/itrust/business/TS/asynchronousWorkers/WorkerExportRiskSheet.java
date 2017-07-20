@@ -7,8 +7,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExpor
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.VerticalMergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getAddress;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.*;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
 
 import java.io.File;
 import java.math.BigInteger;

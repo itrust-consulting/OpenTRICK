@@ -1,13 +1,13 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.createRow;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.createWorkSheetPart;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.findSheet;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getDouble;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getSharedStrings;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getString;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.setValue;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.security.Principal;
 import java.util.ArrayList;

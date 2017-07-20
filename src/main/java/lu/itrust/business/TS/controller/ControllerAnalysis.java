@@ -15,7 +15,7 @@ import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAG
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
-import static lu.itrust.business.TS.model.general.helper.ExcelHelper.setValue;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
 import java.io.IOException;
