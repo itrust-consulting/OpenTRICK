@@ -7,6 +7,8 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExpor
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.VerticalMergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getAddress;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.*;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -49,12 +51,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.sml.CTMergeCell;
-import org.xlsx4j.sml.CTRst;
-import org.xlsx4j.sml.CTXstringWhitespace;
-import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.Worksheet;
 
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -349,10 +347,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	private void addEstimation(Worksheet worksheet,ObjectFactory factory, List<Estimation> estimations, List<ScaleType> types) {
 		int size = 16 + types.size() * 3;
 		for (Estimation estimation : estimations) {
-			Row row = factory.createRow();
-			for (int i = 0; i < size; i++)
-				row.getC().add(factory.createCell());
-			worksheet.getSheetData().getRow().add(row);
+			Row row = createRow(worksheet.getSheetData(), size);
 			String scenarioType = estimation.getScenario().getType().getName();
 			String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType);
 			int index = 0;
@@ -481,51 +476,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		}
 	}
 	
-	/**
-     * Takes in a 0-based base-10 column and returns a ALPHA-26
-     *  representation.
-     * eg column #3 -> D
-     */
-    public static String numToColString(int col) {
-        // Excel counts column A as the 1st column, we
-        //  treat it as the 0th one
-        int excelColNum = col + 1;
-
-        StringBuilder colRef = new StringBuilder(2);
-        int colRemain = excelColNum;
-
-        while(colRemain > 0) {
-            int thisPart = colRemain % 26;
-            if(thisPart == 0) { thisPart = 26; }
-            colRemain = (colRemain - thisPart) / 26;
-
-            // The letter A is at 65
-            char colChar = (char)(thisPart+64);
-            colRef.insert(0, colChar);
-        }
-
-        return colRef.toString();
-    }
-
-	/**
-	 * 
-	 * @param row1
-	 *            >= 1
-	 * @param col1
-	 *            >= 0
-	 * @param row2
-	 *            >= 1
-	 * @param col2
-	 *            >= 0
-	 * @return address
-	 */
-	private String getAddress(int row1, int col1, int row2, int col2) {
-		assert row1 >= 1;
-		assert row2 >= 1;
-		assert col1 >= 0;
-		assert col2 >= 0;
-		return String.format("%s%d:%s%d", numToColString(col1), row1, numToColString(col2), row2);
-	}
+	
 
 	private void addRiskSheetHeader(Document document, RiskProfile riskProfile, boolean isFirst) {
 		String scenarioType = riskProfile.getScenario().getType().getName();
@@ -928,21 +879,4 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return paragraph;
 
 	}
-
-	private void setValue(Cell cell, int value) {
-		cell.setT(STCellType.N);
-		cell.setV(value + "");
-	}
-
-	private void setValue(Cell cell, String value) {
-		if (value == null)
-			value = "";
-		CTXstringWhitespace ctXstringWhitespace = org.xlsx4j.jaxb.Context.getsmlObjectFactory().createCTXstringWhitespace();
-		ctXstringWhitespace.setValue(value);
-		CTRst ctRst = new CTRst();
-		ctRst.setT(ctXstringWhitespace);
-		cell.setIs(ctRst);
-		cell.setT(STCellType.INLINE_STR);
-	}
-
 }

@@ -1,8 +1,14 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.createRow;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.createWorkSheetPart;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getDouble;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getSharedStrings;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.getString;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.setValue;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,13 +24,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +42,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.xlsx4j.jaxb.Context;
+import org.xlsx4j.sml.Cell;
+import org.xlsx4j.sml.ObjectFactory;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.STSheetState;
+import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JSTLFunctions;
@@ -583,226 +592,183 @@ public class ControllerRRF {
 	}
 
 	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username, Locale locale) throws Exception {
-		XSSFWorkbook workbook = null;
-		try {
-			workbook = new XSSFWorkbook();
-			List<AssetType> assetTypes = serviceAssetType.getAll();
-			writeAnalysisIdentifier(analysis, workbook);
-			writeScenario(analysis.getScenarios(),
-					/* assetTypes, analysis.getAssets() , */ workbook, locale);
-			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
-				writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, workbook, locale);
-			response.setContentType("xlsx");
-			// set response header with location of the filename
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-			workbook.write(response.getOutputStream());
-			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.rrf",
-					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
-					analysis.getIdentifier(), analysis.getVersion());
-		} finally {
-			try {
-				if (workbook != null)
-					workbook.close();
-			} catch (IOException e) {
-				System.err.println("Close document: " + e.getMessage());
-			}
-		}
+		SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
+		List<AssetType> assetTypes = serviceAssetType.getAll();
+		writeAnalysisIdentifier(analysis, mlPackage);
+		writeScenario(analysis.getScenarios(), mlPackage, locale);
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+			writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, mlPackage, locale);
+		response.setContentType("xlsx");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		mlPackage.save(response.getOutputStream());
+		// Log
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.rrf",
+				String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT, analysis.getIdentifier(),
+				analysis.getVersion());
 
 	}
 
 	@SuppressWarnings("unchecked")
-	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, XSSFWorkbook workbook, Locale locale) {
-		XSSFSheet sheet = workbook.createSheet(analysisStandard.getStandard().getLabel());
+	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
+		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
+		SheetData sheetData = worksheetPart.getContents().getSheetData();
 		List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
 		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream()).map(assetValue -> assetValue.getAsset())
 				.distinct().collect(Collectors.toList());
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
 		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
-		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length, rowIndex = 0;
-		XSSFRow row = sheet.getRow(0);
-		if (row == null)
-			row = sheet.createRow(0);
+		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length;
+		Row row = createRow(sheetData);
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (Asset asset : assets)
-			row.getCell(++colIndex).setCellValue(asset.getName());
+			setValue(row.getC().get(++colIndex), asset.getName());
 		measures.stream().forEach(
 				measure -> measure.getMeasureAssetValues().forEach(assetValue -> mappedValue.put(measure.getId() + "_" + assetValue.getAsset().getId(), assetValue.getValue())));
 		for (AssetMeasure measure : measures) {
-			row = sheet.getRow(++rowIndex);
-			if (row == null)
-				row = sheet.createRow(rowIndex);
+			row = createRow(sheetData);
 			colIndex = writingMeasureData(row, totalCol, categories, mappedValue, measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
 			for (Asset asset : assets)
-				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(measure.getId() + "_" + asset.getId(), 0));
+				setValue(row.getC().get(++colIndex), mappedValue.getOrDefault(measure.getId() + "_" + asset.getId(), 0));
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void writeNormalMeasure(boolean cssf, AnalysisStandard analysisStandard, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
-		XSSFSheet sheet = workbook.createSheet(analysisStandard.getStandard().getLabel());
+	private void writeNormalMeasure(boolean cssf, AnalysisStandard analysisStandard, List<AssetType> assetTypes, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
+		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
+		SheetData sheetData = worksheetPart.getContents().getSheetData();
 		List<NormalMeasure> measures = (List<NormalMeasure>) analysisStandard.getExendedMeasures();
-		XSSFRow row = sheet.getRow(0);
-		if (row == null)
-			row = sheet.createRow(0);
+		Row row = createRow(sheetData);
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
 		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
-		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length, rowIndex = 0;
+		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length;
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (AssetType assetType : assetTypes)
-			row.getCell(++colIndex).setCellValue(assetType.getName());
+			setValue(row.getC().get(++colIndex), assetType.getName());
 		measures.stream().forEach(measure -> measure.getAssetTypeValues()
 				.forEach(assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
 		for (NormalMeasure measure : measures) {
-			row = sheet.getRow(++rowIndex);
-			if (row == null)
-				row = sheet.createRow(rowIndex);
+			row = createRow(sheetData);
 			colIndex = writingMeasureData(row, totalCol, categories, mappedValue, measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
 			for (AssetType assetType : assetTypes)
-				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(measure.getId() + "_" + assetType.getName(), 0));
+				setValue(row.getC().get(++colIndex), mappedValue.getOrDefault(measure.getId() + "_" + assetType.getName(), 0));
 
 		}
 	}
 
-	private int generateMeasureHeader(XSSFRow row, Map<String, Integer> mappedValue, String[] categories, int totalCol) {
-		for (int i = 0; i < totalCol; i++) {
-			if (row.getCell(i) == null)
-				row.createCell(i);
-		}
+	private int generateMeasureHeader(Row row, Map<String, Integer> mappedValue, String[] categories, int totalCol) {
+		for (int i = 0; i < totalCol; i++)
+			row.getC().add(Context.getsmlObjectFactory().createCell());
 		int colIndex = 0;
-		row.getCell(colIndex).setCellValue(REFERENCE);
-		row.getCell(++colIndex).setCellValue(F_MEASURE);
-		row.getCell(++colIndex).setCellValue(F_SECTORIAL);
-		row.getCell(++colIndex).setCellValue(RAW_PREVENTIVE);
-		row.getCell(++colIndex).setCellValue(RAW_DETECTIVE);
-		row.getCell(++colIndex).setCellValue(RAW_LIMITATIVE);
-		row.getCell(++colIndex).setCellValue(RAW_CORRECTIVE);
-		row.getCell(++colIndex).setCellValue(RAW_INTENTIONAL);
-		row.getCell(++colIndex).setCellValue(RAW_ACCIDENTAL);
-		row.getCell(++colIndex).setCellValue(RAW_ENVIRONMENTAL);
-		row.getCell(++colIndex).setCellValue(RAW_INTERNAL_THREAT);
-		row.getCell(++colIndex).setCellValue(RAW_EXTERNAL_THREAT);
+		setValue(row.getC().get(colIndex), REFERENCE);
+		setValue(row.getC().get(++colIndex), F_MEASURE);
+		setValue(row.getC().get(++colIndex), F_SECTORIAL);
+		setValue(row.getC().get(++colIndex), RAW_PREVENTIVE);
+		setValue(row.getC().get(++colIndex), RAW_DETECTIVE);
+		setValue(row.getC().get(++colIndex), RAW_LIMITATIVE);
+		setValue(row.getC().get(++colIndex), RAW_CORRECTIVE);
+		setValue(row.getC().get(++colIndex), RAW_INTENTIONAL);
+		setValue(row.getC().get(++colIndex), RAW_ACCIDENTAL);
+		setValue(row.getC().get(++colIndex), RAW_ENVIRONMENTAL);
+		setValue(row.getC().get(++colIndex), RAW_INTERNAL_THREAT);
+		setValue(row.getC().get(++colIndex), RAW_EXTERNAL_THREAT);
 		for (String category : categories)
-			row.getCell(++colIndex).setCellValue(category);
+			setValue(row.getC().get(++colIndex), category);
 		return colIndex;
 	}
 
-	private int writingMeasureData(XSSFRow row, int totalCol, String[] categories, Map<String, Integer> mappedValue, String reference, MeasureProperties properties) {
-		for (int i = 0; i < totalCol; i++) {
-			XSSFCell cell = row.getCell(i);
-			if (cell == null)
-				row.createCell(i, i < 1 ? CellType.STRING : CellType.NUMERIC);
-		}
+	private int writingMeasureData(Row row, int totalCol, String[] categories, Map<String, Integer> mappedValue, String reference, MeasureProperties properties) {
+		for (int i = 0; i < totalCol; i++)
+			row.getC().add(Context.getsmlObjectFactory().createCell());
 		int colIndex = 0;
-		row.getCell(colIndex).setCellValue(reference);
-		row.getCell(++colIndex).setCellValue(properties.getFMeasure());
-		row.getCell(++colIndex).setCellValue(properties.getFSectoral());
-		row.getCell(++colIndex).setCellValue(properties.getPreventive());
-		row.getCell(++colIndex).setCellValue(properties.getDetective());
-		row.getCell(++colIndex).setCellValue(properties.getLimitative());
-		row.getCell(++colIndex).setCellValue(properties.getCorrective());
-		row.getCell(++colIndex).setCellValue(properties.getIntentional());
-		row.getCell(++colIndex).setCellValue(properties.getAccidental());
-		row.getCell(++colIndex).setCellValue(properties.getEnvironmental());
-		row.getCell(++colIndex).setCellValue(properties.getInternalThreat());
-		row.getCell(++colIndex).setCellValue(properties.getExternalThreat());
+		setValue(row.getC().get(colIndex), reference);
+		setValue(row.getC().get(++colIndex), properties.getFMeasure());
+		setValue(row.getC().get(++colIndex), properties.getFSectoral());
+		setValue(row.getC().get(++colIndex), properties.getPreventive());
+		setValue(row.getC().get(++colIndex), properties.getDetective());
+		setValue(row.getC().get(++colIndex), properties.getLimitative());
+		setValue(row.getC().get(++colIndex), properties.getCorrective());
+		setValue(row.getC().get(++colIndex), properties.getIntentional());
+		setValue(row.getC().get(++colIndex), properties.getAccidental());
+		setValue(row.getC().get(++colIndex), properties.getEnvironmental());
+		setValue(row.getC().get(++colIndex), properties.getInternalThreat());
+		setValue(row.getC().get(++colIndex), properties.getExternalThreat());
 		for (String category : categories)
-			row.getCell(++colIndex).setCellValue(properties.getCategoryValue(category));
+			setValue(row.getC().get(++colIndex), properties.getCategoryValue(category));
 		return colIndex;
 	}
 
-	private void writeMeasure(boolean isCSSF, AnalysisStandard analysisStandard, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
+	private void writeMeasure(boolean isCSSF, AnalysisStandard analysisStandard, List<AssetType> assetTypes, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
 		switch (analysisStandard.getStandard().getType()) {
 		case ASSET:
-			writeAssetMeasure(isCSSF, analysisStandard, workbook, locale);
+			writeAssetMeasure(isCSSF, analysisStandard, mlPackage, locale);
 			break;
 		case NORMAL:
-			writeNormalMeasure(isCSSF, analysisStandard, assetTypes, workbook, locale);
+			writeNormalMeasure(isCSSF, analysisStandard, assetTypes, mlPackage, locale);
 			break;
 		default:
 			break;
 		}
 	}
 
-	private void writeScenario(List<Scenario> scenarios, XSSFWorkbook workbook, Locale locale) {
+	private void writeScenario(List<Scenario> scenarios, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
 		if (scenarios.isEmpty())
 			return;
-		XSSFSheet scenarioSheet = workbook.createSheet(RAW_SCENARIOS);
-		int colIndex = 0, rowIndex = 0;
-		XSSFRow row = scenarioSheet.getRow(rowIndex);
-		if (row == null)
-			row = scenarioSheet.createRow(rowIndex);
-		for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++) {
-			XSSFCell cell = row.getCell(i);
-			if (cell == null)
-				row.createCell(i);
-		}
-		row.getCell(colIndex).setCellValue(RAW_SCENARIO);
-		row.getCell(++colIndex).setCellValue(RAW_PREVENTIVE);
-		row.getCell(++colIndex).setCellValue(RAW_DETECTIVE);
-		row.getCell(++colIndex).setCellValue(RAW_LIMITATIVE);
-		row.getCell(++colIndex).setCellValue(RAW_CORRECTIVE);
-		row.getCell(++colIndex).setCellValue(RAW_INTENTIONAL);
-		row.getCell(++colIndex).setCellValue(RAW_ACCIDENTAL);
-		row.getCell(++colIndex).setCellValue(RAW_ENVIRONMENTAL);
-		row.getCell(++colIndex).setCellValue(RAW_INTERNAL_THREAT);
-		row.getCell(++colIndex).setCellValue(RAW_EXTERNAL_THREAT);
+		ObjectFactory factory = Context.getsmlObjectFactory();
+		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, RAW_SCENARIOS);
+		SheetData scenarioSheet = worksheetPart.getContents().getSheetData();
+		int colIndex = 0;
+		Row row = factory.createRow();
+		for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++)
+			row.getC().add(factory.createCell());
+		scenarioSheet.getRow().add(row);
+		setValue(row.getC().get(colIndex), RAW_SCENARIO);
+		setValue(row.getC().get(++colIndex), RAW_PREVENTIVE);
+		setValue(row.getC().get(++colIndex), RAW_DETECTIVE);
+		setValue(row.getC().get(++colIndex), RAW_LIMITATIVE);
+		setValue(row.getC().get(++colIndex), RAW_CORRECTIVE);
+		setValue(row.getC().get(++colIndex), RAW_INTENTIONAL);
+		setValue(row.getC().get(++colIndex), RAW_ACCIDENTAL);
+		setValue(row.getC().get(++colIndex), RAW_ENVIRONMENTAL);
+		setValue(row.getC().get(++colIndex), RAW_INTERNAL_THREAT);
+		setValue(row.getC().get(++colIndex), RAW_EXTERNAL_THREAT);
 
-		/*
-		 * for (AssetType assetType : assetTypes)
-		 * row.getCell(++colIndex).setCellValue(assetType.getName());
-		 * Map<String, Integer> mappedValue = new LinkedHashMap<String,
-		 * Integer>(); scenarios.stream().forEach(scenario ->
-		 * scenario.getAssetTypeValues() .forEach(assetypeValue ->
-		 * mappedValue.put(scenario.getId() + "_" +
-		 * assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
-		 */
 		for (Scenario scenario : scenarios) {
-			row = scenarioSheet.getRow(++rowIndex);
-			if (row == null)
-				row = scenarioSheet.createRow(rowIndex);
-			for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++) {
-				XSSFCell cell = row.getCell(i);
-				if (cell == null)
-					row.createCell(i, i < 1 ? CellType.STRING : CellType.NUMERIC);
-			}
+			row = factory.createRow();
+			for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++)
+				row.getC().add(factory.createCell());
 			colIndex = 0;
-			row.getCell(colIndex).setCellValue(scenario.getName());
-			row.getCell(++colIndex).setCellValue(scenario.getPreventive());
-			row.getCell(++colIndex).setCellValue(scenario.getDetective());
-			row.getCell(++colIndex).setCellValue(scenario.getLimitative());
-			row.getCell(++colIndex).setCellValue(scenario.getCorrective());
-			row.getCell(++colIndex).setCellValue(scenario.getIntentional());
-			row.getCell(++colIndex).setCellValue(scenario.getAccidental());
-			row.getCell(++colIndex).setCellValue(scenario.getEnvironmental());
-			row.getCell(++colIndex).setCellValue(scenario.getInternalThreat());
-			row.getCell(++colIndex).setCellValue(scenario.getExternalThreat());
-			/*
-			 * for (AssetType assetType : assetTypes)
-			 * row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(
-			 * scenario.getId() + "_" + assetType.getName(), 0));
-			 */
+			scenarioSheet.getRow().add(row);
+			setValue(row.getC().get(colIndex), scenario.getName());
+			setValue(row.getC().get(++colIndex), scenario.getPreventive());
+			setValue(row.getC().get(++colIndex), scenario.getDetective());
+			setValue(row.getC().get(++colIndex), scenario.getLimitative());
+			setValue(row.getC().get(++colIndex), scenario.getCorrective());
+			setValue(row.getC().get(++colIndex), scenario.getIntentional());
+			setValue(row.getC().get(++colIndex), scenario.getAccidental());
+			setValue(row.getC().get(++colIndex), scenario.getEnvironmental());
+			setValue(row.getC().get(++colIndex), scenario.getInternalThreat());
+			setValue(row.getC().get(++colIndex), scenario.getExternalThreat());
 		}
 	}
 
-	private void writeAnalysisIdentifier(Analysis analysis, XSSFWorkbook workbook) {
-		XSSFSheet analysisSheet = workbook.createSheet(TS_INFO_FOR_IMPORT);
-		XSSFRow header = analysisSheet.getRow(0), data = analysisSheet.getRow(1);
-		if (header == null)
-			header = analysisSheet.createRow(0);
-		if (data == null)
-			data = analysisSheet.createRow(1);
+	private void writeAnalysisIdentifier(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
+		int index = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().size() + 1;
+		WorksheetPart worksheetPart = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), TS_INFO_FOR_IMPORT, index);
+		SheetData analysisSheet = worksheetPart.getContents().getSheetData();
+		ObjectFactory factory = Context.getsmlObjectFactory();
+		Row header = factory.createRow(), data = factory.createRow();
 		for (int i = 0; i < 2; i++) {
-			if (header.getCell(i) == null)
-				header.createCell(i);
-			if (data.getCell(i) == null)
-				data.createCell(i);
+			header.getC().add(factory.createCell());
+			data.getC().add(factory.createCell());
 		}
-		header.getCell(0).setCellValue(IDENTIFIER);
-		data.getCell(0).setCellValue(analysis.getIdentifier());
-		header.getCell(1).setCellValue(VERSION);
-		data.getCell(1).setCellValue(analysis.getVersion());
-		workbook.setSheetHidden(workbook.getSheetIndex(TS_INFO_FOR_IMPORT), XSSFWorkbook.SHEET_STATE_VERY_HIDDEN);
+		analysisSheet.getRow().add(header);
+		analysisSheet.getRow().add(data);
+		setValue(header.getC().get(0), IDENTIFIER);
+		setValue(data.getC().get(0), analysis.getIdentifier());
+		setValue(header.getC().get(1), VERSION);
+		setValue(data.getC().get(1), analysis.getVersion());
+		mlPackage.getWorkbookPart().getContents().getSheets().getSheet().get(index - 1).setState(STSheetState.VERY_HIDDEN);
 	}
 
 	@RequestMapping(value = "/Form/Import/Raw/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -822,93 +788,92 @@ public class ControllerRRF {
 	private Object importRawRRF(String tempPath, int idAnalysis, MultipartFile file, String username, Locale locale) throws Exception {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
-			loadAnalysisInfo(analysis, workbook);
-			loadScenarios(analysis.getScenarios(), workbook);
-			loadStandards(analysis.getAnalysisStandards(), workbook);
-			serviceAnalysis.saveOrUpdate(analysis);
-			// Log
+			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
+			Map<String, String> sharedStrings = getSharedStrings(mlPackage.getWorkbookPart());
+			loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), sharedStrings);
+			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), sharedStrings);
+			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), sharedStrings);
+			serviceAnalysis.saveOrUpdate(analysis); // Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
 					analysis.getIdentifier(), analysis.getVersion());
-
 			return JsonMessage.Success(messageSource.getMessage("success.import.raw.rrf", null, "RRF was been successfully update from raw data", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
 
-	private void loadStandards(List<AnalysisStandard> analysisStandards, XSSFWorkbook workbook) {
+	private void loadStandards(List<AnalysisStandard> analysisStandards, WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
 		for (AnalysisStandard analysisStandard : analysisStandards) {
 			if (analysisStandard instanceof MaturityStandard)
 				continue;
-			XSSFSheet sheet = workbook.getSheet(analysisStandard.getStandard().getLabel());
+			SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getLabel());
 			if (sheet == null)
 				continue;
 			if (analysisStandard instanceof AssetStandard)
-				loadStandard((AssetStandard) analysisStandard, sheet);
+				loadStandard((AssetStandard) analysisStandard, sheet, sharedStrings);
 			else if (analysisStandard instanceof NormalStandard)
-				loadStandard((NormalStandard) analysisStandard, sheet);
+				loadStandard((NormalStandard) analysisStandard, sheet, sharedStrings);
 		}
 	}
 
-	private void loadStandard(AssetStandard analysisStandard, XSSFSheet sheet) {
-		XSSFRow header = sheet.getRow(0);
-		if (header == null)
+	private void loadStandard(AssetStandard analysisStandard, SheetData sheet, Map<String, String> sharedStrings) {
+
+		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
 		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
-		Integer referenceIndex = mappingColumns(header, REFERENCE, cellIndexToFieldName);
-		if (referenceIndex == null)
+		Row header = sheet.getRow().get(0);
+		Integer index = mappingColumns(header, REFERENCE, cellIndexToFieldName, sharedStrings);
+		if (index == null)
 			throw new TrickException("error.import.raw.rrf.standard.reference", "Standard reference column cannot be found");
 		Map<String, AssetMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(), measure -> (AssetMeasure) measure));
-		for (Row data : sheet) {
-			if (data.getRowNum() == 0)
+		for (int i = 0; i < sheet.getRow().size(); i++) {
+			Row row = sheet.getRow().get(i);
+			String value = getString(row.getC().get(index), sharedStrings);
+			if (value == null)
 				continue;
-			Cell cell = data.getCell(referenceIndex);
-			if (cell == null)
-				continue;
-			AssetMeasure measure = mappingMeasures.get(cell.getStringCellValue());
+			AssetMeasure measure = mappingMeasures.get(value);
 			if (measure == null)
 				continue;
-			loadMeasureData(measure, data, referenceIndex, cellIndexToFieldName);
+			loadMeasureData(measure, row, index, cellIndexToFieldName);
 		}
 	}
 
-	private void loadStandard(NormalStandard analysisStandard, XSSFSheet sheet) {
-		XSSFRow header = sheet.getRow(0);
-		if (header == null)
+	private void loadStandard(NormalStandard analysisStandard, SheetData sheet, Map<String, String> sharedStrings) {
+		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
 		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
-		Integer referenceIndex = mappingColumns(header, REFERENCE, cellIndexToFieldName);
-		if (referenceIndex == null)
+		Row header = sheet.getRow().get(0);
+		Integer index = mappingColumns(header, REFERENCE, cellIndexToFieldName, sharedStrings);
+		if (index == null)
 			throw new TrickException("error.import.raw.rrf.standard.reference", "Standard reference column cannot be found");
 		Map<String, NormalMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(), measure -> (NormalMeasure) measure));
-		for (Row data : sheet) {
-			if (data.getRowNum() == 0)
+		for (int i = 0; i < sheet.getRow().size(); i++) {
+			Row row = sheet.getRow().get(i);
+			String value = getString(row.getC().get(index), sharedStrings);
+			if (value == null)
 				continue;
-			Cell cell = data.getCell(referenceIndex);
-			if (cell == null)
-				continue;
-			NormalMeasure measure = mappingMeasures.get(cell.getStringCellValue());
+			NormalMeasure measure = mappingMeasures.get(value);
 			if (measure == null)
 				continue;
-			loadMeasureData(measure, data, referenceIndex, cellIndexToFieldName);
+			loadMeasureData(measure, row, index, cellIndexToFieldName);
 		}
 	}
 
-	private void loadMeasureData(NormalMeasure measure, Row data, Integer referenceIndex, Map<Integer, String> cellIndexToFieldName) {
+	private void loadMeasureData(NormalMeasure measure, Row row, Integer index, Map<Integer, String> cellIndexToFieldName) {
 		Map<String, AssetTypeValue> assetValues = measure.getAssetTypeValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAssetType().getName(), Function.identity()));
 		MeasureProperties properties = measure.getMeasurePropertyList();
-		for (Cell cell : data) {
-			if (cell.getColumnIndex() == referenceIndex)
+		for (int i = 0; i < row.getC().size(); i++) {
+			if (i == index)
 				continue;
-			String nameField = cellIndexToFieldName.get(cell.getColumnIndex());
+			Cell cell = row.getC().get(i);
+			String nameField = cellIndexToFieldName.get(i);
 			if (nameField == null)
 				continue;
-			double value = cell.getNumericCellValue();
+			double value = getDouble(cell);
 			if (assetValues.containsKey(nameField))
 				assetValues.get(nameField).setValue((int) value);
 			else
@@ -917,17 +882,18 @@ public class ControllerRRF {
 		measure.setMeasurePropertyList(properties);
 	}
 
-	private void loadMeasureData(AssetMeasure measure, Row data, Integer referenceIndex, Map<Integer, String> cellIndexToFieldName) {
+	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> cellIndexToFieldName) {
 		Map<String, MeasureAssetValue> assetValues = measure.getMeasureAssetValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAsset().getName(), Function.identity()));
 		MeasureProperties properties = measure.getMeasurePropertyList();
-		for (Cell cell : data) {
-			if (cell.getColumnIndex() == referenceIndex)
+		for (int i = 0; i < row.getC().size(); i++) {
+			if (i == index)
 				continue;
-			String nameField = cellIndexToFieldName.get(cell.getColumnIndex());
+			Cell cell = row.getC().get(i);
+			String nameField = cellIndexToFieldName.get(i);
 			if (nameField == null)
 				continue;
-			double value = cell.getNumericCellValue();
+			double value = getDouble(cell);
 			if (assetValues.containsKey(nameField))
 				assetValues.get(nameField).setValue((int) value);
 			else
@@ -979,60 +945,52 @@ public class ControllerRRF {
 		}
 	}
 
-	private void loadScenarios(List<Scenario> scenarios, XSSFWorkbook workbook) {
-		XSSFSheet sheet = workbook.getSheet(RAW_SCENARIOS);
+	private void loadScenarios(List<Scenario> scenarios, WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+		SheetData sheet = findSheet(workbookPart, RAW_SCENARIOS);
 		if (sheet == null || scenarios.isEmpty())
 			return;
-		XSSFRow header = sheet.getRow(0);
-		if (header == null)
+		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.scenario", "Scenario cannot be loaded");
+		Row header = sheet.getRow().get(0);
 		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
-		Integer nameIndex = mappingColumns(header, RAW_SCENARIO, cellIndexToFieldName);
+		Integer nameIndex = mappingColumns(header, RAW_SCENARIO, cellIndexToFieldName, sharedStrings);
 		if (nameIndex == null)
 			throw new TrickException("error.import.raw.rrf.scenario.name", "Scenario name column cannot be found");
 		Map<String, Scenario> scenarioMappings = scenarios.stream().collect(Collectors.toMap(Scenario::getName, Function.identity()));
-		for (Row data : sheet) {
-			if (data.getRowNum() == 0)
+		for (Row row : sheet.getRow()) {
+			if (row.equals(header))
 				continue;
-			Cell cell = data.getCell(nameIndex);
-			if (cell == null)
+			String key = getString(row.getC().get(nameIndex), sharedStrings);
+			if (key == null)
 				continue;
-			Scenario scenario = scenarioMappings.get(cell.getStringCellValue());
+			Scenario scenario = scenarioMappings.get(key);
 			if (scenario == null)
 				continue;
-			loadScenarioData(scenario, data, nameIndex, cellIndexToFieldName);
+			loadScenarioData(scenario, row, nameIndex, cellIndexToFieldName);
 		}
 	}
 
-	private Integer mappingColumns(XSSFRow header, String identifier, Map<Integer, String> cellIndexToFieldName) {
+	private Integer mappingColumns(Row row, String identifier, Map<Integer, String> cellIndexToFieldName, Map<String, String> sharedStrings) {
 		Integer identifierIndex = null;
-		for (Cell cell : header) {
-			if (identifier.equalsIgnoreCase(cell.getStringCellValue()))
-				identifierIndex = cell.getColumnIndex();
+		for (int i = 0; i < row.getC().size(); i++) {
+			String value = getString(row.getC().get(i), sharedStrings);
+			if (identifier.equalsIgnoreCase(value))
+				identifierIndex = i;
 			else
-				cellIndexToFieldName.put(cell.getColumnIndex(), cell.getStringCellValue());
+				cellIndexToFieldName.put(i, value);
 		}
 		return identifierIndex;
 	}
 
-	private void loadScenarioData(Scenario scenario, Row data, Integer nameIndex, Map<Integer, String> cellIndexToFieldName) {
-		/*
-		 * Map<String, AssetTypeValue> assetTypeValues =
-		 * scenario.getAssetTypeValues().stream()
-		 * .collect(Collectors.toMap(assetTypeValue ->
-		 * assetTypeValue.getAssetType().getName(), Function.identity()));
-		 */
-		for (Cell cell : data) {
-			if (cell.getColumnIndex() == nameIndex)
+	private void loadScenarioData(Scenario scenario, Row row, Integer nameIndex, Map<Integer, String> cellIndexToFieldName) {
+
+		for (int i = 0; i < row.getC().size(); i++) {
+			if (i == nameIndex)
 				continue;
-			String nameField = cellIndexToFieldName.get(cell.getColumnIndex());
+			String nameField = cellIndexToFieldName.get(i);
 			if (nameField == null)
 				continue;
-			double value = cell.getNumericCellValue();
-			/*
-			 * if (assetTypeValues.containsKey(nameField))
-			 * assetTypeValues.get(nameField).setValue((int) value); else {
-			 */
+			double value = getDouble(row.getC().get(i));
 			switch (nameField) {
 			case RAW_EXTERNAL_THREAT:
 				scenario.setExternalThreat((int) value);
@@ -1062,28 +1020,28 @@ public class ControllerRRF {
 				scenario.setPreventive(value);
 				break;
 			}
-			/* } */
 		}
 	}
 
-	private void loadAnalysisInfo(Analysis analysis, XSSFWorkbook workbook) {
-		XSSFSheet sheet = workbook.getSheet(TS_INFO_FOR_IMPORT);
+	private void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+		SheetData sheet = findSheet(workbookPart, TS_INFO_FOR_IMPORT);
 		if (sheet == null)
 			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
 		String identifier = null, version = null;
-		XSSFRow row = sheet.getRow(0), data = sheet.getRow(1);
+		Row row = sheet.getRow().get(0), data = sheet.getRow().get(1);
 		if (row == null || data == null)
 			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
-		for (Cell cell : row) {
-			XSSFCell cellData = data.getCell(cell.getColumnIndex());
+		for (int i = 0; i < row.getC().size(); i++) {
+			org.xlsx4j.sml.Cell cell = row.getC().get(i), cellData = data.getC().get(i);
 			if (cellData == null)
 				break;
-			switch (cell.getStringCellValue()) {
+			System.out.println(getString(cell, sharedStrings));
+			switch (getString(cell, sharedStrings)) {
 			case IDENTIFIER:
-				identifier = cellData.getStringCellValue();
+				identifier = getString(cellData, sharedStrings);
 				break;
 			case VERSION:
-				version = cellData.getStringCellValue();
+				version = getString(cellData, sharedStrings);
 				break;
 			}
 			if (!(identifier == null || version == null))

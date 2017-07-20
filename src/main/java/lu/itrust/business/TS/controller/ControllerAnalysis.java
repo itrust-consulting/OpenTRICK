@@ -15,6 +15,7 @@ import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAG
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
+import static lu.itrust.business.TS.model.general.helper.ExcelHelper.setValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,12 +60,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xlsx4j.jaxb.Context;
-import org.xlsx4j.sml.CTRst;
-import org.xlsx4j.sml.CTXstringWhitespace;
-import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1347,24 +1344,5 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void setValue(Cell cell, double value) {
-		cell.setT(STCellType.N);
-		cell.setV(value + "");
-	}
-
-	private void setValue(Cell cell, int value) {
-		cell.setT(STCellType.N);
-		cell.setV(value + "");
-	}
-
-	private void setValue(Cell cell, String value) {
-		if (value == null)
-			value = "";
-		CTXstringWhitespace ctXstringWhitespace = Context.getsmlObjectFactory().createCTXstringWhitespace();
-		ctXstringWhitespace.setValue(value);
-		CTRst ctRst = new CTRst();
-		ctRst.setT(ctXstringWhitespace);
-		cell.setIs(ctRst);
-		cell.setT(STCellType.INLINE_STR);
-	}
+	
 }
