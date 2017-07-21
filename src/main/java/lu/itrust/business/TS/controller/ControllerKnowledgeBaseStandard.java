@@ -1,9 +1,11 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,21 +22,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.SessionFactory;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumn;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumns;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -50,6 +41,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.xlsx4j.sml.CTTable;
+import org.xlsx4j.sml.CTTableColumn;
+import org.xlsx4j.sml.Cell;
+import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -70,6 +65,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
@@ -377,229 +373,104 @@ public class ControllerKnowledgeBaseStandard {
 		if (standard == null)
 			return "404";
 
+		File workFile = new File(request.getServletContext().getRealPath(String.format("/WEB-INF/tmp/TMP_Standard_%d_%d.xlsx", idStandard, System.nanoTime())));
+
 		try {
-			
-			File workFile = new File(request.getServletContext().getRealPath(String.format("/WEB-INF/tmp/TMP_Standard_%d_%d.xlsx", idStandard, System.nanoTime())));
+
 			FileUtils.copyFile(new File(request.getServletContext().getRealPath(template)), workFile);
 			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
 			WorkbookPart workbook = mlPackage.getWorkbookPart();
 			SheetData sheet = findSheet(workbook, "NormInfo");
-			
+
 			TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormInfo");
-			
 			tablePart.getContents().getRef();
-			
-			
-
-			int row, namecol, versioncol, desccol, computablecol;
-
-			namecol = table.getStartCellReference().getCol();
-			versioncol = namecol + 1;
-			desccol = versioncol + 1;
-			computablecol = table.getEndCellReference().getCol();
-			row = table.getStartCellReference().getRow() + 1;
-
-			XSSFCell cell = null;
-
+			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
+			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), versionCol = nameCol + 1, descCol = versionCol + 1;
 			// standard name
-			cell = sheet.getRow(row).getCell(namecol);
-			cell.setCellType(CellType.STRING);
-			cell.setCellValue(standard.getLabel());
-
+			Cell cell = sheet.getRow().get(row).getC().get(nameCol);
+			setValue(cell, standard.getLabel());
 			// standard version
-			cell = sheet.getRow(row).getCell(versioncol);
-			cell.setCellType(CellType.NUMERIC);
-			cell.setCellValue(standard.getVersion());
-
+			cell = sheet.getRow().get(row).getC().get(versionCol);
+			setValue(cell, standard.getVersion());
 			// standard description
-			cell = sheet.getRow(row).getCell(desccol);
-			cell.setCellType(CellType.STRING);
-			cell.setCellValue(standard.getDescription());
-
+			cell = sheet.getRow().get(row).getC().get(descCol);
+			setValue(cell, standard.getDescription());
 			// standard computable
-			cell = sheet.getRow(row).getCell(computablecol);
-			cell.setCellType(CellType.BOOLEAN);
-			cell.setCellValue(standard.isComputable());
+			cell = sheet.getRow().get(row).getC().get(address.getEnd().getCol());
+			setValue(cell, standard.isComputable());
 
 			/**
 			 * Measures
 			 */
 
-			sheet = workbook.getSheet("NormData");
-
-			for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
-				table = sheet.getTables().get(indexTable);
-
-				if (table.getName().equals("TableNormData")) {
-					break;
-				}
-			}
-
-			List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
-
-			int levelcol, referencecol;
-			levelcol = 0;
-			referencecol = 1;
-			computablecol = 2;
-
+			sheet = findSheet(workbook, "NormData");
 			List<Language> languages = serviceLanguage.getAll();
+			List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
+			int levelCol = 0, referenceCol = 1, computableCol = 2, colSize = computableCol + languages.size() * 2, index = 0;
 
-			int headerRow = 0;
+			sheet.getRow().clear();
 
-			XSSFRow sheetrow = sheet.getRow(headerRow);
-			XSSFCellStyle headerStyle = sheetrow.getCell(0).getCellStyle();
+			Row sheetRow = getRow(sheet, 0, colSize);
+			setValue(sheetRow.getC().get(index++), "Level");
+			setValue(sheetRow.getC().get(index++), "Reference");
+			setValue(sheetRow.getC().get(index++), "Computable");
 
-			int colnumber = 0;
-
-			cell = sheetrow.getCell(colnumber);
-			if (cell == null) {
-				cell = sheetrow.createCell(colnumber);
-			}
-			cell.setCellValue("Level");
-			cell.setCellStyle(headerStyle);
-
-			colnumber++;
-
-			cell = sheetrow.getCell(colnumber);
-			if (cell == null) {
-				cell = sheetrow.createCell(colnumber);
-			}
-			cell.setCellValue("Reference");
-			cell.setCellStyle(headerStyle);
-			colnumber++;
-
-			cell = sheetrow.getCell(colnumber);
-			if (cell == null) {
-				cell = sheetrow.createCell(colnumber);
-			}
-			cell.setCellValue("Computable");
-			cell.setCellStyle(headerStyle);
-			colnumber++;
-
+			tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
+			address = AddressRef.parse(tablePart.getContents().getRef());
+			CTTable table = tablePart.getContents();
+			while (table.getTableColumns().getTableColumn().size() > 3)
+				table.getTableColumns().getTableColumn().remove(3);
 			for (Language language : languages) {
-
-				XSSFCell domaincell = sheetrow.getCell(colnumber);
-				XSSFCell desccell = sheetrow.getCell(colnumber + 1);
-
-				if (domaincell == null) {
-					domaincell = sheetrow.createCell(colnumber);
-				}
-				domaincell.setCellValue("Domain_" + language.getAlpha3());
-				domaincell.setCellStyle(headerStyle);
-
-				if (desccell == null) {
-					desccell = sheetrow.createCell(colnumber + 1);
-				}
-				desccell.setCellValue("Description_" + language.getAlpha3());
-				desccell.setCellStyle(headerStyle);
-				colnumber = colnumber + 2;
+				CTTableColumn columnDomain = new CTTableColumn(), columnDesc = new CTTableColumn();
+				table.getTableColumns().getTableColumn().add(columnDomain);
+				table.getTableColumns().getTableColumn().add(columnDesc);
+				columnDomain.setName("Domain_" + language.getAlpha3());
+				columnDesc.setName("Description_" + language.getAlpha3());
+				columnDomain.setId(index + 1);
+				columnDesc.setId(index + 2);
+				setValue(sheetRow.getC().get(index++), columnDomain.getName());
+				setValue(sheetRow.getC().get(index++), columnDesc.getName());
 			}
 
-			CellReference ref1 = table.getStartCellReference();
+			address.getEnd().setCol(colSize);
+			address.getEnd().setRow(measuredescriptions.size());
 
-			// update the table. coumn headers must match the corresponding
-			// cells in
-			// the sheet
-			CTTableColumns cols = table.getCTTable().getTableColumns();
-			cols.setTableColumnArray(null);
-			cols.setCount(colnumber);
-			CTTableColumn col = cols.addNewTableColumn();
-			col.setName("domain");
-			col.setId(4);
-			for (int i = 4; i < colnumber; i++) {
-				col = cols.addNewTableColumn();
-				col.setName(sheetrow.getCell(i).getRawValue());
-				col.setId(i + 1);
-			}
+			table.setRef(address.toString());
 
-			// update the "ref" attribute
-			table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
+			if (table.getAutoFilter() != null)
+				table.getAutoFilter().setRef(table.getRef());
+
+			if (sheet.getWorksheetPart().getContents().getDimension() != null)
+				sheet.getWorksheetPart().getContents().getDimension().setRef(table.getRef());
 
 			row = 1;
 
 			for (MeasureDescription measuredescription : measuredescriptions) {
 
-				sheetrow = sheet.getRow(row);
-				cell = sheetrow.getCell(levelcol);
-				if (cell == null)
-					cell = sheetrow.createCell(levelcol);
-				cell.setCellType(CellType.NUMERIC);
-				cell.setCellValue(measuredescription.getLevel());
+				sheetRow = getRow(sheet, row++, colSize);
 
-				cell = sheet.getRow(row).getCell(referencecol);
-				if (cell == null)
-					cell = sheetrow.createCell(referencecol);
-				cell.setCellType(CellType.STRING);
-				cell.setCellValue(measuredescription.getReference());
+				setValue(sheetRow.getC().get(levelCol), measuredescription.getLevel());
 
-				cell = sheet.getRow(row).getCell(computablecol);
-				if (cell == null)
-					cell = sheetrow.createCell(computablecol);
-				cell.setCellType(CellType.BOOLEAN);
-				cell.setCellValue(measuredescription.isComputable());
+				setValue(sheetRow.getC().get(referenceCol), measuredescription.getReference());
 
-				int domaincol = computablecol + 1;
+				setValue(sheetRow.getC().get(computableCol), measuredescription.isComputable());
 
-				int descriptioncol = domaincol + 1;
+				int domainCol = computableCol + 1, descriptionCol = domainCol + 1;
 
 				for (Language language : languages) {
-
 					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
-
-					String domain = "";
-
-					String description = "";
-
 					if (measureDescriptionText != null) {
-						domain = measureDescriptionText.getDomain();
-						description = measureDescriptionText.getDescription();
+						setValue(sheetRow.getC().get(domainCol), measureDescriptionText.getDomain());
+						setValue(sheetRow.getC().get(descriptionCol), measureDescriptionText.getDescription());
 					}
-
-					cell = sheet.getRow(row).getCell(domaincol);
-					if (cell == null)
-						cell = sheetrow.createCell(domaincol);
-					cell.setCellType(CellType.STRING);
-					cell.setCellValue(domain);
-					// System.out.println("Domaincol: "+domaincol);
-					domaincol++;
-					domaincol++;
-
-					cell = sheet.getRow(row).getCell(descriptioncol);
-					if (cell == null)
-						cell = sheetrow.createCell(descriptioncol);
-					cell.setCellType(CellType.STRING);
-					cell.setCellValue(description);
-					// System.out.println("Desccol: "+descriptioncol);
-					descriptioncol++;
-					descriptioncol++;
-
+					domainCol++;
+					descriptionCol++;
 				}
-
-				row = row + 1;
-
-				sheet.createRow(row);
-
 			}
-
-
 			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
-
-			// return standardFile to user
-
-			// set response contenttype to sqlite
 			response.setContentType("xlsx");
-
-			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
-
-			// return the sqlite file (as copy) to the response outputstream (
-			// whihc
-			// creates on the
-			// client side the sqlite file)
-
-			response.getOutputStream()
-
+			mlPackage.save(response.getOutputStream());
 			/**
 			 * Log
 			 */
@@ -609,8 +480,8 @@ public class ControllerKnowledgeBaseStandard {
 			// return
 			return null;
 		} finally {
-			if (workbook != null)
-				workbook.close();
+			if (workFile.exists() && !workFile.delete())
+				workFile.deleteOnExit();
 		}
 
 	}

@@ -24,9 +24,9 @@ import org.xlsx4j.sml.SheetData;
 public final class ExcelHelper {
 
 	private static final char ABSOLUTE_REFERENCE_MARKER = '$';
-	
+
 	public static final Pattern CELL_REF_PATTERN = Pattern.compile("(\\$?[A-Z]+)?(\\$?[0-9]+)?", Pattern.CASE_INSENSITIVE);
-	
+
 	public static final Pattern STRICTLY_CELL_REF_PATTERN = Pattern.compile("\\$?([A-Z]+)\\$?([0-9]+)", Pattern.CASE_INSENSITIVE);
 
 	public static void setValue(Cell cell, double value) {
@@ -37,6 +37,33 @@ public final class ExcelHelper {
 	public static void setValue(Cell cell, int value) {
 		cell.setT(STCellType.N);
 		cell.setV(value + "");
+	}
+
+	public static void setValue(Cell cell, Boolean value) {
+		cell.setT(STCellType.B);
+		cell.setV(value ? "1" : "0");
+	}
+
+	public static Row getRow(SheetData sheet, int index, int colSize) {
+		Row sheetRow;
+		while (sheet.getRow().size() <= index) {
+			sheetRow = Context.getsmlObjectFactory().createRow();
+			createCell(sheetRow, colSize);
+			sheet.getRow().add(sheetRow);
+		}
+		sheetRow = sheet.getRow().get(index);
+		createCell(sheetRow, colSize);
+		return sheetRow;
+	}
+
+	public static Cell getCell(Row row, int index) {
+		return createCell(row, index);
+	}
+
+	public static Cell createCell(Row row, int index) {
+		while (row.getC().size() <= index)
+			row.getC().add(Context.getsmlObjectFactory().createCell());
+		return row.getC().get(index);
 	}
 
 	public static void setValue(Cell cell, String value) {
@@ -76,33 +103,30 @@ public final class ExcelHelper {
 
 		return colRef.toString();
 	}
-	
+
 	/**
-     * takes in a column reference portion of a CellCoord and converts it from
-     * ALPHA-26 number format to 0-based base 10.
-     * 'A' -> 0
-     * 'Z' -> 25
-     * 'AA' -> 26
-     * 'IV' -> 255
-     * @return zero based column index
-     */
-    public static int colStringToIndex(String ref) {
-        int retval=0;
-        char[] refs = ref.toUpperCase(Locale.ROOT).toCharArray();
-        for (int k=0; k<refs.length; k++) {
-            char thechar = refs[k];
-            if (thechar == ABSOLUTE_REFERENCE_MARKER) {
-                if (k != 0)
-                    throw new IllegalArgumentException("Bad col ref format '" + ref + "'");
-                continue;
-            }
+	 * takes in a column reference portion of a CellRef and converts it from
+	 * ALPHA-26 number format to 0-based base 10. 'A' -> 0 'Z' -> 25 'AA' -> 26
+	 * 'IV' -> 255
+	 * 
+	 * @return zero based column index
+	 */
+	public static int colStringToIndex(String ref) {
+		int retval = 0;
+		char[] refs = ref.toUpperCase(Locale.ROOT).toCharArray();
+		for (int k = 0; k < refs.length; k++) {
+			char thechar = refs[k];
+			if (thechar == ABSOLUTE_REFERENCE_MARKER) {
+				if (k != 0)
+					throw new IllegalArgumentException("Bad col ref format '" + ref + "'");
+				continue;
+			}
 
-            // Character is uppercase letter, find relative value to A
-            retval = (retval * 26) + (thechar - 'A' + 1);
-        }
-        return retval-1;
-    }
-
+			// Character is uppercase letter, find relative value to A
+			retval = (retval * 26) + (thechar - 'A' + 1);
+		}
+		return retval - 1;
+	}
 
 	/**
 	 * 
