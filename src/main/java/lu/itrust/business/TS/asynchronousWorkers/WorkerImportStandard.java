@@ -342,7 +342,7 @@ public class WorkerImportStandard implements Worker {
 			String alpha3 = matcher.group(2);
 			Language language = daoLanguage.getByAlpha3(alpha3);
 			if (language == null)
-				daoLanguage.save(language = new Language(alpha3, alpha3, alpha3));
+				daoLanguage.save(language = new Language(alpha3.toUpperCase(), alpha3, alpha3));
 			languages.put(i, language);
 		}
 		return languages;
