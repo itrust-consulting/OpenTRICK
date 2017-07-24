@@ -14,8 +14,6 @@ public interface IExcelSheet {
 
 	Object getWorkbook();
 
-	void setWorkbook(Object workbook);
-
 	boolean save() throws Exception;
 
 	String getTempPath();

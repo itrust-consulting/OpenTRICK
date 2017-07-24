@@ -3,6 +3,9 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,9 +19,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.docx4j.dml.CTRegularTextRun;
 import org.docx4j.dml.CTTextParagraph;
 import org.docx4j.dml.chart.CTBarChart;
@@ -40,6 +40,8 @@ import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
@@ -740,8 +742,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				return;
 
 			CTTextParagraph p = chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0);
-			
-			while (p.getEGTextRun().size()>1)
+
+			while (p.getEGTextRun().size() > 1)
 				p.getEGTextRun().remove(1);
 
 			((CTRegularTextRun) p.getEGTextRun().get(0)).setT(title);
@@ -750,15 +752,14 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 			barChart.getSer().clear();
 
-			XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
+			SheetData sheet = reportExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
 
-			XSSFRow row = getRow(xssfSheet, 0);
-
+			Row row = getRow(sheet, 0, colorBounds.size() + 1);
 			for (int i = 0; i < colorBounds.size(); i++) {
 				CTBarSer ser = createChart(String.format("%s!$%s$1", reportExcelSheet.getName(), (char) ('B' + i)), i, colorBounds.get(i).getLabel(), new CTBarSer());
 				setColor(ser, colorBounds.get(i).getColor());
 				barChart.getSer().add(ser);
-				getCell(row, i + 1, CellType.STRING).setCellValue(colorBounds.get(i).getLabel());
+				setValue(row, i + 1, colorBounds.get(i).getLabel());
 			}
 
 			CTBarSer barSer = barChart.getSer().get(0);
@@ -768,7 +769,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				catName.setV(entry.getKey());
 				catName.setIdx(barSer.getCat().getStrRef().getStrCache().getPt().size());
 				barSer.getCat().getStrRef().getStrCache().getPt().add(catName);
-				getCell(getRow(xssfSheet, barSer.getCat().getStrRef().getStrCache().getPt().size()), 0, CellType.STRING).setCellValue(catName.getV());
+				setValue(getRow(sheet, barSer.getCat().getStrRef().getStrCache().getPt().size(), colorBounds.size() + 1), 0, catName.getV());
 			}
 
 			barSer.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), assessmentEntries.size() + 1));
@@ -785,14 +786,13 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 					colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
 				});
 
-				row = getRow(xssfSheet, rowIndex++);
-				getCell(row, 0, CellType.STRING).setCellValue(entry.getKey());
+				setValue(row = sheet.getRow().get(rowIndex++), 0, entry.getKey());
 				for (int i = 0; i < colorBounds.size(); i++) {
 					CTBarSer ser = barChart.getSer().get(i);
 					CTNumVal numVal = new CTNumVal();
 					numVal.setIdx(rowIndex - 2);
 					if (colorBounds.get(i).getCount() > 0) {
-						getCell(row, i + 1, CellType.NUMERIC).setCellValue(colorBounds.get(i).getCount());
+						setValue(row, i + 1, colorBounds.get(i).getCount());
 						numVal.setV(colorBounds.get(i).getCount() + "");
 					}
 					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);

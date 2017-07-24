@@ -29,6 +29,19 @@ public final class ExcelHelper {
 
 	public static final Pattern STRICTLY_CELL_REF_PATTERN = Pattern.compile("\\$?([A-Z]+)\\$?([0-9]+)", Pattern.CASE_INSENSITIVE);
 
+	public static Cell setValue(Row row, int cellIndex, Object value) {
+		Cell cell2 = getCell(row, cellIndex);
+		if (value instanceof Double)
+			setValue(cell2, (Double) value);
+		else if (value instanceof Integer)
+			setValue(cell2, (Integer) value);
+		else if (value instanceof Boolean)
+			setValue(cell2, (Boolean) value);
+		else
+			setValue(cell2, String.valueOf(value));
+		return cell2;
+	}
+
 	public static void setValue(Cell cell, double value) {
 		cell.setT(STCellType.N);
 		cell.setV(value + "");

@@ -1,7 +1,8 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
@@ -21,11 +22,6 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.docx4j.dml.CTRegularTextRun;
 import org.docx4j.dml.CTSRgbColor;
 import org.docx4j.dml.CTShapeProperties;
@@ -86,6 +82,8 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.Distribution;
@@ -107,6 +105,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskI
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScenarioFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScopeFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jSummaryFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
@@ -775,7 +774,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateAssets(String name, List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException;
 
-	protected void generateComplianceGraphic() throws OpenXML4JException, IOException, Docx4JException, JAXBException {
+	protected void generateComplianceGraphic() throws Exception {
 
 		Map<String, Part> parts = createComplianceGraphicParts();
 
@@ -809,7 +808,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				else {
 					r.setT(getMessage("report.compliance.custom", new Object[] { entry.getKey() }, "Compliance " + entry.getKey(), locale));
 					reportExcelSheet.setName("Compliance" + entry.getKey());
-					reportExcelSheet.getWorkbook().setSheetName(0, reportExcelSheet.getName());
+					reportExcelSheet.getWorkbook().getContents().getSheets().getSheet().get(0).setName(reportExcelSheet.getName());
 				}
 
 				chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream().filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
@@ -821,47 +820,39 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				List<Measure> measures = analysis.getAnalysisStandards().stream().filter(analysisStandard -> analysisStandard.getStandard().is(entry.getKey()))
 						.map(AnalysisStandard::getMeasures).findAny().orElse(Collections.emptyList());
 
-				XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
+				SheetData sheet = reportExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
 				Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, valueFactory);
-				int rowCount = 0;
+
 				String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
-				if (xssfSheet.getRow(rowCount) == null)
-					xssfSheet.createRow(rowCount);
-				xssfSheet.getRow(rowCount).createCell(0);
-				xssfSheet.getRow(rowCount).createCell(1);
-				xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
-				xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
+
+				int rowCount = 0;
+
+				Row row = ExcelHelper.getRow(sheet, rowCount++, compliances.size() + 1);
+				setValue(row, 0, getMessage("report.compliance.chapter", null, "Chapter", locale));
+				setValue(row, 1, phaseLabel);
+
 				CTRadarSer ser = createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, phaseLabel, new CTRadarSer());
 				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
+
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
-					if (xssfSheet.getRow(rowCount) == null)
-						xssfSheet.createRow(rowCount);
-					if (xssfSheet.getRow(rowCount).getCell(0) == null)
-						xssfSheet.getRow(rowCount).createCell(0);
-					if (xssfSheet.getRow(rowCount).getCell(1) == null)
-						xssfSheet.getRow(rowCount).createCell(1, CellType.NUMERIC);
-
 					double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
 
 					CTStrVal catName = new CTStrVal();
 					catName.setV(key);
 					catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
 					ser.getCat().getStrRef().getStrCache().getPt().add(catName);
-
 					CTNumVal numVal = new CTNumVal();
-
 					numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 
-					xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
 					if (Double.isNaN(value))
 						value = 0;
-
 					numVal.setV(value + "");
-					xssfSheet.getRow(rowCount).getCell(1).setCellValue(value);
 
-					rowCount++;
+					row = ExcelHelper.getRow(sheet, rowCount++, compliances.size() + 1);
+					setValue(row, 0, key);
+					setValue(row, 1, value);
 				}
 
 				ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
@@ -875,36 +866,29 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 					int columnIndex = 2;
 					for (Phase phase : phases) {
-						phaseLabel = getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale);
+
 						char col = (char) (((int) 'A') + columnIndex);
+
+						phaseLabel = getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber(), locale);
+
 						ser = createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
-						compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, valueFactory);
-						if (xssfSheet.getRow(rowCount = 0) == null)
-							xssfSheet.createRow(rowCount);
-						if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-							xssfSheet.getRow(rowCount).createCell(columnIndex);
-						xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(phaseLabel);
 						ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
+
+						compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, valueFactory);
+
+						setValue(sheet.getRow().get(rowCount = 0), columnIndex, phaseLabel);
+
 						for (String key : compliances.keySet()) {
 							Object[] compliance = compliances.get(key);
-							if (xssfSheet.getRow(rowCount) == null)
-								xssfSheet.createRow(rowCount);
-							if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-								xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
+							double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
 
 							CTNumVal numVal = new CTNumVal();
 							numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 							ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
-
-							double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
-
 							if (Double.isNaN(value))
 								value = 0;
-							
 							numVal.setV(value + "");
-							xssfSheet.getRow(rowCount).getCell(columnIndex).setCellValue(value);
-
-							rowCount++;
+							setValue(sheet.getRow().get(++rowCount), columnIndex, value);
 						}
 
 						ser.getVal().getNumRef()
@@ -974,13 +958,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected abstract void generateOtherData() throws XPathBinderAssociationIsPartialException, JAXBException, Exception;
 
-	protected XSSFCell getCell(XSSFRow row, int index, CellType cellType) {
-		XSSFCell cell = row.getCell(index);
-		if (cell == null)
-			cell = row.createCell(index, cellType);
-		return cell;
-	}
-
 	protected String getDisplayName(AssetType type) {
 		return getMessage("label.asset_type." + type.getName().toLowerCase(), null, type.getName(), locale);
 	}
@@ -998,12 +975,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return style == null ? null : (PPr) style.getPPr();
 	}
 
-	protected XSSFRow getRow(XSSFSheet xssfSheet, int index) {
-		XSSFRow row = xssfSheet.getRow(index);
-		if (row == null)
-			row = xssfSheet.createRow(index);
-		return row;
-	}
+	
 
 	protected TblPr getTableStyle(String id) {
 		Style style = styles.get(id);

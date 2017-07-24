@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
-import java.io.IOException;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,10 +17,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.docx4j.dml.CTRegularTextRun;
 import org.docx4j.dml.chart.CTBarChart;
 import org.docx4j.dml.chart.CTBarSer;
@@ -41,6 +39,8 @@ import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
@@ -535,71 +535,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 	}
 
-	protected void generateEvolutionOfProfitabilityGraphic(Docx4jExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null || analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
-			return;
-		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
-		int rowIndex = 1;
-		for (Phase phase : usesPhases.values()) {
-			if (xssfSheet.getRow(rowIndex) == null)
-				xssfSheet.createRow(rowIndex);
-			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
-				xssfSheet.getRow(rowIndex).createCell(0);
-			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
-		}
-
-		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27001");
-		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27002");
-		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
-		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
-		List<String> dataCostOfMeasures = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
-		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
-		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
-
-		for (int j = 1; j < 8; j++) {
-			if (xssfSheet.getRow(0) == null)
-				xssfSheet.createRow(0);
-			if (xssfSheet.getRow(0).getCell(j) == null)
-				xssfSheet.getRow(0).createCell(j);
-		}
-
-		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27001");
-		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27002");
-		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
-		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
-		xssfSheet.getRow(0).getCell(5)
-				.setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale));
-		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
-		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
-		rowIndex = 1;
-
-		int size = 0;
-
-		if (dataCompliance27001s != null)
-			size = dataCompliance27001s.size();
-		else if (dataCompliance27002s != null)
-			size = dataCompliance27002s.size();
-
-		for (int i = 0; i < size; i++) {
-			for (int j = 1; j < 8; j++) {
-				if (xssfSheet.getRow(rowIndex) == null)
-					xssfSheet.createRow(rowIndex);
-				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j);
-			}
-			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble((dataCompliance27001s == null ? "0" : dataCompliance27001s.get(i))) * 0.01);
-			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble((dataCompliance27002s == null ? "0" : dataCompliance27002s.get(i))) * 0.01);
-			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataCostOfMeasures.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataROSIs.get(i)));
-			xssfSheet.getRow(rowIndex++).getCell(7).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void generateExtendedParameters(String type) throws Exception {
@@ -771,44 +706,39 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 			Map<String, CTBarSer> profiltabilityDatasets = new LinkedHashMap<>(dataName.length);
 
-			XSSFSheet xssfSheet = docx4jExcelSheet.getWorkbook().getSheetAt(0);
+			SheetData sheet = docx4jExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
+
+			Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(getSummaryStage()));
 
 			for (int i = 0; i < dataName.length; i++) {
 				CTBarSer ser = createChart(String.format("%s!$A$%s", docx4jExcelSheet.getName(), i + 2), i,
 						getMessage("label.title.chart.evolution_profitability." + dataName[i].toLowerCase(), null, null, locale), new CTBarSer());
 				profiltabilityDatasets.put(dataName[i], ser);
 				ser.getVal().getNumRef().getNumCache().setFormatCode(NUMBER_FORMAT);
-
 				barChart.getSer().add(ser);
 				setColor(ser, ChartGenerator.getStaticColor(colorIndex[i]));
 
-				getCell(getRow(xssfSheet, i + 1), 0, CellType.STRING).setCellValue(dataName[i]);
-
+				setValue(getRow(sheet, i + 1, usesPhases.size() + 1), 0, dataName[i]);
 			}
-
-			Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(getSummaryStage()));
 
 			CTBarSer barSer = profiltabilityDatasets.get(dataName[0]);
 
-			XSSFRow rowPhase = getRow(xssfSheet, 0);
+			Row rowPhase = sheet.getRow().get(0);
 
 			for (Phase phase : usesPhases.values()) {
 				CTStrVal catName = new CTStrVal();
 				catName.setV("P" + phase.getNumber());
 				catName.setIdx(barSer.getCat().getStrRef().getStrCache().getPt().size());
 				barSer.getCat().getStrRef().getStrCache().getPt().add(catName);
-
-				getCell(rowPhase, barSer.getCat().getStrRef().getStrCache().getPt().size(), CellType.STRING).setCellValue(catName.getV());
+				setValue(rowPhase, barSer.getCat().getStrRef().getStrCache().getPt().size(), catName.getV());
 			}
 
 			barSer.getCat().getStrRef().setF(String.format("%s!$B$1:$%s$1", docx4jExcelSheet.getName(), (char) ('B' + barSer.getCat().getStrRef().getStrCache().getPt().size())));
 
 			for (int i = 1; i < dataName.length; i++)
 				profiltabilityDatasets.get(dataName[i]).setCat(barSer.getCat());
-
 			for (int i = 0; i < usesPhases.size(); i++) {
 				for (int j = 0; j < dataName.length; j++) {
-					XSSFRow row = getRow(xssfSheet, j + 1);
 					CTBarSer ser = profiltabilityDatasets.get(dataName[j]);
 					Double rosi = (double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i), value = 0d;
 					switch (dataName[j]) {
@@ -837,7 +767,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					numVal.setIdx(i);
 					if (value > 0) {
 						numVal.setV(value + "");
-						getCell(row, i + 1, CellType.NUMERIC).setCellValue(value);
+						setValue(sheet.getRow().get(j + 1), i + 1, value);
 					}
 					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 				}
@@ -960,7 +890,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
 			if (barChart == null)
 				return;
-			XSSFSheet xssfSheet = reportExcelSheet.getWorkbook().getSheetAt(0);
+			
+			SheetData sheet = reportExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
+			
 			CTRegularTextRun r = (CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0);
 			r.setT(title);
 
@@ -989,32 +921,23 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			barChart.getDLbls().getNumFmt().setFormatCode(NUMBER_FORMAT);
 
 			int rowCount = 0;
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(name);
+			setValue(getRow(sheet, rowCount++, ales.size()+1), 0, name);
 			for (ALE ale : ales) {
-				if (xssfSheet.getRow(rowCount) == null)
-					xssfSheet.createRow(rowCount);
-				if (xssfSheet.getRow(rowCount).getCell(0) == null)
-					xssfSheet.getRow(rowCount).createCell(0);
-				if (xssfSheet.getRow(rowCount).getCell(1) == null)
-					xssfSheet.getRow(rowCount).createCell(1);
-				xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-
 				CTStrVal catName = new CTStrVal();
 				catName.setV(ale.getAssetName());
 				catName.setIdx(rowCount - 1);
 				ser.getCat().getStrRef().getStrCache().getPt().add(catName);
 				CTNumVal numVal = new CTNumVal();
+				
 				numVal.setIdx(rowCount - 1);
 				if (ale.getValue() > 0) {
 					numVal.setV(ale.getValue() + "");
-					xssfSheet.getRow(rowCount).getCell(1).setCellValue(ale.getValue());
+					setValue(sheet.getRow().get(rowCount), 1, ale.getValue());
 				}
+				
 				ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
-				rowCount++;
+				setValue(sheet.getRow().get(rowCount++), 0, ale.getAssetName());
+
 			}
 
 			ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
