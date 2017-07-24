@@ -181,6 +181,10 @@ public final class ExcelHelper {
 		return null;
 	}
 
+	public static String getString(Row row, int cell, Map<String, String> sharedStrings) {
+		return row.getC().size() > cell ? getString(row.getC().get(cell), sharedStrings) : null;
+	}
+
 	public static double getDouble(Cell cell) {
 		try {
 			String value = getString(cell, Collections.emptyMap());
@@ -200,6 +204,15 @@ public final class ExcelHelper {
 			return Integer.parseInt(value);
 		} catch (NumberFormatException e) {
 			return 0;
+		}
+	}
+
+	public static boolean getBoolean(Cell cell) {
+		String value = getString(cell, Collections.emptyMap());
+		try {
+			return !(value == null || Integer.parseInt(value) == 0);
+		} catch (NumberFormatException e) {
+			return Boolean.valueOf(value);
 		}
 	}
 

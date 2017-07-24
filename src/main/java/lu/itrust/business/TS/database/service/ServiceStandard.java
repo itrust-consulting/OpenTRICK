@@ -17,7 +17,7 @@ import lu.itrust.business.TS.model.standard.StandardType;
 public interface ServiceStandard {
 	public Standard get(Integer id);
 
-	public Standard getStandardByName(String standard);
+	public List<Standard> getStandardByName(String standard);
 
 	public Standard getStandardNotCustomByName(String standard);
 

@@ -166,37 +166,6 @@ public class ControllerKnowledgeBaseStandard {
 	}
 
 	/**
-	 * loadSingleStandard: <br>
-	 * Description
-	 * 
-	 * @param idStandard
-	 * @param model
-	 * @param redirectAttributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/{idStandard}")
-	public String loadSingleStandard(@PathVariable("idStandard") String idStandard, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
-
-		// load standard object
-		Standard standard = serviceStandard.getStandardByName(idStandard);
-		if (standard == null) {
-
-			// retrun error if standard does not exist
-			String msg = messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/KnowLedgeBase/Standard";
-		}
-
-		// load standard to model
-		model.put("standard", standard);
-
-		return "knowledgebase/standards/standard/showStandard";
-	}
-
-	/**
 	 * save: <br>
 	 * Description
 	 * 
@@ -343,10 +312,10 @@ public class ControllerKnowledgeBaseStandard {
 	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes,
 			Locale locale) throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
-		file.transferTo(importFile);
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+		file.transferTo(importFile);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
 
@@ -455,16 +424,15 @@ public class ControllerKnowledgeBaseStandard {
 
 				setValue(sheetRow.getC().get(computableCol), measuredescription.isComputable());
 
-				int domainCol = computableCol + 1, descriptionCol = domainCol + 1;
+				int domainCol = computableCol + 1;
 
 				for (Language language : languages) {
 					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
 					if (measureDescriptionText != null) {
 						setValue(sheetRow.getC().get(domainCol), measureDescriptionText.getDomain());
-						setValue(sheetRow.getC().get(descriptionCol), measureDescriptionText.getDescription());
+						setValue(sheetRow.getC().get(domainCol + 1), measureDescriptionText.getDescription());
 					}
-					domainCol++;
-					descriptionCol++;
+					domainCol+=2;
 				}
 			}
 			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();

@@ -74,6 +74,15 @@ public class Standard implements Cloneable {
 	 */
 	public Standard() {
 	}
+	
+	/**
+	 * Constructor:<br>
+	 * @param version 
+	 */
+	public Standard(String label, int version) {
+		setLabel(label);
+		setVersion(version);
+	}
 
 	/**
 	 * Constructor: <br>
@@ -86,9 +95,8 @@ public class Standard implements Cloneable {
 	 * @throws TrickException
 	 */
 	public Standard(String label, StandardType type, int version, String description, boolean computable) throws TrickException {
-		this.setLabel(label);
+		this(label, version);
 		this.setType(type);
-		this.setVersion(version);
 		this.setDescription(description);
 		this.setComputable(computable);
 	}

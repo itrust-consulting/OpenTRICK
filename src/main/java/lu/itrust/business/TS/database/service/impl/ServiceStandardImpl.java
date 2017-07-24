@@ -50,7 +50,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardByName(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardByName(String standard)  {
+	public List<Standard> getStandardByName(String standard)  {
 		return daoStandard.getStandardByName(standard);
 	}
 
