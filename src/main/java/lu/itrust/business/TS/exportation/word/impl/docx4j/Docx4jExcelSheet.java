@@ -76,6 +76,7 @@ public class Docx4jExcelSheet implements IExcelSheet {
 			file = new File(String.format("%s/%d.xslx", tempPath, System.nanoTime()));
 			FileCopyUtils.copy(this.packagePart.getBytes(), file);
 			setMlPackage(SpreadsheetMLPackage.load(file));
+			setName(getWorkbook().getContents().getSheets().getSheet().get(0).getName());
 		}
 	}
 

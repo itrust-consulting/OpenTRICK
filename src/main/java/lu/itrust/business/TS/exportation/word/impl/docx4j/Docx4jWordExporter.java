@@ -807,7 +807,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					r.setT(getMessage("report.compliance.iso", new Object[] { entry.getKey() }, "Compliance ISO " + entry.getKey(), locale));
 				else {
 					r.setT(getMessage("report.compliance.custom", new Object[] { entry.getKey() }, "Compliance " + entry.getKey(), locale));
-					reportExcelSheet.setName("Compliance" + entry.getKey());
+					reportExcelSheet.setName("Compliance" + entry.getKey().trim().replaceAll(":|-|[ ]|!|\\$|€", "_"));
 					reportExcelSheet.getWorkbook().getContents().getSheets().getSheet().get(0).setName(reportExcelSheet.getName());
 				}
 

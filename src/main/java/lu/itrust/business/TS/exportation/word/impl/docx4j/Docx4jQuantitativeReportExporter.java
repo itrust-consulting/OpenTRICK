@@ -890,9 +890,9 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
 			if (barChart == null)
 				return;
-			
+
 			SheetData sheet = reportExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
-			
+
 			CTRegularTextRun r = (CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0);
 			r.setT(title);
 
@@ -920,23 +920,23 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 			barChart.getDLbls().getNumFmt().setFormatCode(NUMBER_FORMAT);
 
-			int rowCount = 0;
-			setValue(getRow(sheet, rowCount++, ales.size()+1), 0, name);
+			int rowCount = 0, colSzie = 2;
+			setValue(getRow(sheet, rowCount++, colSzie), 0, name);
 			for (ALE ale : ales) {
 				CTStrVal catName = new CTStrVal();
 				catName.setV(ale.getAssetName());
 				catName.setIdx(rowCount - 1);
 				ser.getCat().getStrRef().getStrCache().getPt().add(catName);
 				CTNumVal numVal = new CTNumVal();
-				
+
 				numVal.setIdx(rowCount - 1);
 				if (ale.getValue() > 0) {
 					numVal.setV(ale.getValue() + "");
-					setValue(sheet.getRow().get(rowCount), 1, ale.getValue());
+					setValue(getRow(sheet, rowCount, colSzie), 1, ale.getValue());
 				}
-				
+
 				ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
-				setValue(sheet.getRow().get(rowCount++), 0, ale.getAssetName());
+				setValue(getRow(sheet, rowCount++, colSzie), 0, ale.getAssetName());
 
 			}
 
