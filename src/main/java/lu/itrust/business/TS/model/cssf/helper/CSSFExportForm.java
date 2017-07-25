@@ -11,6 +11,8 @@ import lu.itrust.business.TS.model.general.helper.ExportType;
  */
 public class CSSFExportForm {
 	
+	private boolean cssf;
+	
 	private ExportType type;
 	
 	private String owner;
@@ -62,5 +64,19 @@ public class CSSFExportForm {
 	
 	public boolean hasOwner() {
 		return !(owner ==null || owner.trim().isEmpty());
+	}
+
+	/**
+	 * @return the cssf
+	 */
+	public boolean isCssf() {
+		return cssf;
+	}
+
+	/**
+	 * @param cssf the cssf to set
+	 */
+	public void setCssf(boolean cssf) {
+		this.cssf = cssf;
 	}
 }

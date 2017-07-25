@@ -19,6 +19,17 @@
 				<spring:message code='label.compliant' var="compliant" />
 				<form class='form form-horizontal' name='filter'>
 					<input value="${type}" name="type" hidden="hidden">
+					<c:if test="${type == 'REPORT'}">
+						<div class="form-group">
+							<label for="cssf" class="label-control col-xs-offset-1 col-xs-6"> <spring:message code="label.risk_sheet.report.type" /></label>
+							<div class="col-xs-5">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-default active"><spring:message code="label.type.normal" /><input name="cssf" checked="checked" type="radio" value="false"></label> <label
+										class="btn btn-default"><spring:message code="label.type.cssf" /><input name="cssf" type="radio" value="true"></label>
+								</div>
+							</div>
+						</div>
+					</c:if>
 					<div class='form-group'>
 						<c:set value="${parameters['cssfImpactThreshold']}" var="cssfImpactThreshold" />
 						<label class='label-control col-xs-offset-1 col-xs-6'><spring:message code="label.parameter.simple.cssf.impact_threshold" /></label>

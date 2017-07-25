@@ -343,7 +343,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		this.username = username;
 	}
 
-	private void addEstimation(Worksheet worksheet,ObjectFactory factory, List<Estimation> estimations, List<ScaleType> types) {
+	private void addEstimation(Worksheet worksheet, ObjectFactory factory, List<Estimation> estimations, List<ScaleType> types) {
 		int size = 16 + types.size() * 3;
 		for (Estimation estimation : estimations) {
 			Row row = createRow(worksheet.getSheetData(), size);
@@ -429,7 +429,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			row.getC().add(factory.createCell());
 			row1.getC().add(factory.createCell());
 		}
-		
+
 		worksheet.getSheetData().getRow().add(row);
 		worksheet.getSheetData().getRow().add(row1);
 
@@ -453,9 +453,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			printEvaluationHeader(row1, types, 4);
 		printEvaluationHeader(row1, types, netIndex);
 		printEvaluationHeader(row1, types, expIndex);
-		
+
 		worksheet.setMergeCells(factory.createCTMergeCells());
-		
+
 		for (int i = 0; i < 4; i++) {
 			CTMergeCell mergeCell = factory.createCTMergeCell();
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
@@ -474,14 +474,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			mergeCell.setRef(getAddress(1, i, 2, i));
 		}
 	}
-	
-	
 
 	private void addRiskSheetHeader(Document document, RiskProfile riskProfile, boolean isFirst) {
 		String scenarioType = riskProfile.getScenario().getType().getName();
 		String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType),
 				idRisk = riskProfile.getIdentifier() == null ? "" : riskProfile.getIdentifier();
-		String text = getMessage("report.risk_sheet.page_title", new Object[] { category, idRisk }, String.format("Category %s - Risk %s", category, idRisk));
+		String text = getCssfExportForm().isCssf()
+				? getMessage("report.risk_sheet.cssf.page_title", new Object[] { category, idRisk }, String.format("Category %s - Risk %s", category, idRisk))
+				: getMessage("report.risk_sheet.normal.page_title", new Object[] { category, riskProfile.getAsset().getName() },
+						String.format("Category %s - %s", category, riskProfile.getAsset().getName()));
 		P paragraph = null;
 		if (isFirst)
 			paragraph = (P) document.getContent().parallelStream().filter(p -> p instanceof P).findAny().orElse(null);
@@ -565,7 +566,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return tc;
 	}
 
-	private void addTable(Document document, String title, RiskProfile riskProfile) {
+	private void addActionTable(Document document, String title, RiskProfile riskProfile) {
+
 		addTitle(document, title);
 		if (!riskProfile.getMeasures().isEmpty()) {
 			Tbl table = createTable("TSTABLEMEASURE", riskProfile.getMeasures().size() + 1, 4);
@@ -704,16 +706,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			for (Estimation estimation : estimations) {
 				RiskProfile riskProfile = estimation.getRiskProfile();
 				addRiskSheetHeader(document, estimation.getRiskProfile(), isFirst);
-				if (isFirst) {
-					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
+				if (isFirst)
 					isFirst = false;
-				} else
-					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
+				addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
 				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
 				if (showRawColumn)
 					addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"), estimation.getRawProbaImpact(), types);
 				addField(document, getMessage("report.risk_sheet.argumentation", "Argumentation"), estimation.getArgumentation());
-				addField(document, getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"), riskProfile.getAsset().getName());
+				if (getCssfExportForm().isCssf())
+					addField(document, getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"), riskProfile.getAsset().getName());
 				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), estimation.getRiskTreatment());
 				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), estimation.getNetEvaluation(), types);
 				RiskStrategy strategy = riskProfile.getRiskStrategy();
@@ -721,8 +722,10 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
-				addTable(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile);
-				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
+				if (strategy != RiskStrategy.ACCEPT || !(riskProfile.getMeasures().isEmpty() && StringUtils.isEmpty(riskProfile.getActionPlan()))) {
+					addActionTable(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile);
+					addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
+				}
 				messageHandler.setProgress((int) (progress + (++index / (double) estimations.size()) * (max - progress)));
 			}
 
