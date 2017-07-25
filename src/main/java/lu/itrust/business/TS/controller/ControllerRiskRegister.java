@@ -45,6 +45,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.helper.ExportType;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
@@ -119,6 +120,7 @@ public class ControllerRiskRegister {
 		model.put("type", analysis.getType());
 		model.put("riskregister", analysis.getRiskRegisters());
 		model.put("valueFactory", valueFactory);
+		model.put("colorManager", new ColorManager(analysis.getRiskAcceptanceParameters()));
 		model.put("language", analysis.getLanguage().getAlpha2());
 		loadAnalysisSettings(model, analysis);
 		// return view

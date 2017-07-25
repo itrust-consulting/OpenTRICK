@@ -102,6 +102,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
+import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -893,6 +894,7 @@ public class ControllerAnalysis {
 						.map(ScaleType::getName).orElse(null));
 				int level = analysis.getLikelihoodParameters().size() - 1;
 				model.addAttribute("maxImportance", level * level);
+				model.addAttribute("colorManager", new ColorManager(analysis.getRiskAcceptanceParameters()));
 			}
 
 			if (analysis.isQuantitative())
@@ -1344,5 +1346,4 @@ public class ControllerAnalysis {
 		}
 	}
 
-	
 }
