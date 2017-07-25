@@ -1,34 +1,35 @@
 package lu.itrust.business.TS.model.cssf.helper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 
 public class ColorManager {
 
-	private static final String DEFAULT_COLOR = "#ffffff";
-	private List<RiskAcceptanceParameter> parameters = Collections.emptyList();
+	private List<ColorBound> colorBounds = Collections.emptyList();
 
 	public ColorManager(List<RiskAcceptanceParameter> parameters) {
-		this.parameters = parameters;
+		initialise(parameters);
+	}
+
+	public void initialise(List<RiskAcceptanceParameter> parameters) {
+		this.colorBounds = new ArrayList<>(parameters.size());
+		for (int i = 0; i < parameters.size(); i++) {
+			RiskAcceptanceParameter parameter = parameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (parameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), parameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), parameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+		}
 	}
 
 	public String getColor(int importance) {
-		return parameters.isEmpty() ? DEFAULT_COLOR : find(importance, parameters, 0, parameters.size());
-	}
-
-	private String find(int importance, List<RiskAcceptanceParameter> parameters, int begin, int end) {
-		int mild = (end + begin) / 2;
-		if (end == mild || begin == mild)
-			return parameters.get(mild).getColor();
-		RiskAcceptanceParameter parameter = parameters.get(mild);
-		int value = parameter.getValue().intValue();
-		if (value == importance)
-			return parameter.getColor();
-		else if (importance > value)
-			return find(importance, parameters, mild, end);
-		return find(importance, parameters, begin, mild);
+		return colorBounds.parallelStream().filter(c -> c.isAccepted(importance)).map(ColorBound::getColor).findAny().orElse("#ffffff");
 	}
 
 }
