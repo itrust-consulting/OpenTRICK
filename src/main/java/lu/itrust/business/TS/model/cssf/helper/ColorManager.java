@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 
 public class ColorManager {
@@ -29,7 +30,18 @@ public class ColorManager {
 	}
 
 	public String getColor(int importance) {
-		return colorBounds.parallelStream().filter(c -> c.isAccepted(importance)).map(ColorBound::getColor).findAny().orElse("#ffffff");
+		return colorBounds.isEmpty() ? Constant.HEAT_MAP_DEFAULT_COLOR : findColor(importance, 0, colorBounds.size());
+	}
+
+	private String findColor(int importance, int begin, int end) {
+		int mid = (end + begin) / 2;
+		ColorBound bound = colorBounds.get(mid);
+		if (bound.isAccepted(importance))
+			return bound.getColor();
+		else if (importance > bound.getMax())
+			return findColor(importance, mid + 1, end);
+		else
+			return findColor(importance, begin, mid - 1);
 	}
 
 }

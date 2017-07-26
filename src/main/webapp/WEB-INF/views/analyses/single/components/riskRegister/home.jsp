@@ -82,22 +82,22 @@
 						<c:if test="${showRawColumn}">
 							<td data-trick-field="raw.probability" class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
 							<td data-trick-field="raw.impact" class="text-center"><fmt:formatNumber value="${estimation.rawProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
-							<td data-trick-field="raw.importance" class="text-center"><fmt:formatNumber
-										value="${estimation.rawProbaImpact.importance}" maxFractionDigits="0" /> <span
-								style="color: ${colorManager.getColor(estimation.rawProbaImpact.importance)};"><i class="fa fa-thermometer-three-quarters" aria-hidden="true"></i></span></td>
+							<td data-trick-field="raw.importance" class="text-center"><span
+								style="color: ${colorManager.getColor(estimation.rawProbaImpact.importance)};"><i class="fa fa-flag" aria-hidden="true"></i></span> <fmt:formatNumber
+										value="${estimation.rawProbaImpact.importance}" maxFractionDigits="0" /></td>
 						</c:if>
 
 						<td data-trick-field="net.probability" class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.probabilityLevel}" maxFractionDigits="0" /></td>
 						<td data-trick-field="net.impact" class="text-center"><fmt:formatNumber value="${estimation.netEvaluation.impactLevel}" maxFractionDigits="0" /></td>
-						<td data-trick-field="net.importance" class="text-center"><fmt:formatNumber
-									value="${estimation.netEvaluation.importance}" maxFractionDigits="0" /> <span
-							style="color: ${colorManager.getColor(estimation.netEvaluation.importance)};"><i class="fa fa-thermometer-three-quarters" aria-hidden="true"></i></span></td>
+						<td data-trick-field="net.importance" class="text-center"><span
+							style="color: ${colorManager.getColor(estimation.netEvaluation.importance)};"><i class="fa fa-flag" aria-hidden="true"></i></span> <fmt:formatNumber
+									value="${estimation.netEvaluation.importance}" maxFractionDigits="0" /></td>
 
 						<td data-trick-field="exp.probability" class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.probabilityLevel}" maxFractionDigits="0" /></td>
 						<td data-trick-field="exp.impact" class="text-center"><fmt:formatNumber value="${estimation.expProbaImpact.impactLevel}" maxFractionDigits="0" /></td>
-						<td data-trick-field="exp.importance" class="text-center"><fmt:formatNumber
-									value="${estimation.expProbaImpact.importance}" maxFractionDigits="0" /> <span
-							style="color: ${colorManager.getColor(estimation.expProbaImpact.importance)};"><i class="fa fa-thermometer-three-quarters" aria-hidden="true"></i></span></td>
+						<td data-trick-field="exp.importance" class="text-center"><span
+							style="color: ${colorManager.getColor(estimation.expProbaImpact.importance)};"><i class="fa fa-flag" aria-hidden="true"></i></span> <fmt:formatNumber
+									value="${estimation.expProbaImpact.importance}" maxFractionDigits="0" /></td>
 
 						<td class="editable" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
 							data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><spring:message

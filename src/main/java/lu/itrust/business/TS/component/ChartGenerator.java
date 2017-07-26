@@ -1338,7 +1338,7 @@ public class ChartGenerator {
 						colorBound.setCount(colorBound.getCount() + count);
 					dataset.getBackgroundColor().add(colorBound.getColor());
 				} else
-					dataset.getBackgroundColor().add("#eeeeee");
+					dataset.getBackgroundColor().add(Constant.HEAT_MAP_DEFAULT_COLOR);
 				dataset.getData().add(count == null ? "" : count);
 			}
 			chart.getDatasets().add(dataset);

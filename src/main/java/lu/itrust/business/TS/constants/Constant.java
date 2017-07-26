@@ -680,9 +680,11 @@ public class Constant {
 
 	/* SQLite columns of table "dynamic_parameter" */
 	public static final String NAME_PARAMETER = "name_parameter";
+	
 	public static final String ACRO_PARAMETER = "acro_parameter";
+	
 	public static final String VALUE_PARAMETER = "value_parameter";
-
+	
 	public static final double EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE = 500.; // in
 																				// k€/y
 	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
@@ -694,6 +696,8 @@ public class Constant {
 	public static final String OTP_CHALLENGE_USER_RESPONSE = "otp-user-code";
 
 	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
+	
+	public static final String HEAT_MAP_DEFAULT_COLOR="#FFFFFF";
 
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
 
@@ -702,7 +706,7 @@ public class Constant {
 	public static int CHAR_SINGLE_CONTENT_MAX_SIZE = 14;
 
 	public static int CHAR_MULTI_CONTENT_SIZE = 10;
-
+	
 	public static List<String> STATIC_COLORS;
 	
 	public static List<String> DEFAULT_COLORS;
