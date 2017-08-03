@@ -323,7 +323,7 @@ function setupMeasureManager($content) {
 			var $asset = $(asset), id = $asset.attr("data-trick-id");
 			$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($asset);
 			$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']")).attr("data-trick-selected", true);
-			if (application.analysisType == "QUANTITATIVE") {
+			if (application.analysisType.isQuantitative()) {
 				var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
 					+ id
 					+ '" ><input type="text" class="slider" id="asset_slider_'
@@ -341,8 +341,10 @@ function setupMeasureManager($content) {
 				$header.appendTo($content.find("#slidersTitle"));
 				$data.appendTo($content.find("#sliders"));
 				$value.appendTo($content.find("#values"));
-				$data.find(".slider").slider().on('slide', function (event) {
-					$value.find("input").val(event.value);
+				$data.find(".slider").slider({
+					reversed: true
+				}).on('change', function (event) {
+					$value.find("input").val(event.value.newValue);
 				});
 			}
 		};
@@ -351,7 +353,7 @@ function setupMeasureManager($content) {
 			var $asset = $(asset);
 			$asset.find("input").remove();
 			$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']")).attr("data-trick-selected", false);
-			if (application.analysisType == "QUANTITATIVE")
+			if (application.analysisType.isQuantitative())
 				$content.find('[data-trick-class="MeasureAssetValue"][data-trick-asset-id="' + $asset.attr("data-trick-id") + '"]').remove();
 		};
 
@@ -393,7 +395,7 @@ function setupMeasureManager($content) {
 }
 
 function saveMeasure(form, callback) {
-	var $progress = $("#loading-indicator").show(), data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
+	var data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
 		.serializeJSON(), $assetTab = $("#tab_asset", $form);
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
@@ -428,10 +430,11 @@ function saveMeasure(form, callback) {
 
 	} else
 		data.type = "NORMAL";
-
+	
 	data.properties = properties;
 	data.computable = data.computable === "on";
-
+	
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Standard/Measure/Save",
 		type: "post",
