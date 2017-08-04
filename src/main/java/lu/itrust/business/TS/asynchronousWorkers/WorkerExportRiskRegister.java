@@ -225,9 +225,9 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			wordMLPackage = WordprocessingMLPackage.load(workFile);
 			Document document = wordMLPackage.getMainDocumentPart().getContents();
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
-			
+
 			Tbl table = (Tbl) document.getContent().parallelStream().filter(tb -> tb instanceof JAXBElement && ((JAXBElement<?>) tb).getValue() instanceof Tbl)
-					.map(tb -> ((JAXBElement<?>) tb).getValue()).findFirst().orElse(null);
+					.map(tb -> XmlUtils.unwrap(tb)).findFirst().orElse(null);
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
 			if (!showRawColumn) {
@@ -240,14 +240,14 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 				});
 			}
-			
+
 			size = estimations.size();
-			while(table.getContent().size()<(size+2))
+			while (table.getContent().size() < (size + 2))
 				table.getContent().add(XmlUtils.deepCopy(table.getContent().get(2)));
-			
+
 			int rawIndex = 5, nextIndex = showRawColumn ? rawIndex + 3 : rawIndex, expIndex = nextIndex + 3;
 			for (Estimation estimation : estimations) {
-				Tr row = (Tr) table.getContent().get(index + 2);
+				Tr row = (Tr) XmlUtils.unwrap(table.getContent().get(index + 2));
 				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);
 				addString(estimation.getIdentifier(), row, 1);
