@@ -5,10 +5,9 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import javax.xml.bind.JAXBElement;
 
 import org.docx4j.XmlUtils;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -226,12 +225,11 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			Document document = wordMLPackage.getMainDocumentPart().getContents();
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
 
-			Tbl table = (Tbl) document.getContent().parallelStream().filter(tb -> tb instanceof JAXBElement && ((JAXBElement<?>) tb).getValue() instanceof Tbl)
-					.map(tb -> XmlUtils.unwrap(tb)).findFirst().orElse(null);
+			Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb)).filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
 			if (!showRawColumn) {
-				table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> {
+				table.getContent().parallelStream().map(tr -> (Tr) XmlUtils.unwrap(tr)).forEach(tr -> {
 					tr.getContent().remove(5);
 					if (tr.getContent().size() > 14) {
 						for (int i = 0; i < 2; i++)
@@ -241,13 +239,14 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				});
 			}
 
-			size = estimations.size();
-			while (table.getContent().size() < (size + 2))
-				table.getContent().add(XmlUtils.deepCopy(table.getContent().get(2)));
+			List<Tr> trs = new ArrayList<>(size = estimations.size());
 
+			trs.add(table.getContent().stream().map(tr -> XmlUtils.unwrap(tr)).filter(tr -> tr instanceof Tr).map(tr -> (Tr) tr).reduce((f, l) -> l).get());//it will be removed laster
+			for (int i = 1; i < size; i++)
+				trs.add(XmlUtils.deepCopy(trs.get(0)));
 			int rawIndex = 5, nextIndex = showRawColumn ? rawIndex + 3 : rawIndex, expIndex = nextIndex + 3;
 			for (Estimation estimation : estimations) {
-				Tr row = (Tr) XmlUtils.unwrap(table.getContent().get(index + 2));
+				Tr row = trs.get(index);
 				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);
 				addString(estimation.getIdentifier(), row, 1);
@@ -266,6 +265,11 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				addString(estimation.getOwner(), row, expIndex + 4);
 				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max - progress)));
 			}
+			
+			trs.remove(0);
+			
+			table.getContent().addAll(trs);
+			
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
 			wordMLPackage.save(workFile);
 			WordReport report = WordReport.BuildRiskRegister(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
@@ -296,7 +300,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
 		P paragraph = (P) cell.getContent().get(0);
-		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, "TabText2"));
+		cell.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, "TabText2"));
 		setText(paragraph, text, alignment);
 	}
 
@@ -321,9 +325,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void addInt(int value, Tr row, int index) {
-		Tc cell = ((JAXBElement<Tc>) row.getContent().get(index)).getValue();
+		Tc cell = (Tc) XmlUtils.unwrap(row.getContent().get(index));
 		setCellText(cell, value + "", createAlignment("right"));
 	}
 
@@ -333,9 +336,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		return alignment;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void addString(String content, Tr row, int index) {
-		setCellText(((JAXBElement<Tc>) row.getContent().get(index)).getValue(), content);
+		setCellText((Tc) XmlUtils.unwrap(row.getContent().get(index)), content);
 	}
 
 	private void addField(RiskProbaImpact expProbaImpact, Tr row, int index) {
