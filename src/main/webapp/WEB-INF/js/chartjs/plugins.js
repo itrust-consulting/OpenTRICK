@@ -1,5 +1,5 @@
 Chart.defaults.global.defaultFontColor = "#333";
-Chart.defaults.global.defaultFontFamily = 'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif';
+Chart.defaults.global.defaultFontFamily = "'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'";
 Chart.defaults.global.defaultFontSize = 13;
 Chart.defaults.global.defaultTitleFontSize = 16;
 
