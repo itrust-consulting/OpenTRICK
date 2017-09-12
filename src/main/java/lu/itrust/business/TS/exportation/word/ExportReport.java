@@ -10,31 +10,31 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 
 public interface ExportReport {
 
-	final String TS_TAB_TEXT_1 = "TSTabText1";
+	String TS_TAB_TEXT_1 = "TSTabText1";
 
-	final String TS_TAB_TEXT_2 = "TSTabText2";
+	String TS_TAB_TEXT_2 = "TSTabText2";
 
-	final String TS_TAB_TEXT_3 = "TSTabText3";
+	String TS_TAB_TEXT_3 = "TSTabText3";
 
-	final String DEFAULT_PARAGRAHP_STYLE = TS_TAB_TEXT_2;
+	String DEFAULT_PARAGRAHP_STYLE = TS_TAB_TEXT_2;
 	
-	final String HEADER_COLOR = "CCC0D9";
+	String HEADER_COLOR = "CCC0D9";
 	
-	final String SUB_HEADER_COLOR = "E5DFEC";
+	String SUB_HEADER_COLOR = "E5DFEC";
 
-	final String LIGHT_CELL_COLOR = SUB_HEADER_COLOR;
+	String LIGHT_CELL_COLOR = SUB_HEADER_COLOR;
 
-	final String _27001_NA_MEASURES = "27001_NA_MEASURES";
+	String _27001_NA_MEASURES = "27001_NA_MEASURES";
 
-	final String _27002_NA_MEASURES = "27002_NA_MEASURES";
+	String _27002_NA_MEASURES = "27002_NA_MEASURES";
 
-	final String DEFAULT_CELL_COLOR = "FFFFFF";
+	String DEFAULT_CELL_COLOR = "FFFFFF";
 
-	final String MAX_IMPL = "MAX_IMPL";
+	String MAX_IMPL = "MAX_IMPL";
 
-	final String SUPER_HEAD_COLOR = HEADER_COLOR;
+	String SUPER_HEAD_COLOR = HEADER_COLOR;
 
-	final String ZERO_COST_COLOR = "e6b8b7";
+	String ZERO_COST_COLOR = "e6b8b7";
 
 	/**
 	 * exportToWordDocument: <br>
