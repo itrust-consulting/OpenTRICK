@@ -87,7 +87,6 @@ public class ControllerParameter {
 	public String manageImpactScale(Model model, HttpSession session, Principal principal, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Map<ScaleType, Boolean> impacts = new LinkedHashMap<>();
-
 		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
 		serviceScaleType.findAll().stream().filter(scale -> !impacts.containsKey(scale)).forEach(scale -> impacts.put(scale, false));
 		model.addAttribute("quantitativeImpact", impacts.keySet().stream().filter(impact -> impact.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny().orElse(null));
@@ -109,6 +108,16 @@ public class ControllerParameter {
 			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
+	
+	
+	@RequestMapping(value = "/Scale-level/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String manageScaleLevel(Model model, HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		model.addAttribute("maxLevel", serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis));
+		return "analyses/single/components/parameters/form/mange-scale-level";
+	}
+
 
 	/**
 	 * section: <br>

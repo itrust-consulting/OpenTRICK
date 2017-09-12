@@ -153,7 +153,6 @@
 				</c:if>
 			</c:if>
 			<c:if test="${isProfile or isEditable}">
-
 				<c:if test="${type.quantitative}">
 					<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
 					<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.edit" /></a></li>
@@ -180,6 +179,7 @@
 				<li class="dropdown-header"><spring:message code="label.menu.settings" /></li>
 				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>
 				<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage.impact" /></a></li>
+				<li><a href="#" onclick="return manageScaleLevel();"> <spring:message code="label.action.manage.scale.level" /></a></li>
 				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>
 			</c:if>
 		</ul></li>

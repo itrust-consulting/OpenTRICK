@@ -173,6 +173,33 @@ function manageImpactScale(){
 	return false;
 }
 
+function manageScaleLevel(){
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Parameter/Scale-level/Manage",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $view = $("#manageScaleLevelModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
+					// load view static error message
+					$("[data-lang-code]", $view).each(function(){
+						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
+					});
+					
+					$("button[name='save']").on("click", e => {
+						$view.modal("hide");
+					});
+				}
+			},
+			error: unknowError
+		}).complete(() => $progress.hide());
+	}
+	return false;
+}
+
 function updateScroll(element) {
 	var currentActive = document.activeElement;
 	if (element != currentActive) {
