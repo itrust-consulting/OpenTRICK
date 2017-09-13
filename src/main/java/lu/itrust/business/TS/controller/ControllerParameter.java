@@ -117,6 +117,19 @@ public class ControllerParameter {
 		model.addAttribute("maxLevel", serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis));
 		return "analyses/single/components/parameters/form/mange-scale-level";
 	}
+	
+	@RequestMapping(value = "/Scale-level/Manage/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String manageScaleLevelSave(@RequestBody Map<Integer, List<Integer>> levels, HttpSession session, Principal principal, Locale locale) {
+		try {
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.update.impact_scale", null, "Impacts scales have been updated", locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
 
 
 	/**

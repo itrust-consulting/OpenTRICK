@@ -185,11 +185,93 @@ function manageScaleLevel(){
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					// load view static error message
+					var $orignalContainer = $("#original-container"), $container = $("#new-level-container", $view), $levelTemplate = $("#level-template-ui",$view);
+					
+					var drop = (e) => {
+						 e.preventDefault();
+						 var $body =  $(".panel-body",e.currentTarget), $item = $(document.getElementById(e.originalEvent.dataTransfer.getData("level"))), $oldParent = $item.parent();
+						 $item.appendTo($body);
+						 $("span:visible", $body).hide();
+						 if(!$("[data-value]", $oldParent).length)
+							 $("span:hidden", $oldParent).show();
+					}, dragover = (e) => {
+						e.preventDefault();
+					};
+					
+				
+					$(".list-group-item[data-value]", $orignalContainer).on("dragstart", function(e) {
+						e.originalEvent.dataTransfer.setData("level", e.target.id);
+						$(".panel-body",$container).addClass("alert-warning");
+					});
+					
+					$(".list-group-item[data-value]", $orignalContainer).on("dragend", function(e) {
+						$(".panel-body.alert-warning",$container).removeClass("alert-warning");
+					});
+					
+					$(".panel[data-container-level='0']", $container).on("drop", drop).on("dragover", dragover);
+					
 					$("[data-lang-code]", $view).each(function(){
 						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
 					});
 					
+					$("#btn-add-level", $view).on("click", (e) => {
+						var index = parseInt($(".panel[data-container-level]:last-child", $container).attr("data-container-level"))+1;
+						var $ui = $levelTemplate.clone().removeAttr('id').attr("data-container-level", index);
+						$(".panel-title", $ui).text(MessageResolver("label.scale.level.value").replace("{0}",index));
+						$ui.appendTo($container).on("drop", drop).on("dragover", dragover);
+						$("[data-role='remove']", $ui).on("click", (ev) => {
+							$("[data-value]",$ui).appendTo($orignalContainer);
+							$ui.remove();
+							$(".panel[data-container-level!='0']", $container).each(function(i){
+								this.setAttribute("data-container-level", (i+1));
+								$(".panel-title", this).text(MessageResolver("label.scale.level.value").replace("{0}",(i+1)));
+							});
+						});
+					});
+					
+					$("[data-value][draggable='true']", $view).on("dragstart", function(e) {
+						if(e.target.getAttribute("draggable") ==="true")
+							e.originalEvent.dataTransfer.setData("level", e.target.id);
+						else e.preventDefault();
+					});
+					
+					
 					$("button[name='save']").on("click", e => {
+						if($("[data-value]",$orignalContainer).length){
+							showDialog("#alert-dialog", MessageResolver("error.scale.level.not.all.selected"));
+							return false;
+						}
+						
+						var data = {};
+						$(".panel[data-container-level]", $container).each(function(i){
+							data[i] = [];
+							$("[data-value]", this).each(function(){
+								data[i].push(parseInt(this.getAttribute("data-value")));
+							});
+						})
+				
+						$progress.show();
+						$.ajax({
+							url: context + "/Analysis/Parameter/Scale-level/Manage/Save",
+							type: "post",
+							data: JSON.stringify(data),
+							contentType: "application/json;charset=UTF-8",
+							success: function (response, textStatus, jqXHR) {
+								if (response.error != undefined)
+									showDialog("#alert-dialog", response.error);
+								else if (response.success != undefined) {
+									showDialog("success", response.success);
+									application["taskManager"].Start();
+								} else if (response.warning != undefined)
+									showDialog("warning", response.warning);
+								else 
+									unknowError();
+							},
+							error: unknowError
+						}).complete(function () {
+							$progress.hide();
+						});
+						
 						$view.modal("hide");
 					});
 				}
