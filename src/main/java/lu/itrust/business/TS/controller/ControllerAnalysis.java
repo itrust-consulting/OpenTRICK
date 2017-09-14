@@ -349,7 +349,7 @@ public class ControllerAnalysis {
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 				// execute task
 				executor.execute(worker);
-				errors.put(ANALYSIS_TASK_ID, String.valueOf(worker.getId()));
+				errors.put(ANALYSIS_TASK_ID, worker.getId());
 			} else
 				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 

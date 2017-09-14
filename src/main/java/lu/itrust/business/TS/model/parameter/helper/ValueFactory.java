@@ -451,4 +451,9 @@ public class ValueFactory {
 		IValue result = findValue(value, type);
 		return result == null ? null : result.getParameter();
 	}
+	
+	public ILevelParameter findParameter(Double value, String type) {
+		IValue result = findValue(value, type);
+		return result == null ? null : result.getParameter();
+	}
 }

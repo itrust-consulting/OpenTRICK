@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerScaleLevelMigrator;
 import lu.itrust.business.TS.component.AnalysisImpactManager;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -35,6 +39,8 @@ import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
@@ -74,6 +80,9 @@ public class ControllerParameter {
 	private AnalysisImpactManager analysisImpactManager;
 
 	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
 	private ServiceScaleType serviceScaleType;
 
 	@Autowired
@@ -81,6 +90,15 @@ public class ControllerParameter {
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private TaskExecutor executor;
 
 	@RequestMapping(value = "/Impact-scale/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -108,8 +126,7 @@ public class ControllerParameter {
 			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
-	
-	
+
 	@RequestMapping(value = "/Scale-level/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageScaleLevel(Model model, HttpSession session, Principal principal, Locale locale) {
@@ -117,20 +134,23 @@ public class ControllerParameter {
 		model.addAttribute("maxLevel", serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis));
 		return "analyses/single/components/parameters/form/mange-scale-level";
 	}
-	
+
 	@RequestMapping(value = "/Scale-level/Manage/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String manageScaleLevelSave(@RequestBody Map<Integer, List<Integer>> levels, HttpSession session, Principal principal, Locale locale) {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.update.impact_scale", null, "Impacts scales have been updated", locale));
+			Worker worker = new WorkerScaleLevelMigrator(idAnalysis, levels, serviceTaskFeedback, workersPoolManager, sessionFactory);
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+				executor.execute(worker);
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.scale.level.migrating.start", null, "Please wait while migrating scale level.", locale));
+			} 
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
-
 
 	/**
 	 * section: <br>
@@ -158,7 +178,7 @@ public class ControllerParameter {
 				parameters.addAll(serviceImpactParameter.findByTypeAndAnalysisId(scaleType, idAnalysis));
 				model.addAttribute("impactLabel", scaleType.getName());
 			}
-			int level = likelihoodParameters.size()-1;
+			int level = likelihoodParameters.size() - 1;
 			model.addAttribute("maxImportance", level * level);
 		}
 		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
