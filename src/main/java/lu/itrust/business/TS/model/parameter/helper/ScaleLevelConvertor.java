@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.parameter.helper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -39,16 +40,20 @@ public class ScaleLevelConvertor {
 			setUpImpacts(mappers, impactParameters);
 			setUpLikelihood(mappers, likelihoods);
 		} catch (Exception e) {
-			throw new TrickException("error.scale.level.convertor.initialise", "Scale level cannot be migrated", e);
+			throw new TrickException("error.scale.level.migrate.convertor.initialise", "Scale level cannot be migrated", e);
 		}
 
 	}
 
 	private void setUpLikelihood(Map<Integer, List<Integer>> mappers, List<LikelihoodParameter> likelihoods) {
-		Map<Integer, LikelihoodParameter> levelMapping = likelihoods.stream().collect(Collectors.toMap(LikelihoodParameter::getId, Function.identity()));
+		Map<Integer, LikelihoodParameter> levelMapping = likelihoods.stream().collect(Collectors.toMap(LikelihoodParameter::getLevel, Function.identity()));
+		List<LikelihoodParameter> parameters = new ArrayList<>(mappers.size());
 		mappers.forEach((level, matchingLevels) -> {
-			if (matchingLevels.isEmpty())
-				parameters.add(new LikelihoodParameter(level, "p" + level));
+			if (matchingLevels.isEmpty()) {
+				LikelihoodParameter parameter = new LikelihoodParameter(level, "p" + level);
+				parameters.add(parameter);
+				this.parameters.add(parameter);
+			}
 			else {
 				LikelihoodParameter parameter = levelMapping.get(matchingLevels.get(0)).duplicate();
 				parameter.setLevel(level);
@@ -60,16 +65,18 @@ public class ScaleLevelConvertor {
 					levelMappers.put(parameter.getTypeName() + "-+-" + lvl, parameter);
 				});
 				parameters.add(parameter);
+				this.parameters.add(parameter);
 			}
 		});
 		double maxValue = likelihoods.stream().mapToDouble(LikelihoodParameter::getValue).max().orElse(12);
-		computeLikelihoods(mappers.size(), maxValue, likelihoods);
+		computeLikelihoods(mappers.size(), maxValue, parameters);
+		LikelihoodParameter.ComputeScales(parameters);
 	}
 
 	private void setUpImpacts(Map<Integer, List<Integer>> mappers, List<ImpactParameter> impactParameters) {
 		Map<ScaleType, List<ImpactParameter>> mappedImpacts = new LinkedHashMap<>();
 		impactParameters.stream().collect(Collectors.groupingBy(ImpactParameter::getType)).forEach((type, impacts) -> {
-			Map<Integer, ImpactParameter> levelMapping = impacts.stream().collect(Collectors.toMap(ImpactParameter::getId, Function.identity()));
+			Map<Integer, ImpactParameter> levelMapping = impacts.stream().collect(Collectors.toMap(ImpactParameter::getLevel, Function.identity()));
 			mappedImpacts.put(type, new ArrayList<>(mappers.size()));
 			mappers.forEach((level, matchingLevels) -> {
 				if (matchingLevels.isEmpty()) {
@@ -95,6 +102,7 @@ public class ScaleLevelConvertor {
 		mappedImpacts.forEach((type, impacts) -> {
 			impacts.sort((p1, p2) -> p1.getValue().compareTo(p2.getValue()));
 			computeImpacts(mappers.size(), maxValue, impacts);
+			ImpactParameter.ComputeScales(impacts);
 		});
 
 	}
@@ -189,6 +197,17 @@ public class ScaleLevelConvertor {
 
 	public IBoundedParameter find(String acronym) {
 		return acronymMappers.get(acronym);
+	}
+
+	public void clear() {
+		this.acronymMappers.clear();
+		this.levelMappers.clear();
+		this.parameterMapper.clear();
+		this.parameters.clear();
+	}
+
+	public Collection<IBoundedParameter> getDeletables() {
+		return parameterMapper.keySet();
 	}
 
 }

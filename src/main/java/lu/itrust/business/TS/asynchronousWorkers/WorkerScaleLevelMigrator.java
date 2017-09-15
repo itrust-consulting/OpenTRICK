@@ -6,6 +6,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -22,7 +23,9 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.helper.ScaleLevelConvertor;
@@ -32,7 +35,8 @@ import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
-import lu.itrust.business.expressions.StringExpressionParser;
+import lu.itrust.business.expressions.TokenType;
+import lu.itrust.business.expressions.TokenizerToString;
 
 /**
  * @author eomar
@@ -60,6 +64,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			SessionFactory sessionFactory) {
 		super(poolManager, sessionFactory);
 		setIdAnalysis(idAnalysis);
+		setLevelMappers(levelMappers);
 		setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
@@ -120,16 +125,21 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
+				setName(TaskName.SCALE_LEVEL_MIGRATE);
 			}
-
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.scale.level.migrate.initialise.data", "Initialising data", 1));
 			setUpDOA(session = getSessionFactory().openSession());
 			session.beginTransaction();
 			processing();
+			session.getTransaction().commit();
+			MessageHandler handler = new MessageHandler("success.scale.level.migrate", "Scale level has been successfully migrated", 100);
+			handler.setAsyncCallback(new AsyncCallback("location.reload()"));
+			serviceTaskFeedback.send(getId(), handler);
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			cancelProcessing(session, e);
 		} catch (Exception e) {
-			serviceTaskFeedback.send(getId(), new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", 0));
+			serviceTaskFeedback.send(getId(), new MessageHandler("error.scale.level.migrate", "An unknown error occurred while migrating scales level", 0));
 			cancelProcessing(session, e);
 		} finally {
 			try {
@@ -151,10 +161,13 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 	}
 
 	private void processing() {
+		MessageHandler handler = new MessageHandler("info.scale.level.migrate.parameters", "Migrating parameters", 2);
+		serviceTaskFeedback.send(getId(), handler);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		ScaleLevelConvertor convertor = new ScaleLevelConvertor(levelMappers, analysis.getImpactParameters(), analysis.getLikelihoodParameters());
 		ValueFactory factory = new ValueFactory(convertor.getParameters());
-
+		int progress[] = { 0, analysis.getAssessments().size() * 2, 5, 90 };// current, size , min, max
+		handler.update("info.scale.level.migrate.assessment", "Migrating estimations", progress[2]);
 		analysis.getAssessments().forEach(assessment -> {
 			assessment.getImpacts().forEach(value -> {
 				if (value instanceof Value)
@@ -164,12 +177,68 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 				else if (value instanceof LevelValue)
 					((LevelValue) value).setParameter(factory.findParameter(value.getLevel(), value.getParameter().getTypeName()));
 			});
-			
 			IBoundedParameter parameter = convertor.find(assessment.getLikelihood());
 			if (parameter != null)
 				assessment.setLikelihood(parameter.getAcronym());
+			else {
+				TokenizerToString tokenizer = new TokenizerToString(assessment.getLikelihood());
+				tokenizer.getTokens().parallelStream().filter(token -> token.getType() == TokenType.Variable).forEach(token -> {
+					IBoundedParameter variable = convertor.find(token.getParameter().toString());
+					if (variable != null)
+						token.setParameter(variable.getAcronym());
+				});
+				assessment.setLikelihood(tokenizer.toString());
+			}
 			AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
+			handler.setProgress(increaseProgress(progress));
 		});
+		
+		handler.update("info.scale.level.migrate.risk-profile", "Migrating risks profile", handler.getProgress());
+
+		analysis.getRiskProfiles().forEach(riskProfile -> {
+			if (riskProfile.getRawProbaImpact() != null)
+				update(riskProfile.getRawProbaImpact(), convertor);
+			if (riskProfile.getExpProbaImpact() != null)
+				update(riskProfile.getExpProbaImpact(), convertor);
+		});
+		
+		handler.update("info.scale.level.migrate.analysis.update", "Updating analysis", 91);
+
+		analysis.getImpactParameters().clear();
+		analysis.getLikelihoodParameters().clear();
+		convertor.getParameters().stream().forEach(paramenter -> {
+			if (paramenter instanceof LikelihoodParameter)
+				analysis.getLikelihoodParameters().add((LikelihoodParameter) paramenter);
+			else if (paramenter instanceof ImpactParameter)
+				analysis.getImpactParameters().add((ImpactParameter) paramenter);
+			handler.setProgress(increaseProgress(progress));
+		});
+
+		handler.update("info.scale.level.migrate.analysis.save", "Saving analysis", 92);
+		daoAnalysis.saveOrUpdate(analysis);
+
+		handler.update("info.scale.level.migrate.parameter.delete", "Deleting old parameters", 93);
+		convertor.getDeletables().forEach(paramenter -> {
+			if (paramenter instanceof LikelihoodParameter)
+				daoLikelihoodParameter.delete((LikelihoodParameter) paramenter);
+			else if (paramenter instanceof ImpactParameter)
+				daoImpactParameter.delete((ImpactParameter) paramenter);
+		});
+
+		convertor.clear();
+		handler.update("info.scale.level.migrate.transaction.commit", "Writing data to database", 93);
+	}
+
+	private int increaseProgress(int[] progress) {
+		return (int) (progress[0] + (progress[1] - progress[0]) * ((double) ++progress[2] / (double) progress[3]));
+	}
+
+	private void update(RiskProbaImpact riskProbaImpact, ScaleLevelConvertor convertor) {
+		if (riskProbaImpact.getProbability() != null)
+			riskProbaImpact.setProbability((LikelihoodParameter) convertor.find(riskProbaImpact.getProbability()));
+		List<ImpactParameter> impactParameters = riskProbaImpact.getImpacts().stream().map(i -> (ImpactParameter) convertor.find(i)).collect(Collectors.toList());
+		riskProbaImpact.getImpacts().clear();
+		riskProbaImpact.setImpacts(impactParameters);
 	}
 
 	private void setUpDOA(Session session) {

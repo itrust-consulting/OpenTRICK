@@ -7,5 +7,5 @@ package lu.itrust.business.expressions;
  * @since Jun 9, 2015
  */
 public interface Tokenizer {
-	public Token read() throws InvalidExpressionException;
+	public Token<?> read() throws InvalidExpressionException;
 }

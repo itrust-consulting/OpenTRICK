@@ -7,7 +7,7 @@ package lu.itrust.business.expressions;
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
-public class Token {
+public class Token<T> {
 	/**
 	 * Initializes a new token without any parameter.
 	 * 
@@ -26,7 +26,7 @@ public class Token {
 	 * @param parameter
 	 *            The token parameter.
 	 */
-	public Token(TokenType type, Object parameter) {
+	public Token(TokenType type, T parameter) {
 		this.type = type;
 		this.parameter = parameter;
 	}
@@ -38,7 +38,7 @@ public class Token {
 	 * The token parameter further specifies the token (e.g. for variables, this
 	 * would be the variable name). May be null.
 	 */
-	private Object parameter;
+	private T parameter;
 
 	/** Gets the token type. */
 	public TokenType getType() {
@@ -46,8 +46,16 @@ public class Token {
 	}
 
 	/** Gets the token parameter. May be null. */
-	@SuppressWarnings("unchecked")
-	public <T> T getParameter() {
-		return (T) this.parameter;
+	public T getParameter() {
+		return this.parameter;
 	}
+
+	@SuppressWarnings("unchecked")
+	public void setParameter(Object parameter) {
+		if (this.parameter == null || parameter == null)
+			return;
+		else if (this.parameter.getClass().isAssignableFrom(parameter.getClass()))
+			this.parameter = (T) parameter;
+	}
+
 }

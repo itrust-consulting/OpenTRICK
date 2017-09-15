@@ -22,11 +22,11 @@ public class UndoableTokenizer implements Tokenizer {
 	}
 
 	private Tokenizer base;
-	private Stack<Token> putBackStack = new Stack<>();
+	private Stack<Token<?>> putBackStack = new Stack<>();
 
 	/** {@inheritDoc} */
 	@Override
-	public Token read() throws InvalidExpressionException {
+	public Token<?> read() throws InvalidExpressionException {
 		// If nothing has been put back, read straight from the source
 		if (putBackStack.empty())
 			return this.base.read();
@@ -41,7 +41,7 @@ public class UndoableTokenizer implements Tokenizer {
 	 * @param token
 	 *            The token to be put back.
 	 */
-	public void putBack(Token token) {
+	public void putBack(Token<?> token) {
 		this.putBackStack.push(token);
 	}
 }

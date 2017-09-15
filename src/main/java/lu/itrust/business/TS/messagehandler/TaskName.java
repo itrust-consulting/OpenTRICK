@@ -17,7 +17,7 @@ public enum TaskName {
 							"label.title.generate.ticket"), IMPORT_ANALYSIS("label.title.import.analysis"), INSTALL_APPLICATION(
 									"label.title.install.application"), RESET_ANALYSIS_RIGHT("label.title.reset.analysis.right"), IMPORT_MEASURE_COLLECTION(
 											"label.title.import.measure.collection"), COMPUTE_DYNAMIC_PARAMETER("label.title.compute.dynamic.parameter"), EXPORT_RISK_REGISTER(
-													"label.title.export.risk_register"), EXPORT_RISK_SHEET("label.title.export.risk_sheet");
+													"label.title.export.risk_register"), EXPORT_RISK_SHEET("label.title.export.risk_sheet"), SCALE_LEVEL_MIGRATE("label.scale.level.migrate");
 	private String action;
 
 

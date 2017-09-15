@@ -7,5 +7,23 @@ package lu.itrust.business.expressions;
  * @since Jun 9, 2015
  */
 public enum TokenType {
-	Variable, Number, PlusOperator, MinusOperator, TimesOperator, DivideOperator, LeftBracket, RightBracket, Comma, End
+	Variable, Number, PlusOperator('+'), MinusOperator('-'), TimesOperator('*'), DivideOperator('/'), LeftBracket('('), RightBracket(')'), Comma(','), End;
+
+	private char symbole;
+
+	private TokenType() {
+	}
+
+	private TokenType(char symbole) {
+		this.symbole = symbole;
+	}
+
+	public char getSymbole() {
+		return symbole;
+	}
+
+	public void setSymbole(char symbole) {
+		this.symbole = symbole;
+	}
+
 }
