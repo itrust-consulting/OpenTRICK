@@ -53,8 +53,7 @@ public class ScaleLevelConvertor {
 				LikelihoodParameter parameter = new LikelihoodParameter(level, "p" + level);
 				parameters.add(parameter);
 				this.parameters.add(parameter);
-			}
-			else {
+			} else {
 				LikelihoodParameter parameter = levelMapping.get(matchingLevels.get(0)).duplicate();
 				parameter.setLevel(level);
 				parameter.setAcronym("p" + level);
@@ -111,7 +110,7 @@ public class ScaleLevelConvertor {
 		double currentValue = maxValue;
 		if (maxLevel % 2 == 0) {
 			for (int level = maxLevel - 1; level >= 0; level--) {
-				if (likelihoods.isEmpty())
+				if (level == (maxLevel - 1))
 					likelihoods.get(level).setValue(currentValue);
 				else
 					likelihoods.get(level).setValue(currentValue *= 0.5);
@@ -121,7 +120,10 @@ public class ScaleLevelConvertor {
 			for (int level = maxLevel - 2; level > 0; level -= 2) {
 				LikelihoodParameter current = likelihoods.get(level), next = prev == null ? likelihoods.get(level + 1) : prev;
 				prev = likelihoods.get(level - 1);
-				prev.setValue(currentValue *= 0.5);
+				if (prev.getLevel() == maxLevel)
+					prev.setValue(currentValue);
+				else
+					prev.setValue(currentValue *= 0.5);
 				current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
 			}
 		}
@@ -132,7 +134,7 @@ public class ScaleLevelConvertor {
 		double currentValue = maxValue;
 		if (maxLevel % 2 == 0) {
 			for (int level = maxLevel - 1; level >= 0; level--) {
-				if (impacts.isEmpty())
+				if (level == (maxLevel - 1))
 					impacts.get(level).setValue(currentValue);
 				else
 					impacts.get(level).setValue(currentValue *= 0.5);
@@ -142,7 +144,10 @@ public class ScaleLevelConvertor {
 			for (int level = maxLevel - 2; level > 0; level -= 2) {
 				ImpactParameter current = impacts.get(level), next = prev == null ? impacts.get(level + 1) : prev;
 				prev = impacts.get(level - 1);
-				prev.setValue(currentValue *= 0.5);
+				if (prev.getLevel() == maxLevel)
+					prev.setValue(currentValue);
+				else
+					prev.setValue(currentValue *= 0.5);
 				current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
 			}
 		}

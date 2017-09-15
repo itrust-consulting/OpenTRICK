@@ -169,7 +169,7 @@ public class StringExpressionParser implements ExpressionParser {
 
 		// If it is a number, then resolving is straight-forward
 		if (token.getType().equals(TokenType.Number))
-			return (double) token.getParameter();
+			return (Double) token.getParameter();
 
 		// If it is a variable, look up its value in the map.
 		// If it is a function, read the arguments and evaluate it.
