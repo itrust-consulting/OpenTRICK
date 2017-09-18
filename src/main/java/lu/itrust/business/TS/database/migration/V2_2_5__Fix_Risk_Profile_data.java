@@ -9,11 +9,11 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class V2_2_5__Fix_Risk_Profile_data implements SpringJdbcMigration {
 
-	private static String EXP_REQUEST = "Select RiskProfile.fiAnalysis as idAnalysis, RiskProfile.idRiskProfile as idRiskProfile, ImpactParameter.idImpactParameter as idImpactParameter, ImpactParameter.dtAcronym as acronym From RiskProfile , RiskProfileExpImpacts , ImpactParameter where RiskProfileExpImpacts.fiRiskProfile = RiskProfile.idRiskProfile and RiskProfileExpImpacts.fiExpImpact = ImpactParameter.idImpactParameter and RiskProfile.fiAnalysis <> ImpactParameter.fiAnalysis;";
-	private static String RAW_REQUEST = "Select RiskProfile.fiAnalysis as idAnalysis, RiskProfile.idRiskProfile as idRiskProfile, ImpactParameter.idImpactParameter as idImpactParameter, ImpactParameter.dtAcronym as acronym From RiskProfile , RiskProfileRawImpacts , ImpactParameter where RiskProfileRawImpacts.fiRiskProfile = RiskProfile.idRiskProfile and RiskProfileRawImpacts.fiRawImpact = ImpactParameter.idImpactParameter and RiskProfile.fiAnalysis <> ImpactParameter.fiAnalysis;";
-	private static String PARAMETER_REQUEST = "SELECT `idImpactParameter` FROM `ImpactParameter` WHERE `fiAnalysis` = ? and `dtAcronym` = ?;";
-	private static String UPDATE_EXP_REQUEST = "UPDATE `RiskProfileExpImpacts` SET `fiExpImpact`= ? WHERE `fiRiskProfile` = ? and `fiExpImpact` = ?;";
-	private static String UPDATE_RAW_REQUEST = "UPDATE `RiskProfileRawImpacts` SET `fiRawImpact`= ? WHERE `fiRiskProfile` = ? and `fiRawImpact` = ?;";
+	private final String EXP_REQUEST = "Select RiskProfile.fiAnalysis as idAnalysis, RiskProfile.idRiskProfile as idRiskProfile, ImpactParameter.idImpactParameter as idImpactParameter, ImpactParameter.dtAcronym as acronym From RiskProfile , RiskProfileExpImpacts , ImpactParameter where RiskProfileExpImpacts.fiRiskProfile = RiskProfile.idRiskProfile and RiskProfileExpImpacts.fiExpImpact = ImpactParameter.idImpactParameter and RiskProfile.fiAnalysis <> ImpactParameter.fiAnalysis;";
+	private final String RAW_REQUEST = "Select RiskProfile.fiAnalysis as idAnalysis, RiskProfile.idRiskProfile as idRiskProfile, ImpactParameter.idImpactParameter as idImpactParameter, ImpactParameter.dtAcronym as acronym From RiskProfile , RiskProfileRawImpacts , ImpactParameter where RiskProfileRawImpacts.fiRiskProfile = RiskProfile.idRiskProfile and RiskProfileRawImpacts.fiRawImpact = ImpactParameter.idImpactParameter and RiskProfile.fiAnalysis <> ImpactParameter.fiAnalysis;";
+	private final String PARAMETER_REQUEST = "SELECT `idImpactParameter` FROM `ImpactParameter` WHERE `fiAnalysis` = ? and `dtAcronym` = ?;";
+	private final String UPDATE_EXP_REQUEST = "UPDATE `RiskProfileExpImpacts` SET `fiExpImpact`= ? WHERE `fiRiskProfile` = ? and `fiExpImpact` = ?;";
+	private final String UPDATE_RAW_REQUEST = "UPDATE `RiskProfileRawImpacts` SET `fiRawImpact`= ? WHERE `fiRiskProfile` = ? and `fiRawImpact` = ?;";
 
 	private static String KEY_FORMAT = "%s__--__%d";
 

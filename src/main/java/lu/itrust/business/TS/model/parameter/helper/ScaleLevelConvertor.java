@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
@@ -39,6 +40,10 @@ public class ScaleLevelConvertor {
 			mappers.values().forEach(levels -> levels.sort((l1, l2) -> l1.compareTo(l2)));
 			setUpImpacts(mappers, impactParameters);
 			setUpLikelihood(mappers, likelihoods);
+			parameters.sort((p1, p2) -> {
+				int result = NaturalOrderComparator.compareTo(p1.getTypeName(), p2.getTypeName());
+				return result == 0 ? p1.getLevel().compareTo(p2.getLevel()) : result;
+			});
 		} catch (Exception e) {
 			throw new TrickException("error.scale.level.migrate.convertor.initialise", "Scale level cannot be migrated", e);
 		}
@@ -61,7 +66,7 @@ public class ScaleLevelConvertor {
 					LikelihoodParameter likelihoodParameter = levelMapping.get(lvl);
 					parameterMapper.put(likelihoodParameter, parameter);
 					acronymMappers.put(likelihoodParameter.getAcronym(), parameter);
-					levelMappers.put(parameter.getTypeName() + "-+-" + lvl, parameter);
+					levelMappers.put(likelihoodParameter.getTypeName() + "-+-" + likelihoodParameter.getLevel(), parameter);
 				});
 				parameters.add(parameter);
 				this.parameters.add(parameter);
@@ -88,9 +93,9 @@ public class ScaleLevelConvertor {
 					parameter.setLevel(level);
 					matchingLevels.forEach(lvl -> {
 						ImpactParameter impactParameter = levelMapping.get(lvl);
-						acronymMappers.put(impactParameter.getAcronym(), parameter);
-						levelMappers.put(type.getName() + "-+-" + lvl, parameter);
 						parameterMapper.put(impactParameter, parameter);
+						acronymMappers.put(impactParameter.getAcronym(), parameter);
+						levelMappers.put(impactParameter.getTypeName() + "-+-" + impactParameter.getLevel(), parameter);
 					});
 					parameters.add(parameter);
 					mappedImpacts.get(type).add(parameter);
@@ -196,7 +201,7 @@ public class ScaleLevelConvertor {
 		return parameterMapper.get(parameter);
 	}
 
-	public IBoundedParameter find(String type, Integer level) {
+	public IBoundedParameter find(Integer level, String type) {
 		return levelMappers.get(type + "-+-" + level);
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -39,7 +40,8 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  * @since 2012-08-21
  */
 @Entity
-@AttributeOverride(name = "id", column = @Column(name = "idImpactParameter"))
+@AttributeOverrides({ @AttributeOverride(name = "id", column = @Column(name = "idImpactParameter")),
+		@AttributeOverride(name = "description", column = @Column(name = "dtDescription", nullable = false, length = 1024)) })
 public class ImpactParameter extends Parameter implements ITypedParameter, IImpactParameter {
 
 	/***********************************************************************************************
@@ -61,8 +63,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	private String acronym = "";
 
 	/**
-	 * The Extended SimpleParameter Level (default: 0-5 or 0-6 -> NOT
-	 * restricted)
+	 * The Extended SimpleParameter Level (default: 0-5 or 0-6 -> NOT restricted)
 	 */
 	@Column(name = "dtLevel", nullable = false)
 	private int level = 0;
@@ -70,7 +71,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	/** Extended SimpleParameter From And To values */
 	@Embedded
 	private Bounds bounds = null;
-	
+
 	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
@@ -90,8 +91,6 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 		this(type, level, acronym);
 		setValue(value);
 	}
-	
-	
 
 	/**
 	 * @param type
@@ -138,8 +137,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.parameter.impl.IBoundedParameter#getBounds()
+	 * @see lu.itrust.business.TS.model.parameter.impl.IBoundedParameter#getBounds()
 	 */
 	@Override
 	public Bounds getBounds() {
@@ -193,7 +191,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	public String getTypeName() {
 		return type.getName();
 	}
-	
+
 	/**
 	 * @return the label
 	 */
@@ -203,9 +201,10 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	}
 
 	/**
-	 * @param label the label to set
+	 * @param label
+	 *            the label to set
 	 */
-	
+
 	public void setLabel(String label) {
 		this.label = label;
 	}
@@ -281,7 +280,5 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 		}
 
 	}
-
-	
 
 }

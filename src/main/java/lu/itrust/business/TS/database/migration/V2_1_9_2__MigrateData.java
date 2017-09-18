@@ -41,11 +41,11 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  */
 public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
-	private static final String QUERY_ASSESSMENT_SQL = "SELECT `idAssessment`, `dtALE`, `dtALEO`, `dtALEP`,`dtImpactFin`, `dtImpactLeg`, `dtImpactOp`, `dtImpactReal`, `dtImpactRep`, `dtLikelihood`, `dtLikelihoodReal`, `dtUncertainty` FROM `Assessment` WHERE `fiAnalysis` = ?";
+	private  final String QUERY_ASSESSMENT_SQL = "SELECT `idAssessment`, `dtALE`, `dtALEO`, `dtALEP`,`dtImpactFin`, `dtImpactLeg`, `dtImpactOp`, `dtImpactReal`, `dtImpactRep`, `dtLikelihood`, `dtLikelihoodReal`, `dtUncertainty` FROM `Assessment` WHERE `fiAnalysis` = ?";
 
-	private static final String QUERY_INSERT_RISK_PROFILE_EXP_IMPACT = "INSERT INTO `RiskProfileExpImpacts`(`fiRiskProfile`, `fiExpImpact`) VALUES (?,?)";
+	private  final String QUERY_INSERT_RISK_PROFILE_EXP_IMPACT = "INSERT INTO `RiskProfileExpImpacts`(`fiRiskProfile`, `fiExpImpact`) VALUES (?,?)";
 
-	private static final String QUERY_INSERT_RISK_PROFILE_RAW_IMPACT = "INSERT INTO `RiskProfileRawImpacts`(`fiRiskProfile`, `fiRawImpact`) VALUES (?,?)";
+	private  final String QUERY_INSERT_RISK_PROFILE_RAW_IMPACT = "INSERT INTO `RiskProfileRawImpacts`(`fiRiskProfile`, `fiRawImpact`) VALUES (?,?)";
 
 	private Map<Integer, AnalysisType> analyses = new LinkedHashMap<>();
 
@@ -165,7 +165,7 @@ public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
 
 	private List<AssessmentMapper> loadAssessment(Integer idAnalysis, JdbcTemplate template) {
 		List<AssessmentMapper> assessmentMappers = new LinkedList<>();
-		template.query(V2_1_9_2__MigrateData.QUERY_ASSESSMENT_SQL, new Object[] { idAnalysis }, (row) -> {
+		template.query(QUERY_ASSESSMENT_SQL, new Object[] { idAnalysis }, (row) -> {
 			AssessmentMapper mapper = new AssessmentMapper();
 			mapper.setId(row.getInt("idAssessment"));
 			mapper.setAle(row.getDouble("dtALE"));

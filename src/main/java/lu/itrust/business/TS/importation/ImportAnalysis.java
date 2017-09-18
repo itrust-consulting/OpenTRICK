@@ -273,8 +273,8 @@ public class ImportAnalysis {
 
 	/**
 	 * ImportAnAnalysis: <br>
-	 * Method used to import and given analysis using an sqlite file into the
-	 * mysql database.
+	 * Method used to import and given analysis using an sqlite file into the mysql
+	 * database.
 	 * 
 	 * @param session
 	 * 
@@ -882,7 +882,8 @@ public class ImportAnalysis {
 				analysis = new Analysis();
 				int indexOfVersion = versions.indexOf(history.getVersion());
 				Analysis previousVersion = indexOfVersion > 0
-						? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), versions.get(indexOfVersion - 1), this.analysis.getCustomer().getId()) : null;
+						? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), versions.get(indexOfVersion - 1), this.analysis.getCustomer().getId())
+						: null;
 
 				// set data for analyses
 				analysis.setIdentifier(this.analysis.getIdentifier());
@@ -1041,7 +1042,7 @@ public class ImportAnalysis {
 					return;
 				while (rs.next())
 					assessments.get(key(rs.getInt(Constant.ASSET_ID_ASSET), rs.getInt(Constant.THREAT_ID_THREAT)))
-							.setImpact(factory.findValue(getDouble(rs, "value"), getString(rs, "name")));
+							.setImpact(findValue(getDouble(rs, "value"), getString(rs, "name")));
 			}
 
 		} finally {
@@ -2040,8 +2041,8 @@ public class ImportAnalysis {
 	 * <li>Create Objects for each Measure</li>
 	 * <li>Create Objects for the Measure Phase</li>
 	 * <li>Adds the Phase to the Measure Object</li>
-	 * <li>Adds the Measure Objects to the their cosresponding AnalysisStandard
-	 * (int the "standards" field)</li>
+	 * <li>Adds the Measure Objects to the their cosresponding AnalysisStandard (int
+	 * the "standards" field)</li>
 	 * </ul>
 	 * 
 	 * @throws Exception
@@ -2485,8 +2486,7 @@ public class ImportAnalysis {
 	/**
 	 * importRiskInformation: <br>
 	 * <ul>
-	 * <li>Imports all Risk Information: Threat Source, Risks, Vulnerabilities
-	 * </li>
+	 * <li>Imports all Risk Information: Threat Source, Risks, Vulnerabilities</li>
 	 * <li>Creates Objects for each Risk Information</li>
 	 * <li>Adds the Objects to the "riskInfo" field List</li>
 	 * </ul>
@@ -2776,23 +2776,21 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		/*
-		 * // build query query =
-		 * "SELECT * FROM threat_types order by id_type_threat";
+		 * // build query query = "SELECT * FROM threat_types order by id_type_threat";
 		 * 
 		 * // execute query rs = sqlite.query(query, null);
 		 * 
 		 * // Loop scenario types while (rs.next()) {
 		 * 
-		 * // ****************************************************************
-		 * // * Insert data into scenario type table //
-		 * **************************************************************** type
-		 * = rs.getString(Constant.THREAT_TYPE_LABEL);
+		 * // **************************************************************** // *
+		 * Insert data into scenario type table //
+		 * **************************************************************** type =
+		 * rs.getString(Constant.THREAT_TYPE_LABEL);
 		 * 
 		 * scenarioType = ScenarioType.getByName(type);
 		 * 
 		 * // add scneario type to map
-		 * scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT),
-		 * scenarioType); }
+		 * scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT), scenarioType); }
 		 */
 		// System.out.println("scenariotypes ok");
 
@@ -2994,11 +2992,9 @@ public class ImportAnalysis {
 				simpleParameter.setType(parameterType);
 				simpleParameter.setValue(rs.getInt(Constant.PARAMETER_MAX_RRF));
 				/*
-				 * //
-				 * *************************************************************
-				 * *** // * add instance to list of parameters //
-				 * *************************************************************
-				 * ***
+				 * // ************************************************************* *** // * add
+				 * instance to list of parameters //
+				 * ************************************************************* ***
 				 */
 				this.analysis.add(simpleParameter);
 
@@ -3020,11 +3016,9 @@ public class ImportAnalysis {
 				this.analysis.add(simpleParameter);
 
 				/*
-				 * //
-				 * *************************************************************
-				 * *** // * add instance to list of parameters //
-				 * *************************************************************
-				 * ***
+				 * // ************************************************************* *** // * add
+				 * instance to list of parameters //
+				 * ************************************************************* ***
 				 */
 			}
 			// close result
@@ -3232,8 +3226,7 @@ public class ImportAnalysis {
 
 	/**
 	 * setAllCriteriaCategories: <br>
-	 * Adds all Scenario Categories to the given scenario or measure object.
-	 * <br>
+	 * Adds all Scenario Categories to the given scenario or measure object. <br>
 	 * Scenario categories are: <br>
 	 * <ul>
 	 * <li>Direct: d1, d2, d3, d4, d5, d6, d6.1, d6.2, d6.3, d6.4, d7</li>
@@ -3242,8 +3235,7 @@ public class ImportAnalysis {
 	 * </ul>
 	 * 
 	 * @param criteria
-	 *            The scenario or measure object to set the categories with
-	 *            values
+	 *            The scenario or measure object to set the categories with values
 	 * @param resultSet
 	 *            The ResultSet from where the categorie values come from
 	 * 
@@ -3263,14 +3255,20 @@ public class ImportAnalysis {
 	}
 
 	private void setImpact(Assessment tmpAssessment, String type, Double value) {
-		IValue impact = factory.findValue(value, type);
-		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
+		IValue impact = findValue(value, type);
+		tmpAssessment.setImpact(impact == null ? findValue(0.0, type) : impact);
 	}
 
 	private void setImpact(Assessment tmpAssessment, String type, String value) {
 		IImpactParameter parameter = impactParameters.get(Parameter.key(type, value));
-		IValue impact = parameter == null ? factory.findValue(value, type) : new Value(parameter);
-		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
+		IValue impact = parameter == null ? findValue(value, type) : new Value(parameter);
+		tmpAssessment.setImpact(impact == null ? findValue(0.0, type) : impact);
+	}
+
+	private IValue findValue(Object content, String type) {
+		IValue value = factory.findValue(content, type);
+		return Constant.DEFAULT_IMPACT_NAME.equals(type) || value instanceof Value ? value : new Value(value.getParameter());
+
 	}
 
 	/**

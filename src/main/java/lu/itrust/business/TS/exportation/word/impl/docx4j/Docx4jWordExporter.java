@@ -301,7 +301,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			return;
 		List<Object> contents = new LinkedList<>();
 		List<SummaryStage> summaryStages = getSummaryStage();
-		setCustomProperty("PHASE_COUNT", summaryStages.size() - 1);
+		setCustomProperty("PHASE_COUNT", analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0).count());
 		analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0 && summaryStages.stream().anyMatch(stage -> stage.getStage().equals("Phase " + phase.getNumber())))
 				.forEach(phase -> {
 					SummaryStage summaryStage = summaryStages.stream().filter(stage -> stage.getStage().equals("Phase " + phase.getNumber())).findAny().orElse(null);
@@ -333,8 +333,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getAnalysis(
-	 * )
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getAnalysis( )
 	 */
 	@Override
 	public Analysis getAnalysis() {
@@ -367,8 +366,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getDocument(
-	 * )
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getDocument( )
 	 */
 	public Document getDocument() {
 		return document;
@@ -377,8 +375,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getIdTask()
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getIdTask()
 	 */
 	@Override
 	public String getIdTask() {
@@ -388,8 +385,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getLocale()
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getLocale()
 	 */
 	@Override
 	public Locale getLocale() {
@@ -435,8 +431,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getProgress(
-	 * )
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getProgress( )
 	 */
 	@Override
 	public int getProgress() {
@@ -469,8 +464,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getWorkFile(
-	 * )
+	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#getWorkFile( )
 	 */
 	@Override
 	public File getWorkFile() {
@@ -480,8 +474,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#increase(
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#increase(
 	 * int)
 	 */
 	@Override
@@ -542,8 +535,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setIdTask(
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setIdTask(
 	 * java.lang.String)
 	 */
 	@Override
@@ -554,8 +546,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setLocale(
+	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#setLocale(
 	 * java.util.Locale)
 	 */
 	@Override
@@ -974,8 +965,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		Style style = styles.get(id);
 		return style == null ? null : (PPr) style.getPPr();
 	}
-
-	
 
 	protected TblPr getTableStyle(String id) {
 		Style style = styles.get(id);

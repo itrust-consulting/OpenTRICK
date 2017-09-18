@@ -196,6 +196,15 @@ function manageScaleLevel(){
 							 $("span:hidden", $oldParent).show();
 					}, dragover = (e) => {
 						e.preventDefault();
+					}, removeLevel  = (e) => {
+						var $panelUI = $(e.currentTarget).closest('.panel');
+						$("[data-value]",$panelUI).appendTo($orignalContainer);
+						$panelUI.remove();
+						$(".panel[data-container-level!='0']", $container).each(function(i){
+							this.setAttribute("data-container-level", (i+1));
+							$(".panel-title", this).text(MessageResolver("label.scale.level.value").replace("{0}",(i+1)));
+						});
+						return false;
 					};
 					
 				
@@ -208,7 +217,10 @@ function manageScaleLevel(){
 						$(".panel-body.alert-warning",$container).removeClass("alert-warning");
 					});
 					
-					$(".panel[data-container-level='0']", $container).on("drop", drop).on("dragover", dragover);
+					$(".panel[data-container-level]", $container).on("drop", drop).on("dragover", dragover);
+					
+					$("[data-role='remove']", $container).on("click", removeLevel);
+					
 					
 					$("[data-lang-code]", $view).each(function(){
 						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
@@ -219,14 +231,7 @@ function manageScaleLevel(){
 						var $ui = $levelTemplate.clone().removeAttr('id').attr("data-container-level", index);
 						$(".panel-title", $ui).text(MessageResolver("label.scale.level.value").replace("{0}",index));
 						$ui.appendTo($container).on("drop", drop).on("dragover", dragover);
-						$("[data-role='remove']", $ui).on("click", (ev) => {
-							$("[data-value]",$ui).appendTo($orignalContainer);
-							$ui.remove();
-							$(".panel[data-container-level!='0']", $container).each(function(i){
-								this.setAttribute("data-container-level", (i+1));
-								$(".panel-title", this).text(MessageResolver("label.scale.level.value").replace("{0}",(i+1)));
-							});
-						});
+						$("[data-role='remove']", $ui).on("click", removeLevel );
 					});
 					
 					$("[data-value][draggable='true']", $view).on("dragstart", function(e) {

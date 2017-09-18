@@ -174,8 +174,13 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 					((Value) value).setParameter(convertor.find((IBoundedParameter) value.getParameter()));
 				else if (value instanceof RealValue)
 					((RealValue) value).setParameter(factory.findParameter(value.getReal(), value.getParameter().getTypeName()));
-				else if (value instanceof LevelValue)
-					((LevelValue) value).setParameter(factory.findParameter(value.getLevel(), value.getParameter().getTypeName()));
+				else if (value instanceof LevelValue) {
+					IBoundedParameter boundedParameter = convertor.find(value.getLevel(), value.getParameter().getTypeName());
+					if (boundedParameter == null)
+						boundedParameter = convertor.find((IBoundedParameter) value.getParameter());
+					((LevelValue) value).setParameter(boundedParameter);
+					((LevelValue) value).setLevel(boundedParameter.getLevel());
+				}
 			});
 			IBoundedParameter parameter = convertor.find(assessment.getLikelihood());
 			if (parameter != null)
@@ -192,7 +197,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
 			handler.setProgress(increaseProgress(progress));
 		});
-		
+
 		handler.update("info.scale.level.migrate.risk-profile", "Migrating risks profile", handler.getProgress());
 
 		analysis.getRiskProfiles().forEach(riskProfile -> {
@@ -201,7 +206,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			if (riskProfile.getExpProbaImpact() != null)
 				update(riskProfile.getExpProbaImpact(), convertor);
 		});
-		
+
 		handler.update("info.scale.level.migrate.analysis.update", "Updating analysis", 91);
 
 		analysis.getImpactParameters().clear();

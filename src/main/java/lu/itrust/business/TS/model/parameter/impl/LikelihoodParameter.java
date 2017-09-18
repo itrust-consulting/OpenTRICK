@@ -6,6 +6,7 @@ package lu.itrust.business.TS.model.parameter.impl;
 import java.util.List;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -20,7 +21,8 @@ import lu.itrust.business.TS.model.parameter.helper.Bounds;
  *
  */
 @Entity
-@AttributeOverride(name = "id", column = @Column(name = "idLikelihoodParameter"))
+@AttributeOverrides({ @AttributeOverride(name = "id", column = @Column(name = "idLikelihoodParameter")),
+		@AttributeOverride(name = "description", column = @Column(name = "dtDescription", nullable = false, length = 1024)) })
 public class LikelihoodParameter extends AbstractProbability implements IBoundedParameter {
 
 	/***********************************************************************************************
@@ -28,8 +30,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	 **********************************************************************************************/
 
 	/**
-	 * The Extended SimpleParameter Level (default: 0-5 or 0-6 -> NOT
-	 * restricted)
+	 * The Extended SimpleParameter Level (default: 0-5 or 0-6 -> NOT restricted)
 	 */
 	@Column(name = "dtLevel", nullable = false)
 	private int level = 0;
@@ -37,7 +38,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	/** Extended SimpleParameter From And To values */
 	@Embedded
 	private Bounds bounds = null;
-	
+
 	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
@@ -130,7 +131,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	public String getGroup() {
 		return Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD;
 	}
-	
+
 	/**
 	 * @return the label
 	 */
@@ -140,9 +141,10 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	}
 
 	/**
-	 * @param label the label to set
+	 * @param label
+	 *            the label to set
 	 */
-	
+
 	public void setLabel(String label) {
 		this.label = label;
 	}
