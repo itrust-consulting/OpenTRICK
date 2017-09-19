@@ -89,7 +89,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
 		if (!(paragraph == null || actionplan.isEmpty())) {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
-			TextAlignment alignment = createAlignment("left");
+			TextAlignment alignment = createAlignment("left"), alignmentCenter = createAlignment("center");
 			Tbl table = createTable("TableTSActionPlan", actionplan.size() + 1, 13);
 			Tr row = (Tr) table.getContent().get(0);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
@@ -110,7 +110,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
 				row = (Tr) table.getContent().get(nr);
-				setCellText((Tc) row.getContent().get(0), "" + (nr++));
+				setCellText((Tc) row.getContent().get(0), "" + (nr++), alignmentCenter);
 				setCellText((Tc) row.getContent().get(1), entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
 				setCellText((Tc) row.getContent().get(2), entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
@@ -483,7 +483,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					IValue impact = assessment.getImpact(Constant.DEFAULT_IMPACT_NAME);
 					if (impact == null)
 						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
-					setCellText((Tc) row.getContent().get(1), kEuroFormat.format(impact.getReal() * 0.001), alignmentCenter);
+					addCellNumber((Tc) row.getContent().get(1), kEuroFormat.format(impact.getReal() * 0.001));
 					setCellText((Tc) row.getContent().get(2), formatLikelihood(assessment.getLikelihood()), alignmentCenter);
 					addCellNumber((Tc) row.getContent().get(3),
 							assessment.getALE() == 0 ? kEuroFormat.format(assessment.getALE() * 0.001) : assessmentFormat.format(assessment.getALE() * 0.001));
@@ -571,12 +571,14 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 			setRepeatHeader(row);
 
+			TextAlignment alignmentCenter = createAlignment("center");
+
 			int countrow = 0, length = parameters.size() - 1;
 			// set data
 			for (IBoundedParameter parameter : parameters) {
 				row = (Tr) table.getContent().get(countrow + 1);
-				setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel());
-				setCellText((Tc) row.getContent().get(1), parameter.getAcronym());
+				setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel(), alignmentCenter);
+				setCellText((Tc) row.getContent().get(1), parameter.getAcronym(), alignmentCenter);
 				setCellText((Tc) row.getContent().get(2), parameter.getDescription());
 				Double value = 0.;
 				value = parameter.getValue();

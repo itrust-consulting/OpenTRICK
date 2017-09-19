@@ -51,7 +51,7 @@
 								</div>
 							</div>
 							<c:forEach begin="1" end="${maxLevel}" var="level">
-								<div id='level-template-ui' class='panel panel-success' data-container-level='${level}'>
+								<div class='panel panel-success' data-container-level='${level}'>
 									<div class='panel-heading'>
 										<span class='panel-title'><spring:message code='label.scale.level.value' arguments="${level}" text="Level ${level}" /></span><a href="#" data-role='remove'
 											class='text-danger pull-right' style="font-size: 18px;"><span class='glyphicon glyphicon-remove-circle'></span></a>

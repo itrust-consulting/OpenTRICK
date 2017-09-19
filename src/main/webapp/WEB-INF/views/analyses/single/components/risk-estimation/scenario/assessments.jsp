@@ -172,7 +172,7 @@
 				<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 					<td style="height: 32px;"><spring:message text="${assessment.asset.name}" /></td>
 					<td title="<fmt:formatNumber value="${assessment.asset.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.asset.value*0.001,0)}" /></td>
-					<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
+					<c:set var="likelihood" value="${valueFactory.findProb(assessment.likelihood)}" />
 					<c:choose>
 						<c:when test="${type.qualitative}">
 							<c:choose>

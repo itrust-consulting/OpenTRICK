@@ -83,8 +83,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.exportation.AbstractWordExporter#generateActionPlan
-	 * ()
+	 * lu.itrust.business.TS.exportation.AbstractWordExporter#generateActionPlan ()
 	 */
 	@Override
 	protected void generateActionPlan() throws Exception {
@@ -95,7 +94,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 			Tbl table = createTable("TableTSActionPlan", actionplan.size() + 1, 11);
-			TextAlignment alignment = createAlignment("left");
+			TextAlignment alignment = createAlignment("left"),alignmentCenter = createAlignment("center");
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Tr row = (Tr) table.getContent().get(0);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
@@ -115,7 +114,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
 				row = (Tr) table.getContent().get(nr);
-				setCellText((Tc) row.getContent().get(0), "" + (nr++));
+				setCellText((Tc) row.getContent().get(0), "" + (nr++), alignmentCenter);
 				setCellText((Tc) row.getContent().get(1), entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
 				setCellText((Tc) row.getContent().get(2), entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
@@ -438,8 +437,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.AbstractWordExporter#generateAssets(
+	 * @see lu.itrust.business.TS.exportation.AbstractWordExporter#generateAssets(
 	 * java.lang.String, java.util.List)
 	 */
 	@Override
@@ -449,7 +447,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Tbl table = createTable("TableTSAsset", assets.size() + 1, 5);
 			Tr row = (Tr) table.getContent().get(0);
-			TextAlignment alignment = createAlignment("left");
+			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");;
 			// set header
 			setCellText((Tc) row.getContent().get(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
 			setCellText((Tc) row.getContent().get(1), getMessage("report.asset.title.name", null, "Name", locale));
@@ -461,8 +459,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			// set data
 			for (Asset asset : assets) {
 				row = (Tr) table.getContent().get(number);
-				setCellText((Tc) row.getContent().get(0), "" + (number++));
-				setCellText((Tc) row.getContent().get(1), asset.getName(), alignment);
+				setCellText((Tc) row.getContent().get(0), "" + (number++), alignmentCenter);
+				setCellText((Tc) row.getContent().get(1), asset.getName(), alignmentLeft);
 				setCellText((Tc) row.getContent().get(2), getDisplayName(asset.getAssetType()));
 				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(asset.getValue() * 0.001));
 				addCellParagraph((Tc) row.getContent().get(4), asset.getComment());
@@ -527,7 +525,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 	private void buildImpactProbabilityTable(List<Object> contents, String title, String type, List<? extends IBoundedParameter> parameters) {
 		contents.add(setText(setStyle(factory.createP(), "TSEstimationTitle"), title));
-		Tbl table = createTable("TableTS" + type, parameters.size() + 1, 3);
+		Tbl table = createTable("TableTS" + type, parameters.size(), 3);
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 		Tr row = (Tr) table.getContent().get(0);
 		for (int i = 1; i < 3; i++)
@@ -535,11 +533,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		setCellText((Tc) row.getContent().get(0), getMessage("report.parameter.level", null, "Level", locale));
 		setCellText((Tc) row.getContent().get(1), getMessage("report.parameter.label", null, "Label", locale));
 		setCellText((Tc) row.getContent().get(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
+		TextAlignment alignment = createAlignment("center");
 		for (IBoundedParameter parameter : parameters) {
 			if (parameter.getLevel() == 0)
 				continue;
 			row = (Tr) table.getContent().get(parameter.getLevel());
-			setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel());
+			setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel(), alignment);
 			setCellText((Tc) row.getContent().get(1), parameter.getLabel());
 			setCellText((Tc) row.getContent().get(2), parameter.getDescription());
 		}
@@ -549,8 +548,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.AbstractWordExporter#writeChart(lu.
+	 * @see lu.itrust.business.TS.exportation.AbstractWordExporter#writeChart(lu.
 	 * itrust.business.TS.exportation.helper.PODocx4jExcelSheet)
 	 */
 	@Override

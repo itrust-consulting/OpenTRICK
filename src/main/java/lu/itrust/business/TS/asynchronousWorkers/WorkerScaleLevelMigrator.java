@@ -32,6 +32,7 @@ import lu.itrust.business.TS.model.parameter.helper.ScaleLevelConvertor;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
@@ -165,7 +166,8 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		serviceTaskFeedback.send(getId(), handler);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		ScaleLevelConvertor convertor = new ScaleLevelConvertor(levelMappers, analysis.getImpactParameters(), analysis.getLikelihoodParameters());
-		ValueFactory factory = new ValueFactory(convertor.getParameters());
+		ValueFactory factory = new ValueFactory(convertor.getParameters()),
+				oldConvertor = analysis.isQuantitative() || analysis.isHybrid() ? null : new ValueFactory(analysis.getExpressionParameters());
 		int progress[] = { 0, analysis.getAssessments().size() * 2, 5, 90 };// current, size , min, max
 		handler.update("info.scale.level.migrate.assessment", "Migrating estimations", progress[2]);
 		analysis.getAssessments().forEach(assessment -> {
@@ -185,7 +187,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			IBoundedParameter parameter = convertor.find(assessment.getLikelihood());
 			if (parameter != null)
 				assessment.setLikelihood(parameter.getAcronym());
-			else {
+			else if (oldConvertor == null) {
 				TokenizerToString tokenizer = new TokenizerToString(assessment.getLikelihood());
 				tokenizer.getTokens().parallelStream().filter(token -> token.getType() == TokenType.Variable).forEach(token -> {
 					IBoundedParameter variable = convertor.find(token.getParameter().toString());
@@ -193,6 +195,10 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 						token.setParameter(variable.getAcronym());
 				});
 				assessment.setLikelihood(tokenizer.toString());
+			} else {// convert to level
+				IValue value = oldConvertor.findExp(assessment.getLikelihood());
+				if (value != null)
+					assessment.setLikelihood(convertor.find(value.getVariable()).getAcronym());
 			}
 			AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
 			handler.setProgress(increaseProgress(progress));

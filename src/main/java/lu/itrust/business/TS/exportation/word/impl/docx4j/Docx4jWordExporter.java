@@ -1345,12 +1345,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			setCellText((Tc) row.getContent().get(1), getMessage("report.scenario.title.name", null, "Name", locale));
 			setCellText((Tc) row.getContent().get(2), getMessage("report.scenario.title.description", null, "Description", locale));
 			setRepeatHeader(row);
-			TextAlignment alignment = createAlignment("left");
+			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
 			int number = 1;
 			for (Scenario scenario : scenarios) {
 				row = (Tr) table.getContent().get(number);
-				setCellText((Tc) row.getContent().get(0), "" + (number++));
-				setCellText((Tc) row.getContent().get(1), scenario.getName(), alignment);
+				setCellText((Tc) row.getContent().get(0), "" + (number++), alignmentCenter);
+				setCellText((Tc) row.getContent().get(1), scenario.getName(), alignmentLeft);
 				addCellParagraph((Tc) row.getContent().get(2), scenario.getDescription());
 			}
 			insertBofore(paragraph, table);

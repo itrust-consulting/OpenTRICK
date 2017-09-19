@@ -171,7 +171,7 @@
 				<c:forEach items="${assessments}" var="assessment">
 					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 						<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
-						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
+						<c:set var="likelihood" value="${valueFactory.findProb(assessment.likelihood)}" />
 						<c:choose>
 							<c:when test="${type.qualitative}">
 								<c:choose>
