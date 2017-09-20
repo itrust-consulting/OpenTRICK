@@ -115,16 +115,14 @@ function manageImpactScale(){
 			success: function (response, textStatus, jqXHR) {
 				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
-					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					// load view static error message
 					$("[data-lang-code]", $view).each(function(){
 						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
 					});
 					
-					$(".form-group input[value='false']:not(:checked)").one("change",(e) => showDialog("warning",MessageResolver("info.manage.impact.remove")));
-					
-					$("button[name='save']").on("click", e => {
+					$("button[name='save']",$view ).on("click", e => {
 						var data = {}, notEmpty = false;
 						$(".form-group[data-trick-id]", $view).each(function () {
 							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
@@ -162,6 +160,120 @@ function manageImpactScale(){
 								$progress.hide();
 							});
 						}
+						
+						$view.modal("hide");
+					});
+				}
+			},
+			error: unknowError
+		}).complete(() => $progress.hide());
+	}
+	return false;
+}
+
+function manageScaleLevel(){
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Parameter/Scale-level/Manage",
+			type: "get",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $view = $("#manageScaleLevelModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
+					// load view static error message
+					var $orignalContainer = $("#original-container"), $container = $("#new-level-container", $view), $levelTemplate = $("#level-template-ui",$view);
+					
+					var drop = (e) => {
+						 e.preventDefault();
+						 var $body =  $(".panel-body",e.currentTarget), $item = $(document.getElementById(e.originalEvent.dataTransfer.getData("level"))), $oldParent = $item.parent();
+						 $item.appendTo($body);
+						 $("span:visible", $body).hide();
+						 if(!$("[data-value]", $oldParent).length)
+							 $("span:hidden", $oldParent).show();
+					}, dragover = (e) => {
+						e.preventDefault();
+					}, removeLevel  = (e) => {
+						var $panelUI = $(e.currentTarget).closest('.panel');
+						$("[data-value]",$panelUI).appendTo($orignalContainer);
+						$panelUI.remove();
+						$(".panel[data-container-level!='0']", $container).each(function(i){
+							this.setAttribute("data-container-level", (i+1));
+							$(".panel-title", this).text(MessageResolver("label.scale.level.value").replace("{0}",(i+1)));
+						});
+						return false;
+					};
+					
+				
+					$(".list-group-item[data-value]", $orignalContainer).on("dragstart", function(e) {
+						e.originalEvent.dataTransfer.setData("level", e.target.id);
+						$(".panel-body",$container).addClass("alert-warning");
+					});
+					
+					$(".list-group-item[data-value]", $orignalContainer).on("dragend", function(e) {
+						$(".panel-body.alert-warning",$container).removeClass("alert-warning");
+					});
+					
+					$(".panel[data-container-level]", $container).on("drop", drop).on("dragover", dragover);
+					
+					$("[data-role='remove']", $container).on("click", removeLevel);
+					
+					
+					$("[data-lang-code]", $view).each(function(){
+						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
+					});
+					
+					$("#btn-add-level", $view).on("click", (e) => {
+						var index = parseInt($(".panel[data-container-level]:last-child", $container).attr("data-container-level"))+1;
+						var $ui = $levelTemplate.clone().removeAttr('id').attr("data-container-level", index);
+						$(".panel-title", $ui).text(MessageResolver("label.scale.level.value").replace("{0}",index));
+						$ui.appendTo($container).on("drop", drop).on("dragover", dragover);
+						$("[data-role='remove']", $ui).on("click", removeLevel );
+					});
+					
+					$("[data-value][draggable='true']", $view).on("dragstart", function(e) {
+						if(e.target.getAttribute("draggable") ==="true")
+							e.originalEvent.dataTransfer.setData("level", e.target.id);
+						else e.preventDefault();
+					});
+					
+					
+					$("button[name='save']").on("click", e => {
+						if($("[data-value]",$orignalContainer).length){
+							showDialog("#alert-dialog", MessageResolver("error.scale.level.not.all.selected"));
+							return false;
+						}
+						
+						var data = {};
+						$(".panel[data-container-level]", $container).each(function(i){
+							data[i] = [];
+							$("[data-value]", this).each(function(){
+								data[i].push(parseInt(this.getAttribute("data-value")));
+							});
+						})
+				
+						$progress.show();
+						$.ajax({
+							url: context + "/Analysis/Parameter/Scale-level/Manage/Save",
+							type: "post",
+							data: JSON.stringify(data),
+							contentType: "application/json;charset=UTF-8",
+							success: function (response, textStatus, jqXHR) {
+								if (response.error != undefined)
+									showDialog("#alert-dialog", response.error);
+								else if (response.success != undefined) {
+									showDialog("success", response.success);
+									application["taskManager"].Start();
+								} else if (response.warning != undefined)
+									showDialog("warning", response.warning);
+								else 
+									unknowError();
+							},
+							error: unknowError
+						}).complete(function () {
+							$progress.hide();
+						});
 						
 						$view.modal("hide");
 					});
@@ -860,7 +972,7 @@ function manageRiskAcceptance() {
 								else if (response.success) {
 									$content.modal("hide");
 									showNotifcation('success', response.success);
-									reloadSection(["section_parameter_impact_probability","section_parameter"]);
+									reloadSection(["section_parameter_impact_probability","section_parameter","section_riskregister"]);
 								} else
 									unknowError();
 							},

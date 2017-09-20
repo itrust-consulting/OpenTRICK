@@ -26,7 +26,7 @@ public class StringTokenizer implements Tokenizer {
 	private int pointer = 0;
 
 	@Override
-	public Token read() throws InvalidExpressionException {
+	public Token<?> read() throws InvalidExpressionException {
 		// Read characters unless we find a valid token ('return' inside loop
 		// body) or the string ends
 		while (this.pointer < this.expressionString.length()) {
@@ -53,25 +53,25 @@ public class StringTokenizer implements Tokenizer {
 			switch (nextChar) {
 			case '+':
 				this.pointer++;
-				return new Token(TokenType.PlusOperator);
+				return new Token<>(TokenType.PlusOperator);
 			case '-':
 				this.pointer++;
-				return new Token(TokenType.MinusOperator);
+				return new Token<>(TokenType.MinusOperator);
 			case '*':
 				this.pointer++;
-				return new Token(TokenType.TimesOperator);
+				return new Token<>(TokenType.TimesOperator);
 			case '/':
 				this.pointer++;
-				return new Token(TokenType.DivideOperator);
+				return new Token<>(TokenType.DivideOperator);
 			case '(':
 				this.pointer++;
-				return new Token(TokenType.LeftBracket);
+				return new Token<>(TokenType.LeftBracket);
 			case ')':
 				this.pointer++;
-				return new Token(TokenType.RightBracket);
+				return new Token<>(TokenType.RightBracket);
 			case ',':
 				this.pointer++;
-				return new Token(TokenType.Comma);
+				return new Token<>(TokenType.Comma);
 			}
 
 			// Everything that remains does not fit into any expected category
@@ -80,7 +80,7 @@ public class StringTokenizer implements Tokenizer {
 		}
 
 		// When we arrive here, we reached the end of the expression
-		return new Token(TokenType.End);
+		return new Token<>(TokenType.End);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class StringTokenizer implements Tokenizer {
 	 * @return Returns a token describing the parsed number.
 	 * @throws InvalidExpressionException
 	 */
-	private Token readNumber() throws InvalidExpressionException {
+	private Token<Double> readNumber() throws InvalidExpressionException {
 		/** Points to the beginning of the number in the expression string. */
 		int pointerBeginning = this.pointer;
 		/**
@@ -124,7 +124,7 @@ public class StringTokenizer implements Tokenizer {
 		if (this.pointer - pointerBeginning <= 1 && periodRead)
 			throw new InvalidExpressionException("Number cannot consist of a period only, at position " + pointerBeginning);
 		else
-			return new Token(TokenType.Number, Double.parseDouble(this.expressionString.substring(pointerBeginning, this.pointer)));
+			return new Token<>(TokenType.Number, Double.parseDouble(this.expressionString.substring(pointerBeginning, this.pointer)));
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class StringTokenizer implements Tokenizer {
 	 * 
 	 * @return Returns a token describing the parsed variable.
 	 */
-	private Token readVariable() {
+	private Token<String> readVariable() {
 		/** Points to the beginning of the number in the expression string. */
 		int pointerBeginning = this.pointer;
 
@@ -160,7 +160,7 @@ public class StringTokenizer implements Tokenizer {
 
 		// We know the variable is NOT empty because of the PRE-CONDITION of
 		// this method
-		return new Token(TokenType.Variable, this.expressionString.substring(pointerBeginning, this.pointer));
+		return new Token<>(TokenType.Variable, this.expressionString.substring(pointerBeginning, this.pointer));
 	}
 
 }

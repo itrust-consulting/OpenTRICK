@@ -29,7 +29,7 @@ function Application() {
 			from : "bottom",
 			align : "right"
 		},
-		delay : 5000
+		delay : 5500
 	}
 	this.currencyFormat = new Intl.NumberFormat("fr-FR", {style: "currency", currency: "EUR", maximumFractionDigits:0, minimumFractionDigits:0});
 	this.numberFormat = new Intl.NumberFormat("fr-FR");
@@ -243,13 +243,13 @@ function callBackCaller($target) {
 	}
 }
 
-function showDialog(dialog, message, title, url) {
+function showDialog(dialog, message, title, url, onClose, placement) {
 	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
 	if (notificationType == undefined) {
 		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
 	} else {
-		return showNotifcation(notificationType.type, message, notificationType.icon, title, url);
+		return showNotifcation(notificationType.type, message, notificationType.icon, title, url, onClose, placement);
 	}
 }
 
@@ -267,7 +267,7 @@ function gotToPage(page){
 	window.location.assign(context+page);
 }
 
-function showNotifcation(type, message, icon, url, title) {
+function showNotifcation(type, message, icon, url, title, onClose,placement) {
 	return $.notify({
 		title : title,
 		icon : icon,
@@ -277,8 +277,9 @@ function showNotifcation(type, message, icon, url, title) {
 		type : type,
 		z_index : application.notification.z_index,
 		offset : application.notification.offset,
-		placement : application.notification.placement,
-		delay : application.notification.delay
+		placement : placement === undefined? application.notification.placement : placement,
+		delay : application.notification.delay,
+		onClose : onClose
 	});
 }
 

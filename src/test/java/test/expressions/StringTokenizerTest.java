@@ -9,7 +9,7 @@ import lu.itrust.business.expressions.TokenType;
 public class StringTokenizerTest extends TestCase {
 	public void testLiterals() throws InvalidExpressionException {
 		StringTokenizer s = new StringTokenizer("a23234____bc_def__4 _a _1 a1 ABC");
-		Token token;
+		Token<?> token;
 
 		token = s.read();
 		assertEquals(TokenType.Variable, token.getType());
@@ -37,7 +37,7 @@ public class StringTokenizerTest extends TestCase {
 
 	public void testNumbers() throws InvalidExpressionException {
 		StringTokenizer s = new StringTokenizer("   1    5.0    1.    .2  ");
-		Token token;
+		Token<?> token;
 
 		token = s.read();
 		assertEquals(TokenType.Number, token.getType());
@@ -61,7 +61,7 @@ public class StringTokenizerTest extends TestCase {
 	
 	public void testOperators() throws InvalidExpressionException {
 		StringTokenizer s = new StringTokenizer("  + -//*)(     ,, ");
-		Token token;
+		Token<?> token;
 
 		token = s.read();
 		assertEquals(TokenType.PlusOperator, token.getType());
@@ -96,7 +96,7 @@ public class StringTokenizerTest extends TestCase {
 
 	public void testCombined() throws InvalidExpressionException {
 		StringTokenizer s = new StringTokenizer("1+3.*(a-b,1)");
-		Token token;
+		Token<?> token;
 
 		token = s.read();
 		assertEquals(TokenType.Number, token.getType());

@@ -4,20 +4,25 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.docx4j.XmlUtils;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.wml.Document;
+import org.docx4j.wml.Jc;
+import org.docx4j.wml.JcEnumeration;
+import org.docx4j.wml.P;
+import org.docx4j.wml.PPr;
+import org.docx4j.wml.PPrBase.PStyle;
+import org.docx4j.wml.PPrBase.TextAlignment;
+import org.docx4j.wml.R;
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.Tc;
+import org.docx4j.wml.Text;
+import org.docx4j.wml.Tr;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
@@ -201,13 +206,10 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 90, size, index = 0;
-		InputStream inputStream = null;
-		XWPFDocument document = null;
-		OutputStream outputStream = null;
-		OPCPackage opcPackage = null;
 		MessageHandler messageHandler = null;
 		File workFile = null;
 		try {
+
 			boolean showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.backup", "Backup of user changes", progress));
@@ -215,33 +217,36 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_register.template", "Loading risk register template", progress += 5));
 			workFile = new File(
-					String.format("%s/tmp/RISK_REGISTER_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/%s.dotx", rootPath, locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
-			opcPackage = OPCPackage.open(doctemplate.getAbsoluteFile());
-			opcPackage.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
-					"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
-			opcPackage.save(workFile);
-			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
+					String.format("%s/tmp/RISK_REGISTER_%d_%s_v%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
+			WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doctemplate);
+			wordMLPackage.save(workFile);
+			wordMLPackage = WordprocessingMLPackage.load(workFile);
+			Document document = wordMLPackage.getMainDocumentPart().getContents();
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
-			size = analysis.getRiskRegisters().size();
-			XWPFTable table = getTable(document, 0);// lib contains a bug
+
+			Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb)).filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
 			if (!showRawColumn) {
-				for (XWPFTableRow row : table.getRows()) {
-					row.getCtRow().removeTc(5);
-					row.removeCell(5);
-					if (row.getCtRow().sizeOfTcArray() > 14) {
-						for (int i = 0; i < 2; i++) {
-							row.getCtRow().removeTc(5);
-							row.removeCell(5);
-						}
+				table.getContent().parallelStream().map(tr -> (Tr) XmlUtils.unwrap(tr)).forEach(tr -> {
+					tr.getContent().remove(5);
+					if (tr.getContent().size() > 14) {
+						for (int i = 0; i < 2; i++)
+							tr.getContent().remove(5);
 					}
-				}
+
+				});
 			}
+
+			List<Tr> trs = new ArrayList<>(size = estimations.size());
+
+			trs.add(table.getContent().stream().map(tr -> XmlUtils.unwrap(tr)).filter(tr -> tr instanceof Tr).map(tr -> (Tr) tr).reduce((f, l) -> l).get());//it will be removed laster
+			for (int i = 1; i < size; i++)
+				trs.add(XmlUtils.deepCopy(trs.get(0)));
 			int rawIndex = 5, nextIndex = showRawColumn ? rawIndex + 3 : rawIndex, expIndex = nextIndex + 3;
 			for (Estimation estimation : estimations) {
-				XWPFTableRow row = index == 0 ? table.getRow(table.getRows().size() - 1) : table.createRow();
+				Tr row = trs.get(index);
 				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);
 				addString(estimation.getIdentifier(), row, 1);
@@ -252,7 +257,6 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 					addField(estimation.getRawProbaImpact(), row, rawIndex);
 				addField(estimation.getNetEvaluation(), row, nextIndex);
 				addField(estimation.getExpProbaImpact(), row, expIndex);
-
 				RiskStrategy strategy = estimation.getRiskStrategy();
 				if (strategy == null)
 					strategy = RiskStrategy.ACCEPT;
@@ -261,66 +265,82 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				addString(estimation.getOwner(), row, expIndex + 4);
 				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max - progress)));
 			}
+			
+			trs.remove(0);
+			
+			table.getContent().addAll(trs);
+			
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
-			document.write(outputStream = new FileOutputStream(workFile));
-			outputStream.flush();
+			wordMLPackage.save(workFile);
 			WordReport report = WordReport.BuildRiskRegister(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
 			return report.getId();
 		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (Exception e) {
-				}
-			}
-			if (document != null) {
-				try {
-					document.close();
-				} catch (Exception e) {
-				}
-			}
-
-			if (outputStream != null)
-				outputStream.close();
-
 			if (workFile != null && workFile.exists() && !workFile.delete())
 				workFile.deleteOnExit();
-
-			if (opcPackage != null)
-				opcPackage.close();
 		}
 	}
 
-	/**
-	 * fix bug for index: 0
-	 * 
-	 * @param document
-	 * @param index
-	 * @return
-	 */
-	private XWPFTable getTable(XWPFDocument document, int index) {
-		if (index != 0)
-			return document.getTableArray(index);
-		List<XWPFTable> tables = document.getTables();
-		if (tables.size() > 0)
-			return tables.get(0);
-		return null;
+	private P setStyle(P p, String styleId) {
+		if (p.getPPr() == null)
+			p.setPPr(new PPr());
+		if (p.getPPr().getPStyle() == null)
+			p.getPPr().setPStyle(new PStyle());
+		p.getPPr().getPStyle().setVal(styleId);
+		return p;
 	}
 
-	private void addInt(int value, XWPFTableRow row, int index) {
-		XWPFTableCell cell = getCell(row, index);
-		cell.setText(value + "");
-		cell.getParagraphs().get(0).setAlignment(ParagraphAlignment.RIGHT);
+	private void setCellText(Tc tc, String text) {
+		setCellText(tc, text, null);
 	}
 
-	private void addString(String content, XWPFTableRow row, int index) {
-		getCell(row, index).setText(content == null ? "" : content);
+	private void setCellText(Tc cell, String text, TextAlignment alignment) {
+		if (cell.getContent().isEmpty())
+			cell.getContent().add(new P());
+		P paragraph = (P) cell.getContent().get(0);
+		cell.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, "TabText2"));
+		setText(paragraph, text, alignment);
 	}
 
-	private void addField(RiskProbaImpact expProbaImpact, XWPFTableRow row, int index) {
+	private P setText(P paragraph, String content, TextAlignment alignment) {
+		if (alignment != null) {
+			if (paragraph.getPPr() == null)
+				setStyle(paragraph, "TabText2");
+			if (paragraph.getParent() instanceof Tc) {
+				if (paragraph.getPPr().getJc() == null)
+					paragraph.getPPr().setJc(new Jc());
+				paragraph.getPPr().getJc().setVal(JcEnumeration.fromValue(alignment.getVal()));
+			} else
+				paragraph.getPPr().setTextAlignment(alignment);
+		}
+		paragraph.getContent().removeIf(r -> r instanceof R);
+		R r = new R();
+		Text text = new Text();
+		text.setValue(content);
+		r.getContent().add(text);
+		paragraph.getContent().add(r);
+		return paragraph;
+
+	}
+
+	private void addInt(int value, Tr row, int index) {
+		Tc cell = (Tc) XmlUtils.unwrap(row.getContent().get(index));
+		setCellText(cell, value + "", createAlignment("right"));
+	}
+
+	private TextAlignment createAlignment(String value) {
+		TextAlignment alignment = new TextAlignment();
+		alignment.setVal(value);
+		return alignment;
+	}
+
+	private void addString(String content, Tr row, int index) {
+		setCellText((Tc) XmlUtils.unwrap(row.getContent().get(index)), content);
+	}
+
+	private void addField(RiskProbaImpact expProbaImpact, Tr row, int index) {
 		int impact = 0, proba = 0;
 		if (expProbaImpact != null) {
 			impact = expProbaImpact.getImpactLevel();
@@ -329,13 +349,6 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		addInt(impact, row, index);
 		addInt(proba, row, ++index);
 		addInt(proba * impact, row, ++index);
-	}
-
-	private XWPFTableCell getCell(XWPFTableRow row, int index) {
-		XWPFTableCell cell = row.getCell(index);
-		if (cell == null)
-			cell = row.addNewTableCell();
-		return cell;
 	}
 
 	private String getMessage(String code, String defaultMessage, Locale locale) {

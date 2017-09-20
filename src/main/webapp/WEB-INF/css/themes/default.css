@@ -774,17 +774,26 @@ a#main_menu_profile {
 	margin-top: -5px;
 }
 
-.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve, 
-.probability-likelihood + .impact-qualitaitve, 
-.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve, 
-.probability-dynamic + .impact-qualitaitve, 
-.probability-dynamic + .impact-quantitaitve 
+.probability-dynamic + .impact-qualitaitve,
+.probability-dynamic + .impact-quantitaitve,
+.probability-likelihood + .impact-qualitaitve,
+.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve,
+.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve
  {
 	clear: left;
 }
 
 table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	margin-bottom: 8px;
+}
+
+.alert-sm{
+	padding: 8px 12px;
+	margin-bottom: 5px;
+}
+
+.modal-body>.alert-sm{
+	margin-top: -8px;
 }
 
 [data-notify="progressbar"] {

@@ -467,7 +467,7 @@ public class AssessmentAndRiskProfileManager {
 			if (assessment == null) {
 				assessment = new Assessment(asset, scenario);
 				for (String impact : valueFactory.getImpactNames())
-					assessment.setImpact(valueFactory.findValue(0, impact));
+					createImpact(valueFactory, assessment, impact);
 				analysis.getAssessments().add(assessment);
 			}
 			if (riskProfile == null)
@@ -487,8 +487,12 @@ public class AssessmentAndRiskProfileManager {
 	private static void GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
 		Assessment assessment;
 		assessment = new Assessment(asset, scenario);
-		factory.getImpactNames().forEach(impact -> assessment.setImpact(factory.findValue(0D, impact)));
+		factory.getImpactNames().forEach(impact -> createImpact(factory, assessment, impact));
 		assessments.add(assessment);
+	}
+
+	private static void createImpact(ValueFactory factory, Assessment assessment, String impact) {
+		assessment.setImpact(factory.findValue(impact.equals(Constant.DEFAULT_IMPACT_NAME) ? 0D : 0, impact));
 	}
 
 	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory) {

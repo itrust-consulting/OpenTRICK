@@ -22,6 +22,7 @@ $(document).ready(function () {
 	$("#measure-collection-selector").on("change", function () {
 		$("[id^='tab-standard-'][id!='" + this.value + "']:visible").hide();
 		triggerCaller($("#" + this.value).show());
+		disableEditMode();
 	}).trigger("change");
 
 });

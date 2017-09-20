@@ -3,12 +3,12 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.MergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,13 +16,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.docx4j.model.table.TblFactory;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.wml.Document;
+import org.docx4j.wml.Jc;
+import org.docx4j.wml.JcEnumeration;
+import org.docx4j.wml.P;
+import org.docx4j.wml.PPr;
+import org.docx4j.wml.PPrBase.PStyle;
+import org.docx4j.wml.PPrBase.TextAlignment;
+import org.docx4j.wml.R;
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.TblWidth;
+import org.docx4j.wml.Tc;
+import org.docx4j.wml.Text;
+import org.docx4j.wml.Tr;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
@@ -200,130 +208,166 @@ public class WorkerSOAExport extends WorkerImpl {
 
 	}
 
-	private long processing() throws InvalidFormatException, IOException {
+	private long processing() throws Exception {
 		User user = daoUser.get(username);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
+		return proccessing(user, analysis);
+	}
+
+	protected long proccessing(User user, Analysis analysis) throws Exception {
 		File workFile = null;
-		XWPFDocument document = null;
-		InputStream inputStream = null;
-		OutputStream outputStream = null;
+		WordprocessingMLPackage wordMLPackage = null;
+		Document document = null;
 		try {
 			// progress, max, size, index
 			int[] progressing = { 2, 95, 0, 0 };
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
-			OPCPackage opcPackage = OPCPackage.open(doctemplate.getAbsoluteFile());
-			opcPackage.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
-			opcPackage.save(workFile);
-			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
+			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
+			wordMLPackage = createDocument(doctemplate, workFile);
+			document = wordMLPackage.getMainDocumentPart().getContents();
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
 			List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
 			MessageHandler handler = new MessageHandler("info.printing.soa.data", "Printing soa data", progressing[0] += 1);
 			serviceTaskFeedback.send(getId(), handler);
 			progressing[2] = analysisStandards.stream().mapToInt(analysisStandard -> analysisStandard.getMeasures().size()).sum();
 			for (AnalysisStandard analysisStandard : analysisStandards) {
-				XWPFParagraph paragraph = progressing[3] == 0 ? document.getParagraphArray(0) : document.createParagraph();
-				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
-				paragraph.setStyle("Heading1");
-				generateTable(analysisStandard.getMeasures(), document, handler, progressing);
+				P p = null;
+				if (progressing[3] == 0)
+					p = (P) document.getContent().parallelStream().filter(p1 -> p1 instanceof P).findAny().orElse(null);
+				if (p == null)
+					document.getContent().add(p = new P());
+				setText(setStyle(p, "Heading1"), analysisStandard.getStandard().getLabel());
+				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, progressing);
+				document.getContent().add(tbl);
 			}
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));
-			document.write(outputStream = new FileOutputStream(workFile));
-			outputStream.flush();
+			wordMLPackage.save(workFile);
 			WordReport report = WordReport.BuildSOA(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
 			return report.getId();
 		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (Exception e) {
-				}
-			}
-			if (document != null) {
-				try {
-					document.close();
-				} catch (Exception e) {
-				}
-			}
-
-			if (outputStream != null)
-				outputStream.close();
-
 			if (workFile != null && workFile.exists() && !workFile.delete())
 				workFile.deleteOnExit();
 		}
-
 	}
 
-	/**
-	 * 
-	 * @param measures
-	 * @param document
-	 * @param handler
-	 * @param progressing
-	 *            [progress, max, size, index]
-	 */
-	private void generateTable(List<Measure> measures, XWPFDocument document, MessageHandler handler, int[] progressing) {
+	private Tbl generateTable(List<Measure> measures, MessageHandler handler, int[] progressing) {
 		int rowIndex = 0;
-		XWPFTable table = document.createTable(measures.size(), 6);
-		table.setStyleID("TSSOA");
-		XWPFTableRow row = getRow(table, rowIndex++);
-		addCellContent(getCell(row, 0), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
-		addCellContent(getCell(row, 1), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		addCellContent(getCell(row, 2), messageSource.getMessage("report.measure.status", null, "Status", locale));
-		addCellContent(getCell(row, 3), messageSource.getMessage("report.measure.due.date", null, "Due date", locale));
-		addCellContent(getCell(row, 4), messageSource.getMessage("report.soa.justification", null, "Justification", locale));
-		addCellContent(getCell(row, 5), messageSource.getMessage("report.soa.reference", null, "Reference", locale));
+		Tbl table = createTable("TSSOA", measures.size()+1, 6);
+		Tr row = (Tr) table.getContent().get(rowIndex++);
+		setCellText((Tc) row.getContent().get(0), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
+		setCellText((Tc) row.getContent().get(1), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
+		setCellText((Tc) row.getContent().get(2), messageSource.getMessage("report.measure.status", null, "Status", locale));
+		setCellText((Tc) row.getContent().get(3), messageSource.getMessage("report.measure.due.date", null, "Due date", locale));
+		setCellText((Tc) row.getContent().get(4), messageSource.getMessage("report.soa.justification", null, "Justification", locale));
+		setCellText((Tc) row.getContent().get(5), messageSource.getMessage("report.soa.reference", null, "Reference", locale));
 		for (Measure measure : measures) {
-			row = getRow(table, rowIndex++);
-			addCellContent(getCell(row, 0), measure.getMeasureDescription().getReference());
-			addCellContent(getCell(row, 1), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
+			row = (Tr) table.getContent().get(rowIndex++);
+			setCellText((Tc) row.getContent().get(0), measure.getMeasureDescription().getReference());
+			setCellText((Tc) row.getContent().get(1), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
 			if (measure.getMeasureDescription().isComputable()) {
-				addCellContent(getCell(row, 2), messageSource.getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
-				addCellContent(getCell(row, 3), format.format(measure.getPhase().getEndDate()));
+				setCellText((Tc) row.getContent().get(2), messageSource.getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
+				setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
 				MeasureProperties properties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
 						: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
 				if (properties != null) {
-					addCellContent(getCell(row, 4), properties.getSoaComment());
-					addCellContent(getCell(row, 5), properties.getSoaReference());
+					setCellText((Tc) row.getContent().get(4), properties.getSoaComment());
+					setCellText((Tc) row.getContent().get(5), properties.getSoaReference());
 				}
-			}
+			} else
+				MergeCell(row, 1, 5, null);
 			handler.setProgress((int) (progressing[0] + (++progressing[3] / (double) progressing[2]) * (progressing[1] - progressing[0])));
 		}
-
+		return format(table);
 	}
 
-	private XWPFTableRow getRow(XWPFTable table, int rowIndex) {
-		XWPFTableRow row = table.getRow(rowIndex);
-		if (row == null)
-			row = table.createRow();
-		return row;
+	private Tbl format(Tbl table) {
+		int[] headers = { 878, 3128, 549, 1000, 5784, 2382 }, cols = { 303, 1147, 189, 400, 2086, 875 }, mergeCols = { 303, sum(1, 5, cols) };
+		table.getTblPr().getTblW().setType("pct");
+		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
+		for (int i = 0; i < headers.length; i++)
+			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(headers[i]));
+		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "pct"));
+
+		return table;
 	}
 
-	private XWPFTableCell getCell(XWPFTableRow row, int index) {
-		XWPFTableCell cell = row.getCell(index);
-		return cell == null ? row.createCell() : cell;
+	protected Tbl createTable(String styleId, int rows, int cols) {
+		Tbl table = TblFactory.createTable(rows, cols, 1);
+		if (styleId != null)
+			table.getTblPr().getTblStyle().setVal(styleId);
+		if (table.getTblPr().getJc() == null)
+			table.getTblPr().setJc(new Jc());
+		table.getTblPr().getJc().setVal(JcEnumeration.CENTER);
+		if (table.getTblPr().getTblW() == null)
+			table.getTblPr().setTblW(new TblWidth());
+		table.getTblPr().getTblW().setType("auto");
+		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
+		return table;
 	}
 
-	private void addCellContent(XWPFTableCell cell, String content) {
-		if (content == null || content.isEmpty())
-			return;
-		String[] texts = content.split("(\r\n|\n\r|\r|\n)");
-		for (int i = 0; i < texts.length; i++) {
-			XWPFParagraph paragraph = cell.getParagraphs().size() > i ? cell.getParagraphs().get(i) : cell.addParagraph();
-			paragraph.setStyle(DEFAULT_PARAGRAHP_STYLE);
-			paragraph.createRun().setText(texts[i]);
+	protected P setStyle(P p, String styleId) {
+		if (p.getPPr() == null)
+			p.setPPr(new PPr());
+		if (p.getPPr().getPStyle() == null)
+			p.getPPr().setPStyle(new PStyle());
+		p.getPPr().getPStyle().setVal(styleId);
+		return p;
+	}
+
+	protected P setText(P paragraph, String content) {
+		return setText(paragraph, content, null);
+	}
+
+	
+	protected void setCellText(Tc tc, String text) {
+		setCellText(tc, text, null);
+	}
+
+	protected void setCellText(Tc cell, String text, TextAlignment alignment) {
+		if (cell.getContent().isEmpty())
+			cell.getContent().add(new P());
+		P paragraph = (P) cell.getContent().get(0);
+		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, DEFAULT_PARAGRAHP_STYLE));
+		setText(paragraph, text, alignment);
+	}
+
+	
+
+	protected P setText(P paragraph, String content, TextAlignment alignment) {
+		if (alignment != null) {
+			if (paragraph.getPPr() == null)
+				setStyle(paragraph, DEFAULT_PARAGRAHP_STYLE);
+			if (paragraph.getParent() instanceof Tc) {
+				if (paragraph.getPPr().getJc() == null)
+					paragraph.getPPr().setJc(new Jc());
+				paragraph.getPPr().getJc().setVal(JcEnumeration.fromValue(alignment.getVal()));
+			} else
+				paragraph.getPPr().setTextAlignment(alignment);
 		}
+		paragraph.getContent().removeIf(r -> r instanceof R);
+		R r = new R();
+		Text text = new Text();
+		text.setValue(content);
+		r.getContent().add(text);
+		paragraph.getContent().add(r);
+		return paragraph;
+
+	}
+
+	private WordprocessingMLPackage createDocument(File doctemplate, File workFile) throws Exception {
+		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doctemplate);
+		wordMLPackage.save(workFile);
+		return WordprocessingMLPackage.load(workFile);
 	}
 
 }

@@ -63,7 +63,7 @@ public class MeasureDescription implements Cloneable {
 	@OneToMany(mappedBy = "measureDescription", fetch = FetchType.EAGER)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
+	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<>();
 
 	/** Measure Level */
 	@Column(name = "dtLevel", nullable = false)
@@ -83,6 +83,8 @@ public class MeasureDescription implements Cloneable {
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
+	
+	
 
 	/**
 	 * Constructor:<br>
@@ -97,6 +99,15 @@ public class MeasureDescription implements Cloneable {
 		this.reference = reference;
 		this.level = level;
 		this.computable = computable;
+	}
+
+	/**
+	 * @param reference
+	 * @param standard
+	 */
+	public MeasureDescription(String reference, Standard standard) {
+		setReference(reference);
+		setStandard(standard);
 	}
 
 	/**
@@ -398,6 +409,5 @@ public class MeasureDescription implements Cloneable {
 	public void setComputable(boolean computable) {
 		this.computable = computable;
 	}
-
-
+	
 }

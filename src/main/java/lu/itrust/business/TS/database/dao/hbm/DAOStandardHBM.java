@@ -56,10 +56,9 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardByName(java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Standard getStandardByName(String label) {
-		return (Standard) getSession().createQuery("from Standard where label = :label").setParameter("label", label).uniqueResultOptional().orElse(null);
+	public List<Standard> getStandardByName(String label) {
+		return  getSession().createQuery("from Standard where label = :label", Standard.class).setParameter("label", label).list();
 	}
 
 	/**

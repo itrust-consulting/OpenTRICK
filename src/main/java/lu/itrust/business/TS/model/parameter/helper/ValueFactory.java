@@ -29,6 +29,7 @@ import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * @author eomar
@@ -101,6 +102,8 @@ public class ValueFactory {
 		IValue iValue = findProb(value);
 		if (iValue == null)
 			iValue = findDyn(value);
+		if (iValue == null)
+			iValue = findProb(new StringExpressionParser(value.toString()).evaluate(this));
 		return iValue;
 	}
 
@@ -346,9 +349,10 @@ public class ValueFactory {
 	}
 
 	public IValue findMaxImpactByReal(List<? extends IValue> impacts) {
-		return impacts == null ? null : impacts.stream().filter(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+		return impacts == null ? null
+				: impacts.stream().filter(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
 	}
-	
+
 	public Double findRealValue(List<? extends IValue> impacts) {
 		IValue value = findMaxImpactByReal(impacts);
 		return value == null ? 0d : value.getReal();
@@ -448,6 +452,11 @@ public class ValueFactory {
 	}
 
 	public ILevelParameter findParameter(Integer value, String type) {
+		IValue result = findValue(value, type);
+		return result == null ? null : result.getParameter();
+	}
+
+	public ILevelParameter findParameter(Double value, String type) {
 		IValue result = findValue(value, type);
 		return result == null ? null : result.getParameter();
 	}

@@ -1,7 +1,10 @@
 package lu.itrust.business.TS.model.general;
 
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.util.StringUtils;
+
 public enum ReportType {
-	STA,SOA, RISK_SHEET, RISK_SHEET_RAW, RISK_REGISTER;
+	STA, SOA, RISK_SHEET, RISK_SHEET_RAW, RISK_REGISTER;
 
 	public static String getExtension(ReportType type) {
 		switch (type) {
@@ -25,7 +28,7 @@ public enum ReportType {
 		case RISK_SHEET:
 		case RISK_REGISTER:
 		case RISK_SHEET_RAW:
-		
+
 			return type.name().toLowerCase();
 		}
 		return null;
@@ -45,6 +48,11 @@ public enum ReportType {
 			return "Risk Register";
 		}
 		return null;
-		
+
+	}
+
+	public static String getExtension(ReportType type, String filename) {
+		String extension = FilenameUtils.getExtension(filename);
+		return StringUtils.isEmpty(extension) ? getExtension(type) : extension;
 	}
 }

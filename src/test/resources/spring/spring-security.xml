@@ -7,7 +7,32 @@
 	<global-method-security pre-post-annotations="enabled">
 		<expression-handler ref="methodSecurityExpressionHandler" />
 	</global-method-security>
-
+	
+	<!-- IDS API-->
+	<http pattern="/Api/ids/**"  realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false" entry-point-ref="apiAuthenticationEntryPoint"   create-session="stateless">
+		<custom-filter ref="apiAuthenticationFilter" position="FORM_LOGIN_FILTER"/>
+		
+		<!-- Authorise access  -->
+		<intercept-url pattern="/Api/ids/**" access="hasRole('ROLE_IDS')" requires-channel="https"/>
+		
+		<!-- Deny Access -->
+		<!-- <intercept-url pattern="/Api/ids/**" access="denyAll" requires-channel="https"/> -->
+		
+		<csrf disabled="true"/>
+	</http>
+	
+	<!-- DATA API-->
+	<http pattern="/Api/data/**"  realm="TRICK Service application">
+		
+		<!-- Authorise access  -->
+		<intercept-url pattern="/Api/data/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" requires-channel="https"/>
+		
+		<!-- Deny Access -->
+		<!-- <intercept-url pattern="/Api/data/**" access="denyAll" requires-channel="https"/> -->
+		<csrf disabled="true"/>
+		<http-basic/>
+	</http>
+	
 	<http use-expressions="false" realm="TRICK Service application">
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
@@ -19,7 +44,7 @@
 	</http>
 
 	<beans:import resource="authentication-manager.xml" />
-
+	
 	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" />
 
 	<beans:bean id="customAuthenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationFailureHandler">
@@ -35,5 +60,13 @@
 	</beans:bean>
 
 	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
+	
+	<!-- IDS API-->
+	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
+	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
+	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationFilter">
+		<beans:constructor-arg ref="apiAuthenticationManager"/>
+		<beans:constructor-arg ref="apiAuthenticationEntryPoint"/>
+	</beans:bean>
 
 </beans:beans>

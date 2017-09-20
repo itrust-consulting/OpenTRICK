@@ -41,7 +41,7 @@
 									code="label.customer.organisation" text="Customer" /></label>
 							<div class="col-sm-10">
 								<select class="form-control" name="customer" required="required">
-									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." />
+									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 										<c:forEach items="${customers}" var="customer">
 											<option value="${customer.id}">${customer.organisation}</option>
 										</c:forEach>
@@ -53,7 +53,7 @@
 									code="label.analysis.language" text="Language" /></label>
 							<div class="col-sm-10">
 								<select name="language" class="form-control" required="required">
-									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." />
+									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 										<c:forEach items="${languages}" var="language">
 											<option value="${language.id}">${language.name}</option>
 										</c:forEach>
@@ -146,7 +146,7 @@
 								<spring:message code="label.analysis.customers" text="Customers" />
 							</h4>
 							<select class="form-control" id="selector-customer">
-								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
+								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." /></option>
 									<c:forEach items="${customers}" var="customer">
 										<option value="${customer.id}"><spring:message text="${customer.organisation}" /></option>
 									</c:forEach>
@@ -155,7 +155,7 @@
 								<spring:message code="label.analyses" text="Analyses" />
 							</h4>
 							<select class="form-control" id="selector-analysis">
-								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
+								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." /></option>
 							</select>
 							<h4 data-helper-content='<spring:message code="help.analysis.advance.version" />'>
 								<spring:message code="label.analysis.versions" text="Versions" />

@@ -1,21 +1,30 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getBoolean;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.util.StringUtils;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -30,6 +39,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.general.Language;
@@ -54,6 +64,8 @@ public class WorkerImportStandard implements Worker {
 
 	private boolean canceled = false;
 
+	private Pattern pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
+
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	private SessionFactory sessionFactory;
@@ -69,10 +81,6 @@ public class WorkerImportStandard implements Worker {
 	private DAOLanguage daoLanguage;
 
 	private File importFile;
-
-	private int sheetNumber;
-
-	private XSSFWorkbook workbook;
 
 	private Standard newstandard;
 
@@ -121,7 +129,7 @@ public class WorkerImportStandard implements Worker {
 
 			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
 
-			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_standard"));
+			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_kb_standard"));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**
 			 * Log
@@ -154,10 +162,8 @@ public class WorkerImportStandard implements Worker {
 					}
 				}
 			}
-			if (importFile != null && importFile.exists()) {
-				if (!importFile.delete())
-					importFile.deleteOnExit();
-			}
+			if (importFile != null && importFile.exists() && !importFile.delete())
+				importFile.deleteOnExit();
 
 		}
 
@@ -199,48 +205,23 @@ public class WorkerImportStandard implements Worker {
 	 */
 	public void importNewStandard() throws Exception {
 
-		FileInputStream fileToOpen = null;
+		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
 
-		try {
+		WorkbookPart workbookPart = SpreadsheetMLPackage.load(importFile).getWorkbookPart();
 
-			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
+		Map<String, String> sharedStrings = getSharedStrings(workbookPart);
 
-			fileToOpen = new FileInputStream(importFile);
+		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
 
-			// Get the workbook instance for XLS file
+		getStandard(workbookPart, sharedStrings);
 
-			workbook = new XSSFWorkbook(fileToOpen);
+		if (newstandard != null) {
+			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.measure", "Import measures", 10));
+			getMeasures(workbookPart, sharedStrings);
 
-			sheetNumber = workbook.getNumberOfSheets();
-
-			newstandard = null;
-
-			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
-
-			getStandard();
-
-			if (newstandard != null) {
-				serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.measure", "Import measures", 10));
-				getMeasures();
-				serviceTaskFeedback.send(id, new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
-			} else
-				throw new TrickException("error.import.norm.malformedExcelFile", "The Excel file containing Standard to import is malformed. Please check its content!");
-		} finally {
-			try {
-				if (fileToOpen != null)
-					fileToOpen.close();
-			} catch (Exception e1) {
-				TrickLogManager.Persist(e1);
-			}
-
-			try {
-				if (workbook != null)
-					workbook.close();
-			} catch (Exception e) {
-				TrickLogManager.Persist(e);
-			}
-		}
-
+			serviceTaskFeedback.send(id, new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
+		} else
+			throw new TrickException("error.import.norm.malformedExcelFile", "The Excel file containing Standard to import is malformed. Please check its content!");
 	}
 
 	/**
@@ -249,66 +230,53 @@ public class WorkerImportStandard implements Worker {
 	 * Excel <br/>
 	 * workbook and get information of the Standard to import
 	 * 
+	 * @param sharedStrings
+	 * 
 	 */
-	@SuppressWarnings("deprecation")
-	public void getStandard() throws Exception {
+	public void getStandard(WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+		this.newstandard = null;
+		SheetData infoSheet = findSheet(workbookPart, "NormInfo");
+		if (infoSheet == null)
+			return;
+		this.newstandard = loadStandard(infoSheet, sharedStrings);
+	}
 
-		XSSFSheet sheet = null;
-		XSSFTable table = null;
+	private Standard loadStandard(SheetData infoSheet, Map<String, String> sharedStrings) throws Exception {
+		TablePart tablePart = findTable(infoSheet.getWorksheetPart(), "TableNormInfo");
+		if (tablePart == null)
+			return null;
+		AddressRef addressRef = AddressRef.parse(tablePart.getContents().getRef());
+		Row data = infoSheet.getRow().get(addressRef.getEnd().getRow());
+		String name = getString(data.getC().get(addressRef.getBegin().getCol()), sharedStrings);
+		int version = getInt(data.getC().get(addressRef.getBegin().getCol() + 1));
+		if (name == null)
+			throw new TrickException("error.standard.name.empty", "Standard name cannot be empty");
+		if (version == 0)
+			throw new TrickException("error.standard.version.zero", "Standard version must be greather than 0");
+		Standard standard = daoStandard.getStandardByNameAndVersion(name, version);
+		if (standard == null)
+			standard = new Standard(name.trim(), version);
+		return loadStandardData(standard, data, addressRef.getBegin().getCol(), sharedStrings);
+	}
 
-		short startColSheet, endColSheet;
-		int startRowSheet, endRowSheet;
-
-		for (int indexSheet = 0; indexSheet < sheetNumber; indexSheet++) {
-
-			sheet = workbook.getSheetAt(indexSheet);
-
-			if (sheet.getSheetName().equals("NormInfo")) {
-
-				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
-					table = sheet.getTables().get(indexTable);
-
-					if (table.getName().equals("TableNormInfo")) {
-						startColSheet = table.getStartCellReference().getCol();
-						endColSheet = table.getEndCellReference().getCol();
-						startRowSheet = table.getStartCellReference().getRow();
-						endRowSheet = table.getEndCellReference().getRow();
-						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
-							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								if (daoStandard.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(),
-										(int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue())) {
-									newstandard = daoStandard.getStandardByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(),
-											(int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
-									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
-									newstandard.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
-									serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.safe.update",
-											new Object[] { newstandard.getLabel(), newstandard.getVersion() },
-											String.format("Updating of standard %s, version %d. No measure shall be waived.", newstandard.getLabel(), newstandard.getVersion()),
-											10));
-								} else {
-
-									newstandard = new Standard();
-									newstandard.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
-									if (sheet.getRow(indexRow).getCell(startColSheet + 1).getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
-										newstandard.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
-									else
-										newstandard.setVersion(Integer.valueOf(sheet.getRow(indexRow).getCell(startColSheet + 1).getStringCellValue()));
-									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
-									newstandard.setComputable(getBooleanOrDefault(sheet, indexRow, startColSheet + 3, null));
-									if (sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue().equals(Constant.STANDARD_MATURITY))
-										newstandard.setType(StandardType.MATURITY);
-									else
-										newstandard.setType(StandardType.NORMAL);
-									daoStandard.save(newstandard);
-									serviceTaskFeedback.send(id, new MessageHandler("info.import.norm", new Object[] { newstandard.getLabel(), newstandard.getVersion() },
-											String.format("Import standard %s, version %d.", newstandard.getLabel(), newstandard.getVersion()), 10));
-								}
-							}
-					}
-				}
-			}
+	private Standard loadStandardData(Standard standard, Row data, int startCol, Map<String, String> sharedStrings) {
+		standard.setVersion(getInt(data.getC().get(startCol + 1)));
+		standard.setDescription(getString(data.getC().get(startCol + 2), sharedStrings));
+		standard.setComputable(getBoolean(data.getC().get(startCol + 3)));
+		if (standard.getId() > 0) {
+			daoStandard.saveOrUpdate(standard);
+			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getLabel(), standard.getVersion() },
+					String.format("Updating of standard %s, version %d. No measure shall be waived.", standard.getLabel(), standard.getVersion()), 10));
+		} else {
+			if (Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
+				standard.setType(StandardType.MATURITY);
+			else
+				standard.setType(StandardType.NORMAL);
+			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm", new Object[] { standard.getLabel(), standard.getVersion() },
+					String.format("Import standard %s, version %d.", standard.getLabel(), standard.getVersion()), 10));
+			daoStandard.save(standard);
 		}
+		return standard;
 	}
 
 	/**
@@ -317,148 +285,67 @@ public class WorkerImportStandard implements Worker {
 	 * Excel <br/>
 	 * workbook and get information of the measures to import
 	 * 
+	 * @param sharedStrings
+	 * @param workbookPart
+	 * 
 	 */
-	@SuppressWarnings("deprecation")
-	public void getMeasures() throws Exception {
-		XSSFSheet sheet = null;
-		XSSFTable table = null;
+	public void getMeasures(WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+		SheetData sheet = findSheet(workbookPart, "NormData");
+		if (sheet == null)
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+		TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
+		if (tablePart == null)
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+		loadMeasureDescription(sheet, AddressRef.parse(tablePart.getContents().getRef()), sharedStrings);
+	}
 
-		short startColSheet, endColSheet;
-		int startRowSheet, endRowSheet;
-		String domain = "";
-		String description = "";
-		Language lang;
-		Pattern pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
-		Matcher matcher;
-
-		MeasureDescription measureDescription = null;
-
-		ArrayList<MeasureDescriptionText> measureDescriptionTexts = null;
-		MeasureDescriptionText measureDescriptionText = null;
-
-		for (int indexSheet = 0; indexSheet < sheetNumber; indexSheet++) {
-
-			sheet = workbook.getSheetAt(indexSheet);
-
-			if (sheet.getSheetName().equals("NormData")) {
-				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-					table = sheet.getTables().get(indexTable);
-					if (table.getName().equals("TableNormData")) {
-						startColSheet = table.getStartCellReference().getCol();
-						endColSheet = table.getEndCellReference().getCol();
-						startRowSheet = table.getStartCellReference().getRow();
-						endRowSheet = table.getEndCellReference().getRow();
-						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
-							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								measureDescription = daoMeasureDescription.getByReferenceAndStandard(sheet.getRow(indexRow).getCell(1).getStringCellValue(), newstandard);
-								if (measureDescription == null) {
-									measureDescription = new MeasureDescription();
-									measureDescription.setStandard(newstandard);
-									daoMeasureDescription.save(measureDescription);
-								}
-
-								if (sheet.getRow(indexRow).getCell(0).getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
-									measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
-								else
-									measureDescription.setLevel(Integer.valueOf(sheet.getRow(indexRow).getCell(0).getStringCellValue()));
-
-								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
-
-								measureDescription.setComputable(getBooleanOrDefault(sheet, indexRow, 2, false));
-
-								if (startColSheet + 3 <= endColSheet) {
-
-									measureDescriptionTexts = new ArrayList<>();
-
-									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
-										XSSFCell cell = sheet.getRow(startRowSheet).getCell(indexCol);
-										if (cell == null)
-											continue;
-										matcher = pattern.matcher(cell.getStringCellValue());
-										if (matcher.matches()) {
-
-											if ((indexCol - startColSheet) % 2 == 1) {
-
-												lang = daoLanguage.getByAlpha3(matcher.group(2).trim().toLowerCase());
-
-												if (lang == null) {
-													lang = new Language();
-													lang.setAlpha3(matcher.group(2));
-													if (daoLanguage.existsByAlpha3(matcher.group(2))) {
-														lang = daoLanguage.getByAlpha3(matcher.group(2));
-													} else {
-														lang = new Language();
-														lang.setAlpha3(matcher.group(2));
-														lang.setName(lang.getAlpha3());
-														daoLanguage.save(lang);
-													}
-												}
-
-												if (daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId())) {
-													measureDescriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(),
-															lang.getId());
-
-													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null
-															? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
-
-													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
-														System.out.println("Measuredescriptiontext not valid! Skipping...");
-													else {
-														measureDescriptionText.setDescription(description);
-														measureDescriptionText.setDomain(domain);
-													}
-
-												} else {
-													measureDescriptionText = new MeasureDescriptionText();
-													measureDescriptionText.setMeasureDescription(measureDescription);
-													measureDescriptionText.setLanguage(lang);
-
-													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null
-															? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
-
-													if (!domain.isEmpty())
-														measureDescriptionText.setDomain(domain);
-
-													if (!description.isEmpty())
-														measureDescriptionText.setDescription(description);
-
-													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
-														System.out.println("Measuredescription text not valid! Skipping...");
-													else
-														measureDescription.addMeasureDescriptionText(measureDescriptionText);
-
-												}
-											}
-										}
-									}
-								}
-								daoMeasureDescription.saveOrUpdate(measureDescription);
-							}
-					}
-				}
-				if (measureDescription == null || measureDescriptionText == null || measureDescriptionTexts == null) {
-					messageHandler = new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!");
-					serviceTaskFeedback.send(id, messageHandler);
-					return;
-				}
+	private void loadMeasureDescription(SheetData sheet, AddressRef address, Map<String, String> sharedStrings) {
+		Map<Integer, Language> languages = loadLanguages(sheet, address, sharedStrings);
+		if (languages.isEmpty())
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+		for (int i = address.getBegin().getRow() + 1; i < address.getEnd().getRow(); i++) {
+			Row row = sheet.getRow().get(i);
+			String reference = getString(row.getC().get(1), sharedStrings);
+			MeasureDescription measureDescription = daoMeasureDescription.getByReferenceAndStandard(reference, newstandard);
+			if (measureDescription == null)
+				measureDescription = new MeasureDescription(reference, newstandard);
+			measureDescription.setLevel(getInt(row.getC().get(0)));
+			measureDescription.setComputable(getBoolean(row.getC().get(2)));
+			int languageCount = (address.getEnd().getCol() - 2) / 2;
+			for (int j = 0; j < languageCount; j++) {
+				Language language = languages.get(j);
+				int domInd = j * 2 + 3, descInd = domInd + 1;
+				MeasureDescriptionText descriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(), language.getId());
+				if (descriptionText == null)
+					measureDescription.getMeasureDescriptionTexts().add(descriptionText = new MeasureDescriptionText(measureDescription, language));
+				String domain = getString(row, domInd, sharedStrings), description = getString(row, descInd, sharedStrings);
+				if (!StringUtils.isEmpty(domain))
+					descriptionText.setDomain(domain);
+				if (!StringUtils.isEmpty(description))
+					descriptionText.setDescription(description);
 			}
+			daoMeasureDescription.saveOrUpdate(measureDescription);
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	private boolean getBooleanOrDefault(XSSFSheet sheet, int row, int col, Boolean defaultValue) {
-		try {
-			XSSFCell cell = sheet.getRow(row).getCell(col);
-			return cell.getCellType() == XSSFCell.CELL_TYPE_BOOLEAN ? cell.getBooleanCellValue()
-					: cell.getCellType() == XSSFCell.CELL_TYPE_STRING ? Boolean.parseBoolean(cell.getStringCellValue())
-							: cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC ? cell.getNumericCellValue() != 0 : defaultValue;
-		} catch (Exception e) {
-			throw new TrickException("error.import.standard.not_boolean",
-					String.format("A boolean value was expected at, sheet: %s, row: %d, col: %d", sheet.getSheetName(), row + 1, col + 1), sheet.getSheetName(), (row + 1) + "",
-					(col + 1) + "");
+	private Map<Integer, Language> loadLanguages(SheetData sheet, AddressRef address, Map<String, String> sharedStrings) {
+		Map<Integer, Language> languages = new HashMap<>();
+		Row row = sheet.getRow().get(address.getBegin().getRow());
+		int languageCount = (address.getEnd().getCol() - 2) / 2;
+		for (int i = 0; i < languageCount; i++) {
+			String domain = getString(row.getC().get(i * 2 + 3), sharedStrings);
+			if (domain == null)
+				throw new TrickException("error.standard.bad.table.header", "Please check for table header");
+			Matcher matcher = pattern.matcher(domain);
+			if (!matcher.find())
+				throw new TrickException("error.standard.bad.table.header", "Please check for table header");
+			String alpha3 = matcher.group(2);
+			Language language = daoLanguage.getByAlpha3(alpha3);
+			if (language == null)
+				daoLanguage.save(language = new Language(alpha3.toUpperCase(), alpha3, alpha3));
+			languages.put(i, language);
 		}
+		return languages;
 	}
 
 	@Override

@@ -82,7 +82,6 @@
 					<li><a href="#tab-chart-risk-asset-type" data-toggle="tab"> <spring:message code="label.chart.risk_by_asset_types" /></a></li>
 					<li><a href="#tab-chart-risk-scenario" data-toggle="tab"> <spring:message code="label.chart.risk_by_scenarios" /></a></li>
 					<li><a href="#tab-chart-risk-scenario-type" data-toggle="tab"> <spring:message code="label.chart.risk_by_scenario_types" /></a></li>
-					<li class="divider"></li>
 				</c:if>
 				<c:if test="${type.quantitative}">
 					<c:if test="${type.qualitative}">
@@ -97,11 +96,7 @@
 						<li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution_by_asset_type" /></a></li>
 						<li><a href="#tab-chart-parameter-evolution" data-toggle="tab"> <spring:message code="label.title.chart.dynamic" /></a></li>
 					</c:if>
-					<li class="divider"></li>
 				</c:if>
-				<li class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
-				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
-				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>
 			</ul></li>
 	</c:if>
 	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-danger"
@@ -110,25 +105,32 @@
 		style="padding-bottom: 6px; padding-top: 6px"><i class="fa fa-cog fa-2x"></i></a>
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">
-				<li class="dropdown-header"><spring:message code="label.title.computation" /></li>
+				<li class="dropdown-header"><spring:message code="label.menu.title.manual.update" /></li>
 				<c:choose>
 					<c:when test="${type.qualitative}">
-						<li><a href="#" onclick="return calculateAction({'id':'${analysis.id}'})"> <spring:message code="label.menu.analysis.action_plan" /></a></li>
+						<li><a href="#" onclick="return calculateAction({'id':'${analysis.id}'})"> <spring:message code="label.action.compute.action_plan" /></a></li>
 					</c:when>
 					<c:otherwise>
-						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" /></a></li>
+						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.action.compute.action_plan" /></a></li>
 						<c:if test="${not isEditable}">
 							<li class="divider"></li>
 						</c:if>
 					</c:otherwise>
 				</c:choose>
+				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
+				<c:if test="${isEditable}">
+					<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
+					<c:if test="${type.quantitative and hasMaturity}">
+						<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
+					</c:if>
+				</c:if>
 				<c:if test="${canExport and isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
+					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:if test="${not empty soas}">
 						<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>
 					</c:if>
-					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:choose>
 						<c:when test="${type.qualitative}">
 							<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
@@ -139,55 +141,45 @@
 							</a></li>
 						</c:when>
 					</c:choose>
-					<li>
-						<c:choose>
+					<li><c:choose>
 							<c:when test="${type.hybrid}">
 								<a href="#" onclick="return exportRawActionPlan('${analysis.id}','${type}')"><spring:message code="label.raw_action_plan" /></a>
 							</c:when>
 							<c:otherwise>
 								<a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}/${type}" download><spring:message code="label.raw_action_plan" /></a>
 							</c:otherwise>
-						</c:choose>
-					</li>
+						</c:choose></li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
 			<c:if test="${isProfile or isEditable}">
-				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
-				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><spring:message code="label.action.edit_mode.open" /></a></li>
-				<li class="disabled" onclick="return disableEditMode()" role="leaveEditMode"><a href="#"><spring:message code="label.action.edit_mode.close" /></a></li>
-				<c:if test="${not(isProfile and type.qualitative)}">
+				<c:if test="${type.quantitative}">
+					<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
+					<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.edit" /></a></li>
+					<c:if test="${isProfile or isEditable}">
+						<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
+						<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
+						<c:set var="importRRF" value="true" />
+					</c:if>
+					<c:if test="${canExport}">
+						<li><a href="${pageContext.request.contextPath}/Analysis/RRF/Export/Raw/${analysis.id}" download> <spring:message code="label.action.export.rrf.raw" /></a></li>
+						<c:set var="exportRRF" value="true" />
+					</c:if>
 					<li class="divider"></li>
 				</c:if>
-			</c:if>
-			<c:if test="${type.quantitative}">
-				<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
-				<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.open" /></a></li>
-				<c:if test="${isProfile or isEditable}">
-					<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
-					<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
-					<c:set var="importRRF" value="true" />
-				</c:if>
-				<c:if test="${canExport and isEditable}">
-					<li><a href="${pageContext.request.contextPath}/Analysis/RRF/Export/Raw/${analysis.id}" download> <spring:message code="label.action.export.rrf.raw" /></a></li>
-					<c:set var="exportRRF" value="true" />
-				</c:if>
+				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
+				<li><a class='btn-group btn-group-xs clearfix'><span role="enterEditMode" class="btn btn-default" onclick="return enableEditMode()"><spring:message
+								code="label.action.edit_mode.open" /></span> <span role="leaveEditMode" class="btn btn-default active disabled" onclick="return disableEditMode()"><spring:message
+								code="label.action.edit_mode.close" /></span> </a></li>
 				<c:if test="${not isProfile and isEditable}">
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
 			<c:if test="${not isProfile and isEditable}">
-				<c:if test="${type.quantitative and hasMaturity}">
-					<li class="dropdown-header"><spring:message code="label.title.maturity" /></li>
-					<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
-				</c:if>
-				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
-				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
-				<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" /></a></li>
-				<li class="divider"></li>
-				<li class="dropdown-header"><spring:message code="label.title.impact_scale" /></li>
-				<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage" /></a></li>
-				<li class="divider"></li>
+				<li class="dropdown-header"><spring:message code="label.menu.settings" /></li>
+				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>
+				<li><a href="#" onclick="return manageImpactScale();"> <spring:message code="label.action.manage.impact" /></a></li>
+				<li><a href="#" onclick="return manageScaleLevel();"> <spring:message code="label.action.manage.scale.level" /></a></li>
 				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>
 			</c:if>
 		</ul></li>

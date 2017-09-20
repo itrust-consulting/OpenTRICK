@@ -155,7 +155,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 		if (number > 0)
 			phaseTime = getPhases().stream().filter(phase -> phase.getNumber() == number)
-					.map(phase -> Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate())).findAny().orElse(0d);
+					.map(phase -> phase.getTime()).findAny().orElse(0d);
 		if (isFirst)
 			getCurrentValues().implementedCount = 0;
 		if (getCurrentValues().previousStage == null)

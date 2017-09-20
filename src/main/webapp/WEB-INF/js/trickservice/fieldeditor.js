@@ -176,7 +176,7 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Initialise = function() {
-		
+
 		if (!this.GeneratefieldEditor()) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
@@ -593,10 +593,11 @@ function AssessmentExtendedParameterEditor(element) {
 			this.fieldEditor.setAttribute("class", "form-control");
 			this.fieldEditor.setAttribute("class", "form-control");
 			this.fieldEditor.setAttribute("placeholder", this.defaultValue);
-			if (this.element.hasAttribute("data-real-value")){
+			if (this.element.hasAttribute("data-real-value")) {
 				this.realValue = this.element.getAttribute("data-real-value");
 				this.fieldEditor.setAttribute("value", this.realValue);
-			}else this.fieldEditor.setAttribute("value", this.defaultValue);
+			} else
+				this.fieldEditor.setAttribute("value", this.defaultValue);
 			this.fieldEditor.setAttribute("style", "padding: 4px; width:100px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
 			this.backupData.width = $element.width();
 			this.backupData.orginalStyle = $element.attr("style");
@@ -705,8 +706,8 @@ function disableEditMode() {
 			var $progress = $("#loading-indicator").show();
 			setTimeout(function() {
 				try {
-					$("li[role='enterEditMode']").removeClass("disabled");
-					$("li[role='leaveEditMode']").addClass("disabled");
+					$("[role='enterEditMode']").removeClass("disabled").removeClass("active");
+					$("[role='leaveEditMode']").addClass("disabled").addClass('active');
 					$(application.fieldEditors).each(function() {
 						this.Save(this);
 					});
@@ -728,15 +729,19 @@ function enableEditMode() {
 			var $progress = $("#loading-indicator").show();
 			setTimeout(function() {
 				try {
-					$("li[role='leaveEditMode']").removeClass("disabled");
-					$("li[role='enterEditMode']").addClass("disabled");
+
 					application.fieldEditors = [];
-					var $data = $(".tab-pane.active [data-trick-content='text']");
-					$data.each(function() {
-						var fieldEditor = editField(this);
-						if (fieldEditor != null)
-							application.fieldEditors.push(fieldEditor);
-					});
+					var $data = $(".tab-pane.active table:visible [data-trick-content='text']");
+					if ($data.length) {
+						$("[role='leaveEditMode']").removeClass("disabled").removeClass("active");
+						$("[role='enterEditMode']").addClass("disabled").addClass('active');
+						$data.each(function() {
+							var fieldEditor = editField(this);
+							if (fieldEditor != null)
+								application.fieldEditors.push(fieldEditor);
+						});
+					} else
+						application.editingModeFroceAbort = application.editMode = false;
 				} finally {
 					$progress.hide()
 				}

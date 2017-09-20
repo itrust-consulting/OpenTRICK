@@ -47,10 +47,11 @@ function deleteStandard(idStandard, name) {
 			return false;
 		name = $("#section_kb_standard tbody tr[data-trick-id='" + (idStandard = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
+	var $progress = $("#loading-indicator").show();
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
 	$("#deletestandardbuttonYes").off("click.delete").one("click.delete", function () {
 		$("#deleteStandardModel").modal('hide');
-		var $progress = $("#loading-indicator").show();
+		$progress.show();
 		$.ajax({
 			url: context + "/KnowledgeBase/Standard/Delete/" + idStandard,
 			type: "POST",
@@ -67,6 +68,7 @@ function deleteStandard(idStandard, name) {
 		})
 		return false;
 	});
+	$progress.hide();
 	$("#deleteStandardModel").modal('show');
 	return false;
 }

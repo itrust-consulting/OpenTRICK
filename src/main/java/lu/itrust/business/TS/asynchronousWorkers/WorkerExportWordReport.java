@@ -4,7 +4,6 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -20,7 +19,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.AbstractWordExporter;
+import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -55,7 +54,7 @@ public class WorkerExportWordReport implements Worker {
 
 	private SessionFactory sessionFactory;
 
-	private AbstractWordExporter wordExporter;
+	private ExportReport wordExporter;
 
 	/**
 	 * @param idAnalysis
@@ -65,7 +64,7 @@ public class WorkerExportWordReport implements Worker {
 	 * @param wordExporter
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, AbstractWordExporter wordExporter,
+	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportReport wordExporter,
 			WorkersPoolManager workersPoolManager) {
 		this.idAnalysis = idAnalysis;
 		this.username = username;
@@ -128,13 +127,8 @@ public class WorkerExportWordReport implements Worker {
 				}
 			}
 		}
-
-		if (wordExporter.getDocument() != null) {
-			try {
-				wordExporter.getDocument().close();
-			} catch (IOException e) {
-			}
-		}
+		
+		wordExporter.close();
 
 		File workFile = wordExporter.getWorkFile();
 

@@ -69,16 +69,22 @@ public class MeasureDescriptionText implements Cloneable {
 		setLanguage(language);
 	}
 	
-	public MeasureDescriptionText(MeasureDescription measureDescription, String domain, String description, Language language) throws TrickException {
-		setDomain(domain);
+	public MeasureDescriptionText(MeasureDescription measureDescription, Language language) {
+		this(language);
 		setMeasureDescription(measureDescription);
+	}
+	
+	public MeasureDescriptionText(MeasureDescription measureDescription, String domain, String description, Language language) throws TrickException {
+		this(measureDescription,language);
+		setDomain(domain);
 		setDescription(description);
-		setLanguage(language);
 	}
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	
 
 	
 

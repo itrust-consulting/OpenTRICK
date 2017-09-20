@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -25,6 +26,7 @@ import lu.itrust.business.TS.model.parameter.type.impl.AbstractParameterType;
  *
  */
 @Entity
+@AttributeOverride(name = "id", column = @Column(name = "idScaleType"))
 public class ScaleType extends AbstractParameterType {
 
 	@Column(name = "dtAcronym", unique = true)

@@ -7,80 +7,85 @@
 	<global-method-security pre-post-annotations="enabled">
 		<expression-handler ref="methodSecurityExpressionHandler" />
 	</global-method-security>
-	
-	<!-- IDS API-->
-	<http pattern="/Api/ids/**"  realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false" entry-point-ref="apiAuthenticationEntryPoint"   create-session="stateless">
-		<custom-filter ref="apiAuthenticationFilter" position="FORM_LOGIN_FILTER"/>
-		<!-- Authorise access  -->
-		<intercept-url pattern="/Api/ids/**" access="hasRole('ROLE_IDS')" requires-channel="https"/>
+
+	<!-- API -->
+
+	<!-- IDS API -->
+	<http pattern="/Api/ids/**" realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false" entry-point-ref="apiAuthenticationEntryPoint"
+		create-session="stateless">
+		<custom-filter ref="apiAuthenticationFilter" position="FORM_LOGIN_FILTER" />
+		<!-- Authorise access -->
+		<intercept-url pattern="/Api/ids/**" access="hasRole('ROLE_IDS')" requires-channel="https" />
 		<!-- Deny Access -->
 		<!-- <intercept-url pattern="/Api/ids/**" access="denyAll" requires-channel="https"/> -->
-		<csrf disabled="true"/>
+		<csrf disabled="true" />
 	</http>
-	
-	<!-- DATA API-->
-	<http pattern="/Api/data/**"  realm="TRICK Service application">
-		<!-- Authorise access  -->
-		<intercept-url pattern="/Api/data/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" requires-channel="https"/>
+
+	<!-- DATA API -->
+	<http pattern="/Api/data/**" realm="TRICK Service application">
+		<!-- Authorise access -->
+		<intercept-url pattern="/Api/data/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" requires-channel="https" />
 		<!-- Deny Access -->
 		<!-- <intercept-url pattern="/Api/data/**" access="denyAll" requires-channel="https"/> -->
-		<csrf disabled="true"/>
-		<http-basic/>
+		<csrf disabled="true" />
+		<http-basic />
 	</http>
+
+
+	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationFilter">
+		<beans:constructor-arg ref="apiAuthenticationManager" />
+		<beans:constructor-arg ref="apiAuthenticationEntryPoint" />
+	</beans:bean>
+
+	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
+
+	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
+	<!-- end API -->
 
 	<http use-expressions="false" entry-point-ref="loginUrlAuthenticationEntryPoint" auto-config="false" authentication-manager-ref="authenticationManager">
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
-		<custom-filter ref="customUsernamePasswordAuthenticationFilter" position="FORM_LOGIN_FILTER"/>
-		<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER"/>
-		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER"/>
-		<!-- <form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
-			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="authenticationFailureHandler" /> -->
-		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>
+		<custom-filter ref="customUsernamePasswordAuthenticationFilter" position="FORM_LOGIN_FILTER" />
+		<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER" />
+		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER" />
+		<!-- <form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/Login/Error" 
+			authentication-failure-handler-ref="authenticationFailureHandler" /> -->
+		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
 	</http>
 
-	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" >
-		<beans:property name="defaultTargetUrl" value="/Home"/>
+	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler">
+		<beans:property name="defaultTargetUrl" value="/Home" />
 	</beans:bean>
 
 	<beans:bean id="authenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationFailureHandler">
 		<beans:property name="defaultFailureUrl" value="/Login/Error" />
 	</beans:bean>
-	
-	<beans:bean id="customUsernamePasswordAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.CustomUsernamePasswordAuthenticationFilter" >
-		<beans:property name="filterProcessesUrl" value="/signin"/>
+
+	<beans:bean id="customUsernamePasswordAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.CustomUsernamePasswordAuthenticationFilter">
+		<beans:property name="filterProcessesUrl" value="/signin" />
 		<beans:property name="authenticationManager" ref="authenticationManager" />
-		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler"/>
+		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
 		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
-		<beans:property name="continueChainBeforeSuccessfulAuthentication"  value="${app.settings.otp.enable}"/>
+		<beans:property name="continueChainBeforeSuccessfulAuthentication" value="${app.settings.otp.enable}" />
 		<beans:property name="enable2FA" value="${app.settings.otp.enable}" />
 		<beans:property name="force2FA" value="${app.settings.otp.force}" />
 	</beans:bean>
-	
+
 	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationFilter">
-		<beans:constructor-arg name="url" value="/signin"/>
-		<beans:constructor-arg name="redirectURL" value="/OTP/Options"/>
+		<beans:constructor-arg name="url" value="/signin" />
+		<beans:constructor-arg name="redirectURL" value="/OTP/Options" />
 	</beans:bean>
-	
+
 	<beans:bean id="otpAuthenticationProcessingFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationProcessingFilter">
-		<beans:constructor-arg name="url" value="/OTP/Authorise"/>
+		<beans:constructor-arg name="url" value="/OTP/Authorise" />
 		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
-		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler"/>
+		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
 	</beans:bean>
-	
-	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint" >
- 		<beans:constructor-arg name="loginFormUrl" value="/Login"/>
+
+	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:constructor-arg name="loginFormUrl" value="/Login" />
 	</beans:bean>
-	
-	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationFilter">
-		<beans:constructor-arg ref="apiAuthenticationManager"/>
-		<beans:constructor-arg ref="apiAuthenticationEntryPoint"/>
-	</beans:bean>
-	
-	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
-	
-	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
 
 	<beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
 		<beans:constructor-arg value="256" />
@@ -91,7 +96,7 @@
 	</beans:bean>
 
 	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
-	
+
 	<beans:import resource="authentication-manager.xml" />
 
 </beans:beans>

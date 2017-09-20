@@ -15,6 +15,7 @@ import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAG
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,10 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +59,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.xlsx4j.jaxb.Context;
+import org.xlsx4j.sml.ObjectFactory;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,9 +91,9 @@ import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.AbstractWordExporter;
-import lu.itrust.business.TS.exportation.ExportQualitativeReport;
-import lu.itrust.business.TS.exportation.ExportQuantitativeReport;
+import lu.itrust.business.TS.exportation.word.ExportReport;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQualitativeReportExporter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQuantitativeReportExporter;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
@@ -98,6 +102,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
+import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -344,7 +349,7 @@ public class ControllerAnalysis {
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 				// execute task
 				executor.execute(worker);
-				errors.put(ANALYSIS_TASK_ID, String.valueOf(worker.getId()));
+				errors.put(ANALYSIS_TASK_ID, worker.getId());
 			} else
 				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 
@@ -472,9 +477,9 @@ public class ControllerAnalysis {
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, @PathVariable AnalysisType type, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
 			AnalysisType analysisType = type == null ? serviceAnalysis.getAnalysisTypeById(analysisId) : type;
-			AbstractWordExporter exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
-					? new ExportQuantitativeReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
-					: new ExportQualitativeReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
+			ExportReport exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
+					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
+					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
@@ -889,6 +894,7 @@ public class ControllerAnalysis {
 						.map(ScaleType::getName).orElse(null));
 				int level = analysis.getLikelihoodParameters().size() - 1;
 				model.addAttribute("maxImportance", level * level);
+				model.addAttribute("colorManager", new ColorManager(analysis.getRiskAcceptanceParameters()));
 			}
 
 			if (analysis.isQuantitative())
@@ -1009,31 +1015,31 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void addActionPLanHeader(XSSFRow row, AnalysisType type, Locale locale) {
+	private void addActionPLanHeader(Row row, AnalysisType type, Locale locale) {
 		int colIndex = 0;
-		row.getCell(colIndex).setCellValue(messageSource.getMessage("report.action_plan.norm", null, "Stds", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.status", null, "ST", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.comment", null, "Comment", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.to_do", null, "To Do", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.responsible", null, "Resp.", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.internal.workload", null, "IS(md)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.external.workload", null, "ES(md)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.investment", null, "INV(k€)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.life_time", null, "LT(y)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("label.measure.phase", null, "Phase", locale));
+		setValue(row.getC().get(colIndex), messageSource.getMessage("report.action_plan.norm", null, "Stds", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.status", null, "ST", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.comment", null, "Comment", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.to_do", null, "To Do", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.responsible", null, "Resp.", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.internal.workload", null, "IS(md)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.external.workload", null, "ES(md)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.investment", null, "INV(k€)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.life_time", null, "LT(y)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale));
+		setValue(row.getC().get(++colIndex), messageSource.getMessage("label.measure.phase", null, "Phase", locale));
 		if (type == AnalysisType.QUALITATIVE)
-			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale));
+			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale));
 		else if (type == AnalysisType.QUANTITATIVE) {
-			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
-			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
-			row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
+			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
+			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
+			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
 		}
 	}
 
@@ -1160,53 +1166,40 @@ public class ControllerAnalysis {
 		return client;
 	}
 
-	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, AnalysisType type, String username, Locale locale) throws IOException {
-		XSSFWorkbook workbook = null;
-		try {
-			List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
-			int lineIndex = 0;
-			workbook = new XSSFWorkbook();
-			XSSFSheet sheet = workbook.createSheet(messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale));
-			XSSFRow row = sheet.getRow(0);
-			if (row == null)
-				row = sheet.createRow(0);
+	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, AnalysisType type, String username, Locale locale) throws Exception {
 
-			int colCount = type == AnalysisType.QUANTITATIVE ? 21 : 19;
+		ObjectFactory factory = Context.getsmlObjectFactory();
+		SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+		WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
+				messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale), 1);
+		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
+		SheetData sheet = worksheetPart.getContents().getSheetData();
+		Row row = factory.createRow();
+		sheet.getRow().add(row);
+		int colCount = type == AnalysisType.QUANTITATIVE ? 21 : 19;
 
-			for (int i = 0; i < colCount; i++) {
-				if (row.getCell(i) == null)
-					row.createCell(i, CellType.STRING);
-			}
-			addActionPLanHeader(row, type, locale);
+		for (int i = 0; i < colCount; i++)
+			row.getC().add(factory.createCell());
 
-			List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type == AnalysisType.QUANTITATIVE ? ActionPlanMode.APPN : ActionPlanMode.APQ);
+		addActionPLanHeader(row, type, locale);
 
-			for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
-				row = sheet.getRow(++lineIndex);
-				if (row == null)
-					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, colCount, actionPlanEntry, type, expressionParameters, locale);
-			}
-			response.setContentType("xlsx");
-			// set response header with location of the filename
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type == AnalysisType.QUANTITATIVE ? ActionPlanMode.APPN : ActionPlanMode.APQ);
 
-			workbook.write(response.getOutputStream());
-
-			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
-					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
-					analysis.getIdentifier(), analysis.getVersion());
-
-		} finally {
-			try {
-				if (workbook != null)
-					workbook.close();
-			} catch (IOException e) {
-				TrickLogManager.Persist(e);
-				System.err.println("Close document: " + e.getMessage());
-			}
+		for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
+			row = factory.createRow();
+			writeActionPLanData(row, colCount, actionPlanEntry, type, expressionParameters, locale);
+			sheet.getRow().add(row);
 		}
+
+		response.setContentType("xlsx");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		spreadsheetMLPackage.save(response.getOutputStream());
+		// Log
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
+				String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
+				analysis.getIdentifier(), analysis.getVersion());
+
 	}
 
 	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
@@ -1319,38 +1312,38 @@ public class ControllerAnalysis {
 		return mapper;
 	}
 
-	private void writeActionPLanData(XSSFRow row, int colCount, ActionPlanEntry actionPlanEntry, AnalysisType type, List<IProbabilityParameter> expressionParameters,
-			Locale locale) {
+	private void writeActionPLanData(Row row, int colCount, ActionPlanEntry actionPlanEntry, AnalysisType type, List<IProbabilityParameter> expressionParameters, Locale locale) {
 		for (int i = 0; i < colCount; i++) {
-			if (row.getCell(i) == null)
-				row.createCell(i, i < 7 ? CellType.STRING : CellType.NUMERIC);
+			if (row.getC().size() < i)
+				row.getC().add(Context.smlObjectFactory.createCell());
 		}
 		int colIndex = 0;
 		Measure measure = actionPlanEntry.getMeasure();
 		MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(locale.getISO3Language());
-		row.getCell(colIndex).setCellValue(measure.getAnalysisStandard().getStandard().getLabel());
-		row.getCell(++colIndex).setCellValue(measure.getMeasureDescription().getReference());
-		row.getCell(++colIndex).setCellValue(descriptionText.getDomain());
-		row.getCell(++colIndex).setCellValue(measure.getStatus());
-		row.getCell(++colIndex).setCellValue(measure.getComment());
-		row.getCell(++colIndex).setCellValue(measure.getToDo());
-		row.getCell(++colIndex).setCellValue(measure.getResponsible());
-		row.getCell(++colIndex).setCellValue(measure.getImplementationRateValue(expressionParameters));
-		row.getCell(++colIndex).setCellValue(measure.getInternalWL());
-		row.getCell(++colIndex).setCellValue(measure.getExternalWL());
-		row.getCell(++colIndex).setCellValue(measure.getInvestment() * 0.001);
-		row.getCell(++colIndex).setCellValue(measure.getLifetime());
-		row.getCell(++colIndex).setCellValue(measure.getInternalMaintenance());
-		row.getCell(++colIndex).setCellValue(measure.getExternalMaintenance());
-		row.getCell(++colIndex).setCellValue(measure.getRecurrentInvestment() * 0.001);
-		row.getCell(++colIndex).setCellValue(measure.getCost() * 0.001);
-		row.getCell(++colIndex).setCellValue(measure.getPhase().getNumber());
+		setValue(row.getC().get(colIndex), measure.getAnalysisStandard().getStandard().getLabel());
+		setValue(row.getC().get(++colIndex), measure.getMeasureDescription().getReference());
+		setValue(row.getC().get(++colIndex), descriptionText.getDomain());
+		setValue(row.getC().get(++colIndex), measure.getStatus());
+		setValue(row.getC().get(++colIndex), measure.getComment());
+		setValue(row.getC().get(++colIndex), measure.getToDo());
+		setValue(row.getC().get(++colIndex), measure.getResponsible());
+		setValue(row.getC().get(++colIndex), measure.getImplementationRateValue(expressionParameters));
+		setValue(row.getC().get(++colIndex), measure.getInternalWL());
+		setValue(row.getC().get(++colIndex), measure.getExternalWL());
+		setValue(row.getC().get(++colIndex), measure.getInvestment() * 0.001);
+		setValue(row.getC().get(++colIndex), measure.getLifetime());
+		setValue(row.getC().get(++colIndex), measure.getInternalMaintenance());
+		setValue(row.getC().get(++colIndex), measure.getExternalMaintenance());
+		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
+		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
+		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
 		if (type == AnalysisType.QUALITATIVE)
-			row.getCell(++colIndex).setCellValue(actionPlanEntry.getRiskCount());
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getRiskCount());
 		else {
-			row.getCell(++colIndex).setCellValue(actionPlanEntry.getTotalALE() * 0.001);
-			row.getCell(++colIndex).setCellValue(actionPlanEntry.getDeltaALE() * 0.001);
-			row.getCell(++colIndex).setCellValue(actionPlanEntry.getROI() * 0.001);
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getTotalALE() * 0.001);
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getDeltaALE() * 0.001);
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getROI() * 0.001);
 		}
 	}
+
 }

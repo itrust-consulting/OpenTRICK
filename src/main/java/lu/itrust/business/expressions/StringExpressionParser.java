@@ -39,13 +39,13 @@ public class StringExpressionParser implements ExpressionParser {
 
 		// Tokenize the expression and process each token
 		Tokenizer source = new StringTokenizer(this.expression);
-		Token token;
+		Token<?> token;
 		do {
 			token = source.read();
 
 			// Hold track of all variables encountered
 			if (token.getType().equals(TokenType.Variable)) {
-				involvedVariables.add(token.getParameter());
+				involvedVariables.add((String) token.getParameter());
 			}
 		}
 		// Read until the very end ("apocalypse now").
@@ -102,7 +102,7 @@ public class StringExpressionParser implements ExpressionParser {
 		List<Double> arguments = new ArrayList<>();
 
 		// Handle special case where function does not have any arguments
-		Token nextToken = source.read();
+		Token<?> nextToken = source.read();
 		if (nextToken.getType().equals(TokenType.RightBracket))
 			return evaluateFunction(functionName, arguments);
 		else
@@ -111,7 +111,7 @@ public class StringExpressionParser implements ExpressionParser {
 		// Read all arguments
 		while (true) {
 			arguments.add(evaluateSum(source, values));
-			Token token = source.read();
+			Token<?> token = source.read();
 			if (token.getType().equals(TokenType.RightBracket))
 				return evaluateFunction(functionName, arguments);
 			else if (!token.getType().equals(TokenType.Comma))
@@ -165,22 +165,22 @@ public class StringExpressionParser implements ExpressionParser {
 	@SuppressWarnings("unchecked")
 	private double evaluateLiteral(UndoableTokenizer source, Object values) throws InvalidExpressionException {
 		// Read the next token from the source
-		Token token = source.read();
+		Token<?> token = source.read();
 
 		// If it is a number, then resolving is straight-forward
 		if (token.getType().equals(TokenType.Number))
-			return token.getParameter();
+			return (Double) token.getParameter();
 
 		// If it is a variable, look up its value in the map.
 		// If it is a function, read the arguments and evaluate it.
 		else if (token.getType().equals(TokenType.Variable)) {
 			// Lookup the next token to check whether we are dealing with a
 			// variable or a function
-			Token nextToken = source.read();
+			Token<?> nextToken = source.read();
 			boolean isFunction = nextToken.getType().equals(TokenType.LeftBracket);
 			source.putBack(nextToken);
 
-			final String variableName = token.getParameter();
+			final String variableName = (String) token.getParameter();
 			if (isFunction)
 				return evaluateFunction(source, values, variableName);
 			else if (values instanceof ValueFactory) {
@@ -225,7 +225,7 @@ public class StringExpressionParser implements ExpressionParser {
 	 *             Throws an exception on syntax errors.
 	 */
 	private double evaluateParentheses(UndoableTokenizer source, Object values) throws InvalidExpressionException {
-		Token token;
+		Token<?> token;
 
 		// Check if there is an opening bracket
 		if ((token = source.read()).getType().equals(TokenType.LeftBracket)) {
@@ -264,7 +264,7 @@ public class StringExpressionParser implements ExpressionParser {
 		double value = this.evaluateParentheses(source, values);
 
 		// Continously read tokens until no more '*' or '/' occurs
-		Token token;
+		Token<?> token;
 		while (true) {
 			token = source.read();
 
@@ -307,7 +307,7 @@ public class StringExpressionParser implements ExpressionParser {
 		double value = this.evaluateProduct(source, values);
 
 		// Continously read tokens until no more '+' or '-' occurs
-		Token token;
+		Token<?> token;
 		while (true) {
 			token = source.read();
 
