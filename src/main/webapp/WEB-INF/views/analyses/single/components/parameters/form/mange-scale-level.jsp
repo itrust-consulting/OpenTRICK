@@ -17,8 +17,7 @@
 				</h4>
 			</div>
 			<div class="modal-body" style="padding: 5px 20px;">
-				<label class='alert alert-danger'> <spring:message code='warning.scale.level.migrate' />
-				</label>
+				<div class='alert alert-sm alert-danger' style="margin-top: 0px"> <spring:message code='warning.scale.level.migrate' /></div>
 				<form id="manage-analysis-impact-scale" action="/Analysis/Prameter/Scale-level/Manage/Save?${_csrf.parameterName}=${_csrf.token}" method="post" class="form-horizontal">
 					<fieldset class='col-xs-6'>
 						<legend>

@@ -16,6 +16,11 @@
 				</h4>
 			</div>
 			<div class="modal-body">
+				<c:if test="${asset.id>0}">
+					<div class='alert alert-sm alert-danger'>
+						<spring:message code="info.asset.type.change" />
+					</div>
+				</c:if>
 				<form name="asset" action="${pageContext.request.contextPath}/Asset/Save" class="form-horizontal" id="asset_form">
 					<c:choose>
 						<c:when test="${!empty(asset)}">
@@ -26,14 +31,14 @@
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.name" />' > <spring:message code="label.asset.name" />
+						<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.name" />'> <spring:message code="label.asset.name" />
 						</label>
 						<div class="col-sm-9">
 							<input name="name" id="asset_name" class="form-control" value='<spring:message text="${empty(asset)? '':asset.name}" />' />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="assetType.id" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.type" />' > <spring:message code="label.asset.type" />
+						<label for="assetType.id" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.type" />'> <spring:message code="label.asset.type" />
 						</label>
 						<div class="col-sm-9">
 							<select name="assetType" class="form-control" id="asset_assettype_id">
@@ -52,7 +57,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="value" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.value" />' > <spring:message code="label.form.asset.value" />
+						<label for="value" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.value" />'> <spring:message code="label.form.asset.value" />
 						</label>
 						<div class="col-sm-9">
 							<div class="input-group">
@@ -69,7 +74,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="selected" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.status" />' > <spring:message code="label.status" />
+						<label for="selected" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.status" />'> <spring:message code="label.status" />
 						</label>
 						<div class="col-sm-9" align="center">
 							<div class="btn-group" data-toggle="buttons">
@@ -81,14 +86,15 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.comment" />' > <spring:message code="label.asset.comment" />
+						<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.comment" />'> <spring:message code="label.asset.comment" />
 						</label>
 						<div class="col-sm-9">
-							<textarea name="comment" class="form-control resize_vectical_only" id="asset_comment" rows="10" ><spring:message text="${empty(asset)? '': asset.comment}" /></textarea>
+							<textarea name="comment" class="form-control resize_vectical_only" id="asset_comment" rows="10"><spring:message text="${empty(asset)? '': asset.comment}" /></textarea>
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="hiddenComment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.comment_hidden" />' > <spring:message code="label.asset.comment_hidden" />
+						<label for="hiddenComment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.comment_hidden" />'> <spring:message
+								code="label.asset.comment_hidden" />
 						</label>
 						<div class="col-sm-9">
 							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control resize_vectical_only" rows="8"><spring:message text="${empty(asset)? '': asset.hiddenComment}" /></textarea>
@@ -97,9 +103,8 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="saveAsset('asset_form')">
-					<spring:message code="label.action.save" />
-				</button>
+				<spring:message code="label.action.save" var="saveText" />
+				<button type="button" class="btn btn-primary" onclick="saveAsset('asset_form')" name='save' data-loading-text='${saveText}'>${saveText}</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>

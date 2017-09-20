@@ -787,6 +787,15 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	margin-bottom: 8px;
 }
 
+.alert-sm{
+	padding: 8px 12px;
+	margin-bottom: 5px;
+}
+
+.modal-body>.alert-sm{
+	margin-top: -8px;
+}
+
 [data-notify="progressbar"] {
 	margin-bottom: 0px;
 	position: absolute;

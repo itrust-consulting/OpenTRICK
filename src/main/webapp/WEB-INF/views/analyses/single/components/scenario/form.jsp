@@ -15,16 +15,22 @@
 				</h4>
 			</div>
 			<div class="modal-body" style="padding-bottom: 5px; padding-top: 5px;">
+				<c:if test="${scenario.id>0}">
+					<div class='alert alert-sm alert-danger' style="margin-top: 0px">
+						<spring:message code='${scenario.assetLinked?"info.scenario.asset.linked.change" : "info.scenario.asset.type.change"}'/>
+					</div>
+				</c:if>
 				<c:if test="${type.quantitative }">
 					<ul id="scenario_form_tabs" class="nav nav-tabs">
 						<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.general" text="General" /></a></li>
-						<li><a href="#tab_scenario_properties" data-toggle="tab" data-helper-content='<spring:message code="help.scenario.properties" />' ><spring:message code="label.menu.properties" text="Properties" /></a></li>
+						<li><a href="#tab_scenario_properties" data-toggle="tab" data-helper-content='<spring:message code="help.scenario.properties" />'><spring:message
+									code="label.menu.properties" text="Properties" /></a></li>
 						<li id="error_scenario_container" style="padding-top: 10px; padding-left: 10px"></li>
 					</ul>
 				</c:if>
 				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="scenario_form">
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
-					<div id="tab_scenario_general" class="tab-pane active"  style="padding-top: ${type=='QUANTITATIVE'? '8px':'3px'};" >
+					<div id="tab_scenario_general" class="tab-pane active" style="padding-top: ${type=='QUANTITATIVE'? '8px':'3px'};">
 						<div class="form-group">
 							<label for="type" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.asset_linked"/>'><spring:message
 									code="label.scenario.applicable.to" /></label>
@@ -39,14 +45,15 @@
 						</div>
 
 						<div class="form-group">
-							<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.name" />'  > <spring:message code="label.scenario.name" />
+							<label for="name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.name" />'> <spring:message code="label.scenario.name" />
 							</label>
 							<div class="col-sm-9">
 								<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="scenarioType.id" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.type" />' > <spring:message code="label.scenario.type" />
+							<label for="scenarioType.id" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.type" />'> <spring:message
+									code="label.scenario.type" />
 							</label>
 							<div class="col-sm-9">
 								<select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
@@ -66,7 +73,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="selected" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.status" />' > <spring:message code="label.status" />
+							<label for="selected" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.status" />'> <spring:message code="label.status" />
 							</label>
 							<div class="col-sm-9" align="center">
 								<div class="btn-group" data-toggle="buttons">
@@ -78,7 +85,8 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.comment" />' > <spring:message code="label.scenario.description" />
+							<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.comment" />'> <spring:message
+									code="label.scenario.description" />
 							</label>
 							<div class="col-sm-9">
 								<textarea name="description" class="form-control resize_vectical_only" rows="15" id="scenario_description"><spring:message
@@ -86,7 +94,8 @@
 							</div>
 						</div>
 						<div id='scenario-asset-type-values' class='form-group' ${not empty scenario and scenario.assetLinked? 'hidden' : ''  }>
-							<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.application.asset.types" />' ><spring:message code="label.scenario.application.asset.types" /></label>
+							<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.application.asset.types" />'><spring:message
+									code="label.scenario.application.asset.types" /></label>
 							<spring:message var="typeChooseText" code='label.asset_type.choose.multi' />
 							<div class="col-sm-9">
 								<c:choose>
@@ -110,7 +119,8 @@
 							</div>
 						</div>
 						<div class='form-group' id='scenario-asset-values' ${not empty scenario and scenario.assetLinked? '' : 'hidden'  }>
-							<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.application.asset" />' ><spring:message code="label.scenario.applicable.asset" /></label>
+							<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.application.asset" />'><spring:message
+									code="label.scenario.applicable.asset" /></label>
 							<spring:message var="assetChooseText" code='label.asset.choose.multi' />
 							<div class="col-sm-9">
 								<c:choose>
@@ -259,9 +269,8 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="return saveScenario('scenario_form')">
-					<spring:message code="label.action.save" />
-				</button>
+				<spring:message code="label.action.save" var="saveText" />
+				<button type="button" class="btn btn-primary" onclick="return saveScenario('scenario_form')" data-loading-text='${saveText}' name='save'>${saveText}</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
