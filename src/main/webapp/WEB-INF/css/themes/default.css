@@ -777,9 +777,7 @@ a#main_menu_profile {
 .probability-dynamic + .impact-qualitaitve,
 .probability-dynamic + .impact-quantitaitve,
 .probability-likelihood + .impact-qualitaitve,
-.impact-quantitaitve + .impact-qualitaitve  + .impact-qualitaitve,
-.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve
- {
+.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve{
 	clear: left;
 }
 

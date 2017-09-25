@@ -101,7 +101,7 @@ function FieldEditor(element, validator) {
 					rows = 2;
 			}
 			width = $td.outerWidth();
-			height = this.isText ? $td.outerHeight() : 0;
+			height = this.isText ? $td.outerHeight() - 0.5 : 0;
 			if (this.defaultValue.length > 100 || this.isText)
 				this.fieldEditor = document.createElement("textarea");
 			else {
