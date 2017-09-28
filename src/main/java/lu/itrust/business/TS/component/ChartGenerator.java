@@ -168,10 +168,11 @@ public class ChartGenerator {
 			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
-			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
+			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
 			for (int i = 0; i < distribution.getDivisor(); i++) {
-				List<ALE> aleSubList = ales.subList(i * multiplicator, i == (distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
+				List<ALE> aleSubList = ales.subList((int) Math.round(i * multiplicator),
+						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
 				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, distribution.getDivisor() },
@@ -216,10 +217,11 @@ public class ChartGenerator {
 			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
-			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
+			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
 			for (int i = 0; i < distribution.getDivisor(); i++) {
-				List<ALE> aleSubList = ales.subList(i * multiplicator, i == (distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
+				List<ALE> aleSubList = ales.subList((int) Math.round(i * multiplicator),
+						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
 				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, distribution.getDivisor() },
@@ -259,14 +261,15 @@ public class ChartGenerator {
 			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
-			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
-			List<Chart> charts = new ArrayList<>( distribution.getDivisor());
-			for (int i = 0; i <  distribution.getDivisor(); i++) {
-				List<ALE> aleSubList = ales.subList(i * multiplicator, i == ( distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
+			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
+			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
+			for (int i = 0; i < distribution.getDivisor(); i++) {
+				List<ALE> aleSubList = ales.subList((int) Math.round(i * multiplicator),
+						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1,  distribution.getDivisor() },
-						String.format("ALE by Scenario %d/%d", i + 1,  distribution.getDivisor()), locale), aleSubList));
+				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, distribution.getDivisor() },
+						String.format("ALE by Scenario %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
 			}
 			return charts;
 		} finally {
@@ -305,10 +308,11 @@ public class ChartGenerator {
 			if (ales.size() <= getAleChartSingleMaxSize())
 				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
-			int multiplicator = Math.floorDiv(ales.size(), distribution.getDivisor());
+			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
 			for (int i = 0; i < distribution.getDivisor(); i++) {
-				List<ALE> aleSubList = ales.subList(i * multiplicator, i == (distribution.getDivisor() - 1) ? ales.size() : (i + 1) * multiplicator);
+				List<ALE> aleSubList = ales.subList((int) Math.round(i * multiplicator),
+						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
 				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, distribution.getDivisor() },
@@ -323,8 +327,8 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays
-	 * the ALE evolution of all asset types of an analysis.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the
+	 * ALE evolution of all asset types of an analysis.
 	 * 
 	 * @param idAnalysis
 	 *            The ID of the analysis to generate the graph for.
@@ -337,9 +341,8 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays
-	 * the ALE evolution of all scenarios of a specific asset type of an
-	 * analysis.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the
+	 * ALE evolution of all scenarios of a specific asset type of an analysis.
 	 * 
 	 * @param idAnalysis
 	 *            The ID of the analysis to generate the graph for.
@@ -354,9 +357,8 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays
-	 * the ALE evolution of all scenarios of a specific asset type of an
-	 * analysis.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the
+	 * ALE evolution of all scenarios of a specific asset type of an analysis.
 	 * 
 	 * @param idAnalysis
 	 *            The ID of the analysis to generate the graph for.
@@ -595,8 +597,8 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays
-	 * the evolution of the dynamic parameters.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the
+	 * evolution of the dynamic parameters.
 	 * 
 	 * @param idAnalysis
 	 * @param locale
@@ -608,9 +610,11 @@ public class ChartGenerator {
 		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
 
 		/*
-		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
-		*/
+		 * final Analysis analysis = daoAnalysis.get(idAnalysis); final double
+		 * minimumProbability = Math.max(0.0,
+		 * analysis.findParameterValueByTypeAndAcronym(Constant.
+		 * PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
+		 */
 		final double minimumProbability = 0.0;
 
 		// Determine time-related stuff
@@ -850,9 +854,8 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays
-	 * the ALE evolution of all scenarios of a specific asset type of an
-	 * analysis.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the
+	 * ALE evolution of all scenarios of a specific asset type of an analysis.
 	 * 
 	 * @param idAnalysis
 	 *            The ID of the analysis to generate the graph for.
@@ -1448,7 +1451,8 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param defaultColors the defaultColors to set
+	 * @param defaultColors
+	 *            the defaultColors to set
 	 */
 	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
 	public void setDefaultColors(List<String> defaultColors) {
@@ -1463,10 +1467,11 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param staticColors the staticColors to set
+	 * @param staticColors
+	 *            the staticColors to set
 	 */
 	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
-	public  void setStaticColors(List<String> staticColors) {
+	public void setStaticColors(List<String> staticColors) {
 		Constant.STATIC_COLORS = staticColors;
 	}
 

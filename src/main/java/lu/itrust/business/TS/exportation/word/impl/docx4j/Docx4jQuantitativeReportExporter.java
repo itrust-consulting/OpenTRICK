@@ -868,9 +868,10 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			generateALEChart(ales2, (Chart) findChart(chartName), title, column);
 		else {
 			List<Part> parts = duplicateChart(ales2.size(), chartName, name);
-			int count = parts.size(), divisor = Math.floorDiv(ales2.size(), count);
+			int count = parts.size();
+			double divisor = (double) ales2.size() / (double) count;
 			for (int i = 0; i < count; i++)
-				generateALEChart(ales2.subList(i * divisor, i == (count - 1) ? ales2.size() : (i + 1) * divisor), (Chart) parts.get(i),
+				generateALEChart(ales2.subList((int) Math.round(i * divisor), i == (count - 1) ? ales2.size() : (int) Math.round((i + 1) * divisor)), (Chart) parts.get(i),
 						getMessage(multiTitleCode, new Object[] { i + 1, count }, null, locale), column);
 		}
 	}

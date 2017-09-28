@@ -94,7 +94,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 			Tbl table = createTable("TableTSActionPlan", actionplan.size() + 1, 11);
-			TextAlignment alignment = createAlignment("left"),alignmentCenter = createAlignment("center");
+			TextAlignment alignment = createAlignment("left"), alignmentCenter = createAlignment("center");
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Tr row = (Tr) table.getContent().get(0);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.action_plan.row_number", null, "Nr", locale));
@@ -447,7 +447,8 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Tbl table = createTable("TableTSAsset", assets.size() + 1, 5);
 			Tr row = (Tr) table.getContent().get(0);
-			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");;
+			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
+			;
 			// set header
 			setCellText((Tc) row.getContent().get(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
 			setCellText((Tc) row.getContent().get(1), getMessage("report.asset.title.name", null, "Name", locale));
@@ -577,10 +578,11 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			generateRiskGraphic(findChart(chartName), getMessage(title, null, null, locale), assessments);
 		else {
 			List<Part> parts = duplicateChart(assessments.size(), chartName, name);
-			int count = parts.size(), divisor = Math.floorDiv(assessments.size(), count);
+			int count = parts.size();
+			double divisor = (double) assessments.size() / (double) count;
 			for (int i = 0; i < count; i++)
 				generateRiskGraphic(parts.get(i), getMessage(multiTitleCode, new Object[] { i + 1, count }, null, locale),
-						assessments.subList(i * divisor, i == (count - 1) ? assessments.size() : (i + 1) * divisor));
+						assessments.subList((int) Math.round(i * divisor), i == (count - 1) ? assessments.size() : (int) Math.round((i + 1) * divisor)));
 		}
 	}
 

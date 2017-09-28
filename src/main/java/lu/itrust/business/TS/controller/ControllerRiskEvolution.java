@@ -137,15 +137,20 @@ public class ControllerRiskEvolution {
 
 	@RequestMapping(value = "/Type/{type}/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable AnalysisType type, @PathVariable Integer id, Principal principal) {
-		List<AnalysisBaseInfo> collection1 = serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), type, AnalysisRight.highRightFrom(AnalysisRight.READ));
-		List<AnalysisBaseInfo> collection2 = serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisType.HYBRID, AnalysisRight.highRightFrom(AnalysisRight.READ));
+		List<AnalysisBaseInfo> collection1 = serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), type,
+				AnalysisRight.highRightFrom(AnalysisRight.READ));
+		List<AnalysisBaseInfo> collection2 = serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisType.HYBRID,
+				AnalysisRight.highRightFrom(AnalysisRight.READ));
 		return Stream.concat(collection1.stream(), collection2.stream()).collect(Collectors.toList());
 	}
 
 	@RequestMapping(value = "/Type/{type}/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable AnalysisType type, @PathVariable Integer id, @PathVariable String identifier, Principal principal) {
-		List<AnalysisBaseInfo> collection1 = serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, type, AnalysisRight.highRightFrom(AnalysisRight.READ));
-		List<AnalysisBaseInfo> collection2 = serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisType.HYBRID, AnalysisRight.highRightFrom(AnalysisRight.READ));
+	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable AnalysisType type, @PathVariable Integer id, @PathVariable String identifier,
+			Principal principal) {
+		List<AnalysisBaseInfo> collection1 = serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, type,
+				AnalysisRight.highRightFrom(AnalysisRight.READ));
+		List<AnalysisBaseInfo> collection2 = serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisType.HYBRID,
+				AnalysisRight.highRightFrom(AnalysisRight.READ));
 		return Stream.concat(collection1.stream(), collection2.stream()).collect(Collectors.toList());
 	}
 
@@ -185,11 +190,12 @@ public class ControllerRiskEvolution {
 		else {
 			List<ALE> ales = chartData[0].getAles();
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
-			int multiplicator = ales.size() / distribution.getDivisor();
-			for (int i = 0; i < multiplicator; i++) {
-				chartData[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
-				charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
-						String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), chartData));
+			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
+			for (int i = 0; i < distribution.getDivisor(); i++) {
+				chartData[0]
+						.setAles(ales.subList((int) Math.round(i * multiplicator), i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator)));
+				charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset",
+						new Integer[] { i + 1, distribution.getDivisor() }, String.format("ALE by Asset %d/%d", i + 1, distribution.getDivisor()), locale), chartData));
 			}
 		}
 		return charts;
@@ -249,11 +255,12 @@ public class ControllerRiskEvolution {
 		else {
 			List<ALE> ales = chartData[0].getAles();
 			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
-			int multiplicator = ales.size() / distribution.getDivisor();
-			for (int i = 0; i < multiplicator; i++) {
-				chartData[0].setAles(ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor()));
-				charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
-						String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), chartData));
+			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
+			for (int i = 0; i < distribution.getDivisor(); i++) {
+				chartData[0]
+						.setAles(ales.subList((int) Math.round(i * multiplicator), i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator)));
+				charts.add(chartGenerator.generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario",
+						new Integer[] { i + 1, distribution.getDivisor() }, String.format("ALE by Scenario %d/%d", i + 1, distribution.getDivisor()), locale), chartData));
 			}
 		}
 		return charts;
@@ -410,8 +417,8 @@ public class ControllerRiskEvolution {
 				Map<String, List<Assessment>> assessments = analysis.getAssessments().stream()
 						.filter(assessment -> assessment.isSelected() && names.containsKey(assessment.getScenario().getType().getName()))
 						.sorted((a1, a2) -> NaturalOrderComparator.compareTo(
-								messageSource.getMessage("label.scenario.type." + a1.getScenario().getType().getName().replace("-", "_").toLowerCase(), null, locale), messageSource
-										.getMessage("label.scenario.type." + a2.getScenario().getType().getName().replace("-", "_").toLowerCase(), null, locale)))
+								messageSource.getMessage("label.scenario.type." + a1.getScenario().getType().getName().replace("-", "_").toLowerCase(), null, locale),
+								messageSource.getMessage("label.scenario.type." + a2.getScenario().getType().getName().replace("-", "_").toLowerCase(), null, locale)))
 						.collect(Collectors.groupingBy(assessment -> messageSource
 								.getMessage("label.scenario.type." + assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(), null, locale)));
 				List<Chart> analysisCharts = chartGenerator.generateAssessmentRiskChart(new ValueFactory(analysis.getParameters()), assessments, colorBounds);
