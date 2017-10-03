@@ -5,283 +5,287 @@ Chart.defaults.global.defaultTitleFontSize = 16;
 
 // Define a plugin to provide data labels
 Chart.plugins.register({
-	afterDatasetsDraw: function (chartInstance, easing) {
+	afterDatasetsDraw : function(chartInstance, easing) {
 		// To only draw at the end of animation, check for easing === 1
 		var ctx = chartInstance.chart.ctx, valueFormat = chartInstance.chart.config.options.valueFormat;
 		if (!chartInstance.chart.config.options.displayValue)
 			return;
-		chartInstance.data.datasets.forEach(function (dataset, i) {
-			var meta = chartInstance.getDatasetMeta(i);
-			if (!meta.hidden) {
-				meta.data.forEach(function (element, index) {
-					if (dataset.data[index] != 0) {
-						var position = element.tooltipPosition(),
-							value = isFunction(valueFormat) ? valueFormat(dataset.data[index]) : dataset.data[index].toString(),
-							base = element._view.base, y = (base + position.y) / 2.0, fontSize = Chart.defaults.global.defaultFontSize * .5;
-						if ((base - position.y) > fontSize) {
-							ctx.fillStyle = Chart.defaults.global.defaultFontColor;
-							ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, 'normal', Chart.defaults.global.defaultFontFamily);
-							ctx.textAlign = 'center';
-							ctx.textBaseline = 'middle';
-							ctx.fillText(value, position.x, y);
-						}
+		chartInstance.data.datasets
+				.forEach(function(dataset, i) {
+					var meta = chartInstance.getDatasetMeta(i);
+					if (!meta.hidden) {
+						meta.data
+								.forEach(function(element, index) {
+									if (dataset.data[index] != 0) {
+										var position = element.tooltipPosition(), value = isFunction(valueFormat) ? valueFormat(dataset.data[index]) : dataset.data[index]
+												.toString(), base = element._view.base, y = (base + position.y) / 2.0, fontSize = Chart.defaults.global.defaultFontSize * .5;
+										if ((base - position.y) > fontSize) {
+											ctx.fillStyle = Chart.defaults.global.defaultFontColor;
+											ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, 'normal', Chart.defaults.global.defaultFontFamily);
+											ctx.textAlign = 'center';
+											ctx.textBaseline = 'middle';
+											ctx.fillText(value, position.x, y);
+										}
+									}
+								});
 					}
 				});
-			}
-		});
 	}
 });
 
 function aleChartOption(title) {
 	return {
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
 		},
-		legend: {
-			position: "bottom"
+		legend : {
+			position : "bottom"
 		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
 				}
 			}
 		},
-		displayValue: true,
-		valueFormat: function (value) {
+		displayValue : true,
+		valueFormat : function(value) {
 			return application.currencyFormat.format(value).replace("€", "k€");
 		},
-		scales: {
-			xAxes: [{
-				stacked: false,
-				ticks: {
-				        autoSkip: false
-				    }
-			}],
-			yAxes: [{
-				stacked: false,
-				ticks: {
+		scales : {
+			xAxes : [ {
+				stacked : false,
+				ticks : {
+					autoSkip : false
+				}
+			} ],
+			yAxes : [ {
+				stacked : false,
+				ticks : {
 					min : 0,
-					userCallback: function (value, index, values) {
+					userCallback : function(value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
 					}
 				}
-			}]
+			} ]
 		}
 	};
 }
 
 function riskOptions(title) {
 	return {
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
 		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.numberFormat.format(item.yLabel);
 				}
 			}
 		},
-		displayValue: true,
-		valueFormat: function (value) {
+		displayValue : true,
+		valueFormat : function(value) {
 			return application.numberFormat.format(value);
 		},
-		scales: {
-			xAxes: [{
-				stacked: true,
-				ticks: {
-			        autoSkip: false
-			    }
-			}],
-			yAxes: [{
-				stacked: true,
-				ticks: {
-					userCallback: function (value, index, values) {
+		scales : {
+			xAxes : [ {
+				stacked : true,
+				ticks : {
+					autoSkip : false
+				}
+			} ],
+			yAxes : [ {
+				stacked : true,
+				ticks : {
+					userCallback : function(value, index, values) {
 						return application.numberFormat.format(value);
 					}
 				}
-			}]
+			} ]
 		}
 	}
 }
 
 function evolutionProfitabilityComplianceOption(id, title) {
 	return id.startsWith("chart_evolution_profitability_") ? {
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
 		},
-		legend: {
-			position: "bottom"
+		legend : {
+			position : "bottom"
 		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
 				}
 			}
 		},
-		displayValue: true,
-		valueFormat: function (value) {
+		displayValue : true,
+		valueFormat : function(value) {
 			return application.currencyFormat.format(value).replace("€", "k€");
 		},
-		scales: {
-			xAxes: [{
-				stacked: true
-			}],
-			yAxes: [{
-				stacked: true,
-				ticks: {
-					userCallback: function (value, index, values) {
+		scales : {
+			xAxes : [ {
+				stacked : true
+			} ],
+			yAxes : [ {
+				stacked : true,
+				ticks : {
+					userCallback : function(value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
 					}
 				}
-			}]
+			} ]
 		}
 	} : {
-			title: {
-				display: title != undefined,
-				fontSize: Chart.defaults.global.defaultTitleFontSize,
-				text: title
-			},
-			legend: {
-				position: "bottom"
-			},
-			tooltips: {
-				callbacks: {
-					label: function (item, data) {
-						return application.percentageFormat.format(item.yLabel);
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
+		},
+		legend : {
+			position : "bottom"
+		},
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
+					return application.percentageFormat.format(item.yLabel);
+				}
+			}
+		},
+		scales : {
+			yAxes : [ {
+				stacked : false,
+				ticks : {
+					min : 0,
+					max : 1,
+					userCallback : function(value, index, values) {
+						return application.percentageFormat.format(value);
 					}
 				}
-			},
-			scales: {
-				yAxes: [{
-					stacked: false,
-					ticks: {
-						min: 0,
-						max: 1,
-						userCallback: function (value, index, values) {
-							return application.percentageFormat.format(value);
-						}
-					}
-				}]
-			}
-		};
+			} ]
+		}
+	};
 }
 
 function budgetChartOption(id, title) {
 	return id.startsWith("chart_budget_cost_") ? {
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
 		},
-		legend: {
-			position: "bottom"
+		legend : {
+			position : "bottom"
 		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
 				}
 			}
 		},
-		displayValue: true,
-		valueFormat: function (value) {
+		displayValue : true,
+		valueFormat : function(value) {
 			return application.currencyFormat.format(value).replace("€", "k€");
 		},
-		scales: {
-			xAxes: [{
-				stacked: true
-			}],
-			yAxes: [{
-				stacked: true,
-				ticks: {
-					userCallback: function (value, index, values) {
+		scales : {
+			xAxes : [ {
+				stacked : true
+			} ],
+			yAxes : [ {
+				stacked : true,
+				ticks : {
+					userCallback : function(value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
 					}
 				}
-			}]
+			} ]
 		}
 	} : {
-			title: {
-				display: title != undefined,
-				fontSize: Chart.defaults.global.defaultTitleFontSize,
-				text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
+		},
+		legend : {
+			position : "bottom"
+		},
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
+					return application.numberFormat.format(item.yLabel) + " " + MessageResolver("label.metric.man_day");
+				}
+			}
+		},
+		displayValue : true,
+		valueFormat : function(value) {
+			return application.numberFormat.format(value) + " " + MessageResolver("label.metric.man_day");
+		},
+		scales : {
+			ticks : {
+				beginAtZero : true,
+				max : 100
 			},
-			legend: {
-				position: "bottom"
-			},
-			tooltips: {
-				callbacks: {
-					label: function (item, data) {
-						return application.numberFormat.format(item.yLabel) + " " + MessageResolver("label.metric.man_day");
+			yAxes : [ {
+				stacked : true,
+				ticks : {
+					userCallback : function(value, index, values) {
+						return application.numberFormat.format(value) + " " + MessageResolver("label.metric.man_day");
 					}
 				}
-			},
-			displayValue: true,
-			valueFormat: function (value) {
-				return application.numberFormat.format(value) + " " + MessageResolver("label.metric.man_day");
-			},
-			scales: {
-				ticks: {
-					beginAtZero: true,
-					max: 100
-				},
-				yAxes: [{
-					stacked: true,
-					ticks: {
-						userCallback: function (value, index, values) {
-							return application.numberFormat.format(value) + " " + MessageResolver("label.metric.man_day");
-						}
-					}
-				}]
-			}
-		};
+			} ],
+			xAxes : [ {
+				stacked : true
+			} ]
+		}
+	};
 }
 
 function heatMapOption() {
 	return {
-		scales: {
-			yAxes: [{
-				scaleLabel: {
-					display: true,
-					labelString: MessageResolver("label.title.impact", "Impact"),
-					fontFamily: Chart.defaults.global.defaultFontFamily,
-					fontSize: Chart.defaults.global.defaultTitleFontSize,
+		scales : {
+			yAxes : [ {
+				scaleLabel : {
+					display : true,
+					labelString : MessageResolver("label.title.impact", "Impact"),
+					fontFamily : Chart.defaults.global.defaultFontFamily,
+					fontSize : Chart.defaults.global.defaultTitleFontSize,
 				}
-			}],
-			xAxes: [{
-				scaleLabel: {
-					display: true,
-					labelString: MessageResolver("label.title.likelihood", "Probability"),
-					fontFamily: Chart.defaults.global.defaultFontFamily,
-					fontSize: Chart.defaults.global.defaultTitleFontSize,
+			} ],
+			xAxes : [ {
+				scaleLabel : {
+					display : true,
+					labelString : MessageResolver("label.title.likelihood", "Probability"),
+					fontFamily : Chart.defaults.global.defaultFontFamily,
+					fontSize : Chart.defaults.global.defaultTitleFontSize,
 				}
-			}]
+			} ]
 		},
-		tooltips: {
-			enabled: false
+		tooltips : {
+			enabled : false
 		},
-		legend: {
-			display: true,
-			position: 'top',
-			onClick: function () {
+		legend : {
+			display : true,
+			position : 'top',
+			onClick : function() {
 				return false;
 			},
-			labels: {
-				generateLabels: function (chart) {
+			labels : {
+				generateLabels : function(chart) {
 					var data = chart.data;
-					return helpers.isArray(data.legends) ? data.legends.map(function (legend) {
+					return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
 						return {
-							text: legend.label,
-							fillStyle: legend.color
+							text : legend.label,
+							fillStyle : legend.color
 						};
 					}, this) : [];
 				}
@@ -292,20 +296,20 @@ function heatMapOption() {
 
 function complianceOptions(title) {
 	return {
-		legend: {
-			position: 'bottom',
+		legend : {
+			position : 'bottom',
 		},
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
 		},
-		scale: {
-			ticks: {
-				beginAtZero: true,
-				max: 100,
-				min: 0,
-				stepSize: 20
+		scale : {
+			ticks : {
+				beginAtZero : true,
+				max : 100,
+				min : 0,
+				stepSize : 20
 			}
 		}
 	};
@@ -313,102 +317,106 @@ function complianceOptions(title) {
 
 function aleEvolutionOptions(title) {
 	return {
-		legend: {
-			position: 'bottom',
+		legend : {
+			position : 'bottom',
 		},
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
-		}, tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
+		},
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.currencyFormat.format(item.yLabel).replace("€", "k€");
 				}
 			}
-		}, scales: {
-			xAxes: [{
-				stacked: false
-			}],
-			yAxes: [{
-				stacked: false,
-				ticks: {
-					mim: 0,
-					userCallback: function (value, index, values) {
+		},
+		scales : {
+			xAxes : [ {
+				stacked : false
+			} ],
+			yAxes : [ {
+				stacked : false,
+				ticks : {
+					mim : 0,
+					userCallback : function(value, index, values) {
 						return application.currencyFormat.format(value.toString()).replace("€", "k€");
 					}
 				}
-			}]
+			} ]
 		}
 	};
 }
 
 function dynamicParameterEvolutionOptions(title) {
 	return {
-		legend: {
-			position: 'bottom',
+		legend : {
+			position : 'bottom',
 		},
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
-		}, tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
+		},
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.numberFormat.format(item.yLabel);
 				}
 			}
-		}, scales: {
-			xAxes: [{
-				stacked: false
-			}],
-			yAxes: [{
-				stacked: false,
-				ticks: {
-					mim: 0,
-					userCallback: function (value, index, values) {
+		},
+		scales : {
+			xAxes : [ {
+				stacked : false
+			} ],
+			yAxes : [ {
+				stacked : false,
+				ticks : {
+					mim : 0,
+					userCallback : function(value, index, values) {
 						return application.numberFormat.format(value);
 					}
 				}
-			}]
+			} ]
 		}
 	};
 }
 
 function rffOptions(title) {
 	return {
-		title: {
-			display: title != undefined,
-			fontSize: Chart.defaults.global.defaultTitleFontSize,
-			text: title
+		title : {
+			display : title != undefined,
+			fontSize : Chart.defaults.global.defaultTitleFontSize,
+			text : title
 		},
-		maintainAspectRatio: false,
-		legend: {
-			position: "right"
+		maintainAspectRatio : false,
+		legend : {
+			position : "right"
 		},
-		tooltips: {
-			callbacks: {
-				label: function (item, data) {
+		tooltips : {
+			callbacks : {
+				label : function(item, data) {
 					return application.percentageFormat.format(item.yLabel);
 				}
 			}
-		}
-		, scales: {
-			xAxes: [{
-				stacked: false
-			}],
-			yAxes: [{
-				stacked: false,
-				ticks: {
-					autoSkip: false,
-					min: 0,
-					max: 1,
-					userCallback: function (value, index, values) {
+		},
+		scales : {
+			xAxes : [ {
+				stacked : false
+			} ],
+			yAxes : [ {
+				stacked : false,
+				ticks : {
+					autoSkip : false,
+					min : 0,
+					max : 1,
+					userCallback : function(value, index, values) {
 						return application.percentageFormat.format(value);
 					}
 
 				}
-			}]
+			} ]
 		}
 	}
 }

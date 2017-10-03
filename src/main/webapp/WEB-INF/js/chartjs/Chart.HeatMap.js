@@ -1,4 +1,131 @@
-var helpers = Chart.helpers;
+var helpers = Chart.helpers, defaults = Chart.defaults;
+
+var HeatMapScale = Chart.Scale.extend({
+	/**
+	 * Internal function to get the correct labels. If data.xLabels or
+	 * data.yLabels are defined, use those else fall back to data.labels
+	 * 
+	 * @private
+	 */
+	getLabels : function() {
+		var data = this.chart.data;
+		return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
+	},
+
+	determineDataLimits : function() {
+		var me = this;
+		var labels = me.getLabels();
+		me.minIndex = 0;
+		me.maxIndex = labels.length - 1;
+		var findIndex;
+
+		if (me.options.ticks.min !== undefined) {
+			// user specified min value
+			findIndex = labels.indexOf(me.options.ticks.min);
+			me.minIndex = findIndex !== -1 ? findIndex : me.minIndex;
+		}
+
+		if (me.options.ticks.max !== undefined) {
+			// user specified max value
+			findIndex = labels.indexOf(me.options.ticks.max);
+			me.maxIndex = findIndex !== -1 ? findIndex : me.maxIndex;
+		}
+
+		me.min = labels[me.minIndex];
+		me.max = labels[me.maxIndex];
+	},
+
+	buildTicks : function() {
+		var me = this;
+		var labels = me.getLabels();
+		// If we are viewing some subset of labels, slice the original array
+		me.ticks = (me.minIndex === 0 && me.maxIndex === labels.length - 1) ? labels : labels.slice(me.minIndex, me.maxIndex + 1);
+	},
+
+	getLabelForIndex : function(index, datasetIndex) {
+		var me = this;
+		var data = me.chart.data;
+		var isHorizontal = me.isHorizontal();
+
+		if (data.yLabels && !isHorizontal) {
+			return me.getRightValue(data.datasets[datasetIndex].data[index]);
+		}
+		return me.ticks[index - me.minIndex];
+	},
+
+	// Used to get data value locations. Value can either be an index or a
+	// numerical value
+	getPixelForValue : function(value, index,  datasetIndex, includeOffset) {
+		var me = this;
+		var offset = me.options.offset || includeOffset;//fix bug
+		// 1 is added because we need the length but we have the indexes
+		var offsetAmt = Math.max((me.maxIndex + 1 - me.minIndex), 1);
+
+		// If value is a data object, then index is the index in the data array,
+		// not the index of the scale. We need to change that.
+		var valueCategory;
+		if (value !== undefined && value !== null) {
+			valueCategory = me.isHorizontal() ? value.x : value.y;
+		}
+		if (valueCategory !== undefined || (value !== undefined && isNaN(index))) {
+			var labels = me.getLabels();
+			value = valueCategory || value;
+			var idx = labels.indexOf(value);
+			index = idx !== -1 ? idx : index;
+		}
+
+		if (me.isHorizontal()) {
+			var valueWidth = me.width / offsetAmt;
+			var widthOffset = (valueWidth * (index - me.minIndex));
+
+			if (offset) {
+				widthOffset += (valueWidth / 2);
+			}
+
+			return me.left + Math.round(widthOffset);
+		}
+		var valueHeight = me.height / offsetAmt;
+		var heightOffset = (valueHeight * (index - me.minIndex));
+
+		if (offset) {
+			heightOffset += (valueHeight / 2);
+		}
+
+		return me.top + Math.round(heightOffset);
+	},
+	getPixelForTick : function(index) {
+		return this.getPixelForValue(this.ticks[index], index + this.minIndex, undefined, true);
+	},
+	getValueForPixel : function(pixel) {
+		var me = this;
+		var offset = me.options.offset;
+		var value;
+		var offsetAmt = Math.max((me._ticks.length - (offset ? 0 : 1)), 1);
+		var horz = me.isHorizontal();
+		var valueDimension = (horz ? me.width : me.height) / offsetAmt;
+
+		pixel -= horz ? me.left : me.top;
+
+		if (offset) {
+			pixel -= (valueDimension / 2);
+		}
+
+		if (pixel <= 0) {
+			value = 0;
+		} else {
+			value = Math.round(pixel / valueDimension);
+		}
+
+		return value + me.minIndex;
+	},
+	getBasePixel : function() {
+		return this.bottom;
+	}
+});
+
+Chart.scaleService.registerScaleType('heatmap', HeatMapScale, {
+	position : 'bottom'
+});
 
 Chart.plugins.register({
 	beforeInit : function(chart) {
@@ -26,8 +153,8 @@ Chart.plugins.register({
 						ctx.textAlign = 'center';
 						ctx.textBaseline = 'middle';
 						ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, "normal", Chart.defaults.global.defaultFontFamily);
-						var dataString = "#"+dataset.data[index], position = element.tooltipPosition();
-						ctx.fillText(dataString=="#"? "" : dataString, position.x, position.y);
+						var dataString = "#" + dataset.data[index], position = element.tooltipPosition();
+						ctx.fillText(dataString == "#" ? "" : dataString, position.x, position.y);
 					});
 				}
 			});
@@ -43,21 +170,21 @@ Chart.defaults.heatmap = {
 	},
 	scales : {
 		xAxes : [ {
-			type : 'category',
+			type : 'heatmap',
 			position : 'bottom',
 			gridLines : {
 				display : false,
-				offsetGridLines : true,
+				offsetGridLines : false,
 				drawBorder : false,
 				drawTicks : false
 			}
 		} ],
 		yAxes : [ {
-			type : 'category',
+			type : 'heatmap',
 			position : 'left',
 			gridLines : {
 				display : false,
-				offsetGridLines : true,
+				offsetGridLines : false,
 				drawBorder : false,
 				drawTicks : false
 			}
@@ -82,9 +209,11 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 	update : function(reset) {
 		var me = this, meta = me.getMeta(), boxes = meta.data;
 		// Update Boxes
+
 		helpers.each(boxes, function(box, index) {
 			me.updateElement(box, index, reset);
 		});
+
 	},
 
 	updateElement : function(box, index) {
@@ -101,7 +230,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		var x = xScale.getPixelForValue(data, index, datasetIndex);
 		var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
 
-		var boxWidth = 0.0;
+		var boxWidth = 0;
 		if (dataset.data.length > 1) {
 			var x0 = xScale.getPixelForValue(dataset.data[0], 0, datasetIndex);
 			var x1 = xScale.getPixelForValue(dataset.data[1], 1, datasetIndex);
@@ -110,26 +239,24 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 			boxWidth = xScale.width;
 		}
 
-		var boxHeight = 0.0;
+		var boxHeight = 0;
 		if (me.chart.data.datasets.length > 1) {
 			// We only support 'category' scales on the y-axis for now
 			boxHeight = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
 		} else {
 			boxHeight = yScale.height;
 		}
+
 		// Apply padding
-
-		var verticalPadding = 1.9, horizontalPadding = 2.9;
-
+		var horizontalPadding = paddingScale * boxWidth*.5, verticalPadding = paddingScale * boxHeight;
 		boxWidth = boxWidth - horizontalPadding;
-
 		boxHeight = boxHeight - verticalPadding;
+		y = y + verticalPadding / 2;
+		x = x + horizontalPadding / 2;
 
-		y = y + verticalPadding / 2.0;
-
-		x = x + horizontalPadding / 2.0;
-
+		// var color = me.chart.options.colorFunction(data);
 		var cornerRadius = boxWidth * radiusScale;
+
 		helpers.extend(box, {
 			// Utility
 			_xScale : xScale,
@@ -141,7 +268,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 			// Desired view properties
 			_model : {
 				// Position
-				x : x + boxWidth / 2.0,
+				x : x + boxWidth / 2,
 				y : y,
 
 				// Appearance
@@ -158,7 +285,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 
 			// Override to draw rounded rectangles without any borders
 			draw : function() {
-				var ctx = this._chart.ctx, vm = this._view, leftX = vm.x - (vm.width) / 2.0;
+				var ctx = this._chart.ctx, vm = this._view, leftX = vm.x - vm.width / 2;
 				ctx.fillStyle = vm.backgroundColor;
 				helpers.drawRoundedRectangle(ctx, leftX, vm.y, vm.width, vm.height, vm.cornerRadius);
 				ctx.fill();
@@ -169,7 +296,7 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 				var vm = this._view;
 				return {
 					x : vm.x,
-					y : vm.y + vm.height / 2.0
+					y : vm.y + vm.height / 2
 				};
 			}
 		});
