@@ -55,9 +55,9 @@ var HeatMapScale = Chart.Scale.extend({
 
 	// Used to get data value locations. Value can either be an index or a
 	// numerical value
-	getPixelForValue : function(value, index,  datasetIndex, includeOffset) {
+	getPixelForValue : function(value, index, datasetIndex, includeOffset) {
 		var me = this;
-		var offset = me.options.offset || includeOffset;//fix bug
+		var offset = me.options.offset || includeOffset;// fix bug
 		// 1 is added because we need the length but we have the indexes
 		var offsetAmt = Math.max((me.maxIndex + 1 - me.minIndex), 1);
 
@@ -75,23 +75,23 @@ var HeatMapScale = Chart.Scale.extend({
 		}
 
 		if (me.isHorizontal()) {
-			var valueWidth = me.width / offsetAmt;
+			var valueWidth = me.width / offsetAmt * 1.0;
 			var widthOffset = (valueWidth * (index - me.minIndex));
 
 			if (offset) {
-				widthOffset += (valueWidth / 2);
+				widthOffset += (valueWidth / 2.0);
 			}
 
-			return me.left + Math.round(widthOffset);
+			return me.left + widthOffset;
 		}
 		var valueHeight = me.height / offsetAmt;
 		var heightOffset = (valueHeight * (index - me.minIndex));
 
 		if (offset) {
-			heightOffset += (valueHeight / 2);
+			heightOffset += (valueHeight / 2.0);
 		}
 
-		return me.top + Math.round(heightOffset);
+		return me.top + heightOffset;
 	},
 	getPixelForTick : function(index) {
 		return this.getPixelForValue(this.ticks[index], index + this.minIndex, undefined, true);
@@ -102,18 +102,18 @@ var HeatMapScale = Chart.Scale.extend({
 		var value;
 		var offsetAmt = Math.max((me._ticks.length - (offset ? 0 : 1)), 1);
 		var horz = me.isHorizontal();
-		var valueDimension = (horz ? me.width : me.height) / offsetAmt;
+		var valueDimension = (horz ? me.width : me.height) / offsetAmt * 1.0;
 
 		pixel -= horz ? me.left : me.top;
 
 		if (offset) {
-			pixel -= (valueDimension / 2);
+			pixel -= (valueDimension / 2.0);
 		}
 
 		if (pixel <= 0) {
 			value = 0;
 		} else {
-			value = Math.round(pixel / valueDimension);
+			value = pixel / valueDimension * 1.0;
 		}
 
 		return value + me.minIndex;
@@ -230,25 +230,28 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		var x = xScale.getPixelForValue(data, index, datasetIndex);
 		var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
 
-		var boxWidth = 0;
-		if (dataset.data.length > 1) {
-			var x0 = xScale.getPixelForValue(dataset.data[0], 0, datasetIndex);
-			var x1 = xScale.getPixelForValue(dataset.data[1], 1, datasetIndex);
-			boxWidth = x1 - x0;
-		} else {
+		var boxWidth = 1;
+		if (dataset.data.length > 1)
+			boxWidth = xScale.getPixelForValue(dataset.data[1], 1, datasetIndex) - xScale.getPixelForValue(dataset.data[0], 0, datasetIndex);
+		else
 			boxWidth = xScale.width;
-		}
 
-		var boxHeight = 0;
-		if (me.chart.data.datasets.length > 1) {
+		var boxHeight = 1;
+
+		if (me.chart.data.datasets.length > 1)
 			// We only support 'category' scales on the y-axis for now
 			boxHeight = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
-		} else {
+		else
 			boxHeight = yScale.height;
-		}
 
-		// Apply padding
-		var horizontalPadding = paddingScale * boxWidth*.5, verticalPadding = paddingScale * boxHeight;
+		var heightRatio = 1.0, widthRatio = 1.0;
+		if (boxWidth > boxHeight)
+			widthRatio = boxHeight / boxWidth;
+		else
+			heightRatio = boxWidth / boxHeight
+
+			// Apply padding
+		var horizontalPadding = paddingScale * boxWidth * widthRatio, verticalPadding = paddingScale * boxHeight * heightRatio;
 		boxWidth = boxWidth - horizontalPadding;
 		boxHeight = boxHeight - verticalPadding;
 		y = y + verticalPadding / 2;
