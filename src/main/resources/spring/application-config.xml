@@ -26,7 +26,7 @@
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
-	
+
 	<bean id="emailTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="5" />
 		<property name="maxPoolSize" value="10" />
@@ -41,13 +41,13 @@
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
 
-	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" />
+	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/fonts/**" location="/WEB-INF/fonts/" />
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/fonts/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/css/**" location="/WEB-INF/css/" />
+	<mvc:resources mapping="/css/**" location="/WEB-INF/css/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/js/**" location="/WEB-INF/js/" />
+	<mvc:resources mapping="/js/**" location="/WEB-INF/js/" cache-period="${app.settings.static.resource.caching.age}" />
 
 	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 
@@ -56,27 +56,25 @@
 		<property name="fallbackToSystemLocale" value="false" />
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
-	
-	<bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
-        <property name="basenamePrefix" value="themes."/> 
-        <property name="defaultEncoding" value="UTF-8"/>
-    </bean>
 
-    <bean id="themeResolver" class="org.springframework.web.servlet.theme.CookieThemeResolver">
-        <property name="defaultThemeName" value="default"/>
-        <property name="cookieName" value="TS_THEME_NAME"/>
-    </bean>
+	<bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
+		<property name="basenamePrefix" value="themes." />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+	<bean id="themeResolver" class="org.springframework.web.servlet.theme.CookieThemeResolver">
+		<property name="defaultThemeName" value="default" />
+		<property name="cookieName" value="TS_THEME_NAME" />
+	</bean>
 
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'lang' request parameter is sent; e.g. /?lang=fr -->
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
 			<property name="paramName" value="lang" />
 		</bean>
-		
-		<!-- <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
-            <property name="paramName" value="theme"/>
-        </bean> -->
-        
+
+		<!-- <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor"> <property name="paramName" value="theme"/> </bean> -->
+
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />
 		</bean>
@@ -84,24 +82,24 @@
 
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
 
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
-		p:username="${jdbc.username}" p:password="${jdbc.password}" />
-		
-	<bean id="baselineVersion" class="org.flywaydb.core.api.MigrationVersion" factory-method="fromVersion"   >
-		<constructor-arg value="${app.settings.database.version}"/>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}" p:username="${jdbc.username}"
+		p:password="${jdbc.password}" />
+
+	<bean id="baselineVersion" class="org.flywaydb.core.api.MigrationVersion" factory-method="fromVersion">
+		<constructor-arg value="${app.settings.database.version}" />
 	</bean>
-		
+
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
-    		<property name="dataSource" ref="dataSource"/>
-    		<property name="baselineOnMigrate" value="false"/>
-    		<property name="table" value="SchemaVersion"/>
-    		<property name="baselineVersion" ref="baselineVersion" />
-    		<property name="locations">
-    			<list>
-    				<value>classpath:lu/itrust/business/TS/database/migration</value>
-    				<value>classpath:/migration</value>
-    			</list>
-    		</property>
+		<property name="dataSource" ref="dataSource" />
+		<property name="baselineOnMigrate" value="false" />
+		<property name="table" value="SchemaVersion" />
+		<property name="baselineVersion" ref="baselineVersion" />
+		<property name="locations">
+			<list>
+				<value>classpath:lu/itrust/business/TS/database/migration</value>
+				<value>classpath:/migration</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="flyway">
@@ -115,7 +113,7 @@
 			</props>
 		</property>
 	</bean>
-	
+
 	<bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
