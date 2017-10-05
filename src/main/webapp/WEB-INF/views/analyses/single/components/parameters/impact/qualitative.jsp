@@ -25,17 +25,20 @@
 					<tbody>
 						<c:forEach items="${mappedParameters[impactName]}" var="parameter">
 							<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}" ${parameter.level ==0? 'style="display: none"' : ''}>
-								<td data-trick-field="level" class="textaligncenter"><c:choose>
-										<c:when test="${parameter.level == 0 }">
-											<spring:message code='label.status.na' />
-										</c:when>
-										<c:otherwise>
-											<spring:message text="${parameter.level}" />
-										</c:otherwise>
-									</c:choose></td>
-								<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message
-										text="${parameter.label}" /></td>
-								<td data-trick-field="description" data-trick-content="text"  data-trick-field-type="string" class="editable" onclick="return editField(this);"><spring:message
+								<c:choose>
+									<c:when test="${parameter.level == 0 }">
+										<td data-trick-field="level" class="textaligncenter"><spring:message code='label.status.na' /></td>
+										<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message code='label.impact.probability.na' /></td>
+									</c:when>
+									<c:otherwise>
+										<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+										<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message
+												text="${parameter.label}" /></td>
+									</c:otherwise>
+								</c:choose>
+
+
+								<td data-trick-field="description" data-trick-content="text" data-trick-field-type="string" class="editable" onclick="return editField(this);"><spring:message
 										text="${parameter.description}" /></td>
 							</tr>
 						</c:forEach>

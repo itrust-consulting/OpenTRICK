@@ -53,6 +53,7 @@
 
 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basename" value="classpath:/languages/messages" />
+		<property name="useCodeAsDefaultMessage" value="true" />
 		<property name="fallbackToSystemLocale" value="false" />
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
@@ -73,7 +74,9 @@
 			<property name="paramName" value="lang" />
 		</bean>
 
-		<!-- <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor"> <property name="paramName" value="theme"/> </bean> -->
+		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
+			<property name="paramName" value="theme"/> 
+		</bean>
 
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />

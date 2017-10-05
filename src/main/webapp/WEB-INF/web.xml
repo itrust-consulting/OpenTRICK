@@ -55,7 +55,7 @@
 		<name>TS_SESSION_ID</name> 
   		<path>/</path>
   		<http-only>true</http-only>
-		<secure>true</secure>
+		<!-- <secure>true</secure> -->
   	</cookie-config>
   </session-config>
 

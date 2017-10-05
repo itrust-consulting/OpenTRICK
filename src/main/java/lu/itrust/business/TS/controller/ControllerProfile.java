@@ -92,6 +92,9 @@ public class ControllerProfile {
 	@Value("${app.settings.otp.force}")
 	private boolean forcedOTP = true;
 
+	@Value("${app.settings.otp.name:TRICKService}")
+	private String appName;
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -515,7 +518,8 @@ public class ControllerProfile {
 	private String generateQRCode(User user, String secret) {
 		try {
 			return Base64.encodeBase64String(
-					QRCode.from(String.format("otpauth://totp/TS-%s?secret=%s", URLEncoder.encode(user.getEmail(), "UTF-8"), secret)).withSize(131, 131).stream().toByteArray());
+					QRCode.from(String.format("otpauth://totp/%s-%s?secret=%s", URLEncoder.encode(appName, "UTF-8"), URLEncoder.encode(user.getEmail(), "UTF-8"), secret))
+							.withSize(131, 131).stream().toByteArray());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return null;

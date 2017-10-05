@@ -58,9 +58,23 @@ function FieldEditor(element, validator) {
 	this.validator = validator;
 	this.controllor = null;
 	this.defaultValue = $(element).text().trim();
+	/**
+	 * Options values
+	 */
 	this.choose = [];
+	/**
+	 * Options labels
+	 */
 	this.chooseTranslate = [];
+	/**
+	 * Value to display
+	 */
+	this.chooseValue = [];
+	/**
+	 * Options titles
+	 */
 	this.chooseTitle = [];
+
 	this.fieldEditor = null;
 	this.realValue = null;
 	this.fieldName = null;
@@ -127,7 +141,7 @@ function FieldEditor(element, validator) {
 				option.setAttribute("value", this.choose[i]);
 				if (this.chooseTranslate.length > i) {
 					$option.text(this.chooseTranslate[i]);
-					if (this.chooseTranslate[i] == this.defaultValue)
+					if (this.chooseTranslate[i] == this.defaultValue || this.chooseValue[i] === this.defaultValue)
 						option.setAttribute("selected", true);
 				} else {
 					$option.text(this.choose[i]);
@@ -301,7 +315,9 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.HasChanged = function() {
-		if (this.choose.length && this.chooseTranslate.length)
+		if(this.choose.length && this.chooseValue.length)
+			return this.choose.indexOf(this.GetValue()) != this.chooseValue.indexOf(this.defaultValue);
+		else if (this.choose.length && this.chooseTranslate.length)
 			return this.choose.indexOf(this.GetValue()) != this.chooseTranslate.indexOf(this.defaultValue);
 		else if (this.realValue == null || this.realValue == undefined)
 			return this.GetValue() != this.defaultValue;
@@ -376,11 +392,20 @@ function FieldEditor(element, validator) {
 				setTimeout(this.callback, 1);
 		} else {
 			var value = this.GetValue();
-			if (this.choose.length && this.chooseTranslate.length) {
-				for (var i = 0; i < this.choose.length; i++) {
-					if (this.choose[i] == value) {
-						$element.text(this.chooseTranslate[i]);
-						break;
+			if (this.choose.length && (this.chooseTranslate.length || this.chooseValue.length)) {
+				if (this.chooseValue.length) {
+					for (var i = 0; i < this.choose.length; i++) {
+						if (this.choose[i] == value) {
+							$element.text(this.chooseValue[i]);
+							break;
+						}
+					}
+				} else {
+					for (var i = 0; i < this.choose.length; i++) {
+						if (this.choose[i] == value) {
+							$element.text(this.chooseTranslate[i]);
+							break;
+						}
 					}
 				}
 			} else
@@ -611,6 +636,20 @@ function AssessmentExtendedParameterEditor(element) {
 			});
 			return false;
 		}
+
+		AssessmentExtendedParameterEditor.prototype.getLabel = function(i, levels, labels) {
+			var level = levels.length >= 0 && levels.length > i ? levels[i].innerText.trim() : "";
+			var label = labels.length >= 0 && labels.length > i ? labels[i].innerText.trim() : "";
+			if (level === "") {
+				level = i === 0 ? "NA" : i;
+				if (label === "")
+					return level;
+				else
+					return level + " - " + label;
+			} else
+				return label === "" ? level : level + " - " + label
+		}
+
 		return AssessmentFieldEditor.prototype.GeneratefieldEditor.call(this);
 	};
 
@@ -644,8 +683,9 @@ function AssessmentImpactFieldEditor(element) {
 				"td[data-trick-field='description']", id);
 		for (var i = 0; i < $values.length; i++) {
 			this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
-			this.chooseTranslate[i] = $values[i].innerText.trim();
+			this.chooseTranslate[i] = this.getLabel(i, $values, $acronyms);
 			this.chooseTitle[i] = $title[i].innerText.trim();
+			this.chooseValue[i] = $values[i].innerText.trim();
 		}
 		return this.choose.length;
 	};
@@ -691,8 +731,9 @@ function AssessmentProbaFieldEditor(element) {
 					"td[data-trick-field='description']", id);
 			for (var i = 0; i < $values.length; i++) {
 				this.choose[i] = $acronyms[i].getAttribute("data-trick-acronym-value");
-				this.chooseTranslate[i] = $values[i].innerText.trim();
+				this.chooseTranslate[i] = this.getLabel(i, $values, $acronyms);
 				this.chooseTitle[i] = $title[i].innerText.trim();
+				this.chooseValue[i] = $values[i].innerText.trim();
 			}
 			return this.choose.length;
 		};
