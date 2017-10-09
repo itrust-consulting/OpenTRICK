@@ -294,6 +294,48 @@ function heatMapOption() {
 	};
 }
 
+function evolutionHeatMapOption() {
+	return {
+		scales : {
+			yAxes : [ {
+				scaleLabel : {
+					display : true,
+					labelString : MessageResolver("label.title.impact", "Impact"),
+					fontFamily : Chart.defaults.global.defaultFontFamily,
+					fontSize : Chart.defaults.global.defaultTitleFontSize,
+				}
+			}],
+			xAxes : [ {
+				scaleLabel : {
+					display : true,
+					labelString : MessageResolver("label.title.likelihood", "Probability"),
+					fontFamily : Chart.defaults.global.defaultFontFamily,
+					fontSize : Chart.defaults.global.defaultTitleFontSize,
+				}
+			}]
+		},
+		tooltips : {
+			enabled : false
+		},
+		legend : {
+			display : true,
+			position : 'top',
+			onClick : () => false,
+			labels : {
+				generateLabels : function(chart) {
+					var data = chart.data;
+					return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
+						return {
+							text : legend.label,
+							fillStyle : legend.color
+						};
+					}, this) : [];
+				}
+			}
+		}
+	};
+}
+
 function complianceOptions(title) {
 	return {
 		legend : {

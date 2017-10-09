@@ -82,13 +82,20 @@
 				<div class="container">
 					<div class="row-fluid">
 						<h3>
-							<spring:message code="label.title.risk_acceptance.heat_map" />
+							<spring:message code="label.title.risk_acceptance.heat_map_evolution" />
 						</h3>
 					</div>
 				</div>
 			</div>
 			<div class='col-sm-8'>
-				<canvas id="risk_acceptance_heat_map_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+				<fieldset>
+					<legend><spring:message code="label.title.risk_acceptance.heat_map" /></legend>
+					<canvas id="risk_acceptance_heat_map_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+				</fieldset>
+				<fieldset>
+					<legend><spring:message code="label.title.risk_acceptance.evolution" /></legend>
+					<canvas id="risk_acceptance_evolution_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+				</fieldset>
 			</div>
 			${riskAcceptanceTablePlaceHolder}
 		</div>

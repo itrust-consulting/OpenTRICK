@@ -28,7 +28,7 @@
 								<c:choose>
 									<c:when test="${parameter.level == 0 }">
 										<td data-trick-field="level" class="textaligncenter"><spring:message code='label.status.na' /></td>
-										<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message code='label.impact.probability.na' /></td>
+										<td data-trick-field="label" data-trick-acronym-value='<spring:message text="${parameter.acronym}" />' class="textaligncenter"><spring:message code='label.parameter.label.na' text="${parameter.label}" /></td>
 									</c:when>
 									<c:otherwise>
 										<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>

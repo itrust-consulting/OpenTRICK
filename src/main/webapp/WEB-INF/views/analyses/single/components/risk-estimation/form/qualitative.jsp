@@ -135,22 +135,34 @@
 							<c:when test="${empty riskProfile.rawProbaImpact.probability}">
 								<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
 									<c:forEach items="${probabilities}" var="parameter">
-										<option value="${parameter.id}" title='<spring:message text="${parameter.label}"/>'>
-											<c:choose>
-												<c:when test="${parameter.level == 0}">${naValue}</c:when>
-												<c:otherwise>${parameter.level}</c:otherwise>
-											</c:choose>
-										</option>
+										<c:choose>
+											<c:when test="${parameter.level == 0}">
+												<c:set var="rawProbaValue" value="${naValue}" />
+												<spring:message code='label.parameter.label.na' text="${parameter.label}" var="rawProbaTitle" />
+											</c:when>
+											<c:otherwise>
+												<spring:message text="${parameter.label}" var="rawProbaTitle" />
+												<c:set var="rawProbaValue" value="${parameter.level}" />
+											</c:otherwise>
+										</c:choose>
+										<option value="${parameter.id}" title='${rawProbaTitle}'>${rawProbaValue}</option>
 									</c:forEach>
 								</select>
 							</c:when>
 							<c:otherwise>
 								<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='${riskProfile.rawProbaImpact.probability.id}' data-trick-type='integer'>
 									<c:forEach items="${probabilities}" var="parameter">
-										<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probability==parameter?"selected='selected'" :""} title='<spring:message text="${parameter.label}"/>'><c:choose>
-												<c:when test="${parameter.level == 0}">${naValue}</c:when>
-												<c:otherwise>${parameter.level}</c:otherwise>
-											</c:choose></option>
+										<c:choose>
+											<c:when test="${parameter.level == 0}">
+												<c:set var="rawProbaValue" value="${naValue}" />
+												<spring:message code='label.parameter.label.na' text="${parameter.label}" var="rawProbaTitle" />
+											</c:when>
+											<c:otherwise>
+												<spring:message text="${parameter.label}" var="rawProbaTitle" />
+												<c:set var="rawProbaValue" value="${parameter.level}" />
+											</c:otherwise>
+										</c:choose>
+										<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probability==parameter?"selected='selected'" :""} title='${rawProbaTitle}'>${rawProbaValue}</option>
 									</c:forEach>
 								</select>
 							</c:otherwise>

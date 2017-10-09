@@ -652,6 +652,10 @@ img.support-logo+img.support-logo{
 	margin-left: 15px;
 }
 
+.nav-analysis>li{
+	margin-bottom: -2px;
+}
+
 @media ( min-width : 992px) {
 	
 	.max-height {

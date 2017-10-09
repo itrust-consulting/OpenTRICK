@@ -25,6 +25,10 @@ public class Dataset<T> {
 	private String type;
 	
 	private String stack;
+	
+	private String xAxisID;
+	
+	private String yAxisID;
 
 	private T backgroundColor = null;
 
@@ -169,6 +173,22 @@ public class Dataset<T> {
 	 */
 	public void setMetaData(List<Object> metaData) {
 		this.metaData = metaData;
+	}
+
+	public String getyAxisID() {
+		return yAxisID;
+	}
+
+	public void setyAxisID(String yAxisID) {
+		this.yAxisID = yAxisID;
+	}
+
+	public String getxAxisID() {
+		return xAxisID;
+	}
+
+	public void setxAxisID(String xAxisID) {
+		this.xAxisID = xAxisID;
 	}
 
 }

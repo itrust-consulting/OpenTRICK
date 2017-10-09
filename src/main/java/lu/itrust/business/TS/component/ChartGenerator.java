@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.component.chartJS.Legend;
+import lu.itrust.business.TS.component.chartJS.Point;
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.component.chartJS.helper.DynamicParameterMetadata;
 import lu.itrust.business.TS.component.chartJS.helper.ValueMetadata;
@@ -1352,6 +1353,52 @@ public class ChartGenerator {
 		return chart;
 	}
 
+	public static Chart generateRiskEvolutionHeatMap(Analysis analysis, ValueFactory factory) {
+		if (factory == null)
+			factory = new ValueFactory(analysis.getParameters());
+		Chart chart = new Chart();
+		String type = factory.getImpacts().keySet().stream().findAny().orElse(null);
+		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
+		//List<List<String>> backgroudColors = new ArrayList<>(impacts.size() - 1);
+		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
+		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
+		probabilities.stream().filter(probability -> probability.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()))
+				.forEach(probability -> chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel())));
+		impacts.stream().filter(impact -> impact.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel()))
+				.forEach(impact -> chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel())));
+		//chart.setBackgroudColors(backgroudColors);
+		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
+			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(
+						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+		}
+		
+		for (int i = impacts.size()-1; i > 0 ; i--) {
+			Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>(probabilities.size()-1));
+			for (int j = 1; j < probabilities.size(); j++) {
+				int importance = i * j;
+				dataset.getBackgroundColor().add(colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).map(ColorBound::getColor).findAny().orElse(Constant.HEAT_MAP_DEFAULT_COLOR));
+				dataset.getData().add("");
+			}
+			dataset.setType("evalutionheatmap");
+			dataset.setyAxisID("y-axis-0");
+			chart.getDatasets().add(dataset);
+		}
+		
+		/*Dataset<String> dataset = new Dataset<String>("#333");
+		dataset.setyAxisID("y-axis-1");
+		dataset.setType("line");
+		dataset.getData().add(new Point(probabilities.get(1).getLabel(),impacts.get(1).getLabel()));
+		dataset.getData().add(new Point(probabilities.get(3).getLabel(),impacts.get(3).getLabel()));
+		chart.getDatasets().add(dataset);*/
+		return chart;
+	}
+
 	public Chart generateTotalRiskJSChart(List<Analysis> analyses, Locale locale) {
 		Chart chart = new Chart(messageSource.getMessage("label.title.chart.total_risk", null, "Total Risk", locale));
 		if (analyses.isEmpty())
@@ -1473,6 +1520,10 @@ public class ChartGenerator {
 	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
 	public void setStaticColors(List<String> staticColors) {
 		Constant.STATIC_COLORS = staticColors;
+	}
+
+	public Chart generateRiskEvolutionHeatMap(Integer idAnalysis) {
+		return generateRiskEvolutionHeatMap(daoAnalysis.get(idAnalysis), null);
 	}
 
 }

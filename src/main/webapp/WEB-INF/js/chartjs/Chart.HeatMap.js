@@ -127,6 +127,23 @@ Chart.scaleService.registerScaleType('heatmap', HeatMapScale, {
 	position : 'bottom'
 });
 
+var EvolutionHeatMap = HeatMapScale.extend({
+
+	determineDataLimits : function() {
+		HeatMapScale.prototype.determineDataLimits.call(this);
+		if (this.isHorizontal()) {
+			var aux = this.min;
+			this.min = this.max;
+			this.max = aux;
+		}
+	}
+
+});
+
+Chart.scaleService.registerScaleType('evolutionheatmap', EvolutionHeatMap, {
+	position : 'bottom'
+});
+
 Chart.plugins.register({
 	beforeInit : function(chart) {
 		if (chart.config.type === 'heatmap') {
@@ -203,6 +220,47 @@ Chart.defaults.heatmap = {
 	}
 };
 
+Chart.defaults.evalutionheatmap = {
+	radiusScale : 0.025,
+	paddingScale : 0.025,
+	legend : {
+		display : false
+	},
+	scales : {
+		xAxes : [ {
+			type : 'evolutionheatmap',
+			position : 'bottom',
+			gridLines : {
+				display : true,
+				offsetGridLines : true,
+				drawBorder : true,
+				drawTicks : false
+			}
+		} ],
+		yAxes : [ {
+			type : 'evolutionheatmap',
+			position : 'left',
+			gridLines : {
+				display : true,
+				offsetGridLines : true,
+				drawBorder : true,
+				drawTicks : false
+			}
+		} ]
+	},
+
+	tooltips : {
+		callbacks : {
+			title : function(tooltipItems, data) {
+				return data.labels[tooltipItems[0].index] + " : " + data.yLabels[tooltipItems[0].datasetIndex];
+			},
+			label : function(tooltipItem, data) {
+				return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+			}
+		}
+	}
+};
+
 Chart.controllers.heatmap = Chart.DatasetController.extend({
 	dataElementType : Chart.elements.Rectangle,
 
@@ -226,7 +284,6 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 		var datasetIndex = me.index;
 		var radiusScale = me.chart.options.radiusScale;
 		var paddingScale = me.chart.options.paddingScale;
-
 		var x = xScale.getPixelForValue(data, index, datasetIndex);
 		var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
 
@@ -243,6 +300,106 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 			boxHeight = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
 		else
 			boxHeight = yScale.height;
+
+		var heightRatio = 1.0, widthRatio = 1.0;
+		if (boxWidth > boxHeight)
+			widthRatio = boxHeight / boxWidth;
+		else
+			heightRatio = boxWidth / boxHeight
+
+			// Apply padding
+		var horizontalPadding = paddingScale * boxWidth * widthRatio, verticalPadding = paddingScale * boxHeight * heightRatio;
+		boxWidth = boxWidth - horizontalPadding;
+		boxHeight = boxHeight - verticalPadding;
+		y = y + verticalPadding / 2;
+		x = x + horizontalPadding / 2;
+
+		// var color = me.chart.options.colorFunction(data);
+		var cornerRadius = boxWidth * radiusScale;
+
+		helpers.extend(box, {
+			// Utility
+			_xScale : xScale,
+			_yScale : yScale,
+			_datasetIndex : datasetIndex,
+			_index : index,
+			_data : data,
+
+			// Desired view properties
+			_model : {
+				// Position
+				x : x + boxWidth / 2,
+				y : y,
+
+				// Appearance
+				base : y + boxHeight,
+				height : boxHeight,
+				width : boxWidth,
+				backgroundColor : dataset.backgroundColor[index],
+				cornerRadius : cornerRadius,
+
+				// Tooltip
+				label : me.chart.data.labels[index],
+				datasetLabel : dataset.label,
+			},
+
+			// Override to draw rounded rectangles without any borders
+			draw : function() {
+				var ctx = this._chart.ctx, vm = this._view, leftX = vm.x - vm.width / 2;
+				ctx.fillStyle = vm.backgroundColor;
+				helpers.drawRoundedRectangle(ctx, leftX, vm.y, vm.width, vm.height, vm.cornerRadius);
+				ctx.fill();
+			},
+
+			// Override to position the tooltip in the center of the box
+			tooltipPosition : function() {
+				var vm = this._view;
+				return {
+					x : vm.x,
+					y : vm.y + vm.height / 2
+				};
+			}
+		});
+
+		box.pivot();
+	},
+
+	setHoverStyle : function() {
+	},
+	removeHoverStyle : function() {
+	}
+});
+
+Chart.controllers.evalutionheatmap = Chart.controllers.heatmap.extend({
+
+	update : function(reset) {
+		var me = this, meta = me.getMeta(), boxes = meta.data;
+		// Update Boxes
+		helpers.each(boxes, function(box, index) {
+			me.updateElement(box, index, reset);
+		});
+
+	},
+
+	updateElement : function(box, index) {
+		var me = this;
+		var meta = me.getMeta();
+		var xScale = me.getScaleForId(meta.xAxisID);
+		var yScale = me.getScaleForId(meta.yAxisID);
+		var dataset = me.getDataset();
+		var data = dataset.data[index];
+		var datasetIndex = me.index;
+		var radiusScale = me.chart.options.radiusScale;
+		var paddingScale = me.chart.options.paddingScale;
+		var x = xScale.getPixelForValue(data, index, datasetIndex);
+		var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
+		var boxWidth = xScale.getPixelForValue(dataset.data[1], 1, datasetIndex) - xScale.getPixelForValue(dataset.data[0], 0, datasetIndex);
+		console.log(dataset);
+		/*
+		 * else boxWidth = xScale.width;
+		 */
+		// We only support 'category' scales on the y-axis for now
+		var boxHeight = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
 
 		var heightRatio = 1.0, widthRatio = 1.0;
 		if (boxWidth > boxHeight)

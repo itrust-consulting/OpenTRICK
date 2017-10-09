@@ -510,6 +510,7 @@ function reloadRiskHeatMapSection(tableChange) {
 	var $tabSection = $("#tab-chart-heat-map");
 	if ($tabSection.is(":visible")) {
 		loadRiskHeatMap();
+		loadRiskEvolutionHeatMap();
 		if (tableChange)
 			reloadRiskAcceptanceTable($tabSection);
 	} else if (tableChange)
@@ -603,6 +604,31 @@ function loadRiskHeatMap() {
 	return false;
 
 }
+
+
+function loadRiskEvolutionHeatMap() {
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Assessment/Chart/Risk-evolution-heat-map",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (window.riskEvolutionHeatMap != undefined)
+				window.riskEvolutionHeatMap.destroy();
+			window.riskEvolutionHeatMap = new Chart(document.getElementById("risk_acceptance_evolution_canvas").getContext("2d"), {
+				/*type: 'evalutionheatmap',*/
+				data: response,
+				options: evolutionHeatMapOption()
+			});
+		},
+		error: unknowError
+	}).complete(function () {
+		$progress.hide();
+	});
+	return false;
+
+}
+
 
 function checkForCollectionUpdate(){
 	triggerCaller($("div[id~='tab-standard-']:visible"));
