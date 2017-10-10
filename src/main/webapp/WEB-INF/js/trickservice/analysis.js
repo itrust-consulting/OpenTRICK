@@ -616,9 +616,8 @@ function loadRiskEvolutionHeatMap() {
 			if (window.riskEvolutionHeatMap != undefined)
 				window.riskEvolutionHeatMap.destroy();
 			window.riskEvolutionHeatMap = new Chart(document.getElementById("risk_acceptance_evolution_canvas").getContext("2d"), {
-				/*type: 'evalutionheatmap',*/
 				data: response,
-				options: evolutionHeatMapOption()
+				options: evolutionHeatMapOption(response["xLabels"], response["yLabels"])
 			});
 		},
 		error: unknowError

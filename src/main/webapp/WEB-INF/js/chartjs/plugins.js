@@ -294,10 +294,24 @@ function heatMapOption() {
 	};
 }
 
-function evolutionHeatMapOption() {
+function evolutionHeatMapOption(xlabels, yLabels) {
 	return {
+		radiusScale : 0.025,
+		paddingScale : 0.025,
 		scales : {
 			yAxes : [ {
+				id: "y-axis-0",
+				labels : yLabels,
+				type : 'evolutionheatmap',
+				position : 'left',
+				gridLines : {
+					display : false,
+					offsetGridLines : false,
+					drawBorder : false,
+					drawTicks : false
+				},ticks: {
+			        reverse: true
+			    },
 				scaleLabel : {
 					display : true,
 					labelString : MessageResolver("label.title.impact", "Impact"),
@@ -306,6 +320,16 @@ function evolutionHeatMapOption() {
 				}
 			}],
 			xAxes : [ {
+				type : 'evolutionheatmap',
+				position : 'left',
+				labels: xlabels,
+				gridLines : {
+					display : false,
+					offsetGridLines : false,
+					drawBorder : false,
+					drawTicks : false
+				},
+				 
 				scaleLabel : {
 					display : true,
 					labelString : MessageResolver("label.title.likelihood", "Probability"),
@@ -315,13 +339,12 @@ function evolutionHeatMapOption() {
 			}]
 		},
 		tooltips : {
-			enabled : false
+			enabled : true
 		},
 		legend : {
 			display : true,
-			position : 'top',
-			onClick : () => false,
-			labels : {
+			position : 'bottom',
+			/*labels : {
 				generateLabels : function(chart) {
 					var data = chart.data;
 					return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
@@ -331,7 +354,7 @@ function evolutionHeatMapOption() {
 						};
 					}, this) : [];
 				}
-			}
+			}*/
 		}
 	};
 }
