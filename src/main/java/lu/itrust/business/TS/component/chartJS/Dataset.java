@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class Dataset<T> {
 
 	private String label;
+	
+	private String title;
 
 	private List<Object> data = new ArrayList<>();
 	
@@ -210,6 +212,14 @@ public class Dataset<T> {
 
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 }

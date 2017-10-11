@@ -294,7 +294,7 @@ function heatMapOption() {
 	};
 }
 
-function evolutionHeatMapOption(xlabels, yLabels) {
+function evolutionHeatMapOption(xLabels, yLabels) {
 	return {
 		radiusScale : 0.025,
 		paddingScale : 0.025,
@@ -302,7 +302,7 @@ function evolutionHeatMapOption(xlabels, yLabels) {
 			yAxes : [ {
 				id: "y-axis-0",
 				labels : yLabels,
-				type : 'evolutionheatmap',
+				type : 'heatmap',
 				position : 'left',
 				gridLines : {
 					display : false,
@@ -320,9 +320,9 @@ function evolutionHeatMapOption(xlabels, yLabels) {
 				}
 			}],
 			xAxes : [ {
-				type : 'evolutionheatmap',
+				type : 'heatmap',
 				position : 'left',
-				labels: xlabels,
+				labels: xLabels,
 				gridLines : {
 					display : false,
 					offsetGridLines : false,
@@ -339,22 +339,49 @@ function evolutionHeatMapOption(xlabels, yLabels) {
 			}]
 		},
 		tooltips : {
-			enabled : true
+			enabled : true,
+			callbacks : {
+				title : function(tooltipItems, data) {
+					var item = tooltipItems[0]; dataset = data.datasets[item.datasetIndex], xLabel = "", yLabel ="";
+					if(dataset.type ==="heatmap"){
+						var me = this, yScale = me._chart.chart.scales["y-axis-0"], yIndex = yScale.getValueForPixel(item.y) ;
+						yLabel = yLabels[yIndex];
+						xLabel = item.xLabel
+					}else {
+						var value = data.datasets[item.datasetIndex].data[item.index];
+						yLabel = yLabels[value.y];
+						xLabel = xLabels[value.x];
+					}
+					return xLabel + " : "+ yLabel;
+				},
+				label : function(tooltipItem, data) {
+					return data.datasets[tooltipItem.datasetIndex].title;
+				}
+			}
 		},
 		legend : {
 			display : true,
 			position : 'bottom',
-			/*labels : {
-				generateLabels : function(chart) {
+			labels : {
+				generateLabels: function(chart) {
 					var data = chart.data;
-					return helpers.isArray(data.legends) ? data.legends.map(function(legend) {
+					return helpers.isArray(data.datasets) ? data.datasets.filter(dataset => dataset.type!=="heatmap").map(function(dataset, i) {
 						return {
-							text : legend.label,
-							fillStyle : legend.color
+							text: dataset.title,
+							fillStyle: (!helpers.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
+							hidden: !chart.isDatasetVisible(i),
+							lineCap: dataset.borderCapStyle,
+							lineDash: dataset.borderDash,
+							lineDashOffset: dataset.borderDashOffset,
+							lineJoin: dataset.borderJoinStyle,
+							lineWidth: dataset.borderWidth,
+							strokeStyle: dataset.borderColor,
+							pointStyle: dataset.pointStyle,
+							datasetIndex: i
 						};
 					}, this) : [];
 				}
-			}*/
+			}
 		}
 	};
 }

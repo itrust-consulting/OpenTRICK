@@ -1,58 +1,8 @@
 var helpers = Chart.helpers, defaults = Chart.defaults;
 
-var HeatMapScale = Chart.Scale.extend({
-	/**
-	 * Internal function to get the correct labels. If data.xLabels or
-	 * data.yLabels are defined, use those else fall back to data.labels
-	 * 
-	 * @private
-	 */
-	getLabels : function() {
-		var data = this.chart.data;
-		return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
-	},
+var CategoryScale = Chart.scaleService.getScaleConstructor("category");
 
-	determineDataLimits : function() {
-		var me = this;
-		var labels = me.getLabels();
-		me.minIndex = 0;
-		me.maxIndex = labels.length - 1;
-		var findIndex;
-
-		if (me.options.ticks.min !== undefined) {
-			// user specified min value
-			findIndex = labels.indexOf(me.options.ticks.min);
-			me.minIndex = findIndex !== -1 ? findIndex : me.minIndex;
-		}
-
-		if (me.options.ticks.max !== undefined) {
-			// user specified max value
-			findIndex = labels.indexOf(me.options.ticks.max);
-			me.maxIndex = findIndex !== -1 ? findIndex : me.maxIndex;
-		}
-
-		me.min = labels[me.minIndex];
-		me.max = labels[me.maxIndex];
-	},
-
-	buildTicks : function() {
-		var me = this;
-		var labels = me.getLabels();
-		// If we are viewing some subset of labels, slice the original array
-		me.ticks = (me.minIndex === 0 && me.maxIndex === labels.length - 1) ? labels : labels.slice(me.minIndex, me.maxIndex + 1);
-	},
-
-	getLabelForIndex : function(index, datasetIndex) {
-		var me = this;
-		var data = me.chart.data;
-		var isHorizontal = me.isHorizontal();
-
-		if (data.yLabels && !isHorizontal) {
-			return me.getRightValue(data.datasets[datasetIndex].data[index]);
-		}
-		return me.ticks[index - me.minIndex];
-	},
-
+var HeatMapScale = CategoryScale.extend({
 	// Used to get data value locations. Value can either be an index or a
 	// numerical value
 	getPixelForValue : function(value, index, datasetIndex, includeOffset) {
@@ -101,50 +51,20 @@ var HeatMapScale = Chart.Scale.extend({
 		return this.getPixelForValue(this.ticks[index], index + this.minIndex, undefined, true);
 	},
 	getValueForPixel : function(pixel) {
-		var me = this;
-		var offset = me.options.offset;
-		var value;
-		var offsetAmt = Math.max((me._ticks.length - (offset ? 0 : 1)), 1);
-		var horz = me.isHorizontal();
-		var valueDimension = (horz ? me.width : me.height) / offsetAmt * 1.0;
-
+		var me = this, offset = me.options.offset,value;
+		var offsetAmt = Math.max(me._ticks.length, 1), horz = me.isHorizontal();
+		var valueDimension = (horz ? me.width : me.height) / offsetAmt;
 		pixel -= horz ? me.left : me.top;
-
-		if (offset) {
-			pixel -= (valueDimension / 2.0);
-		}
-
 		if (pixel <= 0) {
 			value = 0;
 		} else {
-			value = pixel / valueDimension * 1.0;
+			value = Math.round(pixel / valueDimension);
 		}
-
 		return value + me.minIndex;
-	},
-	getBasePixel : function() {
-		return this.bottom;
 	}
 });
 
 Chart.scaleService.registerScaleType('heatmap', HeatMapScale, {
-	position : 'bottom'
-});
-
-var EvolutionHeatMap = HeatMapScale.extend({
-
-	determineDataLimits : function() {
-		HeatMapScale.prototype.determineDataLimits.call(this);
-		if (this.isHorizontal()) {
-			var aux = this.min;
-			this.min = this.max;
-			this.max = aux;
-		}
-	}
-
-});
-
-Chart.scaleService.registerScaleType('evolutionheatmap', EvolutionHeatMap, {
 	position : 'bottom'
 });
 
@@ -327,3 +247,104 @@ Chart.controllers.heatmap = Chart.DatasetController.extend({
 	removeHoverStyle : function() {
 	}
 });
+
+Chart.defaults.heatmapline = Chart.defaults.line;
+
+Chart.controllers.heatmapline = Chart.controllers.line.extend({
+	
+	boxSpliter : function(controller, width, height){
+		var datasets = controller.config.data.datasets, positionMapper = {};
+		datasets.forEach((chart, i) => {
+			if(!(chart.type === "heatmapline" && controller.isDatasetVisible(i)))
+				return;
+			var tempMapper = {};
+			for (let point of chart.data) {
+				var key = point.x + "-" + point.y;
+				if(tempMapper[key] === undefined)
+					tempMapper[key] = i;
+			}
+		
+			for ( var key in tempMapper) {
+				if(positionMapper[key] === undefined)
+					positionMapper[key] = new Map();
+				positionMapper[key].set(i, {width: width /2, height: height / 2});
+			}
+		});
+		
+		for ( var key in positionMapper) {
+			var map = positionMapper[key];
+			if(map.size > 1){
+				var tmpWidth = width / (map.size * 1.0),tmpHeight = height /  (map.size * 1.0), i = 1;
+				for (let value of map.values()) {
+					value.width = tmpWidth * i;
+					value.height = tmpHeight * i++;
+				};
+			}
+		}
+		
+		controller.positionMapper = positionMapper;
+		
+		positionMapper.getPosition = function (value, index) {
+			var key = value.x + "-" + value.y, data = this[key] ;
+			return data === undefined || !data.has(index)? {width : 0, height : 0} : data.get(index);
+		}
+	},
+	
+	updateElement: function(point, index, reset) {
+		var me = this;
+		var meta = me.getMeta();
+		var custom = point.custom || {};
+		var dataset = me.getDataset();
+		var datasetIndex = me.index;
+		var value = dataset.data[index];
+		var yScale = me.getScaleForId(meta.yAxisID);
+		var xScale = me.getScaleForId(meta.xAxisID);
+		var pointOptions = me.chart.options.elements.point;
+		
+		var x, y;
+		
+		// Compatibility: If the properties are defined with only the old name,
+		// use those values
+		if ((dataset.radius !== undefined) && (dataset.pointRadius === undefined)) {
+			dataset.pointRadius = dataset.radius;
+		}
+		if ((dataset.hitRadius !== undefined) && (dataset.pointHitRadius === undefined)) {
+			dataset.pointHitRadius = dataset.hitRadius;
+		}
+
+		x = xScale.getPixelForValue(typeof value === 'object' ? value : NaN, index, datasetIndex);
+		y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex);
+		
+		if(datasetIndex == 0 && index == 0){
+			var width =  xScale.getPixelForValue(null, 1, datasetIndex) - xScale.getPixelForValue(null, 0, datasetIndex);
+			var height = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
+			me.boxSpliter(me.chart.controller, width, height);
+		}
+		
+		var position = me.chart.controller.positionMapper.getPosition(value, datasetIndex) ;
+		// Utility
+		point._xScale = xScale;
+		point._yScale = yScale;
+		point._datasetIndex = datasetIndex;
+		point._index = index;
+		
+		// Desired view properties
+		point._model = {
+			x: x + position.width,
+			y: y + position.height,
+			skip: custom.skip || isNaN(x) || isNaN(y),
+			// Appearance
+			radius: custom.radius || helpers.valueAtIndexOrDefault(dataset.pointRadius, index, pointOptions.radius),
+			pointStyle: custom.pointStyle || helpers.valueAtIndexOrDefault(dataset.pointStyle, index, pointOptions.pointStyle),
+			backgroundColor: me.getPointBackgroundColor(point, index),
+			borderColor: me.getPointBorderColor(point, index),
+			borderWidth: me.getPointBorderWidth(point, index),
+			tension: meta.dataset._model ? meta.dataset._model.tension : 0,
+			steppedLine: meta.dataset._model ? meta.dataset._model.steppedLine : false,
+			// Tooltip
+			hitRadius: custom.hitRadius || helpers.valueAtIndexOrDefault(dataset.pointHitRadius, index, pointOptions.hitRadius)
+		};
+	}
+	
+});
+

@@ -94,7 +94,7 @@
 				</fieldset>
 				<fieldset>
 					<legend><spring:message code="label.title.risk_acceptance.evolution" /></legend>
-					<canvas id="risk_acceptance_evolution_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+					<canvas id="risk_acceptance_evolution_canvas" style="margin-left: auto; margin-right: auto;"></canvas>
 				</fieldset>
 			</div>
 			${riskAcceptanceTablePlaceHolder}

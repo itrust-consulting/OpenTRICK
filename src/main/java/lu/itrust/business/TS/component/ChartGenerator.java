@@ -1356,7 +1356,7 @@ public class ChartGenerator {
 		return chart;
 	}
 
-	public static Chart generateRiskEvolutionHeatMap(Analysis analysis, ValueFactory factory) {
+	public static Chart generateRiskEvolutionHeatMap(Analysis analysis, ValueFactory factory, MessageSource messageSource) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		Chart chart = new Chart();
@@ -1364,10 +1364,20 @@ public class ChartGenerator {
 		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
 		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
 		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
-		probabilities.stream().sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()))
-				.forEach(probability -> chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel())));
-		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel()))
-				.forEach(impact -> chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel())));
+		Locale locale = new Locale(analysis.getLanguage().getAlpha2());
+		String notApplicable = messageSource.getMessage("label.parameter.label.na", null, locale);
+		probabilities.stream().sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
+			if (probability.getLevel() == 0)
+				chart.getXLabels().add(probability.getLevel() + "-" + notApplicable);
+			else
+				chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
+		});
+		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
+			if (impact.getLevel() == 0)
+				chart.getYLabels().add(impact.getLevel() + "-" + notApplicable);
+			else
+				chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
+		});
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
@@ -1382,8 +1392,7 @@ public class ChartGenerator {
 		int inverseImpact[] = new int[impacts.size()];
 		for (int i = 0, size = impacts.size() - 1; i < inverseImpact.length; i++)
 			inverseImpact[i] = size - i;
-		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected).sorted(assessmentComparator(factory, -1))
-				.collect(Collectors.toList());
+		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected).sorted(assessmentComparator(factory, -1)).collect(Collectors.toList());
 		Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
 				.filter(riskProfile -> riskProfile.getAsset().isSelected() && riskProfile.getScenario().isSelected())
 				.collect(Collectors.toMap(riskProfile -> Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()), Function.identity()));
@@ -1410,6 +1419,7 @@ public class ChartGenerator {
 		assessments.forEach(assessment -> {
 			Dataset<String> dataset = new Dataset<String>(getColor(chart.getDatasets().size()));
 			dataset.getData().add(new Point(factory.findProbLevel(assessment.getLikelihood()), inverseImpacts[factory.findImpactLevel(assessment.getImpacts())]));
+			dataset.setTitle(String.format("%s - %s", assessment.getAsset().getName(), assessment.getScenario().getName()));
 			RiskProfile riskProfile = riskProfiles.get(assessment.getKey());
 			if (riskProfile != null) {
 				RiskProbaImpact probaImpact = riskProfile.getExpProbaImpact();
@@ -1422,7 +1432,7 @@ public class ChartGenerator {
 				dataset.setLabel("-");
 				dataset.getData().add(new Point(0, inverseImpacts[0], true));
 			}
-			dataset.setType("line");
+			dataset.setType("heatmapline");
 			chart.getDatasets().add(dataset);
 			chart.getLegends().add(new Legend(dataset.getLabel(), dataset.getBackgroundColor()));
 		});
@@ -1554,7 +1564,7 @@ public class ChartGenerator {
 	}
 
 	public Chart generateRiskEvolutionHeatMap(Integer idAnalysis) {
-		return generateRiskEvolutionHeatMap(daoAnalysis.get(idAnalysis), null);
+		return generateRiskEvolutionHeatMap(daoAnalysis.get(idAnalysis),null, messageSource);
 	}
 
 }
