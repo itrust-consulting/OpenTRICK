@@ -103,6 +103,50 @@ Chart.plugins.register({
 	}
 });
 
+
+Chart.plugins.register({
+	afterDatasetsDraw : function(chartInstance, easing) {
+		var ctx = chartInstance.chart.ctx, me = this, controller = chartInstance.chart.controller;
+		if(controller && chartInstance.data.datasets[0].type ==="heatmapline")
+			chartInstance.data.datasets.forEach(function(dataset, i) {
+			var meta = chartInstance.getDatasetMeta(i);
+			if (!meta.hidden && controller.isDatasetVisible(i) && dataset.type ==="heatmapline"){
+				var p1 = meta.data[0]._model;
+				ctx.fillStyle = '#333';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, "normal", Chart.defaults.global.defaultFontFamily);
+				ctx.fillText(dataset.label , p1.x, p1.y-10);
+				if(me.hasMoved(dataset.data[0], dataset.data[1])){
+					var xScale = chartInstance.scales["x-axis-0"], yScale = chartInstance.scales["y-axis-0"];
+					var p2 = meta.data[1]._model, radius = meta.data[0]._view.radius;
+					me.drawArrow(ctx,p1, p2 , (3 * radius / Math.sqrt(3)), dataset.pointBackgroundColor);
+				}
+			}
+		});
+		
+	}, drawArrow : function(ctx,p1,p2,size, color){
+		  ctx.save();
+		  var radians = Math.atan2(p2.y-p1.y , p2.x-p1.x);
+	      // Rotate the context to point along the path
+		  ctx.translate(p2.x,p2.y);
+	      ctx.rotate(radians);
+	      // arrowhead
+	      ctx.beginPath();
+	      ctx.moveTo( 0 , 0);
+	      ctx.lineTo(-size*1.3, -size);
+	      ctx.lineTo(-size*1.3, size);
+	      ctx.closePath();
+	      ctx.fillStyle = color;
+	      ctx.fill();
+	      ctx.restore();
+	      
+	},hasMoved : function(p1, p2){
+		return p1.x!=p2.x || p1.y!=p2.y;
+	}
+});
+
+
 Chart.defaults.heatmap = {
 	radiusScale : 0.025,
 	paddingScale : 0.025,
@@ -252,8 +296,20 @@ Chart.defaults.heatmapline = Chart.defaults.line;
 
 Chart.controllers.heatmapline = Chart.controllers.line.extend({
 	
-	boxSpliter : function(controller, width, height){
-		var datasets = controller.config.data.datasets, positionMapper = {};
+	findValuePosition : function (value, index) {
+		var controller = this.chart.controller;
+		if(controller===undefined || controller.__valuePositionMapper === undefined)
+			return {width : 0, height : 0};
+		var key = value.x + "-" + value.y, data = controller.__valuePositionMapper[key];
+		return data === undefined || !data.has(index)? {width : 0, height : 0} : data.get(index);
+	},
+	
+	boxSpliter : function(width, height){
+		var mainChart = this.chart, controller = mainChart.controller;
+		if(controller.__valuePositionMapper)
+			delete controller.__valuePositionMapper;
+		var datasets = mainChart.data.datasets, positionMapper = {};
+		
 		datasets.forEach((chart, i) => {
 			if(!(chart.type === "heatmapline" && controller.isDatasetVisible(i)))
 				return;
@@ -271,25 +327,26 @@ Chart.controllers.heatmapline = Chart.controllers.line.extend({
 			}
 		});
 		
+		var air = width * height;
 		for ( var key in positionMapper) {
 			var map = positionMapper[key];
 			if(map.size > 1){
-				var tmpWidth = width / (map.size * 1.0),tmpHeight = height /  (map.size * 1.0), i = 1;
-				for (let value of map.values()) {
-					value.width = tmpWidth * i;
-					value.height = tmpHeight * i++;
-				};
+				var d = Math.floor(Math.sqrt(air / map.size));
+				var nx =  Math.ceil(width / d), ny =  Math.ceil(height / d);
+				var x = width / nx , y = height /  ny;
+				var values = map.values(), count = 0;
+				for (var j = 0; j < ny && count < map.size  ; j++) {
+					for (var i = 0; i < nx && count < map.size ; i++, count++) {
+						var value = values.next().value;
+						var remaining = map.size - j*nx;
+						value.width =   (remaining < nx ? width / remaining : x)* (i+.5);
+						value.height = y *(j+.5);
+					}
+				}
 			}
 		}
-		
-		controller.positionMapper = positionMapper;
-		
-		positionMapper.getPosition = function (value, index) {
-			var key = value.x + "-" + value.y, data = this[key] ;
-			return data === undefined || !data.has(index)? {width : 0, height : 0} : data.get(index);
-		}
+		controller.__valuePositionMapper = positionMapper;
 	},
-	
 	updateElement: function(point, index, reset) {
 		var me = this;
 		var meta = me.getMeta();
@@ -316,12 +373,12 @@ Chart.controllers.heatmapline = Chart.controllers.line.extend({
 		y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex);
 		
 		if(datasetIndex == 0 && index == 0){
-			var width =  xScale.getPixelForValue(null, 1, datasetIndex) - xScale.getPixelForValue(null, 0, datasetIndex);
+			var width =  xScale.getPixelForValue(null, 1, 0) - xScale.getPixelForValue(null, 0, 0);
 			var height = yScale.getPixelForValue(null, 1, 1) - yScale.getPixelForValue(null, 0, 0);
-			me.boxSpliter(me.chart.controller, width, height);
+			me.boxSpliter(width, height);
 		}
 		
-		var position = me.chart.controller.positionMapper.getPosition(value, datasetIndex) ;
+		var position = me.findValuePosition(value, datasetIndex);
 		// Utility
 		point._xScale = xScale;
 		point._yScale = yScale;
@@ -335,7 +392,7 @@ Chart.controllers.heatmapline = Chart.controllers.line.extend({
 			skip: custom.skip || isNaN(x) || isNaN(y),
 			// Appearance
 			radius: custom.radius || helpers.valueAtIndexOrDefault(dataset.pointRadius, index, pointOptions.radius),
-			pointStyle: custom.pointStyle || helpers.valueAtIndexOrDefault(dataset.pointStyle, index, pointOptions.pointStyle),
+			pointStyle: value.end? "star" : custom.pointStyle || helpers.valueAtIndexOrDefault(dataset.pointStyle, index, pointOptions.pointStyle),
 			backgroundColor: me.getPointBackgroundColor(point, index),
 			borderColor: me.getPointBorderColor(point, index),
 			borderWidth: me.getPointBorderWidth(point, index),

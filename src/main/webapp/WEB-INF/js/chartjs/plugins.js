@@ -362,12 +362,13 @@ function evolutionHeatMapOption(xLabels, yLabels) {
 		legend : {
 			display : true,
 			position : 'bottom',
+			fullWidth : false,
 			labels : {
 				generateLabels: function(chart) {
 					var data = chart.data;
 					return helpers.isArray(data.datasets) ? data.datasets.filter(dataset => dataset.type!=="heatmap").map(function(dataset, i) {
 						return {
-							text: dataset.title,
+							text: dataset.label,
 							fillStyle: (!helpers.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
 							hidden: !chart.isDatasetVisible(i),
 							lineCap: dataset.borderCapStyle,
