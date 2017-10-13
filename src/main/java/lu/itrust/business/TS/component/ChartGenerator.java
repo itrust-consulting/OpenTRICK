@@ -1392,11 +1392,13 @@ public class ChartGenerator {
 		int inverseImpact[] = new int[impacts.size()];
 		for (int i = 0, size = impacts.size() - 1; i < inverseImpact.length; i++)
 			inverseImpact[i] = size - i;
-		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected).sorted(assessmentComparator(factory, -1)).collect(Collectors.toList());
 		Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
 				.filter(riskProfile -> riskProfile.getAsset().isSelected() && riskProfile.getScenario().isSelected())
 				.collect(Collectors.toMap(riskProfile -> Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()), Function.identity()));
-		populateDataset(factory, chart, assessments, riskProfiles, inverseImpact);
+		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected).sorted(assessmentComparator(factory, riskProfiles, -1))
+				.collect(Collectors.toList());
+
+		populateDataset(messageSource, locale, factory, chart, assessments, riskProfiles, inverseImpact);
 		for (int i = impacts.size() - 1; i >= 0; i--) {
 			Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>(probabilities.size() - 1));
 			for (int j = 0; j < probabilities.size(); j++) {
@@ -1411,11 +1413,38 @@ public class ChartGenerator {
 		return chart;
 	}
 
-	private static Comparator<? super Assessment> assessmentComparator(ValueFactory factory, int order) {
-		return (a1, a2) -> Integer.compare(factory.findImportance(a1), factory.findImportance(a2)) * order;
+	private static Comparator<? super Assessment> assessmentComparator(ValueFactory factory, Map<String, RiskProfile> risks, int order) {
+		return (a1, a2) -> {
+			int result = Integer.compare(factory.findImportance(a1), factory.findImportance(a2));
+			if (result == 0)
+				result = compare(risks.get(a1.getKey()), risks.get(a2.getKey()), 1, order);
+			return result * order;
+		};
+	}
+	
+	public static String emptyIsNull(String value) {
+		return value == null? "" : value;
 	}
 
-	private static void populateDataset(ValueFactory factory, Chart chart, List<Assessment> assessments, Map<String, RiskProfile> riskProfiles, int[] inverseImpacts) {
+	private static int compare(RiskProfile r1, RiskProfile r2, int type, int order) {
+		if (r1 == null && r2 == null)
+			return 0;
+		if (r1 == null)
+			return -1;
+		else if (r2 == null)
+			return 1;
+		else {
+			int result = type == 0 ? Integer.compare(r1.getComputedRawImportance(), r2.getComputedRawImportance()) : 0;
+			if (result == 0)
+				result = type <= 1 ? Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance()) : 0;
+			if (result == 0)
+				result = NaturalOrderComparator.compareTo(emptyIsNull( r1.getIdentifier()), emptyIsNull(r2.getIdentifier())) * order;
+			return result;
+		}
+	}
+
+	private static void populateDataset(MessageSource messageSource, Locale locale, ValueFactory factory, Chart chart, List<Assessment> assessments,
+			Map<String, RiskProfile> riskProfiles, int[] inverseImpacts) {
 		assessments.forEach(assessment -> {
 			Dataset<String> dataset = new Dataset<String>(getColor(chart.getDatasets().size()));
 			dataset.getData().add(new Point(factory.findProbLevel(assessment.getLikelihood()), inverseImpacts[factory.findImpactLevel(assessment.getImpacts())]));
@@ -1433,8 +1462,10 @@ public class ChartGenerator {
 				dataset.getData().add(new Point(0, inverseImpacts[0], true));
 			}
 			dataset.setType("heatmapline");
+			dataset.setLegendText(messageSource.getMessage("label.chart.legend.text", new Object[] { dataset.getLabel(), dataset.getTitle() }, locale));
 			chart.getDatasets().add(dataset);
 			chart.getLegends().add(new Legend(dataset.getLabel(), dataset.getBackgroundColor()));
+
 		});
 		for (int i = 10; i < chart.getDatasets().size(); i++)
 			chart.getDatasets().get(i).setHidden(true);
@@ -1564,7 +1595,7 @@ public class ChartGenerator {
 	}
 
 	public Chart generateRiskEvolutionHeatMap(Integer idAnalysis) {
-		return generateRiskEvolutionHeatMap(daoAnalysis.get(idAnalysis),null, messageSource);
+		return generateRiskEvolutionHeatMap(daoAnalysis.get(idAnalysis), null, messageSource);
 	}
 
 }

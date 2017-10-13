@@ -619,6 +619,60 @@ function loadRiskEvolutionHeatMap() {
 				data: response,
 				options: evolutionHeatMapOption(response["xLabels"], response["yLabels"])
 			});
+			
+			var $container = $("#risk_acceptance_evolution_legend"), chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets,  $legends = $("<div class='list-group' />");
+			for (var i = 0; i < datasets.length; i++) {
+			   var dataset = datasets[i];
+			   if(dataset.type === "heatmap" )
+				   continue;
+			   var $legend = $("<button type='button' class='list-group-item' data-chart-id='"+i+"' style='background-color: "+dataset.backgroundColor+"'></button>"), rgb = hexToRgb(dataset.backgroundColor);
+			   $legend.text(dataset.legendText).appendTo($legends).on("click",function(e) {
+				   var $target = $(e.currentTarget), id = parseInt($target.attr("data-chart-id")), dataset = datasets[id];
+					if(dataset.hidden)
+						$target.css({	"text-decoration": "none"});
+					else
+						$target.css({	"text-decoration": "line-through"});
+					dataset.hidden = !dataset.hidden;
+					chart.update();
+				});
+			   
+			   if(dataset.hidden)
+				   $legend.css({	"text-decoration": "line-through"});
+			   
+			   if(rgb !== null){
+				  var lightness = .299*rgb['r']+.587*rgb['g']+0.114 *rgb['b']
+				  if(lightness<130)
+					  $legend.css({"color" : "#fff"});
+				  else  $legend.css({"color" : "#333"});
+			   }
+			}
+			$legends.appendTo($container.empty());
+			$legends.css({"height": chart.height });
+			var $displayAll = $("[role='chart-show-all']").unbind("click"), $hideAll = $("[role='chart-hide-all']").unbind("click");
+			$displayAll.on("click",function(e){
+				for (var i = 0; i < datasets.length; i++) {
+				   var dataset = datasets[i];
+				   if(dataset.type === "heatmap" ||  !dataset.hidden)
+					   continue;
+				  $("[data-chart-id='"+i+"']", $container).css({"text-decoration": "none"});
+				  dataset.hidden = false;
+				}
+				chart.update();
+				return false;
+			});
+			
+			$hideAll.on("click",function(e){
+				for (var i = 0; i < datasets.length; i++) {
+				   var dataset = datasets[i];
+				   if(dataset.type === "heatmap" ||  dataset.hidden)
+					   continue;
+				  $("[data-chart-id='"+i+"']", $container).css({"text-decoration": "line-through"});
+				  dataset.hidden = true;
+				}
+				chart.update();
+				return false;
+			});
+			
 		},
 		error: unknowError
 	}).complete(function () {

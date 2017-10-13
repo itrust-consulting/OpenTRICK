@@ -358,14 +358,18 @@ function evolutionHeatMapOption(xLabels, yLabels) {
 					return data.datasets[tooltipItem.datasetIndex].title;
 				}
 			}
-		},
+		},legendCallback: function(chart) {
+           
+        },
 		legend : {
-			display : true,
+			display : false
+			/*,
 			position : 'bottom',
 			fullWidth : false,
 			labels : {
 				generateLabels: function(chart) {
 					var data = chart.data;
+					//risk_acceptance_evolution_legend
 					return helpers.isArray(data.datasets) ? data.datasets.filter(dataset => dataset.type!=="heatmap").map(function(dataset, i) {
 						return {
 							text: dataset.label,
@@ -382,7 +386,7 @@ function evolutionHeatMapOption(xLabels, yLabels) {
 						};
 					}, this) : [];
 				}
-			}
+			}*/
 		}
 	};
 }

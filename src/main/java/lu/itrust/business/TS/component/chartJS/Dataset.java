@@ -19,6 +19,8 @@ public class Dataset<T> {
 	private String label;
 	
 	private String title;
+	
+	private String legendText;
 
 	private List<Object> data = new ArrayList<>();
 	
@@ -220,6 +222,14 @@ public class Dataset<T> {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getLegendText() {
+		return legendText;
+	}
+
+	public void setLegendText(String legendText) {
+		this.legendText = legendText;
 	}
 
 }

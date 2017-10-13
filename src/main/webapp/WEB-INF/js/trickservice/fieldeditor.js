@@ -641,7 +641,7 @@ function AssessmentExtendedParameterEditor(element) {
 			var level = levels.length >= 0 && levels.length > i ? levels[i].innerText.trim() : "";
 			var label = labels.length >= 0 && labels.length > i ? labels[i].innerText.trim() : "";
 			if (level === "") {
-				level = i === 0 ? "NA" : i;
+				level = i === 0 ? MessageResolver("label.status.na","na") : i;
 				if (label === "")
 					return level;
 				else

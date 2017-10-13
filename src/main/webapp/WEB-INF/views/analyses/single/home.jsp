@@ -100,6 +100,7 @@
 					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}};
 					resolveMessage("label.title.impact", "<spring:message code='label.title.impact' />");
 					resolveMessage("label.title.likelihood", "<spring:message code='label.title.likelihood' />");
+					resolveMessage("label.status.na", "<spring:message code='label.status.na' />");
 				-->
 			</script>
 		</c:if>

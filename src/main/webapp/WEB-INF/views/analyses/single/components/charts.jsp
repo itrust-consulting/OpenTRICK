@@ -53,28 +53,26 @@
 </div>
 <c:if test="${type.qualitative}">
 	<c:set var="riskAcceptanceTablePlaceHolder">
-		<div class='col-sm-4'>
-			<fieldset>
-				<legend>
-					<spring:message code="label.title.parameter.risk.acceptance.threshold" />
-				</legend>
-				<table class="table table-hover table-condensed">
-					<thead>
-						<tr>
-							<th><spring:message code="label.importance.threshold" /></th>
-							<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
-							<th style="width: 50%"><spring:message code="label.description" /></th>
-							<th><spring:message code="label.color" /></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class='warning'>
-							<td colspan="4"><spring:message code='info.risk_acceptance.empty' /></td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
-		</div>
+		<fieldset>
+			<legend>
+				<spring:message code="label.title.parameter.risk.acceptance.threshold" />
+			</legend>
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th><spring:message code="label.importance.threshold" /></th>
+						<th style="width: 20%; text-align: center;"><spring:message code="label.parameter.label" /></th>
+						<th style="width: 50%"><spring:message code="label.description" /></th>
+						<th><spring:message code="label.color" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class='warning'>
+						<td colspan="4"><spring:message code='info.risk_acceptance.empty' /></td>
+					</tr>
+				</tbody>
+			</table>
+		</fieldset>
 	</c:set>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-heat-map" data-update-required="true" data-trigger="reloadRiskHeatMapSection" data-parameters='true'>
 		<div id="risk_acceptance_heat_map">
@@ -87,17 +85,39 @@
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class='col-sm-8'>
+					<fieldset>
+						<legend>
+							<spring:message code="label.title.risk_acceptance.heat_map" />
+						</legend>
+						<canvas id="risk_acceptance_heat_map_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
+					</fieldset>
+				</div>
+				<div class='col-sm-4'>${riskAcceptanceTablePlaceHolder}</div>
+			</div>
+		</div>
+		<div class="row">
 			<div class='col-sm-8'>
 				<fieldset>
-					<legend><spring:message code="label.title.risk_acceptance.heat_map" /></legend>
-					<canvas id="risk_acceptance_heat_map_canvas" style="max-width: 900px; margin-left: auto; margin-right: auto;"></canvas>
-				</fieldset>
-				<fieldset>
-					<legend><spring:message code="label.title.risk_acceptance.evolution" /></legend>
-					<canvas id="risk_acceptance_evolution_canvas" style="margin-left: auto; margin-right: auto;"></canvas>
+					<legend>
+						<spring:message code="label.title.risk_acceptance.evolution" />
+					</legend>
+					<canvas id="risk_acceptance_evolution_canvas" style="max-width: 1000px; margin-left: auto; margin-right: auto;"></canvas>
 				</fieldset>
 			</div>
-			${riskAcceptanceTablePlaceHolder}
+			<div class="col-sm-4">
+				<fieldset>
+					<legend>
+						<span class="col-xs-6"><spring:message code="label.title.risk_acceptance.legend" /></span> <span class='col-xs-6'> <span class='pull-right'> <a href="#"
+								class='btn btn-link' role="chart-show-all"><spring:message code="label.chart.display.all" /></a> <a href="#" class='btn btn-link' role="chart-hide-all"><spring:message
+										code="label.chart.hide.all" /></a>
+						</span>
+						</span>
+					</legend>
+					<div id="risk_acceptance_evolution_legend" style="overflow-x: auto; resize: vertical;"></div>
+				</fieldset>
+			</div>
 		</div>
 	</div>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-risk-asset" data-update-required="true" data-trigger="reloadRiskAssetSection" data-parameters='true'>
@@ -112,7 +132,7 @@
 				</div>
 			</div>
 			<div class='col-sm-8' id="risk_acceptance_assets"></div>
-			${riskAcceptanceTablePlaceHolder}
+			<div class='col-sm-4'>${riskAcceptanceTablePlaceHolder}</div>
 		</div>
 	</div>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-risk-asset-type" data-update-required="true" data-trigger="reloadRiskAssetTypeSection" data-parameters='true'>
@@ -127,7 +147,7 @@
 				</div>
 			</div>
 			<div class='col-sm-8' id="risk_acceptance_asset_types"></div>
-			${riskAcceptanceTablePlaceHolder}
+			<div class='col-sm-4'>${riskAcceptanceTablePlaceHolder}</div>
 		</div>
 	</div>
 
@@ -143,7 +163,7 @@
 				</div>
 			</div>
 			<div class='col-sm-8' id="risk_acceptance_scenarios"></div>
-			${riskAcceptanceTablePlaceHolder}
+			<div class='col-sm-4'>${riskAcceptanceTablePlaceHolder}</div>
 		</div>
 	</div>
 	<div class="tab-pane trick-chart-tab" id="tab-chart-risk-scenario-type" data-update-required="true" data-trigger="reloadRiskScenarioTypeSection" data-parameters='true'>
@@ -158,7 +178,7 @@
 				</div>
 			</div>
 			<div class='col-sm-8' id="risk_acceptance_scenario_types"></div>
-			${riskAcceptanceTablePlaceHolder}
+			<div class='col-sm-4'>${riskAcceptanceTablePlaceHolder}</div>
 		</div>
 	</div>
 </c:if>
