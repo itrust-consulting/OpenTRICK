@@ -619,60 +619,48 @@ function loadRiskEvolutionHeatMap() {
 				data: response,
 				options: evolutionHeatMapOption(response["xLabels"], response["yLabels"])
 			});
-			
-			var $container = $("#risk_acceptance_evolution_legend"), chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets,  $legends = $("<div class='list-group' />");
+			var $displayValue = $("#chart-show-x-element").unbind("change"), count = parseInt($displayValue.val());
+			var $container = $("#risk_acceptance_evolution_legend"),chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets,  $legends = $("<div class='list-group' />");
+			if(isNaN(count))
+				count = 10;
+			var displayed = 0;
 			for (var i = 0; i < datasets.length; i++) {
 			   var dataset = datasets[i];
 			   if(dataset.type === "heatmap" )
 				   continue;
-			   var $legend = $("<button type='button' class='list-group-item' data-chart-id='"+i+"' style='background-color: "+dataset.backgroundColor+"'></button>"), rgb = hexToRgb(dataset.backgroundColor);
-			   $legend.text(dataset.legendText).appendTo($legends).on("click",function(e) {
+			   var $legend = $("<button type='button' class='list-group-item' data-chart-id='"+i+"'><span  style='background-color: "+dataset.backgroundColor+"; padding: 1px 12px;margin-right: 3px;' /></button>"),$text = $("<span class='text'/>").text(dataset.legendText).appendTo($legend);
+			   $legend.appendTo($legends).on("click",function(e) {
 				   var $target = $(e.currentTarget), id = parseInt($target.attr("data-chart-id")), dataset = datasets[id];
 					if(dataset.hidden)
-						$target.css({	"text-decoration": "none"});
+						$target.css({"text-decoration": "none"});
 					else
-						$target.css({	"text-decoration": "line-through"});
+						$target.css({"text-decoration": "line-through"});
 					dataset.hidden = !dataset.hidden;
 					chart.update();
 				});
 			   
-			   if(dataset.hidden)
-				   $legend.css({	"text-decoration": "line-through"});
-			   
-			   if(rgb !== null){
-				  var lightness = .299*rgb['r']+.587*rgb['g']+0.114 *rgb['b']
-				  if(lightness<130)
-					  $legend.css({"color" : "#fff"});
-				  else  $legend.css({"color" : "#333"});
-			   }
+			   if((dataset.hidden = (++displayed > count)))
+				   $legend.css({"text-decoration": "line-through"});
 			}
+			$displayValue.attr("max", displayed);
+			chart.update();
 			$legends.appendTo($container.empty());
 			$legends.css({"height": chart.height });
-			var $displayAll = $("[role='chart-show-all']").unbind("click"), $hideAll = $("[role='chart-hide-all']").unbind("click");
-			$displayAll.on("click",function(e){
+	
+			$displayValue.on("change",function(e){
+				var value = this.value, count = 0;
 				for (var i = 0; i < datasets.length; i++) {
 				   var dataset = datasets[i];
-				   if(dataset.type === "heatmap" ||  !dataset.hidden)
+				   if(dataset.type === "heatmap")
 					   continue;
-				  $("[data-chart-id='"+i+"']", $container).css({"text-decoration": "none"});
-				  dataset.hidden = false;
+				   var $target = $("[data-chart-id='"+i+"']", $container);
+				   if((dataset.hidden =  (++count > value)))
+					   $target.css({"text-decoration": "line-through"});
+				   else  $target.css({"text-decoration": "none"});
 				}
 				chart.update();
 				return false;
 			});
-			
-			$hideAll.on("click",function(e){
-				for (var i = 0; i < datasets.length; i++) {
-				   var dataset = datasets[i];
-				   if(dataset.type === "heatmap" ||  dataset.hidden)
-					   continue;
-				  $("[data-chart-id='"+i+"']", $container).css({"text-decoration": "line-through"});
-				  dataset.hidden = true;
-				}
-				chart.update();
-				return false;
-			});
-			
 		},
 		error: unknowError
 	}).complete(function () {

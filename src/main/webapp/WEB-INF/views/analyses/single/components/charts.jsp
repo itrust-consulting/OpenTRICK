@@ -109,10 +109,8 @@
 			<div class="col-sm-4">
 				<fieldset>
 					<legend>
-						<span class="col-xs-6"><spring:message code="label.title.risk_acceptance.legend" /></span> <span class='col-xs-6'> <span class='pull-right'> <a href="#"
-								class='btn btn-link' role="chart-show-all"><spring:message code="label.chart.display.all" /></a> <a href="#" class='btn btn-link' role="chart-hide-all"><spring:message
-										code="label.chart.hide.all" /></a>
-						</span>
+						<span class="col-xs-5"><spring:message code="label.title.risk_acceptance.legend" /></span> <span class='col-xs-7'> <span class='pull-right'><span class='col-xs-9 text-right'><spring:message
+										code="label.chart.item.display" /></span><span class='col-xs-3'><input class='form-control' type="number" min="0" value="10" id='chart-show-x-element'></span></span>
 						</span>
 					</legend>
 					<div id="risk_acceptance_evolution_legend" style="overflow-x: auto; resize: vertical;"></div>

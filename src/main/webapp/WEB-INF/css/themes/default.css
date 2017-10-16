@@ -807,6 +807,26 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	margin-bottom: -2px;
 }
 
+#risk_acceptance_evolution_legend .list-group-item{
+	padding: 2px 5px 
+}
+
+#chart-show-x-element{
+	padding: 3px 6px;
+	height: 25px;
+	text-align: right;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
 @media (min-width: 768px) {
 
     .pull-sm-left {
