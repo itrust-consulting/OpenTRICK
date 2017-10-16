@@ -2,6 +2,7 @@ Chart.defaults.global.defaultFontColor = "#333";
 Chart.defaults.global.defaultFontFamily = "'Corbel', 'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Arial', 'Helvetica', 'sans-serif'";
 Chart.defaults.global.defaultFontSize = 13;
 Chart.defaults.global.defaultTitleFontSize = 16;
+Chart.defaults.radar.aspectRatio = 1;
 
 // Define a plugin to provide data labels
 Chart.plugins.register({
@@ -160,7 +161,7 @@ function evolutionProfitabilityComplianceOption(id, title) {
 					return application.percentageFormat.format(item.yLabel);
 				}
 			}
-		},
+		},aspectRatio : 1,
 		scales : {
 			yAxes : [ {
 				stacked : false,
@@ -363,30 +364,6 @@ function evolutionHeatMapOption(xLabels, yLabels) {
         },
 		legend : {
 			display : false
-			/*,
-			position : 'bottom',
-			fullWidth : false,
-			labels : {
-				generateLabels: function(chart) {
-					var data = chart.data;
-					//risk_acceptance_evolution_legend
-					return helpers.isArray(data.datasets) ? data.datasets.filter(dataset => dataset.type!=="heatmap").map(function(dataset, i) {
-						return {
-							text: dataset.label,
-							fillStyle: (!helpers.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
-							hidden: !chart.isDatasetVisible(i),
-							lineCap: dataset.borderCapStyle,
-							lineDash: dataset.borderDash,
-							lineDashOffset: dataset.borderDashOffset,
-							lineJoin: dataset.borderJoinStyle,
-							lineWidth: dataset.borderWidth,
-							strokeStyle: dataset.borderColor,
-							pointStyle: dataset.pointStyle,
-							datasetIndex: i
-						};
-					}, this) : [];
-				}
-			}*/
 		}
 	};
 }

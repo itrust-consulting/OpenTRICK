@@ -424,7 +424,7 @@ function loadCompliance() {
 					charts.map(chart => {
 						if (chart.datasets && chart.datasets.length) {
 							chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-							var $parent = $("<div class='col-md-6' id='chart_compliance_" + chart.trickId + "' />").appendTo($tab), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							var $parent = $("<div class='col-sm-6 col-lg-4' id='chart_compliance_" + chart.trickId + "' />").appendTo($tab), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "radar",
 								data: chart,

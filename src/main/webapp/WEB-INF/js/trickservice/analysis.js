@@ -821,7 +821,7 @@ function loadComplianceChart(url) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $("<div class='col-md-6 col-lg-4' id= 'chart_compliance_" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							var $parent = $("<div class='col-sm-6 col-md-4 col-lg-3' id= 'chart_compliance_" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "radar",
 								data: chart,
