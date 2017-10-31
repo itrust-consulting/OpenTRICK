@@ -39,7 +39,7 @@ public class ColorManager {
 		if (bound.isAccepted(importance))
 			return bound.getColor();
 		else if (importance > bound.getMax())
-			return findColor(importance, mid + 1, end);
+			return ++mid < end ? findColor(importance, mid, end) : bound.getColor();
 		else
 			return findColor(importance, begin, mid - 1);
 	}

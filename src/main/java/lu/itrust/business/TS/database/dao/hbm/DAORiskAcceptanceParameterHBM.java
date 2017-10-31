@@ -220,4 +220,11 @@ public class DAORiskAcceptanceParameterHBM extends DAOHibernate implements DAORi
 
 	}
 
+	@Override
+	public boolean existsByAnalysisId(Integer analysisId) {
+		return getSession().createQuery(
+				"Select count(parameter) > 0 From Analysis as analysis inner join analysis.riskAcceptanceParameters as parameter where analysis.id = :idAnalysis",
+				Boolean.class).setParameter("idAnalysis", analysisId).uniqueResult();
+	}
+
 }
