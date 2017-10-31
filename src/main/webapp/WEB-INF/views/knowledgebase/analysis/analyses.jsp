@@ -20,7 +20,7 @@
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isDefaultProfile()" ><a href="#" class="text-danger" onclick="return deleteAnalysisProfile();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>
-		<table class="table table-hover">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th width="1%"></th>

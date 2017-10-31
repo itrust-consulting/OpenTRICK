@@ -18,7 +18,7 @@
 			<li class="disabled pull-right" data-trick-selectable="multi"><a href="#tab_kb_scale_type" onclick="return deleteScaleType()" class="text-danger"><span
 					class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /> </a></li>
 		</ul>
-		<table class="table table-hover">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th width="1%" rowspan="3"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'kb_scale_type')"></th>

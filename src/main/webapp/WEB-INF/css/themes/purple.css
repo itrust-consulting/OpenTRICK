@@ -608,6 +608,7 @@ table>tbody>tr:HOVER>.editable {
 }
 
 tr.selected, table>tbody>tr.selected,
+table>tbody>tr.selected:nth-of-type(2n+1),
 table>tbody>tr.selected.info,
 table>tbody>tr.selected.succes,
 table>tbody>tr.selected.warning,

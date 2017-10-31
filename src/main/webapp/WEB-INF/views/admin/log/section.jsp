@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div id="section_log" >
-	<table class="table table-hover table-condensed table-fixed-header-analysis">
+	<table class="table table-striped table-hover table-condensed table-fixed-header-analysis">
 		<thead>
 			<tr>
 				<th width="14%"><spring:message code="label.log.date.created" text="Created" /></th>

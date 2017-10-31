@@ -610,6 +610,7 @@ table>tbody>tr:HOVER>.editable {
 }
 
 tr.selected, table>tbody>tr.selected,
+table>tbody>tr.selected:nth-of-type(2n+1),
 table>tbody>tr.selected.info,
 table>tbody>tr.selected.succes,
 table>tbody>tr.selected.warning,
@@ -839,6 +840,50 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	padding: 7px 15px;
 	
 }
+
+.modal-footer .btn-primary{
+	color: #333;
+	background-color: #fff;
+	border-color: #ccc;
+}
+
+.modal-footer .btn-primary:focus, .modal-footer .btn-primary.focus {
+	color: #333;
+	background-color: #e6e6e6;
+	border-color: #8c8c8c
+}
+
+.modal-footer .btn-primary:hover {
+	color: #333;
+	background-color: #e6e6e6;
+	border-color: #adadad
+}
+
+.modal-footer .btn-primary:active, .modal-footer .btn-primary.active {
+	color: #333;
+	background-color: #e6e6e6;
+	border-color: #adadad
+}
+
+.modal-footer .btn-primary:active:hover, .modal-footer .btn-primary.active:hover,
+	.modal-footer .btn-primary:active:focus, .modal-footer .btn-primary.active:focus,
+	.modal-footer .btn-primary:active.focus, .modal-footer .btn-primary.active.focus{
+	color: #333;
+	background-color: #d4d4d4;
+	border-color: #8c8c8c
+}
+
+.modal-footer .btn-primary:active, .modal-footer .btn-primary.active{
+	background-image: none
+}
+
+.modal-footer .btn-primary.disabled:hover, .modal-footer .btn-primary[disabled]:hover,
+	.modal-footer .btn-primary.disabled:focus, .modal-footer .btn-primary[disabled]:focus,
+	.modal-footer .btn-primary.disabled.focus, .modal-footer .btn-primary[disabled].focus{
+	background-color: #fff;
+	border-color: #ccc
+}
+
 
 .nav-analysis>li{
 	margin-bottom: -2px;

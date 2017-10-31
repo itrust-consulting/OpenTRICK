@@ -30,7 +30,7 @@
 					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<jsp:include page="../template/successErrors.jsp" />
-			<div class="tab-content" id="tab-container">
+			<div class="tab-content" id="tab-container" data-ug-root="administration">
 				<jsp:include page="status.jsp" />
 				<jsp:include page="user/users.jsp" />
 				<jsp:include page="ids/home.jsp" />

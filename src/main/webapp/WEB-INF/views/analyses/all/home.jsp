@@ -102,7 +102,7 @@
 						</form>
 					</div>
 				</div>
-				<table class="table table-hover" style="border-top: 1px solid #dddddd;">
+				<table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;">
 					<thead>
 						<tr>
 							<th width="1%"><c:if test="${allowedTicketing}">
