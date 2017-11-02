@@ -394,12 +394,12 @@ function isLinked() {
 }
 
 function downloadWordReport(id) {
-	window.location = context + '/Profile/Report/' + id + "/Download";
+	window.location = context + '/Account/Report/' + id + "/Download";
 	return false;
 }
 
 function downloadExportedSqLite(id) {
-	window.location = context + '/Profile/Sqlite/' + id + "/Download";
+	window.location = context + '/Account/Sqlite/' + id + "/Download";
 	return false;
 }
 

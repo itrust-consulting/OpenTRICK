@@ -44,6 +44,7 @@ import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
@@ -111,8 +112,8 @@ public class ControllerRegister {
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
 		// create new user object and add it to model
-		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP,true))
-			return "redirect:/Home";
+		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP, true))
+			throw new ResourceNotFoundException();
 		model.put("user", new User());
 		return "user/register";
 	}
@@ -133,8 +134,8 @@ public class ControllerRegister {
 			HttpServletResponse response) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP,true))
-				return errors;
+			if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP, true))
+				throw new ResourceNotFoundException();
 			User user = new User();
 			if (!buildUser(errors, user, source, locale))
 				return errors;
@@ -187,27 +188,24 @@ public class ControllerRegister {
 		}
 	}
 
-	public String checkAttempt(String name, HttpSession session, Principal principal) {
-		if (principal != null || !serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD,true))
-			return "redirect:/Home";
+	public void checkAttempt(String name, HttpSession session, Principal principal) {
+		if (principal != null || !serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD, true))
+			throw new ResourceNotFoundException();
 		Integer attempt = (Integer) session.getAttribute(name);
 		if (attempt == null)
 			attempt = 1;
 		else {
 			if (++attempt > maxAttempt && (System.currentTimeMillis() - session.getLastAccessedTime()) < attemptTimeout)
-				return "redirect:/Login";
+				throw new ResourceNotFoundException();
 			if (attempt > maxAttempt)
 				attempt = 1;
 		}
 		session.setAttribute(name, attempt);
-		return null;
 	}
 
 	@RequestMapping("/ResetPassword")
 	public String resetPassword(Principal principal, Model model, HttpSession session) {
-		String attempt = checkAttempt("attempt-reset-password", session, principal);
-		if (attempt != null)
-			return attempt;
+		checkAttempt("attempt-reset-password", session, principal);
 		model.addAttribute("resetPassword", new ResetPasswordHelper());
 		return "user/resetPassword";
 	}
@@ -222,13 +220,7 @@ public class ControllerRegister {
 	@RequestMapping("/ResetPassword/Save")
 	public String resetPassword(@ModelAttribute("resetPassword") ResetPasswordHelper resetPassword, BindingResult result, Principal principal, RedirectAttributes attributes,
 			Locale locale, HttpServletRequest request) {
-		HttpSession session = request.getSession();
-
-		String attempt = checkAttempt("attempt-reset-password-save", session, principal);
-
-		if (attempt != null)
-			return attempt;
-
+		checkAttempt("attempt-reset-password-save", request.getSession(), principal);
 		if (resetPassword.isEmpty()) {
 			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
 			return "user/resetPassword";
@@ -273,12 +265,10 @@ public class ControllerRegister {
 	@RequestMapping("/ChangePassword/{keyControl}")
 	public String updatePassword(@PathVariable String keyControl, Principal principal, Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
 		HttpSession session = request.getSession();
-		String attempt = checkAttempt("attempt-request", session, principal);
-		if (attempt != null)
-			return attempt;
+		checkAttempt("attempt-request", session, principal);
 		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
 		if (resetPassword == null)
-			return "redirect:/Login";
+			throw new ResourceNotFoundException();
 		session.removeAttribute("attempt-request");
 		if (resetPassword.getUser().getConnexionType() == User.LADP_CONNEXION) {
 			attributes.addFlashAttribute("error",
@@ -295,9 +285,7 @@ public class ControllerRegister {
 	@RequestMapping("/ChangePassword/{keyControl}/Cancel")
 	public String cancel(@PathVariable String keyControl, Principal principal, Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
 		HttpSession session = request.getSession();
-		String attempt = checkAttempt("attempt-request-cancel", session, principal);
-		if (attempt != null)
-			return attempt;
+		checkAttempt("attempt-request-cancel", session, principal);
 		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
 		if (resetPassword != null) {
 			session.removeAttribute("attempt-request-cancel");
@@ -312,12 +300,8 @@ public class ControllerRegister {
 	@RequestMapping("/ChangePassword/Save")
 	public String updatePassword(@ModelAttribute("changePassword") ChangePasswordhelper changePassword, BindingResult result, Principal principal, Model model,
 			RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
-
 		HttpSession session = request.getSession();
-		String attempt = checkAttempt("attempt-change-password", session, principal);
-		if (attempt != null)
-			return attempt;
-
+		checkAttempt("attempt-change-password", session, principal);
 		ValidationUtils.rejectIfEmptyOrWhitespace(result, "password", "error.user.password.empty", "Password cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(result, "repeatPassword", "error.user.password.empty", "Password cannot be empty");
 		if (!result.hasFieldErrors("password") && !changePassword.getRepeatPassword().matches(Constant.REGEXP_VALID_PASSWORD))
@@ -328,8 +312,7 @@ public class ControllerRegister {
 			return "user/changePassword";
 		ResetPassword resetPassword = serviceResetPassword.get(changePassword.getRequestId());
 		if (resetPassword == null)
-			return "redirect:/Login";
-
+			throw new ResourceNotFoundException();
 		session.removeAttribute("attempt-change-password");
 		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
@@ -343,7 +326,6 @@ public class ControllerRegister {
 			serviceUser.saveOrUpdate(resetPassword.getUser());
 			serviceResetPassword.delete(resetPassword);
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
-
 			/**
 			 * Log
 			 */

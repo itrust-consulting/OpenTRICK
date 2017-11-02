@@ -16,7 +16,7 @@
 <body>
 	<div id="wrap" class="wrap">
 		<jsp:include page="../../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="analyses">
 			<div class="section" id="section_analysis">
 				<jsp:include page="../../template/successErrors.jsp" />
 				<ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis">

@@ -14,7 +14,7 @@
 		</div>
 		<div style="margin: 0 auto; max-width: 800px;">
 			<form id="updateprofileform" name="updateprofileform" onsubmit="return updateProfile('updateprofileform');" class="form-horizontal" method="post"
-				action="${pageContext.request.contextPath}/Profile/Update">
+				action="${pageContext.request.contextPath}/Account/Update">
 				<fieldset>
 					<legend>
 						<spring:message code="label.user.title.login_information" text="Login Information" />

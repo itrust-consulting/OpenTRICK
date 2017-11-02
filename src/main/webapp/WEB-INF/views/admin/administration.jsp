@@ -16,7 +16,7 @@
 	<div id="wrap" class="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="administration" >
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top nav-tab">
 				<li class="active"><a href="#tab-status" data-toggle="tab"><spring:message code="label.menu.installation.status" text="Status" /></a></li>
@@ -30,7 +30,7 @@
 					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<jsp:include page="../template/successErrors.jsp" />
-			<div class="tab-content" id="tab-container" data-ug-root="administration">
+			<div class="tab-content" id="tab-container" >
 				<jsp:include page="status.jsp" />
 				<jsp:include page="user/users.jsp" />
 				<jsp:include page="ids/home.jsp" />

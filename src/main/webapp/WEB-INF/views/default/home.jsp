@@ -14,7 +14,7 @@
 <body>
 	<div id="wrap">
 		<jsp:include page="../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="home">
 			<div class="content" id="content">
 				<div style="margin-top: 100px; display: block;">
 					<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" />

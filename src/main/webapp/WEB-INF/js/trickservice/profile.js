@@ -17,7 +17,7 @@ function deleteSqlite(id) {
 	$(".btn-danger", $confirm).on("click",function(){
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url: context + "/Profile/Sqlite/" + id + "/Delete",
+			url: context + "/Account/Sqlite/" + id + "/Delete",
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
@@ -43,7 +43,7 @@ function deleteReport(id) {
 	$(".btn-danger", $confirm).on("click",function(){
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url: context + "/Profile/Report/" + id + "/Delete",
+			url: context + "/Account/Report/" + id + "/Delete",
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
@@ -68,7 +68,7 @@ function userSqliteScrolling() {
 	if (currentSize >= size && currentSize % size === 0) {
 		var $progress = $("#progress-sqlite").show();
 		$.ajax({
-			url: context + "/Profile/Section/Sqlite",
+			url: context + "/Account/Section/Sqlite",
 			async: false,
 			type: "get",
 			data: {
@@ -94,7 +94,7 @@ function userReportScrolling() {
 	if (currentSize >= size && currentSize % size === 0) {
 		var $progress = $("#progress-report").show();
 		$.ajax({
-			url: context + "/Profile/Section/Report",
+			url: context + "/Account/Section/Report",
 			async: false,
 			type: "get",
 			data: {
@@ -120,7 +120,7 @@ function updateReportControl(element) {
 		return false;
 	var $progress = $("#progress-report").show();
 	$.ajax({
-		url: context + "/Profile/Control/Report/Update",
+		url: context + "/Account/Control/Report/Update",
 		type: "post",
 		data: serializeForm("#formReportControl"),
 		contentType: "application/json;charset=UTF-8",
@@ -142,7 +142,7 @@ function updateSqliteControl(element) {
 		return false;
 	var $progress = $("#progress-sqlite").show();
 	$.ajax({
-		url: context + "/Profile/Control/Sqlite/Update",
+		url: context + "/Account/Control/Sqlite/Update",
 		type: "post",
 		data: serializeForm("#formSqliteControl"),
 		contentType: "application/json;charset=UTF-8",
@@ -162,7 +162,7 @@ function updateSqliteControl(element) {
 function loadUserSqlite(update) {
 	var $progress = $("#progress-sqlite").show();
 	$.ajax({
-		url: context + "/Profile/Section/Sqlite",
+		url: context + "/Account/Section/Sqlite",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (update) {
@@ -185,7 +185,7 @@ function loadUserSqlite(update) {
 function loadUserReport(update) {
 	var $progress = $("#progress-report").show();
 	$.ajax({
-		url: context + "/Profile/Section/Report",
+		url: context + "/Account/Section/Report",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (update) {
@@ -209,7 +209,7 @@ function updateProfile(form) {
 	$(".label-danger").remove();
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-			url: context + "/Profile/Update",
+			url: context + "/Account/Update",
 			type: "post",
 			contentType: "application/json;charset=UTF-8",
 			data: serializeForm(form),
@@ -239,7 +239,7 @@ function updateProfile(form) {
 					showDialog("success", MessageResolver("label.user.update.success", "Profile successfully updated"));
 					var prevlang = $("#perviouslanguage").val(), newlang = $("#" + form + " #locale").val();
 					if (prevlang !== newlang)
-						setTimeout(() => switchLangueTo(context+"/Profile"+"?lang=" + newlang), 2000);
+						setTimeout(() => switchLangueTo(context+"/Account"+"?lang=" + newlang), 2000);
 
 				}
 
@@ -255,7 +255,7 @@ function updateProfile(form) {
 function updateUserOtp(){
 	var $progress = $("#loading-indicator").show(), $form =  $("#section_user_otp form#user-otp-form"), data = serializeForm($form);
 	$.ajax({
-			url: context + "/Profile/OTP/Update",
+			url: context + "/Account/OTP/Update",
 			type: "post",
 			contentType: "application/json;charset=UTF-8",
 			data: serializeForm($form),

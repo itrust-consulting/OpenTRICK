@@ -14,7 +14,7 @@
 <body>
 	<div id="wrap" class="wrap">
 		<jsp:include page="../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="import-analysis">
 			<div class="page-header">
 				<h1>
 					<spring:message code="label.title.import.analysis" text="Import a new Analysis" />

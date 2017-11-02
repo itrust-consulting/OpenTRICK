@@ -82,7 +82,7 @@ import net.glxn.qrgen.QRCode;
  * @since Apr 15, 2014
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/Profile")
+@RequestMapping("/Account")
 @Controller
 public class ControllerProfile {
 
