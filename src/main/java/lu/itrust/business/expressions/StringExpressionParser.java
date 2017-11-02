@@ -184,7 +184,9 @@ public class StringExpressionParser implements ExpressionParser {
 			if (isFunction)
 				return evaluateFunction(source, values, variableName);
 			else if (values instanceof ValueFactory) {
-				IValue value = ((ValueFactory) values).findExp(variableName);
+				IValue value = ((ValueFactory) values).findProb(variableName);
+				if (value == null)
+					value = ((ValueFactory) values).findDyn(variableName);
 				return value == null ? 0.0 : value.getReal();
 			} else if (values instanceof Map) {
 				Map<String, Double> variableValueMap = (Map<String, Double>) values;
