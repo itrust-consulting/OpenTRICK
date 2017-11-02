@@ -169,4 +169,9 @@ public class ServiceRiskAcceptanceParameterImpl implements ServiceRiskAcceptance
 		daoRiskAcceptanceParameter.deleteAll();
 	}
 
+	@Override
+	public boolean existsByAnalysisId(Integer analysisId) {
+		return daoRiskAcceptanceParameter.existsByAnalysisId(analysisId);
+	}
+
 }

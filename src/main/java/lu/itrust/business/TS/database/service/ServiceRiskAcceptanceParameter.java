@@ -11,4 +11,6 @@ import lu.itrust.business.TS.database.template.TemplateRiskAcceptanceParameter;
  */
 public interface ServiceRiskAcceptanceParameter extends TemplateRiskAcceptanceParameter {
 
+	boolean existsByAnalysisId(Integer analysisId);
+
 }

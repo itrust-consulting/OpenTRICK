@@ -83,6 +83,7 @@ import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -201,6 +202,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+	
+	@Autowired
+	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
 	@Autowired
 	private SessionFactory sessionFactory;
@@ -477,6 +481,8 @@ public class ControllerAnalysis {
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, @PathVariable AnalysisType type, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
 			AnalysisType analysisType = type == null ? serviceAnalysis.getAnalysisTypeById(analysisId) : type;
+			if(analysisType == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
+				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
 			ExportReport exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
 					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
 					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
