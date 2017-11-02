@@ -1,5 +1,7 @@
 package lu.itrust.business.expressions;
 
+import java.util.regex.Pattern;
+
 /**
  * Simple implementation of the Tokenizer interface, which reads tokens from a
  * given string.
@@ -11,6 +13,8 @@ public class StringTokenizer implements Tokenizer {
 	public StringTokenizer(String expressionString) {
 		this.expressionString = expressionString;
 	}
+
+	private static final Pattern regexSpace = Pattern.compile(" ");
 
 	/**
 	 * The string containing the expression to parse. Note that according to
@@ -45,7 +49,7 @@ public class StringTokenizer implements Tokenizer {
 			}
 
 			// Handle numbers
-			if (Character.isDigit(nextChar) || nextChar == '.') {
+			if (Character.isDigit(nextChar) || nextChar == '.' || nextChar == ',') {
 				return this.readNumber();
 			}
 
@@ -69,7 +73,7 @@ public class StringTokenizer implements Tokenizer {
 			case ')':
 				this.pointer++;
 				return new Token<>(TokenType.RightBracket);
-			case ',':
+			case ';':
 				this.pointer++;
 				return new Token<>(TokenType.Comma);
 			}
@@ -108,12 +112,15 @@ public class StringTokenizer implements Tokenizer {
 			char nextChar = this.expressionString.charAt(this.pointer);
 
 			// Handle periods
-			if (nextChar == '.') {
+			if (nextChar == '.' || nextChar == ',') {
 				if (periodRead)
 					throw new InvalidExpressionException("Two periods in number, at position " + pointerBeginning);
 				else
 					periodRead = true;
 			}
+			// Ignore spaces in numbers
+			else if (nextChar == ' ')
+				continue;
 			// Everything else should be a digit: if we read something else,
 			// our token ends here and we can return it.
 			else if (!Character.isDigit(nextChar))
@@ -124,7 +131,7 @@ public class StringTokenizer implements Tokenizer {
 		if (this.pointer - pointerBeginning <= 1 && periodRead)
 			throw new InvalidExpressionException("Number cannot consist of a period only, at position " + pointerBeginning);
 		else
-			return new Token<>(TokenType.Number, Double.parseDouble(this.expressionString.substring(pointerBeginning, this.pointer)));
+			return new Token<>(TokenType.Number, Double.parseDouble(regexSpace.matcher(this.expressionString.substring(pointerBeginning, this.pointer).replace(',', '.')).replaceAll("")));
 	}
 
 	/**

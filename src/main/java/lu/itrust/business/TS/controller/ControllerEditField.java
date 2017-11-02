@@ -8,6 +8,7 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -752,12 +753,13 @@ public class ControllerEditField {
 					acronyms = new LinkedList<>(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
 					acronyms.addAll(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME));
 					if (!acronyms.contains(fieldEditor.getValue())) {
-						try {
-							double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue();
+						ParsePosition parsePosition = new ParsePosition(0);
+						String fieldEditorString = fieldEditor.getValue().toString();
+						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditorString, parsePosition).doubleValue();
+						if (parsePosition.getIndex() >= fieldEditorString.length()) {
 							if (value < 0)
 								return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
 							fieldEditor.setValue(value + "");
-						} catch (ParseException e) {
 						}
 						String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), fieldEditor.getValue(), acronyms);
 						if (error != null)
