@@ -13,7 +13,7 @@
 
 	<context:annotation-config />
 
-	<mvc:annotation-driven>
+	<mvc:annotation-driven ignore-default-model-on-redirect="true" >
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
 
@@ -40,14 +40,16 @@
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
+	
+	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/fonts/**" location="/WEB-INF/fonts/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/css/**" location="/WEB-INF/css/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/" cache-period="${app.settings.static.resource.caching.age}" />
 
-	<mvc:resources mapping="/js/**" location="/WEB-INF/js/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/" cache-period="${app.settings.static.resource.caching.age}" />
 
 	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 

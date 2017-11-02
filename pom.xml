@@ -428,13 +428,13 @@
 				<version>3.0.0</version>
 				<configuration>
 					<warSourceExcludes>
-						**/WEB-INF/css/*.css,
-						**/WEB-INF/css/themes/*.css,
-						**/WEB-INF/js/*.js,
-						**/WEB-INF/js/trickservice/*.js,
-						**/WEB-INF/js/chartjs/*.js,
-						**/WEB-INF/js/bootstrap/*.js,
-						**/WEB-INF/js/bootstrap/locales/*.js
+						**/WEB-INF/static/css/*.css,
+						**/WEB-INF/static/css/themes/*.css,
+						**/WEB-INF/static/js/*.js,
+						**/WEB-INF/static/js/trickservice/*.js,
+						**/WEB-INF/static/js/chartjs/*.js,
+						**/WEB-INF/static/js/bootstrap/*.js,
+						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
 					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js</packagingExcludes>
 				</configuration>
@@ -457,20 +457,20 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<cssSourceDir>WEB-INF/css</cssSourceDir>
+							<cssSourceDir>WEB-INF/static/css</cssSourceDir>
 
 							<cssSourceIncludes>
 								<cssSourceInclude>*.css</cssSourceInclude>
 							</cssSourceIncludes>
 
 							<cssSourceExcludes>
-								<cssSourceExclude>WEB-INF/css/*.min.css</cssSourceExclude>
+								<cssSourceExclude>WEB-INF/static/css/*.min.css</cssSourceExclude>
 							</cssSourceExcludes>
 
-							<jsSourceDir>WEB-INF/js</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js</jsSourceDir>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
@@ -488,12 +488,12 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 							<charset>utf-8</charset>
-							<cssSourceDir>WEB-INF/css/themes</cssSourceDir>
+							<cssSourceDir>WEB-INF/static/css/themes</cssSourceDir>
 							<cssSourceIncludes>
 								<cssSourceInclude>*.css</cssSourceInclude>
 							</cssSourceIncludes>
 							<cssSourceExcludes>
-								<cssSourceExclude>WEB-INF/css/themes/*.min.css</cssSourceExclude>
+								<cssSourceExclude>WEB-INF/static/css/themes/*.min.css</cssSourceExclude>
 							</cssSourceExcludes>
 						</configuration>
 					</execution>
@@ -510,14 +510,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/trickservice</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/trickservice</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/trickservice/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/trickservice/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 						</configuration>
 					</execution>
@@ -534,14 +534,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/bootstrap</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/bootstrap</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/bootstrap/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/bootstrap/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>
@@ -559,14 +559,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/chartjs</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/chartjs</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/chartjs/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/chartjs/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>
@@ -584,14 +584,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/bootstrap/locales</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/bootstrap/locales</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/bootstrap/locales/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/bootstrap/locales/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>

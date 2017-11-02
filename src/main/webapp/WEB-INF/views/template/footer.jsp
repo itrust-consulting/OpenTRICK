@@ -36,13 +36,15 @@
 		<div class="pull-right" style="color: white; width: 25%; text-align: right; margin-top: 5px;">
 			<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
 				<c:if test="${not empty userGuideURL }">
-					<spring:message text="${userGuideURL}" var="userGuideBaseURL" />
+					
 					<c:choose>
 						<c:when test="${userGuideURLInternal}">
-							<a  href='<spring:url value="${userGuideBaseURL}"/>' style="color: #fff;" data-base-url='${userGuideBaseURL}' target="ts-user-guide"><i class="fa fa-book" aria-hidden="true"></i> <spring:message
+							<spring:url value="${userGuideURL}" var="userGuideBaseURL"/>
+							<a  href='${userGuideURL}' style="color: #fff;" data-base-url='${userGuideBaseURL}' target="ts-user-guide"><i class="fa fa-book" aria-hidden="true"></i> <spring:message
 									code='label.user.manual' /></a>
 						</c:when>
 						<c:otherwise>
+							<spring:message text="${userGuideURL}" var="userGuideBaseURL" />
 							<a href='${userGuideBaseURL}' style="color: #fff;" data-base-url='${userGuideBaseURL}' target="ts-user-guide" ><i class="fa fa-book" aria-hidden="true"></i> <spring:message
 									code='label.user.manual' /></a>
 						</c:otherwise>

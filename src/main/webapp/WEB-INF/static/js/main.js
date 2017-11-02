@@ -1004,6 +1004,22 @@ function generateHelper($selection, container) {
 	return false;
 }
 
+function updateUserGuideURL(){
+	try{
+		var $this = $("#footer a[data-base-url]"), baseURL = $this.attr("data-base-url");
+		var $container =  $("[data-ug-root]"), $tabActive = $(".tab-pane.active",$container);
+		if(!$container.length || !$this.length)
+			return false;
+		baseURL+=("#"+$container.attr("data-ug-root"));
+		if($tabActive.length)
+			baseURL+=$tabActive.attr("id").substr(3);
+		$this.attr("href", baseURL);
+	}catch(error){
+		console.log(error);
+	}
+	return false;
+}
+
 $(document)
 		.ready(
 				function() {
@@ -1165,6 +1181,7 @@ $(document)
 							application["no-update-hash"] = true;
 							switchTab(hash ? hash.split('#')[1] : hash);
 							application["no-update-hash"] = false;
+							updateUserGuideURL();
 						});
 
 						if (window.location.hash) {
@@ -1211,5 +1228,10 @@ $(document)
 					{
 						generateHelper();
 						onElementInserted("modal",(element) => generateHelper(undefined, element));
+						updateUserGuideURL();
 					}, 100);
+					
+					
+					
+					
 				});

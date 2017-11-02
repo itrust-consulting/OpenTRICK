@@ -46,7 +46,6 @@ public class GlobalControllerAdvice {
 
 	@ExceptionHandler(value = Exception.class)
 	public ModelAndView defaultErrorHandler(HttpServletRequest request, Exception e) throws Exception {
-		System.out.println("here: "+request.getRequestURL());
 		if (e instanceof AccessDeniedException || e instanceof AuthenticationException || AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class) != null)
 			throw e;
 		TrickLogManager.Persist(e);
