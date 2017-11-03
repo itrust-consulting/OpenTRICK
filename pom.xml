@@ -436,7 +436,7 @@
 						**/WEB-INF/static/js/bootstrap/*.js,
 						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
-					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js</packagingExcludes>
+					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js, **-example.properties</packagingExcludes>
 				</configuration>
 			</plugin>
 
