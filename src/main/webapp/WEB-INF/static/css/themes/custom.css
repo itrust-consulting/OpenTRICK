@@ -583,6 +583,23 @@ table.rrf-values th {
 	border-radius: 4px 0px 0px 4px;
 }
 
+.table > thead > tr > th, 
+.table > tbody > tr > th, 
+.table > tfoot > tr > th, 
+.table > thead > tr > td, 
+.table > tbody > tr > td, 
+.table > tfoot > tr > td {
+    border-top: 1px solid #eee;
+}
+
+.table > thead > tr, 
+.table > tbody > tr, 
+.table > tfoot > tr
+{
+   margin-bottom: 2px;
+}
+
+
 tr.editable, td.editable, th.editable {
 	background-color: #eff5fb;
 }
@@ -593,6 +610,7 @@ table>tbody>tr:HOVER>.editable {
 }
 
 tr.selected, table>tbody>tr.selected,
+table>tbody>tr.selected:nth-of-type(2n+1),
 table>tbody>tr.selected.info,
 table>tbody>tr.selected.succes,
 table>tbody>tr.selected.warning,
@@ -803,28 +821,72 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	height: 5px;
 }
 
+.modal-dialog .modal-header .close{
+	color: #fff;
+	opacity: 1;
+}
+
+.modal-dialog .modal-header{
+	color: #fff;
+	background-color: #4086cb;
+	border-color: #2b5987;
+	padding: 7px 15px;
+}
+
+.modal-dialog .modal-footer{
+	color: #fff;
+	background-color: #4086cb;
+	border-color: #2b5987;
+	padding: 7px 15px;
+	
+}
+
+.modal-footer .btn-primary{
+	color: #333;
+	background-color: #fff;
+	border-color: #ccc;
+}
+
+.modal-footer .btn-primary:focus, .modal-footer .btn-primary.focus {
+	color: #333;
+	background-color: #e6e6e6;
+	border-color: #8c8c8c
+}
+
+.modal-footer .btn-primary:hover {
+	color: #333;
+	background-color: #e6e6e6;
+	border-color: #adadad
+}
+
+.modal-footer .btn-primary:active, .modal-footer .btn-primary.active {
+	color: #333;
+	background-color: #e6e6e6;
+	border-color: #adadad
+}
+
+.modal-footer .btn-primary:active:hover, .modal-footer .btn-primary.active:hover,
+	.modal-footer .btn-primary:active:focus, .modal-footer .btn-primary.active:focus,
+	.modal-footer .btn-primary:active.focus, .modal-footer .btn-primary.active.focus{
+	color: #333;
+	background-color: #d4d4d4;
+	border-color: #8c8c8c
+}
+
+.modal-footer .btn-primary:active, .modal-footer .btn-primary.active{
+	background-image: none
+}
+
+.modal-footer .btn-primary.disabled:hover, .modal-footer .btn-primary[disabled]:hover,
+	.modal-footer .btn-primary.disabled:focus, .modal-footer .btn-primary[disabled]:focus,
+	.modal-footer .btn-primary.disabled.focus, .modal-footer .btn-primary[disabled].focus{
+	background-color: #fff;
+	border-color: #ccc
+}
+
+
 .nav-analysis>li{
 	margin-bottom: -2px;
-}
-
-#risk_acceptance_evolution_legend .list-group-item{
-	padding: 2px 5px 
-}
-
-#chart-show-x-element{
-	padding: 3px 6px;
-	height: 25px;
-	text-align: right;
-}
-
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type=number] {
-    -moz-appearance:textfield;
 }
 
 @media (min-width: 768px) {

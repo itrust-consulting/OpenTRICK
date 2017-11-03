@@ -14,7 +14,7 @@
 				<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span>
 						<spring:message code="label.action.delete" text="Delete" /> </a></li>
 			</ul>
-			<table class="table table-hover table-condensed">
+			<table class="table table-striped table-hover table-condensed">
 				<thead>
 					<tr>
 						<th></th>

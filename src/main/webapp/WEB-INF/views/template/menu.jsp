@@ -55,7 +55,7 @@
 					</c:choose>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile" id='main_menu_profile'> <sec:authentication
+					<li ${menu.equals("Account")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Account" id='main_menu_profile'> <sec:authentication
 								var="currentUsername" property="name" /> <c:choose>
 								<c:when test="${not empty currentUsername }">
 									<spring:message text='${currentUsername}'/>

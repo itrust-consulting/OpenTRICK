@@ -20,7 +20,7 @@
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="analysis">
 			<jsp:include page="menu.jsp" />
 			<jsp:include page="../../template/successErrors.jsp" />
 			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis"
@@ -48,7 +48,6 @@
 						<c:set var="assetALE" value="${ales[0]}" scope="request" />
 						<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
 					</c:if>
-					
 					<jsp:include page="./components/asset/asset.jsp" />
 				</c:if>
 				<jsp:include page="./components/scenario/scenario.jsp" />
@@ -69,9 +68,9 @@
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
 			</div>
-			<jsp:include page="./components/widgets.jsp" />
 		</div>
 		<jsp:include page="../../template/footer.jsp" />
+		<jsp:include page="./components/widgets.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
 	<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js" />"></script>

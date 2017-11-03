@@ -13,7 +13,7 @@
 			</h3>
 		</div>
 		<div style="margin: 0 auto; max-width: 650px;">
-			<form id="user-otp-form" name="user-otp-form" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/OTP/Update">
+			<form id="user-otp-form" name="user-otp-form" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Account/OTP/Update">
 				<c:set var="using2FA" value="${user.using2FA}" />
 				<spring:message code="label.action.enable" text="Enable" var="enable" />
 				<spring:message code="label.action.disable" text="Disable" var="disable" />

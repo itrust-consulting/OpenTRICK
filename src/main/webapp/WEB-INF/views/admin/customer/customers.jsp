@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="tab-pane" id="tab-customer">
+<div  class="tab-pane" id="tab-customer">
 	<div class="section" id="section_customer">
 		<ul class="nav nav-pills bordered-bottom" id="menu_customer">
 			<li><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.customer" text="Add" /> </a></li>
@@ -20,7 +20,7 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty customers}">
-				<table class="table table-hover">
+				<table class="table table-striped table-hover">
 					<thead>
 						<tr>
 							<th></th>

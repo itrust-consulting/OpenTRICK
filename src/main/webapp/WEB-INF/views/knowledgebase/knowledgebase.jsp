@@ -18,7 +18,7 @@
 	<div id="wrap" class="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="knowledgebase">
 			<jsp:include page="../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top nav-tab">
@@ -44,13 +44,12 @@
 				<jsp:include page="standards/measure/measures.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
 				<jsp:include page="scale/home.jsp" />
-				<jsp:include page="widget.jsp" />
-
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="widget.jsp" />
 	</div>
 	<jsp:include page="../template/scripts.jsp" />
 	<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>

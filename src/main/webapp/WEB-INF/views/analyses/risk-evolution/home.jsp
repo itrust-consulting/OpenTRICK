@@ -17,7 +17,7 @@
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../../template/menu.jsp" />
 		<!-- ################################################################### Content #################################################################### -->
-		<div class="container trick-container max-height">
+		<div class="container trick-container max-height" data-ug-root="risk-evolution">
 			<fieldset class="col-lg-3 max-height affixNav " style="overflow-x: hidden; padding-right: 16px; margin-top: 17px;" role="left-menu">
 				<legend>${title}</legend>
 				<div class='form form-horizontal'>

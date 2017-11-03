@@ -12,7 +12,7 @@
 <body>
 	<div id="wrap" class="wrap">
 		<jsp:include page="../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="account">
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
 				<li class="active"><a href="#tab-profile" data-toggle="tab"><spring:message code="label.menu.profile" text="My Profile" /></a></li>
 				<li><a href="#tab-sqlite" data-toggle="tab"><spring:message code="label.menu.sqlite" text="My sqlites" /></a></li>

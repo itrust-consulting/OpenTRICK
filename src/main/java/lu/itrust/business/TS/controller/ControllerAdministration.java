@@ -194,7 +194,7 @@ public class ControllerAdministration {
 				model.put("analyses", serviceAnalysis.getAll());
 		}
 
-		List<TSSetting> tsSettings = new LinkedList<TSSetting>();
+		List<TSSetting> tsSettings = new LinkedList<TSSetting>(), ticketingSystems = new LinkedList<>();
 		for (TSSettingName name : TSSettingName.values()) {
 			TSSetting tsSetting = serviceTSSetting.get(name);
 			if (tsSetting == null) {
@@ -205,15 +205,24 @@ public class ControllerAdministration {
 					break;
 				case TICKETING_SYSTEM_NAME:
 				case TICKETING_SYSTEM_URL:
+				case USER_GUIDE_URL:
+				case USER_GUIDE_URL_TYPE:
 					tsSetting = new TSSetting(name, null);
+					break;
 				case SETTING_ALLOWED_TICKETING_SYSTEM_LINK:
 					tsSetting = new TSSetting(name, false);
 					break;
 				}
 			}
-			tsSettings.add(tsSetting);
+
+			if (tsSetting.getNameString().contains("TICKETING_SYSTEM"))
+				ticketingSystems.add(tsSetting);
+			else
+				tsSettings.add(tsSetting);
+
 		}
 
+		model.put("ticketingSystems", ticketingSystems);
 		model.put("tsSettings", tsSettings);
 		model.put("enabledOTP", enabledOTP);
 		model.put("forcedOTP", forcedOTP);
