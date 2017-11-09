@@ -40,4 +40,6 @@ public interface ServiceRiskInformation {
 	public void delete(Collection<RiskInformation> riskInformations);
 
 	public List<RiskInformation> getAllByIdAnalysisAndCategory(Integer idAnalysis, String...types);
+
+	public List<RiskInformation> findByIdAnalysisAndCategory(Integer idAnalysis, String type);
 }

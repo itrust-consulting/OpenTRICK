@@ -314,11 +314,10 @@ public class ControllerKnowledgeBaseStandard {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		file.transferTo(importFile);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
-
 	}
 
 	/**

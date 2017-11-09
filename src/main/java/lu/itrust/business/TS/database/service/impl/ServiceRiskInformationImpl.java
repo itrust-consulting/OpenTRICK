@@ -203,4 +203,9 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	public List<RiskInformation> getAllByIdAnalysisAndCategory(Integer idAnalysis, String... types) {
 		return daoRiskInformation.getAllByIdAnalysisAndCategories(idAnalysis,types);
 	}
+
+	@Override
+	public List<RiskInformation> findByIdAnalysisAndCategory(Integer idAnalysis, String type) {
+		return daoRiskInformation.findByIdAnalysisAndCategory(idAnalysis, type);
+	}
 }

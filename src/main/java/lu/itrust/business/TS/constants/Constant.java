@@ -40,14 +40,14 @@ public class Constant {
 
 	/** Role at least consultant */
 	public static final String ROLE_MIN_CONSULTANT = "hasAnyRole('ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
-	
+
 	/** Role supervisor */
 	public static final String ROLE_MIN_ADMIN = "hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')";
-	
+
 	public static final String ROLE_OTP_ONLY = "hasRole('ROLE_PRE_AUTHEN')";
-	
+
 	public static final String ROLE_OTP_NAME = "ROLE_PRE_AUTHEN";
-	
+
 	public static final String OTP_PRE_AUTHENTICATION = "OTP-PRE-AUTHENTICATION";
 
 	public static final String SETTING_DEFAULT_SHOW_UNCERTAINTY = "DEFAULT_SHOW_UNCERTAINTY";
@@ -221,7 +221,7 @@ public class Constant {
 
 	/** Double maximum Value */
 	public static final double DOUBLE_MAX_VALUE = 1.79769313486231e+108;
-	
+
 	public static final int DEFAULT_LIKELIHOOD_MAX_VALUE = 12;
 
 	/** Asset, Threat (Scenario) and assessment selected sign */
@@ -309,13 +309,13 @@ public class Constant {
 	 * @see #ASSESSMENT_IMPACT_NAMES
 	 */
 	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational", "Reputational" };
-	
+
 	public final static String[] DEFAULT_IMPACT_TYPE_SHORT_NAMES = { "Fin.", "Leg.", "Op.", "Rep." };
 
 	public static final String DEFAULT_IMPACT_NAME = PARAMETERTYPE_TYPE_IMPACT_NAME;
 
 	public static final String DEFAULT_IMPACT_TRANSLATE = "Impact";
-	
+
 	public static final String DEFAULT_IMPACT_SHORT_NAME = "Imp.";
 
 	/** Action Plan Type Names */
@@ -340,6 +340,11 @@ public class Constant {
 	public static final String RI_TYPE_RISK = "Risk";
 	public static final String RI_TYPE_RISK_TBS = "Risk_TBS";
 	public static final String RI_TYPE_RISK_TBA = "Risk_TBA";
+
+	/**
+	 * [[{@code RI_TYPE_RISK, SheetName}], [{@code RI_TYPE_VUL, SheetName}], [{@code RI_TYPE_THREAT, SheetName}] ]
+	 */
+	public static final String[][] RI_SHEET_MAPPERS = { { RI_TYPE_RISK, "Risks" }, { RI_TYPE_VUL, "Vulnerabilities" }, { RI_TYPE_THREAT, "Threats" } };
 
 	/** SimpleParameter Attributes */
 	public final static String PARAMATTRIBUTE_NAME = "Name";
@@ -654,7 +659,7 @@ public class Constant {
 	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-credential-password";
 
 	public static final String USER_TICKETING_SYSTEM_IV = "user-titcketing-credential-iv";
-	
+
 	public static final String USER_IV_2_FACTOR_SECRET = "user-iv-2-factor-secret";
 
 	/*
@@ -672,19 +677,19 @@ public class Constant {
 	 */
 	public static final double CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR = 1.5;
 	/**
-	 * The number of seconds in the past after which the logarithmic scale
-	 * should stop (in favour of a linear scale with step size equal the current
-	 * step size resulting from the logarithmic increase).
+	 * The number of seconds in the past after which the logarithmic scale should
+	 * stop (in favour of a linear scale with step size equal the current step size
+	 * resulting from the logarithmic increase).
 	 */
 	public static final long CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE = 86400 * 14;
 
 	/* SQLite columns of table "dynamic_parameter" */
 	public static final String NAME_PARAMETER = "name_parameter";
-	
+
 	public static final String ACRO_PARAMETER = "acro_parameter";
-	
+
 	public static final String VALUE_PARAMETER = "value_parameter";
-	
+
 	public static final double EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE = 500.; // in
 																				// k€/y
 	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
@@ -692,12 +697,12 @@ public class Constant {
 	public static final String API_AUTHENTICATION_TOKEN_NAME = "X-Auth-Token";
 
 	public static final String OTP_CHALLENGE_AUTHEN = "otp-change-verificator";
-	
+
 	public static final String OTP_CHALLENGE_USER_RESPONSE = "otp-user-code";
 
 	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
-	
-	public static final String HEAT_MAP_DEFAULT_COLOR="#FFFFFF";
+
+	public static final String HEAT_MAP_DEFAULT_COLOR = "#FFFFFF";
 
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
 
@@ -706,9 +711,11 @@ public class Constant {
 	public static int CHAR_SINGLE_CONTENT_MAX_SIZE = 14;
 
 	public static int CHAR_MULTI_CONTENT_SIZE = 10;
-	
-	public static List<String> STATIC_COLORS;
-	
-	public static List<String> DEFAULT_COLORS;
+
+	public static volatile List<String> STATIC_COLORS;
+
+	public static volatile List<String> DEFAULT_COLORS;
+
+	public static volatile List<String> RISK_COLORS;
 
 }

@@ -43,6 +43,7 @@
 		resolveMessage("label.title.export.soa", "<spring:message code='label.title.export.soa' />");
 		resolveMessage("label.title.generate.ticket", "<spring:message code='label.title.generate.ticket' />");
 		resolveMessage("label.title.import.analysis", "<spring:message code='label.title.import.analysis' />");
+		resolveMessage("label.title.import.risk.information", "<spring:message code='label.title.import.risk.information' />");
 		resolveMessage("label.title.install.application", "<spring:message code='label.title.install.application' />");
 		resolveMessage("label.title.reset.analysis.right", "<spring:message code='label.title.reset.analysis.right' />");
 		resolveMessage("label.title.import.measure.collection", "<spring:message code='label.title.import.measure.collection' />");

@@ -109,7 +109,7 @@
 			<div class="col-sm-4">
 				<fieldset>
 					<legend>
-						<span class="col-xs-5"><spring:message code="label.title.risk_acceptance.legend" /></span> <span class='col-xs-7'> <span class='pull-right'><span class='col-xs-9 text-right'><spring:message
+						<span class="col-md-4 hidden-sm"><spring:message code="label.title.risk_acceptance.legend" /></span> <span class='col-md-8'> <span class='pull-right'><span class='col-xs-9 text-right'><spring:message
 										code="label.chart.item.display" /></span><span class='col-xs-3'><input class='form-control' type="number" min="0" value="10" id='chart-show-x-element'></span></span>
 						</span>
 					</legend>

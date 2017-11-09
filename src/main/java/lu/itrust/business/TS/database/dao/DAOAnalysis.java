@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -205,5 +206,7 @@ public interface DAOAnalysis {
 	public void saveOrUpdate(Analysis analysis);
 
 	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis);
+
+	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting);
 
 }

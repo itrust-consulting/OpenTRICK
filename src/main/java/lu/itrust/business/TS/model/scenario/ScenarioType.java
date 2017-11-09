@@ -56,6 +56,27 @@ public enum ScenarioType {
 		return value;
 	}
 
+	public boolean isDirect() {
+		return value >= 6 && value <= 16;
+	}
+
+	public boolean isIndirect() {
+		return value >= 17 && value <= 30;
+	}
+
+	/**
+	 * Confidentiality : 0, Integrity: 1, Availability: 2, Exploitability: 3,Reliability:4, Direct: 5, Indirect: 6  
+	 * @return main group id
+	 */
+	public int getGroup() {
+		if (isIndirect())
+			return 6;
+		else if (isDirect())
+			return 5;
+		else
+			return value - 1;
+	}
+
 	/**
 	 * valueOf: <br>
 	 * Description

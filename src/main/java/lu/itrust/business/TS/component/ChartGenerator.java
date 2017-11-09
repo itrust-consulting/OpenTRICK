@@ -72,6 +72,7 @@ import lu.itrust.business.TS.model.rrf.RRFAsset;
 import lu.itrust.business.TS.model.rrf.RRFAssetType;
 import lu.itrust.business.TS.model.rrf.RRFMeasure;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -1421,9 +1422,9 @@ public class ChartGenerator {
 			return result * order;
 		};
 	}
-	
+
 	public static String emptyIsNull(String value) {
-		return value == null? "" : value;
+		return value == null ? "" : value;
 	}
 
 	private static int compare(RiskProfile r1, RiskProfile r2, int type, int order) {
@@ -1438,7 +1439,7 @@ public class ChartGenerator {
 			if (result == 0)
 				result = type <= 1 ? Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance()) : 0;
 			if (result == 0)
-				result = NaturalOrderComparator.compareTo(emptyIsNull( r1.getIdentifier()), emptyIsNull(r2.getIdentifier())) * order;
+				result = NaturalOrderComparator.compareTo(emptyIsNull(r1.getIdentifier()), emptyIsNull(r2.getIdentifier())) * order;
 			return result;
 		}
 	}
@@ -1446,7 +1447,7 @@ public class ChartGenerator {
 	private static void populateDataset(MessageSource messageSource, Locale locale, ValueFactory factory, Chart chart, List<Assessment> assessments,
 			Map<String, RiskProfile> riskProfiles, int[] inverseImpacts) {
 		assessments.forEach(assessment -> {
-			Dataset<String> dataset = new Dataset<String>(getColor(chart.getDatasets().size()));
+			Dataset<String> dataset = new Dataset<String>(getRiskColor(assessment.getScenario().getType()));
 			dataset.getData().add(new Point(factory.findProbLevel(assessment.getLikelihood()), inverseImpacts[factory.findImpactLevel(assessment.getImpacts())]));
 			dataset.setTitle(String.format("%s - %s", assessment.getAsset().getName(), assessment.getScenario().getName()));
 			RiskProfile riskProfile = riskProfiles.get(assessment.getKey());
@@ -1467,8 +1468,13 @@ public class ChartGenerator {
 			chart.getLegends().add(new Legend(dataset.getLabel(), dataset.getBackgroundColor()));
 
 		});
-		for (int i = 10; i < chart.getDatasets().size(); i++)
-			chart.getDatasets().get(i).setHidden(true);
+	}
+
+	private static String getRiskColor(ScenarioType type) {
+		int colorIndex = type.getGroup();
+		if (getRiskColors().size() <= colorIndex)
+			return Constant.HEAT_MAP_DEFAULT_COLOR;
+		return getRiskColors().get(colorIndex);
 	}
 
 	public Chart generateTotalRiskJSChart(List<Analysis> analyses, Locale locale) {
@@ -1576,6 +1582,18 @@ public class ChartGenerator {
 	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
 	public void setDefaultColors(List<String> defaultColors) {
 		Constant.DEFAULT_COLORS = defaultColors;
+	}
+
+	@Value("#{'${app.settings.default.chart.static.risks}'.split(',')}")
+	public void setRiskColors(List<String> colors) {
+		if (colors.size() == 1 && colors.get(0).isEmpty())
+			Constant.RISK_COLORS = Collections.emptyList();
+		else
+			Constant.RISK_COLORS = colors;
+	}
+
+	public static List<String> getRiskColors() {
+		return Constant.RISK_COLORS;
 	}
 
 	/**

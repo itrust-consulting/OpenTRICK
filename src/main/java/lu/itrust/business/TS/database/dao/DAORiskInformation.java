@@ -40,5 +40,7 @@ public interface DAORiskInformation {
 	public void delete(Collection<RiskInformation> riskInformations);
 
 	public List<RiskInformation> getAllByIdAnalysisAndCategories(Integer idAnalysis, String... types);
+
+	public List<RiskInformation> findByIdAnalysisAndCategory(Integer idAnalysis, String type);
 	
 }

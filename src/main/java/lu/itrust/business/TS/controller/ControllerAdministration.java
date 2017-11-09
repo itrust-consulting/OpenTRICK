@@ -205,9 +205,11 @@ public class ControllerAdministration {
 					break;
 				case TICKETING_SYSTEM_NAME:
 				case TICKETING_SYSTEM_URL:
-				case USER_GUIDE_URL:
 				case USER_GUIDE_URL_TYPE:
 					tsSetting = new TSSetting(name, null);
+					break;
+				case USER_GUIDE_URL:
+					tsSetting = new TSSetting(name, "/static/user-guide.html");
 					break;
 				case SETTING_ALLOWED_TICKETING_SYSTEM_LINK:
 					tsSetting = new TSSetting(name, false);

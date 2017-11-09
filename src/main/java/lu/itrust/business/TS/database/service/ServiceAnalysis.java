@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -192,4 +193,6 @@ public interface ServiceAnalysis {
 	public void save(Analysis analysis);
 
 	public void saveOrUpdate(Analysis analysis);
+
+	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting);
 }

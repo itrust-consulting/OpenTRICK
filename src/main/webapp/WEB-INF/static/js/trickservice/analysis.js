@@ -1436,6 +1436,65 @@ function updateRiskInformationAddButton($btns) {
 	return $btns;
 }
 
+function importRiskInformationForm(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Risk-information/Import-form",
+		success: function (response, textStatus, jqXHR) {
+			var $modal = $("#risk-information-modal", new DOMParser().parseFromString(response, "text/html"));
+			if($modal.length){
+				$("button[name='import']", $modal).on("click", importRiskInformation);
+				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
+			}else if (response["error"])
+				showDialog("#alert-dialog", response['error']);
+			else
+				unknowError();
+		},
+		error: unknowError
+
+	}).complete(function () {
+		$progress.hide();
+	});
+	return false;
+}
+
+function importRiskInformation() {
+	var $modal = $("#risk-information-modal"), $uploadFile = $("#upload-file-info", $modal), $progress = $("#loading-indicator"), $riskNotification = $("#riskInfromationNotification",$modal);
+	if (!$uploadFile.length)
+		return false;
+	else if ($uploadFile.val() == "") {
+		$riskNotification.text(MessageResolver("error.import.risk.information.no_select.file", "Please select file to import"));
+		return false;
+	}
+	try {
+		$progress.show();
+		$.ajax({
+			url: context + "/Analysis/Risk-information/Import",
+			type: 'POST',
+			data: new FormData($('#importRiskInformationForm',$modal)[0]),
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function (response, textStatus, jqXHR) {
+				if (response.success)
+					application["taskManager"].SetTitle(MessageResolver("label.title.import.risk.information", "Import brainstorming")).Start();
+				else if (response.error)
+					showDialog("#alert-dialog", response.error);
+				else
+					showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
+			},
+			error: unknowError
+	
+		}).complete(function () {
+			$progress.hide();
+		});
+	}finally{
+		$modal.modal("hide");
+	}
+	return false;
+}
+
+
 function openTicket(section) {
 	if (!application.isLinkedToProject)
 		return false;

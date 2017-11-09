@@ -5,7 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="canExport" value="${analysis.getRightsforUserString(login).right.ordinal()<2}" />
+<c:set var="canExport" value="${analysis.getRightsforUserString(login).right.ordinal()<2}" scope="request"/>
 <ul class="nav nav-tabs affix affix-top nav-analysis">
 	<c:if test="${!isProfile}">
 		<li class="active"><a href="#tab-history" data-toggle="tab"><spring:message code="label.menu.analysis.history" /></a></li>
@@ -27,9 +27,9 @@
 		<ul class="dropdown-menu">
 			<c:if test="${!isProfile}">
 				<li class="dropdown-header"><spring:message code="label.menu.analysis.qualitative_analysis" /></li>
-				<li><a href="#tab-risk-information-risk" data-toggle="tab"><spring:message code="label.menu.analysis.risk" /></a></li>
-				<li><a href="#tab-risk-information-vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
 				<li><a href="#tab-risk-information-threat" data-toggle="tab"><spring:message code="label.menu.analysis.threat" /></a></li>
+				<li><a href="#tab-risk-information-vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
+				<li><a href="#tab-risk-information-risk" data-toggle="tab"><spring:message code="label.menu.analysis.risk" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.quantitative_analysis" /></li>

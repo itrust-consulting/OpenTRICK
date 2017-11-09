@@ -52,7 +52,7 @@ public class GlobalControllerAdvice {
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("exception", e);
 		modelAndView.addObject("url", request.getRequestURL());
-		modelAndView.setViewName("error/404");
+		modelAndView.setViewName("errors/404");
 		return modelAndView;
 	}
 }

@@ -72,10 +72,28 @@ public class RiskInformation implements Cloneable {
 
 	@Column(name = "dtOwner")
 	private String owner = "";
+	
+	
+	/**
+	 * 
+	 */
+	public RiskInformation() {
+	}
+	
+	
+
+	/**
+	 * @param chapter
+	 */
+	public RiskInformation(String chapter) {
+		setChapter(chapter);
+	}
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	
 
 	/**
 	 * @return the owner
