@@ -3,11 +3,15 @@
  */
 package lu.itrust.business.TS.model.general;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -16,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TSSetting {
 
 	

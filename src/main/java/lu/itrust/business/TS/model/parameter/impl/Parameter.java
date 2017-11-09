@@ -1,15 +1,21 @@
 package lu.itrust.business.TS.model.parameter.impl;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.IParameter;
 
 @MappedSuperclass
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public abstract class Parameter implements IParameter {
 
 	/** id unsaved value = -1 */

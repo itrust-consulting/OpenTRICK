@@ -18,6 +18,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -174,8 +175,9 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			 * Log
 			 */
 			String username = serviceTaskFeedback.findUsernameById(this.getId());
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.risk.information", String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
-					username, LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.risk.information",
+					String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
+					LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
 		} catch (TrickException e) {
 			setError(e);
 			serviceTaskFeedback.send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
@@ -240,13 +242,20 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
 
 			final int maxProgress = progress + (multi * indexProgress), minProgress = progress, size = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size());
+			final Map<String, Boolean> chapterIndexer = new HashMap<>(size);
 
 			for (int i = address.getBegin().getRow() + 1; i < size; i++) {
 				int colIndex = 0;
 				Row row = sheet.getRow().get(i);
 				String chapter = getString(row, colIndex++, sharedStrings);
+				
 				if (StringUtils.isEmpty(chapter))
 					emptyCellError(mapper[1], i, colIndex);
+				else if (chapterIndexer.containsKey(chapter))
+					duplicateCellError(mapper[1], i, colIndex);
+				else
+					chapterIndexer.put(chapter, true);
+
 				RiskInformation riskInformation = riskInformations.remove(RiskInformation.key(mapper[0], chapter));
 				if (riskInformation == null)
 					analysis.getRiskInformations().add(riskInformation = new RiskInformation(chapter));
@@ -315,6 +324,13 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		daoAnalysis.saveOrUpdate(analysis);
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
 		daoRiskInformation.delete(riskInformations.values());
+	}
+
+	private void duplicateCellError(String sheet, int i, int colIndex) {
+		String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
+		throw new TrickException("error.import.risk.information.duplicate", String.format("An entry is duplicated in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue),
+				sheet, rowValue, colValue);
+
 	}
 
 	private void errorInvalidValue(String sheet, int i, int colIndex) {

@@ -195,4 +195,6 @@ public interface ServiceAnalysis {
 	public void saveOrUpdate(Analysis analysis);
 
 	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting);
+
+	public Analysis findByIdAndEager(Integer analysisId);
 }

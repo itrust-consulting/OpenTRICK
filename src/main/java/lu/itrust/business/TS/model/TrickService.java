@@ -1,11 +1,14 @@
 package lu.itrust.business.TS.model;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Value;
 
 /** 
@@ -16,7 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
  * @version 
  * @since Apr 23, 2014
  */
-@Entity 
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TrickService {
 
 	/** database ID */

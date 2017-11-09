@@ -148,8 +148,14 @@
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>5.2.11.Final</version>
+			<artifactId>hibernate-java8</artifactId>
+			<version>5.2.12.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>5.2.12.Final</version>
 		</dependency>
 
 		<dependency>
@@ -157,7 +163,7 @@
 			<artifactId>hibernate-commons-annotations</artifactId>
 			<version>5.0.1.Final</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
@@ -430,13 +436,13 @@
 					<warSourceExcludes>
 						**/WEB-INF/static/css/*.css,
 						**/WEB-INF/static/css/themes/*.css,
+						**/WEB-INF/static/views/css/*.css,
 						**/WEB-INF/static/js/*.js,
+						**/WEB-INF/static/views/js/*.js,
 						**/WEB-INF/static/js/trickservice/*.js,
 						**/WEB-INF/static/js/chartjs/*.js,
 						**/WEB-INF/static/js/bootstrap/*.js,
 						**/WEB-INF/static/js/bootstrap/locales/*.js
-						**/WEB-INF/static/views/js/*.js
-						**/WEB-INF/static/views/css/*.css
 					</warSourceExcludes>
 					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js, **-example.properties</packagingExcludes>
 				</configuration>
@@ -598,11 +604,11 @@
 
 						</configuration>
 					</execution>
-					
+
 					<!-- User guide -->
-					
+
 					<execution>
-						<id>minify-default</id>
+						<id>minify-user-guide-css-js</id>
 						<phase>process-resources</phase>
 						<goals>
 							<goal>minify</goal>
@@ -628,15 +634,14 @@
 							<jsSourceExcludes>
 								<jsSourceExclude>WEB-INF/static/views/js/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
+
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 						</configuration>
 					</execution>
-
 				</executions>
 			</plugin>
-
 		</plugins>
 	</build>
 	<repositories>

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
@@ -19,6 +20,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -35,6 +38,8 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
  * @since 2012-08-21
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtDiscriminator")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }))
@@ -59,6 +64,7 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/** AnalysisStandard List of measures */
 	@OneToMany(mappedBy = "analysisStandard")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Measure> measures = new ArrayList<Measure>();

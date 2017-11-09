@@ -760,4 +760,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting) {
 		return daoAnalysis.findSetting(idAnalysis, setting);
 	}
+
+	@Override
+	public Analysis findByIdAndEager(Integer analysisId) {
+		
+		return daoAnalysis.findByIdAndEager(analysisId);
+	}
 }

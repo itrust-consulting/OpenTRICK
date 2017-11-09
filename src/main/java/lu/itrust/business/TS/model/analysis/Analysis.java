@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -32,6 +33,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -93,6 +96,8 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since 2012-08-21
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }))
 public class Analysis implements Cloneable {
 
@@ -102,6 +107,7 @@ public class Analysis implements Cloneable {
 
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -109,6 +115,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Standards */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("standard")
 	@Cascade(CascadeType.ALL)
@@ -117,6 +124,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Assessment */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -124,6 +132,7 @@ public class Analysis implements Cloneable {
 
 	/** List of assets */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -131,10 +140,11 @@ public class Analysis implements Cloneable {
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** Based on analysis */
-	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.LAZY)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiBasedOnAnalysis", nullable = true)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Analysis basedOnAnalysis;
 
 	/** Creation Date of the Analysis (and a specific version) */
@@ -157,6 +167,7 @@ public class Analysis implements Cloneable {
 
 	/** List of History data of the Analysis */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -174,6 +185,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Item Information */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -203,6 +215,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy = "analysis")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("number")
@@ -217,6 +230,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Risk Information */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -224,6 +238,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Assessment */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -231,6 +246,7 @@ public class Analysis implements Cloneable {
 
 	/** The Risk Register (CSSF) */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -239,6 +255,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Scenarios */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -246,6 +263,7 @@ public class Analysis implements Cloneable {
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	@ElementCollection
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@MapKeyColumn(name = "dtName")
 	@Column(name = "dtValue")
 	@Cascade(CascadeType.ALL)
@@ -254,6 +272,7 @@ public class Analysis implements Cloneable {
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -268,6 +287,7 @@ public class Analysis implements Cloneable {
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();

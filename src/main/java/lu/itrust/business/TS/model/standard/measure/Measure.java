@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -40,6 +43,8 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @since 2012-08-21
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Inheritance(strategy = InheritanceType.JOINED)
 // @DiscriminatorColumn(name="dtType")
 public abstract class Measure implements Cloneable {

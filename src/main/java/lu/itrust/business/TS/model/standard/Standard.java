@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.standard;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -27,6 +30,8 @@ import lu.itrust.business.TS.exception.TrickException;
  * @since 24 janv. 2013
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtLabel", "dtVersion", "dtType" }))
 public class Standard implements Cloneable {
 

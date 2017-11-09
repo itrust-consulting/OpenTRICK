@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -916,5 +917,33 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						String.class)
 				.setParameter("idAnalysis", idAnalysis).setParameter("key", setting.name()).uniqueResult();
 		return (T) Analysis.findSetting(setting, value);
+	}
+	
+	@Override
+	public Analysis findByIdAndEager(Integer analysisId) {
+		Analysis analysis = get(analysisId);
+		if (analysis != null) {
+			Hibernate.isInitialized(analysis);
+			Hibernate.isInitialized(analysis.getActionPlans());
+			Hibernate.isInitialized(analysis.getAnalysisStandards());
+			Hibernate.isInitialized(analysis.getAssessments());
+			Hibernate.isInitialized(analysis.getAssets());
+			Hibernate.isInitialized(analysis.getCustomer());
+			Hibernate.isInitialized(analysis.getDynamicParameters());
+			Hibernate.isInitialized(analysis.getHistories());
+			Hibernate.isInitialized(analysis.getImpactParameters());
+			Hibernate.isInitialized(analysis.getItemInformations());
+			Hibernate.isInitialized(analysis.getLanguage());
+			Hibernate.isInitialized(analysis.getLikelihoodParameters());
+			Hibernate.isInitialized(analysis.getMaturityParameters());
+			Hibernate.isInitialized(analysis.getPhases());
+			Hibernate.isInitialized(analysis.getRiskAcceptanceParameters());
+			Hibernate.isInitialized(analysis.getRiskProfiles());
+			Hibernate.isInitialized(analysis.getRiskRegisters());
+			Hibernate.isInitialized(analysis.getScenarios());
+			Hibernate.isInitialized(analysis.getSimpleParameters());
+			Hibernate.isInitialized(analysis.getSummaries());
+		}
+		return analysis;
 	}
 }

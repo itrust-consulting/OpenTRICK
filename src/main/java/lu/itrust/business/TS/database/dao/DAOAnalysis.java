@@ -209,4 +209,6 @@ public interface DAOAnalysis {
 
 	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting);
 
+	public Analysis findByIdAndEager(Integer analysisId);
+
 }

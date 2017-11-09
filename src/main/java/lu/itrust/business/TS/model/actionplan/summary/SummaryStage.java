@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -31,6 +34,8 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
  * @since 2012-10-09
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ActionPlanSummary")
 public class SummaryStage {
 
@@ -58,6 +63,7 @@ public class SummaryStage {
 	private String stage = "";
 
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiActionPlanSummary", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)

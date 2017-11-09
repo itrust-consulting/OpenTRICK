@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.externalnotification;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -7,6 +8,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.exception.TrickException;
 
@@ -16,6 +20,8 @@ import lu.itrust.business.TS.exception.TrickException;
  * @date Jun 8, 2015
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExternalNotification {
 	/**
 	 * Represents the type of the notification that has been sent.

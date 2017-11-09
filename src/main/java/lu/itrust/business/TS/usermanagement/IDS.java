@@ -6,6 +6,7 @@ package lu.itrust.business.TS.usermanagement;
 import java.sql.Timestamp;
 import java.util.List;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +17,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -26,6 +29,8 @@ import lu.itrust.business.TS.model.analysis.Analysis;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class IDS implements IUser {
 
 	@Id
@@ -52,6 +57,7 @@ public class IDS implements IUser {
 	private boolean enable;
 
 	@ManyToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "IDSSubscribers", joinColumns = { @JoinColumn(name = "fiIDS") }, inverseJoinColumns = {
 			@JoinColumn(name = "fiAnalysis") }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiIDS", "fiAnalysis" }))
 	@Cascade(CascadeType.SAVE_UPDATE)

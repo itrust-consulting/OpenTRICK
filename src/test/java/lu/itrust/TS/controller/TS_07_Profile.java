@@ -153,7 +153,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_00_UpdateProfile() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
 								"{\"currentPassword\" : \"%s\",\"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
 								PASSWORD, PASSWORD, PASSWORD, USERNAME, USERNAME, EMAIL, LANGUAGE)))
@@ -164,7 +164,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_01_UpdateUsername() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"currentPassword\" : \"%s\", \"login\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
 								PASSWORD, "lolmdr", USERNAME, USERNAME, EMAIL, LANGUAGE)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(content().string("{}"));
@@ -180,7 +180,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test(expectedExceptions = AssertionError.class)
 	public void test_01_UpdateConnexionType() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
 								"{\"currentPassword\" : \"%s\", \"connexionType\": %d,\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}", PASSWORD,
 								User.LADP_CONNEXION, USERNAME, USERNAME, EMAIL, LANGUAGE)))
@@ -199,7 +199,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_01_UpdateRole() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
 								"{\"currentPassword\" : \"%s\",\"roles\": [\"%s\",\"%s\"],\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
 								PASSWORD, RoleType.ROLE_SUPERVISOR, RoleType.ROLE_CONSULTANT, USERNAME, USERNAME, EMAIL, LANGUAGE)))
@@ -219,7 +219,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_02_UpdateSQLITEFilter() throws Exception {
 		MvcResult result = this.mockMvc
-				.perform(post("/Profile/Control/Sqlite/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Control/Sqlite/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"sort\" : \"%s\",\"filter\": \"%s\",\"direction\": \"%s\",\"size\": %d}", "identifier", identifier, "desc", 30)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists()).andReturn();
@@ -234,7 +234,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_03_UpdateReportFilter() throws Exception {
 		MvcResult result = this.mockMvc
-				.perform(post("/Profile/Control/Report/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Control/Report/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"sort\" : \"%s\",\"filter\": \"%s\",\"direction\": \"%s\",\"size\": %d}", "version", version, "asc", 50)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists()).andReturn();
@@ -248,13 +248,13 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_GenerateReport")
 	public void test_04_DeleteSQLITE() throws Exception {
-		this.mockMvc.perform(post(String.format("/Profile/Report/%d/Delete", getInteger("key_word_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		this.mockMvc.perform(post(String.format("/Account/Report/%d/Delete", getInteger("key_word_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test(dependsOnMethods = "test_GenerateSqlite")
 	public void test_04_DeleteReport() throws Exception {
-		this.mockMvc.perform(post(String.format("/Profile/Sqlite/%d/Delete", getInteger("key_sql_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		this.mockMvc.perform(post(String.format("/Account/Sqlite/%d/Delete", getInteger("key_sql_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

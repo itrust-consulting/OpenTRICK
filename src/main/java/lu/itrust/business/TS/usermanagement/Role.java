@@ -2,6 +2,7 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,32 +12,39 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Role.java: <br>
  * Detailed description...
  *
  * @author eomar itrust consulting s.a.rl.:
- * @version 
+ * @version
  * @since Aug 19, 2012
  */
-@Entity public class Role implements Serializable {
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Role implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
 
-	@Id 
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="idRole")
-	private int id = - 1;
- 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idRole")
+	private int id = -1;
+
 	@Enumerated(EnumType.STRING)
-	@Column(name="dtType", nullable=false, unique=true)
+	@Column(name = "dtType", nullable = false, unique = true)
 	private RoleType type = null;
 
 	/**
 	 * Constructor: <br>
 	 */
-	public Role() {	}
+	public Role() {
+	}
 
 	/**
 	 * @param user
@@ -84,7 +92,7 @@ import javax.persistence.Transient;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
-	
+
 	public String getRoleName() {
 		return type.name().replace("ROLE_", "");
 	}

@@ -400,7 +400,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_04_ExportSQLite")
 	public void test_05_DownloadSQLite() throws Exception {
 		try {
-			MvcResult result = this.mockMvc.perform(get(String.format("/Profile/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+			MvcResult result = this.mockMvc.perform(get(String.format("/Account/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 					.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 			notNull(result, "No result");
 			MockHttpServletResponse response = result.getResponse();
@@ -460,7 +460,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_06_ExportReport")
 	public void test_07_DownloadReport() throws Exception {
-		MvcResult result = this.mockMvc.perform(get(String.format("/Profile/Report/%d/Download", getInteger("key_word_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		MvcResult result = this.mockMvc.perform(get(String.format("/Account/Report/%d/Download", getInteger("key_word_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();

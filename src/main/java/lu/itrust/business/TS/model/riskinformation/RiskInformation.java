@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.riskinformation;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -22,6 +26,8 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel", "dtChapter" }))
 public class RiskInformation implements Cloneable {
 

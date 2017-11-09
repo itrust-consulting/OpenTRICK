@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.parameter.value;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,6 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.Any;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -15,6 +18,8 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 
 @MappedSuperclass
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public abstract class AbstractValue implements IValue {
 
 	@Id

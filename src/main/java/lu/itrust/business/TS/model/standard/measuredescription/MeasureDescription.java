@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,6 +18,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -39,6 +42,8 @@ import lu.itrust.business.TS.model.standard.Standard;
  * @since Jan 28, 2013
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiStandard", "dtReference" }))
 public class MeasureDescription implements Cloneable {
 
@@ -61,6 +66,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy = "measureDescription", fetch = FetchType.EAGER)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<>();

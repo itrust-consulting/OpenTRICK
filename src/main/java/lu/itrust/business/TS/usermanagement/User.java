@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -21,6 +22,8 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -35,6 +38,8 @@ import lu.itrust.business.TS.model.general.Customer;
  * @since Aug 19, 2012
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User implements Serializable, IUser {
 
 	/**
@@ -72,6 +77,7 @@ public class User implements Serializable, IUser {
 	private int connexionType = BOTH_CONNEXION;
 
 	@ManyToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "UserCustomer", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
 			@JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiCustomer" }))
 	@Cascade(CascadeType.ALL)
@@ -109,11 +115,13 @@ public class User implements Serializable, IUser {
 	private String repeatPassword = null;
 
 	@ManyToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "UserRole", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
 			@JoinColumn(name = "fiRole", nullable = false, updatable = false) })
 	private List<Role> roles = null;
 
 	@ElementCollection
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@MapKeyColumn(name = "dtName")
 	@Column(name = "dtValue")
 	@Cascade(CascadeType.ALL)
