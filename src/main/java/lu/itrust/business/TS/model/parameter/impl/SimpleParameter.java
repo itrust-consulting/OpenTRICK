@@ -1,11 +1,14 @@
 package lu.itrust.business.TS.model.parameter.impl;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -22,6 +25,8 @@ import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
  * @since 2012-08-21
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name="id", column=@Column(name="idSimpleParameter"))
 public class SimpleParameter extends Parameter implements ITypedParameter {
 

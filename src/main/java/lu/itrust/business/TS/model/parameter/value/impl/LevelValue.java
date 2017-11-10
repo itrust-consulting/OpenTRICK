@@ -6,8 +6,12 @@ package lu.itrust.business.TS.model.parameter.value.impl;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
@@ -18,6 +22,8 @@ import lu.itrust.business.TS.model.parameter.value.NumericValue;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name = "id", column = @Column(name = "idLevelValue"))
 public class LevelValue extends NumericValue {
 

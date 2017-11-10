@@ -1,9 +1,13 @@
 package lu.itrust.business.TS.model.parameter.impl;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.constants.Constant;
 
@@ -15,6 +19,8 @@ import lu.itrust.business.TS.constants.Constant;
  * @since Jun 10, 2015
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name="id", column=@Column(name="idDynamicParameter"))
 public class DynamicParameter extends AbstractProbability {
 
