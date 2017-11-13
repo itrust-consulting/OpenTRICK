@@ -701,6 +701,8 @@ public class Constant {
 	public static final String OTP_CHALLENGE_USER_RESPONSE = "otp-user-code";
 
 	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
+	
+	public static final String ANONYMOUS = "anonymous";
 
 	public static final String HEAT_MAP_DEFAULT_COLOR = "#FFFFFF";
 

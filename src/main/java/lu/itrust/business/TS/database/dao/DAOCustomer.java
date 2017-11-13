@@ -53,4 +53,8 @@ public interface DAOCustomer {
 
 	public boolean existsByIdAndOrganisation(int id, String organisation);
 
+	public boolean hasAccess(Integer idUser, Customer customer);
+
+	public Customer findByAnalysisId(int analysisId);
+
 }

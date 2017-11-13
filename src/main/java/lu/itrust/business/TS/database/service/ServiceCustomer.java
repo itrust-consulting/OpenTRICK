@@ -50,4 +50,8 @@ public interface ServiceCustomer {
 	public boolean exists(int idCustomer);
 
 	public boolean existsByIdAndOrganisation(int id, String organisation);
+
+	public Customer findByAnalysisId(int analysisId);
+
+	public boolean hasAccess(Integer idUser, Customer customer);
 }

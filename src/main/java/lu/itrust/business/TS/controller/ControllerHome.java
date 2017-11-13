@@ -17,6 +17,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,7 @@ import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.usermanagement.User;
@@ -57,6 +59,9 @@ public class ControllerHome {
 
 	@Autowired
 	private AccountLockerManager accountLockerManager;
+
+	@Autowired
+	private ManageAnalysisRight manageAnalysisRight;
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
@@ -134,6 +139,13 @@ public class ControllerHome {
 	public String unlockAccount(@PathVariable String code, RedirectAttributes attributes, Locale locale) {
 		accountLockerManager.unlock(code);
 		attributes.addFlashAttribute("success", "success.unlock.account");
+		return "redirect:/Login";
+	}
+
+	@GetMapping("/Analysis-access-management/{token}/Reject")
+	public String rejectInvitation(@PathVariable String token, Principal principal, RedirectAttributes attributes, Locale locale) {
+		manageAnalysisRight.cancelInvitation(principal, token);
+		attributes.addFlashAttribute("success", "success.cancel.invitation");
 		return "redirect:/Login";
 	}
 

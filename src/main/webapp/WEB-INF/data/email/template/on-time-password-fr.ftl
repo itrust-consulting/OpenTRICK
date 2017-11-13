@@ -114,7 +114,7 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								<h4 align="left">Bonjour ${user.firstName} ${user.lastName},</h4>
+								<h4 align="left">Bonjour ${firstName} ${lastName},</h4>
                                    <p style="margin-top:5px;">
 									Voici le code d'authentification que vous avez demand&eacute; : <strong>${code}</strong>, ce code est valable jusqu'au ${expireDate} &agrave; ${expireDateTime}.<br>
 									Si vous n'avez pas a l'origine de cette requ&ecirc;te, veuillez changer votre mot de passe.<br>

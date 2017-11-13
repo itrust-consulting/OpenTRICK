@@ -2,6 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
+import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -21,4 +22,6 @@ public interface ServiceEmailSender {
 	void sendOTPCode(String code, Long timeout, User user);
 	
 	void sendAccountLocked(String code, String ip,Long timeout, String username);
+
+	void sendInvitation(AnalysisShareInvitation invitation);
 }

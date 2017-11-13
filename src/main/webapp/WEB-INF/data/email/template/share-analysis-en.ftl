@@ -117,10 +117,11 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								  <h4 align="left">Hello ${firstName} ${lastName},</h4>
+								  <h4 align="left">Hello,</h4>
                                   <p style="margin-top:5px;">
-									Due to many unsuccessful authentication attempts from ${ip}, your account has been suspended until ${expireDate} at ${expireDateTime}.<br>
-									Please find here a link to unlock your account: <a href="${hostname}">${hostname}</a><br>
+									${firstName} ${lastName} wants to share a new risk analysis with you.<br>
+									Please find here a link to accept request: <a href="${accept}">${accept}</a><br>
+									You can also decline invitation via following URL: <a href="${accept}">${accept}</a><br>
 									IMPORTANT: Because fraudulent ("phishing") e-mail often uses misleading links, we recommend you to not click links in e-mail, but instead copy and paste them into your browsers, as described above.
 									If you are not the originator of the queries, please ignore this message.
 									This is an automatically generated message, please do not reply to it.

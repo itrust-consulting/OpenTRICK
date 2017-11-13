@@ -264,4 +264,16 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	public boolean existsByIdAndOrganisation(int id, String organisation) {
 		return daoCustomer.existsByIdAndOrganisation(id, organisation);
 	}
+
+	@Override
+	public Customer findByAnalysisId(int analysisId) {
+		
+		return daoCustomer.findByAnalysisId(analysisId);
+	}
+
+	@Override
+	public boolean hasAccess(Integer idUser, Customer customer) {
+		// TODO Auto-generated method stub
+		return daoCustomer.hasAccess(idUser, customer);
+	}
 }

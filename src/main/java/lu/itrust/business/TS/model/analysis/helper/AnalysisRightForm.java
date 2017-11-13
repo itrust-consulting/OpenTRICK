@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.model.analysis.helper;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -13,7 +14,9 @@ public class AnalysisRightForm {
 	
 	private int analysisId;
 	
-	private Map<Integer, RightForm> userRights;
+	private Map<Integer, RightForm> userRights = Collections.emptyMap();
+	
+	private Map<String, RightForm> invitations = Collections.emptyMap();
 
 	/**
 	 * 
@@ -55,6 +58,14 @@ public class AnalysisRightForm {
 	@Override
 	public String toString() {
 		return "AnalysisRightForm [analysisId=" + analysisId + ", userRights=" + userRights + "]";
+	}
+
+	public Map<String, RightForm> getInvitations() {
+		return invitations;
+	}
+
+	public void setInvitations(Map<String, RightForm> invitations) {
+		this.invitations = invitations;
 	}
 	
 	

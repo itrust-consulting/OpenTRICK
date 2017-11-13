@@ -3,15 +3,11 @@
  */
 package lu.itrust.business.TS.database.dao;
 
-import java.util.List;
-
-import lu.itrust.business.TS.database.TemplateDAOService;
-import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.database.template.TemplateDynamicParameter;
 
 /**
  * @author eomar
  *
  */
-public interface DAODynamicParameter extends TemplateDAOService<DynamicParameter, Integer> {
-	List<String> findAcronymByAnalysisId(Integer idAnalysis);
+public interface DAODynamicParameter extends TemplateDynamicParameter {
 }

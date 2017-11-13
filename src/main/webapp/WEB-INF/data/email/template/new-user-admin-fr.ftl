@@ -118,11 +118,11 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								 <h4 align="left">Bonjour ${admin.login},</h4>
+								 <h4 align="left">Bonjour ${login},</h4>
 								 <p style="margin-top:5px;">Un nouveau utilisateur vient de s'inscrire sur TRICK Service.<br>
-								 Nom d'utilisateur : ${user.login}<br>
-								 Nom compl&egrave;t&eacute; : ${user.firstName} ${user.lastName}<br>
-								 Courriel : ${user.email}<br>
+								 Nom d'utilisateur : ${userLogin}<br>
+								 Nom compl&egrave;t&eacute; : ${firstName} ${lastName}<br>
+								 Courriel : ${userEmail}<br>
 								 En cas de doute merci de suspendre le compte.
 								</p>
                                 </div>

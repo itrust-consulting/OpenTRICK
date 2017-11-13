@@ -73,6 +73,13 @@ public class User implements Serializable, IUser {
 
 	private static final String USER_USING_2_FACTOR_AUTHENTICATION = "user-using-2-factor-authentication";
 
+	/** Fields */
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idUser", length = 12)
+	private Integer id = -1;
+
 	@Column(name = "dtConnexionType", nullable = false)
 	private int connexionType = BOTH_CONNEXION;
 
@@ -92,13 +99,6 @@ public class User implements Serializable, IUser {
 	@Column(name = "dtFirstName", nullable = false)
 	private String firstName = null;
 
-	/** Fields */
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "idUser", length = 12)
-	private Integer id = -1;
-
 	@Column(name = "dtLastName", nullable = false)
 	private String lastName = null;
 
@@ -110,6 +110,9 @@ public class User implements Serializable, IUser {
 
 	@Column(name = "dtPassword", nullable = false)
 	private String password = null;
+
+	@Column(name = "dtEmailValidated", nullable = false)
+	private boolean emailValidated = false;
 
 	@Transient
 	private String repeatPassword = null;
@@ -383,7 +386,9 @@ public class User implements Serializable, IUser {
 		return roles;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.usermanagement.IUser#getScrete()
 	 */
 	@Override
@@ -458,7 +463,9 @@ public class User implements Serializable, IUser {
 		return enable;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.usermanagement.IUser#isUsing2FA()
 	 */
 	@Override
@@ -626,7 +633,7 @@ public class User implements Serializable, IUser {
 		this.roles = roles;
 	}
 
-	public void setSecret(String secret){
+	public void setSecret(String secret) {
 		setSetting(USER_2_FACTOR_SECRET, secret);
 	}
 
@@ -638,15 +645,15 @@ public class User implements Serializable, IUser {
 		else
 			this.userSettings.put(name, String.valueOf(value));
 	}
-	
+
 	public void setUserSettings(Map<String, String> userSettings) {
 		this.userSettings = userSettings;
 	}
 
-	public void setUsing2FA(boolean using2FA){
+	public void setUsing2FA(boolean using2FA) {
 		setSetting(USER_USING_2_FACTOR_AUTHENTICATION, using2FA);
 	}
-	
+
 	private boolean clearRole() {
 		if (roles == null)
 			return true;
@@ -654,7 +661,13 @@ public class User implements Serializable, IUser {
 			roles.clear();
 		return roles.isEmpty();
 	}
-	
-	
+
+	public boolean isEmailValidated() {
+		return emailValidated;
+	}
+
+	public void setEmailValidated(boolean emailValidated) {
+		this.emailValidated = emailValidated;
+	}
 
 }
