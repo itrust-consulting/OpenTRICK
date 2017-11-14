@@ -248,6 +248,10 @@
 	<!-- Disk caching -->
 
 	<!-- Entities -->
+	
+	<cache name="lu.itrust.business.TS.model.analysis.AnalysisShareInvitation" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"  timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
 
 	<cache name="lu.itrust.business.TS.model.general.TSSetting" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"  timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
@@ -264,7 +268,11 @@
 	<cache name="lu.itrust.business.TS.model.externalnotification.ExternalNotification" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
-
+	
+	<cache name="lu.itrust.business.TS.usermanagement.EmailValidatingRequest" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
 	<cache name="lu.itrust.business.TS.usermanagement.IDS" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>

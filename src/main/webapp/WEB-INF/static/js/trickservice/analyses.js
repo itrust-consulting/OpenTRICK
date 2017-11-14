@@ -25,8 +25,75 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			success: function (response, textStatus, jqXHR) {
 				var $content = $("#manageAnalysisAccessModel", new DOMParser().parseFromString(response, "text/html"));
 				if ($content.length) {
-					$("#manageAnalysisAccessModel").replaceWith($content);
-					$content.modal("show").find(".modal-footer button[name='save']").one("click", updateAnalysisAccess);
+					
+					$content.appendTo("#widget");
+					
+					var instance = this, emails = {};
+					
+					var $template = $("#template-invitation div[data-trick-email][data-default-value][data-name]", $content);
+				
+					var $bottomTarget = $("#btn-container", $content), $submitBtn = $(".modal-footer button[name='save']", $content );
+					
+					var validateSubmitButton = () => {
+						
+						var tempEmails = Object.values(emails).sort();
+						
+						for (var i = 1; i < tempEmails.length; i++) {
+							if(tempEmails[i-1] == tempEmails[i])
+								$("div[data-status='new'][data-trick-email='"+tempEmails[i]+"']", $content).addClass("has-error");
+						}
+						
+						var count = $("fieldset div.form-group.has-error", $content).length;
+						
+						$submitBtn.prop("disabled", count > 0);
+					};
+					
+					$("button[name='invite']", $bottomTarget).on('click', () => {
+						
+						var $entry = $template.clone(), index = $("div[data-index][data-trick-email]:last").attr("data-index");
+						
+						if(index === undefined)
+							index = 1;
+						else index = parseInt(index)+1;
+						
+						$entry.attr("data-index", index).attr("data-name", "guest-"+index);
+						
+						$("input[type='radio']", $entry ).attr("name", "guest-"+index).last().on('change',(e) => {
+							if(e.currentTarget.checked && e.currentTarget.value ===""){
+								if(emails[e.currentTarget.name])
+									delete emails[e.currentTarget.name];
+								$entry.remove();
+								validateSubmitButton();
+							}
+						});
+						
+						$bottomTarget.before($entry);
+						
+						$("input[type='email']", $entry).on("blur", (e) => {
+							if(!validateEmail(e.currentTarget.value))
+								$entry.addClass("has-error");
+							else {
+								$entry.removeClass("has-error");
+								$entry.attr("data-trick-email", emails[e.currentTarget.name] = e.currentTarget.value);
+							}
+							
+							validateSubmitButton();
+							
+						}).trigger("focus");
+							
+					});
+					
+					$submitBtn.one("click", updateAnalysisAccess);
+				
+					$("div[data-trick-email][data-trick-email!='']", $content).each(function(i){
+						emails[this.getAttribute("data-name")] = this.getAttribute("data-trick-email");
+					});
+					
+					$content.on('hidden.bs.modal', () => {
+						$content.remove();
+						delete instance;
+					}).modal("show");
+					
 				} else
 					unknowError();
 			},
@@ -42,7 +109,8 @@ function updateAnalysisAccess(e) {
 
 	var $progress = $("#loading-indicator").show(), $modal = $("#manageAnalysisAccessModel"), me = $modal.attr("data-trick-user-id"), data = {
 		analysisId: $modal.attr("data-trick-id"),
-		userRights: {}
+		userRights: {},
+		invitations: {}
 	};
 
 	$modal.find(".form-group[data-trick-id][data-default-value]").each(function () {
@@ -54,8 +122,19 @@ function updateAnalysisAccess(e) {
 			};
 		}
 	});
+	
+	
+	$modal.find(".form-group[data-trick-email][data-default-value]:visible").each(function () {
+		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+		if (newRight != oldRight) {
+			data.invitations[$this.attr("data-trick-email")] = {
+				oldRight: oldRight === "" ? undefined : oldRight,
+				newRight: newRight === "" ? undefined : newRight
+			};
+		}
+	});
 
-	if (Object.keys(data.userRights).length) {
+	if (Object.keys(data.userRights).length || Object.keys(data.invitations).length) {
 		$.ajax({
 			url: context + "/Analysis/ManageAccess/Update",
 			type: "post",

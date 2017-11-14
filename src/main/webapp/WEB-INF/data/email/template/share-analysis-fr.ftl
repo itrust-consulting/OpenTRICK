@@ -119,9 +119,9 @@
                                 <div class="contentEditable" align='center'>
 								 <h4 align="left">Bonjour,</h4>
 								 <p style="margin-top:5px;">
-									${firstName} ${lastName} veut partager une nouvelle analyse de risque avec vous<br>
-									Voici un lien pour accepter la demande : <a href="${accept}">${accept}</a><br>
-									Vous pouvez aussi decliner l'invitation via l'URL suivant : <a href="${reject}">${reject}</a><br>
+									${firstName} ${lastName} veut partager une nouvelle analyse de risque avec vous.<br>
+									Voici un lien pour accepter la demande : <br><a href="${accept}">${accept}</a><br>
+									Vous pouvez aussi decliner l'invitation via l'URL suivant : <br><a href="${reject}">${reject}</a><br>
 									IMPORTANT: Pour &eacute;viter le danger de courriels frauduleux (&laquo;phishing&raquo;), nous vous recommandons de ne pas cliquer sur des liens dans les courriels, mais de les copier et coller dans votre navigateur web, comme indiquez au-dessus.
 									Si vous n'est pas &agrave; l'origine des requ&ecirc;te, veuillez ignorer ce message.	
 									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacutes; automatiquement, veuillez ne pas y r&eacute;pondre.

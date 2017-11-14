@@ -828,6 +828,10 @@ input[type=number] {
     -moz-appearance:textfield;
 }
 
+.section>.alert{
+	margin-top: 10px;
+}
+
 @media (min-width: 768px) {
 
     .pull-sm-left {

@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.ANONYMOUS;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.jna.platform.win32.Guid.GUID;
+import com.sun.mail.imap.protocol.UID;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -177,7 +179,7 @@ public class ManageAnalysisRight {
 	private void sendInvitation(String email, Analysis analysis, User host, AnalysisRight right) {
 		final ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 		final SecureRandom random = new SecureRandom();
-		final String token = passwordEncoder.encodePassword(GUID.newGuid().toGuidString() + "--" + System.nanoTime(),
+		final String token = passwordEncoder.encodePassword(UUID.randomUUID().toString() + "--" + System.nanoTime(),
 				email + "-*/" + host.getEmail() + "@=" + analysis.getIdentifier() + random.nextLong());
 		final AnalysisShareInvitation invitation = new AnalysisShareInvitation(token, analysis, host, email, right);
 		daoAnalysisShareInviatation.saveOrUpdate(invitation);
@@ -200,11 +202,11 @@ public class ManageAnalysisRight {
 		daoAnalysisShareInviatation.delete(invitation);
 		if (principal == null)
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.reject.share.analysis.access",
-					String.format("Analysis: %s, version: %s, target: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), ANONYMOUS,
-					LogAction.REJECT_ACCESS_REQUEST, identifier, version, invitation.getEmail(), host);
+					String.format("Analysis: %s, version: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), ANONYMOUS, LogAction.REJECT_ACCESS_REQUEST,
+					identifier, version, invitation.getEmail(), host);
 		else
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.cancel.share.analysis.access",
-					String.format("Analysis: %s, version: %s, target: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), principal.getName(),
+					String.format("Analysis: %s, version: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), principal.getName(),
 					LogAction.CANCEL_ACCESS_REQUEST, identifier, version, invitation.getEmail(), host);
 	}
 
@@ -240,7 +242,7 @@ public class ManageAnalysisRight {
 		if (!user.getEmail().equalsIgnoreCase(invitation.getEmail())) {
 
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.share.analysis.access.bad.mail",
-					String.format("Analysis: %s, version: %s, access: %s, Guest: %s, Target: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
+					String.format("Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
 							invitation.getEmail(), user.getEmail()),
 					principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
 					user.getEmail());
@@ -252,7 +254,7 @@ public class ManageAnalysisRight {
 		daoAnalysisShareInviatation.delete(invitation);
 
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.accept.share.analysis.access",
-				String.format("Analysis: %s, version: %s, access: %s, Guest: %s, Target: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
+				String.format("Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
 						invitation.getEmail(), user.getEmail()),
 				principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
 				user.getEmail());

@@ -12,7 +12,9 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOAnalysisShareInvitation;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -208,6 +210,16 @@ public class DAOAnalysisShareInviatationHBM extends DAOHibernate implements DAOA
 	@Override
 	public boolean exists(String token) {
 		return getSession().createQuery("Select count(*)>0 From AnalysisShareInvitation where token = :token", Boolean.class).setParameter("token", token).uniqueResult();
+	}
+
+	@Override
+	public void deleteByUser(User user) {
+		getSession().createQuery("Delete From AnalysisShareInvitation where host = :user").setParameter("user", user).executeUpdate();
+	}
+
+	@Override
+	public void deleteByAnalysis(Analysis analysis) {
+		getSession().createQuery("Delete From AnalysisShareInvitation where analysis = :analysis").setParameter("analysis", analysis).executeUpdate();
 	}
 
 }

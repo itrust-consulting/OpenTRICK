@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOAnalysisShareInvitation;
 import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -168,6 +170,18 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 	@Override
 	public boolean exists(String token) {
 		return daoAnalysisShareInviatation.exists(token);
+	}
+
+	@Transactional
+	@Override
+	public void deleteByUser(User user) {
+		daoAnalysisShareInviatation.deleteByUser(user);
+	}
+
+	@Transactional
+	@Override
+	public void deleteByAnalysis(Analysis analysis) {
+		daoAnalysisShareInviatation.deleteByAnalysis(analysis);
 	}
 
 }

@@ -256,6 +256,6 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 
 	@Override
 	public Customer findByAnalysisId(int analysisId) {
-		return getSession().createQuery("Select customer From Analysis analysis where id = :id", Customer.class).setParameter("id", analysisId).uniqueResult();
+		return getSession().createQuery("Select analysis.customer From Analysis analysis where analysis.id = :id", Customer.class).setParameter("id", analysisId).uniqueResult();
 	}
 }
