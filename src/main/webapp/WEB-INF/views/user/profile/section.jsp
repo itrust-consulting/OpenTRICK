@@ -92,9 +92,17 @@
 					<div class="form-group">
 						<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" text="Email address" />
 						</label>
-						<div class="col-sm-9">
+						<span class="visible-xs clearfix"></span>
+						<div class="${user.emailValidated? 'col-sm-9' : 'col-xs-10 col-sm-7' }">
 							<input type="email" id="email" name="email" class="form-control" ${user.connexionType==1?'disabled="disabled" readonly="readonly"':''} required value="${user.email}" />
 						</div>
+						<c:if test="${not user.emailValidated }">
+							<div class='col-xs-2 col-sm-2 text-right'>
+								<button type="button" class='btn btn-primary' onclick="validateUserEmail()">
+									<spring:message code="label.action.validate" text='Validate' />
+								</button>
+							</div>
+						</c:if>
 					</div>
 				</fieldset>
 				<fieldset>

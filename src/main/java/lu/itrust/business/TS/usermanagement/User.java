@@ -532,6 +532,8 @@ public class User implements Serializable, IUser {
 	 * @param email
 	 */
 	public void setEmail(String email) {
+		if (this.email != null && isEmailValidated())
+			setEmailValidated(this.email.equalsIgnoreCase(email));
 		this.email = email;
 	}
 

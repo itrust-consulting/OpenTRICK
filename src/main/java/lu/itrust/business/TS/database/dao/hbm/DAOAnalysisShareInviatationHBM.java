@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.database.dao.DAOAnalysisShareInvitation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.model.general.helper.InvitationFilter;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -220,6 +221,50 @@ public class DAOAnalysisShareInviatationHBM extends DAOHibernate implements DAOA
 	@Override
 	public void deleteByAnalysis(Analysis analysis) {
 		getSession().createQuery("Delete From AnalysisShareInvitation where analysis = :analysis").setParameter("analysis", analysis).executeUpdate();
+	}
+
+	@Override
+	public List<AnalysisShareInvitation> findByEmail(String email) {
+		return getSession().createQuery("From AnalysisShareInvitation where email = :email", AnalysisShareInvitation.class).setParameter("email", email).list();
+	}
+
+	@Override
+	public long countByEmail(String email) {
+		return getSession().createQuery("Select count(*) From AnalysisShareInvitation where email = :email", Long.class).setParameter("email", email).uniqueResult();
+	}
+
+	@Override
+	public long countByUsername(String username) {
+		return getSession()
+				.createQuery("Select count(invitation) From AnalysisShareInvitation as invitation, User as user where invitation.email = user.email and user.login = :username",
+						Long.class)
+				.setParameter("username", username).uniqueResult();
+	}
+
+	@Override
+	public List<AnalysisShareInvitation> findAllByUsernameAndFilterControl(String username, Integer page, InvitationFilter filter) {
+		if (!filter.validate())
+			return Collections.emptyList();
+		String query = String.format(
+				"Select invitation From AnalysisShareInvitation as invitation, User as user where invitation.email = user.email and user.login = :username order by invitation.%s %s",
+				filter.getSort(), filter.getDirection());
+		return getSession().createQuery(query, AnalysisShareInvitation.class).setParameter("username", username).setFirstResult((page - 1) * filter.getSize())
+				.setMaxResults(filter.getSize()).getResultList();
+
+	}
+
+	@Override
+	public AnalysisShareInvitation findByIdAndUsername(Long id, String username) {
+		return getSession().createQuery(
+				"Select invitation From AnalysisShareInvitation as invitation, User as user where invitation.id = :id and invitation.email = user.email and user.login = :username",
+				AnalysisShareInvitation.class).setParameter("id", id).setParameter("username", username).uniqueResult();
+	}
+
+	@Override
+	public String findTokenByIdAndUsername(Long id, String username) {
+		return getSession().createQuery(
+				"Select invitation.token From AnalysisShareInvitation as invitation, User as user where invitation.id = :id and invitation.email = user.email and user.login = :username",
+				String.class).setParameter("id", id).setParameter("username", username).uniqueResult();
 	}
 
 }

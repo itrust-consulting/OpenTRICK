@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.sun.jna.platform.win32.Guid.GUID;
-import com.sun.mail.imap.protocol.UID;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -183,7 +181,7 @@ public class ManageAnalysisRight {
 				email + "-*/" + host.getEmail() + "@=" + analysis.getIdentifier() + random.nextLong());
 		final AnalysisShareInvitation invitation = new AnalysisShareInvitation(token, analysis, host, email, right);
 		daoAnalysisShareInviatation.saveOrUpdate(invitation);
-		serviceEmailSender.sendInvitation(invitation);
+		serviceEmailSender.send(invitation);
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.send.share.analysis.access",
 				String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), right.toLower(), email), host.getLogin(),
 				LogAction.ACCESS_REQUEST, analysis.getIdentifier(), analysis.getVersion(), right.toLower(), email);
@@ -198,8 +196,8 @@ public class ManageAnalysisRight {
 
 	private void cancelInvitation(Principal principal, AnalysisShareInvitation invitation) {
 		final String host = invitation.getHost().getLogin(), identifier = invitation.getAnalysis().getIdentifier(), version = invitation.getAnalysis().getVersion();
-
 		daoAnalysisShareInviatation.delete(invitation);
+		
 		if (principal == null)
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.reject.share.analysis.access",
 					String.format("Analysis: %s, version: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), ANONYMOUS, LogAction.REJECT_ACCESS_REQUEST,

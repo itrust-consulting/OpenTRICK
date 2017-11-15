@@ -115,7 +115,7 @@ public class ControllerRegister {
 		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP, true))
 			throw new ResourceNotFoundException();
 		model.put("user", new User());
-		return "user/register";
+		return "default/register";
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class ControllerRegister {
 
 			try {
 
-				serviceEmailSender.sendRegistrationMail(admins, user);
+				serviceEmailSender.send(admins, user);
 
 				this.serviceUser.save(user);
 
@@ -207,7 +207,7 @@ public class ControllerRegister {
 	public String resetPassword(Principal principal, Model model, HttpSession session) {
 		checkAttempt("attempt-reset-password", session, principal);
 		model.addAttribute("resetPassword", new ResetPasswordHelper());
-		return "user/resetPassword";
+		return "default/recovery/reset-password";
 	}
 
 	public static String URL(HttpServletRequest request) {
@@ -223,7 +223,7 @@ public class ControllerRegister {
 		checkAttempt("attempt-reset-password-save", request.getSession(), principal);
 		if (resetPassword.isEmpty()) {
 			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
-			return "user/resetPassword";
+			return "default/recovery/reset-password";
 		}
 
 		try {
@@ -240,7 +240,7 @@ public class ControllerRegister {
 						passwordEncoder.encodePassword(String.valueOf(System.nanoTime()), String.valueOf(new Random(System.currentTimeMillis()).nextDouble())),
 						new Timestamp(System.currentTimeMillis() + timeoutValue));
 				serviceResetPassword.saveOrUpdate(resetPassword2);
-				serviceEmailSender.sendResetPassword(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
+				serviceEmailSender.send(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
 				/**
 				 * Log
 				 */
@@ -279,7 +279,7 @@ public class ControllerRegister {
 			return "redirect:/Login";
 		}
 		model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
-		return "user/changePassword";
+		return "default/recovery/change-password";
 	}
 
 	@RequestMapping("/ChangePassword/{keyControl}/Cancel")
@@ -309,7 +309,7 @@ public class ControllerRegister {
 		if (!result.hasFieldErrors("repeatPassword") && !changePassword.getRepeatPassword().equals(changePassword.getPassword()))
 			result.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not the same");
 		if (result.hasErrors())
-			return "user/changePassword";
+			return "default/recovery/change-password";
 		ResetPassword resetPassword = serviceResetPassword.get(changePassword.getRequestId());
 		if (resetPassword == null)
 			throw new ResourceNotFoundException();

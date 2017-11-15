@@ -29,13 +29,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.AccountLockerManager;
+import lu.itrust.business.TS.database.service.ServiceEmailValidatingRequest;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -62,6 +65,9 @@ public class ControllerHome {
 
 	@Autowired
 	private ManageAnalysisRight manageAnalysisRight;
+
+	@Autowired
+	private ServiceEmailValidatingRequest serviceEmailValidatingRequest;
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
@@ -143,10 +149,26 @@ public class ControllerHome {
 	}
 
 	@GetMapping("/Analysis-access-management/{token}/Reject")
-	public String rejectInvitation(@PathVariable String token, Principal principal, RedirectAttributes attributes, Locale locale) {
+	public String rejectInvitation(@PathVariable String token, Principal principal, RedirectAttributes attributes) {
 		manageAnalysisRight.cancelInvitation(principal, token);
 		attributes.addFlashAttribute("success", "success.cancel.invitation");
-		return "redirect:/Login";
+		return principal == null ? "redirect:/Login" : "redirect:/Analysis/All";
+	}
+
+	@GetMapping("/Validate/{token}/Email")
+	public String validateEmail(@PathVariable String token, Principal principal, RedirectAttributes attributes) {
+		EmailValidatingRequest validatingRequest = serviceEmailValidatingRequest.findByToken(token);
+		if (validatingRequest == null)
+			throw new ResourceNotFoundException("Token for email validation cannot be found");
+		else if (!validatingRequest.getUser().getEmail().equalsIgnoreCase(validatingRequest.getEmail()))
+			attributes.addFlashAttribute("error", "error.email.validation.change");
+		else {
+			validatingRequest.getUser().setEmailValidated(true);
+			serviceUser.saveOrUpdate(validatingRequest.getUser());
+			serviceEmailValidatingRequest.delete(validatingRequest);
+			attributes.addFlashAttribute("success", "success.email.validation");
+		}
+		return principal == null ? "redirect:/Login" : "redirect:/Account";
 	}
 
 }

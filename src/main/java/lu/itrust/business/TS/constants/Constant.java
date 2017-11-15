@@ -629,6 +629,8 @@ public class Constant {
 	public static final String FILTER_CONTROL_SQLITE = "SQLITE";
 
 	public static final String FILTER_CONTROL_REPORT = "REPORT";
+	
+	public static final String FILTER_CONTROL_INVITATION = "INVITATION";
 
 	public static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
 

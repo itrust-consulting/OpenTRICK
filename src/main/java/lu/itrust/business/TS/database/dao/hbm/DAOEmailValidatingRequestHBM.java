@@ -47,7 +47,8 @@ public class DAOEmailValidatingRequestHBM extends DAOHibernate implements DAOEma
 
 	@Override
 	public void deleteByUser(User user) {
-		getSession().createQuery("Delete From EmailValidatingRequest where user = :user", Boolean.class).setParameter("user", user).executeUpdate();
+		getSession().createQuery("Delete From EmailValidatingRequest where user = :user").setParameter("user", user).executeUpdate();
+		getSession().createQuery("Delete From EmailValidatingRequest where email = :email").setParameter("email", user.getEmail()).executeUpdate();
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//FR" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -51,7 +51,7 @@
        font-size:19px;
       font-weight:normal;
     }
-    div,p,ul,h1,h3,h4{
+     div,p,ul,h1,h3,h4{
       margin:0;
     }
 
@@ -117,15 +117,13 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								 <h4 align="left">Bonjour,</h4>
-								 <p style="margin-top:5px;">
-									${firstName} ${lastName} veut partager une nouvelle analyse de risque avec vous.<br>
-									Suivez le lien suivant pour accepter la demande : <br><a href="${accept}">${accept}</a><br>
-									Vous pouvez aussi decliner l'invitation via l'URL suivant : <br><a href="${reject}">${reject}</a><br>
-									IMPORTANT: Pour &eacute;viter le danger de courriels frauduleux (&laquo;phishing&raquo;), nous vous recommandons de ne pas cliquer sur des liens dans les courriels, mais de les copier et coller dans votre navigateur web, comme indiquez au-dessus.
-									Si vous n'est pas &agrave; l'origine des requ&ecirc;te, veuillez ignorer ce message.	
-									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacutes; automatiquement, veuillez ne pas y r&eacute;pondre.
-								</p>
+								  <h4 align="left">Hello ${firstName} ${lastName},</h4>
+                                  <p style="margin-top:5px;">
+									Please find here a link to validate your e-mail address: <br><a href="${link}">${link}</a><br>
+									IMPORTANT: Because fraudulent ("phishing") e-mail often uses misleading links, we recommend you to not click links in e-mail, but instead copy and paste them into your browsers, as described above.
+									If you are not the originator of the queries, please ignore this message.
+									This is an automatically generated message, please do not reply to it.
+                                  </p>
                                 </div>
                               </div>
                             </td>
@@ -151,4 +149,3 @@
 
    </body>
 </html>
-

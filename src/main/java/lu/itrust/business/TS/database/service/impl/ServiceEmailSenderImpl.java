@@ -34,6 +34,7 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -75,11 +76,11 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceEmailSender#sendRegistrationMail(java.lang.String,
+	 * @see lu.itrust.business.TS.database.service.ServiceEmailSender#send(java.lang.String,
 	 *      java.lang.String)
 	 */
 	@Override
-	public void sendRegistrationMail(final List<User> recipients, final User user) {
+	public void send(final List<User> recipients, final User user) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
@@ -139,7 +140,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	}
 
 	@Override
-	public void sendResetPassword(final ResetPassword password, final String hotname) {
+	public void send(final ResetPassword password, final String hotname) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
@@ -233,7 +234,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	}
 
 	@Override
-	public void sendInvitation(AnalysisShareInvitation invitation) {
+	public void send(AnalysisShareInvitation invitation) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
@@ -260,5 +261,33 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			TrickLogManager.Persist(e);
 		}
 
+	}
+
+	@Override
+	public void send(EmailValidatingRequest validatingRequest) {
+		try {
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+						MissingResourceException, IOException, TemplateException {
+					final Map<String, Object> model = new LinkedHashMap<String, Object>();
+					final Locale locale = validatingRequest.getUser().getLocaleObject();
+					final MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					final User user = validatingRequest.getUser();
+					message.setFrom(emailSender);
+					message.setSubject(messageSource.getMessage("label.email.validation.subject", null, "TRICK Service: Email validation", locale));
+					model.put("title", messageSource.getMessage("label.title.email.validation", null, "TRICK Service: Email validation", locale));
+					model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
+					model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+					model.put("link", String.format("%s/Validate/%s/Email", hostServer, validatingRequest.getToken()));
+					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
+							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "email-validation-fr.ftl" : "email-validation-en.ftl"), "UTF-8"),
+							model), true);
+					message.setTo(validatingRequest.getEmail());
+				}
+			};
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
 	}
 }

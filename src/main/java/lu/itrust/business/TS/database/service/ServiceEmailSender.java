@@ -3,6 +3,7 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -15,13 +16,46 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface ServiceEmailSender {
 	
-	void sendRegistrationMail(List<User> recipient, User user);
+	/**
+	 * Send invitation 
+	 * @param invitation
+	 */
+	void send(AnalysisShareInvitation invitation);
 	
-	void sendResetPassword(ResetPassword password,String hotname);
+	/**
+	 * Send request for email validation 
+	 * @param validatingRequest
+	 */
+	void send(EmailValidatingRequest validatingRequest);
 
-	void sendOTPCode(String code, Long timeout, User user);
+	/**
+	 * Notify new user to all administrators
+	 * @param recipient
+	 * @param user
+	 */
+	void send(List<User> recipient, User user);
 	
+	/**
+	 * Send request reset password
+	 * @param password
+	 * @param hotname
+	 */
+	void send(ResetPassword password,String hotname);
+
+	/**
+	 * Notify locked account
+	 * @param code
+	 * @param ip
+	 * @param timeout
+	 * @param username
+	 */
 	void sendAccountLocked(String code, String ip,Long timeout, String username);
 
-	void sendInvitation(AnalysisShareInvitation invitation);
+	/**
+	 * Send OTP code
+	 * @param code
+	 * @param timeout
+	 * @param user
+	 */
+	void sendOTPCode(String code, Long timeout, User user);
 }

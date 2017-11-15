@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
@@ -32,6 +33,9 @@ public class GlobalControllerAdvice {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
+	
+	@Autowired
+	private ServiceAnalysisShareInvitation serviceAnalysisShareInvitation;
 
 	@ModelAttribute
 	public void globalAttributes(Model model, Principal principal) {
@@ -41,6 +45,7 @@ public class GlobalControllerAdvice {
 				model.addAttribute("userGuideURLInternal", serviceTSSetting.isAllowed(TSSettingName.USER_GUIDE_URL_TYPE));
 				model.addAttribute("userGuideURL", url.getString());
 			}
+			model.addAttribute("analysisSharedCount", serviceAnalysisShareInvitation.countByUsername(principal.getName()));
 		}
 	}
 

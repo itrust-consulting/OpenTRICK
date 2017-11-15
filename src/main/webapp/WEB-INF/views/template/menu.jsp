@@ -58,12 +58,12 @@
 					<li ${menu.equals("Account")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Account" id='main_menu_profile'> <sec:authentication
 								var="currentUsername" property="name" /> <c:choose>
 								<c:when test="${not empty currentUsername }">
-									<spring:message text='${currentUsername}'/>
+									<spring:message text='${currentUsername}' />
 								</c:when>
 								<c:otherwise>
 									<spring:message code="label.profile" text="Profile" />
 								</c:otherwise>
-							</c:choose>
+							</c:choose> <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;" title='<spring:message code='label.info.analysis.invitation.count'/>'>${analysisSharedCount}</span>
 					</a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 						<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin" id='main_menu_admin'> <spring:message

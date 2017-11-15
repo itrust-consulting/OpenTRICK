@@ -120,7 +120,7 @@
 								 <h4 align="left">Bonjour ${firstName} ${lastName},</h4>
 								 <p style="margin-top:5px;">
 									En raison de nombreuses tentatives d'authentification infructueuses &agrave; partir de l'adresse : ${ip}, votre compte a &eacute;t&eacute; suspendu jusqu'au ${expireDate} &agrave; ${expireDateTime}.<br>
-									Voici un lien pour d&eacute;bloquer votre compte : <a href="${hostname}">${hostname}</a><br>
+									Suivez le lien suivant pour d&eacute;bloquer votre compte : <a href="${hostname}">${hostname}</a><br>
 									IMPORTANT: Pour &eacute;viter le danger de courriels frauduleux (&laquo;phishing&raquo;), nous vous recommandons de ne pas cliquer sur des liens dans les courriels, mais de les copier et coller dans votre navigateur web, comme indiquez au-dessus.
 									Si vous n'est pas &agrave; l'origine des requ&ecirc;te, veuillez ignorer ce message.	
 									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacutes; automatiquement, veuillez ne pas y r&eacute;pondre.

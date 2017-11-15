@@ -3,6 +3,7 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.EMPTY_STRING;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_FILTER_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_INVITATION;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_REPORT;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SIZE_KEY;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_DIRCTION_KEY;
@@ -12,10 +13,12 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -32,7 +35,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,7 +52,10 @@ import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceEmailSender;
+import lu.itrust.business.TS.database.service.ServiceEmailValidatingRequest;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -55,6 +63,7 @@ import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
@@ -64,9 +73,11 @@ import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
+import lu.itrust.business.TS.model.general.helper.InvitationFilter;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
 import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
+import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
@@ -119,6 +130,18 @@ public class ControllerProfile {
 	@Autowired
 	private ServiceWordReport serviceWordReport;
 
+	@Autowired
+	private ServiceEmailValidatingRequest serviceEmailValidatingRequest;
+
+	@Autowired
+	private ServiceAnalysisShareInvitation serviceAnalysisShareInvitation;
+
+	@Autowired
+	private ManageAnalysisRight manageAnalysisRight;
+
+	@Autowired
+	private ServiceEmailSender serviceEmailSender;
+
 	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
@@ -135,6 +158,36 @@ public class ControllerProfile {
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceUserSqLite.delete(userSQLite);
 		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+	}
+
+	@PostMapping(value = "/Invitation/{id}/Reject", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String rejectInvitation(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
+		String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
+		if (token == null)
+			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+		manageAnalysisRight.cancelInvitation(principal, token);
+		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+	}
+
+	@PostMapping(value = "/Invitation/{id}/Accept", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String acceptInvitation(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
+		try {
+			String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
+			if (token == null)
+				return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+			manageAnalysisRight.acceptInvitation(principal, token);
+			return JsonMessage.Success(messageSource.getMessage("success.accept.invitation", null, "Access has been successfully granted", locale));
+		} catch (TrickException e) {// already logged
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+
+	@GetMapping(value = "/Invitation/Count", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String anvitationCount(Principal principal, Locale locale) throws Exception {
+		return JsonMessage.Field("count", serviceAnalysisShareInvitation.countByUsername(principal.getName()) + "");
 	}
 
 	/**
@@ -266,8 +319,10 @@ public class ControllerProfile {
 		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
+		model.addAttribute("invitationSortNames", InvitationFilter.SORTS());
 		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
 		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
+		session.setAttribute("invitationControl", buildFromUser(user, FILTER_CONTROL_INVITATION));
 		if (enabledOTP) {
 			String secret = user.getSecret();
 			if ((user.isUsing2FA() || forcedOTP) && StringUtils.hasText(secret))
@@ -308,7 +363,7 @@ public class ControllerProfile {
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
-		return "user/otp";
+		return "user/otp/section";
 
 	}
 
@@ -346,7 +401,7 @@ public class ControllerProfile {
 		if (filter == null)
 			filter = new FilterControl();
 		model.addAttribute("reports", serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "user/reports";
+		return "user/report/section";
 
 	}
 
@@ -356,7 +411,16 @@ public class ControllerProfile {
 		if (filter == null)
 			filter = new FilterControl();
 		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "user/sqlites";
+		return "user/sqlite/section";
+	}
+
+	@RequestMapping(value = "/Section/Invitation", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String sectionInvitation(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
+		InvitationFilter filter = (InvitationFilter) session.getAttribute("invitationControl");
+		if (filter == null)
+			filter = new InvitationFilter();
+		model.addAttribute("invitations", serviceAnalysisShareInvitation.findAllByUsernameAndFilterControl(principal.getName(), page, filter));
+		return "user/invitation/section";
 	}
 
 	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -373,7 +437,6 @@ public class ControllerProfile {
 
 	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
-
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
@@ -382,6 +445,32 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+	}
+
+	@RequestMapping(value = "/Control/Invitation/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updateInvitationControl(@RequestBody InvitationFilter filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+		if (!filterControl.validate())
+			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+		updateFilterControl(user, filterControl, FILTER_CONTROL_INVITATION);
+		session.setAttribute("invitationControl", filterControl);
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+	}
+
+	@PostMapping(value = "/Validate/Email", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String validateEmail(Principal principal, Locale locale) {
+		final User user = serviceUser.get(principal.getName());
+		final ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+		final SecureRandom random = new SecureRandom();
+		final String token = passwordEncoder.encodePassword(UUID.randomUUID().toString() + "-email-validation-" + System.nanoTime() + user.getEmail() + random.nextLong(),
+				principal.getName());
+		final EmailValidatingRequest validatingRequest = new EmailValidatingRequest(user, token);
+		serviceEmailValidatingRequest.deleteByUser(user);
+		serviceEmailValidatingRequest.saveOrUpdate(validatingRequest);
+		serviceEmailSender.send(validatingRequest);
+		return JsonMessage.Success(messageSource.getMessage("success.send.email.validation", null, locale));
 
 	}
 
@@ -389,16 +478,25 @@ public class ControllerProfile {
 		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
 				filter = user.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
-
-		if (size == null)
-			size = 30;
-		if (sort == null)
-			sort = "identifier";
-		if (filter == null)
-			filter = "ALL";
-		if (direction == null)
-			direction = "asc";
-		return new FilterControl(sort, direction, size, filter);
+		try {
+			if (size == null)
+				size = 30;
+			if (direction == null)
+				direction = "asc";
+			if (type.equals(FILTER_CONTROL_INVITATION)) {
+				if (sort == null)
+					sort = "analysis.identifier";
+				return new InvitationFilter(sort, direction, size);
+			} else {
+				if (sort == null)
+					sort = "identifier";
+				if (filter == null)
+					filter = "ALL";
+				return new FilterControl(sort, direction, size, filter);
+			}
+		} catch (Exception e) {
+			return type.equals(FILTER_CONTROL_INVITATION) ? new InvitationFilter() : new FilterControl();
+		}
 	}
 
 	/**

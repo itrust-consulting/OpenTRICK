@@ -8,7 +8,7 @@
 <c:set scope="request" var="title">label.title.register</c:set>
 <!DOCTYPE html>
 <html>
-<jsp:include page="../template/header.jsp" />
+<jsp:include page="../../template/header.jsp" />
 <body>
 	<div class="container">
 		<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" /> style="height: 200px; margin-top: 50px;">
@@ -50,7 +50,7 @@
 			</form:form>
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
-		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="../../template/footer.jsp" />
 	</div>
 	<!-- ################################################################ End Container ################################################################# -->
 </body>

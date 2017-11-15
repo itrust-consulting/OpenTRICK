@@ -47,6 +47,8 @@ public class FilterControl extends TrickFilter {
 	}
 
 	public void setFilter(String filter) {
+		if(filter == null)
+			filter = "ALL";
 		this.filter = filter;
 	}
 

@@ -12,45 +12,75 @@ $(function () {
 	});
 });
 
-function deleteSqlite(id) {
-	var currentSize = $("#section_sqlite>table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val()), $confirm = showDialog("#confirm-dialog", MessageResolver("confirm.delete.sqlite","Are you sure you want to delete this database?"));
-	$(".btn-danger", $confirm).on("click",function(){
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url: context + "/Account/Sqlite/" + id + "/Delete",
-			type: "POST",
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined) {
-					$("#section_sqlite>table>tbody>tr[data-trick-id='" + id + "']").remove();
-					if (currentSize == size)
-						loadUserSqlite(true);
-				} else if (response["error"] != undefined)
-					showDialog("#alert-dialog", response["error"]);
-				else
-					unknowError();
-			},
-			error: unknowError
-		}).complete( () => $progress.hide());
-		$confirm.modal("hide");
-	});
-	
+function updateUserInvitation(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Account/Invitation/Count",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (response["count"] !== undefined)
+				$("#invitation-count").text(response["count"]);
+		}
+	}).complete( () => $progress.hide());
 	return false;
 }
 
+function deleteSqlite(id) {
+	return deleteUserData(id,"/Account/Sqlite/" + id + "/Delete","sqlite", loadUserSqlite, MessageResolver("confirm.delete.sqlite","Are you sure you want to delete this database?"));
+}
+
 function deleteReport(id) {
-	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val()), $confirm = showDialog("#confirm-dialog", MessageResolver("confirm.delete.report","Are you sure you want to delete this report?"));
+	return deleteUserData(id,"/Account/Report/" + id + "/Delete","report", loadUserReport, MessageResolver("confirm.delete.report","Are you sure you want to delete this report?"));
+}
+
+function inivationManager(id, action, message){
+	var sucessAction = (success) => {  
+		showDialog("success",success);
+		updateUserInvitation();
+	};
+	return deleteUserData(id,"/Account/Invitation/" + id + "/"+action,"invitation", loadUserInvitation , message, sucessAction);
+}
+
+function acceptInvitation(id){
+	return inivationManager(id, "Accept", MessageResolver("confirm.accept.invitation","Are you sure you want to accept this request?"));
+}
+
+function rejectInvitation(id){
+	return inivationManager(id, "Reject", MessageResolver("confirm.reject.invitation","Are you sure you want to reject this request?"));
+}
+
+function validateUserEmail(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Account/Validate/Email",
+		type: "POST",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (response["success"] != undefined) {
+				showDialog("success", response["success"]);
+			} else if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else
+				unknowError();
+		}
+	}).complete( () => $progress.hide());
+	return false;
+}
+
+function deleteUserData(id,url, name, callBack, message, successAction) {
+	var section = "#section_"+name, $body = $(section+">table>tbody"), currentSize = $("tr",$body).length, size = parseInt($("#"+name+"PageSize").val()), $confirm = showDialog("#confirm-dialog",message);
 	$(".btn-danger", $confirm).on("click",function(){
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url: context + "/Account/Report/" + id + "/Delete",
+			url: context + url,
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
-					$("#section_report>table>tbody>tr[data-trick-id='" + id + "']").remove();
+					$("tr[data-trick-id='" + id + "']", $body).remove();
 					if (currentSize == size)
-						loadUserReport(true);
+						callBack(true);
+					successAction(response["success"]);
 				} else if (response["error"] != undefined)
 					showDialog("#alert-dialog", response["error"]);
 				else
@@ -64,91 +94,78 @@ function deleteReport(id) {
 }
 
 function userSqliteScrolling() {
-	var currentSize = $("#section_sqlite table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
-	if (currentSize >= size && currentSize % size === 0) {
-		var $progress = $("#progress-sqlite").show();
-		$.ajax({
-			url: context + "/Account/Section/Sqlite",
-			async: false,
-			type: "get",
-			data: {
-				"page": (currentSize / size) + 1
-			},
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function () {
-					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
-					if (!$current.length)
-						$(this).appendTo($("#section_sqlite>table>tbody"));
-				});
-				return false;
-			},
-			error: unknowError
-		}).complete( () => $progress.hide());
-	}
-	return true;
+	return userSectionScrolling("/Account/Section/Sqlite", "sqlite");;
 }
 
 function userReportScrolling() {
-	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
-	if (currentSize >= size && currentSize % size === 0) {
-		var $progress = $("#progress-report").show();
-		$.ajax({
-			url: context + "/Account/Section/Report",
-			async: false,
-			type: "get",
-			data: {
-				"page": (currentSize / size) + 1
-			},
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_report>table>tbody>tr").each(function () {
-					var $current = $("#section_report>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
-					if (!$current.length)
-						$(this).appendTo($("#section_report>table>tbody"));
-				});
-				return false;
-			},
-			error: unknowError
-		}).complete( () => $progress.hide());
-	}
-	return true;
+	return userSectionScrolling("/Account/Section/Report", "report");
 }
 
-function updateReportControl(element) {
-	if (element != undefined && !$(element).is(":checked"))
+function userInvitationScrolling() {
+	return userSectionScrolling("/Account/Section/Invitation", "invitation");
+}
+
+function userSectionScrolling(url, name) {
+	var key = "section-"+name+"scrolling",  section = "#section_"+name, $section = $(section),  currentSize = $("table>tbody>tr", $section).length, size = parseInt($("#"+name+"PageSize").val());
+	if(application[key])
 		return false;
-	var $progress = $("#progress-report").show();
-	$.ajax({
-		url: context + "/Account/Control/Report/Update",
-		type: "post",
-		data: serializeForm("#formReportControl"),
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			if (response["success"] != undefined)
-				return loadUserReport();
-			else if (response["error"] != undefined)
-				showDialog("#alert-dialog", response["error"]);
-			else
-				unknowError();
-		},
-		error: unknowError
-	}).complete( () => $progress.hide());
+	else application[key] = true;
+	try{
+		if (currentSize >= size && currentSize % size === 0) {
+			var $progress = $("#progress-"+name).show();
+			$.ajax({
+				url: context + url,
+				type: "get",
+				data: {
+					"page": (currentSize / size) + 1
+				},
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					var $body = $("table>tbody", $section);
+					$(new DOMParser().parseFromString(response, "text/html"), section).find("table>tbody>tr").each(function () {
+						var $this = $(this), $current = $("tr[data-trick-id='" + $this.attr("data-trick-id") + "']", $body);
+						if (!$current.length)
+							$this.appendTo($body);
+					});
+					return false;
+				},
+				error: unknowError
+			}).complete( () => { 
+				$progress.hide();
+				application[key] = false;
+			});
+		}else application[key] = false;
+	}catch (e) {
+		application[key] = false;
+	}
 	return false;
 }
 
+
+function updateReportControl(element) {
+  return updateUserControl(element,"/Account/Control/Report/Update", "report","#formReportControl",loadUserReport);;
+}
+
 function updateSqliteControl(element) {
+	return updateUserControl(element,"/Account/Control/Sqlite/Update", "sqlite","#formSqliteControl",loadUserSqlite);
+}
+
+function updateInvitationControl(element) {
+	return updateUserControl(element,"/Account/Control/Invitation/Update", "invitation","#formInvitationControl",loadUserInvitation);
+}
+
+function updateUserControl(element,url, name, form, callBack) {
 	if (element != undefined && !$(element).is(":checked"))
 		return false;
-	var $progress = $("#progress-sqlite").show();
+	var $progress = $("#progress-"+name).show();
 	$.ajax({
-		url: context + "/Account/Control/Sqlite/Update",
+		url: context + url,
 		type: "post",
-		data: serializeForm("#formSqliteControl"),
+		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
-				return loadUserSqlite();
+				callBack();
 			else if (response["error"] != undefined)
 				showDialog("#alert-dialog", response["error"]);
 			else
@@ -160,49 +177,40 @@ function updateSqliteControl(element) {
 }
 
 function loadUserSqlite(update) {
-	var $progress = $("#progress-sqlite").show();
-	$.ajax({
-		url: context + "/Account/Section/Sqlite",
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			if (update) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function () {
-					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
-					if (!$current.length)
-						$(this).appendTo($("#section_sqlite>table>tbody"));
-				});
-			} else {
-				$("#section_sqlite").replaceWith($("#section_sqlite", new DOMParser().parseFromString(response, "text/html")));
-				fixTableHeader("#section_sqlite table");
-			}
-			return false;
-		},
-		error: unknowError
-	}).complete(()=> $progress.hide());
-	return true;
+	return loadUserSection(update,"/Account/Section/Sqlite", "sqlite");
 }
 
 function loadUserReport(update) {
-	var $progress = $("#progress-report").show();
+	return loadUserSection(update,"/Account/Section/Report", "report");
+}
+
+function loadUserInvitation(update) {
+	return loadUserSection(update,"/Account/Section/Invitation", "invitation");
+}
+
+
+function loadUserSection(update,url,name) {
+	var section = "#section_"+name, $progress = $("#progress-"+name).show();
 	$.ajax({
-		url: context + "/Account/Section/Report",
+		url: context + url,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
+			var $section = $(section), $body = $("table>tbody", $section);
 			if (update) {
-				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function () {
-					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
+				$(new DOMParser().parseFromString(response, "text/html")).find(section+">table>tbody>tr").each(function () {
+					var $current = $("tr[data-trick-id='" + $(this).attr("data-trick-id") + "']", $body);
 					if (!$current.length)
-						$(this).appendTo($("#section_sqlite>table>tbody"));
+						$(this).appendTo($body);
 				});
 			} else {
-				$("#section_report").replaceWith($("#section_report", new DOMParser().parseFromString(response, "text/html")));
-				fixTableHeader("#section_report table");
+				$section.replaceWith($(section, new DOMParser().parseFromString(response, "text/html")));
+				fixTableHeader(section+" table");
 			}
 			return false;
 		},
 		error: unknowError
 	}).complete(()=> $progress.hide());
-	return true;
+	return false;
 }
 
 function updateProfile(form) {

@@ -14,6 +14,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysisShareInvitation;
 import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.model.general.helper.InvitationFilter;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -22,12 +23,13 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 @Service
 public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareInvitation {
-	
+
 	@Autowired
 	private DAOAnalysisShareInvitation daoAnalysisShareInviatation;
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#count()
 	 */
 	@Override
@@ -35,8 +37,11 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		return daoAnalysisShareInviatation.count();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#delete(java.util.Collection)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.database.TemplateDAOService#delete(java.util.
+	 * Collection)
 	 */
 	@Transactional
 	@Override
@@ -44,8 +49,11 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		daoAnalysisShareInviatation.delete(entities);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#delete(java.io.Serializable)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.database.TemplateDAOService#delete(java.io.
+	 * Serializable)
 	 */
 	@Transactional
 	@Override
@@ -53,8 +61,11 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		daoAnalysisShareInviatation.delete(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#delete(java.lang.Object)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#delete(java.lang.Object)
 	 */
 	@Transactional
 	@Override
@@ -62,7 +73,9 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		daoAnalysisShareInviatation.delete(entity);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#deleteAll()
 	 */
 	@Transactional
@@ -71,15 +84,20 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		daoAnalysisShareInviatation.deleteAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#exists(java.io.Serializable)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.database.TemplateDAOService#exists(java.io.
+	 * Serializable)
 	 */
 	@Override
 	public boolean exists(Long id) {
 		return daoAnalysisShareInviatation.exists(id);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#findAll()
 	 */
 	@Override
@@ -87,33 +105,45 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		return daoAnalysisShareInviatation.findAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#findAll(java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#findAll(java.util.List)
 	 */
 	@Override
 	public List<AnalysisShareInvitation> findAll(List<Long> ids) {
 		return daoAnalysisShareInviatation.findAll(ids);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#findByAnalysisId(java.lang.Integer)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#findByAnalysisId(java.lang.
+	 * Integer)
 	 */
 	@Override
 	public List<AnalysisShareInvitation> findByAnalysisId(Integer idAnalysis) {
 		return daoAnalysisShareInviatation.findByAnalysisId(idAnalysis);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.Serializable)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.
+	 * Serializable)
 	 */
 	@Override
 	public AnalysisShareInvitation findOne(Long id) {
 		return daoAnalysisShareInviatation.findOne(id);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#merge(java.lang.Object)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#merge(java.lang.Object)
 	 */
 	@Transactional
 	@Override
@@ -121,7 +151,9 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		return daoAnalysisShareInviatation.merge(entity);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#save(java.util.List)
 	 */
 	@Transactional
@@ -130,7 +162,9 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		return daoAnalysisShareInviatation.save(entities);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#save(java.lang.Object)
 	 */
 	@Transactional
@@ -139,8 +173,12 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		return daoAnalysisShareInviatation.save(entity);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#saveOrUpdate(java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#saveOrUpdate(java.util.
+	 * List)
 	 */
 	@Transactional
 	@Override
@@ -148,8 +186,12 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 		daoAnalysisShareInviatation.save(entities);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.TemplateDAOService#saveOrUpdate(java.lang.Object)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.database.TemplateDAOService#saveOrUpdate(java.lang.
+	 * Object)
 	 */
 	@Transactional
 	@Override
@@ -182,6 +224,36 @@ public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareI
 	@Override
 	public void deleteByAnalysis(Analysis analysis) {
 		daoAnalysisShareInviatation.deleteByAnalysis(analysis);
+	}
+
+	@Override
+	public List<AnalysisShareInvitation> findByEmail(String email) {
+		return daoAnalysisShareInviatation.findByEmail(email);
+	}
+
+	@Override
+	public long countByEmail(String email) {
+		return daoAnalysisShareInviatation.countByEmail(email);
+	}
+
+	@Override
+	public long countByUsername(String username) {
+		return daoAnalysisShareInviatation.countByUsername(username);
+	}
+
+	@Override
+	public List<AnalysisShareInvitation> findAllByUsernameAndFilterControl(String username, Integer page, InvitationFilter filter) {
+		return daoAnalysisShareInviatation.findAllByUsernameAndFilterControl(username, page, filter);
+	}
+
+	@Override
+	public AnalysisShareInvitation findByIdAndUsername(Long id, String username) {
+		return daoAnalysisShareInviatation.findByIdAndUsername(id, username);
+	}
+
+	@Override
+	public String findTokenByIdAndUsername(Long id, String username) {
+		return daoAnalysisShareInviatation.findTokenByIdAndUsername(id, username);
 	}
 
 }
