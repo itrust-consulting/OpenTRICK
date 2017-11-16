@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * DAOCustomerHBM.java: <br>
@@ -257,5 +259,13 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	@Override
 	public Customer findByAnalysisId(int analysisId) {
 		return getSession().createQuery("Select analysis.customer From Analysis analysis where analysis.id = :id", Customer.class).setParameter("id", analysisId).uniqueResult();
+	}
+
+	@Override
+	public List<User> findUserByCustomer(Customer customer) {
+		return customer.isCanBeUsed()
+				? getSession().createQuery("Select distinct user From User user inner join user.customers customer where customer = :customer order by user.firstName, user.lastName, user.email", User.class)
+						.setParameter("customer", customer).list()
+				: Collections.emptyList();
 	}
 }

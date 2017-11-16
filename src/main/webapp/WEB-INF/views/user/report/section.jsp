@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="col-md-9" id="section_report">
+<div class="col-md-9 col-lg-10" id="section_report">
 	<table class="table table-hover table-condensed">
 		<thead>
 			<tr>

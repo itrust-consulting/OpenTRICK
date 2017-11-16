@@ -22,7 +22,6 @@
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container" data-ug-root="analysis">
 			<jsp:include page="menu.jsp" />
-			<jsp:include page="../../template/successErrors.jsp" />
 			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis"
 				data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}" data-trick-language="${locale.language}">
 				<c:if test="${!isProfile}">

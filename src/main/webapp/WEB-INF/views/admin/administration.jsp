@@ -29,7 +29,6 @@
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
-			<jsp:include page="../template/successErrors.jsp" />
 			<div class="tab-content" id="tab-container" >
 				<jsp:include page="status.jsp" />
 				<jsp:include page="user/users.jsp" />

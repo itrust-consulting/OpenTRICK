@@ -99,7 +99,7 @@
 						<c:if test="${not user.emailValidated }">
 							<div class='col-xs-2 col-sm-2 text-right'>
 								<button type="button" class='btn btn-primary' onclick="validateUserEmail()">
-									<spring:message code="label.action.validate" text='Validate' />
+									<spring:message code="label.action.check"/>
 								</button>
 							</div>
 						</c:if>

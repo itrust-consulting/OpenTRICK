@@ -1030,6 +1030,11 @@ $(document)
 				function() {
 					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
 
+					$("#controller-notifications div[data-notification-type]").each(function(){
+						showDialog(this.getAttribute("data-notification-type"), this.innerText);
+						this.parentNode.removeChild(this);
+					});
+					
 					$(document).ajaxSend(function(e, xhr, options) {
 						if (options.url !== (context + '/IsAuthenticate'))
 							$(document).trigger("session:resquest:send");
@@ -1236,7 +1241,10 @@ $(document)
 						updateUserGuideURL();
 					}, 100);
 					
-					
-					
+					//load notification.
+					$("#controller-notifications div[data-notification-type]").each(function(){
+						showDialog(this.getAttribute("data-notification-type"), this.innerText);
+						this.parentNode.removeChild(this);
+					});
 					
 				});

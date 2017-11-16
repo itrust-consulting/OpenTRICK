@@ -164,9 +164,9 @@ public class ControllerProfile {
 	public @ResponseBody String rejectInvitation(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
 		String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
 		if (token == null)
-			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null, "Invitation has already been accepted or cancelled!", locale));
 		manageAnalysisRight.cancelInvitation(principal, token);
-		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.cancel.invitation", null, "Invitation has been successfully rejected!", locale));
 	}
 
 	@PostMapping(value = "/Invitation/{id}/Accept", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -174,7 +174,7 @@ public class ControllerProfile {
 		try {
 			String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
 			if (token == null)
-				return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null, "Invitation has already been accepted or cancelled!", locale));
 			manageAnalysisRight.acceptInvitation(principal, token);
 			return JsonMessage.Success(messageSource.getMessage("success.accept.invitation", null, "Access has been successfully granted", locale));
 		} catch (TrickException e) {// already logged

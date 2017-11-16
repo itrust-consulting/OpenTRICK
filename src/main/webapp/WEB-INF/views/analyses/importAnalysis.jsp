@@ -19,7 +19,6 @@
 				<h1>
 					<spring:message code="label.title.import.analysis" text="Import a new Analysis" />
 				</h1>
-				<jsp:include page="../template/successErrors.jsp" />
 			</div>
 			<div id="import-container">
 				<c:if test="${!empty customers}">

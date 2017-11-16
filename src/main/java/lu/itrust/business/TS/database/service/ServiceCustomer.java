@@ -3,6 +3,7 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ServiceCustomer.java: <br>
@@ -54,4 +55,6 @@ public interface ServiceCustomer {
 	public Customer findByAnalysisId(int analysisId);
 
 	public boolean hasAccess(Integer idUser, Customer customer);
+
+	public List<User> findUserByCustomer(Customer customer);
 }

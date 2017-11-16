@@ -93,7 +93,13 @@
 								<spring:message var="email" text="${guest.email}"/>
 								<c:set var="userRight" value="${guest.right}" />
 								<c:set var='name' value="guest-${guest.id}" />
-								<spring:message code="label.analysis.invitation.host" arguments="${guest.host.firstName},${guest.host.lastName}" var="host"/>
+								<c:choose>
+									<c:when test="${myId == guest.host.id }">
+										<spring:message code="label.analysis.invitation.host.me" var="host"/>
+									</c:when>
+									<c:otherwise><spring:message code="label.analysis.invitation.host" arguments="${guest.host.firstName},${guest.host.lastName}" var="host"/></c:otherwise>
+								</c:choose>
+								
 								<div class="form-group" data-default-value='${userRight}' data-trick-email="${email}" data-name='${name}' data-index='${status.index + 1}' title="${host}">
 									<div class="col-xs-5">
 										<strong style="vertical-align: middle;">${fn:toLowerCase(email)}</strong>
@@ -104,7 +110,7 @@
 											<label class="btn btn-sm btn-default ${userRight=='EXPORT'?'active':''}">${rightExport}<input ${userRight=='EXPORT'?'checked':''} name="${name}" type="radio"
 												value="EXPORT"></label> <label class="btn btn-sm btn-default ${userRight=='MODIFY'?'active':''}">${rightModify}<input ${userRight=='MODIFY'?'checked':''}
 												name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default ${userRight=='READ'?'active':''}">${rightRead}<input
-												${userRight=='READ'?'checked':''} name="${name}" type="radio" value="READ"></label> <label class="btn btn-sm btn-danger ${empty userRight?'active':''}"><i class='fa fa-trash-o'></i> ${cancel}<input
+												${userRight=='READ'?'checked':''} name="${name}" type="radio" value="READ"></label> <label class="btn btn-sm btn-warning ${empty userRight?'active':''}"><i class='fa fa-ban'></i> ${cancel}<input
 												${empty userRight?'checked':''} name="${name}" type="radio" value="">
 											</label>
 										</div>
@@ -129,6 +135,7 @@
 				</button>
 			</div>
 			<div id='template-invitation' class="hidden">
+				
 				<div class="form-group" data-default-value='' data-trick-email="" data-name='guest-0' data-status="new">
 					<div class="col-xs-5">
 						<input class="form-control" type="email" style="height: 29.133px;">
@@ -138,7 +145,7 @@
 							<label class="btn btn-sm btn-default active">${rightAll}<input checked="checked" name="guest-0" type="radio" value="ALL"></label> <label
 								class="btn btn-sm btn-default">${rightExport}<input name="guest-0" type="radio" value="EXPORT"></label> <label class="btn btn-sm btn-default">${rightModify}<input
 								name="guest-0" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default">${rightRead}<input name="guest-0" type="radio" value="READ"></label>
-							<label class="btn btn-sm btn-danger"><i class='fa fa-trash-o'></i> ${cancel}<input name="guest-0" type="radio" value="">
+							<label class="btn btn-sm btn-danger"><i class='fa fa-trash-o'></i> <spring:message code='label.action.delete'/><input name="guest-0" type="radio" value="">
 							</label>
 						</div>
 					</div>

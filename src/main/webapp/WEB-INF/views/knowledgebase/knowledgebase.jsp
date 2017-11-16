@@ -19,7 +19,6 @@
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container" data-ug-root="knowledgebase">
-			<jsp:include page="../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top nav-tab">
 				<li class="active"><a href="#tab-customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>

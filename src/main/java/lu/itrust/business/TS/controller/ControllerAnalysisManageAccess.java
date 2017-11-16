@@ -3,7 +3,10 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -32,8 +36,10 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisRightForm;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ControllerManageAccess.java: <br>
@@ -66,6 +72,23 @@ public class ControllerAnalysisManageAccess {
 	@Autowired
 	private ServiceCustomer serviceCustomer;
 
+	@GetMapping("/{token}/Accept")
+	public String acceptInvitation(@PathVariable String token, Principal principal, RedirectAttributes attributes, Locale locale) {
+		try {
+			if (serviceAnalysisShareInvitation.exists(token)) {
+				manageAnalysisRight.acceptInvitation(principal, token);
+				attributes.addFlashAttribute("success", messageSource.getMessage("success.accept.invitation", null, "Access has been successfully granted", locale));
+			} else
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.accept.invitation.token.not.found", null, "Token has already been used or cancelled", locale));
+		} catch (TrickException e) {
+			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+		}
+		return "redirect:/Analysis/All";
+	}
+
 	/**
 	 * manageaccessrights: <br>
 	 * Description
@@ -79,10 +102,13 @@ public class ControllerAnalysisManageAccess {
 	@RequestMapping("/{analysisID}")
 	@PreAuthorize("@permissionEvaluator.hasManagementPermission(#analysisID, #principal)")
 	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, HttpSession session) throws Exception {
-		Analysis analysis = serviceAnalysis.get(analysisID);
+		final Analysis analysis = serviceAnalysis.get(analysisID);
+		final Map<User, AnalysisRight> userRights = new LinkedHashMap<>();
+		analysis.getUserRights().stream().sorted(userRightComparator() ).forEach(userRight -> userRights.put(userRight.getUser(), userRight.getRight()));
+		serviceCustomer.findUserByCustomer(analysis.getCustomer()).stream().filter(user -> !userRights.containsKey(user)).forEach(user -> userRights.put(user, null));
 		model.addAttribute("isAdmin", false);
 		model.addAttribute("analysis", analysis);
-		model.addAttribute("userrights", analysis.getUserRights().stream().collect(Collectors.toMap(UserAnalysisRight::getUser, UserAnalysisRight::getRight)));
+		model.addAttribute("userrights", userRights);
 		model.addAttribute("invitations", serviceAnalysisShareInvitation.findByAnalysisId(analysisID));
 		model.addAttribute("ownerId", analysis.getOwner().getId());
 		model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
@@ -115,21 +141,16 @@ public class ControllerAnalysisManageAccess {
 		}
 	}
 
-	@GetMapping("/{token}/Accept")
-	public String acceptInvitation(@PathVariable String token, Principal principal, RedirectAttributes attributes, Locale locale) {
-		try {
-			if (serviceAnalysisShareInvitation.exists(token)) {
-				manageAnalysisRight.acceptInvitation(principal, token);
-				attributes.addFlashAttribute("success", messageSource.getMessage("success.accept.invitation", null, "Access has been successfully granted", locale));
-			} else
-				attributes.addFlashAttribute("error", messageSource.getMessage("error.accept.invitation.token.not.found", null, "Token has already been used or cancelled", locale));
-		} catch (TrickException e) {
-			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
-		}
-		return "redirect:/Analysis/All";
+	private Comparator<? super UserAnalysisRight> userRightComparator() {
+		return (u1, u2) ->{
+			int result = NaturalOrderComparator.compareTo(u1.getUser().getFirstName(), u2.getUser().getFirstName());
+			if(result == 0) {
+				result = NaturalOrderComparator.compareTo(u1.getUser().getLastName(), u2.getUser().getLastName());
+				if(result == 0)
+					result = NaturalOrderComparator.compareTo(u1.getUser().getEmail(), u2.getUser().getEmail());
+			}
+			return result;
+		};
 	}
 
 }

@@ -9,6 +9,7 @@
 		fixedOffset : 0,
 		leftOffset : 0,
 		marginTop : 0,
+		paddingTop : 10,
 		zindex : 3,
 		setStylesOnce : true,
 		scrollStartFixMulti : 1.09,
@@ -205,10 +206,9 @@
 														'position' : 'fixed',
 														'margin-top' : base.options.marginTop,
 														'left' : base.leftOffset,
-														'z-index' : base.options.zindex, // #18:
-																							// opacity
-																							// bug
-														'background-color' : base.options.backgroundColor
+														'z-index' : base.options.zindex,
+														'background-color' : base.options.backgroundColor,
+														'padding-top' : base.options.paddingTop
 													});
 
 													base.leftOffset = newLeft;
@@ -230,7 +230,7 @@
 												}
 
 											} else if (base.isSticky) {
-												base.$originalHeader.css('position', 'static');
+												base.$originalHeader.css({'position' : 'static', 'padding-top' : ''});
 												base.$clonedHeader.css('display', 'none');
 												base.isSticky = false;
 												base.resetWidth($('td,th', base.$clonedHeader), $('td,th', base.$originalHeader));

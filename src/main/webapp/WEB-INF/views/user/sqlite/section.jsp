@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="col-md-9" id="section_sqlite">
+<div class="col-md-9 col-lg-10" id="section_sqlite">
 	<table class="table table-hover table-condensed">
 		<thead>
 			<tr>

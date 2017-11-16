@@ -13,7 +13,6 @@
 	<div id="wrap" class="wrap">
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container" data-ug-root="account">
-			<jsp:include page="../template/successErrors.jsp" />
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
 				<li class="active"><a href="#tab-profile" data-toggle="tab"><spring:message code="label.menu.profile" text="My Profile" /></a></li>
 				<li><a href="#tab-invitation" data-toggle="tab"><spring:message code="label.menu.invitation" text="My invitation" /></a></li>

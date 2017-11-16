@@ -18,7 +18,7 @@
 		<jsp:include page="../../template/menu.jsp" />
 		<!-- ################################################################### Content #################################################################### -->
 		<div class="container trick-container max-height" data-ug-root="risk-evolution">
-			<fieldset class="col-lg-3 max-height affixNav " style="overflow-x: hidden; padding-right: 16px; margin-top: 17px;" role="left-menu">
+			<fieldset class="col-md-3 col-lg-2 max-height affixNav nav-left-affix" style="overflow-x: hidden; padding-right: 16px;" role="left-menu">
 				<legend>${title}</legend>
 				<div class='form form-horizontal'>
 					<div class="form-group">
@@ -74,7 +74,7 @@
 				</div>
 				<div class='clearfix'></div>
 			</fieldset>
-			<div class="col-md-9 wrap">
+			<div class="col-md-9 col-lg-10 wrap">
 				<ul class="nav nav-tabs nav-tab risk-evolution col-xs-12" role='nav-tabs'>
 					<li class='active' data-type='QUANTITATIVE'><a id="heading-total-aLE" role='tab' role='button' data-toggle='tab' href="#tab-total-ale"> <spring:message
 								code='label.title.total_ale' text="Total ALE" />

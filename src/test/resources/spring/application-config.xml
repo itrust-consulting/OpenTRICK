@@ -14,8 +14,8 @@
 
 	<context:annotation-config />
 
-	<mvc:annotation-driven>
-		<mvc:async-support default-timeout="900000" />
+	<mvc:annotation-driven ignore-default-model-on-redirect="true">
+		<mvc:async-support default-timeout="900000"/>
 	</mvc:annotation-driven>
 
 	<context:component-scan base-package="lu.itrust.business" />

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ServiceCustomerImpl.java: <br>
@@ -273,7 +274,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 
 	@Override
 	public boolean hasAccess(Integer idUser, Customer customer) {
-		// TODO Auto-generated method stub
 		return daoCustomer.hasAccess(idUser, customer);
+	}
+
+	@Override
+	public List<User> findUserByCustomer(Customer customer) {
+		return daoCustomer.findUserByCustomer(customer);
 	}
 }
