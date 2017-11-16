@@ -121,7 +121,7 @@
                                   <p style="margin-top:5px;">
 									${firstName} ${lastName} wants to share a new risk analysis with you.<br>
 									Please find here a link to accept request: <br><a href="${accept}">${accept}</a><br>
-									You can also decline invitation via following URL: <br><a href="${accept}">${accept}</a><br>
+									You can also decline invitation via following URL: <br><a href="${reject}">${reject}</a><br>
 									IMPORTANT: Because fraudulent ("phishing") e-mail often uses misleading links, we recommend you to not click links in e-mail, but instead copy and paste them into your browsers, as described above.
 									If you are not the originator of the queries, please ignore this message.
 									This is an automatically generated message, please do not reply to it.

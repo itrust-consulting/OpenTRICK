@@ -118,7 +118,7 @@
 								</div>
 							</c:forEach>
 							<div class='form-group text-center' id="btn-container" >
-								<button style="padding: 0; margin: 0;" name="invite" class='btn btn-link' title='<spring:message code="label.action.add" />'>
+								<button style="padding: 0; margin: 0;" name="invite" class='btn btn-link' title='<spring:message code="label.action.invite" />'>
 									<i class='fa fa-2x fa-plus-circle'></i>
 								</button>
 							</div>

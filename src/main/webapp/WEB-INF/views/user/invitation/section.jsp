@@ -15,7 +15,7 @@
 				<th width="5%"><spring:message code="label.analysis.version" text="Version" /></th>
 				<th><spring:message code="label.analysis.description" text="Description" /></th>
 				<th width="5%"><spring:message code="label.analysis.right" text="Access" /></th>
-				<th width="5%"><spring:message code="label.action" /></th>
+				<th width="10%" style="min-width: 100px;"><spring:message code="label.action" /></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -27,10 +27,10 @@
 					<td><spring:message text="${invitation.analysis.version}" /></td>
 					<td data-trick-content='text'><spring:message text="${invitation.analysis.lastHistory.comment}" /></td>
 					<td><spring:message code="label.analysis.right.${fn:toLowerCase(invitation.right)}" text="${fn:replace(invitation.right,'_', ' ')}" /></td>
-					<td><a class="btn btn-primary" href="${pageContext.request.contextPath}/Account/Invitation/${invitation.id}/Accept" onclick="return acceptInvitation('${invitation.id}')"
+					<td><div class='btn-group' style="display: inline-block;"><a class="btn btn-primary" href="${pageContext.request.contextPath}/Account/Invitation/${invitation.id}/Accept" onclick="return acceptInvitation('${invitation.id}')"
 						title='<spring:message code="label.action.accept" />'><i class="fa fa-check-square-o"></i></a> <a class="btn btn-danger"
 						href="${pageContext.request.contextPath}/Account/Invitation/${invitation.id}/Reject" onclick="return rejectInvitation('${invitation.id}')"
-						title='<spring:message code="label.action.reject" />'><i class="fa fa-ban"></i></a></td>
+						title='<spring:message code="label.action.reject" />'><i class="fa fa-ban"></i></a></div> </td>
 				</tr>
 			</c:forEach>
 		</tbody>

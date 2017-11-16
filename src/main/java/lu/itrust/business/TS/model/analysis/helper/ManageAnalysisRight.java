@@ -133,7 +133,7 @@ public class ManageAnalysisRight {
 
 		rightsForm.getUserRights().forEach((userId, rightForm) -> {
 			User user = daoUser.get(userId);
-			if (user != null)
+			if (user == null)
 				return;
 			if (rightForm.getNewRight() == null)
 				removeRight(principal, analysis, user);

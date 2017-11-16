@@ -72,27 +72,27 @@
 		<jsp:include page="./components/widgets.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
-	<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js" />"></script>
-	<script src="<spring:url value="/js/chartjs/plugins.js" />"></script>
-	<script src="<spring:url value="/js/chartjs/Chart.HeatMap.js" />"></script>
-	<script src="<spring:url value="/js/bootstrap/bootstrap-slider.min.js" />"></script>
-	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/analysis.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/fieldeditor.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/scenario.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/phase.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrfManager.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrf.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-measure.js" />"></script>
+	<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/chartjs/plugins.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/chartjs/Chart.HeatMap.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/bootstrap/bootstrap-slider.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/analysis.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/fieldeditor.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/scenario.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/phase.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrfManager.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrf.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-measure.js?version=${jsVersion}" />"></script>
 	<c:if test="${!isProfile}">
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/risk-estimation.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/risk-estimation.js?version=${jsVersion}" />"></script>
 		<c:if test="${type.qualitative}" >
-			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
+			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js?version=${jsVersion}" />"></script>
 			<script type="text/javascript">
 				<!-- 
 					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}};

@@ -114,8 +114,8 @@ function updateAnalysisAccess(e) {
 	};
 
 	$modal.find(".form-group[data-trick-id][data-default-value]").each(function () {
-		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
-		if (newRight != oldRight) {
+		var $this = $(this), $selected = $this.find("input[type='radio']:checked") , newRight = $selected.val(), oldRight = $this.attr("data-default-value");
+		if ($selected.length && newRight != oldRight) {
 			data.userRights[$this.attr("data-trick-id")] = {
 				oldRight: oldRight == "" ? undefined : oldRight,
 				newRight: newRight == "" ? undefined : newRight
@@ -124,7 +124,7 @@ function updateAnalysisAccess(e) {
 	});
 	
 	
-	$modal.find(".form-group[data-trick-email][data-default-value]:visible").each(function () {
+	$modal.find(".form-group[data-trick-email][data-default-value][data-index]:visible").each(function () {
 		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
 		if (newRight != oldRight) {
 			data.invitations[$this.attr("data-trick-email")] = {

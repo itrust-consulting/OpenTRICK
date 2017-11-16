@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
+import java.security.SecureRandom;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,9 +34,21 @@ public class GlobalControllerAdvice {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
-	
+
 	@Autowired
 	private ServiceAnalysisShareInvitation serviceAnalysisShareInvitation;
+
+	private final SecureRandom secureRandom = new SecureRandom();
+
+	private final long imageVersion = secureRandom.nextLong();
+
+	private long jsVersion = secureRandom.nextLong();
+
+	private long cssVersion = secureRandom.nextLong();
+
+	private long fontVersion = secureRandom.nextLong();
+
+	private long staticVersion = secureRandom.nextLong();
 
 	@ModelAttribute
 	public void globalAttributes(Model model, Principal principal) {
@@ -47,6 +60,12 @@ public class GlobalControllerAdvice {
 			}
 			model.addAttribute("analysisSharedCount", serviceAnalysisShareInvitation.countByUsername(principal.getName()));
 		}
+
+		model.addAttribute("jsVersion", jsVersion);
+		model.addAttribute("cssVersion", cssVersion);
+		model.addAttribute("fontVersion", fontVersion);
+		model.addAttribute("imageVersion", imageVersion);
+		model.addAttribute("staticVersion", staticVersion);
 	}
 
 	@ExceptionHandler(value = Exception.class)

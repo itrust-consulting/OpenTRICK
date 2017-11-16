@@ -2,24 +2,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<script src="<spring:url value="/js/jquery-2.2.4.min.js" />"></script>
-<script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
+<script src="<spring:url value="/js/jquery-2.2.4.min.js?version=${jsVersion}" />"></script>
+<script src="<spring:url value="/js/bootstrap/bootstrap.min.js?version=${jsVersion}" />"></script>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
-	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js" />"></script>
-	<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
-	<script src="<spring:url value="/js/dom-parser.js" />"></script>
-	<script src="<spring:url value="/js/naturalSort.js" />"></script>
-	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
-	<script src="<spring:url value="/js/jquery.idle.js" />"></script>
-	<script src="<spring:url value="/js/main.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/progressbar.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/modal.js" />"></script>
+	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/jquery-ui.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/dom-parser.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/naturalSort.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/jquery.idle.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/main.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/reloadSection.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/taskmanager.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/progressbar.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/modal.js?version=${jsVersion}" />"></script>
 	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
-		<script src="<spring:url value="/js/trickservice/patch.js" />"></script>
+		<script src="<spring:url value="/js/trickservice/patch.js?version=${jsVersion}" />"></script>
 	</sec:authorize>
-	<script src="<spring:url value="/js/trickservice/profile.js" />"></script>
+	<script src="<spring:url value="/js/trickservice/profile.js?version=${jsVersion}" />"></script>
 	
 	<script type="text/javascript">
 	<!--
@@ -55,5 +55,5 @@
 	</script>
 </sec:authorize>
 <sec:authorize access="hasRole('ROLE_PRE_AUTHEN')">
-	<script src="<spring:url value="/js/trickservice/otp.js" />"></script>
+	<script src="<spring:url value="/js/trickservice/otp.js?version=${jsVersion}" />"></script>
 </sec:authorize>
