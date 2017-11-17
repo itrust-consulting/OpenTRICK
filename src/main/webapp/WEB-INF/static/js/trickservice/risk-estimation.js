@@ -621,6 +621,7 @@ function computeAssessment(silent) {
 					riskEstimationUpdate();
 					reloadAssetScenario();
 					reloadAssetScenarioChart();
+					reloadSection("section_riskregister");
 				} else
 					unknowError();
 				return false;
@@ -651,6 +652,7 @@ function refreshAssessment() {
 						riskEstimationUpdate();
 						reloadAssetScenario();
 						reloadAssetScenarioChart();
+						reloadSection("section_riskregister");
 					} else
 						unknowError();
 					return false;

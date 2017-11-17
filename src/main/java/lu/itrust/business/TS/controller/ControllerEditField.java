@@ -690,9 +690,7 @@ public class ControllerEditField {
 				riskProfile.setRiskStrategy(RiskStrategy.valueOf(fieldEditor.getValue().toString()));
 			else if (field.getName().equals("identifier")) {
 				String identifier = fieldEditor.getValue() == null ? "" : fieldEditor.getValue().toString().trim();
-				if (identifier.isEmpty())
-					return Result.Error(messageSource.getMessage("error.identifier.null", null, "Identifier cannot be empty", locale));
-				else if (serviceRiskProfile.isUsed(identifier, idAnalysis))
+				if (!identifier.isEmpty() && serviceRiskProfile.isUsed(identifier, idAnalysis))
 					return Result.Error(messageSource.getMessage("error.identifier.is_in_used", null, "Identifier are not available", locale));
 				else
 					riskProfile.setIdentifier(identifier);

@@ -136,7 +136,7 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOAnalysisShareInvitation daoAnalysisShareInvitation;
-	
+
 	@Autowired
 	private DAOEmailValidatingRequest daoEmailValidatingRequest;
 
@@ -149,12 +149,12 @@ public class CustomDelete {
 		if (analyses.stream().anyMatch(analysis -> analysis.hasData()))
 			return;
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
-		for (Analysis analysis : analyses) 
+		for (Analysis analysis : analyses)
 			deleteAnalysisProcess(analysis, username);
 	}
 
 	@Transactional
-	public void delete(MeasureDescription measureDescription) throws Exception {
+	public void delete(MeasureDescription measureDescription) {
 		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
 		while (iterator.hasNext()) {
 			MeasureDescriptionText descriptionText = iterator.next();
@@ -257,15 +257,8 @@ public class CustomDelete {
 		});
 
 		daoMeasure.delete(measure);
-
-		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
-		while (iterator.hasNext()) {
-			MeasureDescriptionText descriptionText = iterator.next();
-			iterator.remove();
-			descriptionText.setMeasureDescription(null);
-			daoMeasureDescriptionText.delete(descriptionText);
-		}
-		daoMeasureDescription.delete(measureDescription);
+		
+		delete(measureDescription);
 	}
 
 	private void deleteAnalysisProcess(Analysis analysis, String username) {
@@ -295,6 +288,7 @@ public class CustomDelete {
 			throw new TrickException("error.asset.not_found", "Asset cannot be found");
 		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(asset), analysis.removeRiskProfile(asset));
 		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
+		analysis.getAssets().remove(asset);
 		daoAsset.delete(asset);
 	}
 
@@ -345,6 +339,7 @@ public class CustomDelete {
 			throw new TrickException("error.scenario.not_found", "Scenario cannot be found");
 
 		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(scenario), analysis.removeRiskProfile(scenario));
+		analysis.getScenarios().remove(scenario);
 		daoScenario.delete(scenario);
 	}
 

@@ -131,7 +131,7 @@ public class RiskProfile implements Cloneable {
 	 *            the identifier to set
 	 */
 	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
+		this.identifier = identifier == null || identifier.isEmpty() ? null : identifier;
 	}
 
 	/**
@@ -352,9 +352,9 @@ public class RiskProfile implements Cloneable {
 	}
 
 	public void remove(ScaleType scaleType) {
-		if(rawProbaImpact!=null)
+		if (rawProbaImpact != null)
 			rawProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
-		if(expProbaImpact!=null)
+		if (expProbaImpact != null)
 			expProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
 	}
 
