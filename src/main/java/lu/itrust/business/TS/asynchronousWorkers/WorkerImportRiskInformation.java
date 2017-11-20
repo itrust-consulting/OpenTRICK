@@ -246,7 +246,9 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 			for (int i = address.getBegin().getRow() + 1; i < size; i++) {
 				int colIndex = 0;
+				
 				Row row = sheet.getRow().get(i);
+				
 				String chapter = getString(row, colIndex++, sharedStrings);
 				
 				if (StringUtils.isEmpty(chapter))
@@ -285,7 +287,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				}
 
 				if (mapper[0].equals(RI_TYPE_THREAT))
-					riskInformation.setAcronym(getString(row.getC().get(colIndex++), sharedStrings));
+					riskInformation.setAcronym(getString(row,colIndex++, sharedStrings));
 
 				String exposed = getString(row, colIndex++, sharedStrings);
 				if (StringUtils.isEmpty(exposed))
