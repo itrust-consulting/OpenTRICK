@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,10 +29,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
+import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceIDS;
@@ -53,8 +58,10 @@ import lu.itrust.business.TS.model.api.basic.ApiRRF;
 import lu.itrust.business.TS.model.api.basic.ApiScenario;
 import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.rrf.RRF;
@@ -100,6 +107,9 @@ public class ControllerApi {
 	private ServiceAsset serviceAsset;
 
 	@Autowired
+	private ServiceAssetType serviceAssetType;
+
+	@Autowired
 	private ServiceScenario serviceScenario;
 
 	@Autowired
@@ -107,6 +117,15 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceIDS serviceIDS;
+
+	@Autowired
+	private CustomDelete customDelete;
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	/**
 	 * Method is called whenever an exception of type TrickException is thrown
@@ -247,6 +266,76 @@ public class ControllerApi {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
 		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/new-asset", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object createAnalysisAsset(@PathVariable Integer idAnalysis, @RequestParam(name = "name") String assetName, @RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+		try {
+			if (serviceAnalysis.isProfile(idAnalysis))
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			Asset asset = new Asset();
+			asset.setName(assetName);
+			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+			asset.setSelected(false);
+
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			analysis.add(asset);
+			serviceAnalysis.saveOrUpdate(analysis);
+
+			assessmentAndRiskProfileManager.unSelectAsset(asset);
+			assessmentAndRiskProfileManager.build(asset, idAnalysis);
+
+			return JsonMessage.SuccessWithId(asset.getId());
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets/{idAsset}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object editAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, @RequestParam(name = "name") String assetName, @RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+		try {
+			if (serviceAnalysis.isProfile(idAnalysis))
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, idAsset);
+			asset.setName(assetName);
+			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+
+			serviceAsset.saveOrUpdate(asset);
+
+			assessmentAndRiskProfileManager.build(asset, idAnalysis);
+
+			return JsonMessage.SuccessWithId(asset.getId());
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets/{idAsset}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.DELETE)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object deleteAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, Principal principal, Locale locale) throws Exception {
+		try {
+			customDelete.deleteAsset(idAsset, idAnalysis);
+			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+		}
 	}
 
 	/**
