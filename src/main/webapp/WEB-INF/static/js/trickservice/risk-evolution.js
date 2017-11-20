@@ -7,6 +7,8 @@ $(document).ready(function () {
 		analyses: [],
 		size: $versions.length
 	};
+	
+	$('ul.nav.risk-evolution a[data-toggle="tab"]').on('shown.bs.tab', resetSaveSettingsTimeout);
 
 	$("#type-selector").on("change keyup", (e) => {
 		analysisType = e.target.value;
@@ -89,7 +91,7 @@ $(document).ready(function () {
 
 		resetSaveSettingsTimeout();
 	});
-
+	
 	restoreSettings();
 
 });

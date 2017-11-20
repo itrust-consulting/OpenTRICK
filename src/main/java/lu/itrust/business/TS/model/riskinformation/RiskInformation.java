@@ -78,15 +78,12 @@ public class RiskInformation implements Cloneable {
 
 	@Column(name = "dtOwner")
 	private String owner = "";
-	
-	
+
 	/**
 	 * 
 	 */
 	public RiskInformation() {
 	}
-	
-	
 
 	/**
 	 * @param chapter
@@ -98,8 +95,6 @@ public class RiskInformation implements Cloneable {
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
-
-	
 
 	/**
 	 * @return the owner
@@ -113,7 +108,7 @@ public class RiskInformation implements Cloneable {
 	 *            the owner to set
 	 */
 	public void setOwner(String owner) {
-		this.owner = owner;
+		this.owner = cleanUpValue(owner);
 	}
 
 	/**
@@ -134,7 +129,11 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Acronym
 	 */
 	public void setAcronym(String acro) {
-		this.acronym = acro;
+		this.acronym = cleanUpValue(acro);
+	}
+
+	private String cleanUpValue(String value) {
+		return value == null? "" : value.trim();
 	}
 
 	/**
@@ -155,7 +154,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Label
 	 */
 	public void setLabel(String label) {
-		this.label = label;
+		this.label = cleanUpValue(label);
 	}
 
 	/**
@@ -176,7 +175,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Exposed value
 	 */
 	public void setExposed(String expo) {
-		this.exposed = expo;
+		this.exposed = cleanUpValue(expo);
 	}
 
 	/**
@@ -197,7 +196,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Comment
 	 */
 	public void setComment(String comment) {
-		this.comment = comment;
+		this.comment = cleanUpValue(comment);
 	}
 
 	/**
@@ -218,7 +217,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Hidden Comment
 	 */
 	public void setHiddenComment(String hiddenComment) {
-		this.hiddenComment = hiddenComment;
+		this.hiddenComment = cleanUpValue(hiddenComment);
 	}
 
 	/**
@@ -263,7 +262,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Chapter
 	 */
 	public void setChapter(String chapter) {
-		this.chapter = chapter;
+		this.chapter = cleanUpValue(chapter);
 	}
 
 	/**

@@ -246,11 +246,11 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 			for (int i = address.getBegin().getRow() + 1; i < size; i++) {
 				int colIndex = 0;
-				
+
 				Row row = sheet.getRow().get(i);
-				
+
 				String chapter = getString(row, colIndex++, sharedStrings);
-				
+
 				if (StringUtils.isEmpty(chapter))
 					emptyCellError(mapper[1], i, colIndex);
 				else if (chapterIndexer.containsKey(chapter))
@@ -278,7 +278,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				if (!riskInformation.isCustom() && riskInformation.getId() > 0) {
 					String label = getOrignalLabel(locale, riskInformation);
 					if (!label.trim().equals(name.trim())) {
-						riskInformation.setLabel(name.trim());
+						riskInformation.setLabel(name);
 						riskInformation.setCustom(true);
 					}
 				} else {
@@ -287,34 +287,19 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				}
 
 				if (mapper[0].equals(RI_TYPE_THREAT))
-					riskInformation.setAcronym(getString(row,colIndex++, sharedStrings));
+					riskInformation.setAcronym(getString(row, colIndex++, sharedStrings));
 
 				String exposed = getString(row, colIndex++, sharedStrings);
-				if (StringUtils.isEmpty(exposed))
-					riskInformation.setExposed("");
-				else if (exposurePattern.matcher(exposed.trim()).matches())
-					riskInformation.setExposed(exposed.trim());
+				if (StringUtils.isEmpty(exposed) || exposurePattern.matcher(exposed.trim()).matches())
+					riskInformation.setExposed(exposed);
 				else
 					errorInvalidValue(mapper[0], i, colIndex);
 
-				String owner = getString(row, colIndex++, sharedStrings);
-				if (StringUtils.isEmpty(owner))
-					riskInformation.setOwner("");
-				else
-					riskInformation.setOwner(owner.trim());
+				riskInformation.setOwner(getString(row, colIndex++, sharedStrings));
 
-				String comment = getString(row, colIndex++, sharedStrings);
+				riskInformation.setComment(getString(row, colIndex++, sharedStrings));
 
-				if (StringUtils.isEmpty(comment))
-					riskInformation.setComment("");
-				else
-					riskInformation.setComment(comment.trim());
-
-				String commentHidden = getString(row, colIndex++, sharedStrings);
-				if (StringUtils.isEmpty(commentHidden))
-					riskInformation.setHiddenComment("");
-				else
-					riskInformation.setHiddenComment(commentHidden.trim());
+				riskInformation.setHiddenComment(getString(row, colIndex++, sharedStrings));
 
 				messageHandler.setProgress(minProgress + ((i / size) * maxProgress));
 			}

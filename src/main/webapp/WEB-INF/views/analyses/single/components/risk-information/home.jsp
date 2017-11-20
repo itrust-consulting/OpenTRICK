@@ -27,7 +27,7 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${isEditable}">
-								<a href="#" class="btn btn-xs btn-link pull-right" onclick="return manageBrainstorming('${category}');"><span class="glyphicon glyphicon-cog"></span> <spring:message
+								<a href="#" class="btn btn-xs btn-link pull-right" onclick="return manageBrainstorming('${category}');" style="margin-top: -0.1px;"><span class="glyphicon glyphicon-cog"></span> <spring:message
 										code="label.action.manage" /> </a>
 								<a href='#' onclick="return importRiskInformationForm();" class="btn btn-xs btn-link pull-right"><span class="glyphicon glyphicon-import"></span> <spring:message
 											code="label.action.import" /> </a>
