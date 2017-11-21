@@ -24,7 +24,7 @@ public class AsyncResult {
 
 	private String message;
 
-	private AsyncCallback asyncCallback = null;
+	private AsyncCallback [] asyncCallbacks = null;
 
 	private int progress = 0;
 
@@ -147,16 +147,16 @@ public class AsyncResult {
 	/**
 	 * @return the asyncCallback
 	 */
-	public AsyncCallback getAsyncCallback() {
-		return asyncCallback;
+	public AsyncCallback [] getAsyncCallbacks() {
+		return asyncCallbacks;
 	}
 
 	/**
 	 * @param asyncCallback
 	 *            the asyncCallback to set
 	 */
-	public void setAsyncCallback(AsyncCallback asyncCallback) {
-		this.asyncCallback = asyncCallback;
+	public void setAsyncCallbacks(AsyncCallback... asyncCallbacks) {
+		this.asyncCallbacks = asyncCallbacks;
 	}
 
 	/**

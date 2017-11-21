@@ -16,6 +16,8 @@
 	<script src="<spring:url value="/js/trickservice/taskmanager.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/trickservice/progressbar.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/trickservice/modal.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/web-socket/sockjs.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/web-socket/stomp.min.js?version=${jsVersion}" />"></script>
 	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 		<script src="<spring:url value="/js/trickservice/patch.js?version=${jsVersion}" />"></script>
 	</sec:authorize>

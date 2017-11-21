@@ -167,8 +167,8 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			transaction.commit();
 
 			MessageHandler messageHandler = new MessageHandler("success.import.risk.information", "Brainstorming was successfully imported", 100);
-			messageHandler
-					.setAsyncCallback(new AsyncCallback("reloadSection(['section_risk-information_risk','section_risk-information_vul','section_risk-information_threat']);"));
+			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_risk-information_risk"),
+					new AsyncCallback("reloadSection", "section_risk-information_vul"), new AsyncCallback("reloadSection", "section_risk-information_threat"));
 
 			serviceTaskFeedback.send(getId(), messageHandler);
 			/**

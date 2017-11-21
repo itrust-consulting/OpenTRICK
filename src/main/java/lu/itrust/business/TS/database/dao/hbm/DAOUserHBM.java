@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.model.general.Customer;
@@ -254,5 +255,11 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	public List<User> getAll(Collection<Integer> ids) {
 		return ids.isEmpty() ? Collections.emptyList()
 				: getSession().createQuery("From User where id in :ids", User.class).setParameterList("ids", ids).getResultList();
+	}
+
+	@Override
+	public String findLocaleByUsername(String username) {
+		System.out.println(getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResult());
+		return getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResultOptional().filter(value -> !StringUtils.isEmpty(value)).orElse("en");
 	}
 }

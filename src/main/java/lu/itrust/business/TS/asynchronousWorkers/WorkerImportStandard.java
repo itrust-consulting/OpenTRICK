@@ -129,7 +129,7 @@ public class WorkerImportStandard implements Worker {
 
 			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
 
-			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_kb_standard"));
+			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_kb_standard"));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**
 			 * Log

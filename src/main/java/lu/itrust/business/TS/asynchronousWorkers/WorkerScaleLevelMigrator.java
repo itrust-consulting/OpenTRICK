@@ -134,7 +134,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			processing();
 			session.getTransaction().commit();
 			MessageHandler handler = new MessageHandler("success.scale.level.migrate", "Scale level has been successfully migrated", 100);
-			handler.setAsyncCallback(new AsyncCallback("location.reload()"));
+			handler.setAsyncCallbacks(new AsyncCallback("reload"));
 			serviceTaskFeedback.send(getId(), handler);
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));

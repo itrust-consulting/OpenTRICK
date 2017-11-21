@@ -219,7 +219,7 @@ public class WorkerExportAnalysis implements Worker {
 			daoUserSqLite.saveOrUpdate(userSqLite);
 			transaction.commit();
 			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqLite", userSqLite.getId()));
+			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Sqlite" ,  userSqLite.getId()));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**
 			 * Log

@@ -163,8 +163,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, serviceTaskFeedback, getId(), analysis, analysisStandards,
-					this.uncertainty, this.messageSource);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, serviceTaskFeedback, getId(), analysis, analysisStandards, this.uncertainty,
+					this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				MessageHandler messageHandler = null;
 				if (analysis.isHybrid()) {
@@ -178,13 +178,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				daoAnalysis.saveOrUpdate(analysis);
 				session.getTransaction().commit();
 				messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
-				if (reloadSection) {
-					if (analysis.isHybrid())
-						messageHandler.setAsyncCallback(
-								new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);riskEstimationUpdate(true);"));
-					else
-						messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);"));
-				}
+				if (reloadSection)
+					messageHandler.setAsyncCallbacks(communsCallback(analysis.isHybrid()));
 				serviceTaskFeedback.send(getId(), messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			} else
@@ -234,6 +229,17 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		}
 	}
 
+	private AsyncCallback[] communsCallback(boolean isHybrid) {
+		AsyncCallback[] callbacks = new AsyncCallback[isHybrid ? 5 : 4];
+		callbacks[0] = new AsyncCallback("reloadSection", "section_actionplans");
+		callbacks[1] = new AsyncCallback("reloadSection", "section_summary");
+		callbacks[2] = new AsyncCallback("reloadSection", "section_soa");
+		callbacks[3] = new AsyncCallback("reloadSection", "section_chart");
+		if (isHybrid)
+			callbacks[4] = new AsyncCallback("riskEstimationUpdate", true);
+		return null;
+	}
+
 	private void updateRiskRegister(List<RiskRegisterItem> registerItems) {
 		if (oldRiskRegisters == null || oldRiskRegisters.isEmpty())
 			return;
@@ -260,8 +266,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {

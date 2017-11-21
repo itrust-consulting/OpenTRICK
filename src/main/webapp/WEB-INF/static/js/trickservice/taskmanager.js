@@ -3,33 +3,54 @@ function TaskManager(title) {
 	this.progressBars = [];
 	this.title = title;
 	this.view = null;
+	this.stomp = null;
+	this.disposing = false;
+	this.reconnecting = false;
 
 	TaskManager.prototype.Start = function() {
-		this.Hide();
-		var instance = this;
-		setTimeout(function() {
-			instance.UpdateTaskCount();
-		}, 500);
+		if(!this.stomp){
+			this.__createStompClient();
+			if(this.stomp)
+				this.UpdateTaskCount();
+		}
+		
+		if(!this.stomp){
+			var instance = this;
+			setTimeout(function() {
+				instance.UpdateTaskCount();
+			}, 500);
+		}
 		return this;
 	};
-
-	TaskManager.prototype.UpdateUI = function() {
-	};
-
-	TaskManager.prototype.__CreateView = function() {
-		return this;
+	
+	TaskManager.prototype.__createStompClient = function(){
+		try {
+			var self = this,  socket = new SockJS(context+"/Messaging");
+			this.reconnecting = true;
+			this.stomp = Stomp.over(socket);
+			this.stomp.debug = () => {};
+			this.stomp.connect({}, (e) =>{
+				self.reconnecting = false;
+				self.stomp.subscribe("/User/Task", (message) =>{
+					self.__process(JSON.parse(message.body));
+				});
+			}, (e) => {
+				if(self.disposing || self.reconnecting)
+					return;
+				socket.close();
+				delete this.stomp;
+				delete socket;
+				this.__createStompClient();
+			});
+		} catch (e) {
+			if(this.stomp)
+				delete this.stomp
+			console.log(e);
+		}
 	};
 
 	TaskManager.prototype.SetTitle = function(title) {
 		this.title = title;
-		return this;
-	};
-
-	TaskManager.prototype.Show = function() {
-		return this;
-	};
-
-	TaskManager.prototype.Hide = function() {
 		return this;
 	};
 
@@ -38,6 +59,8 @@ function TaskManager(title) {
 	};
 
 	TaskManager.prototype.Destroy = function() {
+		this.disposing = true;
+		console.log("disposing.....")
 		return true;
 	};
 
@@ -45,22 +68,17 @@ function TaskManager(title) {
 		var instance = this;
 		$.ajax({
 			url : context + "/Task/InProcessing",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
-				if (reponse == null || reponse == "") {
-					instance.Destroy();
+				if (reponse == null || reponse == "")
 					return false;
-				} else if (reponse.length) {
+				else if (reponse.length) {
 					for (var i = 0; i < reponse.length; i++) {
 						if ($.isNumeric(reponse[i]) && !(reponse[i] in instance.tasks)) {
 							instance.tasks.push(reponse[i]);
 							instance.UpdateStatus(reponse[i]);
 						}
 					}
-					instance.UpdateUI();
-					if (!instance.isEmpty())
-						instance.Show();
 				}
 			},
 			error : unknowError
@@ -93,10 +111,55 @@ function TaskManager(title) {
 			this.progressBars[taskId].close();
 			this.progressBars.splice(taskId, 1);
 		}
-		this.UpdateUI();
-		if (this.isEmpty())
-			this.Destroy();
 		return this;
+	};
+	
+	TaskManager.prototype.__process = function(reponse){
+		var instance = this, taskId = reponse.taskID, downloading = false;
+		if (reponse.flag == 3 && !instance.progressBars[taskId])
+			instance.progressBars[taskId] = instance.createProgressBar(taskId, reponse.name? MessageResolver(reponse.name) :  undefined, reponse.message);
+		
+		if (reponse.flag == 3) {
+			if(!instance.stomp){
+				setTimeout(function() {
+					instance.UpdateStatus(taskId);
+				}, 1500);
+			}
+		} else {
+			instance.Remove(taskId);
+			if (reponse.asyncCallbacks) {
+				for (let callback of reponse.asyncCallbacks) {
+					switch (callback.action) {
+					case "download":
+						downloading = true;
+						setTimeout(() => {
+							showStaticDialog("download", MessageResolver("info.download.exported.file") ,MessageResolver(reponse.name),generateDownloadURL(callback.args));
+						}, 600);
+						break;
+					case "reload":
+						setTimeout(() => {location.reload();}, 1500);
+						break;
+					default:
+						if (window[callback.action])
+							window[callback.action].apply(null, callback.args);
+					}
+				}
+			} else if (reponse.action)
+				eval(reponse.action);
+		}
+		
+		if (reponse.message != null) {
+			if (reponse.flag < 3)
+				showDialog("error", reponse.message);
+			else if (reponse.flag == 3) {
+				instance.progressBars[taskId].update('progress', reponse.progress);
+				instance.progressBars[taskId].update('message', reponse.message);
+				if (reponse.name)
+					instance.progressBars[taskId].update('title', MessageResolver(reponse.name));
+			} else if(!downloading)
+				setTimeout(() => {showDialog("success", reponse.message);}, 600);
+		}
+
 	};
 
 	TaskManager.prototype.UpdateStatus = function(taskId) {
@@ -113,41 +176,14 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					return false;
 				}
-
-				if (reponse.flag == 3 && !instance.progressBars[taskId])
-					instance.progressBars[taskId] = instance.createProgressBar(taskId, reponse.name? MessageResolver(reponse.name) :  undefined, reponse.message);
-
-				if (reponse.message != null) {
-					if (reponse.flag < 3)
-						showDialog("error", reponse.message);
-					else if (reponse.flag > 3)
-						showDialog("success", reponse.message);
-					else {
-						instance.progressBars[taskId].update('progress', reponse.progress);
-						instance.progressBars[taskId].update('message', reponse.message);
-						if (reponse.name)
-							instance.progressBars[taskId].update('title', MessageResolver(reponse.name));
-					}
-				}
-
-				if (reponse.flag == 3) {
-					setTimeout(function() {
-						instance.UpdateStatus(taskId);
-					}, 1500);
-				} else {
-					instance.Remove(taskId);
-					if (reponse.asyncCallback) {
-						if (reponse.asyncCallback.args && reponse.asyncCallback.args.length) {
-							if (window[reponse.asyncCallback.action])
-								window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
-						} else
-							eval(reponse.asyncCallback.action);
-					} else if (reponse.action)
-						eval(reponse.action);
-				}
+				instance.__process(reponse);
 				return false;
 			},
 			error : unknowError
 		});
 	};
 };
+
+function generateDownloadURL(data){
+	return context + "/Account/"+data.join("/")+"/Download";
+}

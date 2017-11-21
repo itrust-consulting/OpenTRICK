@@ -172,7 +172,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", 100));
 		if (getAsyncCallback() == null)
 			setAsyncCallback(new AsyncCallback("gotToPage", "/Analysis/All"));
-		getMessageHandler().setAsyncCallback(getAsyncCallback());
+		getMessageHandler().setAsyncCallbacks(getAsyncCallback());
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();
 		String username = importAnalysis.getServiceTaskFeedback().findUsernameById(this.getId());

@@ -5,6 +5,7 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.security.SecureRandom;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 
@@ -50,8 +52,11 @@ public class GlobalControllerAdvice {
 
 	private long staticVersion = secureRandom.nextLong();
 
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
 	@ModelAttribute
-	public void globalAttributes(Model model, Principal principal) {
+	public void globalAttributes(HttpServletRequest request, Model model, Principal principal) {
 		if (principal != null) {
 			TSSetting url = serviceTSSetting.get(TSSettingName.USER_GUIDE_URL);
 			if (url != null) {
@@ -59,6 +64,8 @@ public class GlobalControllerAdvice {
 				model.addAttribute("userGuideURL", url.getString());
 			}
 			model.addAttribute("analysisSharedCount", serviceAnalysisShareInvitation.countByUsername(principal.getName()));
+			if (request.getParameter("lang") != null)
+				serviceTaskFeedback.update(principal.getName(), new Locale(request.getParameter("lang")));
 		}
 
 		model.addAttribute("jsVersion", jsVersion);

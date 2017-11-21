@@ -83,7 +83,7 @@ public class ControllerApi {
 	private DynamicParameterComputer dynamicParameterComputer;
 
 	@Autowired
-	private ThreadPoolTaskScheduler taskScheduler;
+	private ThreadPoolTaskScheduler scheduler;
 
 	@Autowired
 	private WorkersPoolManager poolManager;
@@ -153,7 +153,7 @@ public class ControllerApi {
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been
 		// scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
 
 		serviceIDS.saveOrUpdate(ids);
 
@@ -188,7 +188,7 @@ public class ControllerApi {
 		// whether there are other parameter setters
 		// or external notifications in the database which also impact the value
 		// of the parameter.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
 
 		serviceIDS.saveOrUpdate(ids);
 		// Success

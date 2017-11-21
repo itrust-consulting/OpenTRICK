@@ -286,7 +286,7 @@ public class ControllerRiskInformation {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
 		Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), workFile, messageSource, workersPoolManager, sessionFactory, serviceTaskFeedback);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		file.transferTo(workFile);
 		executor.execute(worker);

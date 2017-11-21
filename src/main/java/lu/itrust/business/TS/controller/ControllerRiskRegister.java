@@ -205,7 +205,7 @@ public class ControllerRiskRegister {
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 		Worker worker = new WorkerExportRiskSheet(cssfExportForm, workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"),
 				analysisId, principal.getName(), messageSource);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task
 		executor.execute(worker);
@@ -219,7 +219,7 @@ public class ControllerRiskRegister {
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 		Worker worker = new WorkerExportRiskRegister(analysisId, principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), sessionFactory, workersPoolManager,
 				serviceTaskFeedback, messageSource);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task
 		executor.execute(worker);

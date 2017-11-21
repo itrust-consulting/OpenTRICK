@@ -390,11 +390,11 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 
-		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
+		notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 
-		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
+		notEmpty(messageHandler.getAsyncCallbacks().getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallback().getArgs().get(0)));
+		put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallbacks().getArgs().get(0)));
 	}
 
 	@Test(dependsOnMethods = "test_04_ExportSQLite")
@@ -451,11 +451,11 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 
-		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
+		notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 
-		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
+		notEmpty(messageHandler.getAsyncCallbacks().getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+		put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallbacks().getArgs().get(0)));
 	}
 
 	@Test(dependsOnMethods = "test_06_ExportReport")

@@ -99,7 +99,7 @@ public class ControllerTask {
 
 				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(), locale));
 				asyncResult.setProgress(messageHandler.getProgress());
-				asyncResult.setAsyncCallback(messageHandler.getAsyncCallback());
+				asyncResult.setAsyncCallbacks(messageHandler.getAsyncCallbacks());
 				if (messageHandler.getException() != null) {
 					asyncResult.setFlag(2);
 					asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", locale));

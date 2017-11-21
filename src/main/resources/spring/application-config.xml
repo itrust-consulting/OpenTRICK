@@ -2,6 +2,7 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:sec="http://www.springframework.org/schema/security"
 	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
@@ -9,13 +10,29 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/aop 
-        http://www.springframework.org/schema/aop/spring-aop.xsd">
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/websocket
+        http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd">
 
 	<context:annotation-config />
 
-	<mvc:annotation-driven ignore-default-model-on-redirect="true" >
+	<mvc:annotation-driven ignore-default-model-on-redirect="true">
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
+	
+	<!-- <websocket:handlers >
+		<websocket:mapping path="/Message/Task" handler="myHandler"/>
+		<websocket:handshake-interceptors>
+			 <bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor"/>
+		</websocket:handshake-interceptors>
+	</websocket:handlers> -->
+	
+	<websocket:message-broker  application-destination-prefix="/Application" user-destination-prefix="/User/">
+		<websocket:stomp-endpoint path="/Messaging">
+			<websocket:sockjs />
+		</websocket:stomp-endpoint>
+		<websocket:simple-broker prefix="/Task"/>
+	</websocket:message-broker>
 
 	<context:component-scan base-package="lu.itrust.business" />
 
@@ -40,7 +57,7 @@
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
-	
+
 	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" cache-period="${app.settings.static.resource.caching.age}" />
 
 	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" cache-period="${app.settings.static.resource.caching.age}" />
@@ -77,7 +94,7 @@
 		</bean>
 
 		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
-			<property name="paramName" value="theme"/> 
+			<property name="paramName" value="theme" />
 		</bean>
 
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">

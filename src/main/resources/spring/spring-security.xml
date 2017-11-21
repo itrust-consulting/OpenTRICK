@@ -47,6 +47,7 @@
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/static/**" access="ROLE_USER,ROLE_ADMIN,ROLE_SUPERVISOR,ROLE_CONSULTANT"/>
+		<intercept-url pattern="/Message/**" access="ROLE_USER,ROLE_ADMIN,ROLE_SUPERVISOR,ROLE_CONSULTANT"/>
 		<custom-filter ref="customUsernamePasswordAuthenticationFilter" position="FORM_LOGIN_FILTER" />
 		<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER" />
 		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER" />

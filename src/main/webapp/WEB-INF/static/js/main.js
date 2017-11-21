@@ -119,6 +119,11 @@ var NOTIFICATION_TYPE = {
 		icon : "glyphicon glyphicon-ok-sign",
 		names : [ "#success-dialog", "success-dialog", "success" ]
 	},
+	DOWNLOAD : {
+		type : "success",
+		icon : "glyphicon glyphicon-download",
+		names : [ "#download-dialog", "download-dialog", "download" ]
+	} ,
 	valueOf : function(value) {
 		for ( var key in NOTIFICATION_TYPE) {
 			if (key == "valueOf")
@@ -302,8 +307,8 @@ function showNotifcation(type, message, icon, url, title, onClose,placement) {
 	});
 }
 
-function showStaticNotifcation(type, message, icon, url, title) {
-	return $.notify({
+function showStaticNotifcation(type, message, icon, title , url) {
+	var $notification = $.notify({
 		title : title,
 		icon : icon,
 		message : message,
@@ -315,6 +320,14 @@ function showStaticNotifcation(type, message, icon, url, title) {
 		placement : application.notification.placement,
 		delay : -1
 	});
+	
+	if(url)
+		$notification.$ele.on('click', 'a[data-notify="url"]', (e) => {
+			setTimeout(() => {
+				$notification.close();
+			}, 300);
+		});
+	return
 }
 
 function onElementInserted(elementClass, callback) {
@@ -399,12 +412,12 @@ function isLinked() {
 }
 
 function downloadWordReport(id) {
-	window.location = context + '/Account/Report/' + id + "/Download";
+	window.open(context + '/Account/Report/' + id + "/Download","_blank");
 	return false;
 }
 
 function downloadExportedSqLite(id) {
-	window.location = context + '/Account/Sqlite/' + id + "/Download";
+	window.open(context + '/Account/Sqlite/' + id + "/Download","_blank");
 	return false;
 }
 
