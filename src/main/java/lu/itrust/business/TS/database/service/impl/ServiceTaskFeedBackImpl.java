@@ -11,6 +11,7 @@ import java.util.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,8 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 @Service
 public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
+	private Map<String, Boolean> webSocketSupported = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
+
 	private Map<String, Locale> userLocales = Collections.synchronizedMap(new LinkedHashMap<String, Locale>());
 
 	private Map<String, String> taskUsers = Collections.synchronizedMap(new LinkedHashMap<String, String>());
@@ -46,7 +49,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
-	@Autowired
+	@Autowired(required = false)
 	private SimpMessagingTemplate messagingTemplate;
 
 	@Value("${app.settings.background.task.max.pool.size}")
@@ -235,7 +238,8 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		if (queue == null)
 			return;
 		queue.add(handler);
-		sendToUser(handler);
+		if (this.messagingTemplate != null)
+			sendToUser(handler);
 	}
 
 	private void sendToUser(MessageHandler handler) {
@@ -243,7 +247,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		AsyncResult asyncResult = null;
 		try {
 			username = findUsernameById(handler.getIdTask());
-			if (username == null)
+			if (username == null || !isWebSocketSupported(username))
 				return;
 			Locale locale = userLocales.get(username);
 			asyncResult = new AsyncResult(handler.getIdTask());
@@ -269,7 +273,6 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 					asyncResult.setFlag(5);
 				}
 			}
-			
 			// check if message exists or set null
 			asyncResult.setMessage(messageSource.getMessage(handler.getCode(), handler.getParameters(), handler.getMessage(), locale));
 			asyncResult.setProgress(handler.getProgress());
@@ -283,12 +286,29 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 			}
 
 			this.messagingTemplate.convertAndSendToUser(username, "/Task", asyncResult);
+			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3)
+				unregisterTask(username, handler.getIdTask());
+		} catch (MessagingException e) {
+			setWebSocketSupported(username, false);
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-		} finally {
-			if (!(asyncResult == null || username == null) && (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3))
-				unregisterTask(username, handler.getIdTask());
 		}
+	}
+
+	@Override
+	public boolean isWebSocketSupported(String username) {
+		return username == null || !webSocketSupported.containsKey(username);
+	}
+
+	@Override
+	public void setWebSocketSupported(String username, boolean support) {
+		if (username == null)
+			return;
+		if (support)
+			webSocketSupported.remove(username);
+		else
+			webSocketSupported.put(username, support);
 	}
 
 	/**

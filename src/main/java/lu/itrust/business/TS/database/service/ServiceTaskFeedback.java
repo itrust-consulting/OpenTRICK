@@ -46,4 +46,8 @@ public interface ServiceTaskFeedback {
 	public String findUsernameById(String id);
 
 	public void update(String username, Locale locale);
+
+	boolean isWebSocketSupported(String username);
+
+	void setWebSocketSupported(String username, boolean support);
 }

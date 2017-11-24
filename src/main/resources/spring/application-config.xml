@@ -19,20 +19,6 @@
 	<mvc:annotation-driven ignore-default-model-on-redirect="true">
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
-	
-	<!-- <websocket:handlers >
-		<websocket:mapping path="/Message/Task" handler="myHandler"/>
-		<websocket:handshake-interceptors>
-			 <bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor"/>
-		</websocket:handshake-interceptors>
-	</websocket:handlers> -->
-	
-	<websocket:message-broker  application-destination-prefix="/Application" user-destination-prefix="/User/">
-		<websocket:stomp-endpoint path="/Messaging">
-			<websocket:sockjs />
-		</websocket:stomp-endpoint>
-		<websocket:simple-broker prefix="/Task"/>
-	</websocket:message-broker>
 
 	<context:component-scan base-package="lu.itrust.business" />
 
@@ -173,5 +159,7 @@
 	</bean>
 
 	<import resource="spring-security.xml" />
+	
+	<import resource="web-socket-config.xml" />
 
 </beans>

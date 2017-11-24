@@ -4,48 +4,82 @@ function TaskManager(title) {
 	this.title = title;
 	this.view = null;
 	this.stomp = null;
+	this.legacy = false;
 	this.disposing = false;
 	this.reconnecting = false;
+	this.subscribing = false;
+	this.csrfHeader = null;
+	this.csrfToken = null;
+	this.locker = false;
 
 	TaskManager.prototype.Start = function() {
-		if(!this.stomp){
+		if(!(this.stomp || this.legacy))
 			this.__createStompClient();
-			if(this.stomp)
-				this.UpdateTaskCount();
-		}
-		
-		if(!this.stomp){
-			var instance = this;
-			setTimeout(function() {
-				instance.UpdateTaskCount();
-			}, 500);
-		}
+		else if(this.legacy)
+			this.UpdateTaskCount();
 		return this;
 	};
 	
-	TaskManager.prototype.__createStompClient = function(){
+	TaskManager.prototype.__loadCSRF = function(){
 		try {
-			var self = this,  socket = new SockJS(context+"/Messaging");
-			this.reconnecting = true;
-			this.stomp = Stomp.over(socket);
-			this.stomp.debug = () => {};
-			this.stomp.connect({}, (e) =>{
+			this.csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			this.csrfToken =  $("meta[name='_csrf']").attr("content");
+		} catch (e) {
+		}
+	};
+	
+	TaskManager.prototype.__createStompClient = function(){
+		
+		try {
+			var self = this;
+			var headers = {};
+			var socket = new SockJS(context+"/Messaging");
+			
+			if(!(self.csrfHeader && self.csrfToken))
+				self.__loadCSRF();
+			
+			self.reconnecting = true;
+			self.stomp = Stomp.over(socket);
+			self.stomp.debug = () => {};
+			
+			headers[self.csrfHeader] = self.csrfToken;
+			
+			self.stomp.connect(headers, (e) =>{
 				self.reconnecting = false;
-				self.stomp.subscribe("/User/Task", (message) =>{
+				self.subscribing = true;
+				self.stomp.subscribe("/Task", (message) =>{
+					if(self.subscribing)
+						self.subscribing = false;
 					self.__process(JSON.parse(message.body));
 				});
 			}, (e) => {
-				if(self.disposing || self.reconnecting)
-					return;
-				socket.close();
-				delete this.stomp;
-				delete socket;
-				this.__createStompClient();
+				try {
+					console.log(e);
+					socket.close();
+					delete self.stomp;
+					delete socket;
+				} finally{
+					if(self.disposing || self.reconnecting || self.subscribing)
+						self.__switchToLegacyClient();
+					else self.__createStompClient();
+				}
 			});
 		} catch (e) {
+			this.__switchToLegacyClient();
 			if(this.stomp)
 				delete this.stomp
-			console.log(e);
+		}
+	};
+	
+	TaskManager.prototype.__switchToLegacyClient = function(){
+		var self = this;
+		self.legacy = true;
+		if(!self.locker){
+			self.locker = true;
+			setTimeout(function() {
+				self.UpdateTaskCount();
+				self.locker = false;
+			}, 500);
 		}
 	};
 
@@ -60,23 +94,22 @@ function TaskManager(title) {
 
 	TaskManager.prototype.Destroy = function() {
 		this.disposing = true;
-		console.log("disposing.....")
 		return true;
 	};
 
 	TaskManager.prototype.UpdateTaskCount = function() {
-		var instance = this;
+		var self = this;
 		$.ajax({
-			url : context + "/Task/InProcessing",
+			url : context + "/Task/InProcessing?legacy="+(self.legacy),
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
-				if (reponse == null || reponse == "")
+				if (reponse == null || !reponse.length)
 					return false;
 				else if (reponse.length) {
 					for (var i = 0; i < reponse.length; i++) {
-						if ($.isNumeric(reponse[i]) && !(reponse[i] in instance.tasks)) {
-							instance.tasks.push(reponse[i]);
-							instance.UpdateStatus(reponse[i]);
+						if ($.isNumeric(reponse[i]) && !(reponse[i] in self.tasks)) {
+							self.tasks.push(reponse[i]);
+							self.UpdateStatus(reponse[i]);
 						}
 					}
 				}
@@ -115,18 +148,18 @@ function TaskManager(title) {
 	};
 	
 	TaskManager.prototype.__process = function(reponse){
-		var instance = this, taskId = reponse.taskID, downloading = false;
-		if (reponse.flag == 3 && !instance.progressBars[taskId])
-			instance.progressBars[taskId] = instance.createProgressBar(taskId, reponse.name? MessageResolver(reponse.name) :  undefined, reponse.message);
+		var self = this, taskId = reponse.taskID, downloading = false;
+		if (reponse.flag == 3 && !self.progressBars[taskId])
+			self.progressBars[taskId] = self.createProgressBar(taskId, reponse.name? MessageResolver(reponse.name) :  undefined, reponse.message);
 		
 		if (reponse.flag == 3) {
-			if(!instance.stomp){
+			if(self.legacy){
 				setTimeout(function() {
-					instance.UpdateStatus(taskId);
+					self.UpdateStatus(taskId);
 				}, 1500);
 			}
 		} else {
-			instance.Remove(taskId);
+			self.Remove(taskId);
 			if (reponse.asyncCallbacks) {
 				for (let callback of reponse.asyncCallbacks) {
 					switch (callback.action) {
@@ -152,10 +185,10 @@ function TaskManager(title) {
 			if (reponse.flag < 3)
 				showDialog("error", reponse.message);
 			else if (reponse.flag == 3) {
-				instance.progressBars[taskId].update('progress', reponse.progress);
-				instance.progressBars[taskId].update('message', reponse.message);
+				self.progressBars[taskId].update('progress', reponse.progress);
+				self.progressBars[taskId].update('message', reponse.message);
 				if (reponse.name)
-					instance.progressBars[taskId].update('title', MessageResolver(reponse.name));
+					self.progressBars[taskId].update('title', MessageResolver(reponse.name));
 			} else if(!downloading)
 				setTimeout(() => {showDialog("success", reponse.message);}, 600);
 		}
@@ -165,18 +198,17 @@ function TaskManager(title) {
 	TaskManager.prototype.UpdateStatus = function(taskId) {
 		if (!$.isNumeric(taskId))
 			return;
-		var instance = this;
+		var self = this;
 		$.ajax({
 			url : context + "/Task/Status/" + taskId,
-			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse == null || reponse.flag == undefined) {
-					if (!instance.progressBars.length)
-						instance.Remove(taskId);
+					if (!self.progressBars.length)
+						self.Remove(taskId);
 					return false;
 				}
-				instance.__process(reponse);
+				self.__process(reponse);
 				return false;
 			},
 			error : unknowError

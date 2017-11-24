@@ -3,7 +3,7 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.AsyncResult;
@@ -155,13 +156,11 @@ public class ControllerTask {
 	 * @return
 	 */
 	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody List<String> processing(Principal principal) {
-
+	public @ResponseBody List<String> processing(@RequestParam(name = "legacy", defaultValue = "false") boolean supported, Principal principal) {
 		List<String> result = serviceTaskFeedback.tasks(principal.getName());
-
 		if (result == null)
-			result = new ArrayList<String>();
-
+			result = Collections.emptyList();
+		serviceTaskFeedback.setWebSocketSupported(principal.getName(), !supported);
 		// get tasks of this user
 		return result;
 	}

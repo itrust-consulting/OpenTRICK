@@ -99,9 +99,9 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 		notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 
-		notEmpty(messageHandler.getAsyncCallbacks().getArgs(), "AsyncCallback args should not be empty");
+		notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks().getArgs().get(0)));
+		put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(0)));
 	}
 
 	@Test(timeOut = 120000)
@@ -145,9 +145,9 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 		notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 
-		notEmpty(messageHandler.getAsyncCallbacks().getArgs(), "AsyncCallback args should not be empty");
+		notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks().getArgs().get(0)));
+		put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(0)));
 	}
 
 	@Test
