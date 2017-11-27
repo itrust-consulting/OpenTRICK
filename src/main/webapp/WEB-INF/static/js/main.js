@@ -293,7 +293,7 @@ function gotToPage(page){
 
 function showNotifcation(type, message, icon, url, title, onClose,placement) {
 	return $.notify({
-		title : title,
+		title : title?  title : undefined,
 		icon : icon,
 		message : message,
 		url : url
@@ -309,7 +309,7 @@ function showNotifcation(type, message, icon, url, title, onClose,placement) {
 
 function showStaticNotifcation(type, message, icon, title , url) {
 	var $notification = $.notify({
-		title : title,
+		title : title?  title : undefined,
 		icon : icon,
 		message : message,
 		url : url
@@ -793,22 +793,6 @@ function updateMenuItemState(cachingChecker, $liSelected, checker) {
 		if (!cachingChecker[checker])
 			$liSelected.addClass("disabled");
 	}
-}
-
-/**
- * asynchronous task feedback
- */
-
-function cancelTask(taskId) {
-	$.ajax({
-		url : context + "/Task/Stop/" + taskId,
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(reponse) {
-			$("#task_" + taskId).remove();
-		},
-		error : unknowError
-	});
 }
 
 function updateStatus(progressBar, idTask, callback, status) {

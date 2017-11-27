@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lu.itrust.business.TS.asynchronousWorkers.AsyncCallback;
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**

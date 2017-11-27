@@ -10,6 +10,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOIDS;
@@ -58,6 +59,8 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	private History history;
 
 	private String userName;
+	
+	private Thread current;
 
 	/**
 	 * @param idAnalysis
@@ -126,6 +129,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 					return;
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
+				setCurrent(Thread.currentThread());
 			}
 
 			session = sessionFactory.openSession();
@@ -316,8 +320,10 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						canceled = true;
-						Thread.currentThread().interrupt();
 					}
 				}
 			}
@@ -348,6 +354,14 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.CREATE_ANALYSIS_VERSION;
+	}
+
+	public Thread getCurrent() {
+		return current;
+	}
+
+	protected void setCurrent(Thread current) {
+		this.current = current;
 	}
 
 }

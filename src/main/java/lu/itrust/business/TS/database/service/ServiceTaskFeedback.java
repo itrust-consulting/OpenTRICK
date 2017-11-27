@@ -15,9 +15,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
  */
 public interface ServiceTaskFeedback {
 
-	public int messageCount(String id);
-
-	public boolean taskExist(String id);
+	public boolean exists(String id);
 
 	public boolean hasMessage(String id);
 
@@ -36,8 +34,6 @@ public interface ServiceTaskFeedback {
 	public void send(String userName, String id, MessageHandler handler, Locale locale);
 
 	public MessageHandler recieveById(String id);
-
-	public MessageHandler recieveLast(String id);
 
 	public List<MessageHandler> recieve(String userName);
 

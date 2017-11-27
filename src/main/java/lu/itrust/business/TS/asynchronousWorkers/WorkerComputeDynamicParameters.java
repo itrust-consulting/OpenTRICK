@@ -34,6 +34,8 @@ public class WorkerComputeDynamicParameters implements Worker {
 	private static Map<String, WorkerComputeDynamicParameters> workers = new HashMap<>();
 
 	private Date dateStarted, dateFinished;
+	
+	private Thread current;
 
 	/**
 	 * Constructur.
@@ -88,6 +90,7 @@ public class WorkerComputeDynamicParameters implements Worker {
 	public void run() {
 		try {
 			synchronized (this) {
+				this.current = Thread.currentThread();
 				if (poolManager != null && !poolManager.exist(getId()))
 					if (!poolManager.add(this))
 						return;
@@ -166,8 +169,10 @@ public class WorkerComputeDynamicParameters implements Worker {
 	public void cancel() {
 		try {
 			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
+				if (isWorking() && !isCanceled()) {
+					if(getCurrent() == null)
+						Thread.currentThread().interrupt();
+					else getCurrent().interrupt();
 					canceled = true;
 				}
 			}
@@ -189,6 +194,11 @@ public class WorkerComputeDynamicParameters implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.COMPUTE_DYNAMIC_PARAMETER;
+	}
+
+	@Override
+	public Thread getCurrent() {
+		return current;
 	}
 
 }

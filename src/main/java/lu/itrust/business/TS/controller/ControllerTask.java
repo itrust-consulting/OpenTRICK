@@ -3,22 +3,24 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import lu.itrust.business.TS.asynchronousWorkers.AsyncResult;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncResult;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -33,7 +35,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
  * @since Feb 5, 2014
  */
 @Controller
-@RequestMapping("/Task")
 @PreAuthorize(Constant.ROLE_MIN_USER)
 public class ControllerTask {
 
@@ -55,7 +56,7 @@ public class ControllerTask {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Status/{id}")
+	@RequestMapping("/Task/Status/{id}")
 	public @ResponseBody AsyncResult status(@PathVariable String id, Principal principal, Locale locale) {
 
 		// create result
@@ -70,7 +71,7 @@ public class ControllerTask {
 			Worker worker = workersPoolManager.get(id);
 
 			// retrieve last feedback message
-			MessageHandler messageHandler = serviceTaskFeedback.recieveLast(id);
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(id);
 			// set worker status
 			if (worker == null) {
 				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted", locale));
@@ -86,7 +87,7 @@ public class ControllerTask {
 				} else if (worker.isWorking()) {
 					asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", locale));
 					asyncResult.setFlag(3);
-				} else if (serviceTaskFeedback.messageCount(id) > 1) {
+				} else if (serviceTaskFeedback.exists(id)) {
 					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
 					asyncResult.setFlag(4);
 				} else {
@@ -111,61 +112,51 @@ public class ControllerTask {
 			} else
 				asyncResult.setMessage(null);
 
-			// unrgister task when done or errors
-			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3) {
-				serviceTaskFeedback.unregisterTask(principal.getName(), id);
-			}
 		}
 
 		// return
 		return asyncResult;
 	}
 
-	@RequestMapping("/Stop/{id}")
-	public @ResponseBody String stop(@PathVariable String id, Principal principal, Locale locale) {
-
-		// check if user has the task with given id
-		if (serviceTaskFeedback.hasTask(principal.getName(), id)) {
-
-			// retireve worker of task
-			Worker worker = workersPoolManager.get(id);
-
-			// check if worker is running
-			if (worker != null && worker.isWorking()) {
-
-				// stop worker
-				worker.cancel();
-
-				// return success messages
-				return messageSource.getMessage("success.task.canceled", null, "Task was canceled successfully", locale);
-			} else
-
-				// return task not running
-				return messageSource.getMessage("failed.task.canceled", null, "Sorry, Task is not running", locale);
-		} else
-
-			// return task not found
-			return messageSource.getMessage("error.task.not_found", null, "Sorry, task cannot be found", locale);
+	/**
+	 * Mixte mapping
+	 * @param id
+	 * @param principal
+	 * @param locale
+	 * @return
+	 */
+	@MessageMapping("/Task/Done")
+	@RequestMapping("/Task/{id}/Done")
+	@ResponseBody
+	public String stop(@PathVariable String id, Principal principal, Locale locale) {
+		serviceTaskFeedback.unregisterTask(principal.getName(), id);
+		return messageSource.getMessage("success.task.done", null, "Task was done successfully", locale);
 	}
 
 	/**
+	 * Mixte Mapping
 	 * processing: <br>
 	 * Description
 	 * 
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody List<String> processing(@RequestParam(name = "legacy", defaultValue = "false") boolean supported, Principal principal) {
+	@MessageMapping("Task/In-progress")
+	@SendToUser("/Task")
+	@GetMapping(value = "/Task/In-progress", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@ResponseBody
+	public List<?> processing(@RequestParam(name = "legacy", defaultValue = "true") boolean legacy, Principal principal, Locale locale) {
 		List<String> result = serviceTaskFeedback.tasks(principal.getName());
-		if (result == null)
-			result = Collections.emptyList();
-		serviceTaskFeedback.setWebSocketSupported(principal.getName(), !supported);
-		// get tasks of this user
-		return result;
+		if (!result.isEmpty())
+			serviceTaskFeedback.setWebSocketSupported(principal.getName(), !legacy);
+		if (legacy)
+			return result;
+		else
+			return serviceTaskFeedback.tasks(principal.getName()).parallelStream().map(id -> status(id, principal, locale)).filter(task -> task != null)
+					.collect(Collectors.toList());
 	}
 
-	@RequestMapping("/Exist")
+	@RequestMapping("/Task/Exist")
 	public @ResponseBody boolean hasTask(Principal principal) {
 		// check if user has a task
 		return serviceTaskFeedback.userHasTask(principal.getName());

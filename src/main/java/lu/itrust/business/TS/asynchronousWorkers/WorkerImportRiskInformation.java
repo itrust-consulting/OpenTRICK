@@ -37,6 +37,7 @@ import org.springframework.util.StringUtils;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAORiskInformation;
@@ -105,7 +106,9 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -148,6 +151,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
+				setCurrent(Thread.currentThread());
 			}
 
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk.information.initialise", "Initialise data", 2));

@@ -36,6 +36,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -126,7 +127,10 @@ public class WorkerSOAExport extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -164,6 +168,7 @@ public class WorkerSOAExport extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.EXPORT_SOA);
+				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
 			initialiseDAO(session);

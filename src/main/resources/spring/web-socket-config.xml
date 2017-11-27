@@ -1,20 +1,18 @@
 <?xml  version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:sec="http://www.springframework.org/schema/security"
 	xmlns:p="http://www.springframework.org/schema/p" xmlns:websocket="http://www.springframework.org/schema/websocket"
-	xmlns:amq="http://activemq.apache.org/schema/core"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
-        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
-        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd">
 
 
 	<websocket:message-broker application-destination-prefix="/Application/" user-destination-prefix="/User/">
 		<websocket:stomp-endpoint path="/Messaging">
 			<websocket:sockjs client-library-url="/js/web-socket/sockjs.min.js" />
 		</websocket:stomp-endpoint>
-		<websocket:stomp-broker-relay prefix="/Task" relay-host="localhost"  relay-port="61612"/>
+		<websocket:simple-broker prefix="/Task"/>
 	</websocket:message-broker>
-
+	
 	<sec:websocket-message-broker>
 
 		<sec:intercept-message type="CONNECT" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
@@ -27,18 +25,12 @@
 
 		<sec:intercept-message pattern="/Application/**" access="permitAll" />
 
-		<sec:intercept-message type="MESSAGE" access="denyAll" />
+		<!-- <sec:intercept-message type="MESSAGE" access="denyAll" />
 
 		<sec:intercept-message type="SUBSCRIBE" access="denyAll" />
 
-		<sec:intercept-message pattern="/**" access="denyAll" />
+		<sec:intercept-message pattern="/**" access="denyAll" /> -->
 
 	</sec:websocket-message-broker>
-	
-	<amq:broker useJmx="false" persistent="false">
-		<amq:transportConnectors>
-			<amq:transportConnector  name="stomp+nio" uri="stomp+nio://localhost:61612?transport.hbGracePeriodMultiplier=1.5" />
-		</amq:transportConnectors>
-	</amq:broker>
 
 </beans>

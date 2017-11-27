@@ -10,6 +10,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
@@ -40,7 +41,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 	@Override
 	public void run() {
 		setAsyncCallback(new AsyncCallback("gotToPage", "/Admin"));
-		setMessageHandler(new MessageHandler("success.ts.install", "Installation successfull", 99));
+		setMessageHandler(new MessageHandler("success.ts.install", "Installation successfull", 100));
 		super.run();
 	}
 

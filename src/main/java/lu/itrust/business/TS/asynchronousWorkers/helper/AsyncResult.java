@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.asynchronousWorkers;
+package lu.itrust.business.TS.asynchronousWorkers.helper;
 
 import lu.itrust.business.TS.messagehandler.TaskName;
 

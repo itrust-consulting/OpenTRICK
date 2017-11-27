@@ -386,7 +386,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(messageHandler, "Last message cannot be found");
 
 		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
+				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[0]").exists());
 
 		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 
@@ -447,7 +447,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(messageHandler, "Last message cannot be found");
 
 		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
+				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[0]").exists());
 
 		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 

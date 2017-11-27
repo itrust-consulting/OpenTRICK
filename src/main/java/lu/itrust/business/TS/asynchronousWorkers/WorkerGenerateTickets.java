@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -77,6 +78,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.GENERATE_TICKETS);
+				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -180,7 +182,10 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}

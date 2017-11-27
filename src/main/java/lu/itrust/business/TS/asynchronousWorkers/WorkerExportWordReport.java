@@ -12,6 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.util.FileCopyUtils;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -56,6 +57,8 @@ public class WorkerExportWordReport implements Worker {
 
 	private ExportReport wordExporter;
 
+	private Thread current;
+
 	/**
 	 * @param idAnalysis
 	 * @param username
@@ -64,8 +67,7 @@ public class WorkerExportWordReport implements Worker {
 	 * @param wordExporter
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportReport wordExporter,
-			WorkersPoolManager workersPoolManager) {
+	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportReport wordExporter, WorkersPoolManager workersPoolManager) {
 		this.idAnalysis = idAnalysis;
 		this.username = username;
 		this.sessionFactory = sessionFactory;
@@ -85,8 +87,9 @@ public class WorkerExportWordReport implements Worker {
 					return;
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
+				setCurrent(Thread.currentThread());
 			}
-			
+
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -127,7 +130,7 @@ public class WorkerExportWordReport implements Worker {
 				}
 			}
 		}
-		
+
 		wordExporter.close();
 
 		File workFile = wordExporter.getWorkFile();
@@ -150,7 +153,7 @@ public class WorkerExportWordReport implements Worker {
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", 100);
-			messageHandler.setAsyncCallbacks(new AsyncCallback("download","Report", report.getId()));
+			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", report.getId()));
 			wordExporter.getServiceTaskFeedback().send(id, messageHandler);
 			/**
 			 * Log
@@ -210,7 +213,10 @@ public class WorkerExportWordReport implements Worker {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
 						canceled = true;
 					}
 				}
@@ -226,8 +232,8 @@ public class WorkerExportWordReport implements Worker {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -282,6 +288,15 @@ public class WorkerExportWordReport implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.EXPORT_ANALYSIS_REPORT;
+	}
+
+	@Override
+	public Thread getCurrent() {
+		return current;
+	}
+
+	private void setCurrent(Thread current) {
+		this.current = current;
 	}
 
 }
