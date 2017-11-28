@@ -7,9 +7,7 @@ $(document).ready(function() {
 		marginTop : application.fixedOffset
 	};
 	setTimeout(() => fixTableHeader("#tab-container table"), 300);
-});
-
-$(function() {
+	
 	$(window).scroll(function(e) {
 		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
 			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
@@ -17,6 +15,8 @@ $(function() {
 				window[$selectedTab.attr("data-scroll-trigger")].apply();
 		}
 	});
+	
+	$("#btn-add-notification").on("click", addNotification);
 });
 
 function installTrickService() {
@@ -443,4 +443,66 @@ function updateSetting(idForm, sender) {
 		});
 	}
 	return false;
+}
+
+function loadNotification() {
+	
+	return false;
+}
+
+function addNotification(e){
+	var $progress = $("#progress-trickLog").show();
+	$.ajax({
+		url : context + "/Admin/Notification/Add",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			 $view = $("#modal-add-notification",new DOMParser().parseFromString(response, "text/html"));
+			 if(!$view.length)
+				 unknowError();
+			 else {
+				 $view.appendTo("#widget");
+				 $view.modal("show").on('hidden.bs.modal', () => $view.remove());
+				 $("button[name='save']", $view).on("click",saveNotification);
+			 }
+			return false;
+		},
+		error : unknowError
+	}).complete(() => {
+		$progress.hide();
+	});
+
+	return false;
+}
+
+function saveNotification(e){
+	var $progress = $("#progress-trickLog").show(), $view = $("#modal-add-notification"), $form = $("form", $view), data = $form.serializeJSON(), keys = Object.keys(data);
+	
+	data["messages"]={};
+	
+	for (let key of keys) {
+		if(key.startsWith("messages[")){
+			data["messages"][key.replace(/messages\[|\]/g,'')] = data[key];
+			delete data[key];
+		}
+	}
+	
+	$.ajax({
+		url : context + "/Admin/Notification/Save",
+		type : "post",
+		data : JSON.stringify({data:data}),
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response.error)
+				showDialog("error", response.error);
+			else if (response.length == 2){
+				showDialog("success", response[0]);
+				$view.modal("hide");
+			}
+			else unknowError();
+			return false;
+		},
+		error : unknowError
+	}).complete(() => {
+		$progress.hide();
+	});;
 }

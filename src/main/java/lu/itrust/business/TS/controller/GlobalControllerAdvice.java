@@ -72,8 +72,7 @@ public class GlobalControllerAdvice {
 			if (request.getParameter("lang") != null)
 				serviceTaskFeedback.update(principal.getName(), new Locale(request.getParameter("lang")));
 			model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(principal.getName()));
-		} else
-			model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(null));
+		} //else model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(null));
 
 		model.addAttribute("jsVersion", jsVersion);
 		model.addAttribute("cssVersion", cssVersion);

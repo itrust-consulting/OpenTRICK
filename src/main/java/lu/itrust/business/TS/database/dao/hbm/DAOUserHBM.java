@@ -253,13 +253,18 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 
 	@Override
 	public List<User> getAll(Collection<Integer> ids) {
-		return ids.isEmpty() ? Collections.emptyList()
-				: getSession().createQuery("From User where id in :ids", User.class).setParameterList("ids", ids).getResultList();
+		return ids.isEmpty() ? Collections.emptyList() : getSession().createQuery("From User where id in :ids", User.class).setParameterList("ids", ids).getResultList();
 	}
 
 	@Override
 	public String findLocaleByUsername(String username) {
 		System.out.println(getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResult());
-		return getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResultOptional().filter(value -> !StringUtils.isEmpty(value)).orElse("en");
+		return getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResultOptional()
+				.filter(value -> !StringUtils.isEmpty(value)).orElse("en");
+	}
+
+	@Override
+	public String findUsernameById(Integer id) {
+		return getSession().createQuery("Select login From User where id = :id", String.class).setParameter("id", id).uniqueResult();
 	}
 }

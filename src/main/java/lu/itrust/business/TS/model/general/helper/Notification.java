@@ -1,10 +1,15 @@
 package lu.itrust.business.TS.model.general.helper;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.util.StringUtils;
+
+import lu.itrust.business.TS.model.general.LogLevel;
 
 public class Notification implements Serializable {
 
@@ -15,20 +20,24 @@ public class Notification implements Serializable {
 
 	private String id;
 
-	private String type;
-	
+	private LogLevel type;
+
 	private String code;
-	
+
 	private boolean once;
 
 	private Object[] parameters;
 
 	private Map<String, String> messages = new HashMap<>(2);
 
+	private Timestamp created;
+
 	/**
 	 * 
 	 */
 	public Notification() {
+		this.id = UUID.randomUUID().toString();
+		this.created = new Timestamp(System.currentTimeMillis());
 	}
 
 	/**
@@ -38,8 +47,8 @@ public class Notification implements Serializable {
 	 * @param parameters
 	 * @param messages
 	 */
-	public Notification(String code, String type) {
-		this.id = UUID.randomUUID().toString();
+	public Notification(String code, LogLevel type) {
+		this();
 		this.code = code;
 		this.type = type;
 	}
@@ -56,7 +65,7 @@ public class Notification implements Serializable {
 		return parameters;
 	}
 
-	public String getType() {
+	public LogLevel getType() {
 		return type;
 	}
 
@@ -72,7 +81,7 @@ public class Notification implements Serializable {
 		this.parameters = parameters;
 	}
 
-	public void setType(String type) {
+	public void setType(LogLevel type) {
 		this.type = type;
 	}
 
@@ -100,6 +109,47 @@ public class Notification implements Serializable {
 
 	public void setOnce(boolean once) {
 		this.once = once;
+	}
+
+	public Timestamp getCreated() {
+		return created;
+	}
+
+	public void setCreated(Timestamp created) {
+		this.created = created;
+	}
+
+	public boolean isValid() {
+		return isValidId() && (!StringUtils.isEmpty(this.code) || isEmpty());
+	}
+
+	private boolean isValidId() {
+		try {
+			return !StringUtils.isEmpty(this.id) && UUID.fromString(id).toString().equals(id);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public boolean isEmpty() {
+		return this.messages == null || this.messages.isEmpty();
+	}
+
+	public boolean update() {
+		if(!isValidId())
+			this.id = UUID.randomUUID().toString();
+		if(this.created == null)
+			this.created = new Timestamp(System.currentTimeMillis());
+		return !(StringUtils.isEmpty(this.code) && isEmpty());
+	}
+
+	public Notification update(Notification notification) {
+		this.code = notification.code;
+		this.messages = notification.messages;
+		this.parameters = notification.parameters;
+		this.once = notification.once;
+		return this;
+		
 	}
 
 }

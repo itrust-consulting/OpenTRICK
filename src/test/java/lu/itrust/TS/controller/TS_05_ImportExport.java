@@ -381,7 +381,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		isNull(worker.getError(), "An error occured while export analysis");
 
-		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
+		MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 
 		notNull(messageHandler, "Last message cannot be found");
 
@@ -442,7 +442,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		isNull(worker.getError(), "An error occured while export word report");
 
-		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
+		MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 
 		notNull(messageHandler, "Last message cannot be found");
 

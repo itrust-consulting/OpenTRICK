@@ -4,7 +4,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,9 +28,6 @@ import lu.itrust.business.TS.model.general.helper.Notification;
 public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Serializable {
 
 	private static final String ALL_USER_KEY = "---0-0-0-ALL-USER-123-AZERDFXF=NO-2-~&+ASCXYTS---][aqwlsodddfkj,cc";
-
-	@Autowired
-	private SessionRegistry sessionRegistry;
 
 	private Map<String, Notification> notifications = Collections.synchronizedMap(new LinkedHashMap<>());
 
@@ -88,23 +83,7 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 	 */
 	@Override
 	public void notifyAll(Notification notification) {
-		notifyConnected(notification);
-		notifyUser(ALL_USER_KEY, notification, false);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.service.ServiceMessageNotifier#notifyConnected
-	 * (lu.itrust.business.TS.model.general.helper.Notification)
-	 */
-	@Override
-	public void notifyConnected(Notification notification) {
-		register(notification);
-		sessionRegistry.getAllPrincipals().parallelStream().filter(principal -> principal instanceof Principal).map(principal -> (Principal) principal)
-				.forEach(principal -> notifyUser(principal.getName(), notification, false));
-
+		notifyUser(ALL_USER_KEY, notification, true);
 	}
 
 	private void notifyUser(String username, Notification notification, boolean save) {
@@ -121,8 +100,12 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 
 		usernames.add(username);
 
-		if (!(messagingTemplate == null || username.equals(ALL_USER_KEY)))
-			messagingTemplate.convertAndSendToUser(username, "/Info/Notification", notification);
+		if (messagingTemplate != null) {
+			if (ALL_USER_KEY.equals(username))
+				messagingTemplate.convertAndSend("/Nofitication", notification);
+			else
+				messagingTemplate.convertAndSendToUser(username, "/Nofitication", notification);
+		}
 	}
 
 	private void register(Notification notification) {
@@ -152,14 +135,17 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 		String name = StringUtils.isEmpty(username) || username.equals(ALL_USER_KEY) ? ALL_USER_KEY : username;
 		List<String> ids = new LinkedList<>();
 		ids.addAll(usernameToIds.getOrDefault(name, Collections.emptyList()));
-		ids.addAll(usernameToIds.getOrDefault(ALL_USER_KEY, Collections.emptyList()));
-		
+		if (!name.equals(ALL_USER_KEY))
+			ids.addAll(usernameToIds.getOrDefault(ALL_USER_KEY, Collections.emptyList()));
+
 		List<Notification> notifications = ids.parallelStream().distinct().map(id -> this.notifications.get(id)).filter(notification -> notification != null)
 				.collect(Collectors.toList());
-		
+
 		if (!name.equals(ALL_USER_KEY))
 			notifications.parallelStream().filter(Notification::isOnce).forEach(notification -> remove(notification.getId(), name));
-		
+
+		notifications.sort((n0, n1) -> n0.getCreated().compareTo(n1.getCreated()) * -1);
+
 		return notifications;
 	}
 
@@ -175,6 +161,11 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 	private void internalRemove(String id) {
 		notifications.remove(id);
 		idToUsernames.remove(id);
+	}
+
+	@Override
+	public Notification findById(String id) {
+		return id == null ? null : notifications.get(id);
 	}
 
 }

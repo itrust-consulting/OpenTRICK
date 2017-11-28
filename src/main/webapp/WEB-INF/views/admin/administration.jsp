@@ -25,6 +25,7 @@
 				<li><a href="#tab-customer" data-toggle="tab"><spring:message code="menu.knowledgebase.customers" text="Customers" /></a></li>
 				<li><a href="#tab-analyses" data-toggle="tab"><spring:message code="label.analysis.title" text="All Analyses" /></a></li>
 				<li><a href="#tab-ts-setting" data-toggle="tab"><spring:message code="label.settings" text="Settings" /></a></li>
+				<li><a href="#tab-message" data-toggle="tab"><spring:message code="label.administrator.messages" text="Messages" /></a></li>
 				<li><a href="#tab-log" data-toggle="tab"><spring:message code="label.logs" text="Logs" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
@@ -36,6 +37,7 @@
 				<jsp:include page="customer/customers.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
 				<jsp:include page="tsSetting/home.jsp" />
+				<jsp:include page="notification/home.jsp" />
 				<jsp:include page="log/home.jsp" />
 				<jsp:include page="widget.jsp" />
 			</div>

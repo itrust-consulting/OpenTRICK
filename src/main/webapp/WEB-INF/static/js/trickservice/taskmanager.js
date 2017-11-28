@@ -11,6 +11,7 @@ function TaskManager(title) {
 	this.csrfHeader = null;
 	this.csrfToken = null;
 	this.locker = false;
+	this.langue = null;
 
 	TaskManager.prototype.Start = function () {
 		if (!(this.stomp || this.legacy))
@@ -27,6 +28,17 @@ function TaskManager(title) {
 		} catch (e) {
 		}
 	};
+	
+	TaskManager.prototype.getLangue = function(){
+		if(!this.langue)
+			this.__loadLangue();
+		return this.langue;
+	};
+	
+	TaskManager.prototype.__loadLangue = function (){
+		this.langue = $("[role='changeUILanguage'][data-lang]").attr("data-lang");
+		return this;
+	};
 
 	TaskManager.prototype.__createStompClient = function () {
 
@@ -40,7 +52,7 @@ function TaskManager(title) {
 
 			self.reconnecting = true;
 			self.stomp = Stomp.over(socket);
-			self.stomp.debug = () => {};
+			//self.stomp.debug = () => {};
 
 			headers[self.csrfHeader] = self.csrfToken;
 
@@ -57,16 +69,8 @@ function TaskManager(title) {
 					}else self.__process(tasks);
 				});
 				
-				self.stomp.subscribe("/Application/System-info", (data) => {
-					var message = JSON.parse(data.body);
-					if(message.info)
-						showStaticDialog("info", message.info);
-					else if(message.error)
-						showStaticDialog("error", message.error);
-					else if(message.warning)
-						showStaticDialog("warning", message.warning);
-					else showStaticDialog("info", message);
-				});
+				self.stomp.subscribe("/Application/Notification", (data) => {self.__processSystemMessage(data);});
+				self.stomp.subscribe("/User/Notification", (data) => {self.__processSystemMessage(data);});
 				this.UpdateTaskCount();
 			}, (e) => {
 				try {
@@ -87,6 +91,37 @@ function TaskManager(title) {
 			console.log(e);
 		}
 	};
+	
+	
+	TaskManager.prototype.__processSystemMessage = function(data){
+		var message = JSON.parse(data.body);
+		if(message.type){
+			var content =  message.messages[self.getLangue()], notification = application.currentNotifications[message.id]
+			if(!content)
+				content = MessageResolver(message.code, content, message.parameters);
+			if(notification)
+				notification.update("message",content);
+			else {
+				var self = this,  callback = (e) => {self.DeleteMessage(message.id)}
+				switch (message.type) {
+				case "ERROR":
+					notification = showStaticDialog("error",content, undefined, undefined, callback );
+					break;
+				case "SUCCESS":
+					notification = showStaticDialog("success", content, undefined, undefined, callback );
+					break;
+				case "WARNING":
+					notification = showStaticDialog("warning", content, undefined, undefined, callback );
+					break;
+				default:
+					notification = showStaticDialog("info", content, undefined, undefined, callback );
+					break;
+				}
+				application.currentNotifications[message.id]=notification;
+			}
+		}else  showStaticDialog("info", message);
+	};
+	
 
 	TaskManager.prototype.__switchToLegacyClient = function () {
 		var self = this;

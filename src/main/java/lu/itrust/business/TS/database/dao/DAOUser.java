@@ -59,4 +59,6 @@ public interface DAOUser {
 	public List<User> getAll(Collection<Integer> ids);
 
 	public String findLocaleByUsername(String username);
+
+	public String findUsernameById(Integer id);
 }

@@ -21,9 +21,9 @@ public interface ServiceMessageNotifier {
 	
 	void notifyAll(Notification notification);
 	
-	void notifyConnected(Notification notification);
-	
 	void notifyUser(String username, Notification notification);
 	
 	List<Notification> findAllByUsername(String username);
+
+	Notification findById(String id);
 }

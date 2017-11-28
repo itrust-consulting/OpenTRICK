@@ -35,6 +35,7 @@ function Application() {
 	this.numberFormat = new Intl.NumberFormat("fr-FR");
 	this.numberFormatNoDecimal = new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0, minimumFractionDigits:0});
 	this.percentageFormat = new Intl.NumberFormat("fr-FR", {style: "percent", maximumFractionDigits:0, minimumFractionDigits:0});
+	this.currentNotifications = {};
 }
 
 /**
@@ -112,7 +113,7 @@ var NOTIFICATION_TYPE = {
 	INFO : {
 		type : "info",
 		icon : "glyphicon glyphicon-info-sign",
-		names : [ "#info-dialog", "info-dialog", "info" ]
+		names : [ "#info-dialog", "info-dialog", "info","message" ]
 	},
 	SUCCESS : {
 		type : "success",
@@ -277,13 +278,13 @@ function showDialog(dialog, message, title, url, onClose, placement) {
 	}
 }
 
-function showStaticDialog(dialog, message, title, url) {
+function showStaticDialog(dialog, message, title, url, onClose) {
 	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
 	if (notificationType == undefined) {
 		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
 	} else {
-		return showStaticNotifcation(notificationType.type, message, notificationType.icon, title, url);
+		return showStaticNotifcation(notificationType.type, message, notificationType.icon, title, url, onClose);
 	}
 }
 
@@ -307,7 +308,7 @@ function showNotifcation(type, message, icon, url, title, onClose,placement) {
 	});
 }
 
-function showStaticNotifcation(type, message, icon, title , url) {
+function showStaticNotifcation(type, message, icon, title , url, onClose) {
 	var $notification = $.notify({
 		title : title?  title : undefined,
 		icon : icon,
@@ -318,6 +319,7 @@ function showStaticNotifcation(type, message, icon, title , url) {
 		z_index : application.notification.z_index,
 		offset : application.notification.offset,
 		placement : application.notification.placement,
+		onClose : onClose,
 		delay : -1
 	});
 	
@@ -795,6 +797,7 @@ function updateMenuItemState(cachingChecker, $liSelected, checker) {
 	}
 }
 
+/*
 function updateStatus(progressBar, idTask, callback, status) {
 	if (status == null || status == undefined) {
 		$.ajax({
@@ -831,6 +834,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 	}
 	return false;
 }
+*/
 
 function serializeForm(form) {
 	var $form = $(form);
@@ -874,7 +878,7 @@ function findTrickID(element) {
 		return $(element).attr("data-trick-id");
 	return $(element).closest("[data-trick-id]").attr("data-trick-id");
 }
-
+/*
 function versionComparator(version1, version2) {
 	var values1 = version1.split("\\.", 2);
 	var values2 = version2.split("\\.", 2);
@@ -911,7 +915,7 @@ function oldversionComparator(version1, version2) {
 	} else
 		return value1 > value2 ? 1 : -1;
 }
-
+*/
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
 	if (!(current == undefined ||current.$element == null )) {
@@ -1240,7 +1244,15 @@ $(document)
 					
 					//load notification.
 					$("#controller-notifications div[data-notification-type]").each(function(){
-						showDialog(this.getAttribute("data-notification-type"), this.innerText);
+						var id = this.id, type = this.getAttribute("data-type");
+						if(type === null || type === undefined)
+							showDialog(this.getAttribute("data-notification-type"), this.innerText);
+						else {
+							application.currentNotifications[id] = showStaticDialog(this.getAttribute("data-notification-type"), this.innerText, undefined, undefined, (e) => {
+								application['taskManager'].Delete(id);
+								delete application.currentNotifications[id];
+							});
+						}
 						this.parentNode.removeChild(this);
 					});
 					
