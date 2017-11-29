@@ -35,6 +35,7 @@ import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
@@ -51,6 +52,8 @@ import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
+import lu.itrust.business.TS.model.api.basic.ApiAssessment;
+import lu.itrust.business.TS.model.api.basic.ApiAssessmentValue;
 import lu.itrust.business.TS.model.api.basic.ApiAsset;
 import lu.itrust.business.TS.model.api.basic.ApiMeasure;
 import lu.itrust.business.TS.model.api.basic.ApiNamable;
@@ -64,6 +67,9 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
+import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.IDS;
@@ -105,6 +111,9 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
@@ -251,14 +260,14 @@ public class ControllerApi {
 	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> new ApiAsset(asset.getId(), asset.getName(), asset.getAssetType().getId(), asset.getAssetType().getName(), asset.getValue())).collect(Collectors.toList());
+		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> ApiAsset.create(asset)).collect(Collectors.toList());
 	}
 
 	@CrossOrigin
 	@RequestMapping(value = "/data/analysis/{idAnalysis}/scenarios", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> new ApiScenario(scenario.getId(), scenario.getName(), scenario.getType().getValue(), scenario.getType().getName())).collect(Collectors.toList());
+		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> ApiScenario.create(scenario)).collect(Collectors.toList());
 	}
 
 	@CrossOrigin
@@ -329,6 +338,47 @@ public class ControllerApi {
 		try {
 			customDelete.deleteAsset(idAsset, idAnalysis);
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assessments", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object getAnalysisAssessments(@PathVariable Integer idAnalysis, Principal principal, Locale locale) throws Exception {
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		return analysis.getAssessments().stream().map(assessment -> ApiAssessment.create(assessment)).collect(Collectors.toList());
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assessments/save", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object saveAnalysisAssessments(@PathVariable Integer idAnalysis, @RequestBody ApiAssessmentValue assessmentValue, Principal principal, Locale locale) throws Exception {
+		try {
+			// Find assessment
+			Assessment assessment = serviceAssessment.getFromAnalysisById(idAnalysis, (Integer)assessmentValue.getId());
+			// Set new likelihood
+			assessment.setLikelihood(Double.toString(assessmentValue.getLikelihood()));
+			assessment.setLikelihoodReal(assessmentValue.getLikelihood());
+			// Set new impacts
+			for (IValue currentValue : assessment.getImpacts()) {
+				final Double newValue = assessmentValue.getImpacts().get(currentValue.getName());
+				// Only update impact if a new value has been provided for it
+				if (newValue != null) {
+					if (currentValue instanceof RealValue)
+						((RealValue)currentValue).setReal(newValue);
+					else if (currentValue instanceof LevelValue)
+						((LevelValue)currentValue).setLevel((int)Math.round(newValue));
+					// silently ignore all other value types
+				}
+			}
+			serviceAssessment.save(assessment);
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.model.api.basic;
 
+import lu.itrust.business.TS.model.scenario.Scenario;
+
 /**
  * @author smuller
  * @since 2017-11-08
@@ -13,6 +15,10 @@ public class ApiScenario extends ApiNamable {
 		super(id, name);
 		this.scenarioTypeId = scenarioTypeId;
 		this.scenarioTypeName = scenarioTypeName;
+	}
+
+	public static ApiScenario create(Scenario scenario) {
+		return new ApiScenario(scenario.getId(), scenario.getName(), scenario.getType().getValue(), scenario.getType().getName());
 	}
 
 	public Integer getScenarioTypeId() {

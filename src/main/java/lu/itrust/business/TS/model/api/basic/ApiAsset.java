@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.api.basic;
 
+import lu.itrust.business.TS.model.asset.Asset;
+
 /**
  * @author eomar
  *
@@ -29,6 +31,10 @@ public class ApiAsset extends ApiNamable {
 		this.value = value;
 		this.assetTypeId = assetTypeId;
 		this.assetTypeName = assetTypeName;
+	}
+
+	public static ApiAsset create(Asset asset) {
+		return new ApiAsset(asset.getId(), asset.getName(), asset.getAssetType().getId(), asset.getAssetType().getName(), asset.getValue());
 	}
 
 	/**
