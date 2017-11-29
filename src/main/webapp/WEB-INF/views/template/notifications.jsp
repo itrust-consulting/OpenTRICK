@@ -16,9 +16,9 @@
 			</div>
 		</c:when>
 		<c:when test="${notification.type=='ERROR'}">
-			<div class="alert alert-danger" id="error-${notification.id}" id='${notification.id}' >
+			<div class="alert alert-danger" id="error-${notification.id}" >
 				<a href="#" class="close" data-dismiss="alert" style="margin-right: -10px; margin-top: -12px">×</a>
-				<div data-notification-type='error'>
+				<div data-notification-type='error' data-type='static' id='${notification.id}' >
 					<spring:message code="${notification.code}" arguments="${notification.parameters}" text="${notification.messages[lang]}" />
 				</div>
 			</div>

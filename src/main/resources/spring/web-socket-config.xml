@@ -6,11 +6,11 @@
         http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd">
 
 
-	<websocket:message-broker application-destination-prefix="/Application/" user-destination-prefix="/User/">
+	<websocket:message-broker application-destination-prefix="/Application" user-destination-prefix="/User">
 		<websocket:stomp-endpoint path="/Messaging">
 			<websocket:sockjs client-library-url="/js/web-socket/sockjs.min.js" />
 		</websocket:stomp-endpoint>
-		<websocket:simple-broker prefix="/Task"/>
+		<websocket:simple-broker prefix="/Task,/Notification"/>
 	</websocket:message-broker>
 	
 	<sec:websocket-message-broker>
@@ -21,9 +21,9 @@
 
 		<sec:intercept-message type="DISCONNECT" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
-		<sec:intercept-message pattern="/User/Task" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		<sec:intercept-message pattern="/User/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
-		<sec:intercept-message pattern="/Application/**" access="permitAll" />
+		<sec:intercept-message pattern="/Application/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
 		<!-- <sec:intercept-message type="MESSAGE" access="denyAll" />
 

@@ -13,10 +13,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceMessageNotifier;
 import lu.itrust.business.TS.model.general.helper.Notification;
 
@@ -26,6 +29,8 @@ import lu.itrust.business.TS.model.general.helper.Notification;
  */
 @Service
 public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Serializable {
+
+	private static final String NOTIFICATION_DESTINATION = "/Notification";
 
 	private static final String ALL_USER_KEY = "---0-0-0-ALL-USER-123-AZERDFXF=NO-2-~&+ASCXYTS---][aqwlsodddfkj,cc";
 
@@ -100,11 +105,15 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 
 		usernames.add(username);
 
-		if (messagingTemplate != null) {
-			if (ALL_USER_KEY.equals(username))
-				messagingTemplate.convertAndSend("/Nofitication", notification);
-			else
-				messagingTemplate.convertAndSendToUser(username, "/Nofitication", notification);
+		if (messagingTemplate != null && notification.isShowning(System.currentTimeMillis())) {
+			try {
+				if (ALL_USER_KEY.equals(username))
+					messagingTemplate.convertAndSend(NOTIFICATION_DESTINATION, notification);
+				else
+					messagingTemplate.convertAndSendToUser(username, NOTIFICATION_DESTINATION, notification);
+			} catch (MessagingException e) {
+				TrickLogManager.Persist(e);
+			}
 		}
 	}
 
@@ -132,14 +141,17 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 	 */
 	@Override
 	public List<Notification> findAllByUsername(String username) {
-		String name = StringUtils.isEmpty(username) || username.equals(ALL_USER_KEY) ? ALL_USER_KEY : username;
-		List<String> ids = new LinkedList<>();
+
+		final List<String> ids = new LinkedList<>();
+		final long currentTime = System.currentTimeMillis();
+		final String name = StringUtils.isEmpty(username) || username.equals(ALL_USER_KEY) ? ALL_USER_KEY : username;
+
 		ids.addAll(usernameToIds.getOrDefault(name, Collections.emptyList()));
 		if (!name.equals(ALL_USER_KEY))
 			ids.addAll(usernameToIds.getOrDefault(ALL_USER_KEY, Collections.emptyList()));
 
-		List<Notification> notifications = ids.parallelStream().distinct().map(id -> this.notifications.get(id)).filter(notification -> notification != null)
-				.collect(Collectors.toList());
+		List<Notification> notifications = ids.parallelStream().distinct().map(id -> this.notifications.get(id))
+				.filter(notification -> notification != null && notification.isShowning(currentTime)).collect(Collectors.toList());
 
 		if (!name.equals(ALL_USER_KEY))
 			notifications.parallelStream().filter(Notification::isOnce).forEach(notification -> remove(notification.getId(), name));
@@ -166,6 +178,25 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 	@Override
 	public Notification findById(String id) {
 		return id == null ? null : notifications.get(id);
+	}
+
+	@Override
+	public void clear(String username) {
+		String name = StringUtils.isEmpty(username) ? ALL_USER_KEY : username;
+		findAllByUsername(name).parallelStream().forEach(notfication -> remove(notfication.getId(), name));
+	}
+
+	@Override
+	public List<Notification> findAll() {
+		return usernameToIds.getOrDefault(ALL_USER_KEY, Collections.emptyList()).parallelStream().map(id -> this.notifications.get(id)).filter(notification -> notification != null)
+				.sorted((n0, n1) -> n0.getCreated().compareTo(n1.getCreated()) * -1).collect(Collectors.toList());
+	}
+
+	@Scheduled(initialDelay = 5000, fixedDelay = 5000)
+	public void scheduler() {
+		if (this.messagingTemplate == null)
+			return;
+		findAllByUsername(ALL_USER_KEY).stream().forEach(notification -> messagingTemplate.convertAndSend(NOTIFICATION_DESTINATION, notification));
 	}
 
 }

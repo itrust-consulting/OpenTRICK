@@ -24,6 +24,10 @@ public interface ServiceMessageNotifier {
 	void notifyUser(String username, Notification notification);
 	
 	List<Notification> findAllByUsername(String username);
+	
+	List<Notification> findAll();
 
 	Notification findById(String id);
+
+	void clear(String username);
 }

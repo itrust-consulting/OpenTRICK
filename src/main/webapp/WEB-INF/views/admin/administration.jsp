@@ -51,6 +51,13 @@
 	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/user.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/ids.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript">
+		resolveMessage("label.created.date", "<spring:message code='label.created.date' />");
+		resolveMessage("label.log.level.info", "<spring:message code='label.log.level.info' />");
+		resolveMessage("label.log.level.warning", "<spring:message code='label.log.level.warning' />");
+		resolveMessage("label.log.level.error", "<spring:message code='label.log.level.error' />");
+		resolveMessage("label.log.level.success", "<spring:message code='label.log.level.success' />");
+	</script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

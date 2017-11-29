@@ -25,8 +25,8 @@
 				<form name="notificationForm" action="" class="form-horizontal" id="notification-form">
 					<input type="hidden" name="id" value="${form.data.id}"> <input type="hidden" name="code" value="${form.data.code}">
 					<div class='form-group'>
-						<label class='control-label col-md-4'><spring:message code='label.notification.type' text="Type"/></label>
-						<div class="col-md-8">
+						<label class='control-label col-md-3'><spring:message code='label.notification.type' text="Type" /></label>
+						<div class="col-md-9">
 							<select name="type" class="form-control">
 								<c:forEach items="${types}" var="type">
 									<option value="${type}" ${type==form.data.type?'selected':''}><spring:message code="label.log.level.${fn:toLowerCase(type)}" text="${fn:toLowerCase(type)}" /></option>
@@ -34,10 +34,33 @@
 							</select>
 						</div>
 					</div>
+
+					<div class='form-group'>
+						<label class='control-label col-md-3'><spring:message code='label.notification.start.date' text="Start" /></label>
+						<div class="col-md-6">
+							<input  class='form-control' type="date"
+								value='<fmt:formatDate value="${form.data.endDate}" pattern="dd-MM-yyyy"/>' name="startDate" placeholder="dd-mm-yyyy"> 
+						</div >
+						<div class="col-md-3"><input
+								class='form-control pull-left' type="time" value='<fmt:formatDate value="${form.data.endDate}" pattern="hh:mm"/>' name="startDateTime" placeholder="hh:mm"></div>
+					</div>
+
+					<div class='form-group'>
+						<label class='control-label col-md-3'><spring:message code='label.notification.end.date' text="End" /></label>
+						<div class="col-md-6">
+							<input class='form-control' type="date" value='<fmt:formatDate value="${form.data.endDate}" pattern="dd-MM-yyyy"/>' name="endDate"
+								placeholder="dd-mm-yyyy">
+						</div>
+
+						<div class="col-md-3">
+							<input class='form-control' type="time" value='<fmt:formatDate value="${form.data.endDate}" pattern="hh:mm"/>' name="endDateTime" placeholder="hh:mm">
+						</div>
+					</div>
+
 					<c:forEach items="${langues}" var="langue">
 						<div class='form-group'>
-							<label class='control-label col-md-4' style="text-transform: capitalize;"><spring:message text="${langue.getDisplayLanguage(locale)}" /></label>
-							<div class='col-md-8'>
+							<label class='control-label col-md-3' style="text-transform: capitalize;"><spring:message text="${langue.getDisplayLanguage(locale)}" /></label>
+							<div class='col-md-9'>
 								<textarea class='form-control' lang="${langue.language}" name="messages[${langue.language}]"><spring:message text="${form.data.messages[langue.language]}" /></textarea>
 							</div>
 						</div>

@@ -69,7 +69,7 @@ function TaskManager(title) {
 					}else self.__process(tasks);
 				});
 				
-				self.stomp.subscribe("/Application/Notification", (data) => {self.__processSystemMessage(data);});
+				self.stomp.subscribe("/Notification", (data) => {self.__processSystemMessage(data);});
 				self.stomp.subscribe("/User/Notification", (data) => {self.__processSystemMessage(data);});
 				this.UpdateTaskCount();
 			}, (e) => {
@@ -94,7 +94,7 @@ function TaskManager(title) {
 	
 	
 	TaskManager.prototype.__processSystemMessage = function(data){
-		var message = JSON.parse(data.body);
+		var self = this,  message = JSON.parse(data.body);
 		if(message.type){
 			var content =  message.messages[self.getLangue()], notification = application.currentNotifications[message.id]
 			if(!content)
@@ -102,7 +102,7 @@ function TaskManager(title) {
 			if(notification)
 				notification.update("message",content);
 			else {
-				var self = this,  callback = (e) => {self.DeleteMessage(message.id)}
+				var callback = (e) => {self.Remove(message.id);}
 				switch (message.type) {
 				case "ERROR":
 					notification = showStaticDialog("error",content, undefined, undefined, callback );
@@ -122,7 +122,6 @@ function TaskManager(title) {
 		}else  showStaticDialog("info", message);
 	};
 	
-
 	TaskManager.prototype.__switchToLegacyClient = function () {
 		var self = this;
 		self.legacy = true;
@@ -156,7 +155,7 @@ function TaskManager(title) {
 				url: context + "/Task/In-progress?legacy=true",
 				contentType: "application/json;charset=UTF-8",
 				success: function (reponse) {
-					 if (!Array.isArray(reponse) && reponse.length) {
+					 if (Array.isArray(reponse) && reponse.length) {
 						for (var i = 0; i < reponse.length; i++) {
 							if ($.isNumeric(reponse[i]) && !(reponse[i] in self.tasks)) {
 								self.tasks.push(reponse[i]);
@@ -188,25 +187,27 @@ function TaskManager(title) {
 			});
 	};
 
-	TaskManager.prototype.Remove = function (taskId) {
-		var index = this.tasks.indexOf(taskId);
-		if (index > -1)
-			this.tasks.splice(index, 1);
-		if (this.progressBars[taskId] != undefined && this.progressBars[taskId] != null) {
-			this.progressBars[taskId].close();
-			this.progressBars.splice(taskId, 1);
-		}
-
-		this.__remove(taskId);
-
+	TaskManager.prototype.Remove = function (id) {
+		 if(application.currentNotifications[id])
+			 delete application.currentNotifications[id]
+		 else this.__removeTask(id);
 		return this;
 	};
 
-	TaskManager.prototype.__remove = function (id) {
+	TaskManager.prototype.__removeTask = function (id) {
 		try {
+			
+			var index = this.tasks.indexOf(id);
+			if (index > -1)
+				this.tasks.splice(index, 1);
+			if (this.progressBars[id] != undefined && this.progressBars[id] != null) {
+				this.progressBars[id].close();
+				this.progressBars.splice(id, 1);
+			}
+			
 			if (this.legacy) {
 				$.ajax({
-					url: context + "/Task/" + id+"/Done",
+					url: context + "/Task/" +id+"/Done",
 					contentType: "application/json;charset=UTF-8",
 					error: unknowError
 				});

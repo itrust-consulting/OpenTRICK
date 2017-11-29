@@ -329,7 +329,7 @@ function showStaticNotifcation(type, message, icon, title , url, onClose) {
 				$notification.close();
 			}, 300);
 		});
-	return
+	return $notification;
 }
 
 function onElementInserted(elementClass, callback) {
@@ -1030,11 +1030,6 @@ $(document)
 		.ready(
 				function() {
 					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
-
-					$("#controller-notifications div[data-notification-type]").each(function(){
-						showDialog(this.getAttribute("data-notification-type"), this.innerText);
-						this.parentNode.removeChild(this);
-					});
 					
 					$(document).ajaxSend(function(e, xhr, options) {
 						if (options.url !== (context + '/IsAuthenticate'))
@@ -1249,8 +1244,7 @@ $(document)
 							showDialog(this.getAttribute("data-notification-type"), this.innerText);
 						else {
 							application.currentNotifications[id] = showStaticDialog(this.getAttribute("data-notification-type"), this.innerText, undefined, undefined, (e) => {
-								application['taskManager'].Delete(id);
-								delete application.currentNotifications[id];
+								application['taskManager'].Remove(id);
 							});
 						}
 						this.parentNode.removeChild(this);

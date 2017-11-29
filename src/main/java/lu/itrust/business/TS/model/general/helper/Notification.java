@@ -32,6 +32,10 @@ public class Notification implements Serializable {
 
 	private Timestamp created;
 
+	private Timestamp startDate;
+
+	private Timestamp endDate;
+
 	/**
 	 * 
 	 */
@@ -136,9 +140,9 @@ public class Notification implements Serializable {
 	}
 
 	public boolean update() {
-		if(!isValidId())
+		if (!isValidId())
 			this.id = UUID.randomUUID().toString();
-		if(this.created == null)
+		if (this.created == null)
 			this.created = new Timestamp(System.currentTimeMillis());
 		return !(StringUtils.isEmpty(this.code) && isEmpty());
 	}
@@ -148,8 +152,34 @@ public class Notification implements Serializable {
 		this.messages = notification.messages;
 		this.parameters = notification.parameters;
 		this.once = notification.once;
+		this.endDate = notification.endDate;
+		this.startDate = notification.startDate;
 		return this;
-		
+
+	}
+
+	public Timestamp getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Timestamp startDate) {
+		this.startDate = startDate;
+	}
+
+	public Timestamp getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Timestamp endDate) {
+		this.endDate = endDate;
+	}
+
+	public boolean isShowning(long date) {
+		if(isOnce())
+			return true;
+		if (this.startDate == null)
+			return endDate == null || endDate.getTime() >= date;
+		return this.startDate.getTime() <= date && (endDate == null || endDate.getTime() >= date);
 	}
 
 }

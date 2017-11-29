@@ -658,26 +658,27 @@ public class ControllerAdministration {
 	}
 
 	@GetMapping(value = "/Notification/ALL", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public  @ResponseBody List<Notification> notification(Model model, Locale locale) {
-		return serviceMessageNotifier.findAllByUsername(null);
+	public @ResponseBody List<Notification> notification(Model model, Locale locale) {
+		return serviceMessageNotifier.findAll();
 	}
 
 	@GetMapping(value = "/Notification/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String add(Model model, Locale locale) {
 		model.addAttribute("form", new NotificationForm());
-		model.addAttribute("langues", new Locale [] {Locale.FRENCH, Locale.ENGLISH});
+		model.addAttribute("langues", new Locale[] { Locale.FRENCH, Locale.ENGLISH });
 		model.addAttribute("types", LogLevel.values());
 		model.addAttribute("locale", locale);
 		return "admin/notification/form";
 	}
-	
+
 	@GetMapping(value = "/Notification/{id}/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String edit(@PathVariable String id,Model model, Locale locale) {
+	public String edit(@PathVariable String id, Model model, Locale locale) {
 		Notification notification = serviceMessageNotifier.findById(id);
-		if(notification == null)
+		if (notification == null)
 			model.addAttribute("form", new NotificationForm());
-		else model.addAttribute("form", new NotificationForm(notification));
-		model.addAttribute("langues", new Locale [] {Locale.FRENCH, Locale.ENGLISH});
+		else
+			model.addAttribute("form", new NotificationForm(notification));
+		model.addAttribute("langues", new Locale[] { Locale.FRENCH, Locale.ENGLISH });
 		model.addAttribute("types", LogLevel.values());
 		model.addAttribute("locale", locale);
 		return "admin/notification/form";
@@ -686,6 +687,12 @@ public class ControllerAdministration {
 	@DeleteMapping(value = "/Notification/{id}/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public void deleteNotification(@PathVariable String id, Locale locale) {
 		serviceMessageNotifier.remove(id);
+	}
+
+	@DeleteMapping(value = "/Notification/Clear", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object clearNotification(Locale locale) {
+		serviceMessageNotifier.clear(null);
+		return JsonMessage.Success(messageSource.getMessage("success.clear.notification", null, "Notifications had been successfully cleared", locale));
 	}
 
 	@PostMapping(value = "/Notification/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -707,15 +714,16 @@ public class ControllerAdministration {
 							.forEach(username -> serviceMessageNotifier.notifyUser(username, notification));
 			}
 		}
-		return new Object[] { messageSource.getMessage("success.notification.save", null, locale), form.getData()};
+		return new Object[] { messageSource.getMessage("success.notification.save", null, locale), form.getData() };
 	}
 
 	private Notification updateMessages(Notification notification) {
 		String[] locales = { "en", "fr" };
-		String defaultMessage = notification.getMessages().values().stream().filter(value -> !StringUtils.isEmpty(value)).findAny().orElse(null);
+		String defaultMessage = notification.getMessages().values().stream().map(value -> value == null ? "" : value.trim()).filter(value -> !value.isEmpty()).findAny()
+				.orElse(null);
 		for (String langue : locales) {
 			String message = notification.getMessages().get(langue);
-			if (message == null) {
+			if (message == null || message.trim().isEmpty()) {
 				if (StringUtils.isEmpty(notification.getCode()))
 					notification.getMessages().put(langue, defaultMessage);
 				else
