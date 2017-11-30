@@ -136,7 +136,7 @@ public class Notification implements Serializable {
 	}
 
 	public boolean isEmpty() {
-		return this.messages == null || this.messages.isEmpty();
+		return this.messages == null || !this.messages.values().stream().anyMatch(value -> !(value == null || value.trim().isEmpty()));
 	}
 
 	public boolean update() {
@@ -175,7 +175,7 @@ public class Notification implements Serializable {
 	}
 
 	public boolean isShowning(long date) {
-		if(isOnce())
+		if (isOnce())
 			return true;
 		if (this.startDate == null)
 			return endDate == null || endDate.getTime() >= date;

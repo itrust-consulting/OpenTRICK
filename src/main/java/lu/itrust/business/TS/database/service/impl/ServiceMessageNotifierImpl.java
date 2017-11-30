@@ -182,8 +182,10 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 
 	@Override
 	public void clear(String username) {
-		String name = StringUtils.isEmpty(username) ? ALL_USER_KEY : username;
-		findAllByUsername(name).parallelStream().forEach(notfication -> remove(notfication.getId(), name));
+		if (StringUtils.isEmpty(username) || username.equals(ALL_USER_KEY))
+			findAll().parallelStream().forEach(notfication -> remove(notfication.getId(), ALL_USER_KEY));
+		else
+			findAllByUsername(username).forEach(notfication -> remove(notfication.getId(), username));
 	}
 
 	@Override
@@ -192,7 +194,7 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 				.sorted((n0, n1) -> n0.getCreated().compareTo(n1.getCreated()) * -1).collect(Collectors.toList());
 	}
 
-	@Scheduled(initialDelay = 5000, fixedDelay = 5000)
+	@Scheduled(initialDelay = 60000, fixedDelay = 60000)
 	public void scheduler() {
 		if (this.messagingTemplate == null)
 			return;

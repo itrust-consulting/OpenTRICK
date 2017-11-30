@@ -11,7 +11,6 @@ function TaskManager(title) {
 	this.csrfHeader = null;
 	this.csrfToken = null;
 	this.locker = false;
-	this.langue = null;
 
 	TaskManager.prototype.Start = function () {
 		if (!(this.stomp || this.legacy))
@@ -30,14 +29,7 @@ function TaskManager(title) {
 	};
 	
 	TaskManager.prototype.getLangue = function(){
-		if(!this.langue)
-			this.__loadLangue();
-		return this.langue;
-	};
-	
-	TaskManager.prototype.__loadLangue = function (){
-		this.langue = $("[role='changeUILanguage'][data-lang]").attr("data-lang");
-		return this;
+		return application.language;
 	};
 
 	TaskManager.prototype.__createStompClient = function () {

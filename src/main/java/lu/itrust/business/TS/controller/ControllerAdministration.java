@@ -664,11 +664,7 @@ public class ControllerAdministration {
 
 	@GetMapping(value = "/Notification/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String add(Model model, Locale locale) {
-		model.addAttribute("form", new NotificationForm());
-		model.addAttribute("langues", new Locale[] { Locale.FRENCH, Locale.ENGLISH });
-		model.addAttribute("types", LogLevel.values());
-		model.addAttribute("locale", locale);
-		return "admin/notification/form";
+		return edit(null, model, locale);
 	}
 
 	@GetMapping(value = "/Notification/{id}/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -685,8 +681,9 @@ public class ControllerAdministration {
 	}
 
 	@DeleteMapping(value = "/Notification/{id}/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public void deleteNotification(@PathVariable String id, Locale locale) {
+	public @ResponseBody Object deleteNotification(@PathVariable String id, Locale locale) {
 		serviceMessageNotifier.remove(id);
+		return JsonMessage.Success(messageSource.getMessage("success.delete.message", null, locale));
 	}
 
 	@DeleteMapping(value = "/Notification/Clear", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -699,7 +696,7 @@ public class ControllerAdministration {
 	public @ResponseBody Object saveNotification(@RequestBody NotificationForm form, Locale locale) {
 		Notification notification = form.getData();
 		if (!notification.update())
-			return JsonMessage.Error(messageSource.getMessage("error.notification.not.message", null, locale));
+			return JsonMessage.Error(messageSource.getMessage("error.notification.message.empty", null, locale));
 		else {
 			Notification old = serviceMessageNotifier.findById(notification.getId());
 			if (old != null) {

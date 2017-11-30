@@ -6,7 +6,8 @@ var application = new Application();
 function Application() {
 	this.modal = {};
 	this.data = {};
-	this.rights = {}
+	this.rights = {};
+	this.language = "en";
 	this.localesMessages = {};
 	this.fixedOffset = 0
 	this.shownScrollTop = true;

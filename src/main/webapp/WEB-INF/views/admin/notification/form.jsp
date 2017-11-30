@@ -25,9 +25,9 @@
 				<form name="notificationForm" action="" class="form-horizontal" id="notification-form">
 					<input type="hidden" name="id" value="${form.data.id}"> <input type="hidden" name="code" value="${form.data.code}">
 					<div class='form-group'>
-						<label class='control-label col-md-3'><spring:message code='label.notification.type' text="Type" /></label>
+						<label class='control-label col-md-3'><spring:message code='label.type' text="Type" /></label>
 						<div class="col-md-9">
-							<select name="type" class="form-control">
+							<select name="type" class="form-control" ${form.data.isEmpty()? '': 'readonly disabled'}>
 								<c:forEach items="${types}" var="type">
 									<option value="${type}" ${type==form.data.type?'selected':''}><spring:message code="label.log.level.${fn:toLowerCase(type)}" text="${fn:toLowerCase(type)}" /></option>
 								</c:forEach>
@@ -36,20 +36,20 @@
 					</div>
 
 					<div class='form-group'>
-						<label class='control-label col-md-3'><spring:message code='label.notification.start.date' text="Start" /></label>
+						<label class='control-label col-md-3'><spring:message code='label.date.from' text="From" /></label>
 						<div class="col-md-6">
 							<input  class='form-control' type="date"
-								value='<fmt:formatDate value="${form.data.endDate}" pattern="dd-MM-yyyy"/>' name="startDate" placeholder="dd-mm-yyyy"> 
+								value='<fmt:formatDate value="${form.data.startDate}" pattern="yyyy-MM-dd"/>' name="startDate" placeholder="dd-mm-yyyy"> 
 						</div >
 						<div class="col-md-3"><input
-								class='form-control pull-left' type="time" value='<fmt:formatDate value="${form.data.endDate}" pattern="hh:mm"/>' name="startDateTime" placeholder="hh:mm"></div>
+								class='form-control pull-left' type="time" value='<fmt:formatDate value="${form.data.startDate}" pattern="hh:mm"/>' name="startDateTime" placeholder="hh:mm"></div>
 					</div>
 
 					<div class='form-group'>
-						<label class='control-label col-md-3'><spring:message code='label.notification.end.date' text="End" /></label>
+						<label class='control-label col-md-3'><spring:message code='label.date.until' text="Until" /></label>
 						<div class="col-md-6">
-							<input class='form-control' type="date" value='<fmt:formatDate value="${form.data.endDate}" pattern="dd-MM-yyyy"/>' name="endDate"
-								placeholder="dd-mm-yyyy">
+							<input class='form-control' type="date" value='<fmt:formatDate value="${form.data.endDate}" pattern="yyyy-MM-dd"/>' name="endDate"
+								placeholder="mm-dd-yyyy">
 						</div>
 
 						<div class="col-md-3">

@@ -86,22 +86,28 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 
-		isNull(worker.getError(), "An error occured while export analysis");
+		try {
+			isNull(worker.getError(), "An error occured while export analysis");
 
-		MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 
-		notNull(messageHandler, "Last message cannot be found");
+			notNull(messageHandler, "Last message cannot be found");
 
-		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
+			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[0]").exists());
 
-		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+			
+			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 
-		notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
+			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 
-		notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
+			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(0)));
+			put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+		} finally {
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		}
 	}
 
 	@Test(timeOut = 120000)
@@ -132,22 +138,20 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 
-		isNull(worker.getError(), "An error occured while export word report");
-
-		MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
-
-		notNull(messageHandler, "Last message cannot be found");
-
-		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
-
-		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
-
-		notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
-
-		notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
-
-		put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(0)));
+		try {
+			isNull(worker.getError(), "An error occured while export word report");
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
+			notNull(messageHandler, "Last message cannot be found");
+			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
+			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
+			put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+		} finally {
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		}
 	}
 
 	@Test

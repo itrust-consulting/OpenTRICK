@@ -16,9 +16,8 @@ $(document).ready(function() {
 		}
 	});
 	
-	$("#btn-add-notification").on("click", addNotification);
-	
-	$("#btn-clear-notification").on("click", clearNotification)
+	$("#btn-add-notification").on("click", notificationForm);
+	$("#btn-clear-notification").on("click", clearNotification);
 });
 
 function installTrickService() {
@@ -473,16 +472,29 @@ function insertOrUpdateNotification(notification, $container){
 		$container = $("#notification-content");
 	var $current = $("[data-trick-id='"+notification.id+"'][data-role='notification']",$container);
 	if(!$current.length){
-		$current = $("<div class='col-md-4 col-sm-6' data-role='notification' ><div class='panel'><div class='panel-heading'><h3 class='panel-title'><span data-role='type' class='col-xs-4' /><span data-role='created' class='col-xs-6' /><span data-role='control' class='col-xs-2 text-right' style='padding-right: 0;'><span class='btn-group'><button class='btn btn-xs btn-warning' name='edit'><i class='fa fa-edit'></i></button><button class='btn btn-xs btn-danger' name='delete'><i class='fa fa-remove'></i></button></span></span></h3><div class='clearfix'/></div><div class='panel-body'><fieldset><legend>Français</legend><div lang='fr' data-trick-content='text'></div></fieldset><fieldset><legend>English</legend><div lang='en' data-trick-content='text'></div></fieldset></div></div></div>");
+		$current = $("<div class='col-lg-4 col-md-6' data-role='notification' ><div class='panel'><div class='panel-heading'><h3 class='panel-title'><span style='display:block; margin-bottom:8px;'><span data-role='type' class='col-xs-6' style='padding-left:0'/><span data-role='control' class='col-xs-6 text-right' style='padding-right: 0;'><span class='btn-group'><button class='btn btn-xs btn-warning' name='edit'><i class='fa fa-edit'></i></button><button class='btn btn-xs btn-danger' name='delete'><i class='fa fa-remove'></i></button></span></span><span class='clearfix'/></span><span style='display:block;'><span class='col-xs-6' data-role='startDate' style='padding-left:0'/><span class='col-xs-6 text-right' data-role='endDate'/> <span class='clearfix'/></span></h3></div><div class='panel-body'><fieldset><legend>Français</legend><div lang='fr' data-trick-content='text'></div></fieldset><fieldset><legend>English</legend><div lang='en' data-trick-content='text'></div></fieldset></div><div class='panel-footer'><span data-role='created' /></div></div></div>");
 		$current.attr("data-trick-id", notification.id);
 		$("button[name='delete']", $current).on("click", (e) => {deleteNotification(notification.id);});
-		$("button[name='edit']", $current).on("click", (e) => {editNotification(notification.id);});
+		$("button[name='edit']", $current).on("click", (e) => {notificationForm(e,notification.id);});
 	}
 	
-	var type = notification.type.toLowerCase(),  $panel = $("div.panel", $current), $type = $("[data-role='type']", $panel), $created = $("[data-role='created']", $panel), $body = $("div.panel-body", $panel);
-	$panel.attr("class", "panel panel-"+type);
-	$type.text(MessageResolver("label.log.level."+type,type.capitalize()));
-	$created.text(MessageResolver("label.created.date","Created at: ") + new Date(notification.created).toLocaleString());
+	var locale = application.language=='en'? 'en-GB' : 'fr-FR', options = {weekday: "long", year: "numeric", month: "long", day: "numeric", hour:"numeric", minute : "numeric"};
+	var type = notification.type.toLowerCase(),  $panel = $("div.panel", $current), $body = $("div.panel-body", $panel);
+	
+	$panel.attr("class", "panel panel-"+(type ==='error'? 'danger':type) );
+	
+	$("[data-role='type']", $panel).text(MessageResolver("label.log.level."+type,type.capitalize()));
+	
+	$("[data-role='created']",$panel).text(MessageResolver("label.created.date","Created at: ") + new Date(notification.created).toLocaleString(locale,options));
+	
+	if(notification.startDate)
+		$("[data-role='startDate']", $panel).text(MessageResolver("label.notification.date.from","From at: ") + new Date(notification.startDate).toLocaleString(locale,options));
+	else $("[data-role='startDate']", $panel).text(MessageResolver("label.notification.date.from","From at: ") + "-");
+	
+	if(notification.endDate)
+		$("[data-role='endDate']", $panel).text(MessageResolver("label.notification.date.until","Until: ") + new Date(notification.endDate).toLocaleString(locale,options));
+	else $("[data-role='endDate']", $panel).text(MessageResolver("label.notification.date.until","Until: ") + "-");
+	
 	for ( var lang in notification.messages) {
 		var $language = $("[lang='"+lang+"']", $body);
 		if($language.length)
@@ -494,32 +506,8 @@ function insertOrUpdateNotification(notification, $container){
 	return false;
 }
 
-function addNotification(e){
-	var $progress = $("#progress-trickLog").show();
-	$.ajax({
-		url : context + "/Admin/Notification/Add",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			 $view = $("#modal-add-notification",new DOMParser().parseFromString(response, "text/html"));
-			 if(!$view.length)
-				 unknowError();
-			 else {
-				 $view.appendTo("#widget");
-				 $view.modal("show").on('hidden.bs.modal', () => $view.remove());
-				 $("button[name='save']", $view).on("click",saveNotification);
-			 }
-			return false;
-		},
-		error : unknowError
-	}).complete(() => {
-		$progress.hide();
-	});
-
-	return false;
-}
-
 function clearNotification(e){
-	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.clear.notification", "Are you sure, you want to clear notification!"));
+	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.clear.notification", "Are you sure, you want to clear notification?"));
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
 		var $progress = $("#progress-trickLog").show();
 		$.ajax({
@@ -539,6 +527,54 @@ function clearNotification(e){
 			$progress.hide();
 		});
 	});
+	return false;
+}
+
+function deleteNotification(id){
+	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.notification", "Are you sure, you want to delete this notification?"));
+	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
+		var $progress = $("#progress-trickLog").show();
+		$.ajax({
+			url : context + "/Admin/Notification/"+id+"/Delete",
+			type : "delete",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if(response.success){
+					$('#notification-content div[data-role="notification"][data-trick-id="'+id+'"]').remove();
+					showDialog("success", response.success);
+				}else if(response.error)
+					showDialog("error", response.error);
+				else unknowError();
+			},
+			error : unknowError
+		}).complete(() => {
+			$progress.hide();
+		});
+	});
+	return false;
+}
+
+function notificationForm(e, id){
+	var $progress = $("#progress-trickLog").show();
+	$.ajax({
+		url : context + (id? "/Admin/Notification/"+id+"/Edit" :"/Admin/Notification/Add" ) ,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			 $view = $("#modal-add-notification",new DOMParser().parseFromString(response, "text/html"));
+			 if(!$view.length)
+				 unknowError();
+			 else {
+				 $view.appendTo("#widget");
+				 $view.modal("show").on('hidden.bs.modal', () => $view.remove());
+				 $("button[name='save']", $view).on("click",saveNotification);
+			 }
+			return false;
+		},
+		error : unknowError
+	}).complete(() => {
+		$progress.hide();
+	});
+
 	return false;
 }
 

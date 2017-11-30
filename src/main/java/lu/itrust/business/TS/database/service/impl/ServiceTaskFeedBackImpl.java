@@ -276,12 +276,12 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
 	@Override
 	public boolean isWebSocketSupported(String username) {
-		return username == null || !webSocketSupported.containsKey(username);
+		return messagingTemplate != null && (username == null || !webSocketSupported.containsKey(username));
 	}
 
 	@Override
 	public void setWebSocketSupported(String username, boolean support) {
-		if (username == null)
+		if (username == null || messagingTemplate == null)
 			return;
 		if (support)
 			webSocketSupported.remove(username);
