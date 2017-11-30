@@ -15,9 +15,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
  */
 public interface ServiceTaskFeedback {
 
-	public int messageCount(String id);
-
-	public boolean taskExist(String id);
+	public boolean exists(String id);
 
 	public boolean hasMessage(String id);
 
@@ -37,8 +35,6 @@ public interface ServiceTaskFeedback {
 
 	public MessageHandler recieveById(String id);
 
-	public MessageHandler recieveLast(String id);
-
 	public List<MessageHandler> recieve(String userName);
 
 	public List<String> tasks(String userName);
@@ -46,4 +42,8 @@ public interface ServiceTaskFeedback {
 	public String findUsernameById(String id);
 
 	public void update(String username, Locale locale);
+
+	boolean isWebSocketSupported(String username);
+
+	void setWebSocketSupported(String username, boolean support);
 }

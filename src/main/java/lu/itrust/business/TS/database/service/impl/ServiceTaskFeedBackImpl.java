@@ -6,16 +6,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Queue;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import lu.itrust.business.TS.asynchronousWorkers.AsyncResult;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncResult;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -32,22 +33,24 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 @Service
 public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
+	private Map<String, Boolean> webSocketSupported = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
+
 	private Map<String, Locale> userLocales = Collections.synchronizedMap(new LinkedHashMap<String, Locale>());
 
 	private Map<String, String> taskUsers = Collections.synchronizedMap(new LinkedHashMap<String, String>());
 
 	private Map<String, List<String>> userTasks = Collections.synchronizedMap(new LinkedHashMap<String, List<String>>());
 
-	private Map<String, Queue<MessageHandler>> messageHandlers = Collections.synchronizedMap(new LinkedHashMap<String, Queue<MessageHandler>>());
+	private Map<String, MessageHandler> messageHandlers = Collections.synchronizedMap(new LinkedHashMap<String, MessageHandler>());
 
 	@Autowired
 	private MessageSource messageSource;
 
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
+	@Autowired(required = false)
+	private SimpMessagingTemplate messagingTemplate;
 
 	@Autowired
-	private SimpMessagingTemplate messagingTemplate;
+	private WorkersPoolManager workersPoolManager;
 
 	@Value("${app.settings.background.task.max.pool.size}")
 	private int maxPoolSize;
@@ -62,26 +65,11 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#messageCount(String)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#exists(String)
 	 */
 	@Override
-	public int messageCount(String id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		return queue == null ? 0 : queue.size();
-	}
-
-	/**
-	 * taskExist: <br>
-	 * Description
-	 * 
-	 * @param id
-	 * @return
-	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#taskExist(String)
-	 */
-	@Override
-	public boolean taskExist(String id) {
-		return messageHandlers.containsKey(id);
+	public boolean exists(String id) {
+		return taskUsers.containsKey(id);
 	}
 
 	/**
@@ -95,8 +83,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public boolean hasMessage(String id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		return queue != null && !queue.isEmpty();
+		return messageHandlers.containsKey(id);
 	}
 
 	/**
@@ -155,7 +142,6 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		List<String> tasks = userTasks.containsKey(userName) ? userTasks.get(userName) : Collections.synchronizedList(new LinkedList<String>());
 		if (tasks.size() >= maxUserSize || workersPoolManager.poolSize() >= maxPoolSize)
 			return false;
-		messageHandlers.put(id, new LinkedList<MessageHandler>());
 		taskUsers.put(id, userName);
 		tasks.add(id);
 		if (!userTasks.containsKey(userName))
@@ -185,11 +171,11 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 			tasks.remove(id);
 			if (tasks.isEmpty())
 				userTasks.remove(userName);
-			Queue<MessageHandler> handlers = messageHandlers.remove(id);
-			if (!(handlers == null || handlers.isEmpty()))
-				handlers.clear();
+			messageHandlers.remove(id);
 			taskUsers.remove(id);
-			workersPoolManager.remove(id);
+			Worker worker = workersPoolManager.remove(id);
+			if (worker != null && worker.isWorking())
+				worker.cancel();
 		} finally {
 			if (!userTasks.containsKey(userName))
 				userLocales.remove(userName);
@@ -231,10 +217,9 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	}
 
 	private void sendMessage(MessageHandler handler) {
-		Queue<MessageHandler> queue = messageHandlers.get(handler.getIdTask());
-		if (queue == null)
+		if (!exists(handler.getIdTask()))
 			return;
-		queue.add(handler);
+		messageHandlers.put(handler.getIdTask(), handler);
 		sendToUser(handler);
 	}
 
@@ -243,7 +228,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		AsyncResult asyncResult = null;
 		try {
 			username = findUsernameById(handler.getIdTask());
-			if (username == null)
+			if (username == null || !isWebSocketSupported(username))
 				return;
 			Locale locale = userLocales.get(username);
 			asyncResult = new AsyncResult(handler.getIdTask());
@@ -269,7 +254,6 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 					asyncResult.setFlag(5);
 				}
 			}
-			
 			// check if message exists or set null
 			asyncResult.setMessage(messageSource.getMessage(handler.getCode(), handler.getParameters(), handler.getMessage(), locale));
 			asyncResult.setProgress(handler.getProgress());
@@ -281,14 +265,28 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
 				asyncResult.setFlag(5);
 			}
-
 			this.messagingTemplate.convertAndSendToUser(username, "/Task", asyncResult);
+		} catch (MessagingException e) {
+			setWebSocketSupported(username, false);
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-		} finally {
-			if (!(asyncResult == null || username == null) && (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3))
-				unregisterTask(username, handler.getIdTask());
 		}
+	}
+
+	@Override
+	public boolean isWebSocketSupported(String username) {
+		return messagingTemplate != null && (username == null || !webSocketSupported.containsKey(username));
+	}
+
+	@Override
+	public void setWebSocketSupported(String username, boolean support) {
+		if (username == null || messagingTemplate == null)
+			return;
+		if (support)
+			webSocketSupported.remove(username);
+		else
+			webSocketSupported.put(username, support);
 	}
 
 	/**
@@ -319,34 +317,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public MessageHandler recieveById(String id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		if (queue == null || queue.isEmpty())
-			return null;
-		return queue.poll();
-	}
-
-	/**
-	 * recieveLast: <br>
-	 * Description
-	 * 
-	 * @param id
-	 * @return
-	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#recieveLast(String)
-	 */
-	@Override
-	public MessageHandler recieveLast(String id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		if (queue == null || queue.isEmpty())
-			return null;
-		MessageHandler messageHandler = null;
-		synchronized (queue) {
-			while (queue.size() > 1)
-				queue.poll();
-			if (!queue.isEmpty())
-				messageHandler = queue.peek();
-		}
-		return messageHandler;
+		return messageHandlers.get(id);
 	}
 
 	/**
@@ -360,13 +331,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public List<MessageHandler> recieve(String userName) {
-		List<MessageHandler> handlers = new LinkedList<>();
-		if (!userTasks.containsKey(userName))
-			return handlers;
-		for (String taskId : userTasks.get(userName))
-			if (messageHandlers.containsKey(taskId))
-				handlers.addAll(messageHandlers.get(taskId));
-		return handlers;
+		List<String> tasks = userTasks.get(userName);
+		if (tasks == null || tasks.isEmpty())
+			return Collections.emptyList();
+		return tasks.parallelStream().filter(id -> messageHandlers.containsKey(id)).map(id -> messageHandlers.get(id)).collect(Collectors.toList());
 	}
 
 	/**
@@ -380,7 +348,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public List<String> tasks(String userName) {
-		return userTasks.get(userName);
+		return userTasks.getOrDefault(userName, Collections.emptyList());
 	}
 
 	@Override

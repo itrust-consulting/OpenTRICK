@@ -47,4 +47,6 @@ public interface Worker extends Runnable {
 	void start();
 
 	void cancel();
+	
+	Thread getCurrent();
 }

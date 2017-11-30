@@ -1,7 +1,7 @@
 // load sections
 function loadPanelBodiesOfSection(section, refreshOnly) {
-	if (refreshOnly == "")
-		refreshOnly = undefined
+	if (refreshOnly===null || refreshOnly == "")
+		refreshOnly = false
 	var $section = $("#" + section);
 	if ($section.is(":visible")) {
 		var controller = findControllerBySection(section);
@@ -34,10 +34,10 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 
 // reload sections
 function reloadSection(section, subSection, refreshOnly,prepend) {
-	if (subSection == "")
+	if (subSection === null || subSection == "")
 		subSection = undefined;
-	if (refreshOnly == "")
-		refreshOnly = undefined
+	if (refreshOnly === null || refreshOnly == "")
+		refreshOnly = false
 	if(!(prepend===true || prepend ==='true'))
 		prepend = undefined;
 	if (Array.isArray(section)) {
@@ -62,7 +62,7 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 				url: context + controller,
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					if (subSection != null && subSection != undefined)
+					if (subSection !== undefined)
 						section += "_" + subSection;
 					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + section + "']", content);
 					if ($newSection.length) {

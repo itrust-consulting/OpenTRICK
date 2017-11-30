@@ -22,6 +22,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.util.FileCopyUtils;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -77,6 +78,8 @@ public class WorkerExportAnalysis implements Worker {
 	private SessionFactory sessionFactory;
 
 	private WorkersPoolManager poolManager;
+	
+	private Thread current;
 
 	/**
 	 * WorkerExportAnalysis: desc
@@ -110,6 +113,7 @@ public class WorkerExportAnalysis implements Worker {
 					return;
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
+				setCurrent(Thread.currentThread());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -365,7 +369,9 @@ public class WorkerExportAnalysis implements Worker {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						canceled = true;
 					}
 				}
@@ -397,6 +403,14 @@ public class WorkerExportAnalysis implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.EXPORT_ANALYSIS;
+	}
+
+	public Thread getCurrent() {
+		return current;
+	}
+
+	private void setCurrent(Thread current) {
+		this.current = current;
 	}
 
 }

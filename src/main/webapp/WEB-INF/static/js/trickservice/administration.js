@@ -7,9 +7,7 @@ $(document).ready(function() {
 		marginTop : application.fixedOffset
 	};
 	setTimeout(() => fixTableHeader("#tab-container table"), 300);
-});
-
-$(function() {
+	
 	$(window).scroll(function(e) {
 		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
 			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
@@ -17,6 +15,9 @@ $(function() {
 				window[$selectedTab.attr("data-scroll-trigger")].apply();
 		}
 	});
+	
+	$("#btn-add-notification").on("click", notificationForm);
+	$("#btn-clear-notification").on("click", clearNotification);
 });
 
 function installTrickService() {
@@ -443,4 +444,199 @@ function updateSetting(idForm, sender) {
 		});
 	}
 	return false;
+}
+
+function loadNotification() {
+	var $progress = $("#progress-trickLog").show();
+	$.ajax({
+		url : context + "/Admin/Notification/ALL",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			 if (Array.isArray(response) && response.length) {
+				 var $container = $("#notification-content");
+				 for (let notification of response)
+					insertOrUpdateNotification(notification,$container);
+			 }
+			return false;
+		},
+		error : unknowError
+	}).complete(() => {
+		$progress.hide();
+	});
+
+	return false;
+}
+
+function insertOrUpdateNotification(notification, $container){
+	if(!$container)
+		$container = $("#notification-content");
+	var $current = $("[data-trick-id='"+notification.id+"'][data-role='notification']",$container);
+	if(!$current.length){
+		$current = $("<div class='col-lg-4 col-md-6' data-role='notification' ><div class='panel'><div class='panel-heading'><h3 class='panel-title'><span style='display:block; margin-bottom:8px;'><span data-role='type' class='col-xs-6' style='padding-left:0'/><span data-role='control' class='col-xs-6 text-right' style='padding-right: 0;'><span class='btn-group'><button class='btn btn-xs btn-warning' name='edit'><i class='fa fa-edit'></i></button><button class='btn btn-xs btn-danger' name='delete'><i class='fa fa-remove'></i></button></span></span><span class='clearfix'/></span><span style='display:block;'><span class='col-xs-6' data-role='startDate' style='padding-left:0'/><span class='col-xs-6 text-right' data-role='endDate'/> <span class='clearfix'/></span></h3></div><div class='panel-body'><fieldset><legend>Français</legend><div lang='fr' data-trick-content='text'></div></fieldset><fieldset><legend>English</legend><div lang='en' data-trick-content='text'></div></fieldset></div><div class='panel-footer'><span data-role='created' /></div></div></div>");
+		$current.attr("data-trick-id", notification.id);
+		$("button[name='delete']", $current).on("click", (e) => {deleteNotification(notification.id);});
+		$("button[name='edit']", $current).on("click", (e) => {notificationForm(e,notification.id);});
+	}
+	
+	var locale = application.language=='en'? 'en-GB' : 'fr-FR', options = {weekday: "long", year: "numeric", month: "long", day: "numeric", hour:"numeric", minute : "numeric"};
+	var type = notification.type.toLowerCase(),  $panel = $("div.panel", $current), $body = $("div.panel-body", $panel);
+	
+	$panel.attr("class", "panel panel-"+(type ==='error'? 'danger':type) );
+	
+	$("[data-role='type']", $panel).text(MessageResolver("label.log.level."+type,type.capitalize()));
+	
+	$("[data-role='created']",$panel).text(MessageResolver("label.created.date","Created at: ") + new Date(notification.created).toLocaleString(locale,options));
+	
+	if(notification.startDate)
+		$("[data-role='startDate']", $panel).text(MessageResolver("label.notification.date.from","From at: ") + new Date(notification.startDate).toLocaleString(locale,options));
+	else $("[data-role='startDate']", $panel).text(MessageResolver("label.notification.date.from","From at: ") + "-");
+	
+	if(notification.endDate)
+		$("[data-role='endDate']", $panel).text(MessageResolver("label.notification.date.until","Until: ") + new Date(notification.endDate).toLocaleString(locale,options));
+	else $("[data-role='endDate']", $panel).text(MessageResolver("label.notification.date.until","Until: ") + "-");
+	
+	for ( var lang in notification.messages) {
+		var $language = $("[lang='"+lang+"']", $body);
+		if($language.length)
+			$language.text(notification.messages[lang]);
+	}
+	
+	$current.appendTo($container);
+	
+	return false;
+}
+
+function clearNotification(e){
+	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.clear.notification", "Are you sure, you want to clear notification?"));
+	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
+		var $progress = $("#progress-trickLog").show();
+		$.ajax({
+			url : context + "/Admin/Notification/Clear",
+			type : "delete",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if(response.success){
+					$("#notification-content").empty();
+					showDialog("success", response.success);
+				}else if(response.error)
+					showDialog("error", response.error);
+				else unknowError();
+			},
+			error : unknowError
+		}).complete(() => {
+			$progress.hide();
+		});
+	});
+	return false;
+}
+
+function deleteNotification(id){
+	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.notification", "Are you sure, you want to delete this notification?"));
+	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
+		var $progress = $("#progress-trickLog").show();
+		$.ajax({
+			url : context + "/Admin/Notification/"+id+"/Delete",
+			type : "delete",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if(response.success){
+					$('#notification-content div[data-role="notification"][data-trick-id="'+id+'"]').remove();
+					showDialog("success", response.success);
+				}else if(response.error)
+					showDialog("error", response.error);
+				else unknowError();
+			},
+			error : unknowError
+		}).complete(() => {
+			$progress.hide();
+		});
+	});
+	return false;
+}
+
+function notificationForm(e, id){
+	var $progress = $("#progress-trickLog").show();
+	$.ajax({
+		url : context + (id? "/Admin/Notification/"+id+"/Edit" :"/Admin/Notification/Add" ) ,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			 $view = $("#modal-add-notification",new DOMParser().parseFromString(response, "text/html"));
+			 if(!$view.length)
+				 unknowError();
+			 else {
+				 $view.appendTo("#widget");
+				 $view.modal("show").on('hidden.bs.modal', () => $view.remove());
+				 $("button[name='save']", $view).on("click",saveNotification);
+			 }
+			return false;
+		},
+		error : unknowError
+	}).complete(() => {
+		$progress.hide();
+	});
+
+	return false;
+}
+
+
+function parseDate(date, time){
+	if(date.length && time.length)
+		return new Date(date+"T"+time);
+	else if(date.length)
+		return new Date(date+"T00:00");
+	else{
+		var current = new Date(), times = time.split(":");
+		if(times.length!=2)
+			return undefined;
+		current.setHours(times[0]);
+		current.setMinutes(times[1])
+		return current;
+	}
+}
+
+function saveNotification(e){
+	var $progress = $("#progress-trickLog").show(), $view = $("#modal-add-notification"), $form = $("form", $view), data = $form.serializeJSON(), keys = Object.keys(data);
+	
+	data["messages"]={};
+	
+	for (let key of keys) {
+		if(key.startsWith("messages[")){
+			data["messages"][key.replace(/messages\[|\]/g,'')] = data[key];
+			delete data[key];
+		}
+	}
+	
+	data.startDate =  parseDate(data.startDate, data.startDateTime);
+	data.endDate = parseDate(data.endDate, data.endDateTime);
+	
+	if(!data.startDate || typeof data.startDate ==="invalid date")
+		delete data["startDate"];
+	
+	if(!data.endDate || typeof data.endDate ==="invalid date")
+		delete data["endDate"];
+	
+	delete data["startDateTime"];
+	
+	delete data["endDateTime"];
+	
+	$.ajax({
+		url : context + "/Admin/Notification/Save",
+		type : "post",
+		data : JSON.stringify({data:data}),
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response.error)
+				showDialog("error", response.error);
+			else if (response.length == 2){
+				$view.modal("hide");
+				showDialog("success", response[0]);
+				insertOrUpdateNotification(response[1]);
+			}
+			else unknowError();
+			return false;
+		},
+		error : unknowError
+	}).complete(() => {
+		$progress.hide();
+	});
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.asynchronousWorkers;
+package lu.itrust.business.TS.asynchronousWorkers.helper;
 
 import java.util.ArrayList;
 import java.util.List;

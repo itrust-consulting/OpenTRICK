@@ -21,7 +21,10 @@ import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,6 +46,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
+import lu.itrust.business.TS.database.service.ServiceMessageNotifier;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
@@ -63,6 +67,8 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.helper.Notification;
+import lu.itrust.business.TS.model.general.helper.NotificationForm;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -136,6 +142,9 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
+
+	@Autowired
+	private ServiceMessageNotifier serviceMessageNotifier;
 
 	@Value("${app.settings.otp.enable}")
 	private boolean enabledOTP = true;
@@ -646,6 +655,80 @@ public class ControllerAdministration {
 				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
+	}
+
+	@GetMapping(value = "/Notification/ALL", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody List<Notification> notification(Model model, Locale locale) {
+		return serviceMessageNotifier.findAll();
+	}
+
+	@GetMapping(value = "/Notification/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String add(Model model, Locale locale) {
+		return edit(null, model, locale);
+	}
+
+	@GetMapping(value = "/Notification/{id}/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String edit(@PathVariable String id, Model model, Locale locale) {
+		Notification notification = serviceMessageNotifier.findById(id);
+		if (notification == null)
+			model.addAttribute("form", new NotificationForm());
+		else
+			model.addAttribute("form", new NotificationForm(notification));
+		model.addAttribute("langues", new Locale[] { Locale.FRENCH, Locale.ENGLISH });
+		model.addAttribute("types", LogLevel.values());
+		model.addAttribute("locale", locale);
+		return "admin/notification/form";
+	}
+
+	@DeleteMapping(value = "/Notification/{id}/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object deleteNotification(@PathVariable String id, Locale locale) {
+		serviceMessageNotifier.remove(id);
+		return JsonMessage.Success(messageSource.getMessage("success.delete.message", null, locale));
+	}
+
+	@DeleteMapping(value = "/Notification/Clear", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object clearNotification(Locale locale) {
+		serviceMessageNotifier.clear(null);
+		return JsonMessage.Success(messageSource.getMessage("success.clear.notification", null, "Notifications had been successfully cleared", locale));
+	}
+
+	@PostMapping(value = "/Notification/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object saveNotification(@RequestBody NotificationForm form, Locale locale) {
+		Notification notification = form.getData();
+		if (!notification.update())
+			return JsonMessage.Error(messageSource.getMessage("error.notification.message.empty", null, locale));
+		else {
+			Notification old = serviceMessageNotifier.findById(notification.getId());
+			if (old != null) {
+				serviceMessageNotifier.notifyAll(updateMessages(old.update(notification)));
+				form.setData(old);
+			} else {
+				updateMessages(notification);
+				if (form.isAll())
+					serviceMessageNotifier.notifyAll(notification);
+				else
+					form.getTargets().stream().map(id -> serviceUser.findUsernameById(id)).filter(username -> username != null)
+							.forEach(username -> serviceMessageNotifier.notifyUser(username, notification));
+			}
+		}
+		return new Object[] { messageSource.getMessage("success.notification.save", null, locale), form.getData() };
+	}
+
+	private Notification updateMessages(Notification notification) {
+		String[] locales = { "en", "fr" };
+		String defaultMessage = notification.getMessages().values().stream().map(value -> value == null ? "" : value.trim()).filter(value -> !value.isEmpty()).findAny()
+				.orElse(null);
+		for (String langue : locales) {
+			String message = notification.getMessages().get(langue);
+			if (message == null || message.trim().isEmpty()) {
+				if (StringUtils.isEmpty(notification.getCode()))
+					notification.getMessages().put(langue, defaultMessage);
+				else
+					notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(), notification.getParameters(), defaultMessage, new Locale(langue)));
+			} else if (!StringUtils.isEmpty(notification.getCode()))
+				notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(), notification.getParameters(), message, new Locale(langue)));
+		}
+		return notification;
 	}
 
 	/**

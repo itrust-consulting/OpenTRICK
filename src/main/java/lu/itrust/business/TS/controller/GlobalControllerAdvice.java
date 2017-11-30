@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
+import lu.itrust.business.TS.database.service.ServiceMessageNotifier;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.model.general.TSSetting;
@@ -38,7 +39,13 @@ public class GlobalControllerAdvice {
 	private ServiceTSSetting serviceTSSetting;
 
 	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
 	private ServiceAnalysisShareInvitation serviceAnalysisShareInvitation;
+
+	@Autowired
+	private ServiceMessageNotifier serviceMessageNotifier;
 
 	private final SecureRandom secureRandom = new SecureRandom();
 
@@ -52,11 +59,9 @@ public class GlobalControllerAdvice {
 
 	private long staticVersion = secureRandom.nextLong();
 
-	@Autowired
-	private ServiceTaskFeedback serviceTaskFeedback;
-
 	@ModelAttribute
 	public void globalAttributes(HttpServletRequest request, Model model, Principal principal) {
+
 		if (principal != null) {
 			TSSetting url = serviceTSSetting.get(TSSettingName.USER_GUIDE_URL);
 			if (url != null) {
@@ -66,13 +71,15 @@ public class GlobalControllerAdvice {
 			model.addAttribute("analysisSharedCount", serviceAnalysisShareInvitation.countByUsername(principal.getName()));
 			if (request.getParameter("lang") != null)
 				serviceTaskFeedback.update(principal.getName(), new Locale(request.getParameter("lang")));
-		}
+			model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(principal.getName()));
+		} //else model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(null));
 
 		model.addAttribute("jsVersion", jsVersion);
 		model.addAttribute("cssVersion", cssVersion);
 		model.addAttribute("fontVersion", fontVersion);
 		model.addAttribute("imageVersion", imageVersion);
 		model.addAttribute("staticVersion", staticVersion);
+
 	}
 
 	@ExceptionHandler(value = Exception.class)

@@ -12,6 +12,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOImpactParameter;
@@ -90,7 +91,9 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -127,6 +130,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.SCALE_LEVEL_MIGRATE);
+				setCurrent(Thread.currentThread());
 			}
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.scale.level.migrate.initialise.data", "Initialising data", 1));
 			setUpDOA(session = getSessionFactory().openSession());

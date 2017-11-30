@@ -279,4 +279,9 @@ public class ServiceUserImpl implements ServiceUser {
 	public List<User> getAll(Collection<Integer> ids) {
 		return daoUser.getAll(ids);
 	}
+
+	@Override
+	public String findUsernameById(Integer id) {
+		return daoUser.findUsernameById(id);
+	}
 }

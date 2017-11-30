@@ -61,6 +61,8 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	private List<Integer> standards;
 
 	private String username = null;
+	
+	private Thread current = null;
 
 	/**
 	 * @param serviceTaskFeedback
@@ -123,6 +125,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 					return;
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
+				setCurrent(Thread.currentThread());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -232,7 +235,9 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						canceled = true;
 					}
 				}
@@ -264,6 +269,14 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.CREATE_ANALYSIS_PROFILE;
+	}
+
+	public Thread getCurrent() {
+		return current;
+	}
+
+	protected void setCurrent(Thread current) {
+		this.current = current;
 	}
 
 }
