@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<link rel="stylesheet" href="css/bootstrap-4.0.0-beta.2.min.css" />
 	<link rel="stylesheet" href="css/main.css" type="text/css" />
-	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="js/main.js?9A5692"></script>
 </head>
 
 <body class="container-fluid">
@@ -355,10 +355,10 @@
 	<h3 id="manage-access-rights">Manage access rights</h3>
 	<p>The button “Manage Access Rights” allows editing the access rights of other users for a risk analysis version. Select the
 		version for which you want to change access rights and click on the “Manage Access Rights” button. A new window will appear
-		where you can choose the appropriate access right level for the different TRICK Service users. The changes will be saved
+		where you can choose the appropriate access right level for the different TRICK Service users <em>(Note: only the users that have access to the associated customer will be listed)</em>. The changes will be saved
 		by pressing the “Save” button.</p>
-	<figure id="_FIG_27" class="figure">
-		<img src="img/29.png" class="figure-img img-fluid" />
+	<figure id="_FIG_analysis-rights" class="figure">
+		<img src="img/analysis-rights.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Manage access rights for risk analysis.</figcaption>
 	</figure>
 	<p>Different access right level exists:</p>
@@ -369,8 +369,23 @@
 		<li>Modify: The user has the right to modify a risk analysis;</li>
 		<li>Read only: The user has only the right to see a risks analysis but not to modify data.</li>
 	</ul>
-	<p>Note that you can only manage access rights of other users if you have yourself full access rights. The user that creates
-		a risk analysis gets per default full access rights.</p>
+	<div class="alert alert-info">Note that you can only manage access rights of other users if you have yourself full access rights. The user that creates
+		a risk analysis gets per default full access rights.</div>
+	<h4>Inviting new users</h4>
+	<p>For privacy reasons, the access right dialog will only list users that already have access to the customer related to the analysis.
+		If access rights shall be granted to other users as well, invitations have to be used instead.
+		The lower part of the dialog lists all currently invited people and the access rights that are granted (see <a href="#_FIG_analysis-rights-invite">[Figure]</a>).
+		The latter can be changed at any time.
+		To add a new user, click the [+] button, and add his e-mail address into the text box. Invitations will be sent upon clicking “Save”.
+		The targeted user will have to accept the invitation before he actually obtains the granted access rights.
+		The pending invitations can be seen in the user profile, see <a href="#my-invitations">[Section]</a>.
+	</p>
+	<div class="alert alert-info">An invited user does not necessarily have to be registered on TRICK Service. When he accepts the invitation,
+		he will be asked to create an account, and he will obtain the granted access rights automatically.</div>
+	<figure id="_FIG_analysis-rights-invite" class="figure">
+		<img src="img/analysis-rights-invite.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Invitations to access a risk analysis.</figcaption>
+	</figure>
 	<h3 id="manage-ids">Manage IDS</h3>
 	<p>The button “Manage IDS” opens a dialog where the user can pick one or more IDS’s to subscribe to. If a risk analysis has
 		subscribed to an IDS, all parameters that are dynamically set by the IDS will be made available and periodically updated
@@ -446,11 +461,13 @@
 	</ul>
 	<p>Once parameters 1 and 2 have been completed, click on “Start import” to begin importing the analysis.</p>
 	<h2 id="profile">Profile</h2>
-	<p>The profile page can be accessed from the right-hand side of the ribbon. The profile page includes three different sections:</p>
+	<p>The profile page can be accessed from the right-hand side of the ribbon. The profile page includes five different sections:</p>
 	<ul>
 		<li>My profile</li>
+		<li>My invitations</li>
 		<li>My sqlites</li>
 		<li>My reports</li>
+		<li>My sign-in settings</li>
 	</ul>
 	<h3 id="my-profile"><a id="account-profile"></a>My profile</h3>
 	<p>This section includes the information related to your profile and allows updating the user information and changing the
@@ -465,6 +482,14 @@
 	<p>The username and roles attributed to the user cannot be modified by the user.</p>
 	<p>This section also allows to see the Authentication type (Standard – User &amp; password, LDAP or both) and the role to which
 		you have been granted permission.</p>
+	<h3 id="my-invitations"><a id="account-invitations"></a>My invitations</h3>
+	<p>This sections shows all risk analyses which the user got invited to access (see <a href="#_FIG_invitations">[Figure]</a>).
+		In order to access the risk analysis, the user must first accept the invitation by clicking on the “Accept” button.
+		Alternatively, he can also deny by clicking the “Deny” button.</p>
+	<figure id="_FIG_invitations" class="figure">
+		<img src="img/invitations.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">List of pending invitations.</figcaption>
+	</figure>
 	<h3 id="my-sqlites"><a id="account-sqlite"></a>My sqlites</h3>
 	<p>When exporting a risk analysis from TRICK Service, a copy of the exported SQLite file is stored on the server hosting TRICK
 		Service. This has several reasons:</p>
@@ -646,6 +671,31 @@
 		<img src="img/47.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Additional TRICK Service settings.</figcaption>
 	</figure>
+	<h3 id="broadcast-center"><a id="administration-broadcasting"></a>Broadcast center</h3>
+	<p>The broadcast center lists all notifications that are sent to all users of the platform (see <a href="#_FIG_broadcast">[Figure]</a>).
+		The notification will appear in the lower right corner of the screen, when a user visits the platform. See <a href="#_FIG_broadcast-notification">[Figure]</a> for an example.</p>
+	<figure id="_FIG_broadcast" class="figure">
+		<img src="img/broadcast.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Broadcast center.</figcaption>
+	</figure>
+	<figure id="_FIG_broadcast-notification" class="figure">
+		<img src="img/broadcast-notification.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">A notification triggered by an administrator.</figcaption>
+	</figure>
+	<p>A new notification can be scheduled by clicking the “Add” button. Existing notifications can be edited or deleted by clicking the
+		appropriate buttons in the upper right corner of a notification (see <a href="#_FIG_broadcast">[Figure]</a>). When creating/editing
+		a notification, a dialog as depicted in <a href="#_FIG_broadcast-edit">[Figure]</a> appears. An administrator can then specify:</p>
+	<ul>
+		<li><strong>Type</strong>: The type of notification, which essentially translated to a colour (Info: blue, Success: green, Warning: yellow, Error: red);</li>
+		<li><strong>From</strong>: the date/time when the notification shall first appear;</li>
+		<li><strong>To</strong>: the date/time when the notification shall stop appearing;</li>
+		<li><strong>French</strong>: the message displayed for French-speaking users;</li>
+		<li><strong>English</strong>: the message displayed for English-speaking users.</li>
+	</ul>
+	<figure id="_FIG_broadcast-edit" class="figure">
+		<img src="img/broadcast-edit.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Creating/editing a notification.</figcaption>
+	</figure>
 	<h3 id="logs"><a id="administration-log"></a>Logs</h3>
 	<p>The “Logs” section includes an interface that allows an administrator to access and consult TRICK Service log entries.</p>
 	<h2 id="runtime">Runtime</h2>
@@ -816,7 +866,7 @@
 	<p>This section allows the user to define the (short) labels for the different probability and impact scales used in the risk
 		analysis. The labels are used throughout the risk analysis and the report. They are meant to be synonymous with the actual
 		level value.</p>
-	<h4>Risk acceptance threshold (Qualitative risk analysis)</h4>
+	<h4 id="risk-acceptance-threshold">Risk acceptance threshold (Qualitative risk analysis)</h4>
 	<p>The risk acceptance threshold is used to indicate the different levels of risks and what reaction is expected for risks
 		of this level.</p>
 	<figure id="_FIG_47" class="figure">
@@ -1055,6 +1105,25 @@
 	<p>The user should then provide a comment within the “Comment” column that justifies the level of exposure. The user may also
 		choose to provide a second comment in the “Hidden Comment” column which will not be displayed in the exported report. It
 		is not mandatory for the user to fill in this column however, in certain cases it may be necessary to add more useful information.</p>
+	<h4>Manage</h4>
+	<p>The content of each section (“threats”, “vulnerabilities”, and “risk”) can be edited. In the upper right corner, three options are available (also see <a href="#_FIG_brainstorming">[Figure]</a>):</p>
+	<ul>
+		<li><strong>Export</strong>: Export all data from all sheets into a single Excel file (with three sheets). The structure of the Excel file is the same as the one in TRICK Service.</li>
+		<li><strong>Import</strong>: Clears all data from the sheets in TRICK Service, and replaces it with the data contained in the provided Excel file (with three sheets). It is strongly recommended to use a previously exported file as a template.</li>
+		<li><strong>Manage</strong>: Opens a pop-up where quick changes can be made directly in TRICK Service. Each entry has three associated buttons:
+			<ul>
+				<li>[−] Deletes only the current line;</li>
+				<li>[−] Deletes the current line, and all lines starting with the same reference number;
+					<div class="alert alert-info">For historical reasons, this button ignores trailing zeroes (<code>0</code>) and periods (<code>.</code>). So, deleting <code>5.0.0.</code> with this button will also delete all references starting with <code>5</code>.</div>
+				</li>
+				<li>[+] Adds a new, empty line below the current line.</li>
+			</ul>
+		</li>
+	</ul>
+	<figure id="_FIG_brainstorming" class="figure">
+		<img src="img/brainstorming.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Editing brainstorming sections through export, import, and manual editing.</figcaption>
+	</figure>
 	<h3 id="risk-assessment">Risk assessment</h3>
 	<h4><a id="analysis-asset"></a>Assets</h4>
 	<p>The assets section contains a table listing all assets that are within the scope of the risk assessment. In the ribbon above
@@ -1365,7 +1434,7 @@
 		<img src="img/62.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk sheet selection.</figcaption>
 	</figure>
-	<h5>Risk sheet</h5>
+	<h5 id="risk-sheet">Risk sheet</h5>
 	<p>The risk sheet (see figure below), allows the user to provide detailed information about a specific risk.</p>
 	<figure id="_FIG_60" class="figure">
 		<img src="img/63.png" class="figure-img img-fluid" />
@@ -2028,6 +2097,22 @@
 	<h4><a id="analysis-chart-heat-map"></a>Risk heat map</h4>
 	<p>The risk heat map provides an overview of the number of risks per risk level. This allows, based on the risk acceptance
 		thresholds, to see the number of risks that are currently not acceptable.</p>
+	<p><a href="#_FIG_heatmap">[Figure]</a> shows an example heat map. On the right hand-side, the risk acceptance thresholds
+		are repeated for convenience (see <a href="#risk-acceptance-threshold">[Section]</a>). The left hand-side shows the
+		heatmap table, each cell of which containing the number of risks that were specified for the given impact and probability level.</p>
+	<figure id="_FIG_heatmap" class="figure">
+		<img src="img/heatmap.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Risk heat map.</figcaption>
+	</figure>
+	<p>Below, the same heat map is displayed again, but this taking the evolution of risk into account. See <a href="#_FIG_heatmap-evolution">[Figure]</a>
+		for an example. Each dot in the heatmap represents a risk with its net risk (the values specified in the “NET” row in <a href="#risk-sheet">[Section]</a>).
+		Arrows point to the new impact/probability levels (the values specified in the “EXP” row in <a href="#risk-sheet">[Section]</a>).
+		On the right hand-side, each risk can be individually shown/hidden by clicking on the respective name. For convenience,
+		in the top right corner, you can also specify the number of risks you want to display (the top N are displayed in that case).</p>
+	<figure id="_FIG_heatmap-evolution" class="figure">
+		<img src="img/heatmap-evolution.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Heat map showing evolution of risk.</figcaption>
+	</figure>
 	<h4><a id="analysis-chart-risk-asset"></a><a id="analysis-chart-risk-asset-type"></a><a id="analysis-chart-risk-scenario"></a><a id="analysis-chart-risk-scenario-type"></a>Risks by assets/asset types/scenarios/scenario types</h4>
 	<p>This section shows the number of risks (for a qualitative risk analysis) that are available for each of the assets/asset
 		types/scenarios/scenario types.</p>
@@ -3062,6 +3147,45 @@
 			</tr>
 		</tbody>
 	</table>
+
+	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+	<h2 id="whats-new-in-ts-2.8">What's new in TRICK Service 2.8</h2>
+	<ul>
+		<li>Risk heat map (for qualitative and mixed risk analyses):
+			<ul>
+				<li>When counter measures are specified, the evolution of the risk is also shown in the heat map.</li>
+			</ul>
+		</li>
+		<li>User guide:
+			<ul>
+				<li>The TRICK Service User Guide is now accessible from TRICK Service itself.</li>
+			</ul>
+		</li>
+		<li>Brainstorming:
+			<ul>
+				<li>Import/export of “threats”, “vulnerabilities”, and “risks” sheets from/to an Excel file.</li>
+				<li>The reference number of each row can now edited and set to an arbitrary (but unique) string value.</li>
+				<li>Renamed “threats” to “risks”, “risk specificities” to “threats”.</li>
+			</ul>
+		</li>
+		<li>Analysis access rights:
+			<ul>
+				<li>Only users who have already access to the related customer, are displayed in the interface (for confidentiality/privacy reasons).</li>
+				<li>Invite users who <strong>do not</strong> have access to the customer, and give appropriate access rights, by typing their e-mail address.</li>
+			</ul>
+		</li>
+		<li>Broadcast center:
+			<ul>
+				<li>Real-time notifications (only for modern browsers)</li>
+				<li>Administrators can broadcast a message to all users of the platform.</li>
+			</ul>
+		</li>
+		<li>Estimations:
+			<ul>
+				<li>More consistent display of impact level/value/label in risk estimation interface.</li>
+			</ul>
+		</li>
+	</ul>
 </main>
 
 </div>

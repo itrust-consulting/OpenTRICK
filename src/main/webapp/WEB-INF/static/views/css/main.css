@@ -39,6 +39,7 @@ html, body {
 body {
 	display: flex;
 	align-items: stretch;
+	font-family: Corbel, sans-serif;
 }
 body>* {
 	flex-grow: 1;

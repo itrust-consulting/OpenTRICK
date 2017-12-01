@@ -1,5 +1,9 @@
 function TableOfContents() {
 	this.sections = { numbering: "", sub: [] };
+	this.table_counter = 0;
+	this.figure_counter = 0;
+	this.tables = {}; // DOM id => table number
+	this.figures = {}; // DOM id => figure number
 }
 
 TableOfContents.prototype.processHeading = function(headingElement) {
@@ -21,16 +25,18 @@ TableOfContents.prototype.processHeading = function(headingElement) {
 };
 
 TableOfContents.prototype.processTable = function(tableElement) {
-	var figId = tableElement.getAttribute("id").substring(5);
-	tableElement.querySelectorAll("caption").forEach(function(tableElement) {
-		tableElement.insertBefore(document.createTextNode("Table " + figId + ": "), tableElement.firstChild);
+	var nr = ++this.table_counter;
+	this.tables[tableElement.getAttribute("id")] = nr;
+	tableElement.querySelectorAll("caption").forEach(function(captionElement) {
+		captionElement.insertBefore(document.createTextNode("Table " + nr + ": "), captionElement.firstChild);
 	});
 };
 
 TableOfContents.prototype.processFigure = function(figureElement) {
-	var figId = figureElement.getAttribute("id").substring(5);
-	figureElement.querySelectorAll("figcaption").forEach(function(figureElement) {
-		figureElement.insertBefore(document.createTextNode("Figure " + figId + ": "), figureElement.firstChild);
+	var nr = ++this.figure_counter;
+	this.figures[figureElement.getAttribute("id")] = nr;
+	figureElement.querySelectorAll("figcaption").forEach(function(captionElement) {
+		captionElement.insertBefore(document.createTextNode("Figure " + nr + ": "), captionElement.firstChild);
 	});
 };
 
@@ -51,10 +57,10 @@ TableOfContents.prototype.processLink = function(linkElement) {
 		linkElement.appendChild(document.createTextNode(other.textContent));
 	}
 	else if (otherTagName == "figure") {
-		linkElement.appendChild(document.createTextNode("Figure " + href.substring(6)));
+		linkElement.appendChild(document.createTextNode("Figure " + this.figures[href.substring(1)]));
 	}
 	else if (otherTagName == "table") {
-		linkElement.appendChild(document.createTextNode("Table " + href.substring(6)));
+		linkElement.appendChild(document.createTextNode("Table " + this.tables[href.substring(1)]));
 	}
 	else {
 		linkElement.appendChild(document.createTextNode("[Reference]"));
