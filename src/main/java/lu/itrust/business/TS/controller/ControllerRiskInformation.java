@@ -160,21 +160,23 @@ public class ControllerRiskInformation {
 
 			RiskInformation persisted = riskInformationMap.remove(riskInformation.getKey());
 			if (persisted == null && riskInformation.getId() > 0) {
-				String key = riskInformationIDMap.get(riskInformation.getId());
+				String key = riskInformationIDMap.remove(riskInformation.getId());
 				if (key != null)
-					persisted = riskInformationMap.get(key);
+					persisted = riskInformationMap.remove(key);
 			}
 
 			if (riskInformation.isCustom()) {
-				if (persisted == null)
+				if (persisted == null) {
+					riskInformation.setId(-1);
 					analysis.getRiskInformations().add(riskInformation);
-				else {
+				} else {
+					persisted.setChapter(riskInformation.getChapter());
 					persisted.setLabel(riskInformation.getLabel());
 					persisted.setCustom(true);
 				}
 			}
 		});
-		
+
 		analysis.getRiskInformations().removeAll(riskInformationMap.values());
 		analysis.getRiskInformations().sort(new RiskInformationComparator());
 		serviceRiskInformation.delete(riskInformationMap.values());
