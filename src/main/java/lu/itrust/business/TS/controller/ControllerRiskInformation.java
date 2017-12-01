@@ -155,8 +155,16 @@ public class ControllerRiskInformation {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		Map<String, RiskInformation> riskInformationMap = analysis.getRiskInformations().stream().filter(riskInformation -> riskInformation.isMatch(category))
 				.collect(Collectors.toMap(RiskInformation::getKey, Function.identity()));
+		Map<Integer, String> riskInformationIDMap = riskInformationMap.values().parallelStream().collect(Collectors.toMap(RiskInformation::getId, RiskInformation::getKey));
 		riskInformations.forEach(riskInformation -> {
+
 			RiskInformation persisted = riskInformationMap.remove(riskInformation.getKey());
+			if (persisted == null && riskInformation.getId() > 0) {
+				String key = riskInformationIDMap.get(riskInformation.getId());
+				if (key != null)
+					persisted = riskInformationMap.get(key);
+			}
+
 			if (riskInformation.isCustom()) {
 				if (persisted == null)
 					analysis.getRiskInformations().add(riskInformation);
@@ -166,6 +174,7 @@ public class ControllerRiskInformation {
 				}
 			}
 		});
+		
 		analysis.getRiskInformations().removeAll(riskInformationMap.values());
 		analysis.getRiskInformations().sort(new RiskInformationComparator());
 		serviceRiskInformation.delete(riskInformationMap.values());
@@ -273,16 +282,16 @@ public class ControllerRiskInformation {
 				workFile.deleteOnExit();
 		}
 	}
-	
+
 	@GetMapping("/Import-form")
 	public String importRiskModal() {
 		return "analyses/single/components/risk-information/import-modal";
 	}
-	
+
 	@PostMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String importRisk(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request,
-			Locale locale) throws Exception {
+	public @ResponseBody String importRisk(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request, Locale locale)
+			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
 		Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), workFile, messageSource, workersPoolManager, sessionFactory, serviceTaskFeedback);

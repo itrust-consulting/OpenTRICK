@@ -28,7 +28,7 @@ import lu.itrust.business.TS.exception.TrickException;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel", "dtChapter" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel", "dtChapter", "dtCategory" }))
 public class RiskInformation implements Cloneable {
 
 	/***********************************************************************************************

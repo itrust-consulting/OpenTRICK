@@ -1289,15 +1289,20 @@ function manageBrainstorming(type) {
 			var $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
-				updateRiskInformationAddButton($("form button[name='add']", $modal)).on("click", addNewRiskInformtion);;
+	
+				updateRiskInformationAddBtn($("table", $modal));
+				$("form button[name='add']", $modal).on("click", addNewRiskInformtion);;
 				$("button[name='add-chapter']", $modal).on("click",addNewRiskInformtionChapter);
-				$("a[data-action='delete-chapter']", $modal).on("click",removeRiskInformtionChapter);
-				$("a[data-action='delete-all']", $modal).on("click",removeRiskInformtionChapter);
+				$("button[name='clear']", $modal).on("click", clearRiskInformtion);
 				$("button[name='delete']", $modal).on("click", removeRiskInformtion);
+				
 				$("button[name='save']", $modal).on("click", e => $("input[type='submit']", $modal).trigger("click"));
+				
+				$("input[name='chapter']", $modal).on("blur", (e) => validateRiskInformationChapter($modal));
+				
 				$("form", $modal).on("submit", e => {
 					$progress.show();
-					var data  = parseRiskInformationData(category ==="Risk"? "Risk_TBA" : category, $("form tbody>tr[data-chapter]", $modal));
+					var data  = parseRiskInformationData(category ==="Risk"? "Risk_TBA" : category, $("form tbody>tr[data-trick-id]", $modal));
 					$.ajax({
 						url: context + "/Analysis/Risk-information/Manage/"+category+"/Save",
 						type: "post",
@@ -1343,97 +1348,78 @@ function parseRiskInformationData(category,$trs){
 	
 }
 
-function removeRiskInformtionChapter(e){
-	var $this = $(this), action = $this.attr("data-action"), $tr = $this.closest("tr"), $table = $this.closest('tbody'), chapter = $tr.attr("data-chapter");
-	switch (action) {
-	case "delete-chapter":
-		var deleteHeader = $("tr[data-chapter].lead", $table).filter(function(){return this.getAttribute("data-chapter") > chapter}).length == 0;
-		if(deleteHeader)
-			$("tr[data-chapter='"+chapter+"']", $table).remove();
-		else $("tr[data-chapter='"+chapter+"']:not(.lead)", $table).remove();
-		break;
-	case "delete-all":
-		$("tr[data-chapter]", $table).filter(function() {return this.getAttribute("data-chapter") >= chapter}).remove();
-		break;
-	}
-}
-
-function nextRiskInformation(chapter) {
-	if (parseInt(chapter[2]) < 9)
-		chapter[2]++;
-	else if (parseInt(chapter[1]) < 9) {
-		chapter[2] = '0';
-		chapter[1]++;
-	} else return undefined
-	return chapter.join(".");
-}
-
 function addNewRiskInformtion(e) {
-	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' />") , chapter = $currentTr.find("td:first-child").text().split("."), value = nextRiskInformation(chapter);
-	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),chapter,value,true);
-	$this.attr("disabled", true);
+	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' />");
+	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),true);
 	return false;
 }
 
 function addNewRiskInformtionChapter(e){
-	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' class='lead'/>"), $prevTr = $currentTr.prev();
-	var chapter = $prevTr.length? $prevTr.find("td:first-child").text().split(".") : chapter = ['0','0','0'];
-	if(chapter[0]<9){
-		chapter[0]++;
-		chapter[1] = chapter[2] = '0';
-		addNewRiskInformation($currentTr,$tr, $("#risk-information-btn-chapter",$this.closest(".modal")),chapter,chapter.join("."),false);
-		$("a[data-action='delete-chapter']", $tr).on("click",removeRiskInformtionChapter);
-		$("a[data-action='delete-all']", $tr).on("click",removeRiskInformtionChapter);
-	}else showDialog("alert-dialog",$this.attr("data-error-full-message"));
+	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1'/>");
+	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),false);
 	return false;
 }
 
-function addNewRiskInformation($currentTr,$tr,$buttons,chapter, value, after){
-	$("<td>" + value + "<input type='hidden' name='id' value='-1' /><input type='hidden' name='chapter' value='" + value + "'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
+function addNewRiskInformation($currentTr,$tr,$buttons,after){
+	$("<td><input type='hidden' name='id' value='-1' /><input name='chapter' required class='form-control'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
 	$("<td><input class='form-control' type='text' name='label' placeholder='' required ></td>").appendTo($tr);
 	$("<td />").html($buttons.html()).appendTo($tr);
 	$("button[name='delete']", $tr).on("click", removeRiskInformtion);
+	$("button[name='clear']", $tr).on("click", clearRiskInformtion);
 	if(after)
 		$tr.insertAfter($currentTr);
 	else $tr.insertBefore($currentTr);
-	var nextValue = nextRiskInformation(chapter), $addBtn = $("button[name='add']", $tr).on("click", addNewRiskInformtion);
-	if (nextValue != undefined) {
-		var $nextTr = $tr.next();
-		if ($nextTr.find("td:first-child").text() == nextValue)
-			$addBtn.attr("disabled", true);
-	}
-	$tr.attr("data-chapter", chapter[0]);
+	$("button[name='add']", $tr).on("click", addNewRiskInformtion);
+	$("input[name='chapter']", $tr).on("blur", (e) => {
+		validateRiskInformationChapter($(e.currentTarget).closest(".modal"));
+	})
 	return false;
 }
 
 function removeRiskInformtion(e) {
-	var $currentTr = $(this).closest("tr"),$prevTr = $currentTr.prev();
-	if($prevTr.length){
-		var  currentGroup = $("td:first-child",$currentTr).text().split(".",2)[0], prevGroup = $("td", $prevTr).text().split(".",2)[0];
-		if(currentGroup == prevGroup)
-			$("button[name='add']",$prevTr).removeAttr("disabled");
-	}
+	var $currentTr = $(this).closest("tr"), $table = $currentTr.closest("table");
 	$currentTr.remove();
+	updateRiskInformationAddBtn($table);
 	return false;
 }
 
-function updateRiskInformationAddButton($btns) {
-	var chatpers = {};
-	$btns.each(function (i) {
-		var $this = $(this),$tr = $this.closest("tr"), chapter = $tr.find("td:first-child").text(), group = chapter.split(".", 2)[0].trim(), value = parseInt(chapter.replace(/\./g, ''));
-		if (!chatpers[group])
-			chatpers[group] = { min: value, max: parseInt(group + "99"), chapter: group }
-		else {
-			if (chatpers[group].min + 1 == value)
-				$($btns[i - 1]).attr("disabled", true);
-			else $($btns[i - 1]).removeAttr("disabled");
-			if (chatpers[group].max == value)
-				$this.attr("disabled", true);
-			chatpers[group].min = value;
+function updateRiskInformationAddBtn($table){
+	if($table || $table.length){
+		var $chapter = $("input[name='chapter']", $table);
+		if($chapter.length)
+			$("tr[data-role='add-btn']", $table).hide();
+		else $("tr[data-role='add-btn']", $table).show();
+		validateRiskInformationChapter($table.closest(".modal"));
+	}
+	return false;
+}
+
+function validateRiskInformationChapter($modal){
+	var chpaters = new Map();
+	$(".has-error", $modal).removeClass("has-error");
+	$("input[name='chapter']", $modal).filter((i, el) => {
+		if(chpaters.has(el.value.trim()))
+			return true
+		chpaters.set(el.value, true);
+		return false;
+	}).each((i,el) => $(el).closest("td").addClass("has-error"));
+	$("button[name='save']", $modal).prop('disabled', $(".has-error", $modal).length);
+	return false;
+}
+
+function clearRiskInformtion(e) {
+	var $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']",$tr).val();
+	if(!(value === undefined || value === null || value.trim() ==="")){
+		var filter = () => false;
+		if(value.match(/(\d+\.)+(\d+\.*)*$/g)){
+			var chapter = value.replace(/(\.0*)*$/g,''); 
+			filter = (i,el) => el.value.startsWith(chapter);
 		}
-		$tr.attr("data-chapter", group);
-	});
-	return $btns;
+		else filter = (i, el) => el.value.startsWith(value);
+		$("input[name='chapter']",$table).filter(filter).closest("tr").remove();
+	}
+	updateRiskInformationAddBtn($table);
+	return false;
 }
 
 function importRiskInformationForm(){
