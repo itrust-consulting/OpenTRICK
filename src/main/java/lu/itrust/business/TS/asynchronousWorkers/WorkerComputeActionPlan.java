@@ -251,6 +251,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				continue;
 			registerItems.set(i, oldRegisterItem.merge(registerItem));
 		}
+		
 		oldRiskRegisters.values().stream().forEach(riskRegisterItem -> daoRiskRegister.delete(riskRegisterItem));
 
 	}
@@ -323,12 +324,12 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
-			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
+			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
 
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
-			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
+			daoActionPlan.delete(analysis.getActionPlans().remove(0));
 
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 

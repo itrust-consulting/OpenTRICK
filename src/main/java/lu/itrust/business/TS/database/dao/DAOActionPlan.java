@@ -45,6 +45,7 @@ public interface DAOActionPlan {
 
 	public void delete(ActionPlanEntry actionPlanEntry);
 	
+	@Deprecated
 	public void deleteAllFromAnalysis(Integer analysisID);
 
 }

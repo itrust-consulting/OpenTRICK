@@ -37,5 +37,6 @@ public interface ServiceActionPlanSummary {
 
 	public void delete(SummaryStage summaryStage);
 	
+	@Deprecated
 	public void deleteAllFromAnalysis(Integer analysisID);
 }

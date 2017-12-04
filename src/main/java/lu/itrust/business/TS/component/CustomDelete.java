@@ -44,7 +44,6 @@ import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -198,11 +197,19 @@ public class CustomDelete {
 	}
 
 	private void deleteActionPlanAndScenarioOrAssetDependencies(Analysis analysis, List<Assessment> assessments, List<RiskProfile> riskProfiles) throws Exception {
+		deleteAnalysisActionPlan(analysis);
+		deleteAssetOrScenarioDependencies(analysis, assessments, riskProfiles);
+	}
+
+	/**
+	 * it must be done in a transaction
+	 * @param analysis
+	 */
+	public void deleteAnalysisActionPlan(Analysis analysis) {
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(0));
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
-		deleteAssetOrScenarioDependencies(analysis, assessments, riskProfiles);
 	}
 
 	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
@@ -240,24 +247,20 @@ public class CustomDelete {
 		else if (!measure.getAnalysisStandard().isAnalysisOnly())
 			throw new TrickException("error.measure.manage_knowledgebase_measure", "This measure can only be managed from the knowledge base");
 
+		Analysis analysis = daoAnalysis.get(analysisID);
+
 		MeasureDescription measureDescription = measure.getMeasureDescription();
 
-		List<ActionPlanEntry> entries = daoActionPlan.getAllFromAnalysis(analysisID);
-
-		if (entries.stream().anyMatch(entry -> entry.getMeasure().equals(measure)))
-			daoActionPlan.deleteAllFromAnalysis(analysisID);
+		deleteAnalysisActionPlan(analysis);
 
 		measure.getAnalysisStandard().getMeasures().remove(measure);
 
-		daoAnalysisStandard.saveOrUpdate(measure.getAnalysisStandard());
-
-		daoRiskProfile.findByIdAnalysisAndContainsMeasure(analysisID, measure).forEach(riskProfile -> {
-			riskProfile.getMeasures().remove(measure);
-			daoRiskProfile.saveOrUpdate(riskProfile);
-		});
-
+		analysis.getRiskProfiles().stream().forEach(riskProfile -> riskProfile.getMeasures().remove(measure));
+		
 		daoMeasure.delete(measure);
 		
+		daoAnalysis.saveOrUpdate(analysis);
+
 		delete(measureDescription);
 	}
 
