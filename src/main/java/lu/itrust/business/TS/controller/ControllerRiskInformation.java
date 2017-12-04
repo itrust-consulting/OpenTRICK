@@ -178,8 +178,8 @@ public class ControllerRiskInformation {
 		});
 
 		analysis.getRiskInformations().removeAll(riskInformationMap.values());
-		analysis.getRiskInformations().sort(new RiskInformationComparator());
 		serviceRiskInformation.delete(riskInformationMap.values());
+		analysis.getRiskInformations().sort(new RiskInformationComparator());
 		serviceAnalysis.saveOrUpdate(analysis);
 		return JsonMessage.Success(messageSource.getMessage("success.update.risk_information", null, "Risk information has been successfully updated", locale));
 	}

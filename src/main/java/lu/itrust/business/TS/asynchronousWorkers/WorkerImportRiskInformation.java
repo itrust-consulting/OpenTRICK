@@ -311,10 +311,10 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		}
 
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.save.analysis", "Saving analysis", max));
-		riskInformations.values().forEach(riskInformation -> analysis.getRiskInformations().remove(riskInformation));
+		analysis.getRiskInformations().removeAll(riskInformations.values());
+		daoRiskInformation.delete(riskInformations.values());
 		daoAnalysis.saveOrUpdate(analysis);
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
-		daoRiskInformation.delete(riskInformations.values());
 	}
 
 	private void duplicateCellError(String sheet, int i, int colIndex) {
