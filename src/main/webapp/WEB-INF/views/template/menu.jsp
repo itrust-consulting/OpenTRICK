@@ -96,7 +96,7 @@
 							</ul></li>
 					</sec:authorize>
 					<li><a href="#" onclick="return $('#logoutFormSubmiter').click()" id='main_menu_logout'><spring:message code="label.menu.logout" text="Logout" /></a>
-						<form action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
+						<form id='logout-form' action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> <input type="submit" id="logoutFormSubmiter" />
 						</form></li>
 				</ul>

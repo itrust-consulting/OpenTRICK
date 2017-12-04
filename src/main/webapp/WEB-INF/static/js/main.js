@@ -1251,4 +1251,6 @@ $(document)
 						this.parentNode.removeChild(this);
 					});
 					
+					$("#logout-form").on("submit", (e) => application["taskManager"].Disconnect());
+					
 				});

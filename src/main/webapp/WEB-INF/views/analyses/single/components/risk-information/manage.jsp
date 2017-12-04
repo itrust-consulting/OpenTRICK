@@ -42,7 +42,7 @@
 										<td><button class='btn btn-xs btn-warning' name="delete" title="<spring:message code='label.action.delete'/>">
 												<i class='fa fa-times-circle'></i>
 											</button>
-											<button class='btn btn-xs btn-danger' name="clear" title="<spring:message code='label.action.empty'/>">
+											<button class='btn btn-xs btn-danger' name="clear" title="<spring:message code='label.action.empty.chapter'/>">
 												<i class='fa fa-trash-o'></i>
 											</button>
 											<button class='btn btn-xs btn-primary' name="add" title="<spring:message code='label.action.add'/>">
@@ -76,7 +76,7 @@
 		<button class='btn btn-xs btn-warning' name="delete" title="<spring:message code='label.action.delete'/>">
 			<i class='fa fa-times-circle'></i>
 		</button>
-		<button class='btn btn-xs btn-danger' name="clear" title="<spring:message code='label.action.empty'/>">
+		<button class='btn btn-xs btn-danger' name="clear" title="<spring:message code='label.action.empty.chapter'/>">
 			<i class='fa fa-trash-o'></i>
 		</button>
 		<button class='btn btn-xs btn-primary' name="add" title="<spring:message code='label.action.add'/>">

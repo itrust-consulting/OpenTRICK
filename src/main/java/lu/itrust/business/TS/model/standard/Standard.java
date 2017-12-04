@@ -79,10 +79,11 @@ public class Standard implements Cloneable {
 	 */
 	public Standard() {
 	}
-	
+
 	/**
 	 * Constructor:<br>
-	 * @param version 
+	 * 
+	 * @param version
 	 */
 	public Standard(String label, int version) {
 		setLabel(label);
@@ -388,7 +389,7 @@ public class Standard implements Cloneable {
 	}
 
 	public Boolean is(String label) {
-		return analysisOnly || !(label.equals(Constant.STANDARD_27001) || label.equals(Constant.STANDARD_27002)) ? this.label.equalsIgnoreCase(label)
+		return (analysisOnly || !(label.equals(Constant.STANDARD_27001) || label.equals(Constant.STANDARD_27002))) ? this.label.equalsIgnoreCase(label)
 				: this.label.startsWith(label);
 	}
 

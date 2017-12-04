@@ -116,6 +116,7 @@
 		resolveMessage("label.index.chapter", "<spring:message code='label.index.chapter' />");
 		resolveMessage("label.metric.man_day", "<spring:message code='label.metric.man_day' />");
 		resolveMessage("info.leave.page.in_mode_editing", "<spring:message code='info.leave.page.in_mode_editing' />");
+		resolveMessage("label.dynamicparameter.evolution", "<spring:message code='label.dynamicparameter.evolution' />");
 		-->
 	</script>
 </body>

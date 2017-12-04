@@ -41,4 +41,6 @@ public interface ServiceMeasureDescription {
 	public boolean existsForMeasureByReferenceAndAnalysisStandardId(String reference, int idAnalysisStandard);
 
 	public boolean exists(int idMeasure, int idStandard);
+
+	public boolean isUsed(MeasureDescription measureDescription);
 }

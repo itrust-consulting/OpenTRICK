@@ -44,7 +44,7 @@ function TaskManager(title) {
 
 			self.reconnecting = true;
 			self.stomp = Stomp.over(socket);
-			//self.stomp.debug = () => {};
+			self.stomp.debug = () => {};
 
 			headers[self.csrfHeader] = self.csrfToken;
 
@@ -133,6 +133,13 @@ function TaskManager(title) {
 
 	TaskManager.prototype.isEmpty = function () {
 		return this.tasks.length == 0;
+	};
+	
+	TaskManager.prototype.Disconnect = function () {
+		this.disposing = true;
+		if(this.stomp)
+			this.stomp.disconnect();
+		return true;
 	};
 
 	TaskManager.prototype.Destroy = function () {

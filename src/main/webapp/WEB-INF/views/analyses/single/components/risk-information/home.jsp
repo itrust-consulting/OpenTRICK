@@ -27,14 +27,13 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${isEditable}">
-								<a href="#" class="btn btn-xs btn-link pull-right" onclick="return manageBrainstorming('${category}');" style="margin-top: -0.1px;"><span class="glyphicon glyphicon-cog"></span> <spring:message
-										code="label.action.manage" /> </a>
-								<a href='#' onclick="return importRiskInformationForm();" class="btn btn-xs btn-link pull-right"><span class="glyphicon glyphicon-import"></span> <spring:message
-											code="label.action.import" /> </a>
-								<c:if test="${canExport}">
-									<a href='<spring:url value="/Analysis/Risk-information/Export" />' class="btn btn-xs btn-link pull-right" download><span class="glyphicon glyphicon-export"></span> <spring:message
-											code="label.action.export" /> </a>
-								</c:if>
+								<span class="pull-right btn-group btn-group-xs" style="margin-top: -1px;"> <a href="#" class="btn btn-link" style="margin-top: -0.1px" onclick="return manageBrainstorming('${category}');">
+										<i class="glyphicon glyphicon-cog"></i> <spring:message code="label.action.manage" />
+								</a> <c:if test="${canExport}">
+										<a href='<spring:url value="/Analysis/Risk-information/Export" />' class="btn btn-link" download> <i class="glyphicon glyphicon-export"></i>
+											<spring:message code="label.action.export" /></a>
+									</c:if> <a href='#' onclick="return importRiskInformationForm();" class="btn btn-link"> <i class="glyphicon glyphicon-import"></i> <spring:message code="label.action.import" />
+								</a></span>
 							</c:if>
 						</h3>
 					</div>

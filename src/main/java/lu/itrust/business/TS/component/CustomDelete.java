@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,30 +151,21 @@ public class CustomDelete {
 			deleteAnalysisProcess(analysis, username);
 	}
 
+	@Deprecated
 	@Transactional
 	public void delete(MeasureDescription measureDescription) {
-		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
-		while (iterator.hasNext()) {
-			MeasureDescriptionText descriptionText = iterator.next();
-			iterator.remove();
-			descriptionText.setMeasureDescription(null);
-			daoMeasureDescriptionText.delete(descriptionText);
-		}
 		daoMeasureDescription.delete(measureDescription);
 	}
 
 	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription, Principal principal) throws Exception {
 		for (Analysis analysis : analyses) {
-			while (!analysis.getSummaries().isEmpty())
-				daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
-			while (!analysis.getActionPlans().isEmpty())
-				daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
-			analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
-					.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
-			Optional<AnalysisStandard> standard = analysis.getAnalysisStandards().stream()
-					.filter(analysisStandard -> analysisStandard.getStandard().equals(measureDescription.getStandard())).findAny();
-			if (standard.isPresent()) {
-				Iterator<Measure> iterator = standard.get().getMeasures().iterator();
+			AnalysisStandard analysisStandard = analysis.getAnalysisStandards().stream().filter(a -> a.getStandard().equals(measureDescription.getStandard())).findAny()
+					.orElse(null);
+			if (analysisStandard != null) {
+				analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().is(Constant.STANDARD_27002)).map(standard -> standard.getMeasures()).findFirst()
+						.ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+				removeMeasureDependencies(measureDescription, analysis);
+				Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
 				while (iterator.hasNext()) {
 					Measure measure = iterator.next();
 					if (measure.getMeasureDescription().equals(measureDescription)) {
@@ -192,24 +182,16 @@ public class CustomDelete {
 						break;
 					}
 				}
+
+				daoAnalysis.saveOrUpdate(analysis);
 			}
 		}
+		daoMeasureDescription.delete(measureDescription);
 	}
 
 	private void deleteActionPlanAndScenarioOrAssetDependencies(Analysis analysis, List<Assessment> assessments, List<RiskProfile> riskProfiles) throws Exception {
 		deleteAnalysisActionPlan(analysis);
 		deleteAssetOrScenarioDependencies(analysis, assessments, riskProfiles);
-	}
-
-	/**
-	 * it must be done in a transaction
-	 * @param analysis
-	 */
-	public void deleteAnalysisActionPlan(Analysis analysis) {
-		while (!analysis.getActionPlans().isEmpty())
-			daoActionPlan.delete(analysis.getActionPlans().remove(0));
-		while (!analysis.getSummaries().isEmpty())
-			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
 	}
 
 	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
@@ -237,6 +219,19 @@ public class CustomDelete {
 		}
 	}
 
+	/**
+	 * It must be done in a transaction<br>
+	 * Clear Action plan and Action plan summary
+	 * 
+	 * @param analysis
+	 */
+	public void deleteAnalysisActionPlan(Analysis analysis) {
+		while (!analysis.getActionPlans().isEmpty())
+			daoActionPlan.delete(analysis.getActionPlans().remove(0));
+		while (!analysis.getSummaries().isEmpty())
+			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
+	}
+
 	@Transactional
 	public void deleteAnalysisMeasure(Integer analysisID, Integer idStandard, Integer idMeasure) {
 
@@ -251,17 +246,15 @@ public class CustomDelete {
 
 		MeasureDescription measureDescription = measure.getMeasureDescription();
 
-		deleteAnalysisActionPlan(analysis);
+		removeMeasureDependencies(measureDescription, analysis);
 
 		measure.getAnalysisStandard().getMeasures().remove(measure);
 
-		analysis.getRiskProfiles().stream().forEach(riskProfile -> riskProfile.getMeasures().remove(measure));
-		
 		daoMeasure.delete(measure);
-		
+
 		daoAnalysis.saveOrUpdate(analysis);
 
-		delete(measureDescription);
+		daoMeasureDescription.delete(measureDescription);
 	}
 
 	private void deleteAnalysisProcess(Analysis analysis, String username) {
@@ -449,9 +442,7 @@ public class CustomDelete {
 	@Transactional
 	public void forceDeleteMeasureDescription(int idMeasureDescription, Principal principal) throws Exception {
 		MeasureDescription measureDescription = daoMeasureDescription.get(idMeasureDescription);
-		List<Analysis> analysis = daoAnalysis.getAllContains(measureDescription);
-		deleteActionPlanAndMeasure(analysis, measureDescription, principal);
-		delete(measureDescription);
+		deleteActionPlanAndMeasure(daoAnalysis.getAllContains(measureDescription), measureDescription, principal);
 	}
 
 	@Transactional
@@ -481,5 +472,19 @@ public class CustomDelete {
 				String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), adminUsername, LogAction.REMOVE_ACCESS, customer.getOrganisation(),
 				user.getLogin());
 		return true;
+	}
+
+	/**
+	 * It must be done in a transaction<br>
+	 * Clear Action plan and Action plan summary and remove measure from
+	 * {@link RiskProfile#getMeasures()}
+	 * 
+	 * @param measureDescription
+	 * @param analysis
+	 * @see CustomDelete#deleteAnalysisActionPlan
+	 */
+	public void removeMeasureDependencies(MeasureDescription measureDescription, Analysis analysis) {
+		deleteAnalysisActionPlan(analysis);
+		analysis.getRiskProfiles().stream().forEach(riskProfile -> riskProfile.getMeasures().removeIf(measure -> measure.getMeasureDescription().equals(measureDescription)));
 	}
 }
