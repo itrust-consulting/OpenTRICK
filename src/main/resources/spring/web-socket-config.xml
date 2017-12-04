@@ -20,16 +20,16 @@
 		<sec:intercept-message type="UNSUBSCRIBE" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
 		<sec:intercept-message type="DISCONNECT" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		
+		<sec:intercept-message type="SUBSCRIBE" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		
+		<sec:intercept-message type="MESSAGE" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
 		<sec:intercept-message pattern="/User/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
 		<sec:intercept-message pattern="/Application/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
 
-		<!-- <sec:intercept-message type="MESSAGE" access="denyAll" />
-
-		<sec:intercept-message type="SUBSCRIBE" access="denyAll" />
-
-		<sec:intercept-message pattern="/**" access="denyAll" /> -->
+		<sec:intercept-message pattern="/**" access="denyAll" />
 
 	</sec:websocket-message-broker>
 
