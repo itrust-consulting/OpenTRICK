@@ -202,7 +202,7 @@ public final class ExcelHelper {
 	}
 
 	public static Cell getCellAt(Row row, int index) {
-		for (int i = Math.min(index, row.getC().size()); i >= 0; i--) {
+		for (int i = Math.min(index, row.getC().size()-1); i >= 0; i--) {
 			Cell cell = row.getC().get(i);
 			if (colToIndex(cell.getR(), index) == index)
 				return cell;
