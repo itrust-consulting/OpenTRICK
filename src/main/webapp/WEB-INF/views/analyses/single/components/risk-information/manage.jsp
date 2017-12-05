@@ -34,11 +34,12 @@
 							</thead>
 							<tbody>
 								<c:forEach items="${riskInformationMap[category]}" var="risk_information">
+									<spring:message text='${risk_information.label}' var="label" />
+									<spring:message text='${risk_information.chapter}' var="chapter" />
 									<tr data-trick-id='${risk_information.id}'>
 										<td><input type="hidden" name="id" value="${risk_information.id}" /> <input type="hidden" name="custom" value="${risk_information.custom}" /><input
-											class='form-control' name="chapter" value="${risk_information.chapter}" required="required" /></td>
-										<td><spring:message text='${risk_information.label}' var="label" /> <input class="form-control" type="text" name="label" value="${label}" placeholder="${label}"
-											required></td>
+											class='form-control' name="chapter" value="${chapter}" required="required" placeholder="${chapter}" /></td>
+										<td><input class="form-control" type="text" name="label" value="${label}" placeholder="${label}" required></td>
 										<td><button class='btn btn-xs btn-warning' name="delete" title="<spring:message code='label.action.delete'/>">
 												<i class='fa fa-times-circle'></i>
 											</button>

@@ -1295,11 +1295,8 @@ function manageBrainstorming(type) {
 				$("button[name='add-chapter']", $modal).on("click",addNewRiskInformtionChapter);
 				$("button[name='clear']", $modal).on("click", clearRiskInformtion);
 				$("button[name='delete']", $modal).on("click", removeRiskInformtion);
-				
 				$("button[name='save']", $modal).on("click", e => $("input[type='submit']", $modal).trigger("click"));
-				
 				$("input[name='chapter']", $modal).on("blur", (e) => validateRiskInformationChapter($modal));
-				
 				$("form", $modal).on("submit", e => {
 					$progress.show();
 					var data  = parseRiskInformationData(category ==="Risk"? "Risk_TBA" : category, $("form tbody>tr[data-trick-id]", $modal));
@@ -1335,13 +1332,13 @@ function manageBrainstorming(type) {
 function parseRiskInformationData(category,$trs){
 	var data =  [];
 	$trs.each(function(i) {
-		var $this = $(this), $label = $("input[name='label']",$this), id = $this.attr("data-trick-id"), chapter = $("input[name='chapter']",$this).val(), label = $label.val(), custom = $("input[name='cutom']",$this).val();
+		var $this = $(this), $label = $("input[name='label']",$this), $chapter = $("input[name='chapter']",$this), id = $this.attr("data-trick-id"), chapter = $chapter.val(), label = $label.val(), custom = $("input[name='cutom']",$this).val();
 		data.push({
 			id : id,
 			category : category,
 			chapter : chapter,
 			label : label,
-			custom : custom ==='true' || label !== $label.attr('placeholder')
+			custom : custom ==='true' || label !== $label.attr('placeholder') || chapter!== $chapter.attr('placeholder')
 		});
 	});
 	return data;
@@ -1373,6 +1370,7 @@ function addNewRiskInformation($currentTr,$tr,$buttons,after){
 	$("input[name='chapter']", $tr).on("blur", (e) => {
 		validateRiskInformationChapter($(e.currentTarget).closest(".modal"));
 	})
+	updateRiskInformationAddBtn($tr.closest("table"));
 	return false;
 }
 
@@ -1409,13 +1407,19 @@ function validateRiskInformationChapter($modal){
 
 function clearRiskInformtion(e) {
 	var $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']",$tr).val();
-	if(!(value === undefined || value === null || value.trim() ==="")){
+	if(!(value === undefined || value === null)){
 		var filter = () => false;
-		if(value.match(/(\d+\.)+(\d+\.*)*$/g)){
+		
+		value = value.trim();
+		
+		if(value === "")
+			filter = (i, el) => el.value.trim() === value;
+		else if(value.match(/(\d+\.)+(\d+\.*)*$/g)){
 			var chapter = value.replace(/(\.0*)*$/g,''); 
 			filter = (i,el) => el.value.startsWith(chapter);
 		}
-		else filter = (i, el) => el.value.startsWith(value);
+		else filter = (i, el) => el.value.startsWith(value) || el.value === value;
+		
 		$("input[name='chapter']",$table).filter(filter).closest("tr").remove();
 	}
 	updateRiskInformationAddBtn($table);
