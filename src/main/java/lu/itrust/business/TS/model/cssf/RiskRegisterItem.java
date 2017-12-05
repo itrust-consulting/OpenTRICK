@@ -4,6 +4,7 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -14,6 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -37,6 +41,8 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  * @since 2012-12-11
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "RiskRegister", uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiAsset", "fiScenario" }))
 public class RiskRegisterItem {
 
@@ -52,11 +58,13 @@ public class RiskRegisterItem {
 
 	/** Scenario Object */
 	@ManyToOne
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiScenario", nullable = false)
 	@Access(AccessType.FIELD)
 	private Scenario scenario = null;
 
 	@ManyToOne
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;

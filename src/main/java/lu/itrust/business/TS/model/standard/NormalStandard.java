@@ -141,4 +141,9 @@ public class NormalStandard extends AnalysisStandard {
 		return (NormalStandard) super.duplicate();
 	}
 
+	@Override
+	public void add(Measure measure) {
+		addMeasure((NormalMeasure) measure);
+	}
+
 }

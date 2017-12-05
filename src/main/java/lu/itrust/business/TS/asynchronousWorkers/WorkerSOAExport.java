@@ -36,6 +36,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -126,7 +127,10 @@ public class WorkerSOAExport extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -164,6 +168,7 @@ public class WorkerSOAExport extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.EXPORT_SOA);
+				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
 			initialiseDAO(session);
@@ -171,7 +176,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			long reportId = processing();
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.export.soa", "SOA has been successfully exported", 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport('" + reportId + "');"));
+			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId));
 			serviceTaskFeedback.send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
@@ -262,7 +267,7 @@ public class WorkerSOAExport extends WorkerImpl {
 
 	private Tbl generateTable(List<Measure> measures, MessageHandler handler, int[] progressing) {
 		int rowIndex = 0;
-		Tbl table = createTable("TSSOA", measures.size()+1, 6);
+		Tbl table = createTable("TSSOA", measures.size() + 1, 6);
 		Tr row = (Tr) table.getContent().get(rowIndex++);
 		setCellText((Tc) row.getContent().get(0), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
 		setCellText((Tc) row.getContent().get(1), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
@@ -328,7 +333,6 @@ public class WorkerSOAExport extends WorkerImpl {
 		return setText(paragraph, content, null);
 	}
 
-	
 	protected void setCellText(Tc tc, String text) {
 		setCellText(tc, text, null);
 	}
@@ -340,8 +344,6 @@ public class WorkerSOAExport extends WorkerImpl {
 		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, DEFAULT_PARAGRAHP_STYLE));
 		setText(paragraph, text, alignment);
 	}
-
-	
 
 	protected P setText(P paragraph, String content, TextAlignment alignment) {
 		if (alignment != null) {

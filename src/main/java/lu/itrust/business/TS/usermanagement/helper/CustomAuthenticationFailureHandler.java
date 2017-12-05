@@ -1,4 +1,5 @@
 package lu.itrust.business.TS.usermanagement.helper;
+import static lu.itrust.business.TS.constants.Constant.ANONYMOUS;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -38,6 +39,8 @@ import lu.itrust.business.TS.model.general.LogType;
  */
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
+	
+
 	@Value("${app.settings.ldap.allowed.authentication}")
 	private boolean allowedLDAPAutnetication;
 
@@ -57,7 +60,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			 */
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential", String.format("%s attempts to connect from %s", username, remoteaddr),
-					"anonymous", LogAction.AUTHENTICATE, username, remoteaddr);
+					ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
 
 		} else if (exception instanceof DisabledException) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: User '" + username + "' is disabled! Requesting IP: " + remoteaddr);
@@ -66,7 +69,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.account.disabled",
-					String.format("%s's account is disabled but he tries to connect from %s", username, remoteaddr), "anonymous", LogAction.AUTHENTICATE, username, remoteaddr);
+					String.format("%s's account is disabled but he tries to connect from %s", username, remoteaddr), ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception.getCause() instanceof TrickException) {
 			TrickException e = (TrickException) exception.getCause();
 			System.err.println(
@@ -75,7 +78,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.account.processing",
-					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), "anonymous", LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
+					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
 			request.getSession().setAttribute("LOGIN_ERROR_EXCEPTION", e);
 		} else if (exception instanceof TrickOtpException) {
 			lockAccount(request, stringdate, remoteaddr, username, exception);

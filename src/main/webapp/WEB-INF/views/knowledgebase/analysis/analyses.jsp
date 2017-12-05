@@ -7,7 +7,6 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane" id="tab-analyses">
 	<div class="section" id="section_profile_analysis">
-		<jsp:include page="../../template/successErrors.jsp" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_analysis">
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<spring:message
 						code="label.menu.open.profile" text="Open Profile" /></a></li>
@@ -20,7 +19,7 @@
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isDefaultProfile()" ><a href="#" class="text-danger" onclick="return deleteAnalysisProfile();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>
-		<table class="table table-hover">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th width="1%"></th>

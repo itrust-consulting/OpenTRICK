@@ -313,12 +313,11 @@ public class ControllerKnowledgeBaseStandard {
 			Locale locale) throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		file.transferTo(importFile);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
-
 	}
 
 	/**
@@ -432,7 +431,7 @@ public class ControllerKnowledgeBaseStandard {
 						setValue(sheetRow.getC().get(domainCol), measureDescriptionText.getDomain());
 						setValue(sheetRow.getC().get(domainCol + 1), measureDescriptionText.getDescription());
 					}
-					domainCol+=2;
+					domainCol += 2;
 				}
 			}
 			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
@@ -715,13 +714,16 @@ public class ControllerKnowledgeBaseStandard {
 			MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
 			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
-			customDelete.delete(measureDescription);
+			else if (serviceMeasureDescription.isUsed(measureDescription))
+				return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
+			else
+				serviceMeasureDescription.delete(measureDescription);
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 

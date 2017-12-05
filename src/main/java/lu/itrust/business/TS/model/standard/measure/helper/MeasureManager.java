@@ -18,20 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.dao.DAOActionPlan;
-import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
-import lu.itrust.business.TS.database.dao.DAORiskProfile;
-import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
@@ -72,9 +66,6 @@ public class MeasureManager {
 	private DAOAnalysis daoAnalysis;
 
 	@Autowired
-	private DAOStandard daoStandard;
-
-	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
 
 	@Autowired
@@ -87,19 +78,10 @@ public class MeasureManager {
 	private DAOAssetTypeValue daoAssetTypeValue;
 
 	@Autowired
-	private DAOActionPlanSummary daoActionPlanSummary;
-
-	@Autowired
-	private DAOActionPlan daoActionPlan;
-
-	@Autowired
 	private CustomDelete customDelete;
 
 	@Autowired
 	private DAOMeasureDescription daoMeasureDescription;
-
-	@Autowired
-	private DAORiskProfile daoRiskProfile;
 
 	public static Standard getStandard(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
@@ -330,22 +312,22 @@ public class MeasureManager {
 
 	@Transactional
 	public void removeStandardFromAnalysis(Integer idAnalysis, int idStandard) throws Exception {
-		AnalysisStandard analysisStandard = daoAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, idStandard);
-		List<SummaryStage> summaryStages = daoActionPlanSummary.getAllFromAnalysis(idAnalysis);
-		for (SummaryStage summaryStage : summaryStages)
-			daoActionPlanSummary.delete(summaryStage);
-		List<ActionPlanEntry> actionPlanEntries = daoActionPlan.getAllFromAnalysis(idAnalysis);
-		for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
-			daoActionPlan.delete(actionPlanEntry);
+		Analysis analysis = daoAnalysis.findByIdAndEager(idAnalysis);
 
-		daoRiskProfile.getAllFromAnalysis(idAnalysis).forEach(riskProfile -> {
-				if (riskProfile.getMeasures().removeIf(measure -> measure.getAnalysisStandard().equals(analysisStandard)))
-					daoRiskProfile.saveOrUpdate(riskProfile);
-			});
-		
-		Standard standard = daoStandard.get(idStandard);
+		AnalysisStandard analysisStandard = analysis.getAnalysisStandardByStandardId(idStandard);
+
+		analysis.removeAnalysisStandard(analysisStandard);
+
+		customDelete.deleteAnalysisActionPlan(analysis);
+
+		analysis.getRiskProfiles().forEach(riskProfile -> riskProfile.getMeasures().removeIf(measure -> measure.getAnalysisStandard().equals(analysisStandard)));
+
+		Standard standard = analysisStandard.getStandard();
 
 		daoAnalysisStandard.delete(analysisStandard);
+		
+		daoAnalysis.saveOrUpdate(analysis);
+		
 		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(standard);
 
 		if (standard.isAnalysisOnly() && (astandards == null || astandards.isEmpty()))

@@ -141,7 +141,7 @@ public class ControllerParameter {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			Worker worker = new WorkerScaleLevelMigrator(idAnalysis, levels, serviceTaskFeedback, workersPoolManager, sessionFactory);
-			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
 				return JsonMessage.Success(messageSource.getMessage("success.analysis.scale.level.migrating.start", null, "Please wait while migrating scale level.", locale));
 			} 

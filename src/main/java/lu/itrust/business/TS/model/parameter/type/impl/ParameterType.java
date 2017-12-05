@@ -1,8 +1,12 @@
 package lu.itrust.business.TS.model.parameter.type.impl;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.exception.TrickException;
 
@@ -15,6 +19,8 @@ import lu.itrust.business.TS.exception.TrickException;
  * @since 25 janv. 2013
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name = "id", column = @Column(name = "idParameterType"))
 public class ParameterType extends AbstractParameterType {
 

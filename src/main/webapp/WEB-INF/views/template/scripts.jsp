@@ -2,25 +2,30 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<script src="<spring:url value="/js/jquery-2.2.4.min.js" />"></script>
-<script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
+</c:if>
+<script src="<spring:url value="/js/jquery-2.2.4.min.js?version=${jsVersion}" />"></script>
+<script src="<spring:url value="/js/bootstrap/bootstrap.min.js?version=${jsVersion}" />"></script>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
-	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js" />"></script>
-	<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
-	<script src="<spring:url value="/js/dom-parser.js" />"></script>
-	<script src="<spring:url value="/js/naturalSort.js" />"></script>
-	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
-	<script src="<spring:url value="/js/jquery.idle.js" />"></script>
-	<script src="<spring:url value="/js/main.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/progressbar.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/modal.js" />"></script>
+	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/jquery-ui.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/dom-parser.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/naturalSort.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/jquery.idle.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/main.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/reloadSection.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/taskmanager.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/progressbar.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/trickservice/modal.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/web-socket/sockjs.min.js?version=${jsVersion}" />"></script>
+	<script src="<spring:url value="/js/web-socket/stomp.min.js?version=${jsVersion}" />"></script>
 	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
-		<script src="<spring:url value="/js/trickservice/patch.js" />"></script>
+		<script src="<spring:url value="/js/trickservice/patch.js?version=${jsVersion}" />"></script>
 	</sec:authorize>
-	<script src="<spring:url value="/js/trickservice/profile.js" />"></script>
-	
+	<script src="<spring:url value="/js/trickservice/profile.js?version=${jsVersion}" />"></script>
+
 	<script type="text/javascript">
 	<!--
 		resolveMessage("error.timeout", "<spring:message code='error.timeout' />");
@@ -43,16 +48,18 @@
 		resolveMessage("label.title.export.soa", "<spring:message code='label.title.export.soa' />");
 		resolveMessage("label.title.generate.ticket", "<spring:message code='label.title.generate.ticket' />");
 		resolveMessage("label.title.import.analysis", "<spring:message code='label.title.import.analysis' />");
+		resolveMessage("label.title.import.risk.information", "<spring:message code='label.title.import.risk.information' />");
 		resolveMessage("label.title.install.application", "<spring:message code='label.title.install.application' />");
 		resolveMessage("label.title.reset.analysis.right", "<spring:message code='label.title.reset.analysis.right' />");
 		resolveMessage("label.title.import.measure.collection", "<spring:message code='label.title.import.measure.collection' />");
 		resolveMessage("label.title.compute.dynamic.parameter", "<spring:message code='label.title.compute.dynamic.parameter' />");
 		resolveMessage("label.title.export.risk_register", "<spring:message code='label.title.export.risk_register' />");
 		resolveMessage("label.title.export.risk_sheet", "<spring:message code='label.title.export.risk_sheet' />");
+		application['language'] = "${locale.language=='en'? 'en' : 'fr'}";
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>
 </sec:authorize>
 <sec:authorize access="hasRole('ROLE_PRE_AUTHEN')">
-	<script src="<spring:url value="/js/trickservice/otp.js" />"></script>
+	<script src="<spring:url value="/js/trickservice/otp.js?version=${jsVersion}" />"></script>
 </sec:authorize>

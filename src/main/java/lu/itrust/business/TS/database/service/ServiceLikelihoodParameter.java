@@ -3,17 +3,12 @@
  */
 package lu.itrust.business.TS.database.service;
 
-import java.util.List;
-
-import lu.itrust.business.TS.database.TemplateDAOService;
-import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.database.template.TemplateLikelihoodParameter;
 
 /**
  * @author eomar
  *
  */
-public interface ServiceLikelihoodParameter extends TemplateDAOService<LikelihoodParameter, Integer> {
-	List<String> findAcronymByAnalysisId(Integer idAnalysis);
-
-	Integer findMaxLevelByIdAnalysis(Integer idAnalysis);
+public interface ServiceLikelihoodParameter extends TemplateLikelihoodParameter {
+	
 }

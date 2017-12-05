@@ -12,7 +12,7 @@ import java.util.List;
  *
  */
 public interface TemplateDAOService<T, ID extends Serializable> {
-	boolean belongsToAnalysis(Integer analysisId, ID id);
+
 	
 	/**
 	 * Returns the number of entities available.
@@ -81,8 +81,6 @@ public interface TemplateDAOService<T, ID extends Serializable> {
 	 * @return
 	 */
 	List<T> findAll(List<ID> ids);
-
-	List<T> findByAnalysisId(Integer idAnalysis);
 	
 	/**
 	 * Retrives an entity by its id.
@@ -94,8 +92,6 @@ public interface TemplateDAOService<T, ID extends Serializable> {
 	 *             if {@code id} is {@literal null}
 	 */
 	T findOne(ID id);
-
-	T findOne(ID id,Integer idAnalysis);
 
 	T merge(T entity);
 

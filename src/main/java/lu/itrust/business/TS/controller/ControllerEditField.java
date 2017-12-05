@@ -29,12 +29,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.FieldEditor;
 import lu.itrust.business.TS.component.FieldValue;
 import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.Result;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
@@ -685,14 +687,14 @@ public class ControllerEditField {
 					}
 				} else
 					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-				result.add(new FieldValue(fields[1].startsWith("raw") ? "rawComputedImportance" : "expComputedImportance", probaImpact.getImportance()));
+
+				result.add(
+						updateFieldValue(idAnalysis, probaImpact.getImportance(), new FieldValue(fields[1].startsWith("raw") ? "computedRawImportance" : "computedExpImportance")));
 			} else if (field.getType().isAssignableFrom(RiskStrategy.class))
 				riskProfile.setRiskStrategy(RiskStrategy.valueOf(fieldEditor.getValue().toString()));
 			else if (field.getName().equals("identifier")) {
 				String identifier = fieldEditor.getValue() == null ? "" : fieldEditor.getValue().toString().trim();
-				if (identifier.isEmpty())
-					return Result.Error(messageSource.getMessage("error.identifier.null", null, "Identifier cannot be empty", locale));
-				else if (serviceRiskProfile.isUsed(identifier, idAnalysis))
+				if (!identifier.isEmpty() && serviceRiskProfile.isUsed(identifier, idAnalysis))
 					return Result.Error(messageSource.getMessage("error.identifier.is_in_used", null, "Identifier are not available", locale));
 				else
 					riskProfile.setIdentifier(identifier);
@@ -790,7 +792,7 @@ public class ControllerEditField {
 					factory = createFactoryForAssessment(idAnalysis);
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 				if (netImportance && AnalysisType.isQualitative(type))
-					result.add(new FieldValue("computedNextImportance", factory.findImportance(assessment)));
+					result.add(updateFieldValue(idAnalysis, factory.findImportance(assessment), new FieldValue("computedNetImportance")));
 				if (AnalysisType.isQuantitative(type)) {
 					AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
 					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
@@ -836,6 +838,28 @@ public class ControllerEditField {
 			TrickLogManager.Persist(e);
 			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
+	}
+
+	/**
+	 * Value will be modify<br>
+	 * Update : value (importance), color, title
+	 * @param idAnalysis
+	 * @param importance
+	 * @param value
+	 * @return value
+	 */
+	private FieldValue updateFieldValue(Integer idAnalysis, int importance, FieldValue value) {
+		createColorBounds(idAnalysis).stream().filter(v -> v.isAccepted(importance)).findAny().ifPresent(c -> {
+			value.setColor(c.getColor());
+			value.setTitle(c.getLabel());
+		});
+		value.setValue(importance);
+		return value;
+	}
+
+	private List<ColorBound> createColorBounds(Integer idAnalysis) {
+		return ChartGenerator.GenerateColorBounds(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
+
 	}
 
 	private ValueFactory createFactoryForAssessment(Integer idAnalysis) {

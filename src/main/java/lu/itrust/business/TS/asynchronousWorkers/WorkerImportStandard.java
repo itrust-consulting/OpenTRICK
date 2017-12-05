@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
@@ -86,6 +87,8 @@ public class WorkerImportStandard implements Worker {
 
 	private MessageHandler messageHandler;
 
+	private Thread current;
+
 	public WorkerImportStandard(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sessionFactory = sessionFactory;
@@ -113,6 +116,7 @@ public class WorkerImportStandard implements Worker {
 					return;
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
+				setCurrent(Thread.currentThread());
 			}
 
 			session = sessionFactory.openSession();
@@ -129,7 +133,7 @@ public class WorkerImportStandard implements Worker {
 
 			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
 
-			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_kb_standard"));
+			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_kb_standard"));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**
 			 * Log
@@ -173,8 +177,8 @@ public class WorkerImportStandard implements Worker {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -226,8 +230,8 @@ public class WorkerImportStandard implements Worker {
 
 	/**
 	 * getStandard: <br>
-	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the
-	 * Excel <br/>
+	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the Excel
+	 * <br/>
 	 * workbook and get information of the Standard to import
 	 * 
 	 * @param sharedStrings
@@ -281,8 +285,8 @@ public class WorkerImportStandard implements Worker {
 
 	/**
 	 * getMeasures: <br>
-	 * This function browse sheet (NormData) and table (TableNormData) of the
-	 * Excel <br/>
+	 * This function browse sheet (NormData) and table (TableNormData) of the Excel
+	 * <br/>
 	 * workbook and get information of the measures to import
 	 * 
 	 * @param sharedStrings
@@ -303,7 +307,10 @@ public class WorkerImportStandard implements Worker {
 		Map<Integer, Language> languages = loadLanguages(sheet, address, sharedStrings);
 		if (languages.isEmpty())
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
-		for (int i = address.getBegin().getRow() + 1; i < address.getEnd().getRow(); i++) {
+		
+		final int begin = address.getBegin().getRow() + 1, end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size());
+		
+		for (int i = begin; i < end; i++) {
 			Row row = sheet.getRow().get(i);
 			String reference = getString(row.getC().get(1), sharedStrings);
 			MeasureDescription measureDescription = daoMeasureDescription.getByReferenceAndStandard(reference, newstandard);
@@ -390,7 +397,11 @@ public class WorkerImportStandard implements Worker {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
+
 						canceled = true;
 					}
 				}
@@ -427,6 +438,15 @@ public class WorkerImportStandard implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.IMPORT_MEASURE_COLLECTION;
+	}
+
+	@Override
+	public Thread getCurrent() {
+		return current;
+	}
+
+	protected void setCurrent(Thread current) {
+		this.current = current;
 	}
 
 }

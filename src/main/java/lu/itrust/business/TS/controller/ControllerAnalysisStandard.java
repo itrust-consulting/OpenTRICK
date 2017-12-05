@@ -495,7 +495,7 @@ public class ControllerAnalysisStandard {
 			throws Exception {
 		Worker worker = new WorkerSOAExport(principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), idAnalysis, messageSource, serviceTaskFeedback,
 				workersPoolManager, sessionFactory);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		// execute task
 		executor.execute(worker);
@@ -965,7 +965,8 @@ public class ControllerAnalysisStandard {
 
 				measure.setImplementationRate(0.0);
 
-				measure.setAnalysisStandard(analysisStandard);
+				//measure.setAnalysisStandard(analysisStandard);
+				analysisStandard.add(measure);
 			}
 
 			if (AnalysisType.isQuantitative(type) && measureForm.getProperties() == null) {
@@ -1105,7 +1106,7 @@ public class ControllerAnalysisStandard {
 		if (!loadUserSettings(principal, null, null))
 			throw new ResourceNotFoundException();
 		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, form, serviceTaskFeedback, workersPoolManager, sessionFactory);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 			worker.cancel();
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		} else {

@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.actionplan.summary;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import freemarker.template.utility.NullArgumentException;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -21,6 +25,8 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
  * @since Aug 26, 2014
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="ActionPlanSummaryStandardConformance")
 public class SummaryStandardConformance {
 

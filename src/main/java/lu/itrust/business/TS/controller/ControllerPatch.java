@@ -159,7 +159,7 @@ public class ControllerPatch {
 			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(), workersPoolManager, sessionFactory, serviceTaskFeedback);
 			worker.setPoolManager(workersPoolManager);
 			// register worker to tasklist
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			// execute task
 			executor.execute(worker);

@@ -55,15 +55,15 @@
 					</c:choose>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile" id='main_menu_profile'> <sec:authentication
+					<li ${menu.equals("Account")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Account" id='main_menu_profile'> <sec:authentication
 								var="currentUsername" property="name" /> <c:choose>
 								<c:when test="${not empty currentUsername }">
-									<spring:message text='${currentUsername}'/>
+									<spring:message text='${currentUsername}' />
 								</c:when>
 								<c:otherwise>
 									<spring:message code="label.profile" text="Profile" />
 								</c:otherwise>
-							</c:choose>
+							</c:choose> <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;" title='<spring:message code='label.info.analysis.invitation.count'/>'>${analysisSharedCount}</span>
 					</a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 						<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin" id='main_menu_admin'> <spring:message
@@ -96,7 +96,7 @@
 							</ul></li>
 					</sec:authorize>
 					<li><a href="#" onclick="return $('#logoutFormSubmiter').click()" id='main_menu_logout'><spring:message code="label.menu.logout" text="Logout" /></a>
-						<form action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
+						<form id='logout-form' action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> <input type="submit" id="logoutFormSubmiter" />
 						</form></li>
 				</ul>

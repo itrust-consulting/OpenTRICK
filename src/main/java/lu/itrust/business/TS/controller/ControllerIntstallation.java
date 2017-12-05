@@ -180,7 +180,7 @@ public class ControllerIntstallation {
 				return false;
 			}
 			Worker worker = new WorkerTSInstallation(version, workersPoolManager, sessionFactory, serviceTaskFeedback, fileNames, customer.getId(), principal.getName());
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 				return false;
 			}

@@ -168,6 +168,7 @@
 		</thead>
 		<tbody>
 			<c:if test="${not empty asset}">
+				<c:set var="naParameterLabel">0-<spring:message code='label.parameter.label.na' /></c:set>
 				<c:forEach items="${assessments}" var="assessment">
 					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 						<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
@@ -221,18 +222,21 @@
 									<c:otherwise>
 										<c:choose>
 											<c:when test="${empty likelihood}">
-												<spring:message text="${assessment.likelihood}" var="likelihood" />
-												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);"><spring:message
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
 														code='label.status.na' /></td>
 											</c:when>
 											<c:otherwise>
-												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
-													title='<spring:message text="${likelihood.variable}"/>'><c:choose>
-														<c:when test="${likelihood.level == 0}">
-															<spring:message code='label.status.na' />
-														</c:when>
-														<c:otherwise>${likelihood.level}</c:otherwise>
-													</c:choose></td>
+												<c:choose>
+													<c:when test="${likelihood.level == 0}">
+														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${naParameterLabel}'><spring:message
+																code='label.status.na' /></td>
+													</c:when>
+													<c:otherwise>
+														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
+															title='<spring:message text="${likelihood.level}-${likelihood.parameter.label}"/>'>${likelihood.level}</td>
+													</c:otherwise>
+												</c:choose>
+
 											</c:otherwise>
 										</c:choose>
 									</c:otherwise>
@@ -243,17 +247,20 @@
 										<c:set var="impact" value="${assessment.getImpact(impactName)}" />
 										<c:choose>
 											<c:when test="${empty impact}">
-												<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='<spring:message text="${impactType.acronym}"/>0'
-													onclick="return editField(this);"><spring:message code='label.status.na' /></td>
+												<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
+														code='label.status.na' /></td>
 											</c:when>
 											<c:otherwise>
-												<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='<spring:message text="${impact.variable}"/>'
-													onclick="return editField(this);"><c:choose>
-														<c:when test="${impact.level == 0}">
-															<spring:message code='label.status.na' />
-														</c:when>
-														<c:otherwise>${impact.level}</c:otherwise>
-													</c:choose></td>
+												<c:choose>
+													<c:when test="${impact.level == 0}">
+														<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
+																code='label.status.na' /></td>
+													</c:when>
+													<c:otherwise>
+														<td data-trick-field="${impactName}" data-trick-field-type="string" class="editable" title='<spring:message text="${impact.level}-${impact.parameter.label}"/>'
+															onclick="return editField(this);">${impact.level}</td>
+													</c:otherwise>
+												</c:choose>
 											</c:otherwise>
 										</c:choose>
 									</c:if>

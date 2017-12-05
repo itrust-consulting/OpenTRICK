@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -32,6 +33,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -93,6 +96,8 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since 2012-08-21
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }))
 public class Analysis implements Cloneable {
 
@@ -102,6 +107,7 @@ public class Analysis implements Cloneable {
 
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -109,6 +115,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Standards */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("standard")
 	@Cascade(CascadeType.ALL)
@@ -117,6 +124,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Assessment */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -124,6 +132,7 @@ public class Analysis implements Cloneable {
 
 	/** List of assets */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -131,10 +140,11 @@ public class Analysis implements Cloneable {
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** Based on analysis */
-	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.LAZY)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiBasedOnAnalysis", nullable = true)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Analysis basedOnAnalysis;
 
 	/** Creation Date of the Analysis (and a specific version) */
@@ -157,6 +167,7 @@ public class Analysis implements Cloneable {
 
 	/** List of History data of the Analysis */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -174,6 +185,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Item Information */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -203,6 +215,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy = "analysis")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("number")
@@ -217,6 +230,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Risk Information */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -224,6 +238,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Assessment */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -231,6 +246,7 @@ public class Analysis implements Cloneable {
 
 	/** The Risk Register (CSSF) */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -239,6 +255,7 @@ public class Analysis implements Cloneable {
 
 	/** List of Scenarios */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -246,6 +263,7 @@ public class Analysis implements Cloneable {
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	@ElementCollection
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@MapKeyColumn(name = "dtName")
 	@Column(name = "dtValue")
 	@Cascade(CascadeType.ALL)
@@ -254,6 +272,7 @@ public class Analysis implements Cloneable {
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
@@ -268,6 +287,7 @@ public class Analysis implements Cloneable {
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
@@ -370,10 +390,11 @@ public class Analysis implements Cloneable {
 	public void add(Phase phase) {
 		if (this.phases == null)
 			phases = new ArrayList<Phase>();
-		if (!phases.contains(phase))
+		if (!phases.contains(phase)) {
 			phases.add(phase);
-		else
-			System.err.println("phase not add : " + phase.getNumber());
+			phase.setAnalysis(this);
+		} else
+			throw new TrickException("error.phase.duplicated", String.format("An other phase with the same number `%d` already exists", phase.getNumber()), phase.getNumber() + "");
 	}
 
 	/**
@@ -894,8 +915,7 @@ public class Analysis implements Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 		return this.actionPlans.stream().filter(actionPlan -> actionPlan.getActionPlanType().getActionPlanMode() == mode).collect(Collectors.toList());
@@ -908,8 +928,7 @@ public class Analysis implements Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(String mode) {
 
@@ -929,8 +948,7 @@ public class Analysis implements Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlans() {
 		return this.actionPlans;
@@ -1078,8 +1096,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at
-	 * the postion "index"
+	 * Returns a Single Item Information from the List of Item Information at the
+	 * postion "index"
 	 * 
 	 * @param index
 	 *            The Position in the List to retrieve the Item Information
@@ -1367,8 +1385,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of
-	 * format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of format
+	 * xx.xx.xx)
 	 * 
 	 * @return
 	 */
@@ -1438,8 +1456,8 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the SimpleParameter
-	 * @return The Value of the SimpleParameter if it exists, or -1 if the
-	 *         parameter was not found
+	 * @return The Value of the SimpleParameter if it exists, or -1 if the parameter
+	 *         was not found
 	 */
 	public double getParameter(String name) {
 		return getParameter(name, -1D);
@@ -1456,8 +1474,8 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the SimpleParameter
-	 * @return The Value of the SimpleParameter if it exists, or defaultValue if
-	 *         the parameter was not found
+	 * @return The Value of the SimpleParameter if it exists, or defaultValue if the
+	 *         parameter was not found
 	 */
 	public double getParameter(String type, String name, double defaultValue) {
 		return getParameters().values().stream().flatMap(parametersList -> parametersList.stream()).filter(parameter -> parameter.isMatch(type, name))
@@ -2400,21 +2418,19 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure. This method does no more need
-	 * the parameter default maintenance, but needs to get the internal and
-	 * external maintenance in md as well as the recurrent investment per year
-	 * in keuro. <br>
+	 * Returns the Calculated Cost of a Measure. This method does no more need the
+	 * parameter default maintenance, but needs to get the internal and external
+	 * maintenance in md as well as the recurrent investment per year in keuro. <br>
 	 * Formula used:<br>
-	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em *
-	 * er)+ ri))<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em * er)+
+	 * ri))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
 	 * er: The External Setup Rate in Euro per Man Day<br>
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in kEuro<br>
-	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years
-	 * <br>
+	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years <br>
 	 * im: The Internal MaintenanceRecurrentInvestment in Man Days<br>
 	 * em: The External MaintenanceRecurrentInvestment in Man Days<br>
 	 * ri: The recurrent Investment in kEuro<br>
@@ -2468,9 +2484,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference
-	 * between two Dates. It is used to Calculate the Size of the Phase in
-	 * Years.
+	 * This method Calculates an Double Value that Indicates the Difference between
+	 * two Dates. It is used to Calculate the Size of the Phase in Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)

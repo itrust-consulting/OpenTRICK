@@ -379,28 +379,26 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 
-		isNull(worker.getError(), "An error occured while export analysis");
-
-		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
-
-		notNull(messageHandler, "Last message cannot be found");
-
-		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
-
-		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
-
-		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
-
-		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
-
-		put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallback().getArgs().get(0)));
+		try {
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
+			isNull(worker.getError(), "An error occured while export analysis");
+			notNull(messageHandler, "Last message cannot be found");
+			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
+			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
+			put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+		} finally {
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		}
 	}
 
 	@Test(dependsOnMethods = "test_04_ExportSQLite")
 	public void test_05_DownloadSQLite() throws Exception {
 		try {
-			MvcResult result = this.mockMvc.perform(get(String.format("/Profile/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+			MvcResult result = this.mockMvc.perform(get(String.format("/Account/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 					.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 			notNull(result, "No result");
 			MockHttpServletResponse response = result.getResponse();
@@ -440,27 +438,25 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 
-		isNull(worker.getError(), "An error occured while export word report");
-
-		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
-
-		notNull(messageHandler, "Last message cannot be found");
-
-		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
-
-		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
-
-		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
-
-		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
-
-		put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+		try {
+			isNull(worker.getError(), "An error occured while export word report");
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
+			notNull(messageHandler, "Last message cannot be found");
+			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
+			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
+			put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+		} finally {
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		}
 	}
 
 	@Test(dependsOnMethods = "test_06_ExportReport")
 	public void test_07_DownloadReport() throws Exception {
-		MvcResult result = this.mockMvc.perform(get(String.format("/Profile/Report/%d/Download", getInteger("key_word_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		MvcResult result = this.mockMvc.perform(get(String.format("/Account/Report/%d/Download", getInteger("key_word_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();

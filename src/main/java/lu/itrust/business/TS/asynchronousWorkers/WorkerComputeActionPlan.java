@@ -15,6 +15,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
@@ -138,6 +139,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.COMPUTE_ACTION_PLAN);
+				setCurrent(Thread.currentThread());
 			}
 
 			session = getSessionFactory().openSession();
@@ -163,8 +165,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, serviceTaskFeedback, getId(), analysis, analysisStandards,
-					this.uncertainty, this.messageSource);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, serviceTaskFeedback, getId(), analysis, analysisStandards, this.uncertainty,
+					this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				MessageHandler messageHandler = null;
 				if (analysis.isHybrid()) {
@@ -178,13 +180,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				daoAnalysis.saveOrUpdate(analysis);
 				session.getTransaction().commit();
 				messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
-				if (reloadSection) {
-					if (analysis.isHybrid())
-						messageHandler.setAsyncCallback(
-								new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);riskEstimationUpdate(true);"));
-					else
-						messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(['section_actionplans','section_summary','section_soa','section_chart']);"));
-				}
+				if (reloadSection)
+					messageHandler.setAsyncCallbacks(communsCallback(analysis.isHybrid()));
 				serviceTaskFeedback.send(getId(), messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			} else
@@ -234,6 +231,17 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		}
 	}
 
+	private AsyncCallback[] communsCallback(boolean isHybrid) {
+		AsyncCallback[] callbacks = new AsyncCallback[isHybrid ? 5 : 4];
+		callbacks[0] = new AsyncCallback("reloadSection", "section_actionplans");
+		callbacks[1] = new AsyncCallback("reloadSection", "section_summary");
+		callbacks[2] = new AsyncCallback("reloadSection", "section_soa");
+		callbacks[3] = new AsyncCallback("reloadSection", "section_chart");
+		if (isHybrid)
+			callbacks[4] = new AsyncCallback("riskEstimationUpdate", true);
+		return callbacks;
+	}
+
 	private void updateRiskRegister(List<RiskRegisterItem> registerItems) {
 		if (oldRiskRegisters == null || oldRiskRegisters.isEmpty())
 			return;
@@ -243,6 +251,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				continue;
 			registerItems.set(i, oldRegisterItem.merge(registerItem));
 		}
+		
 		oldRiskRegisters.values().stream().forEach(riskRegisterItem -> daoRiskRegister.delete(riskRegisterItem));
 
 	}
@@ -260,8 +269,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -315,12 +324,12 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
-			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
+			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
 
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
-			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
+			daoActionPlan.delete(analysis.getActionPlans().remove(0));
 
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
@@ -354,7 +363,9 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}

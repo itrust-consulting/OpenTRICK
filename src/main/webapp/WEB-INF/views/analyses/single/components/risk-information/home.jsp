@@ -27,8 +27,13 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${isEditable}">
-								<a href="#" class="btn btn-xs btn-link pull-right" onclick="return manageBrainstorming('${category}');"><span class="glyphicon glyphicon-cog"></span> <spring:message
-												code="label.action.manage" /> </a>
+								<span class="pull-right btn-group btn-group-xs" style="margin-top: -1px;"> <a href="#" class="btn btn-link" style="margin-top: -0.1px" onclick="return manageBrainstorming('${category}');">
+										<i class="glyphicon glyphicon-cog"></i> <spring:message code="label.action.manage" />
+								</a> <c:if test="${canExport}">
+										<a href='<spring:url value="/Analysis/Risk-information/Export" />' class="btn btn-link" download> <i class="glyphicon glyphicon-export"></i>
+											<spring:message code="label.action.export" /></a>
+									</c:if> <a href='#' onclick="return importRiskInformationForm();" class="btn btn-link"> <i class="glyphicon glyphicon-import"></i> <spring:message code="label.action.import" />
+								</a></span>
 							</c:if>
 						</h3>
 					</div>
@@ -62,21 +67,6 @@
 				<tfoot></tfoot>
 				<tbody>
 					<c:forEach items="${riskInformationSplited.get(categoryRiskInformation)}" var="risk_information">
-						<%-- <c:if test="${category == 'risk'}">
-							<c:choose>
-								<c:when test="${empty previewRisk}">
-									<c:set var="previewRisk" value="${risk_information}" />
-								</c:when>
-								<c:otherwise>
-									<c:if test="${previewRisk.category != risk_information.category}">
-										<c:set var="previewRisk" value="${risk_information}" />
-										<tr>
-											<td colspan="6"></td>
-										</tr>
-									</c:if>
-								</c:otherwise>
-							</c:choose>
-						</c:if> --%>
 						<tr data-trick-class="RiskInformation" data-trick-id="${risk_information.id}">
 							<c:set var="codeLabel" value="${risk_information.label}" />
 							<c:choose>

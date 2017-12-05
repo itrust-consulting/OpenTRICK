@@ -70,7 +70,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Comment
 	 */
-	@Column(name = "dtSOAComment", nullable = false)
+	@Column(name = "dtSOAComment", nullable = false, length = 65536)
 	public String getSoaComment() {
 		return soaComment;
 	}
@@ -92,7 +92,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Risk
 	 */
-	@Column(name = "dtSOARisk", nullable = false)
+	@Column(name = "dtSOARisk", nullable = false, length = 65536)
 	public String getSoaRisk() {
 		return soaRisk;
 	}
@@ -327,7 +327,8 @@ public class MeasureProperties extends SecurityCriteria {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#valueFixer(java.lang.String, int)
+	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#valueFixer(java.lang.String,
+	 *      int)
 	 */
 	@Override
 	protected int valueFixer(String category, int value) throws TrickException {

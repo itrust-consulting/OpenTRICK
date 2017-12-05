@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -19,6 +20,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -27,6 +30,8 @@ import org.hibernate.annotations.CascadeType;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TrickLog {
 
 	@Id
@@ -59,6 +64,7 @@ public class TrickLog {
 	private Timestamp created;
 
 	@ElementCollection
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "TrickLogParameters", joinColumns = @JoinColumn(name = "fiTrickLog"))
 	@Column(name = "dtParameter",length=32768)
 	@Cascade(CascadeType.ALL)

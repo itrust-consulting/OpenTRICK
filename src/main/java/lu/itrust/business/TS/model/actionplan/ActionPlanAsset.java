@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.model.actionplan;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,6 +11,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.model.asset.Asset;
 
@@ -21,7 +25,9 @@ import lu.itrust.business.TS.model.asset.Asset;
  * @version 0.1
  * @since 29 janv. 2013
  */
-@Entity 
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"fiActionPlanCalculation", "fiAsset"}))
 public class ActionPlanAsset {
 

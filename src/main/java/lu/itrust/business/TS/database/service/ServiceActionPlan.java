@@ -43,6 +43,7 @@ public interface ServiceActionPlan {
 
 	public void delete(ActionPlanEntry actionPlanEntry);
 	
+	@Deprecated
 	public void deleteAllFromAnalysis(Integer analysisID);
 
 }

@@ -117,7 +117,7 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								  <h4 align="left">Hello ${user.firstName} ${user.lastName},</h4>
+								  <h4 align="left">Hello ${firstName} ${lastName},</h4>
                                   <p style="margin-top:5px;">
 									Due to many unsuccessful authentication attempts from ${ip}, your account has been suspended until ${expireDate} at ${expireDateTime}.<br>
 									Please find here a link to unlock your account: <a href="${hostname}">${hostname}</a><br>

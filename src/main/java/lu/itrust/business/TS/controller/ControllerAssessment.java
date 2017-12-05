@@ -27,9 +27,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.FieldValue;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.component.chartJS.Chart;
+import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -302,6 +304,13 @@ public class ControllerAssessment {
 		return chartGenerator.generateRiskHeatMap(idAnalysis);
 	}
 
+	@RequestMapping(value = "/Chart/Risk-evolution-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Chart riskEvolutionHeatMapChart(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.generateRiskEvolutionHeatMap(idAnalysis);
+	}
+
 	private Comparator<? super Assessment> assessmentAssetComparator() {
 		return (a1, a2) -> {
 			int compare = Double.compare(a1.getALE(), a2.getALE());
@@ -345,10 +354,28 @@ public class ControllerAssessment {
 		model.addAttribute("probabilities", analysis.getLikelihoodParameters());
 		model.addAttribute("dynamics", analysis.getDynamicParameters());
 		if (analysis.isQualitative()) {
+
+			RiskProfile riskProfile = analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario);
 			model.addAttribute("strategies", RiskStrategy.values());
-			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-			model.addAttribute("computeNextImportance", factory.findImportance(assessment));
-			if(analysis.isQuantitative())
+			model.addAttribute("riskProfile", riskProfile);
+			List<ColorBound> colorBounds = ChartGenerator.GenerateColorBounds(analysis.getRiskAcceptanceParameters());
+			
+			Integer netImportance = factory.findImportance(assessment);
+			model.addAttribute("computedNetImportance", colorBounds.stream().filter(v -> v.isAccepted(netImportance))
+					.map(v -> new FieldValue("importance", netImportance, v.getLabel(), null, v.getColor())).findAny().orElse(new FieldValue("importance", netImportance)));
+
+			Integer expImportance = riskProfile.getComputedExpImportance();
+
+			model.addAttribute("computedExpImportance", colorBounds.stream().filter(v -> v.isAccepted(expImportance))
+					.map(v -> new FieldValue("importance", expImportance, v.getLabel(), null, v.getColor())).findAny().orElse(new FieldValue("importance", expImportance)));
+
+			if (analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN).equals(true)) {
+				Integer rawImportance = riskProfile.getComputedRawImportance();
+				model.addAttribute("computedRawImportance", colorBounds.stream().filter(v -> v.isAccepted(rawImportance))
+						.map(v -> new FieldValue("importance", rawImportance, v.getLabel(), null, v.getColor())).findAny().orElse(new FieldValue("importance", rawImportance)));
+			}
+
+			if (analysis.isQuantitative())
 				model.addAttribute("riskRegister", analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario));
 		}
 	}

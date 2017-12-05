@@ -46,11 +46,10 @@
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
+		<intercept-url pattern="/static/**" access="ROLE_USER,ROLE_ADMIN,ROLE_SUPERVISOR,ROLE_CONSULTANT"/>
 		<custom-filter ref="customUsernamePasswordAuthenticationFilter" position="FORM_LOGIN_FILTER" />
 		<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER" />
 		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER" />
-		<!-- <form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/Login/Error" 
-			authentication-failure-handler-ref="authenticationFailureHandler" /> -->
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
 	</http>
 

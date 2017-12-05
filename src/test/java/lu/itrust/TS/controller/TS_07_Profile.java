@@ -86,22 +86,28 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 
-		isNull(worker.getError(), "An error occured while export analysis");
+		try {
+			isNull(worker.getError(), "An error occured while export analysis");
 
-		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 
-		notNull(messageHandler, "Last message cannot be found");
+			notNull(messageHandler, "Last message cannot be found");
 
-		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
+			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[0]").exists());
 
-		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+			
+			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 
-		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
+			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 
-		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
+			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+			put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+		} finally {
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		}
 	}
 
 	@Test(timeOut = 120000)
@@ -131,29 +137,27 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		notNull(worker, "Export word report worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
-
-		isNull(worker.getError(), "An error occured while export word report");
-
-		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
-
-		notNull(messageHandler, "Last message cannot be found");
-
-		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
-
-		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
-
-		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
-
-		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
-
-		put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+		
+		try {
+			isNull(worker.getError(), "An error occured while export word report");
+			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
+			notNull(messageHandler, "Last message cannot be found");
+			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
+			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
+			put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+		} finally {
+			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		}
 	}
 
 	@Test
 	public void test_00_UpdateProfile() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
 								"{\"currentPassword\" : \"%s\",\"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
 								PASSWORD, PASSWORD, PASSWORD, USERNAME, USERNAME, EMAIL, LANGUAGE)))
@@ -164,7 +168,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_01_UpdateUsername() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"currentPassword\" : \"%s\", \"login\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
 								PASSWORD, "lolmdr", USERNAME, USERNAME, EMAIL, LANGUAGE)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(content().string("{}"));
@@ -180,7 +184,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test(expectedExceptions = AssertionError.class)
 	public void test_01_UpdateConnexionType() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
 								"{\"currentPassword\" : \"%s\", \"connexionType\": %d,\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}", PASSWORD,
 								User.LADP_CONNEXION, USERNAME, USERNAME, EMAIL, LANGUAGE)))
@@ -199,7 +203,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_01_UpdateRole() throws Exception {
 		this.mockMvc
-				.perform(post("/Profile/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
 								"{\"currentPassword\" : \"%s\",\"roles\": [\"%s\",\"%s\"],\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
 								PASSWORD, RoleType.ROLE_SUPERVISOR, RoleType.ROLE_CONSULTANT, USERNAME, USERNAME, EMAIL, LANGUAGE)))
@@ -219,7 +223,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_02_UpdateSQLITEFilter() throws Exception {
 		MvcResult result = this.mockMvc
-				.perform(post("/Profile/Control/Sqlite/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Control/Sqlite/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"sort\" : \"%s\",\"filter\": \"%s\",\"direction\": \"%s\",\"size\": %d}", "identifier", identifier, "desc", 30)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists()).andReturn();
@@ -234,7 +238,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Test
 	public void test_03_UpdateReportFilter() throws Exception {
 		MvcResult result = this.mockMvc
-				.perform(post("/Profile/Control/Report/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Account/Control/Report/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"sort\" : \"%s\",\"filter\": \"%s\",\"direction\": \"%s\",\"size\": %d}", "version", version, "asc", 50)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists()).andReturn();
@@ -248,13 +252,13 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_GenerateReport")
 	public void test_04_DeleteSQLITE() throws Exception {
-		this.mockMvc.perform(post(String.format("/Profile/Report/%d/Delete", getInteger("key_word_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		this.mockMvc.perform(post(String.format("/Account/Report/%d/Delete", getInteger("key_word_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test(dependsOnMethods = "test_GenerateSqlite")
 	public void test_04_DeleteReport() throws Exception {
-		this.mockMvc.perform(post(String.format("/Profile/Sqlite/%d/Delete", getInteger("key_sql_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		this.mockMvc.perform(post(String.format("/Account/Sqlite/%d/Delete", getInteger("key_sql_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

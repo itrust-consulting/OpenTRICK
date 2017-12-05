@@ -24,6 +24,14 @@
       	classpath:spring/application-config.xml
  	</param-value>
   </context-param>
+  
+  <!--  -->
+  
+  <filter>
+  	<filter-name>etagFilter</filter-name>
+    <filter-class>org.springframework.web.filter.ShallowEtagHeaderFilter</filter-class>
+    <async-supported>true</async-supported>
+  </filter>
  
   <!-- Security  --> 
   
@@ -55,9 +63,18 @@
 		<name>TS_SESSION_ID</name> 
   		<path>/</path>
   		<http-only>true</http-only>
-		<secure>true</secure>
+		<!-- <secure>true</secure> -->
   	</cookie-config>
   </session-config>
+  
+  <filter-mapping>
+  	<filter-name>etagFilter</filter-name>
+  	<url-pattern>/static/*</url-pattern>
+  	<url-pattern>/images/*</url-pattern>
+  	<url-pattern>/fonts/*</url-pattern>
+  	<url-pattern>/css/*</url-pattern>
+  	<url-pattern>/js/*</url-pattern>
+  </filter-mapping>
 
  <filter-mapping>
      <filter-name>encoding-filter</filter-name>

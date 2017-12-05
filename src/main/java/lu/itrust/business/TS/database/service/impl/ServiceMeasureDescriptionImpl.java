@@ -192,4 +192,9 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	public boolean exists(int idMeasureDescription, int idStandard) {
 		return daoMeasureDescription.exists(idMeasureDescription, idStandard);
 	}
+
+	@Override
+	public boolean isUsed(MeasureDescription measureDescription) {
+		return daoMeasureDescription.isUsed(measureDescription);
+	}
 }

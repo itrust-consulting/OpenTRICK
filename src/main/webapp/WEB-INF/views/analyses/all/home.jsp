@@ -16,9 +16,8 @@
 <body>
 	<div id="wrap" class="wrap">
 		<jsp:include page="../../template/menu.jsp" />
-		<div class="container">
+		<div class="container" data-ug-root="analyses">
 			<div class="section" id="section_analysis">
-				<jsp:include page="../../template/successErrors.jsp" />
 				<ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis">
 					<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 								text="Build an analysis" /></a></li>
@@ -102,7 +101,7 @@
 						</form>
 					</div>
 				</div>
-				<table class="table table-hover" style="border-top: 1px solid #dddddd;">
+				<table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;">
 					<thead>
 						<tr>
 							<th width="1%"><c:if test="${allowedTicketing}">
@@ -171,7 +170,7 @@
 		<jsp:include page="../../template/footer.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analyses.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analyses.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
 </body>
 </html>

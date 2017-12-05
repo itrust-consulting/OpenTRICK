@@ -17,8 +17,8 @@
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../../template/menu.jsp" />
 		<!-- ################################################################### Content #################################################################### -->
-		<div class="container trick-container max-height">
-			<fieldset class="col-lg-3 max-height affixNav " style="overflow-x: hidden; padding-right: 16px; margin-top: 17px;" role="left-menu">
+		<div class="container trick-container max-height" data-ug-root="risk-evolution">
+			<fieldset class="col-md-3 col-lg-2 max-height affixNav nav-left-affix" style="overflow-x: hidden; padding-right: 16px;" role="left-menu">
 				<legend>${title}</legend>
 				<div class='form form-horizontal'>
 					<div class="form-group">
@@ -74,7 +74,7 @@
 				</div>
 				<div class='clearfix'></div>
 			</fieldset>
-			<div class="col-md-9 wrap">
+			<div class="col-md-9 col-lg-10 wrap">
 				<ul class="nav nav-tabs nav-tab risk-evolution col-xs-12" role='nav-tabs'>
 					<li class='active' data-type='QUANTITATIVE'><a id="heading-total-aLE" role='tab' role='button' data-toggle='tab' href="#tab-total-ale"> <spring:message
 								code='label.title.total_ale' text="Total ALE" />
@@ -133,11 +133,13 @@
 		<jsp:include page="../../template/footer.jsp" />
 		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="../../template/scripts.jsp" />
-		<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js" />"></script>
-		<script src="<spring:url value="/js/chartjs/plugins.js" />"></script>
-		<script src="<spring:url value="/js/trickservice/risk-evolution.js" />"></script>
+		<script src="<spring:url value="/js/chartjs/Chart.bundle.min.js?version=${jsVersion}" />"></script>
+		<script src="<spring:url value="/js/chartjs/plugins.js?version=${jsVersion}" />"></script>
+		<script src="<spring:url value="/js/trickservice/risk-evolution.js?version=${jsVersion}" />"></script>
 		<script type="text/javascript">
+		<!--
 			application["settings"] = ${ empty riskEvolutionSettings? '{}' : riskEvolutionSettings };
+		-->
 		</script>
 		<div id='view-helper' class='hidden'>
 			<jsp:include page="../single/components/parameters/risk-acceptance.jsp" />

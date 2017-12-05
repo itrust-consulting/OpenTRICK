@@ -10,6 +10,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
@@ -90,7 +91,9 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -140,8 +143,8 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -172,7 +175,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", 100));
 		if (getAsyncCallback() == null)
 			setAsyncCallback(new AsyncCallback("gotToPage", "/Analysis/All"));
-		getMessageHandler().setAsyncCallback(getAsyncCallback());
+		getMessageHandler().setAsyncCallbacks(getAsyncCallback());
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();
 		String username = importAnalysis.getServiceTaskFeedback().findUsernameById(this.getId());
@@ -260,7 +263,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			importAnalysis.updateAnalysis(customer, user);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(databaseHandler);
-			if (importAnalysis.ImportAnAnalysis(session))
+			if (importAnalysis.ImportAnAnalysis(session) && fileNames.size() == index)
 				OnSuccess();
 		} finally {
 			if (databaseHandler != null)
@@ -277,6 +280,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		setWorking(true);
 		setStarted(new Timestamp(System.currentTimeMillis()));
 		setName(TaskName.IMPORT_ANALYSIS);
+		setCurrent(Thread.currentThread());
 	}
 
 	public AsyncCallback getAsyncCallback() {

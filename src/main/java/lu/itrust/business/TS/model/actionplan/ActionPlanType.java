@@ -2,11 +2,15 @@ package lu.itrust.business.TS.model.actionplan;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * ActionPlanType: <br>
@@ -17,6 +21,8 @@ import javax.persistence.Id;
  * @since 28 janv. 2013
  */
 @Entity 
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ActionPlanType {
 
 	/***********************************************************************************************

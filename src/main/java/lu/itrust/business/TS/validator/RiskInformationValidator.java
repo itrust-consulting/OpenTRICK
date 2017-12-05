@@ -55,9 +55,6 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 				return "error.risk_information.chapter.null::Chapter cannot be empty";
 			else if(!(candidate instanceof String))
 				return "error.risk_information.unsupported.chapter::Chapter value is not supported";
-			String chapter = (String) candidate;
-			if(!chapter.matches(Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED))
-				return "error.risk_information.chapter.invalid::Chapter value cannot be accepted";
 			break;
 		case "acronym":
 			if(candidate == null)

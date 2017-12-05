@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 
@@ -14,9 +15,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
  */
 public interface ServiceTaskFeedback {
 
-	public int messageCount(String id);
-
-	public boolean taskExist(String id);
+	public boolean exists(String id);
 
 	public boolean hasMessage(String id);
 
@@ -24,7 +23,7 @@ public interface ServiceTaskFeedback {
 
 	public boolean hasTask(String userName, String id);
 
-	public boolean registerTask(String userName, String id);
+	public boolean registerTask(String userName, String id, Locale locale);
 
 	public void unregisterTask(String userName, String id);
 
@@ -32,15 +31,19 @@ public interface ServiceTaskFeedback {
 
 	public void send(String id, MessageHandler handler);
 
-	public void send(String userName, String id, MessageHandler handler);
+	public void send(String userName, String id, MessageHandler handler, Locale locale);
 
 	public MessageHandler recieveById(String id);
-
-	public MessageHandler recieveLast(String id);
 
 	public List<MessageHandler> recieve(String userName);
 
 	public List<String> tasks(String userName);
 
 	public String findUsernameById(String id);
+
+	public void update(String username, Locale locale);
+
+	boolean isWebSocketSupported(String username);
+
+	void setWebSocketSupported(String username, boolean support);
 }

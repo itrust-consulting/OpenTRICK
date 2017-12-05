@@ -37,6 +37,7 @@ public interface DAOActionPlanSummary {
 
 	public void delete(SummaryStage summaryStage);
 	
+	@Deprecated
 	public void deleteAllFromAnalysis(Integer analysisID);
 
 }

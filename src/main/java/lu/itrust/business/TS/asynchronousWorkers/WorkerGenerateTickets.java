@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -77,6 +78,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.GENERATE_TICKETS);
+				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -104,14 +106,17 @@ public class WorkerGenerateTickets extends WorkerImpl {
 						Standard standard = newMeasures.get(0).getAnalysisStandard().getStandard();
 						boolean isSame = !newMeasures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
 						if (newMeasures.size() < 10) {
-							String data = "reloadSection('section_actionplans');";
+							int count = 0;
+							AsyncCallback[] callbacks = new AsyncCallback[newMeasures.size() + 1];
+							callbacks[count++] = new AsyncCallback("reloadSection", "section_actionplans");
 							for (Measure measure : newMeasures)
-								data += "reloadMeasureRow(" + measure.getId() + "," + measure.getAnalysisStandard().getStandard().getId() + ");";
-							handler.setAsyncCallback(new AsyncCallback(data));
+								callbacks[count++] = new AsyncCallback("reloadMeasureRow", measure.getId(), measure.getAnalysisStandard().getStandard().getId());
+							handler.setAsyncCallbacks(callbacks);
 						} else if (isSame)
-							handler.setAsyncCallback(new AsyncCallback("reloadSection(['section_standard_" + standard.getId() + "','section_actionplans'])"));
+							handler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_standard_" + standard.getId()),
+									new AsyncCallback("reloadSection", "section_actionplans"));
 						else
-							handler.setAsyncCallback(new AsyncCallback("location.reload()"));
+							handler.setAsyncCallbacks(new AsyncCallback("reload"));
 					} else if (handler.getCode().startsWith("error."))
 						handler.setProgress(100);
 					else
@@ -177,7 +182,10 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}

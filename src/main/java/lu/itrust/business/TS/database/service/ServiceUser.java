@@ -57,4 +57,6 @@ public interface ServiceUser {
 	public boolean existByEmail(String email);
 
 	public List<User> getAll(Collection<Integer> ids);
+
+	public String findUsernameById(Integer id);
 }

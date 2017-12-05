@@ -3,6 +3,7 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * DAOCustomer.java: <br>
@@ -52,5 +53,11 @@ public interface DAOCustomer {
 	public boolean isInUsed(Customer customer);
 
 	public boolean existsByIdAndOrganisation(int id, String organisation);
+
+	public boolean hasAccess(Integer idUser, Customer customer);
+
+	public Customer findByAnalysisId(int analysisId);
+
+	public List<User> findUserByCustomer(Customer customer);
 
 }

@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +19,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -194,18 +196,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
-		return getSession()
-				.createQuery(
-						"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.customer.id = :customer and  analysis.data = true and analysis.label = :name  order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc")
+		return getSession().createQuery(
+				"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.customer.id = :customer and  analysis.data = true and analysis.label = :name  order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc")
 				.setParameter("username", username).setParameter("customer", idCustomer).setParameter("name", name).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllContains(MeasureDescription measureDescription) {
-		return getSession()
-				.createQuery(
-						"Select analysis From Analysis analysis inner join analysis.analysisStandards as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard = :standard and measure.measureDescription = :measureDescription")
+		return getSession().createQuery(
+				"Select analysis From Analysis analysis inner join analysis.analysisStandards as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard = :standard and measure.measureDescription = :measureDescription")
 				.setParameter("standard", measureDescription.getStandard()).setParameter("measureDescription", measureDescription).getResultList();
 	}
 
@@ -322,9 +322,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType... analysisTypes) {
 		return analysisTypes.length < 1 ? Collections.emptyList()
-				: getSession()
-						.createQuery(
-								"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.analysis.type in :type and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
+				: getSession().createQuery(
+						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.analysis.type in :types and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
 						.setParameter("username", username).setParameterList("rights", rights).setParameterList("types", analysisTypes).setParameterList("standards", standards)
 						.getResultList();
 	}
@@ -390,9 +389,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType... analysisTypes) {
 		return analysisTypes.length < 1 ? Collections.emptyList()
-				: getSession()
-						.createQuery(
-								"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysis.type in :type and analysisStandard.standard in :standards")
+				: getSession().createQuery(
+						"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysis.type in :types and analysisStandard.standard in :standards")
 						.setParameterList("standards", standards).setParameterList("types", analysisTypes).getResultList();
 	}
 
@@ -417,9 +415,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getAllVersion(Integer analysisId) {
-		return getSession()
-				.createQuery(
-						"Select distinct analysis.version From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
+		return getSession().createQuery(
+				"Select distinct analysis.version From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
 				.setParameter("analysisId", analysisId).getResultList();
 	}
 
@@ -487,27 +484,24 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId) {
-		return getSession()
-				.createQuery(
-						"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label asc, analysis.identifier asc, analysis.version desc")
+		return getSession().createQuery(
+				"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label asc, analysis.identifier asc, analysis.version desc")
 				.setParameter("username", username).setParameter("customer", customerId).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Analysis getByUsernameAndId(String username, Integer analysisId) {
-		return (Analysis) getSession()
-				.createQuery(
-						"Select analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis as analysis where userAnalysisRight.user.login = :username and analysis.id = :analysisId")
+		return (Analysis) getSession().createQuery(
+				"Select analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis as analysis where userAnalysisRight.user.login = :username and analysis.id = :analysisId")
 				.setParameter("username", username).setParameter("analysisId", analysisId).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids) {
-		return getSession()
-				.createQuery(
-						"Select analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis as analysis where userAnalysisRight.user.login = :username and analysis.id in :ids")
+		return getSession().createQuery(
+				"Select analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis as analysis where userAnalysisRight.user.login = :username and analysis.id in :ids")
 				.setParameter("username", username).setParameterList("ids", ids).getResultList();
 	}
 
@@ -527,9 +521,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Customer> getCustomersByIdAnalysis(int analysisId) {
-		return getSession()
-				.createQuery(
-						"Select distinct analysis.customer From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2.id = :analysisId)")
+		return getSession().createQuery(
+				"Select distinct analysis.customer From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2.id = :analysisId)")
 				.setParameter("analysisId", analysisId).getResultList();
 	}
 
@@ -608,9 +601,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysisRight.analysis.id , userAnalysisRight.analysis.version From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.identifier = :identifier and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights            ")
+		return getSession().createQuery(
+				"Select userAnalysisRight.analysis.id , userAnalysisRight.analysis.version From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.identifier = :identifier and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights            ")
 				.setParameter("username", username).setParameter("identifier", identifier).setParameter("username", username).setParameter("customerId", idCustomer)
 				.setParameterList("rights", new AnalysisRight[] { AnalysisRight.ALL, AnalysisRight.EXPORT }).getResultList();
 	}
@@ -625,9 +617,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysisRight.analysis.identifier , userAnalysisRight.analysis.label From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights group by userAnalysisRight.analysis.identifier")
+		return getSession().createQuery(
+				"Select userAnalysisRight.analysis.identifier , userAnalysisRight.analysis.label From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights group by userAnalysisRight.analysis.identifier")
 				.setParameter("username", username).setParameter("customerId", idCustomer)
 				.setParameterList("rights", new AnalysisRight[] { AnalysisRight.ALL, AnalysisRight.EXPORT }).getResultList();
 	}
@@ -671,9 +662,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
-		return getSession()
-				.createQuery(
-						"Select distinct analysis.label from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer order by analysis.label asc")
+		return getSession().createQuery(
+				"Select distinct analysis.label from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer order by analysis.label asc")
 				.setParameter("username", username).setParameter("customer", idCustomer).getResultList();
 	}
 
@@ -917,5 +907,43 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	private Function<? super Analysis, ? extends AnalysisBaseInfo> mapToBaseInfo() {
 		return analysis -> new AnalysisBaseInfo(analysis);
 
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting) {
+		String value = getSession()
+				.createQuery("Select VALUE(setting) From Analysis analysis inner join analysis.settings as setting where analysis.id = :idAnalysis and KEY(setting) = :key",
+						String.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("key", setting.name()).uniqueResult();
+		return (T) Analysis.findSetting(setting, value);
+	}
+	
+	@Override
+	public Analysis findByIdAndEager(Integer analysisId) {
+		Analysis analysis = get(analysisId);
+		if (analysis != null) {
+			Hibernate.isInitialized(analysis);
+			Hibernate.isInitialized(analysis.getActionPlans());
+			Hibernate.isInitialized(analysis.getAnalysisStandards());
+			Hibernate.isInitialized(analysis.getAssessments());
+			Hibernate.isInitialized(analysis.getAssets());
+			Hibernate.isInitialized(analysis.getCustomer());
+			Hibernate.isInitialized(analysis.getDynamicParameters());
+			Hibernate.isInitialized(analysis.getHistories());
+			Hibernate.isInitialized(analysis.getImpactParameters());
+			Hibernate.isInitialized(analysis.getItemInformations());
+			Hibernate.isInitialized(analysis.getLanguage());
+			Hibernate.isInitialized(analysis.getLikelihoodParameters());
+			Hibernate.isInitialized(analysis.getMaturityParameters());
+			Hibernate.isInitialized(analysis.getPhases());
+			Hibernate.isInitialized(analysis.getRiskAcceptanceParameters());
+			Hibernate.isInitialized(analysis.getRiskProfiles());
+			Hibernate.isInitialized(analysis.getRiskRegisters());
+			Hibernate.isInitialized(analysis.getScenarios());
+			Hibernate.isInitialized(analysis.getSimpleParameters());
+			Hibernate.isInitialized(analysis.getSummaries());
+		}
+		return analysis;
 	}
 }

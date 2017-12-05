@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -753,5 +754,16 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public Map<String, String> getSettingsByIdAnalysis(Integer idAnalysis) {
 		return daoAnalysis.getSettingsByIdAnalysis(idAnalysis);
+	}
+
+	@Override
+	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting) {
+		return daoAnalysis.findSetting(idAnalysis, setting);
+	}
+
+	@Override
+	public Analysis findByIdAndEager(Integer analysisId) {
+		
+		return daoAnalysis.findByIdAndEager(analysisId);
 	}
 }

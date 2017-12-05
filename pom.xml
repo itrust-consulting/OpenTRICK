@@ -2,12 +2,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.7</version>
+	<version>2.8</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.springframework.version>4.3.11.RELEASE</org.springframework.version>
+		<org.springframework.version>4.3.13.RELEASE</org.springframework.version>
 		<org.springframework.security.version>4.2.3.RELEASE</org.springframework.security.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
+		<org.hibernate.version>5.2.12.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
@@ -55,6 +56,7 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>${org.springframework.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
@@ -91,6 +93,18 @@
 			<version>${org.springframework.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-websocket</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-messaging</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+
 		<!-- Spring Security -->
 
 		<dependency>
@@ -123,6 +137,20 @@
 			<version>${org.springframework.security.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-messaging</artifactId>
+			<version>${org.springframework.security.version}</version>
+		</dependency>
+
+		<!-- WEB SOCKET -->
+
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-net</artifactId>
+			<version>2.0.8.RELEASE</version>
+		</dependency>
+
 		<!-- OTP + QrCode -->
 		<dependency>
 			<groupId>org.jboss.aerogear</groupId>
@@ -148,8 +176,20 @@
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>5.2.11.Final</version>
+			<artifactId>hibernate-java8</artifactId>
+			<version>${org.hibernate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>${org.hibernate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>3.4.0</version>
 		</dependency>
 
 		<dependency>
@@ -157,7 +197,7 @@
 			<artifactId>hibernate-commons-annotations</artifactId>
 			<version>5.0.1.Final</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
@@ -179,7 +219,7 @@
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.19.3</version>
+			<version>3.21.0</version>
 		</dependency>
 
 		<dependency>
@@ -198,7 +238,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.8.9</version>
+			<version>2.9.2</version>
 		</dependency>
 
 		<!-- Log -->
@@ -220,7 +260,7 @@
 		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j</artifactId>
-			<version>3.3.5</version>
+			<version>3.3.6</version>
 		</dependency>
 
 		<!-- Email -->
@@ -264,7 +304,7 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>4.1.2</version>
+			<version>4.2.0</version>
 		</dependency>
 
 		<!-- JIRA -->
@@ -428,15 +468,17 @@
 				<version>3.0.0</version>
 				<configuration>
 					<warSourceExcludes>
-						**/WEB-INF/css/*.css,
-						**/WEB-INF/css/themes/*.css,
-						**/WEB-INF/js/*.js,
-						**/WEB-INF/js/trickservice/*.js,
-						**/WEB-INF/js/chartjs/*.js,
-						**/WEB-INF/js/bootstrap/*.js,
-						**/WEB-INF/js/bootstrap/locales/*.js
+						**/WEB-INF/static/css/*.css,
+						**/WEB-INF/static/css/themes/*.css,
+						**/WEB-INF/static/views/css/*.css,
+						**/WEB-INF/static/js/*.js,
+						**/WEB-INF/static/views/js/*.js,
+						**/WEB-INF/static/js/trickservice/*.js,
+						**/WEB-INF/static/js/chartjs/*.js,
+						**/WEB-INF/static/js/bootstrap/*.js,
+						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
-					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js</packagingExcludes>
+					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js, **-example.properties</packagingExcludes>
 				</configuration>
 			</plugin>
 
@@ -457,20 +499,20 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<cssSourceDir>WEB-INF/css</cssSourceDir>
+							<cssSourceDir>WEB-INF/static/css</cssSourceDir>
 
 							<cssSourceIncludes>
 								<cssSourceInclude>*.css</cssSourceInclude>
 							</cssSourceIncludes>
 
 							<cssSourceExcludes>
-								<cssSourceExclude>WEB-INF/css/*.min.css</cssSourceExclude>
+								<cssSourceExclude>WEB-INF/static/css/*.min.css</cssSourceExclude>
 							</cssSourceExcludes>
 
-							<jsSourceDir>WEB-INF/js</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js</jsSourceDir>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
@@ -488,12 +530,12 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 							<charset>utf-8</charset>
-							<cssSourceDir>WEB-INF/css/themes</cssSourceDir>
+							<cssSourceDir>WEB-INF/static/css/themes</cssSourceDir>
 							<cssSourceIncludes>
 								<cssSourceInclude>*.css</cssSourceInclude>
 							</cssSourceIncludes>
 							<cssSourceExcludes>
-								<cssSourceExclude>WEB-INF/css/themes/*.min.css</cssSourceExclude>
+								<cssSourceExclude>WEB-INF/static/css/themes/*.min.css</cssSourceExclude>
 							</cssSourceExcludes>
 						</configuration>
 					</execution>
@@ -510,14 +552,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/trickservice</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/trickservice</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/trickservice/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/trickservice/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 						</configuration>
 					</execution>
@@ -534,14 +576,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/bootstrap</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/bootstrap</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/bootstrap/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/bootstrap/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>
@@ -559,14 +601,14 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/chartjs</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/chartjs</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/chartjs/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/chartjs/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>
@@ -584,22 +626,56 @@
 							<skipMerge>true</skipMerge>
 							<nosuffix>true</nosuffix>
 
-							<jsSourceDir>WEB-INF/js/bootstrap/locales</jsSourceDir>
+							<jsSourceDir>WEB-INF/static/js/bootstrap/locales</jsSourceDir>
 
 							<jsSourceIncludes>
 								<jsSourceInclude>*.js</jsSourceInclude>
 							</jsSourceIncludes>
 
 							<jsSourceExcludes>
-								<jsSourceExclude>WEB-INF/js/bootstrap/locales/*.min.js</jsSourceExclude>
+								<jsSourceExclude>WEB-INF/static/js/bootstrap/locales/*.min.js</jsSourceExclude>
 							</jsSourceExcludes>
 
 						</configuration>
 					</execution>
 
+					<!-- User guide -->
+
+					<execution>
+						<id>minify-user-guide-css-js</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<cssSourceDir>WEB-INF/static/views/css</cssSourceDir>
+
+							<cssSourceIncludes>
+								<cssSourceInclude>*.css</cssSourceInclude>
+							</cssSourceIncludes>
+
+							<cssSourceExcludes>
+								<cssSourceExclude>WEB-INF/static/views/css/*.min.css</cssSourceExclude>
+							</cssSourceExcludes>
+
+							<jsSourceDir>WEB-INF/static/views/js</jsSourceDir>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/static/views/js/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
 	</build>
 	<repositories>

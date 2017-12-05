@@ -12,6 +12,7 @@ import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
+import org.springframework.util.StringUtils;
 import org.xlsx4j.jaxb.Context;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTTablePart;
@@ -91,8 +92,8 @@ public final class ExcelHelper {
 	}
 
 	/**
-	 * Takes in a 0-based base-10 column and returns a ALPHA-26 representation.
-	 * eg column #3 -> D
+	 * Takes in a 0-based base-10 column and returns a ALPHA-26 representation. eg
+	 * column #3 -> D
 	 */
 	public static String numToColString(int col) {
 		// Excel counts column A as the 1st column, we
@@ -119,8 +120,8 @@ public final class ExcelHelper {
 
 	/**
 	 * takes in a column reference portion of a CellRef and converts it from
-	 * ALPHA-26 number format to 0-based base 10. 'A' -> 0 'Z' -> 25 'AA' -> 26
-	 * 'IV' -> 255
+	 * ALPHA-26 number format to 0-based base 10. 'A' -> 0 'Z' -> 25 'AA' -> 26 'IV'
+	 * -> 255
 	 * 
 	 * @return zero based column index
 	 */
@@ -133,10 +134,11 @@ public final class ExcelHelper {
 				if (k != 0)
 					throw new IllegalArgumentException("Bad col ref format '" + ref + "'");
 				continue;
-			}
-
-			// Character is uppercase letter, find relative value to A
-			retval = (retval * 26) + (thechar - 'A' + 1);
+			} else if (Character.isDigit(thechar))
+				break;
+			else
+				// Character is uppercase letter, find relative value to A
+				retval = (retval * 26) + (thechar - 'A' + 1);
 		}
 		return retval - 1;
 	}
@@ -195,7 +197,21 @@ public final class ExcelHelper {
 	}
 
 	public static String getString(Row row, int cell, Map<String, String> sharedStrings) {
-		return row.getC().size() > cell ? getString(row.getC().get(cell), sharedStrings) : null;
+		Cell c = getCellAt(row, cell);
+		return c == null ? null : getString(c, sharedStrings);
+	}
+
+	public static Cell getCellAt(Row row, int index) {
+		for (int i = Math.min(index, row.getC().size()-1); i >= 0; i--) {
+			Cell cell = row.getC().get(i);
+			if (colToIndex(cell.getR(), index) == index)
+				return cell;
+		}
+		return null;
+	}
+
+	private static int colToIndex(String r, int index) {
+		return StringUtils.isEmpty(r) ? index : colStringToIndex(r);
 	}
 
 	public static double getDouble(Cell cell) {

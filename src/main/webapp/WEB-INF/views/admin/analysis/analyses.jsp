@@ -7,7 +7,6 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane" id="tab-analyses">
 	<div class="section" id="section_admin_analysis">
-		<jsp:include page="../../template/successErrors.jsp" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message code="label.menu.manage.access.analysis"
@@ -42,7 +41,7 @@
 				</select>
 			</form>
 		</div>
-		<table class="table table-hover" style="border-top: 1px solid #dddddd;" data-fh-scroll-multi="0.995">
+		<table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;" data-fh-scroll-multi="0.995">
 			<thead>
 				<tr>
 					<th width="1%"></th>

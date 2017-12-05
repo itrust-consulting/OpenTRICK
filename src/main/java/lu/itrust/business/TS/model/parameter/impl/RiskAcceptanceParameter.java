@@ -7,8 +7,12 @@ import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_RISK_A
 import static lu.itrust.business.TS.constants.Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.model.parameter.IRiskAcceptanceParameter;
 
@@ -17,6 +21,8 @@ import lu.itrust.business.TS.model.parameter.IRiskAcceptanceParameter;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name = "description", column = @Column(name = "dtDescription", length = 2048, nullable = false))
 public class RiskAcceptanceParameter extends Parameter implements IRiskAcceptanceParameter {
 

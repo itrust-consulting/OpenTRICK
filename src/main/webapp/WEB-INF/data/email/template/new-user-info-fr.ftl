@@ -114,7 +114,7 @@
                             <td align='left'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
-								<h4 align="left">Bonjour ${user.firstName} ${user.lastName},</h4>
+								<h4 align="left">Bonjour ${firstName} ${lastName},</h4>
                                    <p style="margin-top:5px;">
 									Votre compte utilisateur a &eacute;t&eacute; cr&eacute;&eacute; avec succ&egrave;s et vous &ecirc;tes maintenant pr&ecirc;t &agrave; utiliser TRICK Service.<br>
 									Ce message a &eacute;t&eacute; g&eacute;n&eacute;r&eacute; automatiquement, veuillez ne pas y r&eacute;pondre.

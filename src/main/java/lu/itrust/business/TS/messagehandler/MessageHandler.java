@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lu.itrust.business.TS.asynchronousWorkers.AsyncCallback;
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -19,13 +19,13 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 public class MessageHandler {
 
-	private long idTask = 0;
+	private String idTask;
 
 	private TaskStatus taskStatus;
 
 	private TaskName taskName = null;
 
-	private AsyncCallback asyncCallback = null;
+	private AsyncCallback [] asyncCallbacks = null;
 
 	private String code = null;
 
@@ -180,7 +180,7 @@ public class MessageHandler {
 	/**
 	 * @return the idTask
 	 */
-	public long getIdTask() {
+	public String getIdTask() {
 		return idTask;
 	}
 
@@ -188,7 +188,7 @@ public class MessageHandler {
 	 * @param idTask
 	 *            the idTask to set
 	 */
-	public void setIdTask(long idTask) {
+	public void setIdTask(String idTask) {
 		this.idTask = idTask;
 	}
 
@@ -240,28 +240,28 @@ public class MessageHandler {
 	/**
 	 * @return the asyncCallback
 	 */
-	public AsyncCallback getAsyncCallback() {
-		return asyncCallback;
+	public AsyncCallback [] getAsyncCallbacks() {
+		return asyncCallbacks;
 	}
 
 	/**
 	 * @param asyncCallback
 	 *            the asyncCallback to set
 	 */
-	public void setAsyncCallback(AsyncCallback asyncCallback) {
-		this.asyncCallback = asyncCallback;
+	public void setAsyncCallbacks(AsyncCallback... asyncCallbacks) {
+		this.asyncCallbacks = asyncCallbacks;
 	}
 
 	public void update(String code, String message, int progress) {
 		this.parameters = null;
-		this.asyncCallback = null;
+		this.asyncCallbacks = null;
 		this.code = code;
 		this.message = message;
 		this.progress = progress;
 	}
 
 	public void update(String code, String message, int progress, Object... parameters) {
-		this.asyncCallback = null;
+		this.asyncCallbacks = null;
 		this.code = code;
 		this.message = message;
 		this.parameters = parameters;
@@ -274,7 +274,7 @@ public class MessageHandler {
 	 */
 	@Override
 	public String toString() {
-		return "MessageHandler [idTask=" + idTask + ", taskStatus=" + taskStatus + ", taskName=" + taskName + ", asyncCallback=" + asyncCallback + ", code=" + code
+		return "MessageHandler [idTask=" + idTask + ", taskStatus=" + taskStatus + ", taskName=" + taskName + ", asyncCallbacks=" + asyncCallbacks + ", code=" + code
 				+ ", parameters=" + Arrays.toString(parameters) + ", message=" + message + ", progress=" + progress + ", exception=" + exception + "]";
 	}
 }

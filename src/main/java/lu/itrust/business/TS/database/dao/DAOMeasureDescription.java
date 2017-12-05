@@ -41,4 +41,6 @@ public interface DAOMeasureDescription {
 	public boolean existsForMeasureByReferenceAndAnalysisStandardId(String reference, int idAnalysisStandard);
 
 	public boolean exists(int idMeasureDescription, int idStandard);
+
+	public boolean isUsed(MeasureDescription measureDescription);
 }

@@ -237,6 +237,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 *
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#deleteAllFromAnalysis(java.lang.Integer)
 	 */
+	@Deprecated
 	@Transactional
 	@Override
 	public void deleteAllFromAnalysis(Integer analysisID)  {

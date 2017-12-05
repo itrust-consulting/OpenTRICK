@@ -350,8 +350,7 @@ public class ControllerAnalysis {
 
 			Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName(), serviceTaskFeedback, sessionFactory, workersPoolManager);
 			// register worker to tasklist
-			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-				// execute task
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
 				errors.put(ANALYSIS_TASK_ID, worker.getId());
 			} else
@@ -443,11 +442,8 @@ public class ControllerAnalysis {
 		Worker worker = new WorkerExportAnalysis(serviceTaskFeedback, sessionFactory, principal, request.getServletContext(), workersPoolManager, analysisId);
 
 		// register worker
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-
-			// execute task
+		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 			executor.execute(worker);
-
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.start.export.analysis", null, "Analysis export was started successfully", locale));
 		} else
@@ -488,15 +484,13 @@ public class ControllerAnalysis {
 					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
-				locale = Locale.FRENCH;
 				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? frenchQuantitativeReportName : frenchQualitativeReportName);
 				break;
 			default:
-				locale = Locale.ENGLISH;
 				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? englishQuantitativeReportName : englishQualitativeReportName);
 			}
 			Worker worker = new WorkerExportWordReport(analysisId, principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
@@ -607,7 +601,7 @@ public class ControllerAnalysis {
 		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
 
 		// register worker to tasklist
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			// execute task
 			executor.execute(worker);
 		else

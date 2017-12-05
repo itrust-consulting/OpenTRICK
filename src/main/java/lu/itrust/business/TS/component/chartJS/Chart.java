@@ -15,6 +15,8 @@ public class Chart {
 	private List<String> labels = new ArrayList<>();
 	
 	private List<Legend> legends = new ArrayList<>();
+	
+	private List<?> backgroudColors = new ArrayList<>() ;
 
 	private Object settings = null;
 
@@ -199,5 +201,13 @@ public class Chart {
 	 */
 	public void setYTitle(String yTitle) {
 		this.yTitle = yTitle;
+	}
+
+	public void setBackgroudColors(List<?> colors) {
+		this.backgroudColors = colors;
+	}
+	
+	public List<?> getBackgroudColors(){
+		return this.backgroudColors;
 	}
 }

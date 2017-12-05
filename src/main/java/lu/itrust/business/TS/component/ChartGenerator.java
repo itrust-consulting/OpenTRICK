@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -27,6 +28,7 @@ import org.springframework.util.StringUtils;
 import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.component.chartJS.Dataset;
 import lu.itrust.business.TS.component.chartJS.Legend;
+import lu.itrust.business.TS.component.chartJS.Point;
 import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.component.chartJS.helper.DynamicParameterMetadata;
 import lu.itrust.business.TS.component.chartJS.helper.ValueMetadata;
@@ -57,6 +59,8 @@ import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
@@ -68,6 +72,7 @@ import lu.itrust.business.TS.model.rrf.RRFAsset;
 import lu.itrust.business.TS.model.rrf.RRFAssetType;
 import lu.itrust.business.TS.model.rrf.RRFMeasure;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -1113,6 +1118,10 @@ public class ChartGenerator {
 	}
 
 	public List<Chart> generateAssessmentRisk(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<RiskAcceptanceParameter> riskAcceptanceParameters) {
+		return generateAssessmentRiskChart(valueFactory, assessments,  GenerateColorBounds(riskAcceptanceParameters));
+	}
+
+	public static List<ColorBound> GenerateColorBounds(List<RiskAcceptanceParameter> riskAcceptanceParameters) {
 		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
@@ -1124,7 +1133,7 @@ public class ChartGenerator {
 				colorBounds.add(
 						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
-		return generateAssessmentRiskChart(valueFactory, assessments, colorBounds);
+		return colorBounds;
 	}
 
 	public List<Chart> generateAssessmentRiskChart(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<ColorBound> colorBounds) {
@@ -1352,6 +1361,126 @@ public class ChartGenerator {
 		return chart;
 	}
 
+	public static Chart generateRiskEvolutionHeatMap(Analysis analysis, ValueFactory factory, MessageSource messageSource) {
+		if (factory == null)
+			factory = new ValueFactory(analysis.getParameters());
+		Chart chart = new Chart();
+		String type = factory.getImpacts().keySet().stream().findAny().orElse(null);
+		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
+		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
+		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
+		Locale locale = new Locale(analysis.getLanguage().getAlpha2());
+		String notApplicable = messageSource.getMessage("label.parameter.label.na", null, locale);
+		probabilities.stream().sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
+			if (probability.getLevel() == 0)
+				chart.getXLabels().add(probability.getLevel() + "-" + notApplicable);
+			else
+				chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
+		});
+		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
+			if (impact.getLevel() == 0)
+				chart.getYLabels().add(impact.getLevel() + "-" + notApplicable);
+			else
+				chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
+		});
+		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
+			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
+			if (colorBounds.isEmpty())
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(
+						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+		}
+
+		int inverseImpact[] = new int[impacts.size()];
+		for (int i = 0, size = impacts.size() - 1; i < inverseImpact.length; i++)
+			inverseImpact[i] = size - i;
+		Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
+				.filter(riskProfile -> riskProfile.getAsset().isSelected() && riskProfile.getScenario().isSelected())
+				.collect(Collectors.toMap(riskProfile -> Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()), Function.identity()));
+		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected).sorted(assessmentComparator(factory, riskProfiles, -1))
+				.collect(Collectors.toList());
+
+		populateDataset(messageSource, locale, factory, chart, assessments, riskProfiles, inverseImpact);
+		for (int i = impacts.size() - 1; i >= 0; i--) {
+			Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>(probabilities.size() - 1));
+			for (int j = 0; j < probabilities.size(); j++) {
+				int importance = i * j;
+				dataset.getBackgroundColor().add(
+						colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).map(ColorBound::getColor).findAny().orElse(Constant.HEAT_MAP_DEFAULT_COLOR));
+				dataset.getData().add("");
+			}
+			dataset.setType("heatmap");
+			chart.getDatasets().add(dataset);
+		}
+		return chart;
+	}
+
+	private static Comparator<? super Assessment> assessmentComparator(ValueFactory factory, Map<String, RiskProfile> risks, int order) {
+		return (a1, a2) -> {
+			int result = Integer.compare(factory.findImportance(a1), factory.findImportance(a2));
+			if (result == 0)
+				result = compare(risks.get(a1.getKey()), risks.get(a2.getKey()), 1, order);
+			return result * order;
+		};
+	}
+
+	public static String emptyIsNull(String value) {
+		return value == null ? "" : value;
+	}
+
+	private static int compare(RiskProfile r1, RiskProfile r2, int type, int order) {
+		if (r1 == null && r2 == null)
+			return 0;
+		if (r1 == null)
+			return -1;
+		else if (r2 == null)
+			return 1;
+		else {
+			int result = type == 0 ? Integer.compare(r1.getComputedRawImportance(), r2.getComputedRawImportance()) : 0;
+			if (result == 0)
+				result = type <= 1 ? Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance()) : 0;
+			if (result == 0)
+				result = NaturalOrderComparator.compareTo(emptyIsNull(r1.getIdentifier()), emptyIsNull(r2.getIdentifier())) * order;
+			return result;
+		}
+	}
+
+	private static void populateDataset(MessageSource messageSource, Locale locale, ValueFactory factory, Chart chart, List<Assessment> assessments,
+			Map<String, RiskProfile> riskProfiles, int[] inverseImpacts) {
+		assessments.forEach(assessment -> {
+			Dataset<String> dataset = new Dataset<String>(getRiskColor(assessment.getScenario().getType()));
+			dataset.getData().add(new Point(factory.findProbLevel(assessment.getLikelihood()), inverseImpacts[factory.findImpactLevel(assessment.getImpacts())]));
+			dataset.setTitle(String.format("%s - %s", assessment.getAsset().getName(), assessment.getScenario().getName()));
+			RiskProfile riskProfile = riskProfiles.get(assessment.getKey());
+			if (riskProfile != null) {
+				RiskProbaImpact probaImpact = riskProfile.getExpProbaImpact();
+				if (probaImpact == null)
+					dataset.getData().add(new Point(0, inverseImpacts[0], true));
+				else
+					dataset.getData().add(new Point(probaImpact.getProbabilityLevel(), inverseImpacts[probaImpact.getImpactLevel()], true));
+				dataset.setLabel(StringUtils.isEmpty(riskProfile.getIdentifier()) ? "-" : riskProfile.getIdentifier());
+			} else {
+				dataset.setLabel("-");
+				dataset.getData().add(new Point(0, inverseImpacts[0], true));
+			}
+			dataset.setType("heatmapline");
+			dataset.setLegendText(messageSource.getMessage("label.chart.legend.text", new Object[] { dataset.getLabel(), dataset.getTitle() }, locale));
+			chart.getDatasets().add(dataset);
+			chart.getLegends().add(new Legend(dataset.getLabel(), dataset.getBackgroundColor()));
+
+		});
+	}
+
+	private static String getRiskColor(ScenarioType type) {
+		int colorIndex = type.getGroup();
+		if (getRiskColors().size() <= colorIndex)
+			return Constant.HEAT_MAP_DEFAULT_COLOR;
+		return getRiskColors().get(colorIndex);
+	}
+
 	public Chart generateTotalRiskJSChart(List<Analysis> analyses, Locale locale) {
 		Chart chart = new Chart(messageSource.getMessage("label.title.chart.total_risk", null, "Total Risk", locale));
 		if (analyses.isEmpty())
@@ -1459,6 +1588,18 @@ public class ChartGenerator {
 		Constant.DEFAULT_COLORS = defaultColors;
 	}
 
+	@Value("#{'${app.settings.default.chart.static.risks}'.split(',')}")
+	public void setRiskColors(List<String> colors) {
+		if (colors.size() == 1 && colors.get(0).isEmpty())
+			Constant.RISK_COLORS = Collections.emptyList();
+		else
+			Constant.RISK_COLORS = colors;
+	}
+
+	public static List<String> getRiskColors() {
+		return Constant.RISK_COLORS;
+	}
+
 	/**
 	 * @return the staticColors
 	 */
@@ -1473,6 +1614,10 @@ public class ChartGenerator {
 	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
 	public void setStaticColors(List<String> staticColors) {
 		Constant.STATIC_COLORS = staticColors;
+	}
+
+	public Chart generateRiskEvolutionHeatMap(Integer idAnalysis) {
+		return generateRiskEvolutionHeatMap(daoAnalysis.get(idAnalysis), null, messageSource);
 	}
 
 }

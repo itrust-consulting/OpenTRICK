@@ -143,4 +143,9 @@ public class AssetStandard extends AnalysisStandard {
 		return (AssetStandard) super.duplicate();
 	}
 
+	@Override
+	public void add(Measure measure) {
+		addMeasure((AssetMeasure) measure);
+	}
+
 }

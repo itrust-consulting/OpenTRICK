@@ -3,13 +3,12 @@
  */
 package lu.itrust.business.TS.database.service;
 
-import lu.itrust.business.TS.database.TemplateDAOService;
-import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.database.template.TemplateMaturityParameter;
 
 /**
  * @author eomar
  *
  */
-public interface ServiceMaturityParameter extends TemplateDAOService<MaturityParameter, Integer> {
+public interface ServiceMaturityParameter extends TemplateMaturityParameter {
 
 }

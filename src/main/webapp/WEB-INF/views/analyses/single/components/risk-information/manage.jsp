@@ -27,44 +27,31 @@
 						<table class='table'>
 							<thead>
 								<tr>
-									<th width="2%"><spring:message code="label.risk_information.id" /></th>
+									<th width="15%"><spring:message code="label.risk_information.id" /></th>
 									<th><spring:message code="label.name" /></th>
-									<th width="10%"><spring:message code="label.action" /></th>
+									<th width="12%"><spring:message code="label.action" /></th>
 								</tr>
 							</thead>
 							<tbody>
 								<c:forEach items="${riskInformationMap[category]}" var="risk_information">
-									<c:set var="isChapter" value="${fct:matches(risk_information.chapter,chapterRegex)}" />
-									<tr ${isChapter? 'class="lead" ' : ''} data-trick-id='${risk_information.id}'>
-										<td><input type="hidden" name="id" value="${risk_information.id}" /> <input type="hidden" name="chapter" value="${risk_information.chapter}" /> <input
-											type="hidden" name="custom" value="${risk_information.custom}" /> <spring:message text="${risk_information.chapter}" /></td>
-										<td><spring:message text='${risk_information.label}' var="label" /> <input class="form-control" type="text" name="label" value="${label}" placeholder="${label}"
-											required></td>
-										<td><c:choose>
-												<c:when test="${isChapter}">
-													<div class="btn-group">
-														<button class='btn btn-xs btn-danger dropdown-toggle' data-toggle="dropdown" aria-haspopup="true" name="delete-chapter"
-															title="<spring:message code='label.action.empty'/>">
-															<i class='fa fa-trash-o'></i>
-														</button>
-														<ul class="dropdown-menu dropdown-menu-right">
-															<li><a href="#" data-action='delete-chapter' onclick="return false">${deleteChatper}</a></li>
-															<li><a href="#" data-action='delete-all' onclick="return false">${deleteBelow}</a></li>
-														</ul>
-													</div>
-												</c:when>
-												<c:otherwise>
-													<button class='btn btn-xs btn-danger' name="delete" title="<spring:message code='label.action.delete'/>">
-														<i class='fa fa-times-circle'></i>
-													</button>
-												</c:otherwise>
-											</c:choose>
+									<spring:message text='${risk_information.label}' var="label" />
+									<spring:message text='${risk_information.chapter}' var="chapter" />
+									<tr data-trick-id='${risk_information.id}'>
+										<td><input type="hidden" name="id" value="${risk_information.id}" /> <input type="hidden" name="custom" value="${risk_information.custom}" /><input
+											class='form-control' name="chapter" value="${chapter}" required="required" placeholder="${chapter}" /></td>
+										<td><input class="form-control" type="text" name="label" value="${label}" placeholder="${label}" required></td>
+										<td><button class='btn btn-xs btn-warning' name="delete" title="<spring:message code='label.action.delete'/>">
+												<i class='fa fa-times-circle'></i>
+											</button>
+											<button class='btn btn-xs btn-danger' name="clear" title="<spring:message code='label.action.empty.chapter'/>">
+												<i class='fa fa-trash-o'></i>
+											</button>
 											<button class='btn btn-xs btn-primary' name="add" title="<spring:message code='label.action.add'/>">
 												<i class='fa fa-plus-circle' aria-hidden="true"></i>
 											</button></td>
 									</tr>
 								</c:forEach>
-								<tr>
+								<tr data-role='add-btn'>
 									<td colspan="3" class='text-center'><button class='btn btn-primary' data-error-full-message="<spring:message code='error.risk_information.too_many.chapter'/>"
 											name="add-chapter" title="<spring:message code='label.action.add'/>">
 											<i class='fa fw fa-plus-circle' aria-hidden="true"></i>
@@ -86,23 +73,12 @@
 			</div>
 		</div>
 	</div>
-	<div id='risk-information-btn-chapter' style="display: none;">
-		<div class="btn-group">
-			<button class='btn btn-xs btn-danger dropdown-toggle' data-toggle="dropdown" aria-haspopup="true" name="delete-chapter" title="<spring:message code='label.action.empty'/>">
-				<i class='fa fa-trash-o'></i>
-			</button>
-			<ul class="dropdown-menu dropdown-menu-right">
-				<li><a href="#" data-action='delete-chapter' onclick="return false">${deleteChatper}</a></li>
-				<li><a href="#" data-action='delete-all' onclick="return false">${deleteBelow}</a></li>
-			</ul>
-		</div>
-		<button class='btn btn-xs btn-primary' name="add" title="<spring:message code='label.action.add'/>">
-			<i class='fa fa-plus-circle' aria-hidden="true"></i>
-		</button>
-	</div>
 	<div id='risk-information-btn' style="display: none;">
-		<button class='btn btn-xs btn-danger' name="delete" title="<spring:message code='label.action.delete'/>">
+		<button class='btn btn-xs btn-warning' name="delete" title="<spring:message code='label.action.delete'/>">
 			<i class='fa fa-times-circle'></i>
+		</button>
+		<button class='btn btn-xs btn-danger' name="clear" title="<spring:message code='label.action.empty.chapter'/>">
+			<i class='fa fa-trash-o'></i>
 		</button>
 		<button class='btn btn-xs btn-primary' name="add" title="<spring:message code='label.action.add'/>">
 			<i class='fa fa-plus-circle' aria-hidden="true"></i>

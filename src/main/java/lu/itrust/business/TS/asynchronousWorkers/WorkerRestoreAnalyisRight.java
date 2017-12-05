@@ -62,6 +62,8 @@ public class WorkerRestoreAnalyisRight implements Worker {
 
 	private String username;
 
+	private Thread current;
+
 	/**
 	 * @param username
 	 * @param poolManager
@@ -92,6 +94,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 					return;
 				working = true;
 				started = new Timestamp(System.currentTimeMillis());
+				setCurrent(Thread.currentThread());
 			}
 
 			MessageHandler messageHandler = new MessageHandler("info.initiliase.dao", "Intialise database connectors", 0);
@@ -137,8 +140,8 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -233,8 +236,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setId(java.lang.String)
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#setId(java.lang.String)
 	 */
 	@Override
 	public void setId(String id) {
@@ -284,7 +286,10 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if (getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else
+							getCurrent().interrupt();
 						canceled = true;
 					}
 				}
@@ -346,6 +351,14 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	@Override
 	public TaskName getName() {
 		return TaskName.RESET_ANALYSIS_RIGHT;
+	}
+
+	public Thread getCurrent() {
+		return current;
+	}
+
+	protected void setCurrent(Thread current) {
+		this.current = current;
 	}
 
 }

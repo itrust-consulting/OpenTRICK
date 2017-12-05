@@ -117,7 +117,7 @@ public class ControllerAnalysisProfile {
 				return errors;
 			
 			Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, idAnalysis, name, standards, principal.getName());
-			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
 				errors.put("taskid", String.valueOf(worker.getId()));
 			} else

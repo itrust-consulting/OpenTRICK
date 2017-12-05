@@ -13,6 +13,15 @@ public class FieldValue {
 	private String title;
 
 	private Object realValue;
+	
+	private String color;
+	
+	/**
+	 * @param name
+	 */
+	public FieldValue(String name) {
+		this.name = name;
+	}
 
 	/**
 	 * @param name
@@ -45,6 +54,20 @@ public class FieldValue {
 		this.value = value;
 		this.title = title;
 		this.realValue = realValue;
+	}
+	
+	
+
+	/**
+	 * @param name
+	 * @param value
+	 * @param title
+	 * @param realValue
+	 * @param color
+	 */
+	public FieldValue(String name, Object value, String title, Object realValue, String color) {
+		this(name, value, title, realValue);
+		this.color = color;
 	}
 
 	/**
@@ -105,6 +128,14 @@ public class FieldValue {
 	 */
 	public void setRealValue(Object realValue) {
 		this.realValue = realValue;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 }

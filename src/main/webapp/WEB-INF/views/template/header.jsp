@@ -17,23 +17,23 @@
 <title><spring:message code="${title}" text="TRICK Service" /></title>
 <style>
 #main_menu_brand {
-	background-image: url('<spring:url value="/images/brand-grey.png" />');
+	background-image: url('<spring:url value="/images/brand-grey.png?version=${cssVersion}" />');
 	width: 150px;
 	background-repeat: no-repeat;
 	margin: 1px 5px 0 0;
 	background-size: auto 39px;
 }
 #main_menu_brand:HOVER {
-	background-image: url('<spring:url value="/images/brand.png" />');
+	background-image: url('<spring:url value="/images/brand.png?version=${cssVersion}" />');
 }
 </style>
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/font-awesome.min.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-slider.min.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css" />' />
-<link rel="stylesheet" href='<spring:url value="${currentTheme}" />' type="text/css" />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/font-awesome.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-slider.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css?version=${cssVersion}" />' />
+<link rel="stylesheet" href='<spring:url value="${currentTheme}?version=${cssVersion}" />' type="text/css" />
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';

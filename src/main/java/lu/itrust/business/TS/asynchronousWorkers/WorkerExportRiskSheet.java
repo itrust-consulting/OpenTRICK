@@ -54,6 +54,7 @@ import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.Worksheet;
 
+import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -144,7 +145,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						Thread.currentThread().interrupt();
+						if(getCurrent() == null)
+							Thread.currentThread().interrupt();
+						else getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -198,6 +201,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setName(TaskName.EXPORT_RISK_SHEET);
+				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
 			daoAnalysis = new DAOAnalysisHBM(session);
@@ -208,9 +212,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.export.risk_sheet", "Risk sheet has been successfully exported", 100);
 			if (getCssfExportForm().getType() == ExportType.RAW)
-				messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport('" + reportId + "');"));
+				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId));
 			else
-				messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport('" + reportId + "');reloadSection('section_riskregister');"));
+				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId), new AsyncCallback("reloadSection", "section_riskregister"));
 			serviceTaskFeedback.send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {

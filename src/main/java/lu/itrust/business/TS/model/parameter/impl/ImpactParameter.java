@@ -6,12 +6,15 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -40,6 +43,8 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  * @since 2012-08-21
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverrides({ @AttributeOverride(name = "id", column = @Column(name = "idImpactParameter")),
 		@AttributeOverride(name = "description", column = @Column(name = "dtDescription", nullable = false, length = 1024)) })
 public class ImpactParameter extends Parameter implements ITypedParameter, IImpactParameter {

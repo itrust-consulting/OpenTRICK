@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.riskinformation;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -22,7 +26,9 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel", "dtChapter" }))
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel", "dtChapter", "dtCategory" }))
 public class RiskInformation implements Cloneable {
 
 	/***********************************************************************************************
@@ -73,6 +79,19 @@ public class RiskInformation implements Cloneable {
 	@Column(name = "dtOwner")
 	private String owner = "";
 
+	/**
+	 * 
+	 */
+	public RiskInformation() {
+	}
+
+	/**
+	 * @param chapter
+	 */
+	public RiskInformation(String chapter) {
+		setChapter(chapter);
+	}
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -89,7 +108,7 @@ public class RiskInformation implements Cloneable {
 	 *            the owner to set
 	 */
 	public void setOwner(String owner) {
-		this.owner = owner;
+		this.owner = cleanUpValue(owner);
 	}
 
 	/**
@@ -110,7 +129,11 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Acronym
 	 */
 	public void setAcronym(String acro) {
-		this.acronym = acro;
+		this.acronym = cleanUpValue(acro);
+	}
+
+	private String cleanUpValue(String value) {
+		return value == null? "" : value.trim();
 	}
 
 	/**
@@ -131,7 +154,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Label
 	 */
 	public void setLabel(String label) {
-		this.label = label;
+		this.label = cleanUpValue(label);
 	}
 
 	/**
@@ -152,7 +175,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Exposed value
 	 */
 	public void setExposed(String expo) {
-		this.exposed = expo;
+		this.exposed = cleanUpValue(expo);
 	}
 
 	/**
@@ -173,7 +196,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Comment
 	 */
 	public void setComment(String comment) {
-		this.comment = comment;
+		this.comment = cleanUpValue(comment);
 	}
 
 	/**
@@ -194,7 +217,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Hidden Comment
 	 */
 	public void setHiddenComment(String hiddenComment) {
-		this.hiddenComment = hiddenComment;
+		this.hiddenComment = cleanUpValue(hiddenComment);
 	}
 
 	/**
@@ -239,7 +262,7 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Chapter
 	 */
 	public void setChapter(String chapter) {
-		this.chapter = chapter;
+		this.chapter = cleanUpValue(chapter);
 	}
 
 	/**

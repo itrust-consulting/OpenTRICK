@@ -1035,7 +1035,6 @@ public class ControllerRRF {
 			org.xlsx4j.sml.Cell cell = row.getC().get(i), cellData = data.getC().get(i);
 			if (cellData == null)
 				break;
-			System.out.println(getString(cell, sharedStrings));
 			switch (getString(cell, sharedStrings)) {
 			case IDENTIFIER:
 				identifier = getString(cellData, sharedStrings);

@@ -17,6 +17,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class Dataset<T> {
 
 	private String label;
+	
+	private String title;
+	
+	private String legendText;
 
 	private List<Object> data = new ArrayList<>();
 	
@@ -25,12 +29,20 @@ public class Dataset<T> {
 	private String type;
 	
 	private String stack;
+	
+	private String xAxisID;
+	
+	private String yAxisID;
+	
+	private boolean fill;
 
 	private T backgroundColor = null;
 
 	private T borderColor = null;
 
 	private T pointBackgroundColor = null;
+
+	private boolean hidden;
 
 	public Dataset(T backgroundColor) {
 		setBackgroundColor(backgroundColor);
@@ -169,6 +181,55 @@ public class Dataset<T> {
 	 */
 	public void setMetaData(List<Object> metaData) {
 		this.metaData = metaData;
+	}
+
+	public String getyAxisID() {
+		return yAxisID;
+	}
+
+	public void setyAxisID(String yAxisID) {
+		this.yAxisID = yAxisID;
+	}
+
+	public String getxAxisID() {
+		return xAxisID;
+	}
+
+	public void setxAxisID(String xAxisID) {
+		this.xAxisID = xAxisID;
+	}
+
+	public void setFill(boolean fill) {
+		this.fill = fill;
+		
+	}
+
+	public boolean isFill() {
+		return fill;
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getLegendText() {
+		return legendText;
+	}
+
+	public void setLegendText(String legendText) {
+		this.legendText = legendText;
 	}
 
 }

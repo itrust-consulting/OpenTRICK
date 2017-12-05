@@ -260,7 +260,7 @@ public class ControllerActionPlan {
 
 			boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
 			Worker worker = new WorkerComputeActionPlan(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(),locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			// execute task
 			executor.execute(worker);

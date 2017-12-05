@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
@@ -287,6 +289,7 @@ public class AssessmentAndRiskProfileManager {
 					}
 				}
 			}
+			GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
 		} else {
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -369,6 +372,8 @@ public class AssessmentAndRiskProfileManager {
 					}
 				}
 			}
+			GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
+
 		} else {
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -387,6 +392,47 @@ public class AssessmentAndRiskProfileManager {
 
 		if (analysis.isQuantitative())
 			UpdateAssetALE(analysis, factory);
+	}
+
+	private static void GenerateRiskProfileIdentifer(List<RiskProfile> riskProfiles) {
+		String maxId = riskProfiles.stream().filter(risk -> !StringUtils.isEmpty(risk.getIdentifier())).map(RiskProfile::getIdentifier)
+				.max((i1, i2) -> NaturalOrderComparator.compareTo(i1, i2)).orElse("R0");
+		Object[] numbering = extractNumbering(maxId);
+		if (numbering[1] == null)
+			return;
+		riskProfiles.stream().sorted((r1, r2) -> {
+			int result = Boolean.compare(r1.isSelected(), r2.isSelected());
+			if (result == 0)
+				result = Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance());
+			return result * -1;
+		}).filter(risk -> StringUtils.isEmpty(risk.getIdentifier())).forEach(riskProfile -> {
+			numbering[1] = (Long) numbering[1] + 1;
+			riskProfile.setIdentifier(numbering[0] + "" + numbering[1]);
+		});
+	}
+
+	/**
+	 * Extract RiskProfile identifier naming parts. if error return [value, null]
+	 * 
+	 * @param value
+	 * @return [String, Long]
+	 */
+	private static Object[] extractNumbering(String value) {
+		try {
+			boolean found = false;
+			int i = value.length() - 1;
+			for (; i >= 0; i--) {
+				if (Character.isDigit(value.charAt(i)))
+					found = true;
+				else
+					break;
+			}
+			return found ? i < 0 ? new Object[] { "", Long.parseLong(value) } : new Object[] { value.substring(0, i + 1), Long.parseLong(value.substring(i + 1)) }
+					: new Object[] { value, null };
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			return new Object[] { value, null };
+		}
 	}
 
 	@Transactional
@@ -414,6 +460,7 @@ public class AssessmentAndRiskProfileManager {
 		ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
 		analysis.getScenarios().forEach(scenario -> createOrRemoveAssessmentAndRiskProfile(assetAssessments.get(scenario.getId()), scenario, asset,
 				riskProfiles.get(scenario.getId()), analysis, valueFactory));
+		GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
 	}
 
 	private void createAssessmentAndRiskProfile(Scenario scenario, Analysis analysis) {
@@ -422,6 +469,7 @@ public class AssessmentAndRiskProfileManager {
 		ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
 		analysis.getAssets().forEach(
 				asset -> createOrRemoveAssessmentAndRiskProfile(assetAssessments.get(asset.getId()), scenario, asset, riskProfiles.get(asset.getId()), analysis, valueFactory));
+		GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
 	}
 
 	/**

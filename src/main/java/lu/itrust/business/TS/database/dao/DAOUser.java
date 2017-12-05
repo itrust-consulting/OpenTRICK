@@ -57,4 +57,8 @@ public interface DAOUser {
 	public boolean existByEmail(String email);
 
 	public List<User> getAll(Collection<Integer> ids);
+
+	public String findLocaleByUsername(String username);
+
+	public String findUsernameById(Integer id);
 }

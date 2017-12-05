@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -35,6 +38,8 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
  * @since 2012-09-13
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ActionPlan")
 public class ActionPlanEntry {
 
@@ -104,6 +109,7 @@ public class ActionPlanEntry {
 
 	/** list of assets with the current ALE of this entry */
 	@OneToMany(mappedBy = "actionPlanEntry")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@OrderBy("currentALE DESC")
 	@Access(AccessType.FIELD)

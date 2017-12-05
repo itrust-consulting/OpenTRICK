@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -178,7 +179,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@Override
 	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter) {
 		if (!filter.validate())
-			throw new IllegalArgumentException();
+			return Collections.emptyList();
 		if ("ALL".equalsIgnoreCase(filter.getFilter()))
 			return getSession().createQuery(String.format("From UserSQLite where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
 					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();

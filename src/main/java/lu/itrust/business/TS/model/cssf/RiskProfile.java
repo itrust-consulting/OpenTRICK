@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -25,6 +26,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -39,6 +42,8 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }), @UniqueConstraint(columnNames = { "dtIdentifier", "fiAnalysis" }) })
 public class RiskProfile implements Cloneable {
 
@@ -71,6 +76,7 @@ public class RiskProfile implements Cloneable {
 	private String actionPlan;
 
 	@ManyToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "RiskProfileMeasures", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiMeasure"), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"fiRiskProfile", "fiMeasure" }))
 	private List<Measure> measures = new LinkedList<Measure>();
@@ -125,7 +131,7 @@ public class RiskProfile implements Cloneable {
 	 *            the identifier to set
 	 */
 	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
+		this.identifier = identifier == null || identifier.isEmpty() ? null : identifier;
 	}
 
 	/**
@@ -346,9 +352,9 @@ public class RiskProfile implements Cloneable {
 	}
 
 	public void remove(ScaleType scaleType) {
-		if(rawProbaImpact!=null)
+		if (rawProbaImpact != null)
 			rawProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
-		if(expProbaImpact!=null)
+		if (expProbaImpact != null)
 			expProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
 	}
 

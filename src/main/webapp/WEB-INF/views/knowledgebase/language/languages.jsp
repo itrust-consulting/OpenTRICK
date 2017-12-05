@@ -15,7 +15,7 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty languages}">
-				<table class="table table-hover">
+				<table class="table table-striped table-hover">
 					<thead>
 						<tr>
 							<th width="1%"></th>

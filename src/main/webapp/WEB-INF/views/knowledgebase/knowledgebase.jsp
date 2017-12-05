@@ -18,8 +18,7 @@
 	<div id="wrap" class="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../template/menu.jsp" />
-		<div class="container">
-			<jsp:include page="../template/successErrors.jsp" />
+		<div class="container" data-ug-root="knowledgebase">
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top nav-tab">
 				<li class="active"><a href="#tab-customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>
@@ -44,22 +43,21 @@
 				<jsp:include page="standards/measure/measures.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
 				<jsp:include page="scale/home.jsp" />
-				<jsp:include page="widget.jsp" />
-
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="widget.jsp" />
 	</div>
 	<jsp:include page="../template/scripts.jsp" />
-	<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/standard.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/scale.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/standard.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/language.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/scale.js?version=${jsVersion}" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

@@ -1,6 +1,10 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import static lu.itrust.business.TS.constants.Constant.RI_TYPE_RISK_TBA;
+import static lu.itrust.business.TS.constants.Constant.RI_TYPE_RISK_TBS;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -107,7 +111,13 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RiskInformation> getAllByCategory(String category) {
-		return getSession().createQuery("From RiskInformation where category = :category").setParameter("category", category).getResultList();
+		if (category == null)
+			return Collections.emptyList();
+		else if (category.startsWith("Risk"))
+			return getSession().createQuery("From RiskInformation where category in :categories")
+					.setParameterList("categories", new String[] { RI_TYPE_RISK_TBA, RI_TYPE_RISK_TBS }).getResultList();
+		else
+			return getSession().createQuery("From RiskInformation where category = :category").setParameter("category", category).getResultList();
 	}
 
 	/**
@@ -177,5 +187,17 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 		return getSession().createQuery(
 				"Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.category in :categories",
 				RiskInformation.class).setParameter("idAnalysis", idAnalysis).setParameterList("categories", types).getResultList();
+	}
+
+	@Override
+	public List<RiskInformation> findByIdAnalysisAndCategory(Integer idAnalysis, String type) {
+		if (type == null)
+			return Collections.emptyList();
+		else if (type.startsWith("Risk"))
+			return getAllByIdAnalysisAndCategories(idAnalysis, RI_TYPE_RISK_TBA, RI_TYPE_RISK_TBS);
+		else
+			return getSession().createQuery(
+					"Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.category = :category",
+					RiskInformation.class).setParameter("idAnalysis", idAnalysis).setParameter("category", type).getResultList();
 	}
 }

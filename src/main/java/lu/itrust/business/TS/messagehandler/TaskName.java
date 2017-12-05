@@ -14,9 +14,10 @@ public enum TaskName {
 	COMPUTE_ACTION_PLAN("label.title.compute.action_plan"), COMPUTE_RISK_REGISTER("label.title.compute.risk_register"), CREATE_ANALYSIS_PROFILE(
 			"label.title.create.analysis.profile"), CREATE_ANALYSIS_VERSION("label.title.create.analysis.version"), EXPORT_ANALYSIS(
 					"label.title.export.analysis"), EXPORT_ANALYSIS_REPORT("label.title.export.analysis.report"), EXPORT_SOA("label.title.export.soa"), GENERATE_TICKETS(
-							"label.title.generate.ticket"), IMPORT_ANALYSIS("label.title.import.analysis"), INSTALL_APPLICATION(
-									"label.title.install.application"), RESET_ANALYSIS_RIGHT("label.title.reset.analysis.right"), IMPORT_MEASURE_COLLECTION(
-											"label.title.import.measure.collection"), COMPUTE_DYNAMIC_PARAMETER("label.title.compute.dynamic.parameter"), EXPORT_RISK_REGISTER(
+							"label.title.generate.ticket"), IMPORT_ANALYSIS("label.title.import.analysis"), IMPORT_MEASURE_COLLECTION(
+									"label.title.import.measure.collection"), IMPORT_RISK_INFORMATION(
+											"label.title.import.risk.information"), INSTALL_APPLICATION(
+									"label.title.install.application"), RESET_ANALYSIS_RIGHT("label.title.reset.analysis.right"), COMPUTE_DYNAMIC_PARAMETER("label.title.compute.dynamic.parameter"), EXPORT_RISK_REGISTER(
 													"label.title.export.risk_register"), EXPORT_RISK_SHEET("label.title.export.risk_sheet"), SCALE_LEVEL_MIGRATE("label.scale.level.migrate");
 	private String action;
 
