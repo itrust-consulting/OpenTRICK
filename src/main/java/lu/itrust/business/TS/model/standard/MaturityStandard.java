@@ -151,4 +151,9 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 		return (MaturityStandard) super.duplicate();
 	}
 
+	@Override
+	public void add(Measure measure) {
+		addMeasure((MaturityMeasure) measure);
+	}
+
 }

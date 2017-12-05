@@ -41,11 +41,6 @@ function saveAssessmentData(e) {
 								updated = true;
 							else {
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
-								if (field.name == "computedNextImportance") {
-									$element.attr("placeholder", field.value).val(field.value);
-									continue;
-								}
-								
 								if(!$element.length && field.name.startsWith("ALE")){
 									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title",field.title);
 									continue;
@@ -58,6 +53,9 @@ function saveAssessmentData(e) {
 										break;
 									case "title":
 										$element.attr(fieldName, field[fieldName]);
+										break;
+									case "color":
+										$element.css({"border-color" : field.color});
 										break;
 								}
 							}

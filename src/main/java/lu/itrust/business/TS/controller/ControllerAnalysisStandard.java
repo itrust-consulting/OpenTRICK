@@ -965,7 +965,8 @@ public class ControllerAnalysisStandard {
 
 				measure.setImplementationRate(0.0);
 
-				measure.setAnalysisStandard(analysisStandard);
+				//measure.setAnalysisStandard(analysisStandard);
+				analysisStandard.add(measure);
 			}
 
 			if (AnalysisType.isQuantitative(type) && measureForm.getProperties() == null) {

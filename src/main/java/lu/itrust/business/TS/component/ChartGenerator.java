@@ -1118,6 +1118,10 @@ public class ChartGenerator {
 	}
 
 	public List<Chart> generateAssessmentRisk(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<RiskAcceptanceParameter> riskAcceptanceParameters) {
+		return generateAssessmentRiskChart(valueFactory, assessments,  GenerateColorBounds(riskAcceptanceParameters));
+	}
+
+	public static List<ColorBound> GenerateColorBounds(List<RiskAcceptanceParameter> riskAcceptanceParameters) {
 		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
@@ -1129,7 +1133,7 @@ public class ChartGenerator {
 				colorBounds.add(
 						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
-		return generateAssessmentRiskChart(valueFactory, assessments, colorBounds);
+		return colorBounds;
 	}
 
 	public List<Chart> generateAssessmentRiskChart(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<ColorBound> colorBounds) {

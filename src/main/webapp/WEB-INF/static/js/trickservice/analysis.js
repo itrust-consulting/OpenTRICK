@@ -1040,6 +1040,7 @@ function manageRiskAcceptance() {
 									$content.modal("hide");
 									showNotifcation('success', response.success);
 									reloadSection(["section_parameter_impact_probability","section_parameter","section_riskregister"]);
+									riskEstimationUpdate(true);
 								} else
 									unknowError();
 							},

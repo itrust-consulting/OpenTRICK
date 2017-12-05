@@ -5,7 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="canExport" value="${analysis.getRightsforUserString(login).right.ordinal()<2}" scope="request"/>
+<c:set var="canExport" value="${analysis.getRightsforUserString(login).right.ordinal()<2}" scope="request" />
 <ul class="nav nav-tabs affix affix-top nav-analysis">
 	<c:if test="${!isProfile}">
 		<li class="active"><a href="#tab-history" data-toggle="tab"><spring:message code="label.menu.analysis.history" /></a></li>
@@ -99,10 +99,10 @@
 				</c:if>
 			</ul></li>
 	</c:if>
-	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-danger"
-		title='<spring:message code="label.action.close.analysis" />' style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
-	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown" title='<spring:message code="label.actions" />'
-		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
+	<li class="pull-right" data-role='analysis-menu-control'><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-danger"
+		title='<spring:message code="label.action.close.analysis" />'><i class="fa fa-sign-out fa-2x"></i></a></li>
+	<li class="dropdown-submenu pull-right" data-role='analysis-menu-control'><a href="#" class="dropdown-toggle" data-toggle="dropdown"
+		title='<spring:message code="label.actions" />'><i class="fa fa-cog fa-2x"></i></a>
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">
 				<li class="dropdown-header"><spring:message code="label.menu.title.manual.update" /></li>
@@ -183,6 +183,6 @@
 				<li><a href="#" onclick="return manageAnalysisSettings();"><spring:message code="label.action.analysis.setting" /></a></li>
 			</c:if>
 		</ul></li>
-	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<spring:message code="label.options" />' class="dropdown-toggle"
-		data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
+	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right" data-role='analysis-menu-control'><a href="#" title='<spring:message code="label.options" />'
+		class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-bars fa-2x"></span></a></li>
 </ul>

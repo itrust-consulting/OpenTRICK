@@ -29,12 +29,12 @@ function importRRF(idAnalysis) {
 						});
 
 						var $modalFooter = modal.modal_footer, $closeButton = modal.modal_header.find("button"), $importButton = $modalFooter.find("button[name='import']"), $cancelButton = $modalFooter
-							.find("button[name='cancel']"), $progressBar = $modalBody.find(".progress"), $buttons = modal.modal.find("button");
+							.find("button[name='cancel']"), $buttons = modal.modal.find("button");
 
 						$importButton.click(function () {
 							if ($importButton.is(":disabled"))
 								return false;
-							$progressBar.show();
+							$progress.show();
 							$buttons.prop("disabled", true);
 							$modalBody.find(".alert").remove();
 							$.ajax({
@@ -42,23 +42,22 @@ function importRRF(idAnalysis) {
 								type: "post",
 								data: $modalBody.find("form").serialize(),
 								success: function (response, textStatus, jqXHR) {
-									if (response.success != undefined)
-										showSuccess($modalBody[0], response.success);
+									if (response.success != undefined){
+										showDialog("success", response.success);
+										modal.Destroy();
+									}
 									else {
 										if (response.error != undefined)
-											showError($modalBody[0], response.error);
+											showDialog("error", response.error);
 										else
 											unknowError();
 									}
 								},
-								error: function (jqXHR, textStatus, errorThrown) {
-									$progressBar.hide();
-									$buttons.prop("disabled", false);
-									showError($modalBody[0], MessageResolver("error.unknown.occurred", "An unknown error occurred"));
-								}
-							}).done(function () {
-								$progressBar.hide();
+								error:unknowError
+								
+							}).complete(function () {
 								$buttons.prop("disabled", false);
+								$progress.hide();
 							});
 							return false;
 						});
@@ -136,10 +135,12 @@ function importDataRawRRF(idAnalysis) {
 			processData: false,
 			async: false,
 			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
+				if (response["success"] != undefined){
+					showDialog("success", response["success"]);
 					$("#import_raw_rrf_modal").modal("hide");
+				}
 				else if (response["error"] != undefined)
-					$('#raw_rrf_form').before($("<label class='alert alert-danger col-md-12' />").text(response["error"]));
+					showDialog("error", response["error"]);
 				else
 					unknowError();
 			},

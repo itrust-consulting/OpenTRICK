@@ -323,7 +323,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards, AnalysisType... analysisTypes) {
 		return analysisTypes.length < 1 ? Collections.emptyList()
 				: getSession().createQuery(
-						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.analysis.type in :type and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
+						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.analysis.type in :types and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
 						.setParameter("username", username).setParameterList("rights", rights).setParameterList("types", analysisTypes).setParameterList("standards", standards)
 						.getResultList();
 	}
@@ -390,7 +390,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards, AnalysisType... analysisTypes) {
 		return analysisTypes.length < 1 ? Collections.emptyList()
 				: getSession().createQuery(
-						"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysis.type in :type and analysisStandard.standard in :standards")
+						"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysis.type in :types and analysisStandard.standard in :standards")
 						.setParameterList("standards", standards).setParameterList("types", analysisTypes).getResultList();
 	}
 

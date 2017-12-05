@@ -133,7 +133,8 @@
 							</button></span>
 						<c:choose>
 							<c:when test="${empty riskProfile.rawProbaImpact.probability}">
-								<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
+								<spring:message var="rawProTitle" code='${empty probabilities?"label.title.status.na" : ""}' text="${empty probabilities?'Not Applicable' : probabilities[0].label}" />
+								<select class="form-control" title="${rawProTitle}" name="riskProfile.rawProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
 									<c:forEach items="${probabilities}" var="parameter">
 										<c:choose>
 											<c:when test="${parameter.level == 0}">
@@ -150,7 +151,9 @@
 								</select>
 							</c:when>
 							<c:otherwise>
-								<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='${riskProfile.rawProbaImpact.probability.id}' data-trick-type='integer'>
+								<spring:message var="rawProTitle" text="${riskProfile.rawProbaImpact.probability.label}" />
+								<select class="form-control" title="${rawProTitle}" name="riskProfile.rawProbaImpact.probability" data-trick-value='${riskProfile.rawProbaImpact.probability.id}'
+									data-trick-type='integer'>
 									<c:forEach items="${probabilities}" var="parameter">
 										<c:choose>
 											<c:when test="${parameter.level == 0}">
@@ -181,7 +184,8 @@
 								<c:set var="impact" value="${riskProfile.rawProbaImpact.get(impactType.name)}" />
 								<c:choose>
 									<c:when test="${empty impact}">
-										<select class="form-control" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
+										<spring:message var="rawTitle" text="${empty impacts[impactType.name]? '' : impacts[impactType.name][0].label}" />
+										<select class="form-control" title="${rawTitle}" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
 											<c:forEach items="${impacts[impactType.name]}" var="parameter">
 												<option value="${parameter.id}" title='<spring:message text="${parameter.label}"/>'><c:choose>
 														<c:when test="${parameter.level == 0}">${naValue}</c:when>
@@ -191,7 +195,8 @@
 										</select>
 									</c:when>
 									<c:otherwise>
-										<select class="form-control" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
+										<spring:message var="rawTitle" text="${impact.label}" />
+										<select class="form-control" title="${rawTitle}" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
 											<c:forEach items="${impacts[impactType.name]}" var="parameter">
 												<option value="${parameter.id}" ${impact==parameter? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
 														<c:when test="${parameter.level == 0}">${naValue}</c:when>
@@ -205,8 +210,9 @@
 						</td>
 					</c:if>
 				</c:forEach>
-				<td class='form-estimation  form-estimation-left'><input name="rawComputedImportance" disabled="disabled" class="form-control numeric"
-					value="${riskProfile.computedRawImportance}"></td>
+				<td class='form-estimation  form-estimation-left'><spring:message var="rawImpColor" text="${computedRawImportance.color}" /> <input name="computedRawImportance"
+					disabled="disabled" class="form-control numeric" title='<spring:message text='${computedRawImportance.title}'/>' value="${computedRawImportance.value}"
+					style="border: solid 2px ${empty rawImpColor? '#eee' : rawImpColor}"></td>
 				<c:if test="${type.quantitative}">
 					<td class='form-estimation form-estimation-left form-estimation-right'><c:choose>
 							<c:when test="${empty riskRegister}">
@@ -294,7 +300,9 @@
 							</c:choose>
 						</c:when>
 						<c:otherwise>
-							<select class="form-control" name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
+							<c:set var="netProbaValue" value="${valueFactory.findProb(likelihood)}" />
+							<spring:message var="netProTitle" text="${empty netProbaValue? '' : netProbaValue.parameter.label}" />
+							<select class="form-control" title='${netProTitle}' name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.acronym}" ${likelihood == parameter.acronym? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
 											<c:when test="${parameter.level == 0}">
@@ -318,7 +326,8 @@
 								</button></span>
 							<c:choose>
 								<c:when test="${empty impact}">
-									<select class="form-control" name="${impactName}" data-trick-value='0' data-trick-type='integer'>
+									<spring:message var="netTitle" text="${empty impacts[impactType.name]? '' : impacts[impactType.name][0].label}" />
+									<select class="form-control" title="${netTitle}" name="${impactName}" data-trick-value='0' data-trick-type='integer'>
 										<c:forEach items="${impacts[impactType.name]}" var="parameter">
 											<option value="${parameter.acronym}" title='<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;'><c:choose>
 													<c:when test="${parameter.level == 0}">
@@ -330,7 +339,8 @@
 									</select>
 								</c:when>
 								<c:otherwise>
-									<select class="form-control" name="${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
+									<spring:message var="netTitle" text="${impact.parameter.label}" />
+									<select class="form-control" title="${netTitle}" name="${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
 										<c:forEach items="${impacts[impactType.name]}" var="parameter">
 											<option value="${parameter.acronym}" ${impact.parameter==parameter? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
 													<c:when test="${parameter.level == 0}">
@@ -345,7 +355,9 @@
 						</div></td>
 				</c:if>
 			</c:forEach>
-			<td class='form-estimation  form-estimation-left'><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+			<td class='form-estimation  form-estimation-left'><spring:message var="netImpColor" text="${computedNetImportance.color}" /> <input name="computedNetImportance"
+				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedNetImportance.title}'/>' value="${computedNetImportance.value}"
+				style="border: solid 2px ${empty netImpColor? '#eee' : netImpColor}"></td>
 			<c:if test="${type.quantitative}">
 				<td class='form-estimation form-estimation-left form-estimation-right'><c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
 					<div class="input-group">
@@ -403,7 +415,8 @@
 						</button></span>
 					<c:choose>
 						<c:when test="${empty riskProfile.expProbaImpact.probability}">
-							<select class="form-control" name="riskProfile.expProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
+							<spring:message var="expProTitle" code='${empty probabilities?"label.title.status.na" : ""}' text="${empty probabilities?'Not Applicable' : probabilities[0].label}" />
+							<select class="form-control" title='${expProTitle}' name="riskProfile.expProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.id}" title='<spring:message text="${parameter.label}"/>'><c:choose>
 											<c:when test="${parameter.level == 0}">
@@ -415,7 +428,9 @@
 							</select>
 						</c:when>
 						<c:otherwise>
-							<select class="form-control" name="riskProfile.expProbaImpact.probability" data-trick-value='${riskProfile.expProbaImpact.probability.id}' data-trick-type='integer'>
+							<spring:message var="expProTitle" text="${riskProfile.expProbaImpact.probability.label}" />
+							<select class="form-control" title='${expProTitle}' name="riskProfile.expProbaImpact.probability" data-trick-value='${riskProfile.expProbaImpact.probability.id}'
+								data-trick-type='integer'>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.id}" ${riskProfile.expProbaImpact.probability==parameter?"selected='selected'":""} title='<spring:message text="${parameter.label}"/>'><c:choose>
 											<c:when test="${parameter.level == 0}">
@@ -441,7 +456,8 @@
 							<c:set var="impact" value="${riskProfile.expProbaImpact.get(impactType.name)}" />
 							<c:choose>
 								<c:when test="${empty impact}">
-									<select class="form-control" name="riskProfile.expProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
+									<spring:message var="expTitle" text="${empty impacts[impactType.name]? '' : impacts[impactType.name][0].label}" />
+									<select class="form-control" title='${expTitle}' name="riskProfile.expProbaImpact.${impactName}" data-trick-value='0' data-trick-type='integer'>
 										<c:forEach items="${impacts[impactType.name]}" var="parameter">
 											<option value="${parameter.id}" title='<spring:message text="${parameter.label}"/>'><c:choose>
 													<c:when test="${parameter.level == 0}">
@@ -453,7 +469,8 @@
 									</select>
 								</c:when>
 								<c:otherwise>
-									<select class="form-control" name="riskProfile.expProbaImpact.${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
+									<spring:message var="expTitle" text="${impact.label}" />
+									<select class="form-control" title='${expTitle}' name="riskProfile.expProbaImpact.${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
 										<c:forEach items="${impacts[impactType.name]}" var="parameter">
 											<option value="${parameter.id}" ${impact==parameter? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
 													<c:when test="${parameter.level == 0}">
@@ -469,8 +486,9 @@
 					</td>
 				</c:if>
 			</c:forEach>
-			<td class='form-estimation  form-estimation-left'><input name="expComputedImportance" disabled="disabled" class="form-control numeric"
-				value="${riskProfile.computedExpImportance}"></td>
+			<td class='form-estimation  form-estimation-left'><spring:message var="expImpColor" text="${computedExpImportance.color}" /><input name="computedExpImportance"
+				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedExpImportance.title}'/>' value="${computedExpImportance.value}"
+				style="border: solid 2px ${empty expImpColor? '#eee' : expImpColor}"></td>
 			<c:if test="${type.quantitative}">
 				<c:choose>
 					<c:when test="${empty riskRegister}">

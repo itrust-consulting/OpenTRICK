@@ -239,7 +239,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		callbacks[3] = new AsyncCallback("reloadSection", "section_chart");
 		if (isHybrid)
 			callbacks[4] = new AsyncCallback("riskEstimationUpdate", true);
-		return null;
+		return callbacks;
 	}
 
 	private void updateRiskRegister(List<RiskRegisterItem> registerItems) {

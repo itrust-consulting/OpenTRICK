@@ -55,6 +55,18 @@ body {
 	padding-left: 15px;
 }
 
+.nav-analysis>li, .nav-analysis>li:hover, .nav-tab>li, .nav-tab>li:hover{
+	margin-bottom: -1.5px;
+}
+
+.nav-analysis li[data-role='analysis-menu-control']>a{
+	padding-top: 5.5px;
+	padding-bottom: 5.5px;
+}
+
+.nav-analysis li[data-role='analysis-menu-control']:hover>a{
+	padding-bottom: 5px;
+}
 .risk-evolution{
 	left: inherit;
 	right:inherit;
@@ -802,10 +814,6 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	left: 0px;
 	width: 100%;
 	height: 5px;
-}
-
-.nav-analysis>li{
-	margin-bottom: -2px;
 }
 
 #risk_acceptance_evolution_legend .list-group-item{

@@ -292,4 +292,6 @@ public abstract class AnalysisStandard implements Cloneable {
 		return true;
 	}
 
+	public abstract void add(Measure measure);
+
 }
