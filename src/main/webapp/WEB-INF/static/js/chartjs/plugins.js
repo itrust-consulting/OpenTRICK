@@ -161,7 +161,7 @@ function evolutionProfitabilityComplianceOption(id, title) {
 					return application.percentageFormat.format(item.yLabel);
 				}
 			}
-		},aspectRatio : 1,
+		},/*aspectRatio : 1,*/
 		scales : {
 			yAxes : [ {
 				stacked : false,
