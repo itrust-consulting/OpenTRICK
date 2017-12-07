@@ -42,6 +42,7 @@
 		<jsp:include page="../template/footer.jsp" />
 	</div>
 	<jsp:include page="../template/scripts.jsp" />
+	<script src="<spring:url value="/js/trickservice/profile.js?version=${jsVersion}" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

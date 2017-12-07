@@ -44,7 +44,7 @@ function TaskManager(title) {
 
 			self.reconnecting = true;
 			self.stomp = Stomp.over(socket);
-			//self.stomp.debug = () => {};
+			self.stomp.debug = () => {};
 
 			headers[self.csrfHeader] = self.csrfToken;
 

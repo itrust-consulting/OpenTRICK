@@ -9,7 +9,7 @@ $(document).ready(function() {
 	setTimeout(() => fixTableHeader("#tab-container table"), 300);
 	
 	$(window).scroll(function(e) {
-		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
+		if (($(window).scrollTop() + $(window).height()) >= $(document).height()*.98) {
 			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
 			if ($selectedTab.attr("data-update-required") === "false" && typeof attr !== typeof undefined && attr !== false)
 				window[$selectedTab.attr("data-scroll-trigger")].apply();

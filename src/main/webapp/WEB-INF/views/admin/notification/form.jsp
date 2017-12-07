@@ -42,7 +42,7 @@
 								value='<fmt:formatDate value="${form.data.startDate}" pattern="yyyy-MM-dd"/>' name="startDate" placeholder="dd-mm-yyyy"> 
 						</div >
 						<div class="col-md-3"><input
-								class='form-control pull-left' type="time" value='<fmt:formatDate value="${form.data.startDate}" pattern="hh:mm"/>' name="startDateTime" placeholder="hh:mm"></div>
+								class='form-control pull-left' type="time" value='<fmt:formatDate value="${form.data.startDate}" pattern="kk:mm" />' name="startDateTime" placeholder="hh:mm"></div>
 					</div>
 
 					<div class='form-group'>
@@ -53,7 +53,7 @@
 						</div>
 
 						<div class="col-md-3">
-							<input class='form-control' type="time" value='<fmt:formatDate value="${form.data.endDate}" pattern="hh:mm"/>' name="endDateTime" placeholder="hh:mm">
+							<input class='form-control' type="time" value='<fmt:formatDate value="${form.data.endDate}" pattern="kk:mm"/>' name="endDateTime" placeholder="hh:mm">
 						</div>
 					</div>
 

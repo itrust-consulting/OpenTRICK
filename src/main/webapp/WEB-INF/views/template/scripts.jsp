@@ -9,7 +9,6 @@
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js?version=${jsVersion}" />"></script>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
 	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/jquery-ui.min.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/dom-parser.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/naturalSort.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js?version=${jsVersion}" />"></script>
@@ -24,8 +23,6 @@
 	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 		<script src="<spring:url value="/js/trickservice/patch.js?version=${jsVersion}" />"></script>
 	</sec:authorize>
-	<script src="<spring:url value="/js/trickservice/profile.js?version=${jsVersion}" />"></script>
-
 	<script type="text/javascript">
 	<!--
 		resolveMessage("error.timeout", "<spring:message code='error.timeout' />");
