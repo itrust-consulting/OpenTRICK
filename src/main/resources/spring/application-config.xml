@@ -160,6 +160,6 @@
 
 	<import resource="spring-security.xml" />
 	
-	<!-- <import resource="web-socket-config.xml" /> -->
+	<import resource="web-socket-config.xml" />
 
 </beans>

@@ -202,7 +202,7 @@ public final class ExcelHelper {
 	}
 
 	public static Cell getCellAt(Row row, int index) {
-		for (int i = Math.min(index, row.getC().size()-1); i >= 0; i--) {
+		for (int i = Math.min(index, row.getC().size() - 1); i >= 0; i--) {
 			Cell cell = row.getC().get(i);
 			if (colToIndex(cell.getR(), index) == index)
 				return cell;
@@ -257,7 +257,14 @@ public final class ExcelHelper {
 		if (workbookPart.getSharedStrings() == null)
 			return Collections.emptyMap();
 		AtomicInteger integer = new AtomicInteger(0);
-		return workbookPart.getSharedStrings().getContents().getSi().stream().collect(Collectors.toMap(v -> integer.getAndIncrement() + "", v -> v.getT().getValue()));
+		return workbookPart.getSharedStrings().getContents().getSi().stream().collect(Collectors.toMap(v -> integer.getAndIncrement() + "", v -> {
+			if (v.getT() != null)
+				return v.getT().getValue();
+			else if (!v.getR().isEmpty())
+				return v.getR().stream().map(r -> r.getT().getValue()).collect(Collectors.joining(""));
+			else
+				return v.getRPh().stream().map(r -> r.getT().getValue()).collect(Collectors.joining(""));
+		}));
 	}
 
 	public static TablePart findTable(WorksheetPart worksheetPart, String name) throws Exception {
