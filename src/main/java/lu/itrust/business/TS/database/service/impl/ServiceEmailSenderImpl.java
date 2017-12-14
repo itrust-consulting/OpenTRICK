@@ -91,8 +91,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
-					model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
-					model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
+					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
 							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.ftl" : "new-user-info-en.ftl"), "UTF-8"),
 							model), true);
@@ -117,11 +117,11 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
 							Map<String, Object> model = new LinkedHashMap<String, Object>();
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
-							model.put("login", StringEscapeUtils.unescapeHtml4(admin.getLogin()));
-							model.put("userLogin", StringEscapeUtils.unescapeHtml4(user.getLogin()));
-							model.put("userEmail", StringEscapeUtils.unescapeHtml4(user.getEmail()));
-							model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
-							model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+							model.put("login", StringEscapeUtils.escapeHtml4(admin.getLogin()));
+							model.put("userLogin", StringEscapeUtils.escapeHtml4(user.getLogin()));
+							model.put("userEmail", StringEscapeUtils.escapeHtml4(user.getEmail()));
+							model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
+							model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 							message.setText(
 									FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
 											.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.ftl" : "new-user-admin-en.ftl"), "UTF-8"), model),
@@ -152,7 +152,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					model.put("hostname", hotname);
-					model.put("username", StringEscapeUtils.unescapeHtml4(password.getUser().getLogin()));
+					model.put("username", StringEscapeUtils.escapeHtml4(password.getUser().getLogin()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
 							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.ftl" : "reset-password-en.ftl"), "UTF-8"),
 							model), true);
@@ -178,10 +178,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setSubject(messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
-					model.put("expireDate", StringEscapeUtils.unescapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
-					model.put("expireDateTime", StringEscapeUtils.unescapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
-					model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
-					model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+					model.put("expireDate", StringEscapeUtils.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
+					model.put("expireDateTime", StringEscapeUtils.escapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
+					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
+					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("code", code);
 					message.setText(
 							FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
@@ -214,11 +214,11 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setSubject(messageSource.getMessage("label.account.locked.subject", null, "TRICK Service account locked", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.title.account.locked", null, "TRICK Service account locked", locale));
-					model.put("expireDate", StringEscapeUtils.unescapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
-					model.put("expireDateTime", StringEscapeUtils.unescapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
+					model.put("expireDate", StringEscapeUtils.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
+					model.put("expireDateTime", StringEscapeUtils.escapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
 					model.put("hostname", String.format("%s/Unlock-account/%s", hostServer, code));
-					model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
-					model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
+					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("ip", ip);
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
 							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "account-locked-fr.ftl" : "account-locked-en.ftl"), "UTF-8"),
@@ -246,8 +246,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.share.analysis.subject", null, "TRICK Service: Risk analysis access", locale));
 					model.put("title", messageSource.getMessage("label.title.share.analysis", null, "TRICK Service: Risk analysis access", locale));
-					model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
-					model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
+					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("accept", String.format("%s/Analysis/ManageAccess/%s/Accept", hostServer, invitation.getToken()));
 					model.put("reject", String.format("%s/Analysis-access-management/%s/Reject", hostServer, invitation.getToken()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
@@ -276,8 +276,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.email.validation.subject", null, "TRICK Service: Email validation", locale));
 					model.put("title", messageSource.getMessage("label.title.email.validation", null, "TRICK Service: Email validation", locale));
-					model.put("firstName", StringEscapeUtils.unescapeHtml4(user.getFirstName()));
-					model.put("lastName", StringEscapeUtils.unescapeHtml4(user.getLastName()));
+					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
+					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("link", String.format("%s/Validate/%s/Email", hostServer, validatingRequest.getToken()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
 							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "email-validation-fr.ftl" : "email-validation-en.ftl"), "UTF-8"),
