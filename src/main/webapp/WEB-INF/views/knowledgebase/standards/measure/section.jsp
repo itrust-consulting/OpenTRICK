@@ -51,8 +51,8 @@
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_measure','#menu_measure_description');"></td>
 					<td>${measureDescription.level}</td>
 					<td><spring:message text='${measureDescription.reference}' /></td>
-					<td><spring:message text='${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:""}' /></td>
-					<td><spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' /></td>
+					<td data-trick-content='text'><spring:message text='${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:""}' /></td>
+					<td data-trick-content='text'><spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' /></td>
 					<td data-trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
 							text="${measureDescription.computable?'Yes':'No'}" /></td>
 				</tr>
