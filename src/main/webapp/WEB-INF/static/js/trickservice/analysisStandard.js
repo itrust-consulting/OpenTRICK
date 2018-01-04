@@ -21,7 +21,13 @@ $(document).ready(function () {
 
 	$("#measure-collection-selector").on("change", function () {
 		$("[id^='tab-standard-'][id!='" + this.value + "']:visible").hide();
-		triggerCaller($("#" + this.value).show());
+		var $menu = $("#standard-control-import-export"), $selected = $("#" + this.value);
+		if($menu.length){
+			if($selected.attr("data-trick-has-menu") ==="false")
+				$("[data-trick-action='export']", $menu.removeAttr("style")).attr("href", $selected.attr("data-trick-export-url"));
+			else  $menu.hide();
+		}
+		triggerCaller($selected.show());
 		disableEditMode();
 	}).trigger("change");
 

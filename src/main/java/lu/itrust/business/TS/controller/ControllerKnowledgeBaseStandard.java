@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -472,31 +471,12 @@ public class ControllerKnowledgeBaseStandard {
 
 		// chekc if measuredescriptions are not null
 		if (mesDescs != null) {
-
 			// set language
 			Language lang = null;
 			if (idLanguage != 0) {
 				lang = serviceLanguage.get(idLanguage);
 			} else {
 				lang = serviceLanguage.getByAlpha3("ENG");
-			}
-
-			// parse measuredescriptions and remove texts to add only selected
-			// language text
-			for (MeasureDescription mesDesc : mesDescs) {
-				mesDesc.setMeasureDescriptionTexts(new ArrayList<MeasureDescriptionText>());
-				// load only from language
-				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
-				// check if not null
-				if (mesDescText == null) {
-					// create new empty descriptiontext with language
-					mesDescText = new MeasureDescriptionText();
-					mesDescText.setLanguage(lang);
-				}
-				mesDesc.addMeasureDescriptionText(mesDescText);
-				// System.out.println(mesDescText.getDomain() + "::" +
-				// mesDescText.getDescription());
-
 			}
 			Collections.sort(mesDescs, new ComparatorMeasureDescription());
 			// put data to model

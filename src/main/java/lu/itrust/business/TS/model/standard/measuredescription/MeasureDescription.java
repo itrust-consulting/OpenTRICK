@@ -135,7 +135,7 @@ public class MeasureDescription implements Cloneable {
 	 * @return
 	 */
 	public MeasureDescriptionText findByLanguage(Language language) {
-		return findByAlph3(language.getAlpha3());
+		return measureDescriptionTexts.parallelStream().filter(measureDescriptionText -> measureDescriptionText.getLanguage().equals(language)).findAny().orElse(null);
 	}
 
 	/**

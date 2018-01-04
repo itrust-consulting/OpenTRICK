@@ -25,19 +25,32 @@
 		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
 	</c:choose>
 </c:set>
+<%-- <c:if test="${empty isLinkedToProject}"><c:set var="isLinkedToProject" value="${not empty isLinkedToProject}"/></c:if> --%>
+<c:set var="measureHeaderMenu" value="${not isLinkedToProject and not empty standards and isEditable}" />
 <div class="tab-pane" id="tab-standards" data-callback='checkForCollectionUpdate'>
 	<div class="page-header tab-content-header">
 		<div class="container">
 			<div class="row-fluid">
 				<h3>
-					<span class="col-sm-4" style="display:block; padding: 5px;"><spring:message code="label.title.analysis.measures_by_collection" /></span> <span class="col-sm-8"> <select id='measure-collection-selector' class="form-control" style="max-width: 280px;">
-							<c:forEach items="${standards}" var="standard" varStatus="varStatus">
-								<option value="tab-standard-${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message text="${standard.label}" /></option>
-								<c:if test="${varStatus.index==0 }">
-									<c:set var="firstStandard" value="${standard}" />
-								</c:if>
-							</c:forEach>
-					</select></span>
+					<span class="col-xs-4" style="display: block; padding: 5px;"><spring:message code="label.title.analysis.measures_by_collection" /></span> <span class="col-xs-8"><span
+						${measureHeaderMenu?'class="col-lg-10 col-md-8 col-xs-7"':''}> <select id='measure-collection-selector' class="form-control" style="max-width: 280px;">
+								<c:forEach items="${standards}" var="standard" varStatus="varStatus">
+									<option value="tab-standard-${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message text="${standard.label}" /></option>
+									<c:if test="${varStatus.index==0}">
+										<c:set var="firstStandard" value="${standard}" />
+									</c:if>
+								</c:forEach>
+						</select>
+					</span> <c:if test="${measureHeaderMenu}">
+							<span class="col-lg-2 col-md-4 col-xs-5" style="${firstStandard.analysisOnly? 'display:none':''}" id='standard-control-import-export'> <span class="pull-right"> <c:if test="${isEditable}">
+										<c:if test="${canExport}">
+											<a class='btn btn-xs btn-link' data-trick-action='export' href="#" download><spring:message code='label.action.export' /> <i class='glyphicon glyphicon-export'></i></a>
+										</c:if>
+										<a class='btn btn-xs btn-link' data-trick-action='import' href="#" ><spring:message code='label.action.import' /> <i class='glyphicon glyphicon-import'></i></a>
+									</c:if>
+							</span>
+							</span>
+						</c:if> </span>
 				</h3>
 			</div>
 		</div>
@@ -45,16 +58,25 @@
 	<c:forEach items="${measuresByStandard.keySet()}" var="standard">
 		<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" />
 		<c:set var="standardType" value="${selectedStandard.type}" />
-		<c:set var="standardid" value="${selectedStandard.id }" />
+		<c:set var="standardid" value="${selectedStandard.id}" />
 		<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" />
-		<div id="tab-standard-${standardid}" data-trick-id="${standardid}" data-targetable='true' style="display: ${firstStandard == selectedStandard? '' : 'none'}" >
-			<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}" >
+		<spring:url value="/Analysis/Standard/${selectedStandard.id}/Export/Measure" var="measureExportUrl" />
+		<div id="tab-standard-${standardid}" data-trick-id="${standardid}" data-trick-has-menu='${analysisOnly or isLinkedToProject}' data-targetable='true'
+			data-trick-export-url='${measureExportUrl}'
+			style="display: ${firstStandard == selectedStandard? '' : 'none'}">
+			<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">
 				<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
 					<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-						<c:if test="${analysisOnly and isEditable}">
-							<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
-							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
-									class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
+						<c:if test="${isEditable}">
+							<c:if test="${analysisOnly}">
+								<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
+								<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
+										class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
+							</c:if>
+							<c:if test="${canExport}">
+								<li><a href="${measureExportUrl}" download ><span class="glyphicon glyphicon-export"></span> <spring:message code="label.action.export" /></a></li>
+							</c:if>
+							<li><a href="#" data-trick-action='import'><span class="glyphicon glyphicon-import"></span> <spring:message code="label.action.import" /></a></li>
 						</c:if>
 						<c:if test="${isLinkedToProject}">
 							<c:set var="ttSysName" value="${fn:toLowerCase(ticketingName)}" />
