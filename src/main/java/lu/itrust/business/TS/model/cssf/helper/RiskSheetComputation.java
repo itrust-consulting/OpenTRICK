@@ -29,9 +29,8 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 /**
  * RiskSheetComputation: <br>
@@ -671,11 +670,9 @@ public class RiskSheetComputation {
 
 			boolean hasinfluence = false;
 
-			if (tma.getMeasure() instanceof NormalMeasure)
-				hasinfluence = ((NormalMeasure) tma.getMeasure()).getMeasurePropertyList().hasInfluenceOnCategory(category);
-			else if (tma.getMeasure() instanceof AssetMeasure)
-				hasinfluence = ((AssetMeasure) tma.getMeasure()).getMeasurePropertyList().hasInfluenceOnCategory(category);
-
+			if (tma.getMeasure() instanceof AbstractNormalMeasure)
+				hasinfluence = ((AbstractNormalMeasure) tma.getMeasure()).getMeasurePropertyList().hasInfluenceOnCategory(category);
+			
 			// check if measure influences this scenario category -> YES
 			if (hasinfluence) {
 				// Integer: The Scenario ID, Integer : Code that defines the

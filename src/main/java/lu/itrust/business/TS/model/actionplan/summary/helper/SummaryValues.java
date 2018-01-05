@@ -8,7 +8,7 @@ import java.util.Map;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * SummaryValues: <br>

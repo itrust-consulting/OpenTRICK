@@ -6,7 +6,7 @@ package lu.itrust.business.TS.validator;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
 
 /**
  * @author eomar

@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.standard.measure;
+package lu.itrust.business.TS.model.standard.measure.impl;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

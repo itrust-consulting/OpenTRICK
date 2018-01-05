@@ -47,7 +47,7 @@ import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * ControllerPatch.java: <br>

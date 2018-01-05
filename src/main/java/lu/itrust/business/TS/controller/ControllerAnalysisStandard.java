@@ -4,8 +4,11 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -24,13 +27,15 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -44,6 +49,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,6 +95,9 @@ import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
@@ -102,16 +112,17 @@ import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.helper.SOAForm;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureAssetValueForm;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureForm;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
@@ -212,9 +223,6 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private TaskExecutor executor;
-	
-	@Value("${app.settings.risk.information.template.path}")
-	private String template;
 
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
@@ -681,7 +689,7 @@ public class ControllerAnalysisStandard {
 				List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
-				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				((AbstractNormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = new Double(0);
 			} else
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
@@ -843,12 +851,160 @@ public class ControllerAnalysisStandard {
 		}
 		return "redirect:/Error";
 	}
-	
+
 	@GetMapping("/{idStandard}/Export/Measure")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody FileSystemResource exportMeasure(@PathVariable("idStandard") int idStandard, Model model, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) {
-		FileSystemResource resource = new FileSystemResource(template);
-		return resource;
+	public void exportMeasure(@PathVariable("idStandard") int idStandard, HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		AnalysisStandard analysisStandard = analysis.getAnalysisStandardByStandardId(idStandard);
+		if (analysisStandard == null)
+			response.sendError(HttpServletResponse.SC_NOT_FOUND,
+					messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not beloong to analysis!", locale));
+		else {
+			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
+			WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
+			exportMeasureStandard(analysisStandard, mlPackage, worksheetPart);
+			response.setContentType("xlsx");
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"" + String.format("%s_V%s.xlsx", analysisStandard.getStandard().getLabel(), analysisStandard.getStandard().getVersion()) + "\"");
+			mlPackage.save(response.getOutputStream());
+			// Log
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
+					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
+		}
+	}
+
+	private void exportMeasureStandard(AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
+		if (analysisStandard instanceof MaturityStandard)
+			exportMeasureStandard((MaturityStandard) analysisStandard, mlPackage, worksheetPart);
+		else {
+			List<AbstractNormalMeasure> measures = getMeasures(analysisStandard);
+			String[] columns = Constant.NORMAL_MEASURE_COLUMNS;
+			createHeader(worksheetPart, "Measures", columns, measures.size());
+			SheetData sheetData = worksheetPart.getContents().getSheetData();
+			for (AbstractNormalMeasure measure : measures) {
+				Row row = createRow(sheetData);
+				for (int i = 0; i < columns.length; i++) {
+					switch (columns[i]) {
+					case "Reference":
+						setValue(row, i, measure.getMeasureDescription().getReference());
+						break;
+					case "Status":
+						setValue(row, i, measure.getStatus());
+						break;
+					case "Implemention":
+						setValue(row, i, measure.getImplementationRate());
+						break;
+					case "Internal Workload":
+						setValue(row, i, measure.getInternalWL());
+						break;
+					case "External Workload":
+						setValue(row, i, measure.getExternalWL());
+						break;
+					case "Investment":
+						setValue(row, i, measure.getInvestment());
+						break;
+					case "Life time":
+						setValue(row, i, measure.getLifetime());
+						break;
+					case "Internal Maintenance":
+						setValue(row, i, measure.getInternalMaintenance());
+						break;
+					case "External Maintenance":
+						setValue(row, i, measure.getExternalMaintenance());
+						break;
+					case "Recurrent Maintenance":
+						setValue(row, i, measure.getRecurrentInvestment());
+						break;
+					case "Phase":
+						setValue(row, i, measure.getPhase().getNumber());
+						break;
+					case "Responsible":
+						setValue(row, i, measure.getResponsible());
+						break;
+					case "To check":
+						setValue(row, i, measure.getToCheck());
+						break;
+					case "Comment":
+						setValue(row, i, measure.getComment());
+						break;
+					case "To do":
+						setValue(row, i, measure.getToDo());
+						break;
+					default:
+						break;
+					}
+				}
+			}
+
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> List<T> getMeasures(AnalysisStandard analysisStandard) {
+		return (List<T>) analysisStandard.getExendedMeasures();
+	}
+
+	private void exportMeasureStandard(MaturityStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
+		SheetData sheetData = worksheetPart.getContents().getSheetData();
+		List<MaturityMeasure> measures = getMeasures(analysisStandard);
+		String[] columns = Constant.MATURITY_MEASURE_COLUMNS;
+		createHeader(worksheetPart, "Measures", columns, measures.size());
+		for (MaturityMeasure measure : measures) {
+			Row row = createRow(sheetData);
+			for (int i = 0; i < columns.length; i++) {
+				switch (columns[i]) {
+				case "Reference":
+					setValue(row, i, measure.getMeasureDescription().getReference());
+					break;
+				case "Status":
+					setValue(row, i, measure.getStatus());
+					break;
+				case "Implemention":
+					setValue(row, i, measure.getImplementationRate());
+					break;
+				case "Internal Workload":
+					setValue(row, i, measure.getInternalWL());
+					break;
+				case "External Workload":
+					setValue(row, i, measure.getExternalWL());
+					break;
+				case "Investment":
+					setValue(row, i, measure.getInvestment());
+					break;
+				case "Life time":
+					setValue(row, i, measure.getLifetime());
+					break;
+				case "Internal Maintenance":
+					setValue(row, i, measure.getInternalMaintenance());
+					break;
+				case "External Maintenance":
+					setValue(row, i, measure.getExternalMaintenance());
+					break;
+				case "Recurrent Maintenance":
+					setValue(row, i, measure.getRecurrentInvestment());
+					break;
+				case "Phase":
+					setValue(row, i, measure.getPhase().getNumber());
+					break;
+				case "Responsible":
+					setValue(row, i, measure.getResponsible());
+					break;
+				case "Comment":
+					setValue(row, i, measure.getComment());
+					break;
+				case "To do":
+					setValue(row, i, measure.getToDo());
+					break;
+				default:
+					break;
+				}
+			}
+		}
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Edit", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -978,7 +1134,7 @@ public class ControllerAnalysisStandard {
 
 				measure.setImplementationRate(0.0);
 
-				//measure.setAnalysisStandard(analysisStandard);
+				// measure.setAnalysisStandard(analysisStandard);
 				analysisStandard.add(measure);
 			}
 
@@ -996,7 +1152,7 @@ public class ControllerAnalysisStandard {
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
 					throw new TrickException("error.measure.not_found", "Measure cannot be found");
-				measureForm.getProperties().copyTo(((NormalMeasure) measure).getMeasurePropertyList());
+				measureForm.getProperties().copyTo(((AbstractNormalMeasure) measure).getMeasurePropertyList());
 				if (!updateAssetTypeValues((NormalMeasure) measure, measureForm.getAssetValues(), errors, locale).isEmpty())
 					return result;
 			} else

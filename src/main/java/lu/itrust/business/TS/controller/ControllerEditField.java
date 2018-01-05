@@ -87,12 +87,13 @@ import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 import lu.itrust.business.TS.validator.AssessmentValidator;
 import lu.itrust.business.TS.validator.AssetValidator;
 import lu.itrust.business.TS.validator.BounedParameterValidator;
@@ -1215,7 +1216,7 @@ public class ControllerEditField {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve measure
-			NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+			AbstractNormalMeasure measure = (AbstractNormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 
 			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
 

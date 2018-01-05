@@ -199,6 +199,10 @@
 	<cache name="lu.itrust.business.TS.model.general.TrickLog" maxEntriesLocalHeap="10000" eternal="true">
 		<persistence strategy="localTempSwap" />
 	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
 
 	<!-- Collections -->
 
@@ -295,6 +299,14 @@
 	</cache>
 
 	<cache name="lu.itrust.business.TS.usermanagement.User.userSettings" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure.assetTypeValues" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure.measureAssetValues" maxEntriesLocalHeap="10000" eternal="true">
 		<persistence strategy="localTempSwap" />
 	</cache>
 

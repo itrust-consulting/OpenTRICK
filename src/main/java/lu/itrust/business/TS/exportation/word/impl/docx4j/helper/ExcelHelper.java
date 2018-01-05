@@ -12,9 +12,13 @@ import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
+import org.docx4j.relationships.Relationship;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.jaxb.Context;
 import org.xlsx4j.sml.CTRst;
+import org.xlsx4j.sml.CTSheetDimension;
+import org.xlsx4j.sml.CTTable;
+import org.xlsx4j.sml.CTTableColumn;
 import org.xlsx4j.sml.CTTablePart;
 import org.xlsx4j.sml.CTXstringWhitespace;
 import org.xlsx4j.sml.Cell;
@@ -168,9 +172,61 @@ public final class ExcelHelper {
 		return mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), name, index);
 	}
 
+	public static TablePart createTablePart(WorksheetPart worksheetPart) throws Exception {
+		long id = 	worksheetPart.getPackage().getContentTypeManager().getOverrideContentType().values().parallelStream().filter(r -> r.getPartName().startsWith("/xl/tables/")).count() + 1;
+		return createTablePart(worksheetPart, new PartName(String.format("/xl/tables/table%d.xml", id)), String.format("Table%d", id), id);
+	}
+
+	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id) throws Exception {
+		CTTablePart tablePart = new CTTablePart();
+		TablePart part = new TablePart(partName);
+		Relationship r = worksheetPart.addTargetPart(part);
+		CTTable table = Context.getsmlObjectFactory().createCTTable();
+		table.setId(id);
+		table.setName(name);
+		table.setDisplayName(name);
+		part.setContents(table);
+		tablePart.setId(r.getId());
+		table.setTotalsRowShown(true);
+		table.setAutoFilter(Context.getsmlObjectFactory().createCTAutoFilter());
+		table.setTableColumns(Context.getsmlObjectFactory().createCTTableColumns());
+		table.setTableStyleInfo(Context.getsmlObjectFactory().createCTTableStyleInfo());
+		table.getTableStyleInfo().setName("TableStyleMedium2");
+		table.getTableStyleInfo().setShowRowStripes(true);
+		worksheetPart.getContents().setTableParts(Context.getsmlObjectFactory().createCTTableParts());
+		worksheetPart.getContents().getTableParts().getTablePart().add(tablePart);
+		return part;
+	}
+	
+	public static void createHeader(WorksheetPart worksheetPart, String name, String[] columns, int lenght) throws Exception {
+		TablePart tablePart = createTablePart(worksheetPart);
+		CTTable table = tablePart.getContents();
+		Row row = createRow(worksheetPart.getContents().getSheetData());
+		for (int i = 0; i < columns.length; i++) {
+			CTTableColumn column = new CTTableColumn();
+			column.setId(i + 1);
+			column.setName(columns[i]);
+			table.getTableColumns().getTableColumn().add(column);
+			setValue(row, i, columns[i]);
+		}
+		table.getTableColumns().setCount((long) columns.length);
+		table.setRef(new AddressRef(new CellRef(0, 0), new CellRef(lenght, columns.length-1)).toString());
+		table.getAutoFilter().setRef(table.getRef());
+		worksheetPart.getContents().setDimension(new CTSheetDimension());
+		worksheetPart.getContents().getDimension().setRef(table.getRef());
+		if(!isEmpty(name))	
+			table.setDisplayName(name);
+			
+	}
+
+	public static boolean isEmpty(String name) {
+		return name == null || name.length() == 0;
+	}
+
 	public static Row createRow(SheetData sheetData) {
 		Row row = Context.getsmlObjectFactory().createRow();
 		sheetData.getRow().add(row);
+		row.setR((long) sheetData.getRow().size());
 		return row;
 	}
 

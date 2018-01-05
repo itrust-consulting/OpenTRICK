@@ -13,9 +13,9 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * DAOMeasureHBM.java: <br>

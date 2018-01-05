@@ -5,9 +5,9 @@ import java.util.Map;
 
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * DAOMeasure.java: <br>

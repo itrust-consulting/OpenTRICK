@@ -13,6 +13,19 @@ public class AddressRef {
 	public AddressRef() {
 	}
 
+	public AddressRef(CellRef begin, CellRef end) {
+		this.begin = begin;
+		this.end = end;
+	}
+
+
+	
+
+	public AddressRef(String sheet, CellRef begin, CellRef end) {
+		this(begin, end);
+		this.sheet = sheet;
+	}
+
 	/**
 	 * @return the begin
 	 */

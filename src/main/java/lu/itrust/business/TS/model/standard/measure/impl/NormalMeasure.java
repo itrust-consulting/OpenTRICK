@@ -1,23 +1,21 @@
-package lu.itrust.business.TS.model.standard.measure;
+package lu.itrust.business.TS.model.standard.measure.impl;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -25,9 +23,8 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.expressions.StringExpressionParser;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 
 /**
  * NormalMeasure: <br>
@@ -44,53 +41,19 @@ import lu.itrust.business.expressions.StringExpressionParser;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idNormalMeasure")
-//@DiscriminatorValue("NORMAL")
-public class NormalMeasure extends Measure {
+public class NormalMeasure extends AbstractNormalMeasure {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** The "To Check" comment */
-	private String toCheck = "";
-
 	/** The List of AssetTypeValues */
 	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
-	/** The List of Measure Properties */
-	private MeasureProperties measurePropertyList = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
-
-	/**
-	 * getMeasurePropertyList: <br>
-	 * Returns the MeasureProperties object which has all property values
-	 * 
-	 * @return The Measure Properties List object
-	 */
-	@ManyToOne
-	@JoinColumn(name = "fiMeasureProperties", nullable = false, unique = true)
-	@Cascade(CascadeType.ALL)
-	@Access(AccessType.FIELD)
-	public MeasureProperties getMeasurePropertyList() {
-		return measurePropertyList;
-	}
-
-	/**
-	 * setMeasurePropertyList: <br>
-	 * Sets the "measurePropertyList" field with a measureProperties object
-	 * 
-	 * @param measurePropertyList
-	 *            The measureProperties Object to set the List of Properties
-	 * @throws TrickException
-	 */
-	public void setMeasurePropertyList(MeasureProperties measurePropertyList) throws TrickException {
-		if (measurePropertyList == null)
-			throw new TrickException("error.norm_measure.measure_property.empty", "Measure properties cannot be empty");
-		this.measurePropertyList = measurePropertyList;
-	}
 
 	/**
 	 * getAssetTypeValue: <br>
@@ -131,10 +94,11 @@ public class NormalMeasure extends Measure {
 	 * @return The List of all Asset Type Values
 	 */
 	@ManyToMany
+	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.ALL)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "MeasureAssetTypeValue", joinColumns = { @JoinColumn(name = "fiNormalMeasure", nullable = false) }, inverseJoinColumns = {
 			@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }) )
-	@Cascade(CascadeType.ALL)
-	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -168,109 +132,6 @@ public class NormalMeasure extends Measure {
 	}
 
 	/**
-	 * getToCheck: <br>
-	 * Returns the "toCheck" field value
-	 * 
-	 * @return The To Check Value
-	 */
-	@Column(name = "dtToCheck", nullable = false, length = 1024)
-	public String getToCheck() {
-		return this.toCheck;
-	}
-
-	/**
-	 * setToCheck: <br>
-	 * Sets the "toCheck" field with a value
-	 * 
-	 * @param toCheck
-	 *            The value to set the "To Check" Comment
-	 */
-	public void setToCheck(String toCheck) {
-		this.toCheck = toCheck;
-	}
-
-	/**
-	 * getImplementationRate: <br>
-	 * Returns the Implementation Rate value
-	 * 
-	 * @return Implementation Rate value
-	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRate()
-	 */
-	@Override
-	@Column(name = "dtImplementationRate", nullable = false)
-	@Access(AccessType.FIELD)
-	public String getImplementationRate() {
-		return (String) super.getImplementationRate();
-	}
-
-	/**
-	 * getImplementationRateValue: <br>
-	 * Returns the Implementation Rate value using the getImplementationRate
-	 * method.
-	 * 
-	 * @return Implementation Rate Value
-	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRateValue()
-	 * @see lu.itrust.business.TS.model.standard.measure.NormalMeasure#getImplementationRate()
-	 */
-	@Override
-	@Transient
-	public double getImplementationRateValue(ValueFactory factory) {
-		try {
-			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
-		} catch (Exception ex) {
-			return 0.0;
-		}
-	}
-	
-	@Override
-	public double getImplementationRateValue(Map<String, Double> factory) {
-		try {
-			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
-		} catch (Exception ex) {
-			return 0.0;
-		}
-	}
-
-	@Override
-	@Transient
-	public List<String> getVariablesInvolvedInImplementationRateValue() {
-		try {
-			return (new StringExpressionParser(this.getImplementationRate())).getInvolvedVariables().stream().collect(Collectors.toList());
-		} catch (Exception ex) {
-			return new ArrayList<String>();
-		}
-	}
-
-	/**
-	 * setImplementationRate: <br>
-	 * Sets the Implementation Rate with a Value
-	 * 
-	 * @param implementationRate
-	 *            The Implementation Rate Value as object
-	 * @throws TrickException
-	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
-	 */
-	@Override
-	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof String || implementationRate instanceof Double))
-			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
-		super.setImplementationRate(implementationRate.toString());
-	}
-
-	/**
-	 * setImplementationRate: <br>
-	 * Sets the Implementation Rate with a Value
-	 * 
-	 * @param implementationRate
-	 *            The Implementation Rate Value as Double
-	 * @throws TrickException
-	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
-	 */
-	public void setImplementationRate(String implementationRate) throws TrickException {
-		super.setImplementationRate(implementationRate);
-	}
-
-	/**
 	 * clone: <br>
 	 * Description
 	 *
@@ -284,7 +145,6 @@ public class NormalMeasure extends Measure {
 		normalMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			normalMeasure.assetTypeValues.add(assetTypeValue.clone());
-		normalMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.clone();
 		return normalMeasure;
 	}
 
@@ -302,7 +162,6 @@ public class NormalMeasure extends Measure {
 		normalMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			normalMeasure.assetTypeValues.add(assetTypeValue.duplicate());
-		normalMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
 		return normalMeasure;
 	}
 

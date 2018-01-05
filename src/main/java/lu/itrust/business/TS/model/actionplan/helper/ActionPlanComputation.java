@@ -47,11 +47,11 @@ import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
 
 /**
  * ActionPlanComputation: <br>
@@ -717,7 +717,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		ActionPlanEntry actionPlanEntry = null;
 		MaturityMeasure maturityMeasure = null;
-		NormalMeasure normalMeasure = null;
+		AbstractNormalMeasure normalMeasure = null;
 		List<TMA> TMAList = null;
 		List<Measure> usedMeasures = new ArrayList<Measure>();
 		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlans();
@@ -789,7 +789,7 @@ public class ActionPlanComputation {
 					// check if it is a maturity measure -> NO
 
 					// retrieve measure
-					normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
+					normalMeasure = (AbstractNormalMeasure) actionPlanEntry.getMeasure();
 
 					// ****************************************************************
 					// * update values for next run
@@ -1086,8 +1086,7 @@ public class ActionPlanComputation {
 					+ messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + "\n"
 					+ messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + numberFormat.format(report);
 
-			MeasureProperties measureProperties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
-					: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
+			MeasureProperties measureProperties = measure instanceof AbstractNormalMeasure ? ((AbstractNormalMeasure) measure).getMeasurePropertyList() : null;
 
 			if (measureProperties != null) {
 				measureProperties.setSoaRisk(soarisk);
@@ -1308,7 +1307,7 @@ public class ActionPlanComputation {
 		int thisLevel = 0;
 		double totalCost = 0;
 		double totalChapter = 0;
-		NormalMeasure tmpMeasure = null;
+		AbstractNormalMeasure tmpMeasure = null;
 		double ALE = 0;
 		double deltaALEMat = 0;
 		double numberMeasures = 0;
@@ -1411,7 +1410,7 @@ public class ActionPlanComputation {
 				for (int napmc = 0; napmc < TMAList.size(); napmc++) {
 
 					// temporary store measure
-					tmpMeasure = (NormalMeasure) TMAList.get(napmc).getMeasure();
+					tmpMeasure = (AbstractNormalMeasure) TMAList.get(napmc).getMeasure();
 
 					// ****************************************************************
 					// * parse TMAList for AnalysisStandard 27002 measures and
@@ -1846,7 +1845,7 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * parse all measures of the current standard
 				// ****************************************************************
-				for (NormalMeasure normalMeasure : normalStandard.getExendedMeasures()) {
+				for (AbstractNormalMeasure normalMeasure : normalStandard.getExendedMeasures()) {
 
 					// ****************************************************************
 					// * check conditions to add TMAListEntries to TMAList

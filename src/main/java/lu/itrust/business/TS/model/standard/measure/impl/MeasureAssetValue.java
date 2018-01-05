@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.standard.measure;
+package lu.itrust.business.TS.model.standard.measure.impl;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -44,8 +44,9 @@ public class MeasureAssetValue implements Cloneable {
 
 	/** The Asset */
 	@ManyToOne
-	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@JoinColumn(name = "fiAsset", nullable = false)
 	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE})
 	private Asset asset = null;
 

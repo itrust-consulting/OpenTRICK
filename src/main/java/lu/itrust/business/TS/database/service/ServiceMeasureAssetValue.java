@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
 
 /**
  * ServiceAssetTypeValue.java: <br>

@@ -8,8 +8,8 @@ import javax.persistence.Entity;
 import org.hibernate.proxy.HibernateProxy;
 
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
 
 /**
  * AssetMeasureNorm: <br>

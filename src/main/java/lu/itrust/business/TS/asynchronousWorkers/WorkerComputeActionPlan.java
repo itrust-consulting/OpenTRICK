@@ -43,8 +43,7 @@ import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 
 /**
  * @author eomar
@@ -334,11 +333,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
 		analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).forEach(measure -> {
-			if (measure instanceof NormalMeasure)
-				((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("");
-			else if (measure instanceof AssetMeasure)
-				((AssetMeasure) measure).getMeasurePropertyList().setSoaRisk("");
-
+			if (measure instanceof AbstractNormalMeasure)
+				((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("");
 		});
 	}
 

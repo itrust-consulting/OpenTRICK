@@ -15,6 +15,16 @@ public class CellRef {
 	public CellRef() {
 	}
 
+	public CellRef(int row, int col) {
+		this.row = row;
+		this.col = col;
+	}
+
+	public CellRef(int row, int col, boolean absolute) {
+		this(row, col);
+		this.absolute = absolute;
+	}
+
 	/**
 	 * @return the absolute
 	 */

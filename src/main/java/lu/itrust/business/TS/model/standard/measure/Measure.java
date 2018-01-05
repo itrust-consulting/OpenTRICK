@@ -46,7 +46,6 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Inheritance(strategy = InheritanceType.JOINED)
-// @DiscriminatorColumn(name="dtType")
 public abstract class Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -123,6 +122,7 @@ public abstract class Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiPhase", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	public Phase getPhase() {
 		return phase;
@@ -418,8 +418,9 @@ public abstract class Measure implements Cloneable {
 	 * @return
 	 */
 	@ManyToOne
-	@JoinColumn(name = "fiAnalysisStandard", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@JoinColumn(name = "fiAnalysisStandard", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	public AnalysisStandard getAnalysisStandard() {
 		return analysisStandard;
@@ -442,8 +443,9 @@ public abstract class Measure implements Cloneable {
 	 * @return The value of the measureDescription field
 	 */
 	@ManyToOne
-	@JoinColumn(name = "fiMeasureDescription", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@JoinColumn(name = "fiMeasureDescription", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	public MeasureDescription getMeasureDescription() {
 		return measureDescription;

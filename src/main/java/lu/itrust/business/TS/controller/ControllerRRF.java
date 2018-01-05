@@ -88,13 +88,13 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.Chapter;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * ControllerRRF.java: <br>

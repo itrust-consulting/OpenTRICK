@@ -94,12 +94,13 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.User;
@@ -2239,7 +2240,7 @@ public class ImportAnalysis {
 
 				// retrieve id for the instance creation (NormalMeasure ID)
 				// insertID = mysql.getLastInsertId();
-				Measure measure = null;
+				AbstractNormalMeasure measure = null;
 
 				if (standard.getType().equals(StandardType.NORMAL))
 					measure = new NormalMeasure();
@@ -2261,11 +2262,9 @@ public class ImportAnalysis {
 				measure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 				measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 				measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
-				if (standard.getType().equals(StandardType.NORMAL))
-					((NormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? "" : rs.getString(Constant.MEASURE_REVISION));
-				else if (standard.getType().equals(StandardType.ASSET))
-					((AssetMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION));
-
+				if (measure instanceof AbstractNormalMeasure)
+					((AbstractNormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? "" : rs.getString(Constant.MEASURE_REVISION));
+				
 				measure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
 				measure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));
@@ -2315,24 +2314,8 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * add measureporperties instance to measure instance
 				// ****************************************************************
-
-				if (standard.getType().equals(StandardType.NORMAL))
-					((NormalMeasure) measure).setMeasurePropertyList(measureProperties);
-				else if (standard.getType().equals(StandardType.ASSET))
-					((AssetMeasure) measure).setMeasurePropertyList(measureProperties);
-
-				// ****************************************************************
-				// * add measure to standard
-				// ****************************************************************
-
-				if (standard.getType().equals(StandardType.NORMAL))
-					((NormalStandard) analysisStandard).addMeasure((NormalMeasure) measure);
-				else if (standard.getType().equals(StandardType.ASSET))
-					((AssetStandard) analysisStandard).addMeasure((AssetMeasure) measure);
-
-				// add measure to standard
-
-				// add measure to map
+				analysisStandard.add(measure);
+				measure.setMeasurePropertyList(measureProperties);
 				measures.put(measureKey(standardName, standardVersion, measureRefMeasure), measure);
 			}
 

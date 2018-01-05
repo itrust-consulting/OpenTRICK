@@ -52,10 +52,9 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -282,8 +281,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			if (measure.getMeasureDescription().isComputable()) {
 				setCellText((Tc) row.getContent().get(2), messageSource.getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 				setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
-				MeasureProperties properties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
-						: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
+				MeasureProperties properties = measure instanceof AbstractNormalMeasure ? ((AbstractNormalMeasure) measure).getMeasurePropertyList() : null;
 				if (properties != null) {
 					setCellText((Tc) row.getContent().get(4), properties.getSoaComment());
 					setCellText((Tc) row.getContent().get(5), properties.getSoaReference());

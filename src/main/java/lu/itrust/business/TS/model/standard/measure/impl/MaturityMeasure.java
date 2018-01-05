@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.standard.measure;
+package lu.itrust.business.TS.model.standard.measure.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * MaturityMeasure: <br>
@@ -29,7 +33,6 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idMaturityMeasure")
-// @DiscriminatorValue("MATURITY")
 public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -218,8 +221,9 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	@ManyToOne
-	@JoinColumn(name = "fiImplementationRateParameter", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@JoinColumn(name = "fiImplementationRateParameter", nullable = false)
 	public SimpleParameter getImplementationRate() {
 		return (SimpleParameter) super.getImplementationRate();
 	}

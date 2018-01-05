@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
 
 /**
  * ServiceAssetTypeValueImpl.java: <br>

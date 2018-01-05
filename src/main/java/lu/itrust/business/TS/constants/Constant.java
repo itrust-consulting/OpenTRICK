@@ -708,6 +708,12 @@ public class Constant {
 
 	public static final String HEAT_MAP_DEFAULT_COLOR = "#FFFFFF";
 
+	public static final String [] NORMAL_MEASURE_COLUMNS = {"Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time", "Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase" , "Responsible", "To check" ,"Comment", "To do" };
+
+	public static final String [] MATURITY_MEASURE_COLUMNS = {"Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time", "Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase" , "Responsible" ,"Comment", "To do" };
+	
+	//public static final String [] NORMAL_MEASURE_COLUMN_MAPPER = {"REFERENCE", "STATUS", "Implement.", "IntWorkload", "ExtWorkload", "Invest", "LifeT", "IntMaintenance", "ExtMaintenance", "RecMaintenance", "Phase" , "Resp.", "ToCheck" ,"Comment", "ToDo" };
+	
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
 
 	public static int CHAR_MULTI_CONTENT_MAX_SIZE = 12;

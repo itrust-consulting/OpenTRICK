@@ -10,8 +10,8 @@ import org.hibernate.proxy.HibernateProxy;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
 
 /**
  * MaturityStandard: <br>

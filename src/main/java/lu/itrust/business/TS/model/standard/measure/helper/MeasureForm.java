@@ -10,11 +10,12 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.standard.StandardType;
-import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -84,15 +85,13 @@ public class MeasureForm {
 
 		MeasureProperties properties = new MeasureProperties();
 		
+		if(measure instanceof AbstractNormalMeasure && analysisType.isQuantitative())
+			((AbstractNormalMeasure) measure).getMeasurePropertyList().copyTo(properties);
 		if (measure instanceof NormalMeasure) {
-			if (analysisType.isQuantitative())
-				((NormalMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.assetValues = new ArrayList<MeasureAssetValueForm>(((NormalMeasure) measure).getAssetTypeValues().size());
 			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
 				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(), assetTypeValue.getAssetType().getName(), assetTypeValue.getValue()));
 		} else if (measure instanceof AssetMeasure) {
-			if (analysisType.isQuantitative())
-				((AssetMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.setAssetValues(new ArrayList<MeasureAssetValueForm>(((AssetMeasure) measure).getMeasureAssetValues().size()));
 			for (MeasureAssetValue assetValue : ((AssetMeasure) measure).getMeasureAssetValues())
 				form.assetValues.add(new MeasureAssetValueForm(assetValue));

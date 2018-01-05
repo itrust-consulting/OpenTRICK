@@ -57,8 +57,8 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
@@ -163,7 +163,7 @@ public class CustomDelete {
 					.orElse(null);
 			if (analysisStandard != null) {
 				analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().is(Constant.STANDARD_27002)).map(standard -> standard.getMeasures()).findFirst()
-						.ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+						.ifPresent(measures -> measures.forEach(measure -> ((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
 				removeMeasureDependencies(measureDescription, analysis);
 				Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
 				while (iterator.hasNext()) {

@@ -203,6 +203,10 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
 	<!-- Collections -->
 
 	<cache name="lu.itrust.business.TS.model.analysis.Analysis.analysisStandards" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
@@ -283,8 +287,16 @@
 		timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
-
-	<!-- Collections -->
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure.assetTypeValues" maxEntriesLocalHeap="10000" eternal="false"
+		timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure.measureAssetValues" maxEntriesLocalHeap="10000" eternal="false"
+		timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
 
 	<cache name="lu.itrust.business.TS.model.general.TrickLog.parameters" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />

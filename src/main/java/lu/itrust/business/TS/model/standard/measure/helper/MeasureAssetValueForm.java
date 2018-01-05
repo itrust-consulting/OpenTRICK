@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.model.standard.measure.helper;
 
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
 
 /**
  * @author eomar
