@@ -106,9 +106,10 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						if(getCurrent() == null)
+						if (getCurrent() == null)
 							Thread.currentThread().interrupt();
-						else getCurrent().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -305,7 +306,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 				riskInformation.setHiddenComment(getString(row, colIndex++, sharedStrings));
 
-				messageHandler.setProgress(minProgress + ((i / size) * maxProgress));
+				messageHandler.setProgress((int) (minProgress + ((i / (double) size) * maxProgress)));
 			}
 
 		}

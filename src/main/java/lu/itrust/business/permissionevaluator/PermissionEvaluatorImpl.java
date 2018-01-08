@@ -32,6 +32,7 @@ import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
+import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -107,6 +108,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+	
+	@Autowired
+	private ServiceStandard serviceStandard;
 
 	public PermissionEvaluatorImpl() {
 	}
@@ -274,6 +278,12 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			case "DynamicParameter": {
 				if (!serviceDynamicParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			
+			case "Standard": {
+				if (!serviceStandard.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}

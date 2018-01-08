@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
+import static lu.itrust.business.TS.constants.Constant.APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
@@ -9,6 +10,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -43,11 +45,13 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
@@ -57,6 +61,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerGenerateTickets;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportMeasureData;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerSOAExport;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
@@ -148,6 +153,8 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @Controller
 @RequestMapping("/Analysis/Standard")
 public class ControllerAnalysisStandard {
+
+	
 
 	@Autowired
 	private ServiceMeasure serviceMeasure;
@@ -853,7 +860,7 @@ public class ControllerAnalysisStandard {
 	}
 
 	@GetMapping("/{idStandard}/Export/Measure")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportMeasure(@PathVariable("idStandard") int idStandard, HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -865,7 +872,7 @@ public class ControllerAnalysisStandard {
 		else {
 			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
 			WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
-			exportMeasureStandard(analysisStandard, mlPackage, worksheetPart);
+			exportMeasureStandard(new ValueFactory(analysis.getParameters()), analysisStandard, mlPackage, worksheetPart);
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition",
@@ -878,83 +885,33 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
-	private void exportMeasureStandard(AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
-		if (analysisStandard instanceof MaturityStandard)
-			exportMeasureStandard((MaturityStandard) analysisStandard, mlPackage, worksheetPart);
-		else {
-			List<AbstractNormalMeasure> measures = getMeasures(analysisStandard);
-			String[] columns = Constant.NORMAL_MEASURE_COLUMNS;
-			createHeader(worksheetPart, "Measures", columns, measures.size());
-			SheetData sheetData = worksheetPart.getContents().getSheetData();
-			for (AbstractNormalMeasure measure : measures) {
-				Row row = createRow(sheetData);
-				for (int i = 0; i < columns.length; i++) {
-					switch (columns[i]) {
-					case "Reference":
-						setValue(row, i, measure.getMeasureDescription().getReference());
-						break;
-					case "Status":
-						setValue(row, i, measure.getStatus());
-						break;
-					case "Implemention":
-						setValue(row, i, measure.getImplementationRate());
-						break;
-					case "Internal Workload":
-						setValue(row, i, measure.getInternalWL());
-						break;
-					case "External Workload":
-						setValue(row, i, measure.getExternalWL());
-						break;
-					case "Investment":
-						setValue(row, i, measure.getInvestment());
-						break;
-					case "Life time":
-						setValue(row, i, measure.getLifetime());
-						break;
-					case "Internal Maintenance":
-						setValue(row, i, measure.getInternalMaintenance());
-						break;
-					case "External Maintenance":
-						setValue(row, i, measure.getExternalMaintenance());
-						break;
-					case "Recurrent Maintenance":
-						setValue(row, i, measure.getRecurrentInvestment());
-						break;
-					case "Phase":
-						setValue(row, i, measure.getPhase().getNumber());
-						break;
-					case "Responsible":
-						setValue(row, i, measure.getResponsible());
-						break;
-					case "To check":
-						setValue(row, i, measure.getToCheck());
-						break;
-					case "Comment":
-						setValue(row, i, measure.getComment());
-						break;
-					case "To do":
-						setValue(row, i, measure.getToDo());
-						break;
-					default:
-						break;
-					}
-				}
-			}
-
-		}
+	@GetMapping("/{idStandard}/Import/Measure/Form")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String importMeasure(@PathVariable("idStandard") int idStandard, Model model, HttpSession session, Principal principal) {
+		model.addAttribute("idStandard", idStandard);
+		return "analyses/single/components/standards/measure/import-modal";
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> List<T> getMeasures(AnalysisStandard analysisStandard) {
-		return (List<T>) analysisStandard.getExendedMeasures();
+	@PostMapping(value="/{idStandard}/Import/Measure",produces = APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object importMeasure(@PathVariable("idStandard") int idStandard, @RequestParam("file") MultipartFile file, HttpServletRequest request, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
+		Worker worker = new WorkerImportMeasureData(principal.getName(), idAnalysis, idStandard, workFile, serviceTaskFeedback, workersPoolManager, sessionFactory);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		file.transferTo(workFile);
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.import.measure.data", null, "Importing of security measures data", locale));
 	}
 
-	private void exportMeasureStandard(MaturityStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
+	private void exportMeasureStandard(ValueFactory valueFactory, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
+
+		String[] columns = getColumns(analysisStandard);
+		prepareTableHeader(analysisStandard, worksheetPart, columns);
 		SheetData sheetData = worksheetPart.getContents().getSheetData();
-		List<MaturityMeasure> measures = getMeasures(analysisStandard);
-		String[] columns = Constant.MATURITY_MEASURE_COLUMNS;
-		createHeader(worksheetPart, "Measures", columns, measures.size());
-		for (MaturityMeasure measure : measures) {
+		for (Measure measure : analysisStandard.getMeasures()) {
 			Row row = createRow(sheetData);
 			for (int i = 0; i < columns.length; i++) {
 				switch (columns[i]) {
@@ -965,7 +922,7 @@ public class ControllerAnalysisStandard {
 					setValue(row, i, measure.getStatus());
 					break;
 				case "Implemention":
-					setValue(row, i, measure.getImplementationRate());
+					setValue(row, i, measure.getImplementationRateValue(valueFactory) * 0.01);
 					break;
 				case "Internal Workload":
 					setValue(row, i, measure.getInternalWL());
@@ -974,7 +931,7 @@ public class ControllerAnalysisStandard {
 					setValue(row, i, measure.getExternalWL());
 					break;
 				case "Investment":
-					setValue(row, i, measure.getInvestment());
+					setValue(row, i, measure.getInvestment()*0.001);
 					break;
 				case "Life time":
 					setValue(row, i, measure.getLifetime());
@@ -986,13 +943,17 @@ public class ControllerAnalysisStandard {
 					setValue(row, i, measure.getExternalMaintenance());
 					break;
 				case "Recurrent Maintenance":
-					setValue(row, i, measure.getRecurrentInvestment());
+					setValue(row, i, measure.getRecurrentInvestment()*0.001);
 					break;
 				case "Phase":
 					setValue(row, i, measure.getPhase().getNumber());
 					break;
 				case "Responsible":
 					setValue(row, i, measure.getResponsible());
+					break;
+				case "To check":
+					if (measure instanceof AbstractNormalMeasure)
+						setValue(row, i, ((AbstractNormalMeasure) measure).getToCheck());
 					break;
 				case "Comment":
 					setValue(row, i, measure.getComment());
@@ -1005,6 +966,18 @@ public class ControllerAnalysisStandard {
 				}
 			}
 		}
+	}
+
+	private void prepareTableHeader(AnalysisStandard analysisStandard, WorksheetPart worksheetPart, String[] columns) throws Exception {
+		createHeader(worksheetPart, "Measures", columns, analysisStandard.getMeasures().size());/*
+																								 * .getTableColumns().getTableColumn().parallelStream() .filter(c ->
+																								 * c.getName().equalsIgnoreCase("Implemention")).findAny().ifPresent(c -> {
+																								 * c.setDataCellStyle("Percent"); c.setDataDxfId(0L); });
+																								 */
+	}
+
+	private String[] getColumns(AnalysisStandard analysisStandard) {
+		return analysisStandard instanceof MaturityStandard ? Constant.MATURITY_MEASURE_COLUMNS : Constant.NORMAL_MEASURE_COLUMNS;
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Edit", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

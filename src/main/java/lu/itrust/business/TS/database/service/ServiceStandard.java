@@ -51,7 +51,7 @@ public interface ServiceStandard {
 
 	public void delete(Standard standard);
 
-	public boolean belongToAnalysis(Integer idStandard, int analysis);
+	public boolean belongsToAnalysis(int idAnalysis, Integer idStandard);
 
 	public boolean isUsed(Standard tmpStandard);
 

@@ -1454,7 +1454,7 @@ function importRiskInformation() {
 	if (!$uploadFile.length)
 		return false;
 	else if ($uploadFile.val() == "") {
-		$riskNotification.text(MessageResolver("error.import.risk.information.no_select.file", "Please select file to import"));
+		$riskNotification.text(MessageResolver("error.import.risk.information.no_select.file", "Please select file to import!"));
 		return false;
 	}
 	try {

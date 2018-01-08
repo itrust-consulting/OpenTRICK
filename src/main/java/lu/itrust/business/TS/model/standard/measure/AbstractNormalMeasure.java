@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.model.standard.measure;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -136,7 +136,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		try {
 			return (new StringExpressionParser(this.getImplementationRate())).getInvolvedVariables().stream().collect(Collectors.toList());
 		} catch (Exception ex) {
-			return new ArrayList<String>();
+			return Collections.emptyList();
 		}
 	}
 

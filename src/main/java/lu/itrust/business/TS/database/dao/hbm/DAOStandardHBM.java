@@ -245,7 +245,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	}
 
 	@Override
-	public boolean belongToAnalysis(Integer idStandard, int idAnalysis) {
+	public boolean belongsToAnalysis(int idAnalysis, Integer idStandard) {
 		return (boolean) getSession()
 				.createQuery(
 						"select count(*)>0 from Analysis analysis inner join analysis.analysisStandards as analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")

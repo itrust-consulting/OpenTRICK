@@ -34,10 +34,10 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#get(int)
+	 * 	@see lu.itrust.business.TS.database.service.ServiceStandard#get(int)
 	 */
 	@Override
-	public Standard get(Integer idStandard)  {
+	public Standard get(Integer idStandard) {
 		return daoStandard.get(idStandard);
 	}
 
@@ -50,7 +50,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardByName(java.lang.String)
 	 */
 	@Override
-	public List<Standard> getStandardByName(String standard)  {
+	public List<Standard> getStandardByName(String standard) {
 		return daoStandard.getStandardByName(standard);
 	}
 
@@ -63,7 +63,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardNotCustomByName(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardNotCustomByName(String standard)  {
+	public Standard getStandardNotCustomByName(String standard) {
 		return daoStandard.getStandardNotCustomByName(standard);
 	}
 
@@ -77,7 +77,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *      int)
 	 */
 	@Override
-	public Standard getStandardByNameAndVersion(String label, int version)  {
+	public Standard getStandardByNameAndVersion(String label, int version) {
 		return daoStandard.getStandardByNameAndVersion(label, version);
 	}
 
@@ -87,10 +87,11 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#existsByNameAndVersion(java.lang.String, int)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#existsByNameAndVersion(java.lang.String,
+	 *      int)
 	 */
 	@Override
-	public boolean existsByNameAndVersion(String label, int version)  {
+	public boolean existsByNameAndVersion(String label, int version) {
 		return daoStandard.existsByNameAndVersion(label, version);
 	}
 
@@ -103,7 +104,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAll()
 	 */
 	@Override
-	public List<Standard> getAll()  {
+	public List<Standard> getAll() {
 		return daoStandard.getAll();
 	}
 
@@ -116,7 +117,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<Standard> getAllFromAnalysis(Integer analysisId)  {
+	public List<Standard> getAllFromAnalysis(Integer analysisId) {
 		return daoStandard.getAllFromAnalysis(analysisId);
 	}
 
@@ -129,7 +130,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<Standard> getAllFromAnalysis(Analysis analysis)  {
+	public List<Standard> getAllFromAnalysis(Analysis analysis) {
 		return daoStandard.getAllFromAnalysis(analysis);
 	}
 
@@ -142,7 +143,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllNotInAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<Standard> getAllNotInAnalysis(Integer idAnalysis)  {
+	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) {
 		return daoStandard.getAllNotInAnalysis(idAnalysis);
 	}
 
@@ -156,7 +157,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 */
 	@Transactional
 	@Override
-	public void save(Standard standard)  {
+	public void save(Standard standard) {
 		daoStandard.save(standard);
 	}
 
@@ -170,7 +171,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Standard standard)  {
+	public void saveOrUpdate(Standard standard) {
 		daoStandard.saveOrUpdate(standard);
 	}
 
@@ -184,38 +185,38 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 */
 	@Transactional
 	@Override
-	public void delete(Standard standard)  {
+	public void delete(Standard standard) {
 		daoStandard.delete(standard);
 	}
 
 	@Override
-	public List<Standard> getAllNotBoundToAnalysis()  {
+	public List<Standard> getAllNotBoundToAnalysis() {
 		return daoStandard.getAllNotBoundToAnalysis();
 	}
 
 	@Override
-	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID)  {
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) {
 		return daoStandard.getAllAnalysisOnlyStandardsFromAnalysis(analsisID);
 	}
 
 	@Override
-	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId)  {
+	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) {
 		return daoStandard.getAllFromAnalysisNotBound(analysisId);
 	}
 
 	@Override
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType)  {
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType) {
 		return daoStandard.getNextVersionByNameAndType(label, standardType);
 	}
 
 	@Override
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type)  {
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type) {
 		return daoStandard.existsByNameVersionType(label, version, type);
 	}
 
 	@Override
-	public boolean belongToAnalysis(Integer idStandard, int idAnalysis) {
-		return daoStandard.belongToAnalysis(idStandard,idAnalysis );
+	public boolean belongsToAnalysis(int idAnalysis, Integer idStandard) {
+		return daoStandard.belongsToAnalysis(idAnalysis, idStandard);
 	}
 
 	@Override

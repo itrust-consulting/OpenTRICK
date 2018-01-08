@@ -49,7 +49,7 @@ public interface DAOStandard {
 
 	public void delete(Standard standard);
 
-	public boolean belongToAnalysis(Integer idStandard, int idAnalysis);
+	public boolean belongsToAnalysis(int idAnalysis, Integer idStandard);
 
 	public int getNextVersion(String label);
 
