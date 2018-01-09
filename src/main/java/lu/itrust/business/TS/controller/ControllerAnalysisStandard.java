@@ -880,7 +880,7 @@ public class ControllerAnalysisStandard {
 			mlPackage.save(response.getOutputStream());
 			// Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
-					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
+					String.format("Analysis: %s, version: %s, type: Measure data", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
 		}
 	}

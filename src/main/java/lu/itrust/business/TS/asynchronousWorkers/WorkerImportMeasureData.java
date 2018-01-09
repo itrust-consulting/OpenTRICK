@@ -161,7 +161,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 			serviceTaskFeedback.send(getId(), handler);
 
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.import.measure.data",
-					String.format("Content: Measure data, Target: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
+					String.format("Analysis: %s, version: %s, Type: Measure data", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
 					analysis.getIdentifier(), analysis.getVersion());
 
 		} catch (Exception e) {
@@ -206,13 +206,13 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		if (sheetData == null)
 			return;
 		TablePart table = findTable(sheetData.getWorksheetPart(), "Measures");
-		if(table == null)
+		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!");
-		
+
 		AddressRef address = AddressRef.parse(table.getContents().getRef());
-		
+
 		int size = (int) Math.min(address.getEnd().getRow(), sheetData.getRow().size());
-		
+
 		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
 			return;
 		final List<SimpleParameter> parameters = findMaturityImplementationRates(analysis, analysisStandard);
@@ -224,9 +224,9 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		final int refIndex = columns.indexOf("reference"), min = 6, max = 90;
 		if (refIndex == -1)
 			throw new TrickException("error.import.measure.data.no.reference", "Reference column cannot be found!");
-		
+
 		MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", min);
-		
+
 		serviceTaskFeedback.send(getId(), handler);
 
 		for (int i = 1; i < size; i++) {
@@ -242,7 +242,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				String name = columnsMapper.get(columns.get(j));
 				if (name == null || j == refIndex)
 					continue;
-				
+
 				switch (name) {
 				case "Status":
 					measure.setStatus(getString(row, j, sharedStrings));
@@ -267,7 +267,11 @@ public class WorkerImportMeasureData extends WorkerImpl {
 					boolean tmpUpdateCost = true;
 					switch (name) {
 					case "Implemention":
-						double value = getDouble(row, j)*100;
+						double value = getDouble(row, j) * 100;
+						if (value > 100)
+							value = 100;
+						else if (value < 0)
+							value = 0;
 						if (measure instanceof MaturityMeasure)
 							measure.setImplementationRate(findParameter(value, parameters));
 						else

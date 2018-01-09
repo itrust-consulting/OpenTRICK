@@ -153,7 +153,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	public void setImplementationRate(Object implementationRate) throws TrickException {
 		if (!(implementationRate instanceof String || implementationRate instanceof Double))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
-		super.setImplementationRate(implementationRate.toString());
+		setImplementationRate(implementationRate.toString());
 	}
 
 	/**
@@ -166,7 +166,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
 	 */
 	public void setImplementationRate(String implementationRate) throws TrickException {
-		this.setImplementationRate(implementationRate);
+		super.setImplementationRate(implementationRate);
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public AbstractNormalMeasure duplicate(AnalysisStandard astandard, Phase phase) throws CloneNotSupportedException {
 		AbstractNormalMeasure measure = (AbstractNormalMeasure) super.duplicate(astandard, phase);
-		measure.measurePropertyList = measure.measurePropertyList;
+		measure.measurePropertyList = (MeasureProperties) measure.measurePropertyList.duplicate();
 		return measure;
 	}
 

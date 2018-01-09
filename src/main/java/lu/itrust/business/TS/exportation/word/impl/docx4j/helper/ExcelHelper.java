@@ -46,7 +46,7 @@ public final class ExcelHelper {
 		else if (value instanceof Boolean)
 			setValue(cell2, (Boolean) value);
 		else
-			setValue(cell2, String.valueOf(value));
+			setValue(cell2, value == null ? "" : String.valueOf(value));
 		return cell2;
 	}
 
@@ -382,7 +382,7 @@ public final class ExcelHelper {
 	public static TablePart findTable(WorksheetPart worksheetPart, String name) throws Exception {
 		for (CTTablePart ctTablePart : worksheetPart.getContents().getTableParts().getTablePart()) {
 			TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
-			if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name) )
+			if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name))
 				return table;
 		}
 		return null;
