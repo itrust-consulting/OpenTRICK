@@ -254,7 +254,7 @@ public class ManageAnalysisRight {
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.accept.share.analysis.access",
 				String.format("Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
 						invitation.getEmail(), user.getEmail()),
-				principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
+				principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
 				user.getEmail());
 	}
 
