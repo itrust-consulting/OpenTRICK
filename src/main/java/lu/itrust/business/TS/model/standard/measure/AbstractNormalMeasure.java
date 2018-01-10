@@ -86,7 +86,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 *            The value to set the "To Check" Comment
 	 */
 	public void setToCheck(String toCheck) {
-		this.toCheck = toCheck;
+		this.toCheck = toCheck == null ? "" : toCheck;
 	}
 
 	/**

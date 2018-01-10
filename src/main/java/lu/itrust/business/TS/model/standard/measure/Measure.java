@@ -386,7 +386,7 @@ public abstract class Measure implements Cloneable {
 	 *            The value to set the Comment
 	 */
 	public void setComment(String comment) {
-		this.comment = comment;
+		this.comment = comment == null ? "" : comment;
 	}
 
 	/**
@@ -408,7 +408,7 @@ public abstract class Measure implements Cloneable {
 	 *            The value to set the "ToDo" comment
 	 */
 	public void setToDo(String toDo) {
-		this.toDo = toDo;
+		this.toDo = toDo == null ? "" : toDo;
 	}
 
 	/**
@@ -565,8 +565,8 @@ public abstract class Measure implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Check if this object equals another object of the same type. Equal means:
-	 * the field id, description, domain and reference.
+	 * Check if this object equals another object of the same type. Equal means: the
+	 * field id, description, domain and reference.
 	 * 
 	 * @param obj
 	 *            The other object to check on
