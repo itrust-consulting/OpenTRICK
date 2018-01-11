@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ehcache>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" updateCheck="true" monitoring="autodetect" dynamicConfig="true">
 
 	<diskStore path="java.io.tmpdir/ts-ehcache" />
 
-	<defaultCache maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="400" maxEntriesLocalDisk="10000000"
-		diskExpiryThreadIntervalSeconds="1200" memoryStoreEvictionPolicy="LRU" statistics="true">
+	<defaultCache maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000" diskSpoolBufferSizeMB="400" maxEntriesLocalDisk="10000000"
+		diskExpiryThreadIntervalSeconds="5184000" memoryStoreEvictionPolicy="LRU" statistics="true">
 		<persistence strategy="localTempSwap" />
 	</defaultCache>
 
@@ -15,7 +15,7 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="org.hibernate.cache.internal.StandardQueryCache" maxEntriesLocalHeap="10000" eternal="false" timeToLiveSeconds="86400">
+	<cache name="org.hibernate.cache.internal.StandardQueryCache" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
@@ -166,6 +166,10 @@
 	<cache name="lu.itrust.business.TS.model.parameter.type.impl.ParameterType" maxEntriesLocalHeap="10000" eternal="true">
 		<persistence strategy="localTempSwap" />
 	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
 
 	<!-- Collections -->
 
@@ -241,62 +245,77 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription.measureDescriptionTexts" maxEntriesLocalHeap="10000" eternal="true"
-		timeToIdleSeconds="0">
+	<cache name="lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription.measureDescriptionTexts" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure.assetTypeValues" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure.measureAssetValues" maxEntriesLocalHeap="10000" eternal="true">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
 	<!-- Disk caching -->
 
 	<!-- Entities -->
-
-	<cache name="lu.itrust.business.TS.model.general.TSSetting" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	
+	<cache name="lu.itrust.business.TS.model.analysis.AnalysisShareInvitation" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"  timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.general.WordReport" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.model.general.TSSetting" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"  timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.general.UserSQLite" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.model.general.WordReport" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"  timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.externalnotification.ExternalNotification" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.model.general.UserSQLite" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"  timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.usermanagement.IDS" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.model.externalnotification.ExternalNotification" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.usermanagement.EmailValidatingRequest" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.usermanagement.IDS" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.usermanagement.Role" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.usermanagement.Role" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.general.TrickLog" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.model.general.TrickLog" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
 	<!-- Collections -->
 
-	<cache name="lu.itrust.business.TS.model.general.TrickLog.parameters" maxEntriesLocalHeap="10000" eternal="false" timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.model.general.TrickLog.parameters" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.usermanagement.IDS.subscribers" maxEntriesLocalHeap="10000" eternal="false" timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.usermanagement.IDS.subscribers" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.usermanagement.User.customers" maxEntriesLocalHeap="10000" eternal="false" timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.usermanagement.User.customers" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.usermanagement.User.roles" maxEntriesLocalHeap="10000" eternal="false"  timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.usermanagement.User.roles" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.usermanagement.User.userSettings" maxEntriesLocalHeap="10000" eternal="false" timeToLiveSeconds="86400">
+	<cache name="lu.itrust.business.TS.usermanagement.User.userSettings" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
