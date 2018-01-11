@@ -39,7 +39,7 @@
 
 					<c:choose>
 						<c:when test="${userGuideURLInternal}">
-							<spring:url value="${userGuideURL}?version=${staticVersion}" var="userGuideBaseURL" />
+							<spring:url value="${userGuideURL}?version=${userGuideVersion}" var="userGuideBaseURL" />
 							<a href='${userGuideURL}' style="color: #fff;" data-base-url='${userGuideBaseURL}' target="ts-user-guide"><i class="fa fa-book" aria-hidden="true"></i> <spring:message
 									code='label.user.manual' /></a>
 						</c:when>

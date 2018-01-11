@@ -19,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -63,6 +64,7 @@ public class TrickLog {
 	@Column(name = "dtCreated")
 	private Timestamp created;
 
+	@Lob
 	@ElementCollection
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "TrickLogParameters", joinColumns = @JoinColumn(name = "fiTrickLog"))

@@ -224,6 +224,9 @@ public class ControllerAdministration {
 					tsSetting = new TSSetting(name, false);
 					break;
 				}
+
+				if (tsSetting != null)
+					serviceTSSetting.saveOrUpdate(tsSetting);
 			}
 
 			if (tsSetting.getNameString().contains("TICKETING_SYSTEM"))
@@ -303,7 +306,7 @@ public class ControllerAdministration {
 				setting = tsSetting;
 			else
 				setting.setValue(tsSetting.getValue());
-			if (StringUtils.isEmpty(setting.getValue())) {
+			if (StringUtils.isEmpty(setting.getValue()) && tsSetting.getName() != TSSettingName.USER_GUIDE_URL) {
 				if (!setting.equals(tsSetting))
 					serviceTSSetting.delete(tsSetting.getName().name());
 			} else
