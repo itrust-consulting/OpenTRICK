@@ -65,7 +65,7 @@ public abstract class Measure implements Cloneable {
 	private String status = "NA";
 
 	/** The Implementation Rate */
-	private Object implementationRate = null;
+	protected Object implementationRate = null;
 
 	/** The Internal WorkLoad (in Man Days) */
 	private double internalWL = 0;

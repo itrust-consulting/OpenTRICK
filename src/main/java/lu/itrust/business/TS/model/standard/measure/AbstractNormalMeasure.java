@@ -96,11 +96,11 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 * @return Implementation Rate value
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRate()
 	 */
-	@Override
 	@Column(name = "dtImplementationRate", nullable = false)
 	@Access(AccessType.FIELD)
+	@Override
 	public String getImplementationRate() {
-		return (String) super.getImplementationRate();
+		return (String) this.implementationRate;
 	}
 
 	/**
@@ -111,8 +111,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRateValue()
 	 * @see lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure#getImplementationRate()
 	 */
-	@Override
 	@Transient
+	@Override
 	public double getImplementationRateValue(ValueFactory factory) {
 		try {
 			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
@@ -130,8 +130,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		}
 	}
 
-	@Override
 	@Transient
+	@Override
 	public List<String> getVariablesInvolvedInImplementationRateValue() {
 		try {
 			return (new StringExpressionParser(this.getImplementationRate())).getInvolvedVariables().stream().collect(Collectors.toList());
