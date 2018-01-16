@@ -211,7 +211,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 
 		AddressRef address = AddressRef.parse(table.getContents().getRef());
 
-		int size = (int) Math.min(address.getEnd().getRow(), sheetData.getRow().size());
+		int size = (int) Math.min(address.getEnd().getRow() + 1, sheetData.getRow().size());
 
 		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
 			return;

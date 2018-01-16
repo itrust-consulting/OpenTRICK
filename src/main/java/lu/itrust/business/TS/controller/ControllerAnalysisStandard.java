@@ -66,6 +66,7 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerSOAExport;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
@@ -153,8 +154,6 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @Controller
 @RequestMapping("/Analysis/Standard")
 public class ControllerAnalysisStandard {
-
-	
 
 	@Autowired
 	private ServiceMeasure serviceMeasure;
@@ -892,7 +891,7 @@ public class ControllerAnalysisStandard {
 		return "analyses/single/components/standards/measure/import-modal";
 	}
 
-	@PostMapping(value="/{idStandard}/Import/Measure",produces = APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "/{idStandard}/Import/Measure", produces = APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object importMeasure(@PathVariable("idStandard") int idStandard, @RequestParam("file") MultipartFile file, HttpServletRequest request, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
@@ -907,10 +906,10 @@ public class ControllerAnalysisStandard {
 	}
 
 	private void exportMeasureStandard(ValueFactory valueFactory, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
-
 		String[] columns = getColumns(analysisStandard);
 		prepareTableHeader(analysisStandard, worksheetPart, columns);
 		SheetData sheetData = worksheetPart.getContents().getSheetData();
+		analysisStandard.getMeasures().sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getMeasureDescription().getReference(), m2.getMeasureDescription().getReference()));
 		for (Measure measure : analysisStandard.getMeasures()) {
 			Row row = createRow(sheetData);
 			for (int i = 0; i < columns.length; i++) {
@@ -931,7 +930,7 @@ public class ControllerAnalysisStandard {
 					setValue(row, i, measure.getExternalWL());
 					break;
 				case "Investment":
-					setValue(row, i, measure.getInvestment()*0.001);
+					setValue(row, i, measure.getInvestment() * 0.001);
 					break;
 				case "Life time":
 					setValue(row, i, measure.getLifetime());
@@ -943,7 +942,7 @@ public class ControllerAnalysisStandard {
 					setValue(row, i, measure.getExternalMaintenance());
 					break;
 				case "Recurrent Maintenance":
-					setValue(row, i, measure.getRecurrentInvestment()*0.001);
+					setValue(row, i, measure.getRecurrentInvestment() * 0.001);
 					break;
 				case "Phase":
 					setValue(row, i, measure.getPhase().getNumber());
