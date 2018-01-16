@@ -51,6 +51,7 @@
 		<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER" />
 		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
+		<session-management session-fixation-protection="changeSessionId" />
 	</http>
 
 	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler">

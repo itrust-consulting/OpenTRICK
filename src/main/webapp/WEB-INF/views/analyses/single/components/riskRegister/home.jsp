@@ -72,7 +72,7 @@
 				<spring:message code="label.assessment.likelihood.unit" var="by_year" />
 				<c:forEach items="${estimations}" var="estimation" varStatus="status">
 					<c:set var="riskProfile" value="${estimation.riskProfile}" />
-					<tr data-trick-id='${riskProfile.id}'>
+					<tr data-trick-id='${riskProfile.id}' data-trick-callback='riskEstimationUpdate(true)' >
 						<td data-trick-field="index"><spring:message text="${status.index+1}" /></td>
 						<td class="editable" data-trick-id="${riskProfile.id}" data-trick-field=".identifier" onclick="return editField(this);" data-trick-class="RiskProfile"
 							data-trick-field-type="string"><spring:message text="${riskProfile.identifier}" /></td>
