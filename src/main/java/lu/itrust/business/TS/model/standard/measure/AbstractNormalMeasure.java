@@ -100,7 +100,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Access(AccessType.FIELD)
 	@Override
 	public String getImplementationRate() {
-		return (String) this.implementationRate;
+		return (String) super.getImplementationRate();
 	}
 
 	/**
