@@ -144,10 +144,10 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
-		List<SummaryStage> summary = getSummaryStage();
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+		final List<SummaryStage> summary = getSummaryStage();
+		final Tbl table = createTable("TableTSSummary", 30, summary.size() + 1);
 		setCurrentParagraphId(TS_TAB_TEXT_2);
-		Tbl table = createTable("TableTSSummary", 30, summary.size() + 1);
-
 		// set header
 		int rownumber = 0;
 
@@ -171,15 +171,13 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				break;
 			case 2: {
 				setCellText((Tc) row.getContent().get(0), "1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
-				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-				for (int i = 1; i < summary.size(); i++) {
+				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getBeginDate()));
-				}
 				break;
 			}
 			case 3: {
 				setCellText((Tc) row.getContent().get(0), "1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
-				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+				
 				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
 				break;
