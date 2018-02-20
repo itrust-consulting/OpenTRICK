@@ -127,12 +127,12 @@ public abstract class Parameter implements IParameter {
 		return this.getTypeName() == null ? type == getTypeName() : this.getTypeName().equals(type);
 	}
 
-	public Boolean isMatch(String typeName, String description) {
-		return this.getTypeName() == null ? (typeName == null ? (this.description == null ? description == null : this.description.equals(description)) : false)
-				: this.getTypeName().equals(typeName) && (this.description == null ? description == null : this.description.equals(description));
+	public Boolean isMatch(String typeName, String baseKey) {
+		return this.getTypeName() == null ? (typeName == null ? (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equals(baseKey)) : false)
+				: this.getTypeName().equals(typeName) && (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equals(baseKey));
 	}
 
-	public static String key(String type, String description) {
-		return String.format(IParameter.KEY_PARAMETER_FORMAT, type, description);
+	public static String key(String type, String baseKey) {
+		return String.format(IParameter.KEY_PARAMETER_FORMAT, type, baseKey);
 	}
 }

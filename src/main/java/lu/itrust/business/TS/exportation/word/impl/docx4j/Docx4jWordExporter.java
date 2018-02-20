@@ -1014,7 +1014,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected P setAlignment(P paragraph, TextAlignment alignment) {
-		if (paragraph.getPPr() != null)
+		if (paragraph.getPPr() == null)
 			paragraph.setPPr(factory.createPPr());
 		if (paragraph.getParent() instanceof Tc) {
 			if (paragraph.getPPr().getJc() == null)

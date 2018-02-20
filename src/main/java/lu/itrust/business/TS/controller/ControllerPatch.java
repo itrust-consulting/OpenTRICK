@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -227,19 +228,29 @@ public class ControllerPatch {
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
-			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
-			boolean saveRequired = false;
+			final String[] scopes = { "type_organism", "type_profit_organism", "name_organism", "presentation_organism", "sector_organism", "responsible_organism",
+					"staff_organism", "activities_organism", "excluded_assets", "occupation", "functional", "juridic", "pol_organisation", "management_organisation", "premises",
+					"requirements", "expectations", "environment", "interface", "strategic", "financialParameters", "riskEvaluationCriteria", "impactCriteria",
+					"riskAcceptanceCriteria" };
+			final String[] organisations = { "processus_development", "stakeholder_identification", "role_responsability", "stakeholder_relation", "escalation_way",
+					"document_conserve" };
 			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
 					// Add missing scope
-					saveRequired = false;
-					for (String scopeName : extendedScopes) {
-						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
-							analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
-							saveRequired = true;
-						}
+					boolean change = false;
+					final Map<String, Boolean> mappers = analysis.getItemInformations().parallelStream().collect(Collectors.toMap(ItemInformation::getDescription, i -> true));
+
+					for (String scope : scopes) {
+						if (mappers.remove(scope) == null)
+							change |= analysis.add(new ItemInformation(scope, Constant.ITEMINFORMATION_SCOPE, ""));
 					}
-					if (saveRequired) {
+
+					for (String organisation : organisations) {
+						if (mappers.remove(organisation) == null)
+							change |= analysis.add(new ItemInformation(organisation, Constant.ITEMINFORMATION_ORGANISATION, ""));
+					}
+
+					if (change) {
 						serviceAnalysis.saveOrUpdate(analysis);
 						/**
 						 * log
