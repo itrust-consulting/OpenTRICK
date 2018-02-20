@@ -12,11 +12,13 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,10 +29,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
+import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceIDS;
@@ -45,16 +52,24 @@ import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
+import lu.itrust.business.TS.model.api.basic.ApiAssessment;
+import lu.itrust.business.TS.model.api.basic.ApiAssessmentValue;
 import lu.itrust.business.TS.model.api.basic.ApiAsset;
 import lu.itrust.business.TS.model.api.basic.ApiMeasure;
 import lu.itrust.business.TS.model.api.basic.ApiNamable;
 import lu.itrust.business.TS.model.api.basic.ApiRRF;
+import lu.itrust.business.TS.model.api.basic.ApiScenario;
 import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
+import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.IDS;
@@ -98,6 +113,12 @@ public class ControllerApi {
 	private ServiceAsset serviceAsset;
 
 	@Autowired
+	private ServiceAssessment serviceAssessment;
+
+	@Autowired
+	private ServiceAssetType serviceAssetType;
+
+	@Autowired
 	private ServiceScenario serviceScenario;
 
 	@Autowired
@@ -105,6 +126,15 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceIDS serviceIDS;
+
+	@Autowired
+	private CustomDelete customDelete;
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	/**
 	 * Method is called whenever an exception of type TrickException is thrown
@@ -195,12 +225,14 @@ public class ControllerApi {
 		return new ApiResult(0);
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/data/customers", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadUserCustomer(Principal principal, Locale locale) throws Exception {
 		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream().map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
 				.collect(Collectors.toList());
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/data/analysis/all", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadAnalyses(@RequestParam(name = "customerId") Integer idCustomer, Principal principal, Locale locale) {
 		if (idCustomer == null)
@@ -209,6 +241,7 @@ public class ControllerApi {
 				.collect(Collectors.toList());
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/data/analysis/versions", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadAnalysesVersion(@RequestParam(name = "customerId") Integer idCustomer, @RequestParam(name = "identifier") String identifier,
 			Principal principal, Locale locale) {
@@ -223,22 +256,136 @@ public class ControllerApi {
 				.map(version -> new ApiNamable(version[0], version[1].toString())).collect(Collectors.toList());
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> new ApiAsset(asset.getId(), asset.getName(), asset.getValue())).collect(Collectors.toList());
+		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> ApiAsset.create(asset)).collect(Collectors.toList());
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/data/analysis/{idAnalysis}/scenarios", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> new ApiNamable(scenario.getId(), scenario.getName())).collect(Collectors.toList());
+		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> ApiScenario.create(scenario)).collect(Collectors.toList());
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/data/analysis/{idAnalysis}/standards", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
 		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/new-asset", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object createAnalysisAsset(@PathVariable Integer idAnalysis, @RequestParam(name = "name") String assetName, @RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+		try {
+			if (serviceAnalysis.isProfile(idAnalysis))
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			Asset asset = new Asset();
+			asset.setName(assetName);
+			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+			asset.setSelected(false);
+
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			analysis.add(asset);
+			serviceAnalysis.saveOrUpdate(analysis);
+
+			assessmentAndRiskProfileManager.unSelectAsset(asset);
+			assessmentAndRiskProfileManager.build(asset, idAnalysis);
+
+			return JsonMessage.SuccessWithId(asset.getId());
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets/{idAsset}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object editAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, @RequestParam(name = "name") String assetName, @RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+		try {
+			if (serviceAnalysis.isProfile(idAnalysis))
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, idAsset);
+			asset.setName(assetName);
+			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+
+			serviceAsset.saveOrUpdate(asset);
+
+			assessmentAndRiskProfileManager.build(asset, idAnalysis);
+
+			return JsonMessage.SuccessWithId(asset.getId());
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets/{idAsset}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.DELETE)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object deleteAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, Principal principal, Locale locale) throws Exception {
+		try {
+			customDelete.deleteAsset(idAsset, idAnalysis);
+			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assessments", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object getAnalysisAssessments(@PathVariable Integer idAnalysis, Principal principal, Locale locale) throws Exception {
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		return analysis.getAssessments().stream().map(assessment -> ApiAssessment.create(assessment)).collect(Collectors.toList());
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assessments/save", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object saveAnalysisAssessments(@PathVariable Integer idAnalysis, @RequestBody ApiAssessmentValue assessmentValue, Principal principal, Locale locale) throws Exception {
+		try {
+			// Find assessment
+			Assessment assessment = serviceAssessment.getFromAnalysisById(idAnalysis, (Integer)assessmentValue.getId());
+			// Set new likelihood
+			assessment.setLikelihood(Double.toString(assessmentValue.getLikelihood()));
+			assessment.setLikelihoodReal(assessmentValue.getLikelihood());
+			// Set new impacts
+			for (IValue currentValue : assessment.getImpacts()) {
+				final Double newValue = assessmentValue.getImpacts().get(currentValue.getName());
+				// Only update impact if a new value has been provided for it
+				if (newValue != null) {
+					if (currentValue instanceof RealValue)
+						((RealValue)currentValue).setReal(newValue);
+					else if (currentValue instanceof LevelValue)
+						((LevelValue)currentValue).setLevel((int)Math.round(newValue));
+					// silently ignore all other value types
+				}
+			}
+			serviceAssessment.save(assessment);
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+		}
 	}
 
 	/**
@@ -252,6 +399,7 @@ public class ControllerApi {
 	 * @param response
 	 * @throws Exception
 	 */
+	@CrossOrigin
 	@RequestMapping(value = "/data/load-rrf", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
 			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String standard, Principal principal, HttpServletResponse response,
@@ -271,8 +419,8 @@ public class ControllerApi {
 				.filter(assessment1 -> assessment1.getAsset().getId() == idAsset && assessment1.getScenario().getId() == idScenario).findAny()
 				.orElseThrow(() -> new TrickException("error.assessment.not_found", "Assessment cannot be found"));
 		ApiRRF apiRRF = new ApiRRF(idAnalysis, assessment.getImpactReal(), assessment.getLikelihoodReal());
-		apiRRF.setScenario(new ApiNamable(assessment.getScenario().getId(), assessment.getScenario().getName()));
-		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getValue()));
+		apiRRF.setScenario(new ApiScenario(assessment.getScenario().getId(), assessment.getScenario().getName(), assessment.getScenario().getType().getValue(), assessment.getScenario().getType().getName()));
+		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getAssetType().getId(), assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue()));
 		IParameter rrfTuning = analysis.findParameterByTypeAndDescription(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		ValueFactory factory = new ValueFactory(analysis.getParameters());
 		for (String name : standardNames) {

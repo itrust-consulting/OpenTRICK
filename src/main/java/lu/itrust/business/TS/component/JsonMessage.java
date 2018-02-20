@@ -23,6 +23,10 @@ public class JsonMessage {
 		return Field("success", message);
 	}
 
+	public static String SuccessWithId(Integer id) {
+		return String.format("{\"success\": true, \"id\": %d}", id);
+	}
+
 	public static String Warning(String message) {
 		return Field("warning", message);
 	}

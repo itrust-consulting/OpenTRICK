@@ -618,7 +618,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer) {
 		return getSession().createQuery(
-				"Select userAnalysisRight.analysis.identifier , userAnalysisRight.analysis.label From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights group by userAnalysisRight.analysis.identifier")
+				"Select userAnalysisRight.analysis.identifier , userAnalysisRight.analysis.label From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights group by userAnalysisRight.analysis.identifier, userAnalysisRight.analysis.label")
 				.setParameter("username", username).setParameter("customerId", idCustomer)
 				.setParameterList("rights", new AnalysisRight[] { AnalysisRight.ALL, AnalysisRight.EXPORT }).getResultList();
 	}
