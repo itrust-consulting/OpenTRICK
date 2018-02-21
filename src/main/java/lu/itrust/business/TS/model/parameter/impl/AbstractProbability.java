@@ -42,15 +42,10 @@ public abstract class AbstractProbability extends Parameter implements IProbabil
 	public void setAcronym(String acronym) {
 		this.acronym = acronym;
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.model.parameter.Parameter#getKey()
-	 */
+
 	@Override
-	public String getKey() {
-		return String.format(IParameter.KEY_PARAMETER_FORMAT, getTypeName(), acronym);
+	public String getBaseKey() {
+		return getAcronym();
 	}
 
 	public static String key(String type, String acronym) {

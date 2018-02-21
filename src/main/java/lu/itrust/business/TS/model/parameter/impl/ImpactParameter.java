@@ -213,6 +213,12 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	public void setLabel(String label) {
 		this.label = label;
 	}
+	
+	
+	@Override
+	public String getBaseKey() {
+		return getAcronym();
+	}
 
 	/**
 	 * clone: <br>

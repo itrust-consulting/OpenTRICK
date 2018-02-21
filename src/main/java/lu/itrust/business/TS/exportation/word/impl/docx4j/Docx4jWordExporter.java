@@ -294,8 +294,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				.map(abstractNum -> abstractNum.getAbstractNumId()).findAny().orElse(null);
 		if (abstractNumId == null)
 			return;
-		BigInteger numId = numbering.getNum().parallelStream().filter(num -> num.getAbstractNumId().getVal().equals(abstractNumId)).map(num -> num.getNumId()).findAny()
-				.orElse(null);
+		/*BigInteger numId = numbering.getNum().parallelStream().filter(num -> num.getAbstractNumId().getVal().equals(abstractNumId)).map(num -> num.getNumId()).findAny()
+				.orElse(null);*/
 		P paragraphOriginal = findTableAnchor("Phase");
 		if (paragraphOriginal == null)
 			return;
@@ -305,21 +305,22 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0 && summaryStages.stream().anyMatch(stage -> stage.getStage().equals("Phase " + phase.getNumber())))
 				.forEach(phase -> {
 					SummaryStage summaryStage = summaryStages.stream().filter(stage -> stage.getStage().equals("Phase " + phase.getNumber())).findAny().orElse(null);
-					P paragraph = setStyle(factory.createP(), "ListParagraph");
 					Calendar begin = Calendar.getInstance(), end = Calendar.getInstance();
 					begin.setTime(phase.getBeginDate());
 					end.setTime(phase.getEndDate());
 					int monthBegin = begin.get(Calendar.MONTH) + 1, monthEnd = end.get(Calendar.MONTH) + 1;
-					setText(paragraph, getMessage("report.risk.treatment.plan.summary", new Object[] { (monthBegin < 10 ? "0" : "") + monthBegin, begin.get(Calendar.YEAR) + "",
+					//P paragraph = setStyle(factory.createP(), "ListParagraph");
+					P paragraph = setStyle(factory.createP(), "BulletL1");
+					setText(paragraph, getMessage("report.risk.treatment.plan.summary", new Object[] { phase.getNumber() , (monthBegin < 10 ? "0" : "") + monthBegin, begin.get(Calendar.YEAR) + "",
 							(monthEnd < 10 ? "0" : "") + monthEnd, end.get(Calendar.YEAR) + "", summaryStage.getMeasureCount() + "" }, null, locale));
-					paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
+					/*paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
 					paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
 					paragraph.getPPr().getNumPr().getNumId().setVal(numId);
 					paragraph.getPPr().getNumPr().setIlvl(factory.createPPrBaseNumPrIlvl());
 					paragraph.getPPr().getNumPr().getIlvl().setVal(BigInteger.valueOf(0));
 					paragraph.getPPr().setInd(factory.createPPrBaseInd());
 					paragraph.getPPr().getInd().setHanging(BigInteger.valueOf(993));
-					paragraph.getPPr().getInd().setLeft(BigInteger.valueOf(993));
+					paragraph.getPPr().getInd().setLeft(BigInteger.valueOf(993));*/
 					contents.add(paragraph);
 				});
 		insertAllBefore(paragraphOriginal, contents);
@@ -1014,7 +1015,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected P setAlignment(P paragraph, TextAlignment alignment) {
-		if (paragraph.getPPr() != null)
+		if (paragraph.getPPr() == null)
 			paragraph.setPPr(factory.createPPr());
 		if (paragraph.getParent() instanceof Tc) {
 			if (paragraph.getPPr().getJc() == null)
@@ -1311,7 +1312,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				}
 
 				if (!(analysisStandard.getStandard().is(Constant.STANDARD_27001) || analysisStandard.getStandard().is(Constant.STANDARD_27002)))
-					contents.add(setText(setStyle(factory.createP(), "ListParagraph"), analysisStandard.getStandard().getLabel()));
+					contents.add(setText(setStyle(factory.createP(), "ListParagraph"), getMessage("report.format.bullet.list.iteam", new Object[] {analysisStandard.getStandard().getLabel()}, analysisStandard.getStandard().getLabel(), locale) ));
 			}
 
 			if (!contents.isEmpty()) {

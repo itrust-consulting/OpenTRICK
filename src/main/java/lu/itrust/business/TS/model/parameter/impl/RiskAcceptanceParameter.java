@@ -86,4 +86,9 @@ public class RiskAcceptanceParameter extends Parameter implements IRiskAcceptanc
 		this.label = label;
 	}
 
+	@Override
+	public String getBaseKey() {
+		return super.getBaseKey()+getLabel();
+	}
+
 }

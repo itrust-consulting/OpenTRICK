@@ -25,12 +25,14 @@ public interface IParameter extends Cloneable {
 
 	/**
 	 * Get parameter name.
+	 * 
 	 * @return typeName
 	 */
 	String getTypeName();
-	
+
 	/**
 	 * Parameters are grouped by a category
+	 * 
 	 * @return category
 	 */
 	String getGroup();
@@ -44,13 +46,22 @@ public interface IParameter extends Cloneable {
 	Integer getId();
 
 	IParameter duplicate();
-
-	default String getKey() {
-		return String.format(KEY_PARAMETER_FORMAT, getTypeName(), getDescription());
+	
+	/**
+	 * Unique key in each type.
+	 * By Default return description
+	 * @return
+	 */
+	default String getBaseKey() {
+		return getDescription();
 	}
 
-	default Boolean isMatch(String typeName, String description) {
-		return getTypeName().equals(typeName) && getDescription().equals(description);
+	default String getKey() {
+		return String.format(KEY_PARAMETER_FORMAT, getTypeName(), getBaseKey());
+	}
+
+	default Boolean isMatch(String typeName, String baseKey) {
+		return getTypeName().equals(typeName) && getBaseKey().equals(baseKey);
 	}
 
 	default Boolean isMatch(String type) {

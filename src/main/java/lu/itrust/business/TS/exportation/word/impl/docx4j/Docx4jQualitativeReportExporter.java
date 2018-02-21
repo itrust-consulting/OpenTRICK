@@ -152,11 +152,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
-		List<SummaryStage> summary = getSummaryStage();
-		// initialise table with 1 row and 1 column after the paragraph
-		// cursor
-		Tbl table = createTable("TableTSSummary", 24, summary.size() + 1);
+
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+		final List<SummaryStage> summary = getSummaryStage();
+		final Tbl table = createTable("TableTSSummary", 24, summary.size() + 1);
 		setCurrentParagraphId(TS_TAB_TEXT_2);
+
 		// set header
 		int rownumber = 0;
 		while (rownumber < 24) {
@@ -180,15 +181,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				break;
 			case 2: {
 				setCellText((Tc) row.getContent().get(0), "1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
-				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-				for (int i = 1; i < summary.size(); i++) {
+				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getBeginDate()));
-				}
 				break;
 			}
 			case 3: {
 				setCellText((Tc) row.getContent().get(0), "1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
-				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
 				break;
@@ -515,11 +513,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		setStyle(paragraph, style);
 		List<Object> contents = new ArrayList<>(impacts.size() - 1);
 		for (ScaleType scaleType : impacts) {
+			String value = scaleType.getTranslate(languageAlpha2);
 			if (isFirst) {
 				isFirst = false;
-				setText(paragraph, scaleType.getTranslate(languageAlpha2));
+				setText(paragraph, getMessage("report.format.bullet.list.iteam", new Object[] { value }, value, locale));
 			} else
-				contents.add(setText(setStyle(factory.createP(), style), scaleType.getTranslate(languageAlpha2)));
+				contents.add(setText(setStyle(factory.createP(), style), getMessage("report.format.bullet.list.iteam", new Object[] { value }, value, locale)));
 		}
 		insertAllBefore(paragraph, contents);
 	}

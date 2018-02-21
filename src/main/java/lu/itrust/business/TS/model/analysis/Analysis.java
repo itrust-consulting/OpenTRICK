@@ -383,8 +383,8 @@ public class Analysis implements Cloneable {
 	 * @param iteminformation
 	 *            The Item Information Object to Add
 	 */
-	public void add(ItemInformation itemInformation) {
-		this.itemInformations.add(itemInformation);
+	public boolean add(ItemInformation itemInformation) {
+		return this.itemInformations.add(itemInformation);
 	}
 
 	public void add(Phase phase) {
@@ -758,16 +758,16 @@ public class Analysis implements Cloneable {
 		return this.assets.stream().filter(asset -> !asset.isSelected()).collect(Collectors.toList());
 	}
 
-	public IParameter findParameter(String type, String description) {
-		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
+	public IParameter findParameter(String type, String baseKey) {
+		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.isMatch(type, baseKey)).findAny().orElse(null);
 	}
 
+	@Deprecated
 	public IProbabilityParameter findParameterByTypeAndAcronym(String type, String acronym) {
-		return (IProbabilityParameter) this.parameters.values().stream().flatMap(paramters -> paramters.stream())
-				.filter(parameter -> (parameter instanceof IProbabilityParameter) && parameter.isMatch(type) && ((IProbabilityParameter) parameter).getAcronym().equals(acronym))
-				.findAny().orElse(null);
+		return (IProbabilityParameter) findParameter(type, acronym);
 	}
 
+	@Deprecated
 	public IParameter findParameterByTypeAndDescription(String typeLabel, String description) {
 		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(p -> p.getTypeName().equals(typeLabel) && p.getDescription().equals(description))
 				.findAny().orElse(null);
@@ -782,7 +782,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public Double findParameterValueByTypeAndAcronym(String type, String acronym, Double defaultValue) {
-		IProbabilityParameter parameter = findParameterByTypeAndAcronym(type, acronym);
+		IParameter parameter = findParameter(type, acronym);
 		return parameter == null ? defaultValue : parameter.getValue().doubleValue();
 	}
 
