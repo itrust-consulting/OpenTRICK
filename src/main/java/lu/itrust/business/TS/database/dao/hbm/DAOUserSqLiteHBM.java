@@ -10,7 +10,7 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
-import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -86,7 +86,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUser(String username) {
-		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).getResultList();
+		return getSession().createQuery("From UserSQLite where user.login = :username order by created desc").setParameter("username", username).getResultList();
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) {
-		String query = "From UserSQLite where user.login = :username order by exportTime desc";
+		String query = "From UserSQLite where user.login = :username order by created desc";
 		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).getResultList();
 	}
 
@@ -107,7 +107,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#save(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#save(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Override
 	public UserSQLite save(UserSQLite userSqLite) {
@@ -118,7 +118,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Override
 	public void saveOrUpdate(UserSQLite userSqLite) {
@@ -129,7 +129,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#merge(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#merge(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Override
 	public UserSQLite merge(UserSQLite userSqLite) {
@@ -162,7 +162,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Override
 	public void delete(UserSQLite userSqLite) {

@@ -13,7 +13,7 @@
 	<!-- IDS API -->
 	<http pattern="/Api/ids/**" realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false" entry-point-ref="apiAuthenticationEntryPoint"
 		create-session="stateless">
-		<cors />
+		<cors/>
 		<custom-filter ref="apiAuthenticationFilter" position="FORM_LOGIN_FILTER" />
 		<!-- Authorise access -->
 		<intercept-url pattern="/Api/ids/**" access="hasRole('ROLE_IDS')" requires-channel="https" />
@@ -21,10 +21,10 @@
 		<!-- <intercept-url pattern="/Api/ids/**" access="denyAll" requires-channel="https"/> -->
 		<csrf disabled="true" />
 	</http>
-
+	
 	<!-- DATA API -->
 	<http pattern="/Api/data/**" realm="TRICK Service application">
-		<cors />
+		<cors/>
 		<!-- Authorise access -->
 		<intercept-url pattern="/Api/data/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" requires-channel="https" />
 		<!-- Deny Access -->
@@ -32,7 +32,6 @@
 		<csrf disabled="true" />
 		<http-basic />
 	</http>
-
 
 	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationFilter">
 		<beans:constructor-arg ref="apiAuthenticationManager" />

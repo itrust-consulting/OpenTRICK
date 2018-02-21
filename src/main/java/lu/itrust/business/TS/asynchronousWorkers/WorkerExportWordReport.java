@@ -26,7 +26,7 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**

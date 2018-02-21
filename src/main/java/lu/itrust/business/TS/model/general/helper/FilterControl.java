@@ -9,7 +9,7 @@ package lu.itrust.business.TS.model.general.helper;
  */
 public class FilterControl extends TrickFilter {
 
-	private static final String REG_SORT = "identifier|label|size|version|created|exportTime";
+	private static final String REG_SORT = "identifier|label|size|version|created";
 
 	private String sort = "identifier";
 

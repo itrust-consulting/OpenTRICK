@@ -40,7 +40,7 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -217,7 +217,7 @@ public class WorkerExportAnalysis implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null));
 				return;
 			}
-			UserSQLite userSqLite = new UserSQLite(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), sqlite.getName(), user,
+			UserSQLite userSqLite = new UserSQLite(user, analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), sqlite.getName(),
 					FileCopyUtils.copyToByteArray(sqlite), sqlite.length());
 			transaction = session.beginTransaction();
 			daoUserSqLite.saveOrUpdate(userSqLite);

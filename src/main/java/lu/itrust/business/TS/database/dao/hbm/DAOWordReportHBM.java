@@ -10,7 +10,7 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOWordReport;
-import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 

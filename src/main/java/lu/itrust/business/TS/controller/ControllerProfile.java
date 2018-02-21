@@ -70,8 +70,8 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.ReportType;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.general.UserSQLite;
-import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
+import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.model.general.helper.InvitationFilter;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
@@ -281,14 +281,14 @@ public class ControllerProfile {
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
 		// client side the sqlite file)
-		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
+		FileCopyUtils.copy(userSqLite.getFile(), response.getOutputStream());
 
 		/**
 		 * Log
 		 */
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.data.download",
-				String.format("Analysis: %s, version: %s, exported at: %s, type: data", userSqLite.getIdentifier(), userSqLite.getVersion(), userSqLite.getExportTime()),
-				principal.getName(), LogAction.DOWNLOAD, userSqLite.getIdentifier(), userSqLite.getVersion(), String.valueOf(userSqLite.getExportTime()));
+				String.format("Analysis: %s, version: %s, exported at: %s, type: data", userSqLite.getIdentifier(), userSqLite.getVersion(), userSqLite.getCreated()),
+				principal.getName(), LogAction.DOWNLOAD, userSqLite.getIdentifier(), userSqLite.getVersion(), String.valueOf(userSqLite.getCreated()));
 		// return
 		return null;
 	}

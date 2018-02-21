@@ -46,7 +46,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.usermanagement.User;
 

@@ -50,7 +50,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;

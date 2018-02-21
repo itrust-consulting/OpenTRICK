@@ -174,11 +174,11 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.general.WordReport" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+	<cache name="lu.itrust.business.TS.model.general.document.impl.WordReport" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<cache name="lu.itrust.business.TS.model.general.UserSQLite" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+	<cache name="lu.itrust.business.TS.model.general.document.impl.UserSQLite" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 

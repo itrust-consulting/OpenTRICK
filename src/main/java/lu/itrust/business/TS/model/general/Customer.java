@@ -1,17 +1,24 @@
 package lu.itrust.business.TS.model.general;
 
+import java.util.List;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 
 /**
  * Customer: <br>
@@ -72,6 +79,12 @@ public class Customer {
 
 	@Column(name = "dtCanBeUsed", nullable = false)
 	private boolean canBeUsed = true;
+	
+	@OneToMany
+	@Cascade(CascadeType.ALL)
+	@JoinColumn(name="fiCustomer")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private List<ReportTemplate> templates;
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -306,6 +319,22 @@ public class Customer {
 	public void setCanBeUsed(boolean canBeUsed) {
 		this.canBeUsed = canBeUsed;
 	}
+	
+	/**
+	 * Word Template
+	 * @return templates
+	 */
+	public List<ReportTemplate> getTemplates() {
+		return templates;
+	}
+
+	/**
+	 * Update word templates
+	 * @param templates
+	 */
+	public void setTemplates(List<ReportTemplate> templates) {
+		this.templates = templates;
+	}
 
 	/**
 	 * hashCode:<br>
@@ -361,4 +390,6 @@ public class Customer {
 		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country + ", contactPerson="
 			+ contactPerson + ", telephoneNumber=" + phoneNumber + ", email=" + email + "]";
 	}
+
+	
 }

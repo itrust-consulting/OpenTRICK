@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -114,7 +114,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#save(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#save(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -129,7 +129,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param userSqLite
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -145,7 +145,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#merge(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#merge(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -190,7 +190,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param userSqLite
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(lu.itrust.business.TS.model.general.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(lu.itrust.business.TS.model.general.document.impl.UserSQLite)
 	 */
 	@Transactional
 	@Override
