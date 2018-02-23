@@ -1,0 +1,44 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<div id="section_manage_customer_template" class="tab-pane active" style="height: 400px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+	<ul id="menu_manage_customer_template" class="nav nav-pills bordered-bottom">
+		<li><a href="#form_customer_template" data-toggle="tab" role='add'><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
+		<li data-trick-selectable="true" data-trick-check="isDefaultCustomTemplate('#section_manage_customer_template')" class="disabled"><a href="#form_customer_template" data-toggle="tab"
+			role='edit'><span class="glyphicon glyphicon-edit primary"></span> <spring:message code="label.action.edit" /></a></li>
+		<li data-trick-selectable="multi" class="disabled pull-right"><a role="delete" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<spring:message
+					code="label.action.remove" /></a></li>
+	</ul>
+	<table class="table table-hover" id="table_current_standard">
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th><spring:message code='label.name'/></th>
+				<th><spring:message code='label.type'/></th>
+				<th><spring:message code='label.version'/></th>
+				<th><spring:message code='label.language'/></th>
+				<th><spring:message code='label.file.name'/></th>
+				<th><spring:message code='label.date.created'/></th>
+				<th><spring:message code="label.file.size" text="Size" /></th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${reportTemplates}" var="template">
+				<tr ondblclick="return editReportTempalte(this);" onclick="selectElement(this)" data-trick-id="${template.id}">
+					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_customer_template','#menu_manage_customer_template');"></td>
+					<td data-trick-field='label'><spring:message text="${template.label}"/></td>
+					<td data-trick-field='type' data-trick-real-value='<spring:message text="${template.type}"/>' ><spring:message code='label.analysis.type.${fn:toLowerCase(template.type)}' text="${template.type}"/></td>
+					<td data-trick-field='version'><spring:message text="${template.version}"/></td>
+					<td data-trick-field='language' data-trick-real-value="${template.language.id}"><spring:message text="${template.language.name}"/></td>
+					<td data-trick-field='filename'><spring:message text="${template.filename}"/></td>
+					<td><fmt:formatDate value="${template.created}"/></td>
+					<td><fmt:formatNumber value="${template.size/(1024*1024)}" maxFractionDigits="2" /> <spring:message code="label.metric.megabit" text="Mb"/></td>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+</div>

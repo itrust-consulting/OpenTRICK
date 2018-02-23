@@ -53,7 +53,9 @@
 		resolveMessage("label.title.export.risk_register", "<spring:message code='label.title.export.risk_register' />");
 		resolveMessage("label.title.export.risk_sheet", "<spring:message code='label.title.export.risk_sheet' />");
 		application['language'] = "${locale.language=='en'? 'en' : 'fr'}";
+		application['isAdministration']=${isAdministration}
 		application['taskManager'] = new TaskManager().Start();
+		
 		-->
 	</script>
 </sec:authorize>

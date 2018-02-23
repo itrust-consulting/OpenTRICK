@@ -118,7 +118,7 @@ function manageStandard() {
 				async: false,
 				success: function (response, textStatus, jqXHR) {
 					if (response["error"] != undefined)
-						showError($(".modal-body", $standardModal)[0], response["error"]);
+						showDialog("error", response["error"]);
 					else {
 						var $forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
 						if (!$forms.length)

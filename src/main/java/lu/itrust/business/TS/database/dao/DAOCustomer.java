@@ -60,4 +60,6 @@ public interface DAOCustomer {
 
 	public List<User> findUserByCustomer(Customer customer);
 
+	public boolean hasAccess(String username, int customerId);
+
 }

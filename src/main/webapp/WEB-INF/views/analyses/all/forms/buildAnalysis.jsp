@@ -43,7 +43,7 @@
 								<select class="form-control" name="customer" required="required">
 									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 										<c:forEach items="${customers}" var="customer">
-											<option value="${customer.id}">${customer.organisation}</option>
+											<option value="${customer.id}"><spring:message text="${customer.organisation}"/></option>
 										</c:forEach>
 								</select>
 							</div>
@@ -55,7 +55,7 @@
 								<select name="language" class="form-control" required="required">
 									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 										<c:forEach items="${languages}" var="language">
-											<option value="${language.id}">${language.name}</option>
+											<option value="${language.id}"><spring:message text="${language.name}"/></option>
 										</c:forEach>
 								</select>
 							</div>

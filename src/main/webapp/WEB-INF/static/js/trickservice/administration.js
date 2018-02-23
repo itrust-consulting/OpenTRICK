@@ -640,3 +640,65 @@ function saveNotification(e){
 		$progress.hide();
 	});
 }
+
+
+function manageCustomerAccess(customerID) {
+	if (!isNotCustomerProfile())
+		return false;
+	if (customerID == null || customerID == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_customer");
+		if (selectedScenario.length != 1)
+			return false;
+		customerID = selectedScenario[0];
+	}
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Admin/Customer/" + customerID + "/Manage-access",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			var $view = $(new DOMParser().parseFromString(response, "text/html")).find("#manageCustomerUserModel");
+			if ($view.length) {
+				$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
+				$("button[name='save']", $view).on("click" , e => updateCustomerAccess(e,$view,$progress,customerID));
+			} else
+				unknowError();
+			return false;
+		},
+		error: unknowError
+	}).complete(() => $progress.hide());
+	return false;
+}
+
+function isNotCustomerProfile() {
+	return $("#section_customer tbody>tr>td>input:checked").parent().parent().attr("data-trick-is-profile") === "false";
+}
+
+function updateCustomerAccess(e,$view,$progress,customerID) {
+	var data = {};
+	$view.find(".form-group[data-trick-id][data-default-value]").each(function () {
+		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+		if (newRight != oldRight)
+			data[$this.attr("data-trick-id")] = newRight;
+	});
+	if (Object.keys(data).length) {
+		$progress.show();
+		$.ajax({
+			url: context + "/Admin/Customer/" + customerID + "/Manage-access/Update",
+			type: "post",
+			data: JSON.stringify(data),
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				if (response.error != undefined)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success != undefined) 
+					showDialog("success", response.success);
+				 else
+					unknowError();
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
+	}
+}

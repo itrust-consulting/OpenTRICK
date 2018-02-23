@@ -10,7 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerBuilder;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.SwitchAnalysisOwnerHelper;
@@ -145,6 +148,9 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceMessageNotifier serviceMessageNotifier;
+	
+	@Autowired
+	private CustomerBuilder customerBuilder;
 
 	@Value("${app.settings.otp.enable}")
 	private boolean enabledOTP = true;
@@ -658,6 +664,139 @@ public class ControllerAdministration {
 				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
+	}
+	
+	/**
+	 * loadCustomerUsers: <br>
+	 * Description
+	 * 
+	 * @param customerID
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@RequestMapping("/Customer/{customerID}/Manage-access")
+	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
+		model.addAttribute("customer", serviceCustomer.get(customerID));
+		model.addAttribute("users", serviceUser.getAll());
+		model.addAttribute("customerUsers", serviceUser.getAllFromCustomer(customerID).stream().collect(Collectors.toMap(User::getLogin, user -> true)));
+		return "admin/customer/manage-access";
+	}
+
+	/**
+	 * updateCustomerUsers: <br>
+	 * Description
+	 * 
+	 * @param customerID
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@RequestMapping(value = "/Customer/{customerID}/Manage-access/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updateCustomerUsers(@RequestBody Map<Integer, Boolean> accesses, @PathVariable("customerID") int customerID, Model model, Principal principal,
+			Locale locale, RedirectAttributes redirectAttributes) throws Exception {
+		// create errors list
+		try {
+			Customer customer = serviceCustomer.get(customerID);
+			// create json parser
+			serviceUser.getAll(accesses.keySet()).forEach(user -> {
+				Boolean userhasaccess = accesses.get(user.getId());
+				if (userhasaccess) {
+					if (!user.containsCustomer(customer)) {
+						user.addCustomer(customer);
+						serviceUser.saveOrUpdate(user);
+						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
+								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
+								customer.getOrganisation(), user.getLogin());
+					}
+				} else
+					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
+			});
+			return JsonMessage.Success(messageSource.getMessage("label.customer.manage.users.success", null, "Customer users successfully updated!", locale));
+		} catch (Exception e) {
+			// return errors
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+	
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Customer/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
+		model.addAttribute("customers", serviceCustomer.getAll());
+		return "admin/customer/customers";
+	}
+	
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param value
+	 * @param locale
+	 * @return
+	 */
+	@RequestMapping(value = "Customer/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
+		Map<String, String> errors = new LinkedHashMap<>();
+		try {
+			Customer customer = new Customer();
+			if (!customerBuilder.buildCustomer(errors, customer, value, locale))
+				return errors;
+			User user = serviceUser.get(principal.getName());
+
+			if (customer.getId() < 1) {
+				if (customer.isCanBeUsed()) {
+					user.addCustomer(customer);
+					serviceUser.saveOrUpdate(user);
+				} else if (!serviceCustomer.profileExists())
+					serviceCustomer.save(customer);
+				else
+					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
+			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed()
+					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+				serviceCustomer.saveOrUpdate(customer);
+			else
+				errors.put("canBeUsed",
+						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+			/**
+			 * Log
+			 */
+			if (errors.isEmpty())
+				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
+						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
+		} catch (Exception e) {
+			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+		}
+		return errors;
+	}
+
+	/**
+	 * 
+	 * Delete single customer
+	 * 
+	 */
+	@RequestMapping(value = "Customer/{customerId}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
+		try {
+			customDelete.deleteCustomer(customerId, principal.getName());
+			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+		} catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
 	}
 
 	@GetMapping(value = "/Notification/ALL", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

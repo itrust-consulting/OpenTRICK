@@ -11,6 +11,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
+
 <div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;">
 	<div class="container">
 		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
@@ -68,6 +69,7 @@
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 						<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin" id='main_menu_admin'> <spring:message
 									code="label.administration" text="Admin" /></a></li>
+						<c:set var="isAdministration" value="${menu == 'Admin'}" scope="request"/>
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 						<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown" id='main_menu_runtime'><spring:message code="label.runtime" text="Runtime" /><span

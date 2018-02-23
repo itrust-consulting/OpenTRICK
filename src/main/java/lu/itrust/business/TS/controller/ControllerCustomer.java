@@ -6,16 +6,17 @@ import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,25 +24,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerBuilder;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.validator.CustomerValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerCustomer.java: <br>
@@ -60,7 +56,7 @@ public class ControllerCustomer {
 	private ServiceCustomer serviceCustomer;
 
 	@Autowired
-	private ServiceDataValidation serviceDataValidation;
+	private CustomerBuilder customerBuilder;
 
 	@Autowired
 	private CustomDelete customDelete;
@@ -70,6 +66,9 @@ public class ControllerCustomer {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	/**
 	 * 
@@ -80,64 +79,6 @@ public class ControllerCustomer {
 	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "knowledgebase/customer/customers";
-	}
-
-	/**
-	 * loadCustomerUsers: <br>
-	 * Description
-	 * 
-	 * @param customerID
-	 * @param model
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping("/{customerID}/Manage-access")
-	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
-		model.addAttribute("customer", serviceCustomer.get(customerID));
-		model.addAttribute("users", serviceUser.getAll());
-		model.addAttribute("customerUsers", serviceUser.getAllFromCustomer(customerID).stream().collect(Collectors.toMap(User::getLogin, user -> true)));
-		return "admin/customer/manage-access";
-	}
-
-	/**
-	 * updateCustomerUsers: <br>
-	 * Description
-	 * 
-	 * @param customerID
-	 * @param model
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/{customerID}/Manage-access/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateCustomerUsers(@RequestBody Map<Integer, Boolean> accesses, @PathVariable("customerID") int customerID, Model model, Principal principal,
-			Locale locale, RedirectAttributes redirectAttributes) throws Exception {
-		// create errors list
-		try {
-			Customer customer = serviceCustomer.get(customerID);
-			// create json parser
-			serviceUser.getAll(accesses.keySet()).forEach(user -> {
-				Boolean userhasaccess = accesses.get(user.getId());
-				if (userhasaccess) {
-					if (!user.containsCustomer(customer)) {
-						user.addCustomer(customer);
-						serviceUser.saveOrUpdate(user);
-						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
-								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
-								customer.getOrganisation(), user.getLogin());
-					}
-				} else
-					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
-			});
-			return JsonMessage.Success(messageSource.getMessage("label.customer.manage.users.success", null, "Customer users successfully updated!", locale));
-		} catch (Exception e) {
-			// return errors
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-		}
 	}
 
 	/**
@@ -152,17 +93,8 @@ public class ControllerCustomer {
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
-		String referer = request.getHeader("Referer");
-		User user = serviceUser.get(principal.getName());
-		if (referer != null && referer.contains("/Admin")) {
-			if (user.isAutorised(RoleType.ROLE_ADMIN)) {
-				model.addAttribute("customers", serviceCustomer.getAll());
-				return "admin/customer/customers";
-			}
-		}
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "knowledgebase/customer/customers";
-
 	}
 
 	/**
@@ -170,14 +102,15 @@ public class ControllerCustomer {
 	 * Display single customer
 	 * 
 	 */
-	@RequestMapping("/{customerId}")
-	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
-			Locale locale) throws Exception {
+	// @RequestMapping("/{customerId}")
+	@Deprecated
+	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, Principal principal, HttpSession session, Map<String, Object> model,
+			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 		Customer customer = (Customer) session.getAttribute("customer");
 		if (customer == null || customer.getId() != customerId)
-			customer = serviceCustomer.get(customerId);
+			customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
 		if (customer == null) {
-			String msg = messageSource.getMessage("errors.customer.not_exist", null, "Customer does not exist", locale);
+			String msg = messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Customer/Display";
 		}
@@ -198,7 +131,7 @@ public class ControllerCustomer {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			Customer customer = new Customer();
-			if (!buildCustomer(errors, customer, value, locale))
+			if (!customerBuilder.buildCustomer(errors, customer, value, locale))
 				return errors;
 			User user = serviceUser.get(principal.getName());
 
@@ -234,9 +167,11 @@ public class ControllerCustomer {
 	 * Delete single customer
 	 * 
 	 */
-	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
+	@RequestMapping(value = "/{customerId}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, Locale locale) throws Exception {
 		try {
+			if (!serviceCustomer.hasAccess(principal.getName(), customerId))
+				throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 			customDelete.deleteCustomer(customerId, principal.getName());
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 		} catch (TrickException e) {
@@ -244,96 +179,16 @@ public class ControllerCustomer {
 		}
 	}
 
-	/**
-	 * buildCustomer: <br>
-	 * Description
-	 * 
-	 * @param errors
-	 * @param customer
-	 * @param source
-	 * @param locale
-	 * @return
-	 */
-	private boolean buildCustomer(Map<String, String> errors, Customer customer, String source, Locale locale) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			int id = jsonNode.get("id").asInt();
-			if (id > 0)
-				customer.setId(id);
-
-			ValidatorField validator = serviceDataValidation.findByClass(Customer.class);
-			if (validator == null)
-				serviceDataValidation.register(validator = new CustomerValidator());
-
-			String organisation = jsonNode.get("organisation").asText();
-			String contactPerson = jsonNode.get("contactPerson").asText();
-			String telephoneNumber = jsonNode.get("phoneNumber").asText();
-			String email = jsonNode.get("email").asText();
-			String address = jsonNode.get("address").asText();
-			String city = jsonNode.get("city").asText();
-			String ZIPCode = jsonNode.get("ZIPCode").asText();
-			String country = jsonNode.get("country").asText();
-			String error = null;
-
-			error = validator.validate(customer, "organisation", organisation);
-			if (error != null)
-				errors.put("organisation", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if (id > 0 && serviceCustomer.existsByIdAndOrganisation(id, organisation) || id < 1 && serviceCustomer.existsByOrganisation(organisation))
-				errors.put("organisation", messageSource.getMessage("error.customer.name.already.exists", new String[] { organisation },
-						String.format("A customer with this name '%s' already exists", organisation), locale));
-			else
-				customer.setOrganisation(organisation);
-
-			error = validator.validate(customer, "contactPerson", contactPerson);
-			if (error != null)
-				errors.put("contactPerson", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setContactPerson(contactPerson);
-
-			error = validator.validate(customer, "phoneNumber", telephoneNumber);
-			if (error != null)
-				errors.put("phoneNumber", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setPhoneNumber(telephoneNumber);
-
-			error = validator.validate(customer, "email", email);
-			if (error != null)
-				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setEmail(email);
-
-			error = validator.validate(customer, "address", address);
-			if (error != null)
-				errors.put("address", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setAddress(address);
-
-			error = validator.validate(customer, "city", city);
-			if (error != null)
-				errors.put("city", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setCity(city);
-
-			error = validator.validate(customer, "ZIPCode", ZIPCode);
-			if (error != null)
-				errors.put("ZIPCode", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setZIPCode(ZIPCode);
-
-			error = validator.validate(customer, "country", country);
-			if (error != null)
-				errors.put("country", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				customer.setCountry(country);
-
-			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
-		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
-		}
-
-		return errors.isEmpty();
-
+	@GetMapping(value = "/{customerId}/Manage/Report-template", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal, Locale locale) {
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
+		if (customer == null || !customer.isCanBeUsed())
+			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+		model.addAttribute("customer", customer);
+		model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
+		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
+		model.addAttribute("reportTemplates", customer.getTemplates());
+		return "knowledgebase/customer/form/report-template";
 	}
+
 }

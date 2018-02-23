@@ -52,7 +52,7 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 	else if (section == "section_chart")
 		reloadCharts();
 	else {
-		var $section = $("#" + section);
+		var sectionName = section.replace("section_admin","section"), $section = $("#" + sectionName);
 		if ($section.is(":visible")) {
 			var controller = findControllerBySection(section, subSection);
 			if (controller == null || controller == undefined)
@@ -63,12 +63,12 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
 					if (subSection !== undefined)
-						section += "_" + subSection;
-					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + section + "']", content);
+						sectionName += "_" + subSection;
+					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + sectionName + "']", content);
 					if ($newSection.length) {
-						var smartUpdate = new SectionSmartUpdate(section, $newSection,prepend);
+						var smartUpdate = new SectionSmartUpdate(sectionName, $newSection,prepend);
 						if (smartUpdate.Update()) {
-							$("#" + section).replaceWith($newSection);
+							$("#" + sectionName).replaceWith($newSection);
 							fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
 						}
 					} else {
@@ -106,6 +106,7 @@ function findControllerBySection(section, subSection) {
 		"section_profile_analysis": "/AnalysisProfile/Section",
 		"section_standard": "/Analysis/Standard/Section",
 		"section_customer": "/KnowledgeBase/Customer/Section",
+		"section_admin_customer": "/Admin/Customer/Section",
 		"section_language": "/KnowledgeBase/Language/Section",
 		"section_kb_standard": "/KnowledgeBase/Standard/Section",
 		"section_user": "/Admin/User/Section",

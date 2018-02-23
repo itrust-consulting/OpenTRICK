@@ -237,4 +237,9 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	public boolean existsByIdAndAltName(int id, String altName) {
 		return daoLanguage.existsByIdAndAltName(id, altName);
 	}
+
+	@Override
+	public List<Language> getByAlpha3(String... alpha3s) {
+		return daoLanguage.getByAlpha3(alpha3s);
+	}
 }

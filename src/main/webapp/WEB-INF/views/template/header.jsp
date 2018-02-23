@@ -39,4 +39,6 @@
 	var context = '${pageContext.request.contextPath}';
 	-->
 </script>
+<!-- It will be updated in menu -->
+<c:set var="isAdministration" value="${false}" scope="request"/>
 </head>

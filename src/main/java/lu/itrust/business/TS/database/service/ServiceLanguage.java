@@ -24,6 +24,8 @@ public interface ServiceLanguage {
 	public Language getFromAnalysis(Integer idAnalysis);
 
 	public Language getByAlpha3(String alpha3);
+	
+	public List<Language> getByAlpha3(String... alpha3s);
 
 	public Language getByName(String name);
 

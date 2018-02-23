@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -41,7 +42,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#get(int)
 	 */
 	@Override
-	public Language get(Integer id)  {
+	public Language get(Integer id) {
 		return (Language) getSession().get(Language.class, id);
 	}
 
@@ -52,7 +53,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#languageExistsByAlpha3(java.lang.String)
 	 */
 	@Override
-	public boolean existsByAlpha3(String alpha3)  {
+	public boolean existsByAlpha3(String alpha3) {
 		return (boolean) getSession().createQuery("select count(*) > 0 From Language where alpha3 = :alpha3").setParameter("alpha3", alpha3.toUpperCase()).getSingleResult();
 	}
 
@@ -63,7 +64,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#languageExistsByName(java.lang.String)
 	 */
 	@Override
-	public boolean existsByName(String name)  {
+	public boolean existsByName(String name) {
 		return (boolean) getSession().createQuery("select count(*) > 0 From Language where name = :name").setParameter("name", name).getSingleResult();
 	}
 
@@ -74,7 +75,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#languageExistsByAltName(java.lang.String)
 	 */
 	@Override
-	public boolean existsByAltName(String altName)  {
+	public boolean existsByAltName(String altName) {
 		return (boolean) getSession().createQuery("select count(*)>0 From Language where altName = :altName").setParameter("altName", altName).getSingleResult();
 	}
 
@@ -86,7 +87,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Language getFromAnalysis(Integer idAnalysis)  {
+	public Language getFromAnalysis(Integer idAnalysis) {
 		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
 				.uniqueResultOptional().orElse(null);
 	}
@@ -99,7 +100,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Language getByAlpha3(String alpha3)  {
+	public Language getByAlpha3(String alpha3) {
 		return (Language) getSession().createQuery("From Language where alpha3 = :alpha3").setParameter("alpha3", alpha3.toUpperCase()).uniqueResultOptional().orElse(null);
 	}
 
@@ -111,7 +112,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Language getByName(String name)  {
+	public Language getByName(String name) {
 		return (Language) getSession().createQuery("From Language where name = :name").setParameter("name", name).uniqueResultOptional().orElse(null);
 	}
 
@@ -123,7 +124,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Language getByAltName(String alternativeName)  {
+	public Language getByAltName(String alternativeName) {
 		return (Language) getSession().createQuery("From Language where altName = :altName").setParameter("altName", alternativeName).uniqueResultOptional().orElse(null);
 	}
 
@@ -135,7 +136,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Language> getAll()  {
+	public List<Language> getAll() {
 		return (List<Language>) getSession().createQuery("From Language").getResultList();
 	}
 
@@ -146,7 +147,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#save(lu.itrust.business.TS.model.general.Language)
 	 */
 	@Override
-	public void save(Language language)  {
+	public void save(Language language) {
 		language.setAlpha3(language.getAlpha3().toUpperCase());
 		getSession().save(language);
 	}
@@ -158,7 +159,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#saveOrUpdate(lu.itrust.business.TS.model.general.Language)
 	 */
 	@Override
-	public void saveOrUpdate(Language language)  {
+	public void saveOrUpdate(Language language) {
 		language.setAlpha3(language.getAlpha3().toUpperCase());
 		getSession().saveOrUpdate(language);
 	}
@@ -170,7 +171,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#delete(java.lang.Integer)
 	 */
 	@Override
-	public void delete(Integer languageId)  {
+	public void delete(Integer languageId) {
 		getSession().createQuery("delete from Language where id = :languageId").setParameter("languageId", languageId).executeUpdate();
 	}
 
@@ -181,7 +182,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#delete(lu.itrust.business.TS.model.general.Language)
 	 */
 	@Override
-	public void delete(Language language)  {
+	public void delete(Language language) {
 		getSession().delete(language);
 	}
 
@@ -206,5 +207,13 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	public boolean existsByIdAndAltName(int id, String altName) {
 		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and altName = :altName").setParameter("id", id)
 				.setParameter("altName", String.valueOf(altName).toUpperCase()).getSingleResult();
+	}
+
+	@Override
+	public List<Language> getByAlpha3(String... alpha3s) {
+		for (int i = 0; i < alpha3s.length; i++)
+			alpha3s[i] = alpha3s[i].toUpperCase();
+		return alpha3s.length == 0 ? Collections.emptyList()
+				: getSession().createQuery("From Language where alpha3 in :alpha3s", Language.class).setParameterList("alpha3s", alpha3s).list();
 	}
 }

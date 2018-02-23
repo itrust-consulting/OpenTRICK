@@ -20,11 +20,19 @@ function initUserCustomerList() {
 	});
 }
 
+function loadTargetContext() {
+	return context + (application['isAdministration'] ? "/Admin" : "/KnowledgeBase");
+}
+
+function getCustomerSection() {
+	return application['isAdministration'] ? "section_admin_customer" : "section_customer";
+}
+
 function saveCustomer(form) {
 	var $progress = $("#loading-indicator").show();
 	$("#addCustomerModel .label-danger").remove();
 	$.ajax({
-		url: context + "/KnowledgeBase/Customer/Save",
+		url: loadTargetContext() + "/Customer/Save",
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
@@ -70,7 +78,7 @@ function saveCustomer(form) {
 			}
 			if (!hasError) {
 				$("#addCustomerModel").modal("hide");
-				reloadSection("section_customer");
+				reloadSection(getCustomerSection());
 			}
 			return false;
 
@@ -96,7 +104,7 @@ function deleteCustomer(customerId, organisation) {
 		$("#deleteCustomerModel").modal('hide');
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url: context + "/KnowledgeBase/Customer/Delete/" + customerId,
+			url: loadTargetContext() + "/Customer/" + customerId + "/Delete",
 			type: "POST",
 			async: false,
 			contentType: "application/json;charset=UTF-8",
@@ -107,7 +115,7 @@ function deleteCustomer(customerId, organisation) {
 					else
 						showDialog("#alert-dialog", response["error"]);
 				} else
-					reloadSection("section_customer");
+					reloadSection(getCustomerSection());
 				return false;
 			},
 			error: unknowError
@@ -136,7 +144,7 @@ function newCustomer() {
 		$("#customer_canBeUsed").prop("checked", false);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Add", "Add a new Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.save", "Save"));
-	$("#customer_form").prop("action", "Customer/Create");
+	$("#customer_form").prop("action", loadTargetContext() + "/Customer/Save");
 	$("#addCustomerModel").modal('show');
 	return false;
 }
@@ -159,68 +167,126 @@ function editSingleCustomer(customerId) {
 	$("#customer_id").prop("value", customerId);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.save", "Save"));
-	$("#customer_form").prop("action", "Customer/Edit/" + customerId);
+	$("#customer_form").prop("action", loadTargetContext() + "/Customer/" + customerId + "/Edit");
 	$("#addCustomerModel").modal('show');
 	return false;
 }
 
-function manageCustomerAccess(customerID) {
-	if (!isNotCustomerProfile())
-		return false;
-	if (customerID == null || customerID == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_customer");
+
+function editManageCustomer(customerId) {
+	if (customerId == null || customerId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_customer"));
 		if (selectedScenario.length != 1)
 			return false;
-		customerID = selectedScenario[0];
+		customerId = selectedScenario[0];
 	}
+
+	if (customerId == null || customerId == undefined)
+		return false;
+
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: context + "/KnowledgeBase/Customer/" + customerID + "/Manage-access",
-		type: "get",
+		url: loadTargetContext() + "/Customer/" + customerId + "/Manage/Report-template",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $view = $(new DOMParser().parseFromString(response, "text/html")).find("#manageCustomerUserModel");
-			if ($view.length) {
-				$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
-				$("button[name='save']", $view).on("click" , e => updateCustomerAccess(e,$view,$progress,customerID));
-			} else
+			var $modal = $("#reportTemplateModal", new DOMParser().parseFromString(response, "text/html"));
+			if ($modal.length) {
+				
+				var $tabs = $modal.find("#menu_manage_customer_template a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer button[name='cancel']"), $backBtn = $modal
+					.find(".modal-footer a.btn"), $saveBtn = $modal.find(".modal-footer button[name='save']"), $btnSubmit =  $("button[name='submit']", $modal);
+				
+				var $file =  $("input[type='file']", $modal), $fileInfo = $("input[name='filename']", $modal), $browse = $("button[name='browse']", $modal);
+				
+				$browse.on("click", (e) => $file.trigger("click"));
+				
+				$file.on("change", (e) => {
+					var value = $file.val();
+					if(value.trim() === '')
+						$saveBtn.prop("disabled", $file.is(":required"));
+					else checkExtention(value,".docx", $saveBtn);
+					$fileInfo.val(value);
+				});
+			
+				$saveBtn.on("click", (e) => $btnSubmit.trigger("click"));
+
+				$("#reportTemplate-form",$modal).on("submit", saveReportTemplate);
+				
+				$tabs.on('shown.bs.tab', function () {
+					$(this).parent().removeClass("active");
+					$saveBtn.show();
+					$backBtn.show();
+					$cancelBtn.hide();
+				});
+				
+				$("#menu_manage_customer_template a[role]",$modal).each(function () {
+					switch (this.getAttribute("role")) {
+						case "edit":
+							$(this).on('show.bs.tab', editReportTemplate);
+							break;
+						case "add":
+							$(this).on('show.bs.tab', addReportTemplate);
+							break;
+						case "delete":
+							$(this).on('click', deleteReportTemplate);
+							break;
+					}
+				});
+
+				$backBtn.on('click', function () {
+					$saveBtn.hide();
+					$backBtn.hide();
+					$cancelBtn.show();
+					$modal.find(".label-danger,.alert-danger").remove();
+				});
+
+
+				$modal.appendTo("#widget").modal("show").on("hidden.bs.modal", e => $modal.remove());
+			} else if (response["error"])
+				showDialog("#alert-dialog", response['error']);
+			else
 				unknowError();
-			return false;
 		},
 		error: unknowError
 	}).complete(() => $progress.hide());
 	return false;
 }
 
-function isNotCustomerProfile() {
-	return $("#section_customer tbody>tr>td>input:checked").parent().parent().attr("data-trick-is-profile") === "false";
+function saveReportTemplate(e){
+	var $form = $("#reportTemplate-form", $(e.currentTarget).closest(".modal"));
+	return false;
 }
 
-function updateCustomerAccess(e,$view,$progress,customerID) {
-	var data = {};
-	$view.find(".form-group[data-trick-id][data-default-value]").each(function () {
-		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
-		if (newRight != oldRight)
-			data[$this.attr("data-trick-id")] = newRight;
-	});
-	if (Object.keys(data).length) {
-		$progress.show();
-		$.ajax({
-			url: context + "/KnowledgeBase/Customer/" + customerID + "/Manage-access/Update",
-			type: "post",
-			data: JSON.stringify(data),
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response.error != undefined)
-					showDialog("#alert-dialog", response.error);
-				else if (response.success != undefined) 
-					showDialog("success", response.success);
-				 else
-					unknowError();
-			},
-			error: unknowError
-		}).complete(function () {
-			$progress.hide();
-		});
-	}
+function editReportTemplate(e){
+	var $current = $(e.currentTarget);
+	if ($current.parent().hasClass("disabled"))
+		return false;
+	var $form = $("#reportTemplate-form", $current.closest(".modal"));
+	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-id>0] :checked").closest("tr");
+	if(!$tr.length)
+		return false;
+	var type = $("td[data-trick-field='type']",$tr).attr("data-trick-real-value"),
+	idLanguage = $("td[data-trick-field='language']", $tr).attr("data-trick-real-value");
+	$("select[name='language']",$form).val(idLanguage);
+	$("input[name='id']", $form).val($tr.attr("data-trick-id"));
+	$("input[type='file']",$form).removeAttr("required").trigger("reset").trigger("change");
+	$("input[name='version']",$form).val($("td[data-trick-field='version']", $tr).text());
+	$("textarea[name='label']"),$form.val($("td[data-trick-field='label']", $tr).text());
+	$("input[name='type'][value='"+type+"']", $form).closest(".btn").trigger("click");
+	return true;
+}
+
+function addReportTemplate(e){
+	var $current = $(e.currentTarget);
+	if ($current.parent().hasClass("disabled"))
+		return false;
+	var $form = $("#reportTemplate-form", $current.closest(".modal")).trigger("reset");
+	$("input[name='type'][value='QUANTITATIVE']", $form).closest(".btn").trigger("click");
+	$("input[type='file']",$form).attr("required","required").trigger("change");
+	$("input[name='id']", $form).val("-1");
+}
+function deleteReportTemplate(e){
+	var $current = $(e.currentTarget);
+	if ($current.parent().hasClass("disabled"))
+		return false;
+	
 }

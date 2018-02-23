@@ -281,4 +281,9 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	public List<User> findUserByCustomer(Customer customer) {
 		return daoCustomer.findUserByCustomer(customer);
 	}
+
+	@Override
+	public boolean hasAccess(String username, int customerId) {
+		return daoCustomer.hasAccess(username, customerId);
+	}
 }

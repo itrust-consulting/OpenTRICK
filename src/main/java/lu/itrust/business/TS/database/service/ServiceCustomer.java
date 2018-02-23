@@ -57,4 +57,6 @@ public interface ServiceCustomer {
 	public boolean hasAccess(Integer idUser, Customer customer);
 
 	public List<User> findUserByCustomer(Customer customer);
+
+	public boolean hasAccess(String username, int customerId);
 }
