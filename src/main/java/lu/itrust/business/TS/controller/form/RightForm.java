@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.analysis.helper;
+package lu.itrust.business.TS.controller.form;
 
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 

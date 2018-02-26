@@ -45,8 +45,8 @@
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 							</c:if>
 							<td data-trick-field='number'><spring:message text="${phase.number}" /></td>
-							<td data-trick-field="beginDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><fmt:formatDate value="${phase.beginDate}" pattern="YYYY-MM-dd" /></td>
-							<td data-trick-field="endDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><fmt:formatDate value="${phase.endDate}" pattern="YYYY-MM-dd" /></td>
+							<td data-trick-field="beginDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><fmt:formatDate value="${phase.beginDate}" pattern="yyyy-MM-dd" /></td>
+							<td data-trick-field="endDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><fmt:formatDate value="${phase.endDate}" pattern="yyyy-MM-dd" /></td>
 						</tr>
 						<c:set var="previousEndDate" value="${phase.endDate}" />
 					</c:if>

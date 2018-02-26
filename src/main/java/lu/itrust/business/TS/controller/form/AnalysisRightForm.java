@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.analysis.helper;
+package lu.itrust.business.TS.controller.form;
 
 import java.util.Collections;
 import java.util.Map;

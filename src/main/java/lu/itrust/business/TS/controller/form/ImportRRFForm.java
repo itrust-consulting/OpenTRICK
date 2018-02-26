@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.rrf;
+package lu.itrust.business.TS.controller.form;
 
 import java.util.List;
 

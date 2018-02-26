@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.controller.form.ImportRRFForm;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
@@ -35,7 +36,6 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
-import lu.itrust.business.TS.model.rrf.ImportRRFForm;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.ticketing.helper;
+package lu.itrust.business.TS.controller.form;
 
 import java.util.LinkedList;
 import java.util.List;

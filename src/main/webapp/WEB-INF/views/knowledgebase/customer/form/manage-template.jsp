@@ -5,12 +5,12 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div id="section_manage_customer_template" class="tab-pane active" style="height: 400px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+<div id="section_manage_customer_template" class="tab-pane active" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
 	<ul id="menu_manage_customer_template" class="nav nav-pills bordered-bottom">
 		<li><a href="#form_customer_template" data-toggle="tab" role='add'><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
-		<li data-trick-selectable="true" data-trick-check="isDefaultCustomTemplate('#section_manage_customer_template')" class="disabled"><a href="#form_customer_template" data-toggle="tab"
+		<li data-trick-selectable="true" data-trick-check="!isDefaultCustomTemplate('#section_manage_customer_template')" class="disabled"><a href="#form_customer_template" data-toggle="tab"
 			role='edit'><span class="glyphicon glyphicon-edit primary"></span> <spring:message code="label.action.edit" /></a></li>
-		<li data-trick-selectable="multi" class="disabled pull-right"><a role="delete" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<spring:message
+		<li data-trick-selectable="multi" class="disabled pull-right" data-trick-check="!isDefaultCustomTemplate('#section_manage_customer_template')" ><a role="delete" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<spring:message
 					code="label.action.remove" /></a></li>
 	</ul>
 	<table class="table table-hover" id="table_current_standard">

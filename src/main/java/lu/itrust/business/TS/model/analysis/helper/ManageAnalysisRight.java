@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.controller.form.AnalysisRightForm;
+import lu.itrust.business.TS.controller.form.RightForm;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisShareInvitation;
 import lu.itrust.business.TS.database.dao.DAOUser;

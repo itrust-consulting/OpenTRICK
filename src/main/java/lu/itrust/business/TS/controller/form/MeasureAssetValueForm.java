@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.standard.measure.helper;
+package lu.itrust.business.TS.controller.form;
 
 import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
 

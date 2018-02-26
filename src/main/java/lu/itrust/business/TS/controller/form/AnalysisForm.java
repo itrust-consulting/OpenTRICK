@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.analysis.helper;
+package lu.itrust.business.TS.controller.form;
 
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisStandardBaseInfo;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.scale.Scale;
 

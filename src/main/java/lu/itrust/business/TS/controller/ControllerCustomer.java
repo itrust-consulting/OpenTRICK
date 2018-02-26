@@ -2,7 +2,10 @@ package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -16,8 +19,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,14 +35,17 @@ import lu.itrust.business.TS.component.CustomerBuilder;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.controller.form.ReportTemplateForm;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceReportTemplate;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -66,9 +75,12 @@ public class ControllerCustomer {
 
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
+
+	@Autowired
+	private ServiceReportTemplate serviceReportTemplate;
 
 	/**
 	 * 
@@ -179,7 +191,7 @@ public class ControllerCustomer {
 		}
 	}
 
-	@GetMapping(value = "/{customerId}/Manage/Report-template", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/{customerId}/Report-template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal, Locale locale) {
 		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
 		if (customer == null || !customer.isCanBeUsed())
@@ -189,6 +201,89 @@ public class ControllerCustomer {
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
 		model.addAttribute("reportTemplates", customer.getTemplates());
 		return "knowledgebase/customer/form/report-template";
+	}
+
+	@PostMapping(value = "/{customerId}/Report-template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object reportTemplateSave(@PathVariable("customerId") int customerId, @ModelAttribute ReportTemplateForm templateForm, Model model, Principal principal,
+			Locale locale) {
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
+		if (customer == null || !customer.isCanBeUsed())
+			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+		ReportTemplate template = templateForm.getId() > 0 ? serviceReportTemplate.findByIdAndCustomer(templateForm.getId(), customerId) : new ReportTemplate();
+		if (template == null)
+			return JsonMessage.Error(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+
+		Map<String, Object> result = new LinkedHashMap<>();
+
+		template.setVersion(templateForm.getVersion());
+
+		if (!templateForm.getFile().isEmpty()) {
+			try {
+				template.setFilename(templateForm.getFile().getOriginalFilename());
+				template.setFile(templateForm.getFile().getBytes());
+				template.setSize(templateForm.getFile().getSize());
+			} catch (IOException e) {
+				result.put("file", messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
+			}
+		}
+
+		if (template.getFile() == null || template.getFile().length == 0)
+			result.put("file", messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
+
+		if (StringUtils.isEmpty(templateForm.getLabel()))
+			result.put("label", messageSource.getMessage("error.report.template.label.empty", null, "Title cannot be empty", locale));
+		else {
+			try {
+				templateForm.setLabel(templateForm.getLabel().trim());
+				if (templateForm.getLabel().length() == 0)
+					result.put("label", messageSource.getMessage("error.report.template.label.empty", null, "Title cannot be empty", locale));
+				else if (templateForm.getLabel().getBytes("UTF-8").length > 256)
+					result.put("label", messageSource.getMessage("error.report.template.label.too.long", null, "Title is to long.", locale));
+				else
+					template.setLabel(templateForm.getLabel());
+			} catch (UnsupportedEncodingException e) {
+				result.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			}
+		}
+
+		if (StringUtils.isEmpty(templateForm.getVersion()))
+			result.put("version", messageSource.getMessage("error.report.template.version.empty", null, "Version cannot be empty", locale));
+		else {
+			try {
+				templateForm.setVersion(templateForm.getVersion().trim());
+				if (templateForm.getVersion().length() == 0)
+					result.put("version", messageSource.getMessage("error.report.template.version.empty", null, "Version cannot be empty", locale));
+				else if (templateForm.getVersion().getBytes("UTF-8").length > 256)
+					result.put("version", messageSource.getMessage("error.report.template.version.too.long", null, "Version is to long", locale));
+				else
+					template.setVersion(templateForm.getVersion());
+			} catch (UnsupportedEncodingException e) {
+				result.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			}
+		}
+
+		if (templateForm.getType() == AnalysisType.QUALITATIVE || templateForm.getType() == AnalysisType.QUANTITATIVE)
+			template.setType(templateForm.getType());
+		else
+			result.put("type", messageSource.getMessage("error.report.template.type", null, "Type cannot only be quantitative or qualitative", locale));
+
+		template.setLanguage(serviceLanguage.get(templateForm.getLanguage()));
+
+		if (template.getLanguage() == null)
+			result.put("language", messageSource.getMessage("error.language.not.found", null, "Lnaguage cannot be found", locale));
+
+		if (result.isEmpty()) {
+
+			if (template.getId() < 1) {
+				customer.getTemplates().add(template);
+				template.setCreated(new Timestamp(System.currentTimeMillis()));
+			}
+			serviceCustomer.saveOrUpdate(customer);
+			return templateForm.getId() > 0 ? JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale))
+					: JsonMessage.Success(messageSource.getMessage("success.report.template.save", null, locale));
+		}
+
+		return result;
 	}
 
 }

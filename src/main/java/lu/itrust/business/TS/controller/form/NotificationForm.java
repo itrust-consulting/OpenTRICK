@@ -1,7 +1,9 @@
-package lu.itrust.business.TS.model.general.helper;
+package lu.itrust.business.TS.controller.form;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import lu.itrust.business.TS.model.general.helper.Notification;
 
 public class NotificationForm {
 	

@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.ticketing.helper;
+package lu.itrust.business.TS.controller.form;
 
 public class LinkForm {
 	

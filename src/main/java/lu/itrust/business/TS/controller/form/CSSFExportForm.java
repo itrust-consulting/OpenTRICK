@@ -1,8 +1,9 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.cssf.helper;
+package lu.itrust.business.TS.controller.form;
 
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
 
 /**

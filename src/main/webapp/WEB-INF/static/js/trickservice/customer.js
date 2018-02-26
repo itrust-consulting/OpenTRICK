@@ -186,14 +186,14 @@ function editManageCustomer(customerId) {
 
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: loadTargetContext() + "/Customer/" + customerId + "/Manage/Report-template",
+		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Manage",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			var $modal = $("#reportTemplateModal", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				
 				var $tabs = $modal.find("#menu_manage_customer_template a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer button[name='cancel']"), $backBtn = $modal
-					.find(".modal-footer a.btn"), $saveBtn = $modal.find(".modal-footer button[name='save']"), $btnSubmit =  $("button[name='submit']", $modal);
+					.find(".modal-footer a[role='back'].btn"), $saveBtn = $modal.find(".modal-footer button[name='save']"), $btnSubmit =  $("button[name='submit']", $modal);
 				
 				var $file =  $("input[type='file']", $modal), $fileInfo = $("input[name='filename']", $modal), $browse = $("button[name='browse']", $modal);
 				
@@ -251,9 +251,68 @@ function editManageCustomer(customerId) {
 	return false;
 }
 
-function saveReportTemplate(e){
-	var $form = $("#reportTemplate-form", $(e.currentTarget).closest(".modal"));
+function reloadReportTemplateTable(customerId,$modal) {
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Manage",
+		type: "get",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_customer_template table.table");
+			if ($table.length) {
+				$("#section_manage_customer_template table.table", $modal).replaceWith($table);
+				updateMenu(undefined, '#section_manage_customer_template', '#menu_manage_customer_template');
+				$("a[role='back']",$modal).trigger("click");
+			} else
+				unknowError();
+		},
+		error: unknowError
+	}).complete(function () {
+		$progress.hide();
+	});
 	return false;
+}
+
+function saveReportTemplate(e){
+	var $modal = $(e.currentTarget).closest(".modal"), $form = $("#reportTemplate-form", $modal),$progress = $("#loading-indicator").show(), customerId = $("input[name='customer']",$form).val();
+	$.ajax({
+		url: loadTargetContext() + "/Customer/"+customerId+"/Report-template/Save" ,
+		type: 'POST',
+		data: new FormData($form[0]),
+		cache: false,
+		contentType: false,
+		processData: false,
+		success: function (response, textStatus, jqXHR) {
+			if (response.success){
+				showDialog("success", response.success);
+				reloadReportTemplateTable(customerId,$modal);
+			}
+			else if (response.error)
+				showDialog("#alert-dialog", response.error);
+			else if(typeof response == 'object'){
+				
+				for (var field in response) {
+					var message = response[field];
+					
+					if(field ==="customer")
+						showDialog("#alert-dialog", message);
+					else
+						$("<label class='label label-danger'/>").text(message).appendTo($("div[data-trick-info='"+field+"']", $modal));
+				}
+				
+			}else
+				showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
+		},
+		error: unknowError
+
+	}).complete(function () {
+		$progress.hide();
+	});
+	return false;
+}
+
+function isDefaultCustomTemplate(){
+	return $("#section_manage_customer_template tbody>tr[data-trick-id='-1'] :checked").length
 }
 
 function editReportTemplate(e){
@@ -261,7 +320,7 @@ function editReportTemplate(e){
 	if ($current.parent().hasClass("disabled"))
 		return false;
 	var $form = $("#reportTemplate-form", $current.closest(".modal"));
-	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-id>0] :checked").closest("tr");
+	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-id!='-1'] input:checked").closest("tr");
 	if(!$tr.length)
 		return false;
 	var type = $("td[data-trick-field='type']",$tr).attr("data-trick-real-value"),

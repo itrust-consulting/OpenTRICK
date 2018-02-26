@@ -189,7 +189,7 @@ public class ControllerPhase {
 
 				if (phase.getId() == -1) {
 
-					//phase.setAnalysis(analysis);
+					phase.setAnalysis(analysis);
 
 					phase.setNumber(analysis.getPhases().size() + 1);
 
