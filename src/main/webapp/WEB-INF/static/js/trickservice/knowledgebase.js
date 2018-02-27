@@ -9,6 +9,8 @@ $(document).ready(function () {
 	});
 	
 	setTimeout(() => fixTableHeader("#tab-container table"), 300);
+	
+	application["reportTemplateDownloadItemLimit"] = 10;
 });
 
 function editSingleAnalysis(analysisId) {

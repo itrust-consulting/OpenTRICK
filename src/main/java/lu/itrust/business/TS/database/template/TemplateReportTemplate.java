@@ -13,4 +13,6 @@ public interface TemplateReportTemplate extends TemplateDAOService<ReportTemplat
 	List<ReportTemplate> findByCustomer(int customerId);
 	
 	List<ReportTemplate> findByCustomerAndType(int customerId, AnalysisType type);
+	
+	List<ReportTemplate> findDefault();
 }

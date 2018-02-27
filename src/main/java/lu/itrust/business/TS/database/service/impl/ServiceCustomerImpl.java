@@ -286,4 +286,9 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	public boolean hasAccess(String username, int customerId) {
 		return daoCustomer.hasAccess(username, customerId);
 	}
+
+	@Override
+	public Customer findByReportTemplateId(Long reportTemplateId) {
+		return daoCustomer.findByReportTemplateId(reportTemplateId);
+	}
 }

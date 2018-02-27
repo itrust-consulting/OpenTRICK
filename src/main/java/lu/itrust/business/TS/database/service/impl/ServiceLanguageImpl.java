@@ -242,4 +242,9 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	public List<Language> getByAlpha3(String... alpha3s) {
 		return daoLanguage.getByAlpha3(alpha3s);
 	}
+
+	@Override
+	public boolean existsByAlpha3(String... alpha3s) {
+		return daoLanguage.existsByAlpha3(alpha3s);
+	}
 }

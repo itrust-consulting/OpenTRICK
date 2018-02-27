@@ -48,4 +48,6 @@ public interface DAOLanguage {
 	public boolean existsByIdAndAltName(int id, String altName);
 
 	public List<Language> getByAlpha3(String... alpha3s);
+
+	public boolean existsByAlpha3(String... alpha3s);
 }

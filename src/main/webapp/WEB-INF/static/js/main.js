@@ -620,7 +620,7 @@ function MessageResolver(code, defaulttext, params) {
 	
 	if ($.isArray(params))
 		data.parameters = params;
-	else if (params && params.length)
+	else if ($.isNumeric(params) ||params && params.length)
 		data.parameters[0] = params;
 	else delete data.parameters;
 	

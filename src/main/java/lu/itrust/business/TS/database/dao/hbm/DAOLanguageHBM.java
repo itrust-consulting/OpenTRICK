@@ -216,4 +216,13 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 		return alpha3s.length == 0 ? Collections.emptyList()
 				: getSession().createQuery("From Language where alpha3 in :alpha3s", Language.class).setParameterList("alpha3s", alpha3s).list();
 	}
+
+	@Override
+	public boolean existsByAlpha3(String... alpha3s) {
+		for (int i = 0; i < alpha3s.length; i++)
+			alpha3s[i] = alpha3s[i].toUpperCase();
+		return alpha3s.length == 0 ? true
+				: getSession().createQuery("Select count(*) From Language where alpha3 in :alpha3s", Long.class).setParameterList("alpha3s", alpha3s)
+						.uniqueResult() == alpha3s.length;
+	}
 }

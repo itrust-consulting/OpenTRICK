@@ -23,15 +23,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
+import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.general.Language;
 
 /**
  * ControllerIntstallation.java: <br>
@@ -49,13 +48,7 @@ public class ControllerIntstallation {
 	private ServiceCustomer serviceCustomer;
 
 	@Autowired
-	private ServiceLanguage serviceLanguage;
-
-	@Autowired
 	private SessionFactory sessionFactory;
-
-	@Value("#{'${app.settings.default.languages}'.split(';')}")
-	private List<String> defaultLanguages;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -68,6 +61,9 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private TaskExecutor executor;
+	
+	@Autowired
+	private DefaultReportTemplateLoader defaultReportTemplateLoader;
 
 	@Value("${app.settings.version}")
 	private String version;
@@ -120,21 +116,7 @@ public class ControllerIntstallation {
 	 */
 	private Customer installProfileCustomer(Map<String, String> errors, Locale locale) {
 		try {
-			Customer customer = serviceCustomer.getProfile();
-			if (customer == null) {
-				customer = new Customer();
-				customer.setOrganisation("Profile");
-				customer.setContactPerson("Profile");
-				customer.setEmail("profile@trickservice.lu");
-				customer.setPhoneNumber("00000000");
-				customer.setAddress("Profile");
-				customer.setCity("Profile");
-				customer.setZIPCode("Profile");
-				customer.setCountry("Profile");
-				customer.setCanBeUsed(false);
-				serviceCustomer.save(customer);
-			}
-			return customer;
+			return defaultReportTemplateLoader.getDefaultCustomer();
 		} catch (TrickException e) {
 			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return null;
@@ -156,12 +138,9 @@ public class ControllerIntstallation {
 	 * @return
 	 */
 	private boolean installDefaultProfile(List<String> fileNames, Principal principal, Map<String, String> errors, Locale locale) {
-
 		try {
-
 			// customer
 			Customer customer = serviceCustomer.getProfile();
-
 			if (customer == null) {
 				customer = installProfileCustomer(errors, locale);
 				if (customer == null) {
@@ -170,8 +149,10 @@ public class ControllerIntstallation {
 					return false;
 				}
 			}
-
-			installDefaultLanguage();
+			
+			defaultReportTemplateLoader.loadLanguages();
+			
+			defaultReportTemplateLoader.load();
 
 			// owner
 			if (principal == null) {
@@ -196,14 +177,5 @@ public class ControllerIntstallation {
 			errors.put("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			return false;
 		}
-	}
-
-	private void installDefaultLanguage() {
-		defaultLanguages.forEach(value -> {
-			String[] values = value.split(",");
-			if (values.length == 3 && !serviceLanguage.existsByAlpha3(values[0])) {
-				serviceLanguage.saveOrUpdate(new Language(values[0], values[1], values[2]));
-			}
-		});
 	}
 }

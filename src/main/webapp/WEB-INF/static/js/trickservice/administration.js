@@ -370,7 +370,7 @@ function updateLogFilter(element) {
 }
 
 function loadSystemLog() {
-	var $progress = $("#progress-trickLog").show();
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Admin/Log/Section",
 		async : false,
@@ -394,7 +394,7 @@ function loadSystemLog() {
 function loadSystemLogScrolling() {
 	var currentSize = $("#section_log table>tbody>tr").length, size = parseInt($("#logFilterPageSize").val());
 	if (currentSize >= size && currentSize % size === 0) {
-		var $progress = $("#progress-trickLog").show();
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Admin/Log/Section",
 			async : false,
@@ -447,7 +447,7 @@ function updateSetting(idForm, sender) {
 }
 
 function loadNotification() {
-	var $progress = $("#progress-trickLog").show();
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Admin/Notification/ALL",
 		contentType : "application/json;charset=UTF-8",
@@ -509,7 +509,7 @@ function insertOrUpdateNotification(notification, $container){
 function clearNotification(e){
 	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.clear.notification", "Are you sure, you want to clear notification?"));
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
-		var $progress = $("#progress-trickLog").show();
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Admin/Notification/Clear",
 			type : "delete",
@@ -533,7 +533,7 @@ function clearNotification(e){
 function deleteNotification(id){
 	var $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.notification", "Are you sure, you want to delete this notification?"));
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
-		var $progress = $("#progress-trickLog").show();
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Admin/Notification/"+id+"/Delete",
 			type : "delete",
@@ -555,7 +555,7 @@ function deleteNotification(id){
 }
 
 function notificationForm(e, id){
-	var $progress = $("#progress-trickLog").show();
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + (id? "/Admin/Notification/"+id+"/Edit" :"/Admin/Notification/Add" ) ,
 		contentType : "application/json;charset=UTF-8",
@@ -595,7 +595,7 @@ function parseDate(date, time){
 }
 
 function saveNotification(e){
-	var $progress = $("#progress-trickLog").show(), $view = $("#modal-add-notification"), $form = $("form", $view), data = $form.serializeJSON(), keys = Object.keys(data);
+	var $progress = $("#loading-indicator").show(), $view = $("#modal-add-notification"), $form = $("form", $view), data = $form.serializeJSON(), keys = Object.keys(data);
 	
 	data["messages"]={};
 	

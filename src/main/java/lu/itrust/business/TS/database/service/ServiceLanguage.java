@@ -16,6 +16,8 @@ public interface ServiceLanguage {
 	public Language get(Integer id);
 
 	public boolean existsByAlpha3(String alpha3);
+	
+	public boolean existsByAlpha3(String... alpha3s);
 
 	public boolean existsByName(String name);
 
@@ -48,4 +50,6 @@ public interface ServiceLanguage {
 	public boolean existsByIdAndName(int id, String name);
 
 	public boolean existsByIdAndAltName(int id, String altName);
+	
+	
 }

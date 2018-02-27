@@ -62,4 +62,6 @@ public interface DAOCustomer {
 
 	public boolean hasAccess(String username, int customerId);
 
+	public Customer findByReportTemplateId(Long reportTemplateId);
+
 }

@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.general.document.impl;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -29,7 +31,7 @@ import lu.itrust.business.TS.model.general.document.AbstractDocument;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@AttributeOverride(name = "id", column = @Column(name = "idReportTemplate"))
+@AttributeOverrides({ @AttributeOverride(name = "id", column = @Column(name = "idReportTemplate")), @AttributeOverride(name = "filename", column = @Column(name = "dtFilename")) })
 public class ReportTemplate extends AbstractDocument {
 
 	@ManyToOne
@@ -40,6 +42,12 @@ public class ReportTemplate extends AbstractDocument {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", nullable = false)
 	private AnalysisType type;
+	
+	@Column(name = "dtEditable", nullable = false)
+	private boolean editable = true;
+	
+	@Transient
+	private boolean outToDate;
 
 	public ReportTemplate() {
 	}
@@ -66,6 +74,39 @@ public class ReportTemplate extends AbstractDocument {
 		if (type == null || type.isHybrid())
 			throw new TrickException("error.report.template.type", "Type cannot only be quantitative or qualitative");
 		this.type = type;
+	}
+
+	public String getKey() {
+		return String.format("%s-_-Report-#$#-TS-#&#-Template-_-%s", getType(), getLanguage().getAlpha3());
+	}
+
+	public void update(ReportTemplate template) {
+		setType(template.getType());
+		setLabel(template.getLabel());
+		setCreated(template.getCreated());
+		setVersion(template.getVersion());
+		setEditable(template.isEditable());
+		setLanguage(template.getLanguage());
+		if (template.getFile() != null) {
+			setFile(template.getFile());
+			setFilename(template.getFilename());
+		}
+	}
+
+	public boolean isEditable() {
+		return editable;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
+	public boolean isOutToDate() {
+		return outToDate;
+	}
+
+	public void setOutToDate(boolean outToDate) {
+		this.outToDate = outToDate;
 	}
 
 }

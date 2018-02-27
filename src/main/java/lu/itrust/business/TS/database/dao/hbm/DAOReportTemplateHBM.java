@@ -174,7 +174,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 */
 	@Override
 	public List<Long> save(List<ReportTemplate> entities) {
-		return entities.stream().map(e-> save(e)).collect(Collectors.toList());
+		return entities.stream().map(e -> save(e)).collect(Collectors.toList());
 	}
 
 	/*
@@ -196,7 +196,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 */
 	@Override
 	public void saveOrUpdate(List<ReportTemplate> entities) {
-		entities.forEach(e-> saveOrUpdate(e));
+		entities.forEach(e -> saveOrUpdate(e));
 	}
 
 	/*
@@ -209,6 +209,11 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	@Override
 	public void saveOrUpdate(ReportTemplate entity) {
 		getSession().saveOrUpdate(entity);
+	}
+
+	@Override
+	public List<ReportTemplate> findDefault() {
+		return getSession().createQuery("Select template From Customer customer inner join customer.templates as template where customer.canBeUsed = false", ReportTemplate.class).list();
 	}
 
 }

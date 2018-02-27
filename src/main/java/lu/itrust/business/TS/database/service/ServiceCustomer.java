@@ -59,4 +59,6 @@ public interface ServiceCustomer {
 	public List<User> findUserByCustomer(Customer customer);
 
 	public boolean hasAccess(String username, int customerId);
+
+	public Customer findByReportTemplateId(Long reportTemplateId);
 }

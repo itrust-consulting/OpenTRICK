@@ -175,7 +175,7 @@ function editSingleCustomer(customerId) {
 
 function editManageCustomer(customerId) {
 	if (customerId == null || customerId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		var selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
 			return false;
 		customerId = selectedScenario[0];
@@ -229,6 +229,9 @@ function editManageCustomer(customerId) {
 						case "delete":
 							$(this).on('click', deleteReportTemplate);
 							break;
+						case "download":
+							$(this).on('click', downloadReportTemplate);
+							break;
 					}
 				});
 
@@ -241,6 +244,10 @@ function editManageCustomer(customerId) {
 
 
 				$modal.appendTo("#widget").modal("show").on("hidden.bs.modal", e => $modal.remove());
+				
+				if(application["reportTemplateDownloadItemLimit"] === undefined)
+					application["reportTemplateDownloadItemLimit"] = 10;
+				
 			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
 			else
@@ -312,7 +319,11 @@ function saveReportTemplate(e){
 }
 
 function isDefaultCustomTemplate(){
-	return $("#section_manage_customer_template tbody>tr[data-trick-id='-1'] :checked").length
+	return $("#section_manage_customer_template tbody>tr[data-trick-editable='false'] :checked").length
+}
+
+function checkItemCount(){
+	return $("#section_manage_customer_template tbody>tr :checked").length < application["reportTemplateDownloadItemLimit"];
 }
 
 function editReportTemplate(e){
@@ -320,7 +331,7 @@ function editReportTemplate(e){
 	if ($current.parent().hasClass("disabled"))
 		return false;
 	var $form = $("#reportTemplate-form", $current.closest(".modal"));
-	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-id!='-1'] input:checked").closest("tr");
+	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-editable='true'] input:checked").closest("tr");
 	if(!$tr.length)
 		return false;
 	var type = $("td[data-trick-field='type']",$tr).attr("data-trick-real-value"),
@@ -329,7 +340,7 @@ function editReportTemplate(e){
 	$("input[name='id']", $form).val($tr.attr("data-trick-id"));
 	$("input[type='file']",$form).removeAttr("required").trigger("reset").trigger("change");
 	$("input[name='version']",$form).val($("td[data-trick-field='version']", $tr).text());
-	$("textarea[name='label']"),$form.val($("td[data-trick-field='label']", $tr).text());
+	$("textarea[name='label']",$form).val($("td[data-trick-field='label']", $tr).text());
 	$("input[name='type'][value='"+type+"']", $form).closest(".btn").trigger("click");
 	return true;
 }
@@ -347,5 +358,46 @@ function deleteReportTemplate(e){
 	var $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
+	var $modal = $current.closest(".modal"), selections =  findSelectItemIdBySection("section_manage_customer_template", $modal).filter((i)=> parseInt(i) > 0);
+	if(!selections.length)
+		return false;
+	var customerId = $("input[name='customer']",$modal).val(), $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.report.template", "Are you sure, you want to delete selected template?", selections.length));
+	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function(e) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : loadTargetContext() + "/Customer/"+customerId+"/Report-template",
+			data : JSON.stringify(selections),
+			type : "delete",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if(response.success){
+					showDialog("success", response.success);
+					for (let id of selections)
+						$("#section_manage_customer_template tbody>tr[data-trick-id='"+id+"']",$modal).remove();
+					updateMenu(undefined, '#section_manage_customer_template', '#menu_manage_customer_template');
+				}else if(response.error)
+					showDialog("error", response.error);
+				else unknowError();
+			},
+			error : unknowError
+		}).complete(() => {
+			$progress.hide();
+		});
+	});
+	return false;
 	
+}
+
+function downloadReportTemplate(e){
+	var $current = $(e.currentTarget);
+	if ($current.parent().hasClass("disabled"))
+		return false;
+	var $modal = $current.closest(".modal"), selections =  findSelectItemIdBySection("section_manage_customer_template", $modal).filter((i)=> parseInt(i) > 0);
+	if(!selections.length)
+		return false;
+	if(selections.length> application["reportTemplateDownloadItemLimit"] )
+		showDialog("error", MessageResolver("error.too.many.item.selected", undefined, application["reportTemplateDownloadItemLimit"]))
+	for (let id of selections)
+		showStaticDialog("download", MessageResolver("info.download.exported.file"), MessageResolver("label.title.export.report.template"), loadTargetContext()+"/Customer/Report-template/"+id+"/Download");
+	return false;
 }

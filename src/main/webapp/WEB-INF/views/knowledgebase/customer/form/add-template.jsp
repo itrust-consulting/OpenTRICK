@@ -38,7 +38,7 @@
 					code="label.title" />
 			</label>
 			<div class="col-sm-9" data-trick-info='label'>
-				<textarea name="label" id="reportTemplate.label" class="form-control resize_vectical_only" rows="6"  required="required"  maxlength="512"></textarea>
+				<textarea name="label" id="reportTemplate.label" class="form-control resize_vectical_only" rows="6"  required="required"  maxlength="255"></textarea>
 			</div>
 		</div>
 
@@ -47,7 +47,7 @@
 					code="label.version" />
 			</label>
 			<div class="col-sm-9" data-trick-info='version'>
-				<input name="version" id="reportTemplate.version" class="form-control" type="text" required="required" size="256" />
+				<input name="version" list="dataListVersions" id="reportTemplate.version" class="form-control" type="text" required="required" size="255" placeholder="0.0.1" pattern="((\d+\.*)*([A-Za-z]+\.*)*(\d+\.*)*)+"/>
 			</div>
 		</div>
 
@@ -67,6 +67,13 @@
 				</div>
 			</div>
 		</div>
+		
+		<datalist style="display: none" id="dataListVersions">
+			<c:forEach items="${versions}" var="version">
+				<option value='<spring:message text="${version}"/>'/>
+			</c:forEach>
+		</datalist>
+		
 		<button type="submit" name="submit" style="display: none;"></button>
 	</form>
 </div>

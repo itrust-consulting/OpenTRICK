@@ -155,20 +155,8 @@ public class ControllerAnalysis {
 	@Autowired
 	private CustomerManager customerManager;
 
-	@Value("${app.settings.report.qualitative.english.template.name}")
-	private String englishQualitativeReportName;
-
-	@Value("${app.settings.report.quantitative.english.template.name}")
-	private String englishQuantitativeReportName;
-
 	@Autowired
 	private TaskExecutor executor;
-
-	@Value("${app.settings.report.qualitative.french.template.name}")
-	private String frenchQualitativeReportName;
-
-	@Value("${app.settings.report.quantitative.french.template.name}")
-	private String frenchQuantitativeReportName;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -211,6 +199,18 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
+	
+	@Value("${app.settings.report.qualitative.french.template.name}")
+	private String frenchQualitativeReportName;
+
+	@Value("${app.settings.report.quantitative.french.template.name}")
+	private String frenchQuantitativeReportName;
+	
+	@Value("${app.settings.report.qualitative.english.template.name}")
+	private String englishQualitativeReportName;
+
+	@Value("${app.settings.report.quantitative.english.template.name}")
+	private String englishQuantitativeReportName;
 
 	/**
 	 * addHistory: <br>

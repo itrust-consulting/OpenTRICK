@@ -170,4 +170,9 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 		daoReportTemplate.saveOrUpdate(entity);
 	}
 
+	@Override
+	public List<ReportTemplate> findDefault() {
+		return daoReportTemplate.findDefault();
+	}
+
 }

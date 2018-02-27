@@ -87,9 +87,9 @@
 				</div>
 			</div>
 		</form>
-		<div id="progress-trickLog" class="center-block" style="width: 60px">
+		<!-- <div id="progress-trickLog" class="center-block" style="width: 60px">
 			<i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
-		</div>
+		</div> -->
 	</div>
 	<div class="col-md-9 col-lg-10" id="section_log"></div>
 

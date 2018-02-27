@@ -263,16 +263,22 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 
 	@Override
 	public List<User> findUserByCustomer(Customer customer) {
-		return customer.isCanBeUsed()
-				? getSession().createQuery("Select distinct user From User user inner join user.customers customer where customer = :customer order by user.firstName, user.lastName, user.email", User.class)
-						.setParameter("customer", customer).list()
-				: Collections.emptyList();
+		return customer.isCanBeUsed() ? getSession()
+				.createQuery("Select distinct user From User user inner join user.customers customer where customer = :customer order by user.firstName, user.lastName, user.email",
+						User.class)
+				.setParameter("customer", customer).list() : Collections.emptyList();
 	}
 
 	@Override
 	public boolean hasAccess(String username, int customerId) {
-		return getSession()
-				.createQuery("Select count(customer)> 0 From User user inner join user.customers customer where user.login = :username and customer.id = :customerId and customer.canBeUsed = true", Boolean.class)
-				.setParameter("username", username).setParameter("customerId", customerId).uniqueResult();
+		return getSession().createQuery(
+				"Select count(customer)> 0 From User user inner join user.customers customer where user.login = :username and customer.id = :customerId and customer.canBeUsed = true",
+				Boolean.class).setParameter("username", username).setParameter("customerId", customerId).uniqueResult();
+	}
+
+	@Override
+	public Customer findByReportTemplateId(Long reportTemplateId) {
+		return getSession().createQuery("Select customer From Customer customer inner join customer.templates as template where template.id = :reportTemplateId", Customer.class)
+				.setParameter("reportTemplateId", reportTemplateId).uniqueResult();
 	}
 }
