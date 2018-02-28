@@ -87,7 +87,8 @@ public class DefaultReportTemplateLoader {
 	}
 
 	public List<ReportTemplate> findByTypeAndLanguage(AnalysisType type, String langue) {
-		return findAll().stream().filter(p -> p.getType() == type && p.getLanguage().getAlpha3().equalsIgnoreCase(langue)).collect(Collectors.toList());
+		return type == AnalysisType.HYBRID ? findByLanguage(langue)
+				: findAll().stream().filter(p -> p.getType() == type && p.getLanguage().getAlpha3().equalsIgnoreCase(langue)).collect(Collectors.toList());
 	}
 
 	public boolean load() {
@@ -194,6 +195,5 @@ public class DefaultReportTemplateLoader {
 		}
 		return customer;
 	}
-	
 
 }

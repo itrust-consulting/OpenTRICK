@@ -513,6 +513,11 @@ datalist {
 .modal-mdl{
 	width: 750px;
 }
+
+.modal-sml{
+	width: 500px;
+}
+
 .popover-danger {
 	background-color: #f2dede;
 	border-color: #ebccd1;

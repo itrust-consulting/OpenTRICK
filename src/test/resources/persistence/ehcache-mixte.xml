@@ -296,6 +296,10 @@
 	<cache name="lu.itrust.business.TS.model.general.TrickLog" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.general.document.impl.ReportTemplate" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
 
 	<!-- Collections -->
 
@@ -316,6 +320,10 @@
 	</cache>
 
 	<cache name="lu.itrust.business.TS.usermanagement.User.userSettings" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.TS.model.general.Customer.templates" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
 		<persistence strategy="localTempSwap" />
 	</cache>
 

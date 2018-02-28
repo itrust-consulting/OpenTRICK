@@ -91,7 +91,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_00_addUser")
 	public void test_02_AddCustomerUser() throws Exception {
 		this.mockMvc
-				.perform(post(String.format("/KnowledgeBase/Customer/%d/Manage-access/Update", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.perform(post(String.format("/Admin/Customer/%d/Manage-access/Update", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"%d\" : \"true\", \"%d\" : \"true\"}", getInteger(USER_TO_DELETE_ID), getInteger(USER_TO_DELETE_ID)))
 						.with(httpBasic(USERNAME, PASSWORD)))

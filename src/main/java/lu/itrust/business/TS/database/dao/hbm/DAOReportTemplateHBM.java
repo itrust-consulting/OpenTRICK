@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOReportTemplate;
@@ -20,6 +21,14 @@ import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
  */
 @Repository
 public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTemplate {
+	
+	public DAOReportTemplateHBM() {
+		super();
+	}
+
+	public DAOReportTemplateHBM(Session session) {
+		super(session);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -213,7 +222,27 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 
 	@Override
 	public List<ReportTemplate> findDefault() {
-		return getSession().createQuery("Select template From Customer customer inner join customer.templates as template where customer.canBeUsed = false", ReportTemplate.class).list();
+		return getSession().createQuery("Select template From Customer customer inner join customer.templates as template where customer.canBeUsed = false", ReportTemplate.class)
+				.list();
+	}
+
+	@Override
+	public ReportTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId) {
+		return getSession().createQuery(
+				"Select template From Customer customer inner join customer.templates as template where template.id = :id and (customer.id = :customerId or customer.canBeUsed = false)",
+				ReportTemplate.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();
+	}
+
+	@Override
+	public Boolean isUseAuthorised(Long id, Integer customerId) {
+		return getSession().createQuery(
+				"Select count(template) > 0 From Customer customer inner join customer.templates as template where template.id = :id and (customer.id = :customerId or customer.canBeUsed = false)",
+				Boolean.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();
+	}
+
+	@Override
+	public AnalysisType findTypeById(Long id) {
+		return getSession().createQuery("Select type From ReportTemplate where id = :id", AnalysisType.class).setParameter("id", id).uniqueResult();
 	}
 
 }

@@ -4,4 +4,6 @@ import lu.itrust.business.TS.database.template.TemplateReportTemplate;
 
 public interface ServiceReportTemplate extends TemplateReportTemplate {
 
+	
+
 }

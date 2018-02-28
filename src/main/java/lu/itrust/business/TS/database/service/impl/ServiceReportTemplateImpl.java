@@ -175,4 +175,19 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 		return daoReportTemplate.findDefault();
 	}
 
+	@Override
+	public ReportTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId) {
+		return daoReportTemplate.findByIdAndCustomerOrDefault(id, customerId);
+	}
+
+	@Override
+	public Boolean isUseAuthorised(Long id, Integer customerId) {
+		return daoReportTemplate.isUseAuthorised(id, customerId);
+	}
+
+	@Override
+	public AnalysisType findTypeById(Long id) {
+		return daoReportTemplate.findTypeById(id);
+	}
+
 }

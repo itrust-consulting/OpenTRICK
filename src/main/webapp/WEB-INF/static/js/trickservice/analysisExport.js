@@ -77,44 +77,95 @@ function exportRawActionPlan(analysisId, type) {
 }
 
 
-function exportAnalysisReport(analysisId, type) {
+function exportAnalysisReport(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	if(type == null || type == undefined)
-		type = findAnalysisType("#section_analysis", analysisId);
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		if(ANALYSIS_TYPE.isHybrid(type)){
-			var $dialogModal = $("#analysis-export-dialog");
-			$dialogModal.modal("show").find("button[name='export']").unbind("click").one("click", (e) => {
-				$dialogModal.modal("hide");
-				exportProcessing(analysisId, e.currentTarget.getAttribute("data-trick-type"));
-			});
-		}else exportProcessing(analysisId, type);
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Export/Report/" + analysisId,
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				var $modal = $("div#analysis-export-dialog", new DOMParser().parseFromString(response, "text/html"));
+				if ($modal.length){
+					$modal.appendTo("#dialog-body").modal("show").on("hidden.bs.modal", () => $modal.remove());
+					
+					var $btnBrowse = $("button[name='browse']", $modal), $inputFile = $("input[name='file']", $modal), $template =  $("select[name='template']", $modal), $exportBtn = $("button[name='export']", $modal),
+					$fileInfo = $("input[name='filename']", $modal), $form =  $("form", $modal), $type = $("input[name='type']", $modal),$btnSubmit = $("button[name='submit']", $modal);
+					
+					$exportBtn.on("click", (e) => $btnSubmit.trigger("click"));
+					
+					$type.on("change", (e) => {
+						if(e.currentTarget.checked){
+							$("option[data-trick-type][data-trick-type='"+e.currentTarget.value+"']", $template).show();
+							$("option[data-trick-type][data-trick-type!='"+e.currentTarget.value+"']", $template.val("-1")).hide();
+						}
+					}).trigger("change");
+					
+					$("input[name='internal']", $modal).on("change", (e) => {
+						if(e.currentTarget.checked){
+							$inputFile[0].value = "";
+							$template.prop("disabled", e.currentTarget.value ==="false").val("-1");
+							$btnBrowse.prop("disabled", e.currentTarget.value ==="true");
+							$template.prop("required", e.currentTarget.value ==="true");
+							$inputFile.prop('required', e.currentTarget.value ==="false").trigger("change");
+						}
+					}).trigger("change");
+					
+					$btnBrowse.on("click", (e)=> $inputFile.trigger("click"));
+					
+					$inputFile.on("change", (e) => {
+						var value = $inputFile.val();
+						if(value.trim() === '')
+							$exportBtn.prop("disabled", $inputFile.is(":required"));
+						else checkExtention(value,".docx", $exportBtn);
+						$fileInfo.val(value);
+					});
+					
+					$form.on("submit", (e) => {
+						
+						$.ajax({
+							url: context + "/Analysis/Export/Report/" + analysisId ,
+							type: 'POST',
+							data: new FormData($form[0]),
+							cache: false,
+							contentType: false,
+							processData: false,
+							success: function (response, textStatus, jqXHR) {
+								if (response.success){
+									application["taskManager"].Start();
+									$modal.modal("hide");
+								}
+								else if (response.error)
+									showDialog("#alert-dialog", response.error);
+								else
+									unknowError();
+							},
+							error: unknowError
+
+						}).complete(function () {
+							$progress.hide();
+						});
+						
+						
+						return false;
+						
+					});
+				}
+				else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else
+					unknowError();
+			},
+			error: unknowError
+		}).complete(()  =>$progress.hide())
 	} else
 		permissionError();
 	return false;
-}
-
-function exportProcessing(analysisId, type){
-	var $progress = $("#loading-indicator").show();
-	$.ajax({
-		url: context + "/Analysis/Export/Report/" + analysisId+"/"+ type,
-		type: "get",
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			if (response["success"] != undefined)
-				application["taskManager"].Start();
-			else if (response["error"] != undefined)
-				showDialog("#alert-dialog", response["error"]);
-			else
-				unknowError();
-		},
-		error: unknowError
-	}).complete(()  =>$progress.hide());
 }
 
 function exportRiskSheet(idAnalysis, report) {

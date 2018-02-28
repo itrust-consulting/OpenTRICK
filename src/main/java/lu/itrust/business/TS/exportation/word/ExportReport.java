@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 
 public interface ExportReport {
 
@@ -39,6 +40,7 @@ public interface ExportReport {
 	/**
 	 * exportToWordDocument: <br>
 	 * Description
+	 * @param reportTemplate 
 	 * 
 	 * @param analysisId
 	 * @param context
@@ -47,7 +49,7 @@ public interface ExportReport {
 	 * @return
 	 * @throws Exception
 	 */
-	void exportToWordDocument(Analysis analysis) throws Exception;
+	void exportToWordDocument(Analysis analysis, ReportTemplate reportTemplate) throws Exception;
 
 	/**
 	 * getAnalysis: <br>
@@ -82,6 +84,10 @@ public interface ExportReport {
 	ServiceTaskFeedback getServiceTaskFeedback();
 
 	File getWorkFile();
+	
+	Boolean isRefurbished();
+	
+	void setRefurbished(Boolean refurbished);
 
 	int increase(int value);
 
@@ -112,8 +118,6 @@ public interface ExportReport {
 	void setMessageSource(MessageSource messageSource);
 
 	void setMinProgress(int minProgress);
-
-	void setReportName(String reportName);
 
 	void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback);
 

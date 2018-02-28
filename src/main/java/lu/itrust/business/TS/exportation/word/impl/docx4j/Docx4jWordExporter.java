@@ -5,6 +5,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import java.io.File;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,6 +91,7 @@ import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.DocxFormatter;
 import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jActionPlanFormatter;
@@ -114,6 +116,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
@@ -183,6 +186,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private File workFile;
 
+	private boolean refurbished;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -199,7 +204,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	 * exportToWordDocument(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public void exportToWordDocument(Analysis analysis) throws Exception {
+	public void exportToWordDocument(Analysis analysis, ReportTemplate reportTemplate) throws Exception {
 
 		setAnalysis(analysis);
 		switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
@@ -216,16 +221,24 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		kEuroFormat.setMaximumFractionDigits(1);
 		numberFormat.setMaximumFractionDigits(0);
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", increase(1)));// 1%
-		workFile = new File(
-				String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+
+		if (!isRefurbished()) {
+			workFile = new File(
+					String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			if (!workFile.exists())
+				workFile.createNewFile();
+
+			Files.write(workFile.toPath(), reportTemplate.getFile());
+		}
+
 		if (!workFile.exists())
-			workFile.createNewFile();
+			throw new TrickException("error.export.report.no.template", "No template file");
 
 		valueFactory = new ValueFactory(analysis.getParameters());
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.load.word.template", "Loading word template", increase(2)));// 3%
 
-		createDocumentFromTemplate();
+		openingWordDocument();
 
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.data", "Printing data", increase(2)));// 5%
 
@@ -294,8 +307,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				.map(abstractNum -> abstractNum.getAbstractNumId()).findAny().orElse(null);
 		if (abstractNumId == null)
 			return;
-		/*BigInteger numId = numbering.getNum().parallelStream().filter(num -> num.getAbstractNumId().getVal().equals(abstractNumId)).map(num -> num.getNumId()).findAny()
-				.orElse(null);*/
+		/*
+		 * BigInteger numId = numbering.getNum().parallelStream().filter(num ->
+		 * num.getAbstractNumId().getVal().equals(abstractNumId)).map(num ->
+		 * num.getNumId()).findAny() .orElse(null);
+		 */
 		P paragraphOriginal = findTableAnchor("Phase");
 		if (paragraphOriginal == null)
 			return;
@@ -309,18 +325,22 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					begin.setTime(phase.getBeginDate());
 					end.setTime(phase.getEndDate());
 					int monthBegin = begin.get(Calendar.MONTH) + 1, monthEnd = end.get(Calendar.MONTH) + 1;
-					//P paragraph = setStyle(factory.createP(), "ListParagraph");
+					// P paragraph = setStyle(factory.createP(), "ListParagraph");
 					P paragraph = setStyle(factory.createP(), "BulletL1");
-					setText(paragraph, getMessage("report.risk.treatment.plan.summary", new Object[] { phase.getNumber() , (monthBegin < 10 ? "0" : "") + monthBegin, begin.get(Calendar.YEAR) + "",
-							(monthEnd < 10 ? "0" : "") + monthEnd, end.get(Calendar.YEAR) + "", summaryStage.getMeasureCount() + "" }, null, locale));
-					/*paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
-					paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
-					paragraph.getPPr().getNumPr().getNumId().setVal(numId);
-					paragraph.getPPr().getNumPr().setIlvl(factory.createPPrBaseNumPrIlvl());
-					paragraph.getPPr().getNumPr().getIlvl().setVal(BigInteger.valueOf(0));
-					paragraph.getPPr().setInd(factory.createPPrBaseInd());
-					paragraph.getPPr().getInd().setHanging(BigInteger.valueOf(993));
-					paragraph.getPPr().getInd().setLeft(BigInteger.valueOf(993));*/
+					setText(paragraph,
+							getMessage("report.risk.treatment.plan.summary", new Object[] { phase.getNumber(), (monthBegin < 10 ? "0" : "") + monthBegin,
+									begin.get(Calendar.YEAR) + "", (monthEnd < 10 ? "0" : "") + monthEnd, end.get(Calendar.YEAR) + "", summaryStage.getMeasureCount() + "" }, null,
+									locale));
+					/*
+					 * paragraph.getPPr().setNumPr(factory.createPPrBaseNumPr());
+					 * paragraph.getPPr().getNumPr().setNumId(factory.createPPrBaseNumPrNumId());
+					 * paragraph.getPPr().getNumPr().getNumId().setVal(numId);
+					 * paragraph.getPPr().getNumPr().setIlvl(factory.createPPrBaseNumPrIlvl());
+					 * paragraph.getPPr().getNumPr().getIlvl().setVal(BigInteger.valueOf(0));
+					 * paragraph.getPPr().setInd(factory.createPPrBaseInd());
+					 * paragraph.getPPr().getInd().setHanging(BigInteger.valueOf(993));
+					 * paragraph.getPPr().getInd().setLeft(BigInteger.valueOf(993));
+					 */
 					contents.add(paragraph);
 				});
 		insertAllBefore(paragraphOriginal, contents);
@@ -586,17 +606,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	@Override
 	public void setMinProgress(int minProgress) {
 		this.minProgress = minProgress;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.exportation.word.impl.poi.ExportReport#
-	 * setReportName(java.lang.String)
-	 */
-	@Override
-	public void setReportName(String reportName) {
-		this.reportName = reportName;
 	}
 
 	/*
@@ -1134,13 +1143,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		return p;
 	}
 
-	private void createDocumentFromTemplate() throws Docx4JException, URISyntaxException {
+	private void openingWordDocument() throws Docx4JException, URISyntaxException {
 
-		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(new File(String.format("%s/WEB-INF/data/docx/%s.docx", contextPath, reportName)));
-
-		wordMLPackage.save(workFile);
-
-		this.wordMLPackage = WordprocessingMLPackage.load(workFile);
+		wordMLPackage = WordprocessingMLPackage.load(workFile);
 
 		setDocument(this.wordMLPackage.getMainDocumentPart().getContents());
 
@@ -1312,7 +1317,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				}
 
 				if (!(analysisStandard.getStandard().is(Constant.STANDARD_27001) || analysisStandard.getStandard().is(Constant.STANDARD_27002)))
-					contents.add(setText(setStyle(factory.createP(), "ListParagraph"), getMessage("report.format.bullet.list.iteam", new Object[] {analysisStandard.getStandard().getLabel()}, analysisStandard.getStandard().getLabel(), locale) ));
+					contents.add(setText(setStyle(factory.createP(), "ListParagraph"), getMessage("report.format.bullet.list.iteam",
+							new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel(), locale)));
 			}
 
 			if (!contents.isEmpty()) {
@@ -1732,6 +1738,16 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		docx4jFormatter = new Docx4jAssessmentFormatter(docx4jFormatter);
 		docx4jFormatter = new Docx4jActionPlanFormatter(docx4jFormatter);
 		return docx4jFormatter;
+	}
+
+	@Override
+	public Boolean isRefurbished() {
+		return refurbished;
+	}
+
+	@Override
+	public void setRefurbished(Boolean refurbished) {
+		this.refurbished = refurbished;
 	}
 
 }

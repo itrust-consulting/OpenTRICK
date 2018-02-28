@@ -14,5 +14,11 @@ public interface TemplateReportTemplate extends TemplateDAOService<ReportTemplat
 	
 	List<ReportTemplate> findByCustomerAndType(int customerId, AnalysisType type);
 	
+	ReportTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId);
+	
+	Boolean isUseAuthorised(Long id, Integer customerId);
+	
 	List<ReportTemplate> findDefault();
+	
+	AnalysisType findTypeById(Long id);
 }

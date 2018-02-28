@@ -15,7 +15,9 @@ import org.springframework.util.FileCopyUtils;
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.database.dao.DAOReportTemplate;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOReportTemplateHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -26,6 +28,7 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -42,6 +45,8 @@ public class WorkerExportWordReport implements Worker {
 	private Date finished = null;
 
 	private int idAnalysis;
+
+	private long idTemplate;
 
 	private String username;
 
@@ -61,18 +66,22 @@ public class WorkerExportWordReport implements Worker {
 
 	/**
 	 * @param idAnalysis
+	 * @param templateId
 	 * @param username
 	 * @param serviceTaskFeedback
 	 * @param sessionFactory
 	 * @param wordExporter
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportReport wordExporter, WorkersPoolManager workersPoolManager) {
+	public WorkerExportWordReport(int idAnalysis, Long templateId, String username, SessionFactory sessionFactory, ExportReport wordExporter,
+			WorkersPoolManager workersPoolManager) {
 		this.idAnalysis = idAnalysis;
+		this.idTemplate = templateId;
 		this.username = username;
 		this.sessionFactory = sessionFactory;
 		this.wordExporter = wordExporter;
 		this.workersPoolManager = workersPoolManager;
+
 	}
 
 	@Override
@@ -99,9 +108,18 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
 			else if (!analysis.hasData())
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
+
+			DAOReportTemplate daoReportTemplate = new DAOReportTemplateHBM(session);
+			ReportTemplate reportTemplate = wordExporter.isRefurbished() ? null : daoReportTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
+			if (!wordExporter.isRefurbished()) {
+				if (reportTemplate == null)
+					throw new TrickException("error.report.template.not.found", "Report template cannot be found");
+				else if (reportTemplate.getFile() == null)
+					throw new TrickException("error.report.template.no.data", "Report template has been corrupted");
+			}
 			wordExporter.setMaxProgress(98);
 			wordExporter.setIdTask(id);
-			wordExporter.exportToWordDocument(analysis);
+			wordExporter.exportToWordDocument(analysis, reportTemplate);
 			saveWordDocument(session);
 		} catch (TrickException e) {
 			wordExporter.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
@@ -297,6 +315,14 @@ public class WorkerExportWordReport implements Worker {
 
 	private void setCurrent(Thread current) {
 		this.current = current;
+	}
+
+	public long getIdTemplate() {
+		return idTemplate;
+	}
+
+	public void setIdTemplate(long idTemplate) {
+		this.idTemplate = idTemplate;
 	}
 
 }

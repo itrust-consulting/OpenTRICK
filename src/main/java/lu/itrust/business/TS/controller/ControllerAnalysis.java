@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,6 @@ import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.AccessDeniedException;
@@ -51,7 +51,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -74,15 +77,18 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
+import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.controller.form.ExportWordReportForm;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceReportTemplate;
 import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
@@ -112,6 +118,7 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
@@ -190,7 +197,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-	
+
 	@Autowired
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
@@ -199,18 +206,12 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
-	
-	@Value("${app.settings.report.qualitative.french.template.name}")
-	private String frenchQualitativeReportName;
 
-	@Value("${app.settings.report.quantitative.french.template.name}")
-	private String frenchQuantitativeReportName;
-	
-	@Value("${app.settings.report.qualitative.english.template.name}")
-	private String englishQualitativeReportName;
+	@Autowired
+	private DefaultReportTemplateLoader defaultReportTemplateLoader;
 
-	@Value("${app.settings.report.quantitative.english.template.name}")
-	private String englishQuantitativeReportName;
+	@Autowired
+	private ServiceReportTemplate serviceReportTemplate;
 
 	/**
 	 * addHistory: <br>
@@ -463,6 +464,29 @@ public class ControllerAnalysis {
 		exportRawActionPlan(response, analysis, type == null ? analysis.getType() : type, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
 	}
 
+	@GetMapping(value = "/Export/Report/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
+
+		final Analysis analysis = serviceAnalysis.get(analysisId);
+		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
+		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+
+		analysis.getCustomer().getTemplates().stream()
+				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
+				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
+					reportTemplates.add(p);
+					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
+						p.setOutToDate(true);
+				});
+
+		if (analysis.isHybrid())
+			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
+		model.addAttribute("analysis", analysis);
+		model.addAttribute("templates", reportTemplates);
+		return "analyses/all/forms/report-word";
+	}
+
 	/**
 	 * computeRiskRegister: <br>
 	 * Description
@@ -472,26 +496,37 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/Report/{analysisId}/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "/Export/Report/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody String exportReport(@PathVariable Integer analysisId, @PathVariable AnalysisType type, HttpServletRequest request, Principal principal, Locale locale) {
+	public @ResponseBody String exportReport(@PathVariable Integer analysisId, @ModelAttribute ExportWordReportForm form, HttpServletRequest request, Principal principal,
+			Locale locale) throws Exception {
 		try {
-			AnalysisType analysisType = type == null ? serviceAnalysis.getAnalysisTypeById(analysisId) : type;
-			if(analysisType == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
+			Integer customerId = serviceAnalysis.getCustomerIdByIdAnalysis(analysisId);
+			if (form.isInternal()) {
+				if (!serviceReportTemplate.isUseAuthorised(form.getTemplate(), customerId))
+					throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+				form.setType(serviceReportTemplate.findTypeById(form.getTemplate()));
+			} else {
+				if (form.getType() == null)
+					form.setType(serviceAnalysis.getAnalysisTypeById(analysisId));
+				if (form.getFile() == null)
+					return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
+			}
+			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
 				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
-			ExportReport exportAnalysisReport = analysisType == AnalysisType.QUANTITATIVE
+			ExportReport exportAnalysisReport = form.getType() == AnalysisType.QUANTITATIVE
 					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
 					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
-			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
-			case "fra":
-				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? frenchQuantitativeReportName : frenchQualitativeReportName);
-				break;
-			default:
-				exportAnalysisReport.setReportName(analysisType == AnalysisType.QUANTITATIVE ? englishQuantitativeReportName : englishQualitativeReportName);
-			}
-			Worker worker = new WorkerExportWordReport(analysisId, principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
+			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			if (!form.isInternal()) {
+				exportAnalysisReport.setWorkFile(new File(
+						request.getServletContext().getRealPath("/WEB-INF/tmp") + "/Report-template-" + principal.getName() + "-" + UUID.randomUUID().toString() + ".docx"));
+				form.getFile().transferTo(exportAnalysisReport.getWorkFile());
+				exportAnalysisReport.getWorkFile().deleteOnExit();
+			}
+			exportAnalysisReport.setRefurbished(!form.isInternal());
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
 		} catch (TrickException e) {
@@ -499,6 +534,8 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
+			if (e instanceof AccessDeniedException)
+				throw e;
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
