@@ -137,7 +137,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Test(dependsOnMethods = { "test_02_AddCustomerUser", "test_04_SwitchCustomer" })
 	public void test_07_DeleteCustomer() throws Exception {
 		this.mockMvc
-				.perform(post("/KnowledgeBase/Customer/Delete/" + getInteger(CUSTOMER_TO_DELETE_ID)).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.perform(post("/Admin/Customer/" + getInteger(CUSTOMER_TO_DELETE_ID)+"/Delete").with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}

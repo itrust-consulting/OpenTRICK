@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -93,6 +94,9 @@ public class ControllerCustomer {
 
 	@Autowired
 	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+
+	@Value("${app.settings.report.template.max.size}")
+	private Long maxTemplateSize;
 
 	/**
 	 * 
@@ -219,6 +223,7 @@ public class ControllerCustomer {
 		model.addAttribute("reportTemplates", reportTemplates);
 		model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
+		model.addAttribute("maxFileSize", maxTemplateSize);
 		return "knowledgebase/customer/form/report-template";
 	}
 
@@ -237,10 +242,17 @@ public class ControllerCustomer {
 		template.setVersion(templateForm.getVersion());
 
 		if (!templateForm.getFile().isEmpty()) {
+
 			try {
-				template.setFilename(templateForm.getFile().getOriginalFilename());
-				template.setFile(templateForm.getFile().getBytes());
-				template.setSize(templateForm.getFile().getSize());
+				if (templateForm.getFile().getSize() > maxTemplateSize)
+					result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxTemplateSize }, "File is to large", locale));
+				else {
+					template.setFilename(templateForm.getFile().getOriginalFilename());
+					template.setFile(templateForm.getFile().getBytes());
+					template.setSize(templateForm.getFile().getSize());
+					if(!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
+						result.put("file", messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
+				}
 			} catch (IOException e) {
 				result.put("file", messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
 			}

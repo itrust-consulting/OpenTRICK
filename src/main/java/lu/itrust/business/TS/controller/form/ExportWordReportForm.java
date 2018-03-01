@@ -5,16 +5,14 @@ import org.springframework.web.multipart.MultipartFile;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 public class ExportWordReportForm {
-	
+
 	private int analysis;
-	
+
 	private long template;
-	
+
 	private AnalysisType type;
-	
+
 	private MultipartFile file;
-	
-	private boolean internal;
 
 	public int getAnalysis() {
 		return analysis;
@@ -49,10 +47,6 @@ public class ExportWordReportForm {
 	}
 
 	public boolean isInternal() {
-		return internal;
-	}
-
-	public void setInternal(boolean internal) {
-		this.internal = internal;
+		return template > 0;
 	}
 }

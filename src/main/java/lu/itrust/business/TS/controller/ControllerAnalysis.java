@@ -43,6 +43,7 @@ import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.AccessDeniedException;
@@ -212,6 +213,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceReportTemplate serviceReportTemplate;
+
+	@Value("${app.settings.report.refurbish.max.size}")
+	private long maxRefurbishReportSize;
 
 	/**
 	 * addHistory: <br>
@@ -484,6 +488,7 @@ public class ControllerAnalysis {
 			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("templates", reportTemplates);
+		model.addAttribute("maxFileSize", maxRefurbishReportSize);
 		return "analyses/all/forms/report-word";
 	}
 
@@ -514,6 +519,14 @@ public class ControllerAnalysis {
 			}
 			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
 				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
+
+			if (!form.isInternal()) {
+				if (form.getFile().getSize() > maxRefurbishReportSize)
+					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxRefurbishReportSize }, "File is to large", locale));
+				if (!DefaultReportTemplateLoader.isDocx(form.getFile().getInputStream()))
+					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
+			}
+
 			ExportReport exportAnalysisReport = form.getType() == AnalysisType.QUANTITATIVE
 					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
 					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));

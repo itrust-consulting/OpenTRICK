@@ -70,8 +70,10 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
@@ -189,33 +191,26 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute action plan");
 	}
 
-	//@Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
+	// @Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
 	@Deprecated
 	protected synchronized void test_03_ComputeRiskRegister() throws Exception {
-		/*Integer idAnalysis = getInteger(ANALYSIS_KEY);
-		this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis)
-				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		Worker worker = null;
-		for (int i = 0; i < 3000; i++) {
-			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
-			notEmpty(tasks, "No background task found");
-			for (String workerId : tasks) {
-				Worker worker2 = workersPoolManager.get(workerId);
-				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class, idAnalysis)) {
-					worker = worker2;
-					break;
-				}
-			}
-			if (worker == null)
-				wait(10);
-			else
-				break;
-		}
-		notNull(worker, "Risk register worker cannot be found");
-		while (worker.isWorking())
-			wait(100);
-		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
-		isNull(worker.getError(), "An error occured while compute risk register");*/
+		/*
+		 * Integer idAnalysis = getInteger(ANALYSIS_KEY);
+		 * this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with
+		 * (httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS,
+		 * idAnalysis)
+		 * .contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).
+		 * andExpect(jsonPath("$.success").exists()); Worker worker = null; for (int i =
+		 * 0; i < 3000; i++) { List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+		 * notEmpty(tasks, "No background task found"); for (String workerId : tasks) {
+		 * Worker worker2 = workersPoolManager.get(workerId); if (worker2 != null &&
+		 * worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class,
+		 * idAnalysis)) { worker = worker2; break; } } if (worker == null) wait(10);
+		 * else break; } notNull(worker, "Risk register worker cannot be found"); while
+		 * (worker.isWorking()) wait(100); serviceTaskFeedback.unregisterTask(USERNAME,
+		 * worker.getId()); isNull(worker.getError(),
+		 * "An error occured while compute risk register");
+		 */
 	}
 
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
@@ -319,7 +314,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			assertEquals((double) expectedData[i], (double) actualData.get(i), 1E-2);
 	}
 
-	//@Test(dependsOnMethods = "test_03_ComputeRiskRegister")
+	// @Test(dependsOnMethods = "test_03_ComputeRiskRegister")
 	@Deprecated
 	@Transactional(readOnly = true)
 	protected void test_05_CheckRiskRegister() throws Exception {
@@ -412,12 +407,27 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	public synchronized void test_06_ExportReport() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
-		this.mockMvc.perform(get("/Analysis/Export/Report/" + idAnalysis+"/QUANTITATIVE").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+
+		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
+				.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
+
+		notEmpty(templates, "No template can be found");
+
+		Long idTemplate = templates.stream().filter(p -> p.getType() == AnalysisType.QUANTITATIVE).map(ReportTemplate::getId).findAny().orElse(-1L);
+
+		assertTrue("Template cannot be found", idTemplate > 0);
+
+		this.mockMvc
+				.perform(post("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8).param("type", "QUANTITATIVE").param("template", idTemplate + ""))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);

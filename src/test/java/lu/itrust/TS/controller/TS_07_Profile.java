@@ -6,6 +6,7 @@ import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,6 +34,8 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -97,7 +100,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[0]").exists());
 
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
-			
+
 			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 
 			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
@@ -110,14 +113,25 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test(timeOut = 120000)
 	public synchronized void test_GenerateReport() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
-		this.mockMvc
-				.perform(
-						get("/Analysis/Export/Report/" + idAnalysis + "/QUANTITATIVE").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
+				.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
+
+		notEmpty(templates, "No template can be found");
+
+		Long idTemplate = templates.stream().filter(p -> p.getType() == AnalysisType.QUANTITATIVE).map(ReportTemplate::getId).findAny().orElse(-1L);
+
+		assertTrue("Template cannot be found", idTemplate > 0);
+
+		this.mockMvc.perform(post("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.param("type", "QUANTITATIVE").param("template", idTemplate + "")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
 		Worker worker = null;
 		for (int i = 0; i < 30; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
@@ -137,7 +151,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		notNull(worker, "Export word report worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
-		
+
 		try {
 			isNull(worker.getError(), "An error occured while export word report");
 			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
@@ -156,12 +170,10 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 	@Test
 	public void test_00_UpdateProfile() throws Exception {
-		this.mockMvc
-				.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format(
-								"{\"currentPassword\" : \"%s\",\"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
-								PASSWORD, PASSWORD, PASSWORD, USERNAME, USERNAME, EMAIL, LANGUAGE)))
-				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(content().string("{}"));
+		this.mockMvc.perform(post("/Account/Update").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).content(String.format(
+				"{\"currentPassword\" : \"%s\",\"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",
+				PASSWORD, PASSWORD, PASSWORD, USERNAME, USERNAME, EMAIL, LANGUAGE))).andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(content().string("{}"));
 
 	}
 

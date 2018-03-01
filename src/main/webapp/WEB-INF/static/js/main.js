@@ -228,7 +228,8 @@ function checkExtention(value, extention, button) {
 	var extentions = extention.split(","), match = false;
 	for (var i = 0; i < extentions.length; i++)
 		match |= value.endsWith(extentions[i]);
-	$(button).prop("disabled", !match);
+	if(button)
+		$(button).prop("disabled", !match);
 	return match;
 }
 

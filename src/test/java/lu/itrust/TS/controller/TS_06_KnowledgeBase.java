@@ -283,7 +283,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/KnowledgeBase/Language/Delete/" + idLanguage).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
-		this.mockMvc.perform(post("/KnowledgeBase/Customer/Delete/" + idCustomer).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Customer/" + idCustomer+"/Delete").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc.perform(post("/AnalysisProfile/Delete/" + idProfile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
@@ -401,7 +401,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/KnowledgeBase/Language/Delete/" + idLanguage).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
-		this.mockMvc.perform(post("/KnowledgeBase/Customer/Delete/" + idCustomer).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Customer/" + idCustomer+"/Delete").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

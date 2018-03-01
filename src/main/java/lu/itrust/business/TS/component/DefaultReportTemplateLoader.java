@@ -5,6 +5,7 @@ package lu.itrust.business.TS.component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -194,6 +197,15 @@ public class DefaultReportTemplateLoader {
 			}
 		}
 		return customer;
+	}
+
+	public static boolean isDocx(InputStream stream) {
+		try {
+			return WordprocessingMLPackage.load(stream).getMainDocumentPart() != null;
+		} catch (Docx4JException e) {
+			return false;
+		}
+
 	}
 
 }

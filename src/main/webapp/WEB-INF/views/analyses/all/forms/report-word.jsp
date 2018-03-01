@@ -20,21 +20,9 @@
 
 					<input type="hidden" name="analysis" id="exportWord.analysis" value="${analysis.id}">
 
-					<fieldset>
-						<legend>
-							<spring:message code="label.template.source" />
-						</legend>
-						<div class='col-sm-12 text-center' data-trick-info="internal">
-							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-sm btn-default active"><spring:message code='label.internal' /><input checked="checked" name="internal" type="radio" value="true"></label> <label
-									class="btn btn-sm btn-default"><spring:message code='label.external' /><input name="internal" type="radio" value="false"></label>
-							</div>
-						</div>
-					</fieldset>
-
 					<c:if test="${not empty  types}">
 						<fieldset>
-							<legend>
+							<legend style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.type" />'>
 								<spring:message code="label.analysis.type" text="Type" />
 							</legend>
 							<div class="col-sm-12" align="center" data-trick-info="type">
@@ -49,10 +37,8 @@
 						</fieldset>
 					</c:if>
 
-
-
-					<fieldset>
-						<legend>
+					<fieldset style="margin-bottom: 10px">
+						<legend style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.internal" />'>
 							<spring:message code='label.internal.template' text='Internal template' />
 						</legend>
 
@@ -61,7 +47,8 @@
 								<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 								<c:forEach items="${templates}" var="template">
 									<option value="${template.id}" class='${template.outToDate?"text-danger":""}' data-trick-type='${template.type}'>
-										<spring:message text="${template.label}" /> - V<spring:message text="${template.version}" />
+										<spring:message text="${template.label}" /> - V
+										<spring:message text="${template.version}" />
 									</option>
 								</c:forEach>
 							</select>
@@ -69,22 +56,36 @@
 					</fieldset>
 
 					<fieldset data-trick-info='file'>
-						<legend class='text-danger'>
+						<legend class='text-danger' style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.external" />'>
 							<spring:message code="label.external.template" />
 						</legend>
+
+						<c:choose>
+							<c:when test="${ maxFileSize< 1024}">
+								<spring:message code="label.max.unit.data.byte" arguments="${maxFileSize}" var="maxSizeInfo" />
+							</c:when>
+							<c:when test="${ maxFileSize < 1048576}">
+								<spring:message code="label.max.unit.data.kilo.byte" arguments="${maxFileSize / 1024}" var="maxSizeInfo" />
+							</c:when>
+							<c:otherwise>
+								<spring:message code="label.max.unit.data.mega.byte" arguments="${maxFileSize / 1048576}" var="maxSizeInfo" />
+							</c:otherwise>
+						</c:choose>
+						
+						
 						<div class="col-sm-12">
 							<div class="input-group-btn">
-								<input id="exportWord.file" type="file" accept=".docx" name="file" style="display: none;" /> <input id="exportWord.file.info" name="filename" class="form-control"
-									readonly="readonly" required="required" style="width: 83%" />
+								<input id="exportWord.file" type="file" accept=".docx" name="file" style="display: none;" maxlength="${maxFileSize}" /> <input id="exportWord.file.info" name="filename" placeholder="${maxSizeInfo}"
+									class="form-control" readonly="readonly" required="required" style="width: 83%" />
 								<button class="btn btn-primary" type="button" id="exportWord.file.browse.button" name="browse" style="margin-left: -5px;">
 									<spring:message code="label.action.browse" text="Browse" />
 								</button>
 							</div>
 						</div>
 					</fieldset>
-					
+
 					<button name='submit' type="submit" style="display: none"></button>
-					
+
 				</form>
 			</div>
 			<!-- dialog buttons -->

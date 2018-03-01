@@ -15,11 +15,11 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface DAOUserSqLite {
-	public UserSQLite get(Integer id);
+	public UserSQLite get(Long id);
 
 	public UserSQLite getByFilename(String filename);
 
-	public UserSQLite getByIdAndUser(Integer id, String username);
+	public UserSQLite getByIdAndUser(Long id, String username);
 
 	public List<UserSQLite> getAllFromUser(String username);
 
@@ -31,7 +31,7 @@ public interface DAOUserSqLite {
 
 	public UserSQLite merge(UserSQLite userSqLite);
 
-	public void delete(Integer id);
+	public void delete(Long id);
 
 	public void delete(String filename);
 

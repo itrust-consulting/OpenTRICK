@@ -99,35 +99,49 @@ function exportAnalysisReport(analysisId) {
 					
 					$exportBtn.on("click", (e) => $btnSubmit.trigger("click"));
 					
+					$btnBrowse.on("click", (e)=> $inputFile.trigger("click"));
+				
+					var updateExportButtonState = () => {
+						var fileValue = $fileInfo.val(), templateValue = $template.val();
+						$exportBtn.prop("disabled", (templateValue === "-1"  || !templateValue) &&  (fileValue ==="" || !fileValue));
+					}
+					
 					$type.on("change", (e) => {
 						if(e.currentTarget.checked){
 							$("option[data-trick-type][data-trick-type='"+e.currentTarget.value+"']", $template).show();
 							$("option[data-trick-type][data-trick-type!='"+e.currentTarget.value+"']", $template.val("-1")).hide();
+							updateExportButtonState();
 						}
 					}).trigger("change");
 					
-					$("input[name='internal']", $modal).on("change", (e) => {
-						if(e.currentTarget.checked){
+					$template.on("change", (e) => {
+						if(e.currentTarget.value!="-1"){
 							$inputFile[0].value = "";
-							$template.prop("disabled", e.currentTarget.value ==="false").val("-1");
-							$btnBrowse.prop("disabled", e.currentTarget.value ==="true");
-							$template.prop("required", e.currentTarget.value ==="true");
-							$inputFile.prop('required', e.currentTarget.value ==="false").trigger("change");
-						}
-					}).trigger("change");
-					
-					$btnBrowse.on("click", (e)=> $inputFile.trigger("click"));
+							$inputFile.trigger("change");
+						}else updateExportButtonState();
+							
+					});
 					
 					$inputFile.on("change", (e) => {
 						var value = $inputFile.val();
 						if(value.trim() === '')
-							$exportBtn.prop("disabled", $inputFile.is(":required"));
-						else checkExtention(value,".docx", $exportBtn);
+							updateExportButtonState();
+						else {
+							var size = parseInt($inputFile.attr("maxlength"))
+							$template.prop("required", false).val("-1");
+							if($inputFile[0].files[0].size > size){
+								showDialog("error", MessageResolver("error.file.too.large",undefined, size ));
+								return false;
+							}else if(!checkExtention(value,".docx", $exportBtn))
+								return false
+						}
 						$fileInfo.val(value);
 					});
 					
+					updateExportButtonState();
+					
 					$form.on("submit", (e) => {
-						
+						$progress.show();
 						$.ajax({
 							url: context + "/Analysis/Export/Report/" + analysisId ,
 							type: 'POST',
@@ -151,10 +165,11 @@ function exportAnalysisReport(analysisId) {
 							$progress.hide();
 						});
 						
-						
 						return false;
 						
 					});
+					
+					
 				}
 				else if (response["error"] != undefined)
 					showDialog("#alert-dialog", response["error"]);

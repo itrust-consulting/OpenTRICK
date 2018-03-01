@@ -50,6 +50,18 @@
 				<input name="version" list="dataListVersions" id="reportTemplate.version" class="form-control" type="text" required="required" size="255" placeholder="0.0.1" pattern="((\d+\.*)*([A-Za-z]+\.*)*(\d+\.*)*)+"/>
 			</div>
 		</div>
+		
+		<c:choose>
+			<c:when test="${ maxFileSize< 1024}">
+				<spring:message code="label.max.unit.data.byte" arguments="${maxFileSize}" var="maxSizeInfo"/>
+			</c:when>
+			<c:when test="${ maxFileSize < 1048576}">
+				<spring:message code="label.max.unit.data.kilo.byte" arguments="${maxFileSize / 1024}" var="maxSizeInfo"/>
+			</c:when>
+			<c:otherwise>
+				<spring:message code="label.max.unit.data.mega.byte" arguments="${maxFileSize / 1048576}" var="maxSizeInfo"/>
+			</c:otherwise>
+		</c:choose>
 
 		<div class="form-group">
 			<label for="file" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.report.template.file" />'> <spring:message
@@ -58,7 +70,7 @@
 			<div class="col-sm-9" data-trick-info='file'>
 				<div class="form-inline">
 					<div class="input-group-btn">
-						<input id="reportTemplate.file" type="file" accept=".docx" name="file" style="display: none;" /> <input id="reportTemplate.file.info" style="width: 88%;" name="filename" class="form-control"
+						<input id="reportTemplate.file" type="file" accept=".docx" name="file" style="display: none;" maxlength="${maxFileSize}" /> <input id="reportTemplate.file.info" style="width: 88%;" name="filename" class="form-control" placeholder="${maxSizeInfo}"
 							readonly="readonly" required="required" />
 						<button class="btn btn-primary" type="button" id="reportTemplate.file.browse.button" name="browse" style="margin-left: -5px;">
 							<spring:message code="label.action.browse" text="Browse" />
