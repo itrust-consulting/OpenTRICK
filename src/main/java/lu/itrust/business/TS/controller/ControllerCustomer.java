@@ -98,6 +98,9 @@ public class ControllerCustomer {
 	@Value("${app.settings.report.template.max.size}")
 	private Long maxTemplateSize;
 
+	@Value("${app.settings.upload.file.max.size}")
+	private Long maxUploadFileSize;
+
 	/**
 	 * 
 	 * Display all customers
@@ -223,7 +226,7 @@ public class ControllerCustomer {
 		model.addAttribute("reportTemplates", reportTemplates);
 		model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
-		model.addAttribute("maxFileSize", maxTemplateSize);
+		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxTemplateSize));
 		return "knowledgebase/customer/form/report-template";
 	}
 
@@ -244,13 +247,14 @@ public class ControllerCustomer {
 		if (!templateForm.getFile().isEmpty()) {
 
 			try {
-				if (templateForm.getFile().getSize() > maxTemplateSize)
-					result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxTemplateSize }, "File is to large", locale));
+				long maxSize = Math.min(maxUploadFileSize, maxTemplateSize);
+				if (templateForm.getFile().getSize() > maxSize)
+					result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
 				else {
 					template.setFilename(templateForm.getFile().getOriginalFilename());
 					template.setFile(templateForm.getFile().getBytes());
 					template.setSize(templateForm.getFile().getSize());
-					if(!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
+					if (!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
 						result.put("file", messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 				}
 			} catch (IOException e) {
@@ -324,8 +328,8 @@ public class ControllerCustomer {
 			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		final ReportTemplate emptyTempalte = new ReportTemplate();
 		Map<Long, ReportTemplate> templates = ids.parallelStream().collect(Collectors.toMap(Function.identity(), i -> emptyTempalte));
-		customer.getTemplates().removeIf(p -> templates.containsKey(p.getId()) && templates.put(p.getId(), p) == emptyTempalte);
-		templates.entrySet().removeIf(e -> e.getValue() == emptyTempalte);
+		customer.getTemplates().removeIf(p -> templates.containsKey(p.getId()) && emptyTempalte.equals(templates.put(p.getId(), p)));
+		templates.entrySet().removeIf(e -> e.getValue().equals(emptyTempalte));
 		if (!templates.isEmpty()) {
 			serviceCustomer.saveOrUpdate(customer);
 			serviceReportTemplate.delete(templates.values());

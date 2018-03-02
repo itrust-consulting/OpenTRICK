@@ -152,7 +152,9 @@
 	</bean>
 
 	<!-- File Uploader -->
-	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="${app.settings.upload.file.max.size}"/>
+	</bean>
 
 	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
 		<property name="password" value="${app.settings.password.ecryption.key}" />

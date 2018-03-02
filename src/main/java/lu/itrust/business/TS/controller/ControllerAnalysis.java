@@ -217,6 +217,9 @@ public class ControllerAnalysis {
 	@Value("${app.settings.report.refurbish.max.size}")
 	private long maxRefurbishReportSize;
 
+	@Value("${app.settings.upload.file.max.size}")
+	private Long maxUploadFileSize;
+
 	/**
 	 * addHistory: <br>
 	 * Description
@@ -488,7 +491,7 @@ public class ControllerAnalysis {
 			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("templates", reportTemplates);
-		model.addAttribute("maxFileSize", maxRefurbishReportSize);
+		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
 		return "analyses/all/forms/report-word";
 	}
 
@@ -521,8 +524,9 @@ public class ControllerAnalysis {
 				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
 
 			if (!form.isInternal()) {
-				if (form.getFile().getSize() > maxRefurbishReportSize)
-					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxRefurbishReportSize }, "File is to large", locale));
+				long maxSize = Math.min(maxUploadFileSize, maxRefurbishReportSize);
+				if (form.getFile().getSize() > maxSize)
+					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
 				if (!DefaultReportTemplateLoader.isDocx(form.getFile().getInputStream()))
 					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
