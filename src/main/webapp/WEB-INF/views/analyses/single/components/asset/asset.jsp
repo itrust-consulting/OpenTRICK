@@ -100,7 +100,7 @@
 			</tbody>
 			<tfoot>
 				<tr class="panel-footer" style="font-weight: bold;">
-					<td colspan="4"><spring:message code="label.total.ale" /></td>
+					<td colspan="${isEditable? '4': '3'}"><spring:message code="label.total.ale" /></td>
 					<td title='<fmt:formatNumber value="${fct:round(totalAssetValue,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(totalAssetValue*0.001,0)}" /></td>
 					<c:if test="${type.quantitative}">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(assetALE)" var="ale" />

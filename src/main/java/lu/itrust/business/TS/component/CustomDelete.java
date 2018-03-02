@@ -302,7 +302,7 @@ public class CustomDelete {
 		if (customer == null)
 			throw new TrickException("error.customer.not_found", "Customer cannot be found");
 		if (!customer.isCanBeUsed())
-			throw new TrickException("error.customer.delete.profile", "Customer Profile cannot be deleted");
+			throw new TrickException("error.customer.delete.profile", "Default customer cannot be deleted");
 		if (daoCustomer.isInUsed(customer))
 			throw new TrickException("error.delete.customer.has_analyses", "Customer could not be deleted: there are still analyses of this customer!");
 		List<User> users = daoUser.getAllFromCustomer(customer);
