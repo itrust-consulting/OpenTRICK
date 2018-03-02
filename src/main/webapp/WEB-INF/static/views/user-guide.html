@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>TRICK Service 2.8 User Guide</title>
+	<title>TRICK Service 2.9 User Guide</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<link rel="stylesheet" href="css/bootstrap-4.0.0-beta.2.min.css" />
@@ -137,6 +137,17 @@
 		<figcaption class="figure-caption">Add new customer.</figcaption>
 	</figure>
 	<p>For editing or deleting a customer, you must select the customer and click on the appropriate button (“Edit” or “Delete”).</p>
+	<p>Customers have report templates associated to them. These templates serve as a base for the exported reports for risk analyses associated to that customer. Click “Manage report templates” to open a dialog for managing them.</p>
+	<figure id="_FIG_12b" class="figure">
+		<img src="img/14b.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Manage the report templates for a customer.</figcaption>
+	</figure>
+	<p>In the “Manage report templates” dialog, a list of all available templates is presented. At the top of the list, the default templates deployed with TRICK Service are listed; these cannot be edited or deleted. Below, custom templates are listed. To add a template, click the “Add” button.</p>
+	<figure id="_FIG_12c" class="figure">
+		<img src="img/14c.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Add or edit a report template for a customer.</figcaption>
+	</figure>
+	<p>In that dialog, you need to specify a type and a language. These specify to which risk analyses the template applies to; the template will only be available for export if the type and language match. The version that is specified is used to check if the template is outdated, or not. If the version specified here corresponds to the version of the template deployed by default, then it is considered to be up to date. Otherwise, it is considered to be obsolete (in which case you can still use the template, but a warning will be displayed). The uploaded file must be in DOCX format.</p>
 	<h3 id="languages"><a id="knowledgebase-language"></a>Languages</h3>
 	<p>This table shows the different languages that are supported for translating the security measures of a standard. If you
 		add a language, you can define a translation in the newly added language for each security measure.</p>
@@ -2159,6 +2170,13 @@
 	<h4>Report</h4>
 	<p>By clicking on “Report”, the user will get a structured risk analysis report including all data of selected the risk analysis.
 		The report is a word file including macros for the creation of charts &amp; tables.</p>
+	<figure id="_FIG_74b" class="figure">
+		<img src="img/78b.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Export risk analysis report.</figcaption>
+	</figure>
+	<p>When exporting a report, you will be asked to select the template to use. The list features all templates deployed by default in TRICK Service, and the templates that have been manually uploaded for the related customer (see <a href="#customers">[Section]</a>).</p>
+	<p>You can also upload a previously exported report that gets automatically updated (even if styling or content changes have been made to the document).</p>
+	<div class="alert alert-warning">This feature is still experimental, though, and might not work as expected.</div>
 	<h4>Statement of Applicability</h4>
 	<p>By clicking on “Statement of Applicability”, the user will get a word document including the statement of applicability.</p>
 	<h4>Risk register</h4>
@@ -3149,6 +3167,11 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+	<h2 id="whats-new-in-ts-2.9">What's new in TRICK Service 2.9</h2>
+	<ul>
+		<li>Users can upload their own templates which serve as base for the risk analysis report.</li>
+		<li>Fixed a rare bug causing the phase dates not to be applied correctly.</li>
+	</ul>
 	<h2 id="whats-new-in-ts-2.8">What's new in TRICK Service 2.8</h2>
 	<ul>
 		<li>Risk heat map (for qualitative and mixed risk analyses):
