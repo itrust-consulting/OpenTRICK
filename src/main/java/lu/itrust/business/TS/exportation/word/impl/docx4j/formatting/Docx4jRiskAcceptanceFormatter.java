@@ -8,7 +8,6 @@ import java.math.BigInteger;
 import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
-import org.docx4j.wml.Tr;
 
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
@@ -49,7 +48,7 @@ public class Docx4jRiskAcceptanceFormatter extends Docx4jFormatter {
 		int[] cols = { 2122, 7506 }, colCells = { 1102, 3898 };
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
-		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> {
+		getTrs(table).forEach(tr -> {
 			for (int i = 0; i < colCells.length; i++) {
 				Tc tc = (Tc) tr.getContent().get(i);
 				if (tc.getTcPr() == null)

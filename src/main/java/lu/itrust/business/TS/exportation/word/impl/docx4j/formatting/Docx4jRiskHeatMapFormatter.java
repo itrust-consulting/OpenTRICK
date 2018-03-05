@@ -5,6 +5,7 @@ package lu.itrust.business.TS.exportation.word.impl.docx4j.formatting;
 
 import java.math.BigInteger;
 
+import org.docx4j.XmlUtils;
 import org.docx4j.jaxb.Context;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.JcEnumeration;
@@ -56,7 +57,7 @@ public class Docx4jRiskHeatMapFormatter extends Docx4jFormatter {
 		for (int i = 0; i < size; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(120));
 
-		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {
+		getTcs(table).forEach(tc -> {
 			if (tc.getTcPr() == null)
 				tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
 			if (tc.getTcPr().getTcW() == null)
@@ -70,12 +71,14 @@ public class Docx4jRiskHeatMapFormatter extends Docx4jFormatter {
 		ctVerticalJc.setVal(STVerticalJc.CENTER);
 		Tr lastRow = (Tr) table.getContent().get(size - 1);
 		Tr firstRow = (Tr) table.getContent().get(0);
-		table.getContent().parallelStream().map(tr -> (Tc) ((Tr) tr).getContent().get(0)).forEach(tc -> {
+
+		table.getContent().parallelStream().map(t -> XmlUtils.unwrap(t)).filter(t -> t instanceof Tr).map(tr -> (Tc) ((Tr) tr).getContent().get(0)).forEach(tc -> {
 			tc.getTcPr().getTcBorders().getBottom().setColor(Docx4jWordExporter.HEADER_COLOR);
 			tc.getTcPr().getTcBorders().getRight().setColor(Docx4jWordExporter.HEADER_COLOR);
 			tc.getTcPr().getTcW().setType("pct");
 			tc.getTcPr().getTcW().setW(BigInteger.valueOf(0));
 		});
+
 		Docx4jWordExporter.MergeCell(lastRow, 0, lastRow.getContent().size(), Docx4jWordExporter.HEADER_COLOR);
 		Docx4jWordExporter.VerticalMergeCell(table.getContent(), 0, 0, size - 1, Docx4jWordExporter.HEADER_COLOR);
 		Tc column = (Tc) firstRow.getContent().get(0);

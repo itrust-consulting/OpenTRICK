@@ -17,12 +17,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import org.docx4j.TraversalUtil;
+import org.docx4j.XmlUtils;
 import org.docx4j.dml.CTRegularTextRun;
 import org.docx4j.dml.CTSRgbColor;
 import org.docx4j.dml.CTShapeProperties;
@@ -45,6 +49,7 @@ import org.docx4j.dml.chart.CTValAx;
 import org.docx4j.dml.chart.SerContent;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.docProps.custom.Properties.Property;
+import org.docx4j.finders.RangeFinder;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
 import org.docx4j.model.table.TblFactory;
@@ -60,7 +65,9 @@ import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBeh
 import org.docx4j.relationships.Relationship;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
+import org.docx4j.wml.CTMarkupRange;
 import org.docx4j.wml.CTVerticalJc;
+import org.docx4j.wml.ContentAccessor;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.Drawing;
 import org.docx4j.wml.FldChar;
@@ -107,6 +114,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskI
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScenarioFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScopeFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jSummaryFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -131,6 +139,8 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 public abstract class Docx4jWordExporter implements ExportReport {
+
+	private static final String HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART = "http://schemas.openxmlformats.org/drawingml/2006/chart";
 
 	private static volatile DocxFormatter docxFormatter = null;
 
@@ -159,6 +169,10 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected ServiceTaskFeedback serviceTaskFeedback;
 
 	protected ValueFactory valueFactory = null;
+
+	private AtomicInteger maxBookmarkId;
+
+	private AtomicLong bookmarkCounter;
 
 	protected String contextPath;
 
@@ -987,6 +1001,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		int index = findIndex(reference);
 		if (index == -1)
 			return false;
+		if (reference instanceof P) {
+			P next = findNextP(index);
+			if (next != null)
+				putCustomerContentMarker((P) reference, next);
+		}
 		document.getContent().add(index + 1, element);
 		return true;
 	}
@@ -995,6 +1014,12 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		int index = findIndex(reference);
 		if (index == -1)
 			return false;
+
+		if (!elements.isEmpty() && (reference instanceof P)) {
+			P next = findNextP(index);
+			if (next != null)
+				putCustomerContentMarker((P) reference, next);
+		}
 		document.getContent().addAll(index + 1, elements);
 		return true;
 	}
@@ -1003,16 +1028,80 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		int index = findIndex(reference);
 		if (index == -1)
 			return false;
+		if (!elements.isEmpty() && (reference instanceof P)) {
+			P previous = findPreviousP(index);
+			if (previous != null)
+				putCustomerContentMarker(previous, (P) reference);
+		}
 		document.getContent().addAll(index, elements);
 		return true;
 	}
 
-	protected boolean insertBofore(Object reference, Object element) {
+	protected boolean insertBefore(Object reference, Object element) {
 		int index = findIndex(reference);
 		if (index == -1)
 			return false;
+		if (reference instanceof P) {
+			P previous = findPreviousP(index);
+			if (previous != null)
+				putCustomerContentMarker(previous, (P) reference);
+		}
 		document.getContent().add(index, element);
 		return true;
+	}
+
+	protected Object findPrevious(Object reference) {
+		int index = findIndex(reference);
+		if (index < 1)
+			return null;
+		return document.getContent().get(index - 1);
+	}
+
+	protected Object findNext(Object reference) {
+		int index = findIndex(reference);
+		if (index < 0 || index >= (document.getContent().size() - 1))
+			return null;
+		return document.getContent().get(index + 1);
+	}
+
+	protected P findPrevious(P p) {
+		Object reference = p;
+		while (true) {
+			Object element = findPrevious((Object) reference);
+			if (element == null || element instanceof P)
+				return (P) element;
+			else
+				reference = element;
+		}
+	}
+
+	protected P findNext(P p) {
+		Object reference = p;
+		while (true) {
+			Object element = findNext((Object) reference);
+			if (element == null || element instanceof P)
+				return (P) element;
+			else
+				reference = element;
+		}
+	}
+
+	protected P findNextP(int index) {
+		for (int i = index + 1; i < document.getContent().size(); i++) {
+			Object object = document.getContent().get(i);
+			if (object instanceof P)
+				return (P) object;
+		}
+		return null;
+	}
+
+	protected P findPreviousP(int index) {
+		for (int i = Math.min(index, document.getContent().size()) - 1; i >= 0; i--) {
+			Object object = document.getContent().get(i);
+			if (object instanceof P)
+				return (P) object;
+		}
+		return null;
 	}
 
 	protected boolean replace(Object reference, Object element) {
@@ -1163,6 +1252,58 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		if (wordMLPackage.getDocPropsCustomPart() == null)
 			wordMLPackage.addDocPropsCustomPart();
+
+		if (isRefurbished())
+			cleanup();
+
+		int value = document.getContent().parallelStream().filter(p -> (p instanceof P))
+				.mapToInt(p -> ((P) p).getContent().parallelStream().filter(b -> (b instanceof JAXBElement) && ((JAXBElement<?>) b).getValue() instanceof CTBookmark)
+						.mapToInt(c -> ((CTBookmark) ((JAXBElement<?>) c).getValue()).getId().intValue()).max().orElse(1))
+				.max().orElse(1);
+		maxBookmarkId = new AtomicInteger((value + 1));
+		bookmarkCounter = new AtomicLong(System.currentTimeMillis());
+	}
+
+	private void cleanup() {
+		final List<CTRelId> refs = new LinkedList<>();
+		final Map<BigInteger, BookmarkClean> bookmarks = new LinkedHashMap<>();
+		final RangeFinder finder = new RangeFinder("CTBookmark", "CTMarkupRange");
+		new TraversalUtil(wordMLPackage.getMainDocumentPart().getContent(), finder);
+		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr")).forEach(c -> bookmarks.put(c.getId(), new BookmarkClean((ContentAccessor) c.getParent(), c)));
+		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId())).forEach(c -> bookmarks.get(c.getId()).update((ContentAccessor) c.getParent(), c));
+		bookmarks.values().forEach(c -> {
+			if (c.hasContent()) {
+				int startIndex = findIndex(c.getStart()), endIndex = findIndex(c.getEnd());
+				if (startIndex != -1 && endIndex != -1) {
+					List<Object> contents = document.getContent().subList(startIndex + (c.getStart() instanceof P ? 1 : 0),
+							Math.min(endIndex + (c.getEnd() instanceof P ? 0 : 1), document.getContent().size()));
+
+					contents.parallelStream().filter(i -> XmlUtils.unwrap(i) instanceof P).map(i -> (P) XmlUtils.unwrap(i)).flatMap(p -> p.getContent().parallelStream())
+							.filter(r -> XmlUtils.unwrap(r) instanceof R).flatMap(r -> ((R) XmlUtils.unwrap(r)).getContent().parallelStream())
+							.filter(i -> XmlUtils.unwrap(i) instanceof Drawing).map(i -> (Drawing) XmlUtils.unwrap(i)).flatMap(d -> d.getAnchorOrInline().parallelStream())
+							.filter(i -> XmlUtils.unwrap(i) instanceof Inline).map(i -> (Inline) XmlUtils.unwrap(i))
+							.filter(i -> !(i.getGraphic() == null || i.getGraphic().getGraphicData() == null || i.getGraphic().getGraphicData().getAny().isEmpty())
+									&& i.getGraphic().getGraphicData().getUri().equals(HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART))
+							.flatMap(i -> i.getGraphic().getGraphicData().getAny().parallelStream()).filter(i -> XmlUtils.unwrap(i) instanceof CTRelId)
+							.map(i -> (CTRelId) XmlUtils.unwrap(i)).forEach(ref -> refs.add(ref));
+							
+					contents.clear();
+
+				}
+				if (c.getStartBookmark() != null)
+					c.getStart().getContent().removeIf(ct -> XmlUtils.unwrap(ct).equals(c.getStartBookmark()));
+				if (c.getEndBookmark() != null)
+					c.getEnd().getContent().removeIf(ct -> XmlUtils.unwrap(ct).equals(c.getEndBookmark()));
+			}
+		});
+
+		if (!refs.isEmpty()) {
+			for (CTRelId ctRelId : refs) {
+				System.out.println(ctRelId.getId());
+			}
+
+		}
+
 	}
 
 	private void generateAssets() throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -1183,7 +1324,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		List<ItemInformation> iteminformations = analysis.getItemInformations();
 		Collections.sort(iteminformations, new ComparatorItemInformation());
 		if (paragraph != null && iteminformations.size() > 0) {
-
 			// initialise table with 1 row and 1 column after the paragraph
 			// cursor
 			Tbl table = createTable("TableTSScope", iteminformations.size() + 1, 2);
@@ -1208,8 +1348,21 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						alignment);
 				addCellParagraph((Tc) row.getContent().get(1), iteminfo.getValue());
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
+	}
+
+	protected void putCustomerContentMarker(ContentAccessor begin, ContentAccessor end) {
+		BigInteger id = BigInteger.valueOf(maxBookmarkId.incrementAndGet());
+		CTMarkupRange markupRange = factory.createCTMarkupRange();
+		CTBookmark bookmark = factory.createCTBookmark();
+		markupRange.setId(id);
+		bookmark.setId(id);
+		bookmark.setName("_Tsr" + bookmarkCounter.incrementAndGet());
+		JAXBElement<CTMarkupRange> bookmarkEnd = factory.createBodyBookmarkEnd(markupRange);
+		JAXBElement<CTBookmark> bookmarkStart = factory.createBodyBookmarkStart(bookmark);
+		begin.getContent().add(bookmarkStart);
+		end.getContent().add(bookmarkEnd);
 	}
 
 	private void generateMeasures() throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -1226,7 +1379,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 			TextAlignment alignmentLeft = createAlignment("left");
 
-			List<Object> contents = new LinkedList<>();
+			List<Object> extendedMeasureCollections = new LinkedList<>(), contents = new LinkedList<>();
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 
@@ -1235,11 +1388,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				if (analysisStandard.getMeasures().isEmpty())
 					continue;
 
-				document.getContent().add(addBreak(factory.createP(), STBrType.PAGE));
+				contents.add(addBreak(factory.createP(), STBrType.PAGE));
 
 				P paragraph = setText(setStyle(factory.createP(), "TSMeasureTitle"), analysisStandard.getStandard().getLabel());
 
-				document.getContent().add(paragraph);
+				contents.add(paragraph);
 
 				Tbl table = createTable("TableTSMeasure", analysisStandard.getMeasures().size() + 1, 16);
 
@@ -1247,7 +1400,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 				table.getTblPr().getTblW().setW(BigInteger.valueOf(16157));
 
-				document.getContent().add(table);
+				contents.add(table);
 
 				Tr row = (Tr) table.getContent().get(0);
 
@@ -1317,15 +1470,22 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				}
 
 				if (!(analysisStandard.getStandard().is(Constant.STANDARD_27001) || analysisStandard.getStandard().is(Constant.STANDARD_27002)))
-					contents.add(setText(setStyle(factory.createP(), "ListParagraph"), getMessage("report.format.bullet.list.iteam",
+					extendedMeasureCollections.add(setText(setStyle(factory.createP(), "ListParagraph"), getMessage("report.format.bullet.list.iteam",
 							new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel(), locale)));
 			}
 
 			if (!contents.isEmpty()) {
+				P previous = findPreviousP(document.getContent().size());
+				document.getContent().addAll(contents);
+				if (previous != null)
+					putCustomerContentMarker(previous, (ContentAccessor) contents.get(contents.size() - 1));
+			}
+
+			if (!extendedMeasureCollections.isEmpty()) {
 				P paragraph = findTableAnchor("ListCollection");
 				if (paragraph != null) {
-					contents.parallelStream().forEach(p -> ((P) p).setPPr(paragraph.getPPr()));
-					insertAllAfter(paragraph, contents);
+					extendedMeasureCollections.parallelStream().forEach(p -> ((P) p).setPPr(paragraph.getPPr()));
+					insertAllAfter(paragraph, extendedMeasureCollections);
 				}
 			}
 		}
@@ -1360,7 +1520,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				setCellText((Tc) row.getContent().get(1), scenario.getName(), alignmentLeft);
 				addCellParagraph((Tc) row.getContent().get(2), scenario.getDescription());
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
 	}
 
@@ -1393,6 +1553,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 							analysisStandard.getStandard().getLabel(), locale)));
 
 				}
+
 				insertAllBefore(collectionCustom, contents);
 			}
 		}
@@ -1445,7 +1606,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		inline.setDistR(0L);
 		inline.setCNvGraphicFramePr(dmlFactory.createCTNonVisualGraphicFrameProperties());
 		inline.getGraphic().setGraphicData(dmlFactory.createGraphicData());
-		inline.getGraphic().getGraphicData().setUri("http://schemas.openxmlformats.org/drawingml/2006/chart");
+		inline.getGraphic().getGraphicData().setUri(HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART);
 		CTRelId relId = chartFactory.createCTRelId();
 		relId.setId(refId);
 		inline.getGraphic().getGraphicData().getAny().add(chartFactory.createChart(relId));
@@ -1548,7 +1709,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						addCellParagraph((Tc) row.getContent().get(4), riskinfo.getComment());
 					}
 				}
-				insertBofore(paragraph, table);
+				insertBefore(paragraph, table);
 			}
 		}
 	}

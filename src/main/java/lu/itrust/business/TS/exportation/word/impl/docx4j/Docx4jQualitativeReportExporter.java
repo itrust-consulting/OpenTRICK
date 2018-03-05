@@ -136,7 +136,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(9), entry.getMeasure().getPhase().getNumber() + "");
 				addCellNumber((Tc) row.getContent().get(10), entry.getMeasure().getResponsible());
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
 
 	}
@@ -360,7 +360,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			}
 			rownumber++;
 		}
-		insertBofore(paragraph, table);
+		insertBefore(paragraph, table);
 
 	}
 
@@ -464,7 +464,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(asset.getValue() * 0.001));
 				addCellParagraph((Tc) row.getContent().get(4), asset.getComment());
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
 	}
 
@@ -638,7 +638,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				if (!parameter.getColor().isEmpty())
 					setColor(cell, parameter.getColor().substring(1));
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
 	}
 
@@ -664,6 +664,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	private void generateRiskHeatMap(Chart chart, String anchor) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraphOriginal = findTableAnchor(anchor);
 		if (paragraphOriginal != null) {
+			List<Object> contents = new LinkedList<>();
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Tbl legends = createTable("TableTSHeatMapLegend", 1, chart.getLegends().size());
 			TextAlignment alignmentCenter = createAlignment("center");
@@ -676,8 +677,6 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			});
 
 			CTVerticalJc verticalJc = createVerticalAlignment(STVerticalJc.CENTER);
-			insertBofore(paragraphOriginal, legends);
-			insertBofore(paragraphOriginal, setStyle(factory.createP(), "Endlist"));
 			Tbl table = createTable("TableTSRiskHeatMap", chart.getLabels().size() + 2, chart.getLabels().size() + 2);
 			// set header
 			Tr row = (Tr) table.getContent().get(0);
@@ -711,7 +710,12 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			}
 			row = (Tr) table.getContent().get(rowIndex);
 			setCellText((Tc) row.getContent().get(0), getMessage("report.risk_heat_map.title.probability", null, "Probability", locale), alignmentCenter);
-			insertBofore(paragraphOriginal, table);
+
+			contents.add(legends);
+			contents.add(setStyle(factory.createP(), "Endlist"));
+			contents.add(table);
+			
+			insertAllBefore(paragraphOriginal, contents);
 		}
 
 	}

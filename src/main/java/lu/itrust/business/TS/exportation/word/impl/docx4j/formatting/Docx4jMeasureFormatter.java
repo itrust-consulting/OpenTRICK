@@ -44,7 +44,7 @@ public class Docx4jMeasureFormatter extends Docx4jFormatter {
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(16157));
 		for (int i = 0; i < headers.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(headers[i]));
-		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "dxa"));
+		getTrs(table).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "dxa"));
 		return true;
 	}
 

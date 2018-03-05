@@ -7,8 +7,6 @@ import java.math.BigInteger;
 
 import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
-import org.docx4j.wml.Tc;
-import org.docx4j.wml.Tr;
 
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
@@ -46,7 +44,7 @@ public class Docx4jScenarioFormatter extends Docx4jFormatter {
 		int[] cols = { 272, 3216, 6140 };
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
-		table.getContent().parallelStream().map(tr -> (Tr) tr).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc).forEach(tc -> {
+		getTcs(table).forEach(tc -> {
 			if (tc.getTcPr() == null)
 				tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
 			if (tc.getTcPr().getTcW() == null)

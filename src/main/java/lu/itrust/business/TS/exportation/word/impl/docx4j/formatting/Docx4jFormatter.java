@@ -4,8 +4,12 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j.formatting;
 
 import java.util.List;
+import java.util.stream.Stream;
 
+import org.docx4j.XmlUtils;
 import org.docx4j.wml.Tbl;
+import org.docx4j.wml.Tc;
+import org.docx4j.wml.Tr;
 
 import lu.itrust.business.TS.exportation.word.DocxFormatter;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -103,6 +107,14 @@ public abstract class Docx4jFormatter implements DocxFormatter {
 		if (support instanceof List)
 			return ((List<?>) support).contains(findId(table));
 		return false;
+	}
+	
+	protected Stream<Tc> getTcs(Tbl table) {
+		return getTrs(table).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc);
+	}
+	
+	protected Stream<Tr> getTrs(Tbl table){
+		return table.getContent().parallelStream().map(c-> XmlUtils.unwrap(c)).filter(c-> c instanceof Tr).map(tr -> (Tr) tr);
 	}
 
 }

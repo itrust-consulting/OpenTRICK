@@ -134,7 +134,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(11), entry.getMeasure().getPhase().getNumber() + "");
 				addCellNumber((Tc) row.getContent().get(12), entry.getMeasure().getResponsible());
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
 
 	}
@@ -394,7 +394,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			rownumber++;
 		}
 
-		insertBofore(paragraph, table);
+		insertBefore(paragraph, table);
 
 		if (!summary.isEmpty()) {
 			setCustomProperty("FINAL_ALE_VAL", (long) (summary.get(summary.size() - 1).getTotalALE() * 0.001));
@@ -529,7 +529,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				addCellNumber((Tc) row.getContent().get(4), kEuroFormat.format(asset.getALE() * 0.001));
 				addCellParagraph((Tc) row.getContent().get(5), asset.getComment());
 			}
-			insertBofore(paragraph, table);
+			insertBefore(paragraph, table);
 		}
 	}
 
@@ -549,8 +549,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 
 		if (paragraph != null && parameters.size() > 0) {
-			P title = setText(setStyle(factory.createP(), "TSEstimationTitle"), getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
-			insertBofore(paragraph, title);
+			List<Object> contents = new LinkedList<>();
+			contents.add(setText(setStyle(factory.createP(), "TSEstimationTitle"), getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale)));
 			Tbl table = createTable("TableTS" + parmetertype, parameters.size() + 1, 6);
 			Tr row = (Tr) table.getContent().get(0);
 			for (int i = 1; i < 6; i++)
@@ -601,7 +601,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					setColor((Tc) row.getContent().get(i), SUB_HEADER_COLOR);
 				countrow++;
 			}
-			insertBofore(paragraph, table);
+			contents.add(table);
+			insertAllBefore(paragraph, contents);
 		}
 	}
 
