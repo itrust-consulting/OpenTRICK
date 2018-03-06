@@ -1288,9 +1288,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		final List<CTRelId> refs = new LinkedList<>();
 		final Map<BigInteger, BookmarkClean> bookmarks = new LinkedHashMap<>();
 
-		AnalysisType type = AnalysisType.valueOf(getPropertyString(PROPERTY_REPORT_TYPE));
-
-		if (!(type == null || type == getType()))
+		if (loadTypeFromDocument() != getType())
 			throw new TrickException("error.report.type.not.compatible", "Report and analysis are not compatible");
 
 		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr")).forEach(c -> bookmarks.put(c.getId(), new BookmarkClean(c)));
@@ -1346,6 +1344,15 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			}
 		}
 
+	}
+
+	private AnalysisType loadTypeFromDocument() {
+		try {
+			String type = getPropertyString(PROPERTY_REPORT_TYPE);
+			return type == null ? getType() : AnalysisType.valueOf(type);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private int findIndexLoop(Object reference) {
