@@ -56,7 +56,7 @@
 					</fieldset>
 
 					<fieldset data-trick-info='file'>
-						<legend class='text-danger' style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.external" />'>
+						<legend class='text-warning' style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.external" />'>
 							<spring:message code="label.external.template" />
 						</legend>
 

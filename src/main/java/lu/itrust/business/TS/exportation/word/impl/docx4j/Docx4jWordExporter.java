@@ -63,6 +63,7 @@ import org.docx4j.openpackaging.parts.DrawingML.Chart;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
 import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBehaviour;
 import org.docx4j.relationships.Relationship;
+import org.docx4j.relationships.Relationships;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
 import org.docx4j.wml.CTMarkupRange;
@@ -89,6 +90,7 @@ import org.docx4j.wml.TblPr;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
+import org.jvnet.jaxb2_commons.ppp.Child;
 import org.springframework.context.MessageSource;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
@@ -139,6 +141,8 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 public abstract class Docx4jWordExporter implements ExportReport {
+
+	private static final String PROPERTY_REPORT_TYPE = "REPORT_TYPE";
 
 	private static final String HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART = "http://schemas.openxmlformats.org/drawingml/2006/chart";
 
@@ -763,7 +767,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected int findIndex(Object reference) {
-		return reference == null ? -1 : document.getContent().indexOf(reference);
+		int index = -1;
+		if (reference != null) {
+			index = document.getContent().indexOf(reference);
+			if (index == -1 && !(reference instanceof P)) {
+				for (int i = 0; i < document.getContent().size(); i++) {
+					if (XmlUtils.unwrap(reference).equals(XmlUtils.unwrap(document.getContent().get(i))))
+						return i;
+				}
+			}
+		}
+		return index;
 	}
 
 	protected P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -796,7 +810,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		List<Phase> phases = analysis.findUsablePhase();
 
 		for (Entry<String, Part> entry : parts.entrySet()) {
-
 			String path = entry.getValue().getRelationshipsPart().getRelationships().getRelationship().parallelStream().filter(r -> r.getTarget().endsWith(".xlsx"))
 					.map(Relationship::getTarget).findAny().orElse(null);
 			if (path == null)
@@ -1012,16 +1025,27 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected boolean insertAllAfter(Object reference, List<Object> elements) {
 		int index = findIndex(reference);
-		if (index == -1)
+		if (index == -1 || elements.isEmpty())
 			return false;
 
-		if (!elements.isEmpty() && (reference instanceof P)) {
-			P next = findNextP(index);
+		if ((reference instanceof P)) {
+			ContentAccessor next = findNextP(index);
+			if (next == null && index == document.getContent().size() - 1)
+				next = findLastAnignable(elements, ContentAccessor.class);
 			if (next != null)
 				putCustomerContentMarker((P) reference, next);
 		}
+
 		document.getContent().addAll(index + 1, elements);
 		return true;
+	}
+
+	private <T> T findLastAnignable(List<Object> elements, Class<T> assignable) {
+		for (int i = elements.size() - 1; i >= 0; i--) {
+			if (assignable.isAssignableFrom(elements.get(i).getClass()))
+				return assignable.cast(elements.get(i));
+		}
+		return null;
 	}
 
 	protected boolean insertAllBefore(Object reference, List<Object> elements) {
@@ -1252,58 +1276,94 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 		if (wordMLPackage.getDocPropsCustomPart() == null)
 			wordMLPackage.addDocPropsCustomPart();
-
+		final RangeFinder finder = new RangeFinder("CTBookmark", "CTMarkupRange");
+		new TraversalUtil(wordMLPackage.getMainDocumentPart().getContent(), finder);
 		if (isRefurbished())
-			cleanup();
-
-		int value = document.getContent().parallelStream().filter(p -> (p instanceof P))
-				.mapToInt(p -> ((P) p).getContent().parallelStream().filter(b -> (b instanceof JAXBElement) && ((JAXBElement<?>) b).getValue() instanceof CTBookmark)
-						.mapToInt(c -> ((CTBookmark) ((JAXBElement<?>) c).getValue()).getId().intValue()).max().orElse(1))
-				.max().orElse(1);
-		maxBookmarkId = new AtomicInteger((value + 1));
+			cleanup(finder);
+		maxBookmarkId = new AtomicInteger(finder.getStarts().parallelStream().mapToInt(p -> p.getId().intValue()).max().orElse(1));
 		bookmarkCounter = new AtomicLong(System.currentTimeMillis());
 	}
 
-	private void cleanup() {
+	private void cleanup(RangeFinder finder) throws Docx4JException {
 		final List<CTRelId> refs = new LinkedList<>();
 		final Map<BigInteger, BookmarkClean> bookmarks = new LinkedHashMap<>();
-		final RangeFinder finder = new RangeFinder("CTBookmark", "CTMarkupRange");
-		new TraversalUtil(wordMLPackage.getMainDocumentPart().getContent(), finder);
-		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr")).forEach(c -> bookmarks.put(c.getId(), new BookmarkClean((ContentAccessor) c.getParent(), c)));
-		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId())).forEach(c -> bookmarks.get(c.getId()).update((ContentAccessor) c.getParent(), c));
-		bookmarks.values().forEach(c -> {
-			if (c.hasContent()) {
-				int startIndex = findIndex(c.getStart()), endIndex = findIndex(c.getEnd());
-				if (startIndex != -1 && endIndex != -1) {
-					List<Object> contents = document.getContent().subList(startIndex + (c.getStart() instanceof P ? 1 : 0),
-							Math.min(endIndex + (c.getEnd() instanceof P ? 0 : 1), document.getContent().size()));
 
-					contents.parallelStream().filter(i -> XmlUtils.unwrap(i) instanceof P).map(i -> (P) XmlUtils.unwrap(i)).flatMap(p -> p.getContent().parallelStream())
-							.filter(r -> XmlUtils.unwrap(r) instanceof R).flatMap(r -> ((R) XmlUtils.unwrap(r)).getContent().parallelStream())
-							.filter(i -> XmlUtils.unwrap(i) instanceof Drawing).map(i -> (Drawing) XmlUtils.unwrap(i)).flatMap(d -> d.getAnchorOrInline().parallelStream())
+		AnalysisType type = AnalysisType.valueOf(getPropertyString(PROPERTY_REPORT_TYPE));
+
+		if (!(type == null || type == getType()))
+			throw new TrickException("error.report.type.not.compatible", "Report and analysis are not compatible");
+
+		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr")).forEach(c -> bookmarks.put(c.getId(), new BookmarkClean(c)));
+		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId())).forEach(c -> bookmarks.get(c.getId()).update(c));
+
+		bookmarks.values().stream().forEach(c -> {
+			if (c.hasContent()) {
+
+				int startIndex = findIndexLoop(c.getStart()), endIndex = findIndexLoop(c.getEnd());
+
+				if (!(startIndex == -1 || endIndex == -1)) {
+					List<Object> contents = document.getContent().subList(startIndex + (c.getStartParent() instanceof P ? 1 : 0),
+							Math.min(endIndex + (c.getEndParent() instanceof P ? 0 : 1), document.getContent().size()));
+
+					contents.stream().filter(i -> XmlUtils.unwrap(i) instanceof P).map(i -> (P) XmlUtils.unwrap(i)).flatMap(p -> p.getContent().stream())
+							.filter(r -> XmlUtils.unwrap(r) instanceof R).flatMap(r -> ((R) XmlUtils.unwrap(r)).getContent().stream())
+							.filter(i -> XmlUtils.unwrap(i) instanceof Drawing).map(i -> (Drawing) XmlUtils.unwrap(i)).flatMap(d -> d.getAnchorOrInline().stream())
 							.filter(i -> XmlUtils.unwrap(i) instanceof Inline).map(i -> (Inline) XmlUtils.unwrap(i))
 							.filter(i -> !(i.getGraphic() == null || i.getGraphic().getGraphicData() == null || i.getGraphic().getGraphicData().getAny().isEmpty())
 									&& i.getGraphic().getGraphicData().getUri().equals(HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART))
-							.flatMap(i -> i.getGraphic().getGraphicData().getAny().parallelStream()).filter(i -> XmlUtils.unwrap(i) instanceof CTRelId)
-							.map(i -> (CTRelId) XmlUtils.unwrap(i)).forEach(ref -> refs.add(ref));
-							
-					contents.clear();
+							.flatMap(i -> i.getGraphic().getGraphicData().getAny().stream()).filter(i -> XmlUtils.unwrap(i) instanceof CTRelId)
+							.map(i -> (CTRelId) XmlUtils.unwrap(i)).filter(i -> i != null).forEach(ref -> refs.add(ref));
 
+					contents.clear();
 				}
-				if (c.getStartBookmark() != null)
-					c.getStart().getContent().removeIf(ct -> XmlUtils.unwrap(ct).equals(c.getStartBookmark()));
-				if (c.getEndBookmark() != null)
-					c.getEnd().getContent().removeIf(ct -> XmlUtils.unwrap(ct).equals(c.getEndBookmark()));
+
 			}
+
+			if (c.getStartParent() != null)
+				c.getStartParent().getContent().removeIf(ct -> XmlUtils.unwrap(ct).equals(c.getStart()));
+			if (c.getEndParent() != null)
+				c.getEndParent().getContent().removeIf(ct -> XmlUtils.unwrap(ct).equals(c.getEnd()));
 		});
 
 		if (!refs.isEmpty()) {
+			Relationships mainRelationships = wordMLPackage.getMainDocumentPart().getRelationshipsPart().getContents();
 			for (CTRelId ctRelId : refs) {
-				System.out.println(ctRelId.getId());
-			}
+				Relationship relationship = mainRelationships.getRelationship().stream().filter(p -> p.getId().equals(ctRelId.getId())).findAny().orElse(null);
+				if (relationship == null)
+					continue;
+				Part chart = wordMLPackage.getParts().get(new PartName("/word/" + relationship.getTarget()));
+				if (chart == null)
+					continue;
 
+				List<Relationship> relationships = chart.getRelationshipsPart().getContents().getRelationship();
+				while (!relationships.isEmpty()) {
+					Part part = wordMLPackage.getParts().get(chartDependancyPartName(relationships.remove(0)));
+					if (part != null)
+						part.remove();
+				}
+				mainRelationships.getRelationship().remove(relationship);
+				chart.remove();
+			}
 		}
 
+	}
+
+	private int findIndexLoop(Object reference) {
+		Object ctp = reference;
+		while (true) {
+			int index = findIndex(ctp);
+			if (index != -1)
+				return index;
+			else if (ctp instanceof Child && !(ctp instanceof Document))
+				ctp = ((Child) ctp).getParent();
+			else
+				return -1;
+		}
+	}
+
+	private PartName chartDependancyPartName(Relationship relationship) throws InvalidFormatException {
+		String name = relationship.getTarget();
+		return name.startsWith("..") ? new PartName("/word" + name.replace("..", "")) : new PartName("/word/charts/" + name);
 	}
 
 	private void generateAssets() throws XPathBinderAssociationIsPartialException, JAXBException {
@@ -1371,7 +1431,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		Map<String, Double> expressionParameters = this.analysis.getDynamicParameters().stream()
 				.collect(Collectors.toMap(DynamicParameter::getAcronym, DynamicParameter::getValue));
 
-		if (analysisStandards.size() > 0) {
+		P reference = findTableAnchor("MeasuresCollection");
+
+		if (!(reference == null || analysisStandards.isEmpty())) {
 
 			setCurrentParagraphId(TS_TAB_TEXT_3);
 
@@ -1474,12 +1536,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 							new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel(), locale)));
 			}
 
-			if (!contents.isEmpty()) {
-				P previous = findPreviousP(document.getContent().size());
-				document.getContent().addAll(contents);
-				if (previous != null)
-					putCustomerContentMarker(previous, (ContentAccessor) contents.get(contents.size() - 1));
-			}
+			if (!contents.isEmpty())
+				insertAllAfter(reference, contents);
 
 			if (!extendedMeasureCollections.isEmpty()) {
 				P paragraph = findTableAnchor("ListCollection");
@@ -1525,13 +1583,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected Map<String, Part> createComplianceGraphicParts() throws Docx4JException, JAXBException {
-		Map<String, Part> parts = new LinkedHashMap<>();
-		parts.put(Constant.STANDARD_27001, findChart("ChartCompliance27001"));
-		parts.put(Constant.STANDARD_27002, findChart("ChartCompliance27002"));
+		final Map<String, Part> parts = new LinkedHashMap<>();
+		final String[][] names = { { Constant.STANDARD_27001, "ChartCompliance27001" }, { Constant.STANDARD_27002, "ChartCompliance27002" } };
+		for (String[] name : names) {
+			Part part = findChart(name[1]);
+			if (part != null)
+				parts.put(name[0], part);
+		}
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream()
 				.filter(analysisStandard -> !(analysisStandard.getStandard().is(Constant.STANDARD_27001) || analysisStandard.getStandard().is(Constant.STANDARD_27002)))
 				.collect(Collectors.toList());
-		if (!analysisStandards.isEmpty()) {
+		if (!(parts.isEmpty() || analysisStandards.isEmpty())) {
 			P collectionCustom = findTableAnchor("AdditionalCollection");
 			Chart part = (Chart) parts.get(Constant.STANDARD_27001);
 			if (collectionCustom != null) {
@@ -1725,6 +1787,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	private void updateProperties() throws Docx4JException {
 		setCustomProperty(_27001_NA_MEASURES, nonApplicableMeasure27001);
 		setCustomProperty(_27002_NA_MEASURES, nonApplicableMeasure27002);
+		setCustomProperty(PROPERTY_REPORT_TYPE, getType());
 
 		setCustomProperty(MAX_IMPL,
 				analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
@@ -1759,6 +1822,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	protected Property getProperty(String name) throws Docx4JException {
 		return createProperty(name, true);
+	}
+
+	private String getPropertyString(String name) {
+		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
+		return property == null ? null : property.getLpwstr();
 	}
 
 	protected void setColor(CTBarSer ser, String color) {

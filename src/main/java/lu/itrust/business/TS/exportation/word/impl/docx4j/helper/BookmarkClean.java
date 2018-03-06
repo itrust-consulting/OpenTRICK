@@ -6,71 +6,57 @@ import org.docx4j.wml.ContentAccessor;
 
 public class BookmarkClean {
 
-	private CTBookmark startBookmark;
+	private CTBookmark start;
 
-	private CTMarkupRange endBookmark;
+	private CTMarkupRange end;
 
-	private ContentAccessor start;
-
-	private ContentAccessor end;
-
-	public BookmarkClean(ContentAccessor start, CTBookmark startBookmark) {
-		update(start, startBookmark);
+	public BookmarkClean(CTBookmark startBookmark) {
+		update(startBookmark);
 	}
 
-	public BookmarkClean(ContentAccessor end, CTMarkupRange endBookmark) {
-		update(end, endBookmark);
+	public BookmarkClean(CTMarkupRange endBookmark) {
+		update(endBookmark);
 	}
 
-	public BookmarkClean(ContentAccessor start, CTBookmark startBookmark, ContentAccessor end, CTMarkupRange endBookmark) {
-		this(start, startBookmark);
-		update(end, endBookmark);
+	public BookmarkClean(CTBookmark start, CTMarkupRange end) {
+		this(start);
+		update(end);
 	}
 
-	public CTBookmark getStartBookmark() {
-		return startBookmark;
-	}
-
-	public void setStartBookmark(CTBookmark startBookmark) {
-		this.startBookmark = startBookmark;
-	}
-
-	public CTMarkupRange getEndBookmark() {
-		return endBookmark;
-	}
-
-	public void setEndBookmark(CTMarkupRange endBookmark) {
-		this.endBookmark = endBookmark;
-	}
-
-	public void update(ContentAccessor start, CTBookmark startBookmark) {
-		setStart(start);
-		setStartBookmark(startBookmark);
-	}
-
-	public void update(ContentAccessor end, CTMarkupRange endBookmark) {
-		setEnd(end);
-		setEndBookmark(endBookmark);
-	}
-
-	public boolean hasContent() {
-		return !(start == null || end == null || start.equals(end));
-	}
-
-	public void setStart(ContentAccessor start) {
-		this.start = start;
-	}
-
-	public void setEnd(ContentAccessor end) {
-		this.end = end;
-	}
-
-	public ContentAccessor getStart() {
+	public CTBookmark getStart() {
 		return start;
 	}
 
-	public ContentAccessor getEnd() {
+	public void setStart(CTBookmark start) {
+		this.start = start;
+	}
+
+	public CTMarkupRange getEnd() {
 		return end;
+	}
+
+	public void setEnd(CTMarkupRange end) {
+		this.end = end;
+	}
+
+	public void update(CTBookmark start) {
+		setStart(start);
+	}
+
+	public void update(CTMarkupRange end) {
+		setEnd(end);
+	}
+
+	public boolean hasContent() {
+		return !(start == null || end == null || getStartParent() == null || start.getParent().equals(end.getParent()));
+	}
+
+	public ContentAccessor getStartParent() {
+		return start == null ? null : (ContentAccessor) start.getParent();
+	}
+
+	public ContentAccessor getEndParent() {
+		return end == null ? null : (ContentAccessor) end.getParent();
 	}
 
 }
