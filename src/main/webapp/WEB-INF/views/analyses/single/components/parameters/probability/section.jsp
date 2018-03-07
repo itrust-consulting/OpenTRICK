@@ -25,11 +25,11 @@
 					<c:if test="${type.qualitative}">
 						<th class="textaligncenter" width="${type.quantitative?'10' : '20' }%"><spring:message code="label.parameter.label" /></th>
 					</c:if>
-					<th ${type.qualitative?'width="50%"' : '' }><spring:message code="label.parameter.qualification" /></th>
+					<th><spring:message code="label.parameter.qualification" /></th>
 					<c:if test="${type.quantitative}">
-						<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
-						<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
-						<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
+						<th class="textaligncenter" width="8%"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
+						<th class="textaligncenter" width="8%"><spring:message code="label.parameter.range.min" /></th>
+						<th class="textaligncenter" width="8%"><spring:message code="label.parameter.range.max" /></th>
 					</c:if>
 				</tr>
 			</thead>
