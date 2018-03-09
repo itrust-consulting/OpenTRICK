@@ -142,6 +142,10 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 
 public abstract class Docx4jWordExporter implements ExportReport {
 
+	private static final String INTERNAL_WL_VAL = "INTERNAL_WL_VAL";
+
+	private static final String EXTERNAL_WL_VAL = "EXTERNAL_WL_VAL";
+
 	private static final String PROPERTY_REPORT_TYPE = "REPORT_TYPE";
 
 	private static final String HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART = "http://schemas.openxmlformats.org/drawingml/2006/chart";
@@ -1799,19 +1803,25 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		setCustomProperty(MAX_IMPL,
 				analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 
-		setCustomProperty("EXTERNAL_WL_VAL", analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
+		setCustomProperty(EXTERNAL_WL_VAL, analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
 				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 
-		setCustomProperty("INTERNAL_WL_VAL", analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
+		setCustomProperty(INTERNAL_WL_VAL, analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
 				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
-
+		
+		setCustomProperty("Client", analysis.getCustomer().getOrganisation());
+		
+		wordMLPackage.getDocPropsExtendedPart().getContents().setCompany(analysis.getCustomer().getOrganisation());
+		
+		wordMLPackage.getDocPropsExtendedPart().getContents().setManager(analysis.getCustomer().getContactPerson());
+		
 		wordMLPackage.getDocPropsCorePart().getContents().setCategory(analysis.getCustomer().getOrganisation());
 
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
 
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
 				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
-
+		
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 
