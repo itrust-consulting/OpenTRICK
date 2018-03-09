@@ -31,8 +31,6 @@
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css?version=${cssVersion}" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/font-awesome.min.css?version=${cssVersion}" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-slider.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css?version=${cssVersion}" />' />
 <link rel="stylesheet" href='<spring:url value="${currentTheme}?version=${cssVersion}" />' type="text/css" />
 <script type="text/javascript">
 <!--

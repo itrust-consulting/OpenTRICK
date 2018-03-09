@@ -76,7 +76,6 @@
 	<script src="<spring:url value="/js/chartjs/plugins.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/chartjs/Chart.HeatMap.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-slider.min.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/trickservice/analysis.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/fieldeditor.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/scenario.js?version=${jsVersion}" />"></script>
@@ -88,7 +87,6 @@
 	<c:if test="${!isProfile}">
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js?version=${jsVersion}" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js?version=${jsVersion}" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js?version=${jsVersion}" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/risk-estimation.js?version=${jsVersion}" />"></script>
 		<c:if test="${type.qualitative}" >
