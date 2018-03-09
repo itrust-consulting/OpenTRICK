@@ -1,7 +1,7 @@
 function addPhase() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var selectedScenario = $("#section_phase :checked");
-		if (selectedScenario.length != 0)
+		var selectedPhase = $("#section_phase tbody>tr>td>:checked");
+		if (selectedPhase.length != 0)
 			return false;
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -40,14 +40,26 @@ function processPhaseForm(response, textStatus, jqXHR){
 		$saveBtn.on("click", (e) => $submitBtn.trigger("click"));
 		$("form", $view).on("submit", savePhase);
 	}else unknowError();
-	
-	
+	return this;
 }
 
-function editPhase(phaseid) {
-
+function editPhase(phaseId) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-
+		if(phaseId===undefined || phaseId === null){
+			var selectedPhase = findSelectItemIdBySection("section_phase");
+			if (selectedPhase.length!=1)
+				return false;
+			phaseId = selectedPhase[0];
+		}
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Phase/"+phaseId+"/Edit",
+			contentType : "application/json;charset=UTF-8",
+			success : processPhaseForm,
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
 	}
 	return false;
 }
@@ -68,11 +80,16 @@ function savePhase(e) {
 		contentType: false,
 		processData: false,
 		success : function(response, textStatus, jqXHR) {
-			if(response.success){
-				showDialog("success", response.success);
+			if(response.success || response.warning){
+				reloadSection("section_phase");
+				if(response.success)
+					showDialog("success", response.success);
+				else showDialog("warning", response.warning);
 				$(view).modal("hide");
-			}else if(response.error)
-				showDialog("error", response.error);
+			}else if(response.error || response.begin || response.end){
+				for ( var field in response) 
+					showDialog("error", response[field]);
+			}
 			else 
 				unknowError();
 		},
@@ -86,22 +103,24 @@ function savePhase(e) {
 function deletePhase(idPhase) {
 
 	if (idPhase == null || idPhase == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_phase"));
-		if (selectedScenario.length != 1)
+		var selectedPhase = findSelectItemIdBySection("section_phase");
+		if (selectedPhase.length!=1)
 			return false;
-		idPhase = selectedScenario[0];
+		idPhase = selectedPhase[0];
 	}
 	var $confirmDialog = showDialog("#confirm-dialog", MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
 	$(".btn-danger", $confirmDialog).click(function() {
 		$confirmDialog.modal("hide");
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Phase/Delete/" + idPhase,
+			url : context + "/Analysis/Phase/" +idPhase+"/Delete",
 			contentType : "application/json;charset=UTF-8",
 			type : 'POST',
 			success : function(response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
+				if (response["success"] != undefined){
 					reloadSection("section_phase");
+					showDialog("success", response["success"]);
+				}
 				else if (response["error"] != undefined)
 					showDialog("#alert-dialog", response["error"]);
 				else

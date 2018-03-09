@@ -604,6 +604,14 @@ tr.editable, td.editable, th.editable {
 	background-color: #eff5fb;
 }
 
+td.statistic{
+	font-style: oblique;
+}
+
+tr.editable>td.statistic {
+	background-color:#f3f8fc;
+}
+
 table>tbody>tr.editable:HOVER,
 table>tbody>tr:HOVER>.editable {
 	background-color: #b5d4f3;
@@ -611,6 +619,7 @@ table>tbody>tr:HOVER>.editable {
 
 tr.selected, table>tbody>tr.selected,
 table>tbody>tr.selected:nth-of-type(2n+1),
+table>tbody>tr.selected>td.statistic,
 table>tbody>tr.selected.info,
 table>tbody>tr.selected.succes,
 table>tbody>tr.selected.warning,
@@ -625,6 +634,7 @@ table>tbody>tr.selected.info td:not(.selected ) {
 }
 
 tr.selected:HOVER, table>tbody>tr.selected:HOVER,
+table>tbody>tr.editable:HOVER>td.statistic,
 table>tbody>tr.selected.info:HOVER,
 table>tbody>tr.selected.succes:HOVER,
 table>tbody>tr.selected.warning:HOVER,

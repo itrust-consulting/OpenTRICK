@@ -201,7 +201,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 
 	@Override
 	public Phase findAllByIdAnalysis(Integer idAnalysis) {
-		return getSession().createQuery("From Phase phase where analysis.id = :idAnalysis order by endDate desc", Phase.class).setParameter("idAnalysis", idAnalysis)
+		return getSession().createQuery("From Phase phase where analysis.id = :idAnalysis order by number desc", Phase.class).setParameter("idAnalysis", idAnalysis)
 				.setMaxResults(1).uniqueResult();
 	}
 }

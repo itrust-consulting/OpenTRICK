@@ -69,6 +69,9 @@ public class Phase implements Cloneable {
 
 	@Transient
 	private int measureCount;
+	
+	@Transient
+	private double investment;
 
 	@Transient
 	private boolean removable = true;
@@ -361,6 +364,14 @@ public class Phase implements Cloneable {
 
 	public void setMeasureCount(int measureCount) {
 		this.measureCount = measureCount;
+	}
+
+	public double getInvestment() {
+		return investment;
+	}
+
+	public void setInvestment(double investment) {
+		this.investment = investment;
 	}
 
 	public double getComplianceRate() {

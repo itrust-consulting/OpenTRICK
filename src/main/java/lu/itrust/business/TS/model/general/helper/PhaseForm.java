@@ -2,17 +2,21 @@ package lu.itrust.business.TS.model.general.helper;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 public class PhaseForm {
 	
 	private int id;
 	
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date begin;
 	
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date end;
 	
 	private boolean beginEnabled;
 	
-	private boolean endEnabled;
+	private boolean endEnabled = true;
 	
 	public PhaseForm() {
 	}

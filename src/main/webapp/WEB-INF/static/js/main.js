@@ -865,7 +865,7 @@ function log(msg) {
 }
 
 function findSelectItemIdBySection(section, modal) {
-	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $("tbody :checked", modal);
+	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("tbody>tr>td>:checked","#" + section) : $("tbody>tr>td>:checked", modal);
 	for (var i = 0; i < $items.length; i++) {
 		trickId = findTrickID($items[i]);
 		if (trickId == null || trickId == undefined)

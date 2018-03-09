@@ -963,6 +963,8 @@ public class ControllerAnalysis {
 			}
 
 			PhaseManager.updateStatistics(measuresByStandard.values(), valueFactory, (double) model.asMap().get("soaThreshold"));
+			
+			model.addAttribute("totalPhase", PhaseManager.computeTotal(analysis.getPhases()));
 
 			if (!analysis.isProfile()) {
 				Map<String, List<RiskInformation>> riskInformations = RiskInformationManager.Split(analysis.getRiskInformations());
