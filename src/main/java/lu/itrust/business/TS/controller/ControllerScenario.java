@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -50,7 +51,6 @@ import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.OpenMode;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.validator.ScenarioValidator;

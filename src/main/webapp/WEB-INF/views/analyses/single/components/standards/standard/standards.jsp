@@ -56,7 +56,7 @@
 		</div>
 	</div>
 	<c:forEach items="${measuresByStandard.keySet()}" var="standard">
-		<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" />
+		<spring:eval expression="T(lu.itrust.business.TS.component.MeasureManager).getStandard(standards, standard)" var="selectedStandard" />
 		<c:set var="standardType" value="${selectedStandard.type}" />
 		<c:set var="standardid" value="${selectedStandard.id}" />
 		<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" />

@@ -42,6 +42,7 @@ import org.springframework.context.MessageSource;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -57,7 +58,6 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;

@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -68,7 +69,6 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;

@@ -38,7 +38,6 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;

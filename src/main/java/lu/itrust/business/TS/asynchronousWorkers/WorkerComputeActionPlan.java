@@ -16,6 +16,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
@@ -41,7 +42,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 

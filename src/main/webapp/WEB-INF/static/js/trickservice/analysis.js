@@ -377,6 +377,7 @@ function updateMeasuresCost() {
 			},
 			error: unknowError
 		});
+		
 	} else
 		permissionError();
 	return false;
@@ -480,8 +481,16 @@ function reloadMeasureRow(idMeasure, standard) {
 	} else
 		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
 			MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
+	
+	reloadSection("section_phase");
+	
 	return false;
 }
+
+function soaThresholdUpdate(){
+	return reloadSection(["section_soa","section_phase"]);
+}
+
 
 function reloadMeasureAndCompliance(standard, idMeasure) {
 	reloadMeasureRow(idMeasure, standard);

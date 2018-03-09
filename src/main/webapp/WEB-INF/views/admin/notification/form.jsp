@@ -68,7 +68,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button id="addcustomerbutton" type="button" name="save" class="btn btn-primary">
+				<button  type="button" name="save" class="btn btn-primary">
 					<spring:message code="label.action.save" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">

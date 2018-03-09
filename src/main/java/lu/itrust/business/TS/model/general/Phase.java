@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.model.general;
 
 import java.sql.Date;
+import java.time.Duration;
+import java.time.Period;
 import java.util.Calendar;
 
 import javax.persistence.Access;
@@ -15,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
@@ -63,6 +66,21 @@ public class Phase implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Access(AccessType.FIELD)
 	private Analysis analysis = null;
+
+	@Transient
+	private int measureCount;
+
+	@Transient
+	private boolean removable = true;
+
+	@Transient
+	private int complianceCount;
+
+	@Transient
+	private double internalWorkload;
+
+	@Transient
+	private double externalWorkload;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -281,16 +299,15 @@ public class Phase implements Cloneable {
 		phase.analysis = analysis;
 		return phase;
 	}
-	
+
 	public double getTime() {
 		return ComputeDiff(beginDate, endDate);
 	}
 
 	/**
 	 * ComputeDiff : <br>
-	 * This method Calculates an Double Value that Indicates the Difference
-	 * between two Dates. It is used to Calculate the Size of the Phase in
-	 * Years.
+	 * This method Calculates an Double Value that Indicates the Difference between
+	 * two Dates. It is used to Calculate the Size of the Phase in Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)
@@ -336,6 +353,74 @@ public class Phase implements Cloneable {
 		// * return difference of two dates in years
 		// ****************************************************************
 		return result;
+	}
+
+	public int getMeasureCount() {
+		return measureCount;
+	}
+
+	public void setMeasureCount(int measureCount) {
+		this.measureCount = measureCount;
+	}
+
+	public double getComplianceRate() {
+		return measureCount == 0 ? 0.0 : ((double) complianceCount) / (double) measureCount;
+	}
+
+	public int getComplianceCount() {
+		return complianceCount;
+	}
+
+	public void setComplianceCount(int complianceCount) {
+		this.complianceCount = complianceCount;
+	}
+
+	public double getInternalWorkload() {
+		return internalWorkload;
+	}
+
+	public void setInternalWorkload(double internalWorkload) {
+		this.internalWorkload = internalWorkload;
+	}
+
+	public double getExternalWorkload() {
+		return externalWorkload;
+	}
+
+	public void setExternalWorkload(double externalWorkload) {
+		this.externalWorkload = externalWorkload;
+	}
+
+	public Duration getDuration() {
+		return Duration.ofMillis(endDate.getTime() - beginDate.getTime());
+	}
+
+	public Period getPeriod() {
+		return Period.between(beginDate.toLocalDate(), endDate.toLocalDate()).normalized();
+	}
+
+	public int getFormatCode() {
+		Period period = getPeriod();
+		if (period.isZero())
+			return 123;
+		else if (period.getDays() == 0)
+			return period.getMonths() == 0 ? 23 : period.getYears() == 0 ? 13 : 3;
+		else if (period.getMonths() == 0)
+			return period.getYears() == 0 ? 12 : 2;
+		return period.getYears() == 0 ? 1 : 0;
+
+	}
+
+	public boolean isRemovable() {
+		return removable;
+	}
+
+	public void setRemovable(boolean removable) {
+		this.removable = removable;
+	}
+
+	public boolean isOutToDate() {
+		return getMeasureCount() != getComplianceCount() && endDate != null && endDate.getTime() < System.currentTimeMillis();
 	}
 
 }

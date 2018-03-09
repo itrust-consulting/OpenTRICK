@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -64,7 +65,6 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.value.IValue;

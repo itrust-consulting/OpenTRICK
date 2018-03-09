@@ -837,7 +837,7 @@ input[type=number]::-webkit-inner-spin-button {
     margin: 0;
 }
 
-input[type=number] {
+input[type=number],input[type=date]:disabled {
     -moz-appearance:textfield;
 }
 
@@ -859,6 +859,23 @@ input[type=number] {
 	border-bottom: 2px solid #dddddd;
 	margin: 0 8px 8px 8px;
 	padding-bottom: 8px;
+}
+
+.phase-date-range .add-on{
+	.display: inline-block;
+	width: auto;
+	min-width: 16px;
+	height: 20px;
+	padding: 4px 5px;
+	font-weight: normal;
+	line-height: 20px;
+	text-align: center;
+	text-shadow: 0 1px 0 #fff;
+	vertical-align: middle;
+	background-color: #eee;
+	border: 1px solid #ccc;
+	margin-left: -5px;
+	margin-right: -5px;
 }
 
 @media (min-width: 768px) {

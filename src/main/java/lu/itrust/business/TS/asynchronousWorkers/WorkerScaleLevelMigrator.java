@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOImpactParameter;
@@ -27,7 +28,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.helper.ScaleLevelConvertor;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;

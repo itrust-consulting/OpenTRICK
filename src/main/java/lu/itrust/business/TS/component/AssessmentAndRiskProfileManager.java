@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.general.helper;
+package lu.itrust.business.TS.component;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;

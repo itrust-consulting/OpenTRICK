@@ -41,7 +41,7 @@
 									<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
 										<c:if test="${parameter.description!='max_rrf' or type.quantitative}">
 											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
-												onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+												onclick="return editField(this);" data-trick-callback='soaThresholdUpdate()'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 										</c:if>
 									</c:when>
 									<c:when test="${parameter.description== 'lifetime_default'}">

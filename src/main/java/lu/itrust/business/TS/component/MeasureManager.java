@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.model.standard.measure.helper;
+package lu.itrust.business.TS.component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.ImportRRFForm;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -43,6 +42,8 @@ import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.helper.Chapter;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;

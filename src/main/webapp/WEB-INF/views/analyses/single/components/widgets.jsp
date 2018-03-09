@@ -5,7 +5,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="widgets">
-	<jsp:include page="./phase/widgetcontent.jsp" />
 	<jsp:include page="./standards/measure/widgetcontent.jsp" />
 	<jsp:include page="./standards/standard/widgetcontent.jsp" />
 	<div class="modal fade" id="rrfEditor" tabindex="-1" role="dialog" data-aria-labelledby="rrfEditor" data-aria-hidden="true" data-backdrop="static"></div>

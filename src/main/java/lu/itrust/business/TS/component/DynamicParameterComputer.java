@@ -20,7 +20,6 @@ import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationIm
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 
 /**

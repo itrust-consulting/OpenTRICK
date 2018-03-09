@@ -342,7 +342,8 @@ public class Constant {
 	public static final String RI_TYPE_RISK_TBA = "Risk_TBA";
 
 	/**
-	 * [[{@code RI_TYPE_RISK, SheetName}], [{@code RI_TYPE_VUL, SheetName}], [{@code RI_TYPE_THREAT, SheetName}] ]
+	 * [[{@code RI_TYPE_RISK, SheetName}], [{@code RI_TYPE_VUL, SheetName}],
+	 * [{@code RI_TYPE_THREAT, SheetName}] ]
 	 */
 	public static final String[][] RI_SHEET_MAPPERS = { { RI_TYPE_RISK, "Risks" }, { RI_TYPE_VUL, "Vulnerabilities" }, { RI_TYPE_THREAT, "Threats" } };
 
@@ -625,13 +626,13 @@ public class Constant {
 	public static final String REGEX_SPLIT_REFERENCE = "\\.|\\s|;|-|,";
 
 	public static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
-	
+
 	public static final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json;charset=UTF-8";
 
 	public static final String FILTER_CONTROL_SQLITE = "SQLITE";
 
 	public static final String FILTER_CONTROL_REPORT = "REPORT";
-	
+
 	public static final String FILTER_CONTROL_INVITATION = "INVITATION";
 
 	public static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
@@ -705,17 +706,22 @@ public class Constant {
 	public static final String OTP_CHALLENGE_USER_RESPONSE = "otp-user-code";
 
 	public static final String OTP_CHALLENGE_AUTHEN_INIT_TIME = "otp-change-verificator-timeout";
-	
+
 	public static final String ANONYMOUS = "anonymous";
 
 	public static final String HEAT_MAP_DEFAULT_COLOR = "#FFFFFF";
 
-	public static final String [] NORMAL_MEASURE_COLUMNS = {"Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time", "Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase" , "Responsible", "To check" ,"Comment", "To do" };
+	public static final String[] NORMAL_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time",
+			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "To check", "Comment", "To do" };
 
-	public static final String [] MATURITY_MEASURE_COLUMNS = {"Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time", "Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase" , "Responsible" ,"Comment", "To do" };
-	
-	//public static final String [] NORMAL_MEASURE_COLUMN_MAPPER = {"REFERENCE", "STATUS", "Implement.", "IntWorkload", "ExtWorkload", "Invest", "LifeT", "IntMaintenance", "ExtMaintenance", "RecMaintenance", "Phase" , "Resp.", "ToCheck" ,"Comment", "ToDo" };
-	
+	public static final String[] MATURITY_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time",
+			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "Comment", "To do" };
+
+	// public static final String [] NORMAL_MEASURE_COLUMN_MAPPER = {"REFERENCE",
+	// "STATUS", "Implement.", "IntWorkload", "ExtWorkload", "Invest", "LifeT",
+	// "IntMaintenance", "ExtMaintenance", "RecMaintenance", "Phase" , "Resp.",
+	// "ToCheck" ,"Comment", "ToDo" };
+
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
 
 	public static int CHAR_MULTI_CONTENT_MAX_SIZE = 12;
@@ -729,5 +735,7 @@ public class Constant {
 	public static volatile List<String> DEFAULT_COLORS;
 
 	public static volatile List<String> RISK_COLORS;
+
+	public static final long ONE_YEAR_TO_MILLISECONDS = 31556952000L;
 
 }

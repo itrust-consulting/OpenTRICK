@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.*;
 
 import java.security.Principal;
 import java.sql.Date;
@@ -22,6 +22,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,12 +38,13 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.PhaseForm;
+import lu.itrust.business.TS.model.general.helper.PhaseManager;
 
 /**
  * @author eomar
@@ -57,9 +60,6 @@ public class ControllerPhase {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -79,13 +79,14 @@ public class ControllerPhase {
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis id
 		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (integer == null)
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		if (idAnalysis == null)
 			return null;
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
-		// add phases of this analysis
-		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
-		return "analyses/single/components/phase/phase";
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && analysis.isUserAuthorized(principal.getName(), AnalysisRight.MODIFY));
+		PhaseManager.updateStatistics(analysis);
+		model.addAttribute("phases", analysis.getPhases());
+		return "analyses/single/components/phase/home";
 	}
 
 	/**
@@ -151,6 +152,28 @@ public class ControllerPhase {
 		}
 	}
 
+	@GetMapping(value = "/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String add(Model model, HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Phase last = servicePhase.findAllByIdAnalysis(idAnalysis);
+		PhaseForm form = new PhaseForm();
+		if (last != null) {
+			form.setBegin(last.getEndDate());
+			form.setEnd(new Date(form.getBegin().getTime() + ONE_YEAR_TO_MILLISECONDS));
+			form.setBeginEnabled(false);
+			form.setEndEnabled(true);
+		}
+		model.addAttribute("form", form);
+		return "analyses/single/components/phase/form";
+	}
+
+	@GetMapping(value = "/{id}/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #id, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String edit(@PathVariable Integer id, HttpSession session, Principal principal, Locale locale) {
+		return null;
+	}
+
 	/**
 	 * save: <br>
 	 * Description
@@ -164,77 +187,66 @@ public class ControllerPhase {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object save(@ModelAttribute PhaseForm form, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create result array
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-
 		// check if analysis exists
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-		// create empty phase object
-		Phase phase = new Phase();
-
 		try {
 
-			// try to build phase with sent data
-			if (buildPhase(errors, phase, source, locale)) {
+			Phase phase = form.getId() > 0 ? servicePhase.getFromAnalysisById(idAnalysis, form.getId()) : new Phase();
+			// load analysis
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			Phase previousphase = null;
+			Phase nextphase = null;
+			if (phase.getId() < 1) {
 
-				// load analysis
-				Analysis analysis = serviceAnalysis.get(idAnalysis);
+				phase.setAnalysis(analysis);
 
-				Phase previousphase = null;
+				phase.setNumber(analysis.getPhases().size() + 1);
 
-				Phase nextphase = null;
+				previousphase = analysis.findPhaseByNumber(phase.getNumber() - 1);
 
-				if (phase.getId() == -1) {
+				// check if correct begin and end date and retrun errors
+				if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
+					errors.put("beginDate",
+							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", locale));
+				} else if (phase.getEndDate().before(phase.getBeginDate())) {
+					errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale));
+				}
+				// add phase to analysis
+				analysis.add(phase);
+			} else {
 
-					phase.setAnalysis(analysis);
-
-					phase.setNumber(analysis.getPhases().size() + 1);
-
-					previousphase = analysis.findPhaseByNumber(phase.getNumber() - 1);
-
-					// check if correct begin and end date and retrun errors
-					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.put("beginDate",
-								messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", locale));
-					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale));
-					}
-					// add phase to analysis
-					analysis.add(phase);
-				} else {
-
-					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
-						errors.put("phase", messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", locale));
-						return errors;
-					}
-					for (Phase tphase : analysis.getPhases()) {
-						if (tphase.getId() == phase.getId()) {
-							tphase.setDates(phase.getBeginDate(), phase.getEndDate());
-							phase = tphase;
-							break;
-						}
-					}
-
-					previousphase = analysis.findPhaseByNumber(phase.getNumber() - 1);
-					nextphase = analysis.findPhaseByNumber(phase.getNumber() + 1);
-					// check if correct begin and end date and retrun errors
-					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.put("beginDate",
-								messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", locale));
-					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale));
-					} else if (nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
-						errors.put("date", messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", locale));
-						return errors;
+				if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
+					errors.put("phase", messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", locale));
+					return errors;
+				}
+				for (Phase tphase : analysis.getPhases()) {
+					if (tphase.getId() == phase.getId()) {
+						tphase.setDates(phase.getBeginDate(), phase.getEndDate());
+						phase = tphase;
+						break;
 					}
 				}
 
-				// update analysis with phases
-				serviceAnalysis.saveOrUpdate(analysis);
+				previousphase = analysis.findPhaseByNumber(phase.getNumber() - 1);
+				nextphase = analysis.findPhaseByNumber(phase.getNumber() + 1);
+				// check if correct begin and end date and retrun errors
+				if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
+					errors.put("beginDate",
+							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", locale));
+				} else if (phase.getEndDate().before(phase.getBeginDate())) {
+					errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale));
+				} else if (nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
+					errors.put("date", messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", locale));
+					return errors;
+				}
 			}
+
+			// update analysis with phases
+			serviceAnalysis.saveOrUpdate(analysis);
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -249,36 +261,4 @@ public class ControllerPhase {
 
 	}
 
-	/**
-	 * buildPhase: <br>
-	 * Description
-	 * 
-	 * @param errors
-	 * @param phase
-	 * @param source
-	 * @param locale
-	 * @return
-	 */
-	private boolean buildPhase(Map<String, String> errors, Phase phase, String source, Locale locale) {
-		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			// set date format
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			phase.setId(jsonNode.get("id").asInt());
-			phase.setDates(new Date(format.parse(jsonNode.get("beginDate").asText()).getTime()), new Date(format.parse(jsonNode.get("endDate").asText()).getTime()));
-			// return success
-			return true;
-		} catch (TrickException e) {
-			errors.put("date", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
-			return false;
-		} catch (Exception e) {
-			// set error
-			errors.put("phase", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
-			return false;
-		}
-	}
 }

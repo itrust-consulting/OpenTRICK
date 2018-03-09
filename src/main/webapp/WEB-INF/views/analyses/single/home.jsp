@@ -43,7 +43,7 @@
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />
 					<c:if test="${type.quantitative}">
-						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
+						<spring:eval expression="T(lu.itrust.business.TS.component.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
 						<c:set var="assetALE" value="${ales[0]}" scope="request" />
 						<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
 					</c:if>
@@ -51,7 +51,7 @@
 				</c:if>
 				<jsp:include page="./components/scenario/scenario.jsp" />
 				<c:set var="phases" scope="request" value="${analysis.phases}" />
-				<jsp:include page="./components/phase/phase.jsp" />
+				<jsp:include page="./components/phase/home.jsp" />
 				<jsp:include page="./components/standards/standard/standards.jsp" />
 				<jsp:include page="./components/standards/edition/home.jsp" />
 				<c:if test="${!isProfile}">

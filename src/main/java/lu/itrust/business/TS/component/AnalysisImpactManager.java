@@ -20,7 +20,6 @@ import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOImpactParameter;
 import lu.itrust.business.TS.database.dao.DAOScaleType;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;

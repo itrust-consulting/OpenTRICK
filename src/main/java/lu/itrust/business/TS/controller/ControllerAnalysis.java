@@ -76,10 +76,12 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.MeasureManager;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -120,7 +122,7 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
+import lu.itrust.business.TS.model.general.helper.PhaseManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
@@ -133,7 +135,6 @@ import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.helper.StandardComparator;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
@@ -960,6 +961,8 @@ public class ControllerAnalysis {
 								analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
 				model.addAttribute("hasMaturity", hasMaturity);
 			}
+
+			PhaseManager.updateStatistics(measuresByStandard.values(), valueFactory, (double) model.asMap().get("soaThreshold"));
 
 			if (!analysis.isProfile()) {
 				Map<String, List<RiskInformation>> riskInformations = RiskInformationManager.Split(analysis.getRiskInformations());

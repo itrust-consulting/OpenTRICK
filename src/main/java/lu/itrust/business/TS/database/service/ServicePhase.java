@@ -37,4 +37,6 @@ public interface ServicePhase {
 	public void saveOrUpdate(Phase phase);
 
 	public void delete(Phase phase);
+
+	public Phase findAllByIdAnalysis(Integer idAnalysis);
 }

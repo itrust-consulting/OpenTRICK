@@ -212,4 +212,9 @@ public class ServicePhaseImpl implements ServicePhase {
 	public void delete(Phase phase)  {
 		daoPhase.delete(phase);
 	}
+
+	@Override
+	public Phase findAllByIdAnalysis(Integer idAnalysis) {
+		return daoPhase.findAllByIdAnalysis(idAnalysis);
+	}
 }

@@ -88,7 +88,7 @@
 			<c:if test="${!isProfile and type.quantitative}">
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
-						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />
+						<spring:eval expression="T(lu.itrust.business.TS.component.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />
 						<td colspan="4"><spring:message code="label.total.ale" /></td>
 						<c:choose>
 							<c:when test="${show_uncertainty}">

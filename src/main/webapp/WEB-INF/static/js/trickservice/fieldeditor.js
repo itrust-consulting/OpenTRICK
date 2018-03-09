@@ -740,6 +740,17 @@ function AssessmentProbaFieldEditor(element) {
 	}
 }
 
+function extractPhase(self, defaultPhase) {
+	if (self.choose.length)
+		return false;
+	var $phases = $("#section_phase tbody>tr[data-trick-class='Phase']>td[data-trick-field='number']");
+	if (defaultPhase)
+		self.choose.push("0");
+	for (var i = 0; i < $phases.length; i++)
+		self.choose.push($phases[i].innerText.trim());
+	return false;
+}
+
 function disableEditMode() {
 	if (application.editMode) {
 		try {

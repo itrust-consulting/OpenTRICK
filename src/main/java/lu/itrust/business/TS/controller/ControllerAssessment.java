@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.FieldValue;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -46,7 +47,6 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.OpenMode;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AssetStandard;

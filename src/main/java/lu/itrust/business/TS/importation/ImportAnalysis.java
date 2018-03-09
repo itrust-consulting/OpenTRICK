@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -62,7 +63,6 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
-import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
