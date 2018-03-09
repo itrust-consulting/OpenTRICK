@@ -142,6 +142,10 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 
 public abstract class Docx4jWordExporter implements ExportReport {
 
+	private static final String CLIENT_NAME = "Client";
+
+	private static final String NUMBER_MEASURES_ALL_PHASES = "NUMBER_MEASURES_ALL_PHASES";
+
 	private static final String INTERNAL_WL_VAL = "INTERNAL_WL_VAL";
 
 	private static final String EXTERNAL_WL_VAL = "EXTERNAL_WL_VAL";
@@ -195,6 +199,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	private int nonApplicableMeasure27001 = 0;
 
 	private int nonApplicableMeasure27002 = 0;
+
+	private int totalMeasure = 0;
 
 	private Long drawingIndex = null;
 
@@ -1527,16 +1533,18 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue(expressionParameters) >= 100) {
 							for (int i = 0; i < 16; i++)
 								setColor((Tc) row.getContent().get(i), DEFAULT_CELL_COLOR);
-							if (measure.getImplementationRateValue(expressionParameters) < 100) {
+							if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus())) {
 								if (analysisStandard.getStandard().is(Constant.STANDARD_27002))
 									nonApplicableMeasure27002++;
 								else if (analysisStandard.getStandard().is(Constant.STANDARD_27001))
 									nonApplicableMeasure27001++;
-							}
+							} else
+								totalMeasure++;
 						} else {
 							setColor((Tc) row.getContent().get(0), SUB_HEADER_COLOR);
 							setColor((Tc) row.getContent().get(1), SUB_HEADER_COLOR);
 							setColor((Tc) row.getContent().get(11), measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
+							totalMeasure++;
 						}
 					}
 					addCellParagraph((Tc) row.getContent().get(15), measure.getComment());
@@ -1809,19 +1817,19 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		setCustomProperty(INTERNAL_WL_VAL, analysis.getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
 				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 		
-		setCustomProperty("Client", analysis.getCustomer().getOrganisation());
-		
+		setCustomProperty(NUMBER_MEASURES_ALL_PHASES, totalMeasure);
+
+		setCustomProperty(CLIENT_NAME, analysis.getCustomer().getOrganisation());
+
 		wordMLPackage.getDocPropsExtendedPart().getContents().setCompany(analysis.getCustomer().getOrganisation());
-		
+
 		wordMLPackage.getDocPropsExtendedPart().getContents().setManager(analysis.getCustomer().getContactPerson());
-		
-		wordMLPackage.getDocPropsCorePart().getContents().setCategory(analysis.getCustomer().getOrganisation());
 
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
 
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
 				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
-		
+
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 
