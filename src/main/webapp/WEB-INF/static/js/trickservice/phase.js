@@ -74,7 +74,6 @@ function savePhase(e) {
 	$.ajax({
 		url : context + "/Analysis/Phase/Save",
 		type : "post",
-		type: 'POST',
 		data: new FormData(form),
 		cache: false,
 		contentType: false,
