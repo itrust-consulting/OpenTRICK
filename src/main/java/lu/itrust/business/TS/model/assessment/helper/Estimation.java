@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;

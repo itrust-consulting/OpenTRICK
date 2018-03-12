@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.chartJS.Chart;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
+import lu.itrust.business.TS.helper.chartJS.model.Chart;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 
 /**

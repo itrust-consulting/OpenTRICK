@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.component;
+package lu.itrust.business.TS.helper;
 
 public class Distribution {
 

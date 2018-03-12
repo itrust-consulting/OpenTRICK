@@ -44,12 +44,12 @@ import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.NaturalOrderComparator;
-import lu.itrust.business.TS.component.chartJS.Chart;
-import lu.itrust.business.TS.component.chartJS.Dataset;
-import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
+import lu.itrust.business.TS.helper.chartJS.item.ColorBound;
+import lu.itrust.business.TS.helper.chartJS.model.Chart;
+import lu.itrust.business.TS.helper.chartJS.model.Dataset;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;

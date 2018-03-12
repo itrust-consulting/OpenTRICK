@@ -48,7 +48,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -63,6 +62,7 @@ import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;

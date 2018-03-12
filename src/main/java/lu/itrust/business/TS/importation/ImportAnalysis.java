@@ -22,7 +22,6 @@ import org.hibernate.Session;
 
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
@@ -46,6 +45,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;

@@ -38,9 +38,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;

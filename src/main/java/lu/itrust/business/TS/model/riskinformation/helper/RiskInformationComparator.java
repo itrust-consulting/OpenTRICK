@@ -2,7 +2,7 @@ package lu.itrust.business.TS.model.riskinformation.helper;
 
 import java.util.Comparator;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 
 public class RiskInformationComparator implements Comparator<RiskInformation>, NaturalOrderComparator<RiskInformation> {

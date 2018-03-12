@@ -3,7 +3,6 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
-import static lu.itrust.business.TS.component.NaturalOrderComparator.compareTo;
 import static lu.itrust.business.TS.constants.Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED;
 import static lu.itrust.business.TS.constants.Constant.RI_SHEET_MAPPERS;
 import static lu.itrust.business.TS.constants.Constant.RI_TYPE_RISK;
@@ -15,6 +14,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.numToColString;
+import static lu.itrust.business.TS.helper.NaturalOrderComparator.compareTo;
 
 import java.io.File;
 import java.sql.Timestamp;

@@ -24,11 +24,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;

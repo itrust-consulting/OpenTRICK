@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
-import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
@@ -44,6 +43,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;

@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.AccountLockerManager;
 import lu.itrust.business.TS.database.service.ServiceEmailValidatingRequest;
@@ -34,6 +33,7 @@ import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.general.TSSetting;

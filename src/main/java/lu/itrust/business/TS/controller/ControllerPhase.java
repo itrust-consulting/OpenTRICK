@@ -34,12 +34,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.OpenMode;

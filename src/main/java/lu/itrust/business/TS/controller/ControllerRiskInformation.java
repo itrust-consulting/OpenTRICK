@@ -51,8 +51,6 @@ import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerImportRiskInformation;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -62,6 +60,8 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
+import lu.itrust.business.TS.helper.JsonMessage;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;

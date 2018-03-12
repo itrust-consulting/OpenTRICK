@@ -5,7 +5,7 @@ package lu.itrust.business.TS.model.analysis.helper;
 
 import java.util.Comparator;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 
 /**

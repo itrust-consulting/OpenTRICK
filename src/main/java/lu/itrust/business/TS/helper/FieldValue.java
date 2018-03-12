@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.component;
+package lu.itrust.business.TS.helper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

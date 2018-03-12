@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.AnalysisRightForm;
@@ -33,6 +31,8 @@ import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.JsonMessage;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;

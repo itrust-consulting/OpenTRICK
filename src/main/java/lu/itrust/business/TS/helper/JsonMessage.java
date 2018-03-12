@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.component;
+package lu.itrust.business.TS.helper;
 
 import net.minidev.json.JSONObject;
 

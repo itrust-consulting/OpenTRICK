@@ -1,10 +1,11 @@
 /**
  * 
  */
-package lu.itrust.business.TS.component;
+package lu.itrust.business.TS.helper;
 
 import java.security.Principal;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.model.analysis.Analysis;

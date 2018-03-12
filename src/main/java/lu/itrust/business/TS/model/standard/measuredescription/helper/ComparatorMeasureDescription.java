@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.model.standard.measuredescription.helper;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**

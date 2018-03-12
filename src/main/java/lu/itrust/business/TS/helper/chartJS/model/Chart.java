@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.component.chartJS;
+package lu.itrust.business.TS.helper.chartJS.model;
 
 import java.util.ArrayList;
 import java.util.List;

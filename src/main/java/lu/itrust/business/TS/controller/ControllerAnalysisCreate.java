@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.Duplicator;
-import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.AnalysisForm;
@@ -58,6 +57,7 @@ import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;

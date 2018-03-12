@@ -2,7 +2,7 @@ package lu.itrust.business.TS.model.asset.helper;
 
 import java.util.Comparator;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 
 public class AssetTypeValueComparator implements Comparator<AssetTypeValue> {

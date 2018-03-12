@@ -19,12 +19,12 @@ import javax.naming.directory.InvalidAttributesException;
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;

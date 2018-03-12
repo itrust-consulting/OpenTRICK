@@ -43,6 +43,7 @@ import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.SwitchAnalysisOwnerHelper;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;

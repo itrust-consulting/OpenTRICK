@@ -7,8 +7,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.database.dao.DAOHistory;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.history.History;
 

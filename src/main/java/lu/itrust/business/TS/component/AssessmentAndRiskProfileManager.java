@@ -19,6 +19,7 @@ import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.dao.DAORiskProfile;
 import lu.itrust.business.TS.database.dao.DAOScenario;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;

@@ -96,8 +96,6 @@ import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.Distribution;
-import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -118,6 +116,8 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScope
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jSummaryFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
+import lu.itrust.business.TS.helper.Distribution;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;

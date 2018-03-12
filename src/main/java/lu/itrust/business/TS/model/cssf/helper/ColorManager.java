@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import lu.itrust.business.TS.component.chartJS.helper.ColorBound;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.helper.chartJS.item.ColorBound;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 
 public class ColorManager {
