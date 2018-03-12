@@ -1538,8 +1538,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 									nonApplicableMeasure27002++;
 								else if (analysisStandard.getStandard().is(Constant.STANDARD_27001))
 									nonApplicableMeasure27001++;
-							} else
-								totalMeasure++;
+							}
 						} else {
 							setColor((Tc) row.getContent().get(0), SUB_HEADER_COLOR);
 							setColor((Tc) row.getContent().get(1), SUB_HEADER_COLOR);
