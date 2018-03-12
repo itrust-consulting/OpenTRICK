@@ -33,7 +33,11 @@ public final class PhaseManager {
 				e.getKey().setInternalWorkload(e.getKey().getInternalWorkload() + m.getInternalWL());
 				if (implementationRate >= soaThreshold)
 					e.getKey().setComplianceCount(e.getKey().getComplianceCount() + 1);
-
+				if (implementationRate >= 100) {
+					e.getKey().setImplementedMeasureCount(e.getKey().getImplementedMeasureCount() + 1);
+					e.getKey().setImplementedExternalWorkload(e.getKey().getImplementedExternalWorkload() + m.getExternalWL());
+					e.getKey().setImplementedInternalWorkload(e.getKey().getImplementedInternalWorkload() + m.getInternalWL());
+				}
 			});
 
 		});
@@ -51,9 +55,12 @@ public final class PhaseManager {
 			total.setMeasureCount(total.getMeasureCount() + phase.getMeasureCount());
 			total.setComplianceCount(total.getComplianceCount() + phase.getComplianceCount());
 			total.setExternalWorkload(total.getExternalWorkload() + phase.getExternalWorkload());
-			total.setInternalWorkload(total.getInternalWorkload() + phase.getExternalWorkload());
+			total.setInternalWorkload(total.getInternalWorkload() + phase.getInternalWorkload());
 			if (phase.getNumber() > total.getNumber())
 				total.setNumber(phase.getNumber());
+			total.setImplementedMeasureCount(total.getImplementedMeasureCount() + phase.getImplementedMeasureCount());
+			total.setImplementedExternalWorkload(total.getImplementedExternalWorkload() + phase.getImplementedExternalWorkload());
+			total.setImplementedInternalWorkload(total.getImplementedInternalWorkload() + phase.getImplementedInternalWorkload());
 		}
 		return total;
 	}

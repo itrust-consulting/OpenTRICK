@@ -69,7 +69,16 @@ public class Phase implements Cloneable {
 
 	@Transient
 	private int measureCount;
-	
+
+	@Transient
+	private int implementedMeasureCount;
+
+	@Transient
+	private double implementedInternalWorkload;
+
+	@Transient
+	private double implementedExternalWorkload;
+
 	@Transient
 	private double investment;
 
@@ -422,6 +431,33 @@ public class Phase implements Cloneable {
 
 	}
 
+	public int getCountFormatCode() {
+		if (implementedMeasureCount == 0)
+			return 2;
+		else if (measureCount == implementedMeasureCount)
+			return 1;
+		else
+			return 0;
+	}
+
+	public int getInternalWorkloadFormatCode() {
+		if (implementedInternalWorkload == 0)
+			return 2;
+		else if (internalWorkload == implementedInternalWorkload)
+			return 1;
+		else
+			return 0;
+	}
+
+	public int getExternalWorkloadFormatCode() {
+		if (implementedExternalWorkload == 0)
+			return 2;
+		else if (externalWorkload == implementedExternalWorkload)
+			return 1;
+		else
+			return 0;
+	}
+
 	public boolean isRemovable() {
 		return removable;
 	}
@@ -432,6 +468,30 @@ public class Phase implements Cloneable {
 
 	public boolean isOutToDate() {
 		return getMeasureCount() != getComplianceCount() && endDate != null && endDate.getTime() < System.currentTimeMillis();
+	}
+
+	public int getImplementedMeasureCount() {
+		return implementedMeasureCount;
+	}
+
+	public void setImplementedMeasureCount(int implementedMeasureCount) {
+		this.implementedMeasureCount = implementedMeasureCount;
+	}
+
+	public double getImplementedInternalWorkload() {
+		return implementedInternalWorkload;
+	}
+
+	public void setImplementedInternalWorkload(double implementedInternalWorkload) {
+		this.implementedInternalWorkload = implementedInternalWorkload;
+	}
+
+	public double getImplementedExternalWorkload() {
+		return implementedExternalWorkload;
+	}
+
+	public void setImplementedExternalWorkload(double implementedExternalWorkload) {
+		this.implementedExternalWorkload = implementedExternalWorkload;
 	}
 
 }

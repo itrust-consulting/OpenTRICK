@@ -14,6 +14,8 @@ public class PhaseForm {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date end;
 	
+	private int number;
+	
 	private boolean beginEnabled;
 	
 	private boolean endEnabled = true;
@@ -59,6 +61,14 @@ public class PhaseForm {
 
 	public void setEndEnabled(boolean endEnabled) {
 		this.endEnabled = endEnabled;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
 	}
 	
 }

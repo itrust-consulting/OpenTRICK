@@ -170,7 +170,9 @@ public class ControllerPhase {
 			form.setEnd(calendar.getTime());
 			form.setBeginEnabled(false);
 			form.setEndEnabled(true);
-		}
+			form.setNumber(last.getNumber() + 1);
+		} else
+			form.setNumber(1);
 		model.addAttribute("form", form);
 		return "analyses/single/components/phase/form";
 	}
@@ -190,6 +192,7 @@ public class ControllerPhase {
 			form.setBegin(previous.getEndDate());
 			form.setBeginEnabled(false);
 		}
+		form.setNumber(phase.getNumber());
 		form.setEndEnabled(true);
 		form.setId(phase.getId());
 		model.addAttribute("form", form);

@@ -11,10 +11,11 @@
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4 id="phaseNewModal-title" class="col-md-6">
-						<spring:message code="label.title.phase.add" />
+						<spring:message code="label.title.phase.add_edit">
+							<spring:argument value="${form.id}"/>
+							<spring:argument value="${form.number}"/>
+						</spring:message>
 					</h4>
-					<label class="col-md-5" id="phase-Modal-title-info" style="margin-top: 8px" data-lang-text='<spring:message code="label.close_x_sec" />'></label>
-					<div class="clearfix"></div>
 				</div>
 			</div>
 			<div class="modal-body">

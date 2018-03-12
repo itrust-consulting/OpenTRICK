@@ -29,16 +29,18 @@
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
-					<th style="width: 2%">&nbsp;</th>
-					<th style="width: 3%"><spring:message code="label.table.index" /></th>
-					<th width="10%"><spring:message code="label.phase.begin_date" /></th>
-					<th width="10%"><spring:message code="label.phase.end_date" /></th>
-					<th data-helper-content='<spring:message code="help.phase.statistical.data"/>'><spring:message code="label.phase.duration" /></th>
-					<th style="text-align: right;" data-helper-content='<spring:message code="help.phase.statistical.data"/>'><spring:message code="label.phase.measure.count" /></th>
-					<th style="text-align: right;" data-helper-content='<spring:message code="help.phase.statistical.data"/>'><spring:message code="label.phase.measure.investment" /></th>
-					<th style="text-align: right;" data-helper-content='<spring:message code="help.phase.statistical.data"/>'><spring:message code="label.phase.internal.workload" /></th>
-					<th style="text-align: right;" data-helper-content='<spring:message code="help.phase.statistical.data"/>'><spring:message code="label.phase.external.workload" /></th>
-					<th style="text-align: center;" data-helper-content='<spring:message code="help.phase.statistical.data"/>'><spring:message code="label.phase.compliance.rate" /></th>
+					<th style="width: 1%">&nbsp;</th>
+					<th style="width: 0.5%"><spring:message code="label.table.index" /></th>
+					<th><spring:message code="label.phase.begin_date" /></th>
+					<th><spring:message code="label.phase.end_date" /></th>
+					<th data-helper-content='<spring:message code="help.phase.statistical.data.duration"/>'><spring:message code="label.phase.duration" /></th>
+					<th data-helper-content='<spring:message code="help.phase.statistical.data.measure.count"/>'><spring:message code="label.phase.measure.count" /></th>
+					<th data-helper-content='<spring:message code="help.phase.statistical.data.internal.workload"/>'><spring:message code="label.phase.internal.workload" /></th>
+					<th data-helper-content='<spring:message code="help.phase.statistical.data.external.workload"/>'><spring:message code="label.phase.external.workload" /></th>
+					<th style="text-align: right;" data-helper-content='<spring:message code="help.phase.statistical.data.measure.count"/>'><spring:message
+							code="label.phase.measure.investment" /></th>
+					<th style="text-align: center;" data-helper-content='<spring:message code="help.phase.statistical.data.compliance.rate"/>'><spring:message
+							code="label.phase.compliance.rate" /></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -47,6 +49,16 @@
 						<c:set var="phaseDlc">
 							<c:if test="${isEditable}">ondblclick="editPhase(${phase.id});"</c:if>
 						</c:set>
+						<spring:message code="label.title.phase.compliance.data" var="complainceTitle">
+							<c:choose>
+								<c:when test="${phase.outToDate}">
+									<spring:argument value="${0}" />
+								</c:when>
+								<c:otherwise>
+									<spring:argument value="${1}" />
+								</c:otherwise>
+							</c:choose>
+						</spring:message>
 						<tr data-trick-id='${phase.id}' data-trick-index='${phase.number}' onclick="selectElement(this)" data-trick-class="Phase"
 							${not empty previousEndDate and phase.beginDate < previousEndDate? "class='warning'":"class='editable'"} ${phaseDlc}>
 							<c:choose>
@@ -66,20 +78,40 @@
 									<spring:argument value="${phase.period.months}" />
 									<spring:argument value="${phase.period.days}" />
 								</spring:message></td>
-							<td class='statistic' align="right"><fmt:formatNumber value="${phase.measureCount}" maxFractionDigits="2" /></td>
+							<td class='statistic'><spring:message code="label.phase.measure.count.implemented">
+									<spring:argument value="${phase.countFormatCode}" />
+									<spring:argument value="${phase.measureCount}" />
+									<spring:argument value="${phase.implementedMeasureCount}" />
+									<spring:argument>
+										<fmt:formatNumber value="${phase.measureCount}" maxFractionDigits="2" />
+									</spring:argument>
+									<spring:argument>
+										<fmt:formatNumber value="${phase.implementedMeasureCount}" maxFractionDigits="2" />
+									</spring:argument>
+								</spring:message></td>
+							<td><spring:message code="label.phase.measure.workload">
+									<spring:argument value="${phase.internalWorkloadFormatCode}" />
+									<spring:argument value="${phase.internalWorkload}" />
+									<spring:argument value="${phase.implementedInternalWorkload}" />
+									<spring:argument>
+										<fmt:formatNumber value="${phase.internalWorkload}" maxFractionDigits="2" />
+									</spring:argument>
+									<spring:argument>
+										<fmt:formatNumber value="${phase.implementedInternalWorkload}" maxFractionDigits="2" />
+									</spring:argument>
+								</spring:message></td>
+							<td><spring:message code="label.phase.measure.workload">
+									<spring:argument value="${phase.externalWorkloadFormatCode}" />
+									<spring:argument value="${phase.externalWorkload}" />
+									<spring:argument value="${phase.implementedExternalWorkload}" />
+									<spring:argument>
+										<fmt:formatNumber value="${phase.externalWorkload}" maxFractionDigits="2" />
+									</spring:argument>
+									<spring:argument>
+										<fmt:formatNumber value="${phase.implementedExternalWorkload}" maxFractionDigits="2" />
+									</spring:argument>
+								</spring:message></td>
 							<td class='statistic' align="right"><fmt:formatNumber value="${phase.investment*0.001}" maxFractionDigits="2" /> k€</td>
-							<td class='statistic' align="right"><fmt:formatNumber value="${phase.internalWorkload}" maxFractionDigits="2" /> <spring:message code="label.metric.man_day" /></td>
-							<td class='statistic' align="right"><fmt:formatNumber value="${phase.externalWorkload}" maxFractionDigits="2" /> <spring:message code="label.metric.man_day" /></td>
-							<spring:message code="label.title.phase.compliance.data" var="complainceTitle">
-								<c:choose>
-									<c:when test="${phase.outToDate}">
-										<spring:argument value="${0}" />
-									</c:when>
-									<c:otherwise>
-										<spring:argument value="${1}" />
-									</c:otherwise>
-								</c:choose>
-							</spring:message>
 							<td class='statistic' align="center" title="${complainceTitle}"><fmt:formatNumber value="${phase.complianceRate*100}" maxFractionDigits="0" var="complianceRate" />
 								<div class="progress" style="margin-bottom: 0">
 									<div class="progress-bar ${phase.outToDate? 'progress-bar-danger' : 'progress-bar-success' }" role="progressbar" aria-valuenow="${complianceRate}" aria-valuemin="0"
@@ -103,10 +135,41 @@
 							<spring:argument value="${totalPhase.period.months}" />
 							<spring:argument value="${totalPhase.period.days}" />
 						</spring:message></td>
-					<td class='statistic' align="right"><fmt:formatNumber value="${totalPhase.measureCount}" maxFractionDigits="2" /></td>
+					<td><spring:message code="label.phase.measure.count.implemented">
+							<spring:argument value="${totalPhase.countFormatCode}" />
+							<spring:argument value="${totalPhase.measureCount}" />
+							<spring:argument value="${totalPhase.implementedMeasureCount}" />
+							<spring:argument>
+								<fmt:formatNumber value="${totalPhase.measureCount}" maxFractionDigits="2" />
+							</spring:argument>
+							<spring:argument>
+								<fmt:formatNumber value="${totalPhase.implementedMeasureCount}" maxFractionDigits="2" />
+							</spring:argument>
+						</spring:message></td>
+
+					<td class='statistic'><spring:message code="label.phase.measure.workload">
+							<spring:argument value="${totalPhase.internalWorkloadFormatCode}" />
+							<spring:argument value="${totalPhase.internalWorkload}" />
+							<spring:argument value="${totalPhase.implementedInternalWorkload}" />
+							<spring:argument>
+								<fmt:formatNumber value="${totalPhase.internalWorkload}" maxFractionDigits="2" />
+							</spring:argument>
+							<spring:argument>
+								<fmt:formatNumber value="${totalPhase.implementedInternalWorkload}" maxFractionDigits="2" />
+							</spring:argument>
+						</spring:message></td>
+					<td class='statistic'><spring:message code="label.phase.measure.workload">
+							<spring:argument value="${totalPhase.externalWorkloadFormatCode}" />
+							<spring:argument value="${totalPhase.externalWorkload}" />
+							<spring:argument value="${totalPhase.implementedExternalWorkload}" />
+							<spring:argument>
+								<fmt:formatNumber value="${totalPhase.externalWorkload}" maxFractionDigits="2" />
+							</spring:argument>
+							<spring:argument>
+								<fmt:formatNumber value="${totalPhase.implementedExternalWorkload}" maxFractionDigits="2" />
+							</spring:argument>
+						</spring:message></td>
 					<td class='statistic' align="right"><fmt:formatNumber value="${totalPhase.investment*0.001}" maxFractionDigits="2" /> k€</td>
-					<td class='statistic' align="right"><fmt:formatNumber value="${totalPhase.internalWorkload}" maxFractionDigits="2" /> <spring:message code="label.metric.man_day" /></td>
-					<td class='statistic' align="right"><fmt:formatNumber value="${totalPhase.externalWorkload}" maxFractionDigits="2" /> <spring:message code="label.metric.man_day" /></td>
 					<td class='statistic' align="center"><fmt:formatNumber value="${totalPhase.complianceRate*100}" maxFractionDigits="0" var="complianceRate" />
 						<div class="progress" style="margin-bottom: 0">
 							<div class="progress-bar ${totalPhase.outToDate? 'progress-bar-danger' : 'progress-bar-success' }" role="progressbar" aria-valuenow="${complianceRate}" aria-valuemin="0"
