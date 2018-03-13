@@ -4,7 +4,7 @@
 <display-name>itrust tags</display-name>
 <tlib-version>1.0</tlib-version>
 <short-name>fct</short-name>
-<uri>http://trickservice.itrust.lu/JSTLFunctions</uri>
+<uri>https://trickservice.com/tags/functions</uri>
 <function>
 <name>matches</name>
 <function-class>lu.itrust.business.TS.helper.JSTLFunctions</function-class>

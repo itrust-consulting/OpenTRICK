@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
@@ -44,5 +45,9 @@ public interface DAOWordReport {
 	List<String> getDistinctIdentifierByUser(User user);
 
 	void deeleteByUser(User user);
+
+	List<WordReport> findByCreatedBefore(Date date, int page, int size);
+
+	long countByCreatedBefore(Date date);
 
 }

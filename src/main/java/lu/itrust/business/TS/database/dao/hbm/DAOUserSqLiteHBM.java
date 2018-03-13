@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -193,5 +194,16 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@Override
 	public void deeleteByUser(User user) {
 		getSession().createQuery("Delete From UserSQLite where user =:user").setParameter("user", user).executeUpdate();
+	}
+
+	@Override
+	public List<UserSQLite> findByCreatedBefore(Date date, int page, int size) {
+		return getSession().createQuery("From UserSQLite where created < :deleteDate", UserSQLite.class).setParameter("deleteDate", date).setFirstResult((page - 1) * size)
+				.setMaxResults(size).list();
+	}
+
+	@Override
+	public long countByCreatedBefore(Date date) {
+		return getSession().createQuery("Select count(*) From UserSQLite where created < :deleteDate", Long.class).setParameter("deleteDate", date).uniqueResult();
 	}
 }

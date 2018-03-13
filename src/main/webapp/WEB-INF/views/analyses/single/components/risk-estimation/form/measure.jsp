@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />

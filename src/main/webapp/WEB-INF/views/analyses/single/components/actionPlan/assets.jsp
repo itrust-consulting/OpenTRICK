@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="modal fade" id="actionPlanAssets" tabindex="-1" role="dialog" data-aria-labelledby="actionPlanAssets" data-aria-hidden="true" data-backdrop="static">

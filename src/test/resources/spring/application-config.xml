@@ -46,6 +46,12 @@
 	<task:scheduler id="scheduler" pool-size="${app.settings.scheduler.pool.size}" />
 
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
+	
+	<bean id="dataCleaner" class="lu.itrust.business.TS.component.DataCleaner" />
+	
+	<task:scheduled-tasks scheduler="scheduler">
+		<task:scheduled ref="dataCleaner" method="cleanUp" cron="${app.settings.cleaner.cron.setup}"/>
+	</task:scheduled-tasks>
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
 

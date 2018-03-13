@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -202,6 +203,17 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@Override
 	public void deeleteByUser(User user) {
 		getSession().createQuery("Delete From WordReport where user =:user").setParameter("user", user).executeUpdate();
+	}
+
+	@Override
+	public List<WordReport> findByCreatedBefore(Date date, int page, int size) {
+		return getSession().createQuery("From WordReport where created < :deleteDate", WordReport.class).setParameter("deleteDate", date).setFirstResult((page - 1) * size)
+				.setMaxResults(size).list();
+	}
+
+	@Override
+	public long countByCreatedBefore(Date date) {
+		return getSession().createQuery("Select count(*) From WordReport where created < :deleteDate", Long.class).setParameter("deleteDate", date).uniqueResult();
 	}
 
 }

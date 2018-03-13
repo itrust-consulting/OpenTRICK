@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
@@ -42,4 +43,8 @@ public interface DAOUserSqLite {
 	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter);
 
 	public void deeleteByUser(User user);
+
+	public List<UserSQLite> findByCreatedBefore(Date date, int page, int size);
+
+	public long countByCreatedBefore(Date date);
 }
