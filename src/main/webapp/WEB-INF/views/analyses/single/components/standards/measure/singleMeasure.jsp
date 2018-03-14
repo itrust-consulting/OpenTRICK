@@ -50,7 +50,7 @@
 <c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}" />
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
-		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" onclick="selectElement(this)" data-trick-class="Measure"
+		<tr data-trick-computable="false" onclick="selectElement(this)" data-trick-class="Measure"
 			style="background-color: #F8F8F8;" data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">

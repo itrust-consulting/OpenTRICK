@@ -1829,15 +1829,12 @@ public class Analysis implements Cloneable {
 		}
 
 		if (maturityStandard != null) {
-
+			List<Measure> measures = maturityStandard.getNotComputableMeasures();
 			// parse all measures of the standard
-			for (int i = 0; i < maturityStandard.getLevel1Measures().size(); i++) {
-
-				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
-
+			for (Measure measure : measures) {
+				int phaseNumber = measure.getPhase().getNumber();
 				if (this.findPhaseByNumber(phaseNumber) == null)
-					this.add(maturityStandard.getLevel1Measures().get(i).getPhase());
-
+					this.add(measure.getPhase());
 			}
 		}
 

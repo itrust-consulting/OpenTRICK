@@ -138,10 +138,8 @@ public class MeasureDescriptionText implements Cloneable {
 	public void setDescription(String description) throws TrickException {
 		if (this.measureDescription == null)
 			throw new NullPointerException("Measuredescription field needs to be set before!");
-		if ((this.measureDescription.getLevel() == 1) || (this.measureDescription.getLevel() == 2))
+		if (!this.measureDescription.isComputable())
 			this.description = "";
-		else if (this.measureDescription.getLevel() == -1)
-			throw new TrickException("error.measure_description.description.early.initialise", "Level needs to be initialise before adding a description!");
 		else if (description == null)
 			throw new TrickException("error.measure_description.description", "The description cannot be empty");
 		this.description = description;

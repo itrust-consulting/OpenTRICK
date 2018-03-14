@@ -8,10 +8,10 @@
 <c:if test="${!empty(measureDescription)}">
 	<tr data-trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
 		<td><input type="checkbox" class="checkbox" onchange="return updateMenu('this,#section_measure_description','#menu_measure_description');"></td>
-		<td colspan="2">${measureDescription.level}</td>
+		<%-- <td colspan="2">${measureDescription.level}</td> --%>
 		<td colspan="2">${measureDescription.reference}</td>
-		<td colspan="10">${measureDescriptionText.domain.equals("")==false?measureDescriptionText.domain:"&nbsp;"}</td>
-		<td colspan="10">${measureDescriptionText.description.equals("")==false?measureDescriptionText.description:"&nbsp;"}</td>
+		<td colspan="10">${empty measureDescriptionText.domain?"&nbsp;":measureDescriptionText.domain}</td>
+		<td colspan="10">${empty measureDescriptionText.description?"&nbsp;":measureDescriptionText.description}</td>
 		<td colspan="2" data-trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
 				text="${measureDescription.computable?'Yes':'No'}" /></td>
 	</tr>

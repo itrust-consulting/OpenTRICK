@@ -1,14 +1,13 @@
 package lu.itrust.business.TS.model.standard;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
@@ -52,7 +51,8 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 
 	/**
 	 * getAMeasure: <br>
-	 * Returns the Measure object at position "index" from the measure list ("measures" field)
+	 * Returns the Measure object at position "index" from the measure list
+	 * ("measures" field)
 	 * 
 	 * @return The Maturity Measure Object at position "index"
 	 */
@@ -62,14 +62,15 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 		if (getMeasures().get(index) instanceof HibernateProxy)
 			return MaturityMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
 		else {
-			return MaturityMeasure.class.cast(getMeasures().get(index));
+			return (MaturityMeasure) getMeasures().get(index);
 		}
 	}
-	
-	
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.standard.AnalysisStandard#getExendedMeasures()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.standard.AnalysisStandard#getExendedMeasures()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -83,12 +84,8 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	 * 
 	 * @return
 	 */
-	public List<Measure> getLevel1Measures() {
-		List<Measure> measures = new ArrayList<Measure>();
-		for (Measure measure : super.getMeasures())
-			if (measure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1)
-				measures.add(measure);
-		return measures;
+	public List<Measure> getNotComputableMeasures() {
+		return super.getMeasures().stream().filter(m -> !m.getMeasureDescription().isComputable()).collect(Collectors.toList());
 	}
 
 	/**
@@ -140,7 +137,8 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	/**
 	 * duplicate: <br>
 	 * Description
-	 * @throws TrickException 
+	 * 
+	 * @throws TrickException
 	 *
 	 * @{tags
 	 *

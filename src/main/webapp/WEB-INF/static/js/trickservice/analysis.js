@@ -729,9 +729,7 @@ function loadRiskChart(url, name, container, canvas) {
 		$progress.hide();
 	});
 	return false;
-
 }
-
 
 function updateMeasureEffience(reference,force) {
 	if (!application.hasMaturity)
@@ -748,7 +746,7 @@ function updateMeasureEffience(reference,force) {
 			data = chapters;
 			delete application["parameter-27002-efficience"];
 		} else
-			$standard27002.find("tr[data-trick-computable='false'][data-trick-level='1']").each(function () {
+			$standard27002.find("tr[data-trick-computable='false']").each(function () {
 				data.push(this.getAttribute('data-trick-reference'))
 			});
 	} else {
@@ -757,7 +755,7 @@ function updateMeasureEffience(reference,force) {
 			delete application["parameter-27002-efficience"];
 		else {
 			var chapter = reference.split(".", 3)[1], parameters = application["parameter-27002-efficience"], $selector = $standard27002
-				.find("tr[data-trick-computable='false'][data-trick-level='1'][data-trick-reference='" + chapter + "']");
+				.find("tr[data-trick-computable='false'][data-trick-reference='" + chapter + "']");
 			if ($selector.length) {
 				if (updateRequired && triggerName == 'updateMeasureEffience') {
 					if (parameters && parameters.indexOf(chapter) == -1)

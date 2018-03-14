@@ -1599,7 +1599,7 @@ public class ExportAnalysis {
 						// build query
 						measurequery = "INSERT INTO measures SELECT ? as 'id_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norme_type',"
 								+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
-								+ "? as 'question_measure',? as 'level',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
+								+ "? as 'question_measure',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
 								+ "? as 'integrity',? as 'availability',? as `exploitability`, ? as `reliability`,? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
 								+ "? as 'd61',? as 'd62',? as 'd63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',"
 								+ "? as 'i5',? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',? as 'i84',? as 'i9',"
@@ -1630,7 +1630,7 @@ public class ExportAnalysis {
 							// reset query
 							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
 									+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
-									+ "? as 'question_measure',? as 'level',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
+									+ "? as 'question_measure',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
 									+ "? as 'integrity',? as 'availability', ? as `exploitability`, ? as `reliability`, ? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
 									+ "? as 'd61',? as 'd62',? as 'd63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',"
 									+ "? as 'i5',? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',? as 'i84',? as 'i9',"
@@ -1647,7 +1647,7 @@ public class ExportAnalysis {
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
 							measurecounter += MEASURE_ROW_COUNT;
@@ -1672,7 +1672,7 @@ public class ExportAnalysis {
 					MeasureDescriptionText descriptionText = measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage());
 					measureparams.add(descriptionText == null ? "" : descriptionText.getDomain());
 					measureparams.add(descriptionText == null ? "" : descriptionText.getDescription());
-					measureparams.add(measure.getMeasureDescription().getLevel());
+					//measureparams.add(measure.getMeasureDescription().getLevel());
 					measureparams.add(measure.getMeasurePropertyList().getFMeasure());
 					measureparams.add(measure.getMeasurePropertyList().getFSectoral());
 					insertCategories(measureparams, measure.getMeasurePropertyList());
@@ -1826,7 +1826,7 @@ public class ExportAnalysis {
 						// build query
 						measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
 								+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
-								+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
+								+ "? as 'question_measure'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
 								+ "? as 'integrity'," + "? as 'availability' , ? as `exploitability`, ? as `reliability` ,? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4',"
 								+ "? as 'd5'," + "? as 'd6'," + "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2',"
 								+ "? as 'i3'," + "? as 'i4'," + "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83',"
@@ -1858,7 +1858,7 @@ public class ExportAnalysis {
 							// reset query
 							measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
 									+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
-									+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
+									+ "? as 'question_measure'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
 									+ "? as 'integrity'," + "? as 'availability', ? as `exploitability`, ? as `reliability`," + "? as 'd1'," + "? as 'd2'," + "? as 'd3',"
 									+ "? as 'd4'," + "? as 'd5'," + "? as 'd6'," + "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1',"
 									+ "? as 'i2'," + "? as 'i3'," + "? as 'i4'," + "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82',"
@@ -1901,7 +1901,7 @@ public class ExportAnalysis {
 					MeasureDescriptionText descriptionText = measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage());
 					measureparams.add(descriptionText == null ? "" : descriptionText.getDomain());
 					measureparams.add(descriptionText == null ? "" : descriptionText.getDescription());
-					measureparams.add(measure.getMeasureDescription().getLevel());
+					//measureparams.add(measure.getMeasureDescription().getLevel());
 					measureparams.add(measure.getMeasurePropertyList().getFMeasure());
 					measureparams.add(measure.getMeasurePropertyList().getFSectoral());
 					insertCategories(measureparams, measure.getMeasurePropertyList());
@@ -2060,7 +2060,7 @@ public class ExportAnalysis {
 
 						// set query
 						measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-						measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
+						measurequery += " 'domain',? as 'phase',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
 						measurequery += "'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo', ? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 						measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
@@ -2083,7 +2083,7 @@ public class ExportAnalysis {
 
 							// reset query
 							measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-							measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
+							measurequery += " 'domain',? as 'phase',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
 							measurequery += "? as 'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 							measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
@@ -2094,7 +2094,7 @@ public class ExportAnalysis {
 							// limit reached -> NO
 
 							// add insert data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
 							measurecounter += MATURITY_MEASURE_ROW_COUNT;
@@ -2110,7 +2110,7 @@ public class ExportAnalysis {
 					MeasureDescriptionText descriptionText = maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage());
 					measureparams.add(descriptionText == null ? "" : descriptionText.getDomain());
 					measureparams.add(maturity.getPhase().getNumber());
-					measureparams.add(maturity.getMeasureDescription().getLevel());
+					//measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());
 					measureparams.add(maturity.getImplementationRateValue(expressionParameters) / 100.0);
 					measureparams.add(maturity.getInternalWL());

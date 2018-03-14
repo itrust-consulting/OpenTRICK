@@ -178,7 +178,7 @@
 							<c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}" />
 							<c:choose>
 								<c:when test="${not measure.measureDescription.computable}">
-									<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-reference='${measure.measureDescription.reference}'
+									<tr data-trick-computable="false" data-trick-reference='${measure.measureDescription.reference}'
 										onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}" data-is-linked='${hasTicket}'
 										data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 										<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
@@ -218,14 +218,13 @@
 									</tr>
 								</c:when>
 								<c:otherwise>
-									<tr ${isAnalysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)"
-										data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" data-is-linked='${hasTicket}' data-trick-id="${measure.id}"
+									<tr ${analysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)" data-trick-class="Measure" data-is-linked='${hasTicket}' data-trick-id="${measure.id}"
 										data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 										<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 												onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 										</c:if>
-										<td ${not isAnalysisOnly ?dblclickaction:''}><c:choose>
+										<td ${not analysisOnly ?dblclickaction:''}><c:choose>
 												<c:when test="${hasTicket}">
 													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
 													<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>

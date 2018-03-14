@@ -38,7 +38,7 @@
 		<thead>
 			<tr role="row">
 				<th width="1%"></th>
-				<th><spring:message code="label.measure.level" text="Level" /></th>
+				<%-- <th><spring:message code="label.measure.level" text="Level" /></th> --%>
 				<th><spring:message code="label.reference" text="Reference" /></th>
 				<th width="25%"><spring:message code="label.measure.domain" text="Domain" /></th>
 				<th width="70%"><spring:message code="label.measure.description" text="Description" /></th>
@@ -50,8 +50,8 @@
 				<c:set var="measureDescriptionText" value="${measureDescription.findByLanguage(selectedLanguage)}" />
 				<tr data-trick-id="${measureDescription.id}" onclick="selectElement(this)" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_measure','#menu_measure_description');"></td>
-					<td>${measureDescription.level}</td>
-					<td><spring:message text='${measureDescription.reference}' /></td>
+					<%-- <td>${measureDescription.level}</td> --%>
+					<td data-trick-field='reference'><spring:message text='${measureDescription.reference}' /></td>
 					<c:choose>
 						<c:when test="${empty measureDescriptionText}">
 							<td data-trick-content='text'></td>
@@ -64,7 +64,7 @@
 					</c:choose>
 
 
-					<td data-trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
+					<td data-trick-field='computable' data-trick-real-value="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
 							text="${measureDescription.computable?'Yes':'No'}" /></td>
 				</tr>
 			</c:forEach>

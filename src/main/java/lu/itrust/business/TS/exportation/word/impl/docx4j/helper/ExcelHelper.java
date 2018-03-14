@@ -255,12 +255,12 @@ public final class ExcelHelper {
 		return row;
 	}
 
-	public static String getString(Cell cell, Map<String, String> sharedStrings) {
+	public static String getString(Cell cell, Map<String, String> strings) {
 		switch (cell.getT()) {
 		case INLINE_STR:
 			return cell.getIs().getT().getValue();
 		case S:
-			return sharedStrings.get(cell.getV());
+			return strings.get(cell.getV());
 		case N:
 		case B:
 		case STR:
@@ -270,9 +270,13 @@ public final class ExcelHelper {
 		return null;
 	}
 
-	public static String getString(Row row, int cell, Map<String, String> sharedStrings) {
+	public static String getString(Row row, int cell, Map<String, String> strings) {
 		Cell c = getCellAt(row, cell);
-		return c == null ? null : getString(c, sharedStrings);
+		return c == null ? null : getString(c, strings);
+	}
+
+	public static String getString(SheetData sheet, int row, int cell, Map<String, String> strings) {
+		return sheet.getRow().size()> row? getString(sheet.getRow().get(row), cell, strings) : null;
 	}
 
 	public static Cell getCellAt(Row row, int index) {

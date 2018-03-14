@@ -72,8 +72,8 @@ public class MeasureDescription implements Cloneable {
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<>();
 
 	/** Measure Level */
-	@Column(name = "dtLevel", nullable = false)
-	private int level = 3;
+	//@Column(name = "dtLevel", nullable = false)
+	//private int level = 3;
 
 	/** Measure Reference */
 	@Column(name = "dtReference", nullable = false)
@@ -100,10 +100,10 @@ public class MeasureDescription implements Cloneable {
 	 * @param standard
 	 *            standard of the Measure
 	 */
-	public MeasureDescription(String reference, Standard standard, int level, boolean computable) {
+	public MeasureDescription(String reference, Standard standard, boolean computable) {
 		this.standard = standard;
 		this.reference = reference;
-		this.level = level;
+		//this.level = level;
 		this.computable = computable;
 	}
 
@@ -266,9 +266,9 @@ public class MeasureDescription implements Cloneable {
 	 * 
 	 * @return The value of the level field
 	 */
-	public int getLevel() {
+	/*public int getLevel() {
 		return level;
-	}
+	}*/
 
 	/**
 	 * setLevel: <br>
@@ -277,9 +277,9 @@ public class MeasureDescription implements Cloneable {
 	 * @param level
 	 *            The Value to set the level field
 	 */
-	public void setLevel(int level) {
+	/*public void setLevel(int level) {
 		this.level = level;
-	}
+	}*/
 
 	/**
 	 * getReference: <br>

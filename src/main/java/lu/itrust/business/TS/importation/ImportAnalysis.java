@@ -1729,7 +1729,7 @@ public class ImportAnalysis {
 					// fill measure description data
 					mesDesc.setStandard(analysisStandard.getStandard());
 					mesDesc.setReference(chapter);
-					mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
+					//mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 					// fill measure description text
 					mesText.setDomain(rs.getString(Constant.MATURITY_DOMAIN).replace("'", "''"));
@@ -2162,10 +2162,6 @@ public class ImportAnalysis {
 					phaseNumber = 1;
 				phase = phases.get(phaseNumber);
 
-				// if (phase.getAnalysis() == null) {
-				// System.out.println(phase);
-				// }
-
 				// ****************************************************************
 				// * retrieve measuredescription
 				// ****************************************************************
@@ -2193,10 +2189,9 @@ public class ImportAnalysis {
 					// fill measure description with data
 					mesDesc.setStandard(analysisStandard.getStandard());
 					mesDesc.setReference(measureRefMeasure);
-					mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
+					//mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 					// fill measure description text with data
-					// System.out.println(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
 					mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
 					mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE));
 

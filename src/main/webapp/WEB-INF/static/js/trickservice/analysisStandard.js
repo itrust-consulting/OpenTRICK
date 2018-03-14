@@ -512,7 +512,6 @@ function saveMeasure(form, callback) {
 				var $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
 				switch (error) {
 					case "reference":
-					case "level":
 					case "computable":
 					case "domain":
 					case "description":

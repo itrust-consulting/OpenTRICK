@@ -733,10 +733,12 @@ public class ControllerEditField {
 			// retrieve all acronyms of impact and likelihood
 			if (assessment.hasImpact(fieldEditor.getFieldName())) {
 				try {
-					double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
-					if (value < 0)
+					Number value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString());
+					if (value == null)
+						value = 0.0;
+					else if (value.doubleValue() < 0)
 						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
-					fieldEditor.setValue(value + "");
+					fieldEditor.setValue((value.doubleValue() * 1000) + "");
 				} catch (ParseException e) {
 				}
 				factory = createFactoryForAssessment(idAnalysis);
@@ -758,11 +760,13 @@ public class ControllerEditField {
 					if (!acronyms.contains(fieldEditor.getValue())) {
 						ParsePosition parsePosition = new ParsePosition(0);
 						String fieldEditorString = fieldEditor.getValue().toString();
-						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditorString, parsePosition).doubleValue();
+						Number value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditorString, parsePosition);
 						if (parsePosition.getIndex() >= fieldEditorString.length()) {
-							if (value < 0)
+							if (value == null)
+								value = 0.0;
+							else if (value.doubleValue() < 0)
 								return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
-							fieldEditor.setValue(value + "");
+							fieldEditor.setValue(value.doubleValue() + "");
 						}
 						String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), fieldEditor.getValue(), acronyms);
 						if (error != null)
@@ -844,6 +848,7 @@ public class ControllerEditField {
 	/**
 	 * Value will be modify<br>
 	 * Update : value (importance), color, title
+	 * 
 	 * @param idAnalysis
 	 * @param importance
 	 * @param value

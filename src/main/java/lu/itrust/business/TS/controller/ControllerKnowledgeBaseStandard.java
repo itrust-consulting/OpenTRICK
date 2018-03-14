@@ -373,33 +373,31 @@ public class ControllerKnowledgeBaseStandard {
 			sheet = findSheet(workbook, "NormData");
 			List<Language> languages = serviceLanguage.getAll();
 			List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
-			int levelCol = 0, referenceCol = 1, computableCol = 2, colSize = computableCol + languages.size() * 2, index = 0;
-
+			int referenceCol = 0, computableCol = 1, colSize = (languages.size() + 1) * 2, index = 0;
 			sheet.getRow().clear();
-
 			Row sheetRow = getRow(sheet, 0, colSize);
-			setValue(sheetRow.getC().get(index++), "Level");
 			setValue(sheetRow.getC().get(index++), "Reference");
 			setValue(sheetRow.getC().get(index++), "Computable");
-
 			tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
 			address = AddressRef.parse(tablePart.getContents().getRef());
 			CTTable table = tablePart.getContents();
-			while (table.getTableColumns().getTableColumn().size() > 3)
-				table.getTableColumns().getTableColumn().remove(3);
+			while (table.getTableColumns().getTableColumn().size() > index)
+				table.getTableColumns().getTableColumn().remove(index);
+
 			for (Language language : languages) {
 				CTTableColumn columnDomain = new CTTableColumn(), columnDesc = new CTTableColumn();
 				table.getTableColumns().getTableColumn().add(columnDomain);
 				table.getTableColumns().getTableColumn().add(columnDesc);
 				columnDomain.setName("Domain_" + language.getAlpha3());
 				columnDesc.setName("Description_" + language.getAlpha3());
-				columnDomain.setId(index + 1);
-				columnDesc.setId(index + 2);
 				setValue(sheetRow.getC().get(index++), columnDomain.getName());
 				setValue(sheetRow.getC().get(index++), columnDesc.getName());
 			}
 
-			address.getEnd().setCol(colSize);
+			for (int i = 0; i < colSize; i++)
+				table.getTableColumns().getTableColumn().get(i).setId(i + 1);
+
+			address.getEnd().setCol(colSize - 1);
 			address.getEnd().setRow(measuredescriptions.size());
 
 			table.setRef(address.toString());
@@ -414,9 +412,7 @@ public class ControllerKnowledgeBaseStandard {
 
 			for (MeasureDescription measuredescription : measuredescriptions) {
 
-				sheetRow = getRow(sheet, row++, colSize);
-
-				setValue(sheetRow.getC().get(levelCol), measuredescription.getLevel());
+				sheetRow = getRow(sheet, row++, colSize - 1);
 
 				setValue(sheetRow.getC().get(referenceCol), measuredescription.getReference());
 
@@ -747,13 +743,7 @@ public class ControllerKnowledgeBaseStandard {
 		try {
 
 			String reference = jsonNode.get("reference").asText();
-
-			Integer level = null;
 			Boolean computable = jsonNode.get("computable").asBoolean(false);
-			try {
-				level = jsonNode.get("level").asInt();
-			} catch (Exception e) {
-			}
 			if (!serviceDataValidation.isRegistred(MeasureDescription.class))
 				serviceDataValidation.register(new MeasureDescriptionValidator());
 
@@ -773,17 +763,18 @@ public class ControllerKnowledgeBaseStandard {
 					measuredescription.setReference(reference);
 			}
 
-			error = serviceDataValidation.validate(measuredescription, "level", level);
+			// error = serviceDataValidation.validate(measuredescription, "level", level);
 
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if (!errors.containsKey("measuredescription.reference")) {
-				if (reference.split(Constant.REGEX_SPLIT_REFERENCE).length != level)
-					errors.put("measuredescription.level",
-							messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
-				else
-					measuredescription.setLevel(level);
-			}
+			/*
+			 * else if (!errors.containsKey("measuredescription.reference")) { if
+			 * (reference.split(Constant.REGEX_SPLIT_REFERENCE).length != level)
+			 * errors.put("measuredescription.level", messageSource.getMessage(
+			 * "error.measure_description.level.not.match.reference", null,
+			 * "The level and the reference do not match.", locale)); else
+			 * measuredescription.setLevel(level); }
+			 */
 
 			error = serviceDataValidation.validate(measuredescription, "computable", computable);
 
@@ -831,10 +822,8 @@ public class ControllerKnowledgeBaseStandard {
 				else
 					mesDescText.setDomain(domain);
 
-				if (level == 3 && !(measuredescription.getStandard().is("27001") && measuredescription.getStandard().getVersion() == 2013))
-					error = validator.validate(mesDescText, "description", description);
-				else
-					error = null;
+				error = validator.validate(mesDescText, "description", description);
+
 				if (error != null)
 					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
 				else

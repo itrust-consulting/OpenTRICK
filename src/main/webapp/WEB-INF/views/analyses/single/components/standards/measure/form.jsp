@@ -71,13 +71,6 @@
 								</div>
 
 								<div class="form-group">
-									<label for="level" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.level" />' > <spring:message code="label.measure.level" /></label>
-									<div class="col-sm-9">
-										<input name="level" id="level" value="${measureForm.level}" class="form-control" type="number" min="1" />
-									</div>
-								</div>
-
-								<div class="form-group">
 									<label for="computable" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.computable" />' > <spring:message code="label.measure.computable" /></label>
 									<div class="col-sm-9" align="center">
 										<input name="computable" id="computable" ${measureForm.computable?'checked':''} class="checkbox" type="checkbox" />

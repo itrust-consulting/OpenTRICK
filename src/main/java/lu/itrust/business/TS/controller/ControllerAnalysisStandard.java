@@ -272,6 +272,7 @@ public class ControllerAnalysisStandard {
 		if (hasMaturity)
 			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002),
 					measuresByStandard.get(Constant.STANDARD_MATURITY), loadMaturityParameters(idAnalysis), true, factory));
+
 		model.addAttribute("hasMaturity", hasMaturity);
 
 		model.addAttribute("standards", standards);
@@ -285,6 +286,8 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
 		model.addAttribute("valueFactory", factory);
+
+		loadAnalysisSettings(model, idAnalysis);
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -316,9 +319,13 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measuresByStandard = new HashMap<>(1);
 		if (analysisStandard.getStandard().is(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
-			if (maturityStandard != null && maturityStandard.getStandard().isComputable())
-				model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(),
-						loadMaturityParameters(idAnalysis), true, factory));
+			if (maturityStandard != null) {
+				if (maturityStandard.getStandard().isComputable())
+					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(),
+							loadMaturityParameters(idAnalysis), true, factory));
+				model.addAttribute("hasMaturity", true);
+			} else
+				model.addAttribute("hasMaturity", false);
 		}
 
 		standards.add(analysisStandard.getStandard());
@@ -1227,7 +1234,7 @@ public class ControllerAnalysisStandard {
 					measureForm.setId(measure.getId());
 					measureForm.setIdStandard(idStandard);
 					measureForm.setReference(measure.getMeasureDescription().getReference());
-					measureForm.setLevel(measure.getMeasureDescription().getLevel());
+					// measureForm.setLevel(measure.getMeasureDescription().getLevel());
 					measureForm.setComputable(measure.getMeasureDescription().isComputable());
 					measureForm.setImplementationRate((int) measure.getImplementationRateValue(Collections.emptyList()));
 					measureForm.setStatus(measure.getStatus());
@@ -1596,11 +1603,6 @@ public class ControllerAnalysisStandard {
 		String error = validator.validate("reference", measureForm.getReference());
 		if (error != null)
 			errors.put("reference", serviceDataValidation.ParseError(error, messageSource, locale));
-		error = validator.validate("level", measureForm.getLevel());
-		if (error != null)
-			errors.put("level", serviceDataValidation.ParseError(error, messageSource, locale));
-		else if (!errors.containsKey("reference") && measureForm.getReference().split(Constant.REGEX_SPLIT_REFERENCE).length != measureForm.getLevel())
-			errors.put("level", messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
 		validator = serviceDataValidation.findByClass(MeasureDescriptionTextValidator.class);
 		if (validator == null)
 			serviceDataValidation.register(validator = new MeasureDescriptionTextValidator());
@@ -1627,7 +1629,7 @@ public class ControllerAnalysisStandard {
 			}
 			description = serviceMeasureDescription.getByReferenceAndStandard(measureForm.getReference(), measure.getAnalysisStandard().getStandard());
 			if (description == null) {
-				description = new MeasureDescription(measureForm.getReference(), measure.getAnalysisStandard().getStandard(), measureForm.getLevel(), measureForm.isComputable());
+				description = new MeasureDescription(measureForm.getReference(), measure.getAnalysisStandard().getStandard(), measureForm.isComputable());
 				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
 			}
 			measure.setMeasureDescription(description);
@@ -1639,7 +1641,7 @@ public class ControllerAnalysisStandard {
 				return errors;
 			}
 			description.setReference(measureForm.getReference());
-			description.setLevel(measureForm.getLevel());
+			// description.setLevel(measureForm.getLevel());
 		}
 		if (description.getId() > 0) {
 			MeasureDescriptionText descriptionText = description.findByLanguage(language);

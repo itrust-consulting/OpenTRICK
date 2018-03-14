@@ -125,9 +125,9 @@ public class ActionPlanComputation {
 	}
 
 	/**
-	 * ActionPlanComputation: constructor that takes the service actionplantype
-	 * and serviceAnalysis ( to get all nessesary data for computation) and the
-	 * anaylsis object itself as parameters.
+	 * ActionPlanComputation: constructor that takes the service actionplantype and
+	 * serviceAnalysis ( to get all nessesary data for computation) and the anaylsis
+	 * object itself as parameters.
 	 * 
 	 * @param serviceActionPlanType
 	 * @param sericeAnalysis
@@ -139,13 +139,13 @@ public class ActionPlanComputation {
 	}
 
 	/**
-	 * ActionPlanComputation: constructor that takes the service actionplantype
-	 * and serviceAnalysis ( to get all nessesary data for computation) ,
-	 * standards to compute, uncertainty flag, the analysis and the task
-	 * parameters for asynchronous actionplan computation.
+	 * ActionPlanComputation: constructor that takes the service actionplantype and
+	 * serviceAnalysis ( to get all nessesary data for computation) , standards to
+	 * compute, uncertainty flag, the analysis and the task parameters for
+	 * asynchronous actionplan computation.
 	 * 
-	 * Inside this constructor, the standards will be determined to compute as
-	 * well as the uncertainty and maturity computation flag.
+	 * Inside this constructor, the standards will be determined to compute as well
+	 * as the uncertainty and maturity computation flag.
 	 * 
 	 * @param serviceActionPlanType
 	 * @param sericeAnalysis
@@ -230,7 +230,7 @@ public class ActionPlanComputation {
 
 			factory = new ValueFactory(this.analysis.getExpressionParameters());
 
-			//preImplementedMeasures = new MaintenanceRecurrentInvestment();
+			// preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
 			// Reset previously computed action plans
 			// This is needed to assure that the action plan list is actually
@@ -422,8 +422,6 @@ public class ActionPlanComputation {
 
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", progress));
-		
-		
 
 		if (normalcomputation) {
 			summaryComputation.compute(ActionPlanMode.APN);
@@ -485,7 +483,6 @@ public class ActionPlanComputation {
 
 		return progress;
 	}
-
 
 	/**
 	 * determinePositions: <br>
@@ -1104,8 +1101,8 @@ public class ActionPlanComputation {
 	/**
 	 * generateTemporaryActionPlan: <br>
 	 * Generates the Temporary Action Plan based on the "TMAList" values and the
-	 * usedMeasures List. Where usedMeasures is the List of Measures to add to
-	 * the Action Plan.
+	 * usedMeasures List. Where usedMeasures is the List of Measures to add to the
+	 * Action Plan.
 	 * 
 	 * @return The Temporary Action Plan Entries
 	 * 
@@ -1281,8 +1278,7 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateMaturtiyChapterActionPlanEntries: <br>
-	 * Generate Action Plan Entries for the Maturity Chapters Inside an Action
-	 * Plan.
+	 * Generate Action Plan Entries for the Maturity Chapters Inside an Action Plan.
 	 * 
 	 * @param tmpActionPlan
 	 *            The Action Plan to Add Maturity Chapters
@@ -1530,8 +1526,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * createSelectedAssetsList: <br>
-	 * Create a fresh List of Assets which are only selected. This is used to
-	 * set the current ALE by Asset to the Action Plan Assets.
+	 * Create a fresh List of Assets which are only selected. This is used to set
+	 * the current ALE by Asset to the Action Plan Assets.
 	 * 
 	 * @return The Copy of the List of Assets
 	 * 
@@ -1555,12 +1551,11 @@ public class ActionPlanComputation {
 		/*
 		 * for (int asc = 0; asc < this.analysis.getAssets().size(); asc++) {
 		 * 
-		 * // selected asset -> YES if
-		 * (this.analysis.getAnAsset(asc).isSelected() &&
+		 * // selected asset -> YES if (this.analysis.getAnAsset(asc).isSelected() &&
 		 * !tmpAssets.contains(this.analysis.getAnAsset(asc))) {
 		 * 
-		 * // ****************************************************************
-		 * // * create new asset object //
+		 * // **************************************************************** // *
+		 * create new asset object //
 		 * ****************************************************************
 		 * 
 		 * Asset tmpAsset = new Asset();
@@ -1572,8 +1567,8 @@ public class ActionPlanComputation {
 		 * AssetType(this.analysis.getAnAsset(asc).getAssetType().getType()));
 		 * tmpAsset.setValue(this.analysis.getAnAsset(asc).getValue());
 		 * 
-		 * // ****************************************************************
-		 * // * add asset to the list //
+		 * // **************************************************************** // * add
+		 * asset to the list //
 		 * ****************************************************************
 		 * tmpAssets.add(new ActionPlanAsset(null, tmpAsset, 0)); } }
 		 */
@@ -1780,23 +1775,23 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateTMAList: <br>
-	 * Generates a list of Measure-Assessment-Threat and Calculates for this
-	 * Triple the deltaALE and if it is a Measure of the AnalysisStandard 27002
-	 * the deltaALE Maturity. <br>
-	 * The SimpleParameter usedMeasures will have a list of Measures that are to
-	 * be used for the Action Plan Calculation. The Method returns the List of
-	 * TMA Entries and inside the parameter usedMeasures the Measures.
+	 * Generates a list of Measure-Assessment-Threat and Calculates for this Triple
+	 * the deltaALE and if it is a Measure of the AnalysisStandard 27002 the
+	 * deltaALE Maturity. <br>
+	 * The SimpleParameter usedMeasures will have a list of Measures that are to be
+	 * used for the Action Plan Calculation. The Method returns the List of TMA
+	 * Entries and inside the parameter usedMeasures the Measures.
 	 * 
 	 * @param factory
 	 * 
 	 * @param usedMeasures
-	 *            List to store the Measures used for Action Plan Calculation
-	 *            (will be filled inside)
+	 *            List to store the Measures used for Action Plan Calculation (will
+	 *            be filled inside)
 	 * @param mode
 	 *            Defines if the Mode is Normal, Optimistic or Pessimistic
 	 * @param phase
-	 *            Defines if the Phase Calculation is Enabled and what Phase to
-	 *            take into account
+	 *            Defines if the Phase Calculation is Enabled and what Phase to take
+	 *            into account
 	 * @param isCssf
 	 *            Flag determinating if TMAList is for CSSF computation or not
 	 * @param maturitycomputation
@@ -1974,16 +1969,16 @@ public class ActionPlanComputation {
 	/**
 	 * generateTMAEntry: <br>
 	 * This method generates for a given Measure TMA (Threat Measure Assessment)
-	 * entries in the List "TMAList". This method adds this measure to the list
-	 * of usedMEasures given as parameter.
+	 * entries in the List "TMAList". This method adds this measure to the list of
+	 * usedMEasures given as parameter.
 	 * 
 	 * @param factory
 	 * 
 	 * @param TMAList
 	 *            The List to insert the current TMA Entry
 	 * @param usedMeasures
-	 *            The List of Measures to add the current Measure (from TMA
-	 *            Entry) to be used
+	 *            The List of Measures to add the current Measure (from TMA Entry)
+	 *            to be used
 	 * @param mode
 	 *            Defines which Type of Action Plan is Calculated (to take the
 	 *            correct ALE value)
@@ -2218,10 +2213,10 @@ public class ActionPlanComputation {
 
 	/**
 	 * addMaturityChaptersToUsedMeasures: <br>
-	 * Parse Maturity Measure and Add only Chapters of Maturity to
-	 * "usedmeasures" parameter. This is used to identify the Maturity Measures
-	 * to Add to the Action Plan. If SimpleParameter "phase" is not 0 then add
-	 * Maturity Chapters for the given Phase.
+	 * Parse Maturity Measure and Add only Chapters of Maturity to "usedmeasures"
+	 * parameter. This is used to identify the Maturity Measures to Add to the
+	 * Action Plan. If SimpleParameter "phase" is not 0 then add Maturity Chapters
+	 * for the given Phase.
 	 * 
 	 * @param analysis
 	 *            analysis object
@@ -2272,17 +2267,13 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * parse all measures of maturity standard
 			// ****************************************************************
-			for (int matmeasc = 0; matmeasc < maturityStandard.getMeasures().size(); matmeasc++) {
-
+			for (MaturityMeasure measure : maturityStandard.getExendedMeasures()) {
 				// check reference if level 1 chapter that is currently parsed
 				// and if reached SML <
 				// 5
-				if ((maturityStandard.getMeasure(matmeasc).getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1)
-						&& (maturityStandard.getMeasure(matmeasc).getReachedLevel() < 5)
-						&& (((phase > 0) && (maturityStandard.getMeasure(matmeasc).getPhase().getNumber() == phase)) || (phase == 0))) {
-
+				if (!measure.getMeasureDescription().isComputable() && measure.getReachedLevel() < 5 && ((phase > 0 && measure.getPhase().getNumber() == phase) || (phase == 0))) {
 					// add Maturity Chapter as nessesary
-					addAMaturtiyChapterToUsedMeasures(analysis, factory, usedMeasures, maturityStandard, maturityStandard.getMeasure(matmeasc));
+					addAMaturtiyChapterToUsedMeasures(analysis, factory, usedMeasures, maturityStandard, measure);
 				}
 			}
 		}
@@ -2290,10 +2281,10 @@ public class ActionPlanComputation {
 
 	/**
 	 * addAMaturtiyChapterToUsedMeasures: <br>
-	 * Checks if a Maturity Chapter has a total cost > 0 and if for this
-	 * chapter, there is at least 1 measure of 27002 applicable for this
-	 * chapter. When both costrains are met, the measure will be added to the
-	 * list "usedMeasures" given as parameter.
+	 * Checks if a Maturity Chapter has a total cost > 0 and if for this chapter,
+	 * there is at least 1 measure of 27002 applicable for this chapter. When both
+	 * costrains are met, the measure will be added to the list "usedMeasures" given
+	 * as parameter.
 	 * 
 	 * @param factory
 	 * 
@@ -2378,9 +2369,9 @@ public class ActionPlanComputation {
 	 * 
 	 * @param chapter
 	 *            The Maturity Chapter to check
-	 * @return True if there is at least 1 Measure inside the AnalysisStandard
-	 *         27002 Chapter that is applicable;False if there are no Measures
-	 *         in the 27002 AnalysisStandard
+	 * @return True if there is at least 1 Measure inside the AnalysisStandard 27002
+	 *         Chapter that is applicable;False if there are no Measures in the
+	 *         27002 AnalysisStandard
 	 */
 	private static boolean hasUsable27002MeasuresInMaturityChapter(Analysis analysis, String chapter) {
 		// initialise variables
@@ -2389,7 +2380,7 @@ public class ActionPlanComputation {
 		return normalStandard != null && normalStandard.getMeasures().stream().anyMatch(measure -> (measure.getMeasureDescription().getReference().startsWith(chapter + "."))
 				&& (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (measure.getMeasureDescription().isComputable())));
 	}
-	
+
 	/**
 	 * extractMainChapter: <br>
 	 * extract the main chapter
@@ -2404,7 +2395,6 @@ public class ActionPlanComputation {
 		}
 		return chapter.split(Constant.REGEX_SPLIT_REFERENCE, 2)[0];
 	}
-
 
 	/**
 	 * getAnalysis: <br>

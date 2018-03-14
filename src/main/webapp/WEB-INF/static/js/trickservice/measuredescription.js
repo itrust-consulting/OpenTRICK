@@ -80,7 +80,6 @@ function newMeasure(idStandard) {
 	$("#addmeasurebutton", $modal).prop("disabled", false);
 	$("#measure_id", $modal).prop("value", "-1");
 	$("#measure_reference", $modal).prop("value", "");
-	$("#measure_level", $modal).prop("value", "");
 	$("#measure_computable input[value='true']", $modal).parent().button("toggle");
 	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
@@ -128,11 +127,12 @@ function editSingleMeasure(measureId, idStandard) {
 		measureId = selectedScenario[0];
 	}
 
-	var $progress = $("#loading-indicator").show(), measure = $("tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)", "#section_kb_measure");
+	var $progress = $("#loading-indicator").show(), $measure = $("tbody>tr[data-trick-id='" + measureId + "']>td[data-trick-field]", "#section_kb_measure"),
+	reference = $measure.filter("td[data-trick-field='reference']").text(), 
+	computable =  $measure.filter("td[data-trick-field='computable']").attr("data-trick-real-value");
 	$("#measure_id", $modal).prop("value", measureId);
-	$("#measure_reference", $modal).prop("value", $(measure[1]).text());
-	$("#measure_level", $modal).prop("value", $(measure[0]).text());
-	$("#measure_computable input[value='"+$(measure[4]).attr("data-trick-computable")+"']", $modal).parent().button("toggle");
+	$("#measure_reference", $modal).prop("value", reference);
+	$("#measure_computable input[value='"+computable+"']", $modal).parent().button("toggle");
 	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
 	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));

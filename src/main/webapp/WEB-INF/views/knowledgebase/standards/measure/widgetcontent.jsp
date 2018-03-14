@@ -15,7 +15,7 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog"  data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
+<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -28,24 +28,20 @@
 				<form name="measure" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="measure_form" method="post">
 					<input type="hidden" name="id" value="-1" id="measure_id">
 					<div class="form-group">
-						<label for="reference" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.reference" />' > <spring:message code="label.reference" text="Reference" /></label>
-						<div class="col-sm-9">
-							<input name="reference" id="measure_reference" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="level" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.level" />' > <spring:message code="label.measure.level" text="Level" /></label>
-						<div class="col-sm-9">
-							<input name="level" id="measure_level" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="computable" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.computable" />' > <spring:message code="label.measure.computable" text="Computable" /></label>
-						<div class="col-sm-9 text-center" >
+						<label for="computable" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.computable" />'> <spring:message
+								code="label.measure.computable" text="Computable" /></label>
+						<div class="col-sm-9 text-center">
 							<div class="btn-group" data-toggle="buttons" id="measure_computable">
 								<label class="btn btn-default active"><spring:message code="label.yes_no.yes" text="Yes" /><input name="computable" type="radio" value="true" checked="checked"></label>
 								<label class="btn btn-default"><spring:message code="label.yes_no.no" text="No" /><input name="computable" type="radio" value="false"></label>
 							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="reference" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.reference" />'> <spring:message code="label.reference"
+								text="Reference" /></label>
+						<div class="col-sm-9">
+							<input name="reference" id="measure_reference" class="form-control" type="text" />
 						</div>
 					</div>
 					<div id="measurelanguages"></div>

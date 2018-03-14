@@ -1512,10 +1512,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
 					setCellText((Tc) row.getContent().get(1), description == null ? "" : description.getDomain(), alignmentLeft);
 					if (!measure.getMeasureDescription().isComputable()) {
-						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
-							setColor((Tc) row.getContent().get(i), color);
-						MergeCell(row, 1, 14, color);
+							setColor((Tc) row.getContent().get(i), HEADER_COLOR);
+						MergeCell(row, 1, 14, HEADER_COLOR);
 					} else {
 						setCellText((Tc) row.getContent().get(2), getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 						addCellNumber((Tc) row.getContent().get(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));

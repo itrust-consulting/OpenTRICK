@@ -254,7 +254,7 @@ function findMeasuresChapter(chapter, $measureContainer, $chapterSelector) {
 }
 
 function sortMeasureChapterByReference($chapter) {
-	return $("[data-trick-reference][data-trick-level][data-trick-id]", $chapter).sort(function (a, b) {
+	return $("[data-trick-reference][data-trick-id]", $chapter).sort(function (a, b) {
 		return naturalSort(a.getAttribute("data-trick-reference"), b.getAttribute("data-trick-reference"));
 	}).detach().appendTo($chapter).removeClass("active").filter(":first").addClass("active");
 }
@@ -263,7 +263,7 @@ function updateMeasureNavigationControl(measure) {
 	if (measure.reference == undefined)
 		return false;
 	var $tabSection = $("#tab-measure-edition"), $measureContainer = $("div[data-trick-id='" + measure.idStandard + "'][data-trick-content='measure']", $tabSection), $chapterSelector = $(
-		"div[data-trick-id='" + measure.idStandard + "'][data-trick-content='chapter'] select[name='chapter']", $tabSection), chapter = extractChapter(measure.reference), $selectedMeasure = $("[data-trick-reference][data-trick-level][data-trick-id='"
+		"div[data-trick-id='" + measure.idStandard + "'][data-trick-content='chapter'] select[name='chapter']", $tabSection), chapter = extractChapter(measure.reference), $selectedMeasure = $("[data-trick-reference][data-trick-id='"
 			+ measure.id + "']");
 	if ($selectedMeasure.length) {
 		var $chapter = $selectedMeasure.closest("[data-trick-chapter-name]");
@@ -271,7 +271,7 @@ function updateMeasureNavigationControl(measure) {
 			$chapter = findMeasuresChapter(chapter, $measureContainer, $chapterSelector);
 
 		if ($selectedMeasure.attr("data-trick-reference") != measure.reference) {
-			$selectedMeasure.attr("data-trick-reference", measure.reference).attr("data-trick-level", measure.level).appendTo($chapter);
+			$selectedMeasure.attr("data-trick-reference", measure.reference).appendTo($chapter);
 			sortMeasureChapterByReference($chapter);
 		}
 
@@ -279,7 +279,7 @@ function updateMeasureNavigationControl(measure) {
 	} else {
 		var $chapter = findMeasuresChapter(chapter, $measureContainer, $chapterSelector);
 		$("<a href='#' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' class='list-group-item' />").attr("title", measure.domain).attr(
-			"data-trick-reference", measure.reference).attr("data-trick-level", measure.level).attr("data-trick-id", measure.id).text(
+			"data-trick-reference", measure.reference).attr("data-trick-id", measure.id).text(
 			measure.reference + " - " + measure.domain).appendTo($chapter).on("click", changeMeasure);
 		sortMeasureChapterByReference($chapter);
 	}
@@ -288,9 +288,9 @@ function updateMeasureNavigationControl(measure) {
 
 function removeFromMeasureNavigation(idStandard, idMeasure) {
 	var $tabSection = $("#tab-measure-edition"), $measure = $("div[data-trick-id='" + idStandard
-		+ "'][data-trick-content='measure'] [data-trick-reference][data-trick-level][data-trick-id='" + idMeasure + "']", $tabSection), $chapter = $measure
+		+ "'][data-trick-content='measure'] [data-trick-reference][data-trick-id='" + idMeasure + "']", $tabSection), $chapter = $measure
 			.closest("[data-trick-chapter-name]");
-	if ($("[data-trick-reference][data-trick-level]", $chapter).length == 1) {
+	if ($("[data-trick-reference]", $chapter).length == 1) {
 		$("div[data-trick-id='" + idStandard + "'][data-trick-content='chapter'] select[name='chapter']>option[value='" + $chapter.attr("data-trick-chapter-name") + "']",
 			$tabSection).remove();
 		$chapter.remove();

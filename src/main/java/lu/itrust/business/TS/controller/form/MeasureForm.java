@@ -30,8 +30,6 @@ public class MeasureForm {
 
 	private String reference;
 
-	private int level;
-
 	private boolean computable;
 
 	private String domain;
@@ -71,7 +69,7 @@ public class MeasureForm {
 		if (measure.getMeasureDescription() != null) {
 			form.setComputable(measure.getMeasureDescription().isComputable());
 			form.setReference(measure.getMeasureDescription().getReference());
-			form.setLevel(measure.getMeasureDescription().getLevel());
+			//form.setLevel(measure.getMeasureDescription().getLevel());
 
 			MeasureDescriptionText descriptionText = measure.getMeasureDescription().findByAlph3(language);
 			if (descriptionText == null)
@@ -126,14 +124,6 @@ public class MeasureForm {
 		this.reference = reference == null ? null : reference.trim();
 	}
 
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
-
 	public boolean isComputable() {
 		return computable;
 	}
@@ -184,7 +174,7 @@ public class MeasureForm {
 
 	@Override
 	public String toString() {
-		return "MeasureForm [id=" + id + ", idStandard=" + idStandard + ", reference=" + reference + ", level=" + level + ", computable=" + computable + ", domain=" + domain
+		return "MeasureForm [id=" + id + ", idStandard=" + idStandard + ", reference=" + reference + ", computable=" + computable + ", domain=" + domain
 				+ ", description=" + description + ", assetValues=" + assetValues + ", properties=" + properties + ", type=" + type + "]";
 	}
 
