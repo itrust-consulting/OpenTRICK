@@ -8,7 +8,7 @@
 <div id="tab-broadcasting" class="tab-pane" data-update-required="true" data-trigger="loadNotification">
 	<div id="section_notification">
 		<ul class="nav nav-pills bordered-bottom" id="menu_customer">
-			<li><a id='btn-add-notification' href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
+			<li data-trick-ignored="true"><a id='btn-add-notification' href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
 			<li id="btn-clear-notification" class="pull-right"><a href="#" class="text-danger"><span class="glyphicon glyphicon-remove"></span>
 					<spring:message code="label.action.clear"/> </a></li>
 		</ul>

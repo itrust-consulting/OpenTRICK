@@ -103,8 +103,6 @@ function deleteUser(userId, name) {
 }
 
 function newUser() {
-	if (findSelectItemIdBySection("section_user").length > 0)
-		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Admin/User/Add",

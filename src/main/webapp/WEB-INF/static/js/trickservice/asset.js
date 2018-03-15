@@ -104,22 +104,15 @@ function deleteAsset() {
 
 }
 
-function editAsset(rowTrickId, isAdd) {
+function editAsset(rowTrickId, isAdding) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		if (isAdd) {
-			var selectedScenario = $("#section_asset:visible :checked");
-			if (selectedScenario.length != 0)
-				return false;
-			rowTrickId = undefined;
-		} else if (rowTrickId == null || rowTrickId == undefined) {
+		if (!isAdding && ( rowTrickId == null || rowTrickId == undefined)) {
 			var selectedScenario = $("#section_asset :checked");
 			if (selectedScenario.length != 1)
 				return false;
 			rowTrickId = findTrickID(selectedScenario[0]);
 		}
-
 		var $progress = $("#loading-indicator").show();
-
 		$.ajax({
 			url: context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Analysis/Asset/Add" : "/Analysis/Asset/Edit/" + rowTrickId),
 			async: true,

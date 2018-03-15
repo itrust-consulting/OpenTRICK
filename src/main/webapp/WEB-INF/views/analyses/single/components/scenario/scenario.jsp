@@ -20,7 +20,7 @@
 		</div>
 		<c:if test="${isEditable}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_scenario">
-				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
+				<li data-trick-ignored="true"><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
 				<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.action.edit" /> </a></li>
 				<li class="disabled" data-trick-single-check="!isSelected('scenario')" data-trick-check="hasSelectedState('scenario','false')" data-trick-selectable="multi"><a href="#"

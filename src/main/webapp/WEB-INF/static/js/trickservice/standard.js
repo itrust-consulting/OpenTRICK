@@ -139,8 +139,6 @@ function importNewStandard() {
 }
 
 function newStandard() {
-	if (findSelectItemIdBySection("section_kb_standard").length)
-		return false;
 	$("#addStandardModel .label-danger").remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	$("#standard_id").prop("value", "-1");

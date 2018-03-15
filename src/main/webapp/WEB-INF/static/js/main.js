@@ -718,14 +718,15 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 }
 
 function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
+	
+	var $section = $((appModalVar == undefined || appModalVar == null) ? idsection : application[appModalVar].modal);  $menu = $(idMenu, $section);
+	
 	if (sender) {
-		var $sender = $(sender);
+		var $sender = $(sender), items = $("tbody :checked", $section);
 		if ($sender.is(":checked")) {
 			$sender.closest("tr").addClass("selected")
-			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
-					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
+			var multiSelectNotAllowed = $("li[data-trick-selectable='multi']", $menu).length == 0;
 			if (multiSelectNotAllowed) {
-				var items = $("tbody :checked", ((appModalVar == undefined || appModalVar == null) ? idsection : application[appModalVar].modal));
 				for (var i = 0; i < items.length; i++) {
 					var $item = $(items[i]);
 					if (sender == $item[0])
@@ -738,9 +739,8 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 			$sender.closest("tr").removeClass("selected")
 	}
 
-	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length, cachingChecker = {};
-	if (checkedCount > 1) {
-		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
+	var cachingChecker = {},$lis = $("li", $menu), $selectedItems = $("tbody :checked", $section);
+	if ($selectedItems.length > 1) {
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
 			if ($liSelected.attr("data-trick-selectable") === "multi" || $liSelected.attr("data-trick-ignored"))
@@ -749,8 +749,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				$liSelected.addClass("disabled");
 			updateMenuItemState(cachingChecker, $liSelected, checker);
 		}
-	} else if (checkedCount == 1) {
-		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
+	} else if ($selectedItems.length == 1) {
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]), singleChecker = $liSelected.attr("data-trick-single-check");
 			if ($liSelected.attr("data-trick-selectable") != undefined || $liSelected.attr("data-trick-ignored"))
@@ -764,7 +763,6 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				updateMenuItemState(cachingChecker, $liSelected, $liSelected.attr("data-trick-check"));
 		}
 	} else {
-		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]);
 			if ($liSelected.attr("data-trick-selectable") == undefined)
@@ -774,17 +772,36 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		}
 	}
 
-	if (callback != undefined) {
-		try {
-			if ($.isFunction(callback))
-				callback();
-			else
-				eval(callback);
-		} catch (e) {
-			console.log(idsection);
-			console.log(e);
-		}
+	if(!(callback===undefined || callback===null))
+		invokeCallback(callback);
+	
+	var menuCallBack = $menu.attr("data-trick-callback");
+	
+	if(!(menuCallBack===undefined || menuCallBack===null))
+		invokeCallback(menuCallBack);
+	
+	return false;
+}
+
+function invokeCallback(callback){
+	try {
+		if ($.isFunction(callback))
+			callback();
+		else if (window[callback])
+			window[callback].apply();
+		else
+			eval(callback);
+	} catch (e) {
+		console.log(idsection);
+		console.log(e);
 	}
+}
+
+function updateDropdown(){
+	var $menu =  $(".nav-dropdown-menu"), $controller =  $("a.dropdown-toggle", $menu), $lis =  $('ul.dropdown-menu>li:not(.disabled)',$menu);
+	if($lis.length)
+		$controller.removeClass("disabled");
+	else $controller.addClass("disabled");
 	return false;
 }
 
@@ -798,45 +815,6 @@ function updateMenuItemState(cachingChecker, $liSelected, checker) {
 			$liSelected.addClass("disabled");
 	}
 }
-
-/*
-function updateStatus(progressBar, idTask, callback, status) {
-	if (status == null || status == undefined) {
-		$.ajax({
-			url : context + "/Task/Status/" + idTask,
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(reponse) {
-				if (reponse.flag == undefined) {
-					eval(callback.failed);
-					return false;
-				}
-				return updateStatus(progressBar, idTask, callback, reponse);
-			},
-			error : unknowError
-		});
-	} else {
-		if (status.message != null)
-			progressBar.Update(status.progress, status.message);
-		if (status.flag == 3) {
-			setTimeout(function() {
-				updateStatus(progressBar, idTask, callback);
-			}, 1500);
-		} else {
-			$(progressBar.progress).parent().parent().find("button").each(function() {
-				$(this).removeAttr("disabled");
-			});
-			if (callback.success != undefined)
-				eval(callback.success);
-			else if (status.asyncCallback != undefined && status.asyncCallback != null)
-				eval(status.asyncCallback.action);
-			else if (status.taskName != null && status.taskName != undefined)
-				eval(status.taskName.action);
-		}
-	}
-	return false;
-}
-*/
 
 function serializeForm(form) {
 	var $form = $(form);
@@ -880,44 +858,7 @@ function findTrickID(element) {
 		return $(element).attr("data-trick-id");
 	return $(element).closest("[data-trick-id]").attr("data-trick-id");
 }
-/*
-function versionComparator(version1, version2) {
-	var values1 = version1.split("\\.", 2);
-	var values2 = version2.split("\\.", 2);
 
-	var vers1 = "";
-
-	var vers2 = "";
-
-	for (var i = 0; i < values1.length; i++)
-		vers1 += values1[i];
-
-	for (var i = 0; i < values2.length; i++)
-		vers2 += values2[i];
-
-	console.log(vers1 + "::" + vers2);
-
-	return vers1 > vers2 ? 1 : -1;
-}
-
-function oldversionComparator(version1, version2) {
-	var values1 = version1.split("\\.", 2);
-	var values2 = version2.split("\\.", 2);
-	var value1 = parseInt(values1[0]);
-	var value2 = parseInt(values2[0]);
-	if (value1 == value2) {
-		if (values1.length == 1 && values2.length == 1)
-			return 0;
-		else if (values1.length == 1 && values2.length > 1)
-			return -1;
-		else if (values1.length > 1 && values2.length == 1)
-			return 1;
-		else
-			return versionComparator(values1[1], values2[1]);
-	} else
-		return value1 > value2 ? 1 : -1;
-}
-*/
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
 	if (!(current == undefined ||current.$element == null )) {
@@ -1239,7 +1180,7 @@ $(document)
 						updateUserGuideURL();
 					}, 100);
 					
-					//load notification.
+					// load notification.
 					$("#controller-notifications div[data-notification-type]").each(function(){
 						var id = this.id, type = this.getAttribute("data-type");
 						if(type === null || type === undefined)
@@ -1253,5 +1194,16 @@ $(document)
 					});
 					
 					$("#logout-form").on("submit", (e) => application["taskManager"].Disconnect());
+					
+					// Prevent click on disabled menus
+					$("li>a").on("click", (e) => {
+						var parent = e.currentTarget.closest("li");
+						if(e.currentTarget.classList.contains("disabled") || parent && parent.classList.contains("disabled")){
+							e.stopPropagation();
+							return false;
+						}
+							
+						
+					})
 					
 				});

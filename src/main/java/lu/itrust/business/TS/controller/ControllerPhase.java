@@ -259,9 +259,8 @@ public class ControllerPhase {
 			errors.put("begin", messageSource.getMessage("error.phase.beginDate.empty", null, "Phase begin date cannot be empty", locale));
 		if (form.getEnd() == null)
 			errors.put("end", messageSource.getMessage("error.phase.endDate.empty", null, "Phase end date cannot be empty", locale));
-		else if (form.getBegin() != null && form.getBegin().after(form.getEnd()))
+		else if (form.getBegin() != null && form.getBegin().after(form.getEnd()) || previous != null && previous.getEndDate().after(form.getEnd()))
 			errors.put("end", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale));
-
 		if (errors.isEmpty()) {
 			if (previous == null)
 				phase.setBeginDate(new Date(form.getBegin().getTime()));

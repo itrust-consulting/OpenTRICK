@@ -3,8 +3,6 @@
  */
 
 function newIDS() {
-	if (findSelectItemIdBySection("section_ids").length > 0)
-		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Admin/IDS/Add",

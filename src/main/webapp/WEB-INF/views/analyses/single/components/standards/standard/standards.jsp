@@ -69,7 +69,7 @@
 					<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
 						<c:if test="${isEditable}">
 							<c:if test="${analysisOnly}">
-								<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
+								<li data-trick-ignored="true"><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
 								<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
 										class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
 							</c:if>

@@ -74,8 +74,6 @@ function deleteLanguage(languageId, name) {
 }
 
 function newLanguage() {
-	if (findSelectItemIdBySection("section_language").length)
-		return false;
 	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 	$("#language_id").prop("value", "-1");

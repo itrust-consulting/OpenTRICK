@@ -3,8 +3,6 @@
  */
 
 function addScaleType() {
-	if (findSelectItemIdBySection("section_kb_scale_type").length > 0)
-		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/KnowledgeBase/ScaleType/Add",

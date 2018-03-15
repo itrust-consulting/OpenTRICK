@@ -17,7 +17,7 @@
 		</div>
 	</div>
 	<ul class="nav nav-pills bordered-bottom" id="menu_measure_description">
-		<li><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.norm" text="Add" /> </a></li>
+		<li data-trick-ignored="true"><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.norm" text="Add" /> </a></li>
 		<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 					code="label.menu.edit.norm" text="Edit" /> </a></li>
 		<c:if test="${!empty languages}">

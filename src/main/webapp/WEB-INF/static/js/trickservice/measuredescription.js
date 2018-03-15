@@ -70,13 +70,12 @@ function showMeasures(idStandard, languageId, reloadBody) {
 }
 
 function newMeasure(idStandard) {
-	if (findSelectItemIdBySection("section_kb_measure").length)
-		return false;
 	if (idStandard == null || idStandard == undefined)
 		idStandard = $("#idStandard", "#section_kb_measure").val();
+	if(idStandard == null || idStandard == undefined)
+		return false;
 	var $modal = $("#addMeasureModel"), $progress = $("#loading-indicator").show();
 	$(".label-danger", $modal).remove();
-
 	$("#addmeasurebutton", $modal).prop("disabled", false);
 	$("#measure_id", $modal).prop("value", "-1");
 	$("#measure_reference", $modal).prop("value", "");

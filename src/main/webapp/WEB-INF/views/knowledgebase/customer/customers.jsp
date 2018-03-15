@@ -8,13 +8,13 @@
 <div class="active tab-pane" id="tab-customer">
 	<div class="section" id="section_customer">
 		<ul class="nav nav-pills bordered-bottom" id="menu_customer">
-			<li><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.customer" text="Add" /> </a></li>
+			<li data-trick-ignored="true"><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
-						code="label.customer.edit" text="Edit" /> </a></li>
+						code="label.action.edit" text="Edit" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editManageCustomer();"><span class="glyphicon glyphicon-list"></span> <spring:message
-						code="label.action.customer.template" text="Manage template" /> </a></li>
+						code="label.action.manage.template" text="Manage template" /> </a></li>
 			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-						code="label.menu.delete.customer" text="Delete" /> </a></li>
+						code="label.action.delete" text="Delete" /> </a></li>
 		</ul>
 		<c:choose>
 			<c:when test="${!empty customers}">

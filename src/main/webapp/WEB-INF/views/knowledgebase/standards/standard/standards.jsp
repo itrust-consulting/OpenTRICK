@@ -8,7 +8,7 @@
 <div class="tab-pane" id="tab-standard">
 	<div class="section" id="section_kb_standard">
 		<ul class="nav nav-pills bordered-bottom" id="menu_standard">
-			<li><a href="#" onclick="return newStandard();"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.menu.add.norm" text="Add" /> </a></li>
+			<li data-trick-ignored="true"><a href="#" onclick="return newStandard();"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.menu.add.norm" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return switchTab('tab-measure')"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message
 						code="label.action.show_measures" text="Show measures" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleStandard();"><span class="glyphicon glyphicon-edit"></span>&nbsp;<spring:message

@@ -20,7 +20,7 @@
 		</div>
 		<c:if test="${isEditable}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_asset">
-				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
+				<li data-trick-ignored="true" ><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
 							code="label.action.add.asset" /></a></li>
 				<li class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.action.edit.asset" /> </a></li>

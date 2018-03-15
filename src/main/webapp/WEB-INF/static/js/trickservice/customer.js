@@ -127,8 +127,6 @@ function deleteCustomer(customerId, organisation) {
 }
 
 function newCustomer() {
-	if (findSelectItemIdBySection("section_customer").length)
-		return false;
 	$("#addCustomerModel .label-danger").remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 	$("#customer_id").prop("value", "-1");
@@ -151,7 +149,7 @@ function newCustomer() {
 
 function editSingleCustomer(customerId) {
 	if (customerId == null || customerId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		var selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
 			return false;
 		customerId = selectedScenario[0];

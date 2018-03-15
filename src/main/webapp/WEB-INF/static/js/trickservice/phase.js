@@ -1,8 +1,5 @@
 function addPhase() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var selectedPhase = $("#section_phase tbody>tr>td>:checked");
-		if (selectedPhase.length != 0)
-			return false;
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Phase/Add",

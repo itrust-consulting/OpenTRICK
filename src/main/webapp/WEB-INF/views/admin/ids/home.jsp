@@ -7,7 +7,7 @@
 <div class="tab-pane" id="tab-ids">
 	<div class="section" id="section_ids">
 		<ul class="nav nav-pills bordered-bottom" id="menu_ids">
-			<li><a href="#" onclick="return newIDS();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
+			<li data-trick-ignored="true"><a href="#" onclick="return newIDS();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editIDS();"><span class="glyphicon glyphicon-edit"></span> <spring:message
 						code="label.action.edit" text="Edit" /> </a></li>
 			<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return renewIDSToken();"><span class="glyphicon glyphicon-refresh"></span> <spring:message

@@ -7,7 +7,7 @@
 <div class="tab-pane" id="tab-language">
 	<div class="section" id="section_language">
 		<ul class="nav nav-pills bordered-bottom" id="menu_language">
-			<li><a href="#" onclick="return newLanguage();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.language" text="Add" /> </a></li>
+			<li data-trick-ignored="true"><a href="#" onclick="return newLanguage();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.language" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleLanguage();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 						code="label.menu.edit.language" text="Edit" /> </a></li>
 			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteLanguage();"><span class="glyphicon glyphicon-remove"></span> <spring:message

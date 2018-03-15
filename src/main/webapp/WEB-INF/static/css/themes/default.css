@@ -368,6 +368,55 @@ ul#task-manager>li>li {
 	border-top: 1px solid #777;
 }
 
+.nav-dropdown-menu>a:first-child{
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	padding-right: 10px;
+	padding-left: 10px;
+	margin-left: 4px;
+}
+
+.nav-dropdown-menu>a:first-child+a{
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+	border-left: 1px solid #eee;
+	padding-right: 10px;
+	padding-left: 10px;
+	margin-right: 4px;
+}
+
+.nav-dropdown-menu.open>a:first-child{
+	background-color: inherit;
+}
+
+.nav-dropdown-menu:not(.disabled)>a:first-child:focus+a:not(.disabled),
+.nav-dropdown-menu:not(.disabled)>a:first-child:hover+a:not(.disabled),
+.nav-dropdown-menu:not(.disabled)>a:first-child:active+a:not(.disabled),
+.nav-dropdown-menu:not(.disabled)>a:first-child+a:focus:not(.disabled), 
+.nav-dropdown-menu:not(.disabled)>a:first-child+a:active:not(.disabled), 
+.nav-dropdown-menu:not(.disabled)>a:first-child+a:hover:not(.disabled) {
+	border-left: 1px solid #ccc; 
+}
+
+.nav-dropdown-menu.open>.dropdown-menu{
+	margin-top: 5px;
+}
+
+a.disabled{
+	color: #777;
+}
+
+a.disabled:hover,a.disabled:focus,
+li>a.disabled:hover,li>a.disabled:focus {
+	background-color: inherit;
+	cursor: not-allowed;
+}
+
+.fa-f20{
+	font-size: 20px;
+	margin-top: -10px;
+}
+
 .tooltip-inner,
 .popover-content {
 	max-width: 800px;

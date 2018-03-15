@@ -18,7 +18,7 @@
 		</div>
 		<c:if test="${isEditable}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_phase">
-				<li><a href="#" onclick="return addPhase();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
+				<li data-trick-ignored="true" ><a href="#" onclick="return addPhase();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
 				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editPhase(null);"><span
 						class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /> </a></li>
 				<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
