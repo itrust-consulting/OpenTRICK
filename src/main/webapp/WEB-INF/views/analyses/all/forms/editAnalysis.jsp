@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.title.analysis.edit.info" text="Edit Analysis information" />
+					<spring:message code="label.title.analysis.edit.info" text="Edit analysis information" />
 				</h4>
 			</div>
 			<div class="modal-body">

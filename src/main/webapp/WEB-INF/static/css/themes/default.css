@@ -371,18 +371,18 @@ ul#task-manager>li>li {
 .nav-dropdown-menu>a:first-child{
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
-	padding-right: 10px;
-	padding-left: 10px;
-	margin-left: 4px;
+	padding-right: 8px;
+	padding-left: 8px;
+	margin-left: 6px;
 }
 
 .nav-dropdown-menu>a:first-child+a{
 	border-bottom-left-radius: 0;
 	border-top-left-radius: 0;
 	border-left: 1px solid #eee;
-	padding-right: 10px;
-	padding-left: 10px;
-	margin-right: 4px;
+	padding-right: 8px;
+	padding-left: 8px;
+	margin-right: 6px;
 }
 
 .nav-dropdown-menu.open>a:first-child{

@@ -10,7 +10,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="historyModal-title">
-					<spring:message code="label.title.add.analysis.version" text="Add new version" />
+					<spring:message code="label.title.add.analysis.version" text="New version" />
 				</h4>
 			</div>
 			<div class="modal-body">

@@ -32,13 +32,13 @@
 						</ul></li>
 
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY') && !isArchived()"><a href="#" href="#"
-						onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.open" text="Edit" /></a></li>
+						onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span class="glyphicon glyphicon-folder-open"></span> &nbsp;<spring:message code="label.action.open" text="Edit" /></a></li>
 
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)"> <span
-							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.open.read_only" text="Read only" /></a></li>
+							class="glyphicon glyphicon-eye-open"></span>&nbsp;<spring:message code="label.action.open.read_only" text="Read only" /></a></li>
 
 					<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
-						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-pencil"></span> <spring:message code="label.action.edit" text="Edit" /></a></li>
+						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.properties" /></a></li>
 
 					<c:if test="${allowedTicketing}">
 						<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && !isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
@@ -61,7 +61,7 @@
 						</c:if></li>
 
 					<li class="disabled nav-dropdown-menu" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a class="pull-left" href="#" onclick="return exportAnalysisReport()"> <span
-							class="glyphicon glyphicon-download-alt"></span> <spring:message code="label.action.export" text="Export" /></a> <a href="#" class="pull-left dropdown-toggle"
+							class="glyphicon glyphicon-download-alt"></span> <spring:message code="label.action.export.report" text="Export" /></a> <a href="#" class="pull-left dropdown-toggle"
 						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i></a>
 						<ul class="dropdown-menu">
 							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysis()"> <span
