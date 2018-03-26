@@ -17,6 +17,7 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.docx4j.relationships.Relationship;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.jaxb.Context;
+import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTSheetDimension;
 import org.xlsx4j.sml.CTTable;
@@ -255,28 +256,22 @@ public final class ExcelHelper {
 		return row;
 	}
 
-	public static String getString(Cell cell, Map<String, String> strings) {
-		switch (cell.getT()) {
-		case INLINE_STR:
-			return cell.getIs().getT().getValue();
-		case S:
-			return strings.get(cell.getV());
-		case N:
-		case B:
-		case STR:
-		case E:
-			return cell.getV();
-		}
-		return null;
+	public static String getString(Cell cell, DataFormatter formatter) {
+		/*
+		 * switch (cell.getT()) { case INLINE_STR: return
+		 * cell.getIs().getT().getValue(); case S: return strings.get(cell.getV()); case
+		 * N: case B: case STR: case E: return cell.getV(); }
+		 */
+		return formatter.formatCellValue(cell);
 	}
 
-	public static String getString(Row row, int cell, Map<String, String> strings) {
+	public static String getString(Row row, int cell, DataFormatter formatter) {
 		Cell c = getCellAt(row, cell);
-		return c == null ? null : getString(c, strings);
+		return c == null ? null : getString(c, formatter);
 	}
 
-	public static String getString(SheetData sheet, int row, int cell, Map<String, String> strings) {
-		return sheet.getRow().size()> row? getString(sheet.getRow().get(row), cell, strings) : null;
+	public static String getString(SheetData sheet, int row, int cell, DataFormatter formatter) {
+		return sheet.getRow().size() > row ? getString(sheet.getRow().get(row), cell, formatter) : null;
 	}
 
 	public static Cell getCellAt(Row row, int index) {
@@ -292,9 +287,9 @@ public final class ExcelHelper {
 		return StringUtils.isEmpty(r) ? index : colStringToIndex(r);
 	}
 
-	public static double getDouble(Cell cell) {
+	public static double getDouble(Cell cell, DataFormatter formatter) {
 		try {
-			String value = getString(cell, Collections.emptyMap());
+			String value = getString(cell, formatter);
 			if (value == null)
 				return 0;
 			return Double.parseDouble(value);
@@ -303,9 +298,9 @@ public final class ExcelHelper {
 		}
 	}
 
-	public static double getDouble(Row row, int index) {
+	public static double getDouble(Row row, int index, DataFormatter formatter) {
 		try {
-			String value = getString(row, index, Collections.emptyMap());
+			String value = getString(row, index, formatter);
 			if (value == null)
 				return 0;
 			return Double.parseDouble(value);
@@ -314,9 +309,9 @@ public final class ExcelHelper {
 		}
 	}
 
-	public static int getInt(Cell cell) {
+	public static int getInt(Cell cell, DataFormatter formatter) {
 		try {
-			String value = getString(cell, Collections.emptyMap());
+			String value = getString(cell, formatter);
 			if (value == null)
 				return 0;
 			return Integer.parseInt(value);
@@ -325,9 +320,9 @@ public final class ExcelHelper {
 		}
 	}
 
-	public static int getInt(Row row, int index) {
+	public static int getInt(Row row, int index, DataFormatter formatter) {
 		try {
-			String value = getString(row, index, Collections.emptyMap());
+			String value = getString(row, index, formatter);
 			if (value == null)
 				return 0;
 			return Integer.parseInt(value);
@@ -336,8 +331,8 @@ public final class ExcelHelper {
 		}
 	}
 
-	public static boolean getBoolean(Cell cell) {
-		String value = getString(cell, Collections.emptyMap());
+	public static boolean getBoolean(Cell cell, DataFormatter formatter) {
+		String value = getString(cell, formatter);
 		try {
 			return !(value == null || Integer.parseInt(value) == 0);
 		} catch (NumberFormatException e) {
@@ -346,7 +341,7 @@ public final class ExcelHelper {
 	}
 
 	public static boolean getBoolean(Row row, int index) {
-		String value = getString(row, index, Collections.emptyMap());
+		String value = getString(row, index, new DataFormatter());
 		try {
 			return !(value == null || Integer.parseInt(value) == 0);
 		} catch (NumberFormatException e) {
@@ -390,6 +385,10 @@ public final class ExcelHelper {
 				return table;
 		}
 		return null;
+	}
+
+	public static boolean isEmptyOrWhiteSpace(String value) {
+		return isEmpty(value) || value.trim().length() == 0;
 	}
 
 }

@@ -1,11 +1,10 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getBoolean;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -23,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.util.StringUtils;
+import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
@@ -211,17 +211,17 @@ public class WorkerImportStandard implements Worker {
 
 		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
 
-		WorkbookPart workbookPart = SpreadsheetMLPackage.load(importFile).getWorkbookPart();
-
-		Map<String, String> sharedStrings = getSharedStrings(workbookPart);
+		final WorkbookPart workbookPart = SpreadsheetMLPackage.load(importFile).getWorkbookPart();
+		
+		final DataFormatter formatter = new DataFormatter();
 
 		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
 
-		getStandard(workbookPart, sharedStrings);
+		getStandard(workbookPart, formatter);
 
 		if (newstandard != null) {
 			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.measure", "Import measures", 10));
-			getMeasures(workbookPart, sharedStrings);
+			getMeasures(workbookPart, formatter);
 			serviceTaskFeedback.send(id, new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
 		} else
 			throw new TrickException("error.import.norm.malformedExcelFile", "The Excel file containing Standard to import is malformed. Please check its content!");
@@ -236,36 +236,36 @@ public class WorkerImportStandard implements Worker {
 	 * @param sharedStrings
 	 * 
 	 */
-	public void getStandard(WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+	public void getStandard(WorkbookPart workbookPart,DataFormatter formatter) throws Exception {
 		this.newstandard = null;
 		SheetData infoSheet = findSheet(workbookPart, "NormInfo");
 		if (infoSheet == null)
 			return;
-		this.newstandard = loadStandard(infoSheet, sharedStrings);
+		this.newstandard = loadStandard(infoSheet, formatter);
 	}
 
-	private Standard loadStandard(SheetData infoSheet, Map<String, String> sharedStrings) throws Exception {
+	private Standard loadStandard(SheetData infoSheet, DataFormatter formatter) throws Exception {
 		TablePart tablePart = findTable(infoSheet.getWorksheetPart(), "TableNormInfo");
 		if (tablePart == null)
 			return null;
 		AddressRef addressRef = AddressRef.parse(tablePart.getContents().getRef());
 		Row data = infoSheet.getRow().get(addressRef.getEnd().getRow());
-		String name = getString(data.getC().get(addressRef.getBegin().getCol()), sharedStrings);
-		int version = getInt(data.getC().get(addressRef.getBegin().getCol() + 1));
-		if (name == null)
+		String name = getString(data.getC().get(addressRef.getBegin().getCol()), formatter);
+		int version = getInt(data.getC().get(addressRef.getBegin().getCol() + 1), formatter);
+		if (isEmpty(name))
 			throw new TrickException("error.standard.name.empty", "Standard name cannot be empty");
 		if (version == 0)
 			throw new TrickException("error.standard.version.zero", "Standard version must be greather than 0");
 		Standard standard = daoStandard.getStandardByNameAndVersion(name, version);
 		if (standard == null)
 			standard = new Standard(name.trim(), version);
-		return loadStandardData(standard, data, addressRef.getBegin().getCol(), sharedStrings);
+		return loadStandardData(standard, data, addressRef.getBegin().getCol(), formatter);
 	}
 
-	private Standard loadStandardData(Standard standard, Row data, int startCol, Map<String, String> sharedStrings) {
-		standard.setVersion(getInt(data.getC().get(startCol + 1)));
-		standard.setDescription(getString(data.getC().get(startCol + 2), sharedStrings));
-		standard.setComputable(getBoolean(data.getC().get(startCol + 3)));
+	private Standard loadStandardData(Standard standard, Row data, int startCol, DataFormatter formatter) {
+		standard.setVersion(getInt(data.getC().get(startCol + 1), formatter));
+		standard.setDescription(getString(data.getC().get(startCol + 2), formatter));
+		standard.setComputable(getBoolean(data.getC().get(startCol + 3), formatter));
 		if (standard.getId() > 0) {
 			daoStandard.saveOrUpdate(standard);
 			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getLabel(), standard.getVersion() },
@@ -292,33 +292,33 @@ public class WorkerImportStandard implements Worker {
 	 * @param workbookPart
 	 * 
 	 */
-	public void getMeasures(WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+	public void getMeasures(WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, "NormData");
 		if (sheet == null)
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 		TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
 		if (tablePart == null)
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
-		loadMeasureDescription(sheet, AddressRef.parse(tablePart.getContents().getRef()), sharedStrings);
+		loadMeasureDescription(sheet, AddressRef.parse(tablePart.getContents().getRef()), formatter);
 	}
 
-	private void loadMeasureDescription(SheetData sheet, AddressRef address, Map<String, String> sharedStrings) {
-		Map<Integer, Language> languages = loadLanguages(sheet, address, sharedStrings);
+	private void loadMeasureDescription(SheetData sheet, AddressRef address, DataFormatter formatter) {
+		Map<Integer, Language> languages = loadLanguages(sheet, address, formatter);
 		if (languages.isEmpty())
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 
 		final int begin = address.getBegin().getRow() + 1, end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size()),
-				startIndex = getStartIndex(sheet, begin, sharedStrings);
+				startIndex = getStartIndex(sheet, begin, formatter);
+		
+		
 
 		for (int i = begin; i < end; i++) {
 			final Row row = sheet.getRow().get(i);
-
-			final String reference = getString(row.getC().get(startIndex), sharedStrings);
-
+			final String reference = getString(row.getC().get(startIndex), formatter);
 			MeasureDescription measureDescription = daoMeasureDescription.getByReferenceAndStandard(reference, newstandard);
 			if (measureDescription == null)
 				measureDescription = new MeasureDescription(reference, newstandard);
-			measureDescription.setComputable(getBoolean(row.getC().get(startIndex + 1)));
+			measureDescription.setComputable(getBoolean(row.getC().get(startIndex + 1), formatter));
 
 			final int languageCount = (address.getEnd().getCol() - (startIndex + 1)) / 2;
 
@@ -328,7 +328,7 @@ public class WorkerImportStandard implements Worker {
 				MeasureDescriptionText descriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(), language.getId());
 				if (descriptionText == null)
 					measureDescription.getMeasureDescriptionTexts().add(descriptionText = new MeasureDescriptionText(measureDescription, language));
-				String domain = getString(row, domInd, sharedStrings), description = getString(row, descInd, sharedStrings);
+				String domain = getString(row, domInd, formatter), description = getString(row, descInd, formatter);
 				if (!StringUtils.isEmpty(domain))
 					descriptionText.setDomain(domain);
 				if (!StringUtils.isEmpty(description))
@@ -339,27 +339,27 @@ public class WorkerImportStandard implements Worker {
 		}
 	}
 
-	private int getStartIndex(final SheetData sheet, final int begin, final Map<String, String> sharedStrings) {
+	private int getStartIndex(final SheetData sheet, final int begin, final DataFormatter formatter) {
 		if (sheet.getRow().size() < begin || begin < 0)
 			return 0;
-		return hasLevel(sheet.getRow().get(begin - 1), sharedStrings) ? 1 : 0;
+		return hasLevel(sheet.getRow().get(begin - 1), formatter) ? 1 : 0;
 	}
 
-	private boolean hasColumn(final String name, final Row row, final int cellIndex, final Map<String, String> strings) {
-		return name.equalsIgnoreCase(getString(row, cellIndex, strings));
+	private boolean hasColumn(final String name, final Row row, final int cellIndex, final DataFormatter formatter) {
+		return name.equalsIgnoreCase(getString(row, cellIndex, formatter));
 	}
 
-	private boolean hasLevel(final Row row, final Map<String, String> strings) {
-		return hasColumn("Level", row, 0, strings);
+	private boolean hasLevel(final Row row, final DataFormatter formatter) {
+		return hasColumn("Level", row, 0, formatter);
 	}
 
-	private Map<Integer, Language> loadLanguages(SheetData sheet, AddressRef address, Map<String, String> sharedStrings) {
+	private Map<Integer, Language> loadLanguages(SheetData sheet, AddressRef address, DataFormatter formatter) {
 		final Map<Integer, Language> languages = new HashMap<>();
 		final Row row = sheet.getRow().get(address.getBegin().getRow());
-		final int startIndex = hasLevel(row, sharedStrings) ? 1 : 0, languageCount = (address.getEnd().getCol() - (1 + startIndex)) / 2;
+		final int startIndex = hasLevel(row, formatter) ? 1 : 0, languageCount = (address.getEnd().getCol() - (1 + startIndex)) / 2;
 		for (int i = 0; i < languageCount; i++) {
-			String domain = getString(row.getC().get(i * 2 + (2 + startIndex)), sharedStrings);
-			if (domain == null)
+			String domain = getString(row.getC().get(i * 2 + (2 + startIndex)), formatter);
+			if (isEmpty(domain))
 				throw new TrickException("error.standard.bad.table.header", "Please check for table header");
 			Matcher matcher = pattern.matcher(domain);
 			if (!matcher.find())

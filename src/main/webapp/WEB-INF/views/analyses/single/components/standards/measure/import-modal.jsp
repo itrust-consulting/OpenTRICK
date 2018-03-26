@@ -23,8 +23,8 @@
 						<label class="col-lg-12" for="name"> <spring:message code="label.import.measure.data.choose_file" text="Choose the file containing measures data to import" /></label>
 						<div class="col-lg-12">
 							<div class="input-group-btn">
-								<input id="file-measure-data" type="file" accept=".xls,.xlsx"
-									onchange='{$("#upload-file-info-measure").prop("value",$(this).prop("value")); checkExtention($("#upload-file-info-measure").val(),"xls,xlsx","#btnImportMeasureData");}'
+								<input id="file-measure-data" type="file" accept=".xls,.xlsx,.xlsm"
+									onchange='{$("#upload-file-info-measure").prop("value",$(this).prop("value")); checkExtention($("#upload-file-info-measure").val(),"xls,xlsx,xlsm","#btnImportMeasureData");}'
 									name="file" style="display: none;" /> <input id="upload-file-info-measure" class="form-control" readonly="readonly" required="required" style="width: 88%;"/>
 								<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file-measure-data]').click();" style="margin-left: -5px;">
 									<spring:message code="label.action.browse" text="Browse" />

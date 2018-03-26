@@ -11,7 +11,6 @@ import static lu.itrust.business.TS.constants.Constant.RI_TYPE_RISK_TBS;
 import static lu.itrust.business.TS.constants.Constant.RI_TYPE_THREAT;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.numToColString;
 import static lu.itrust.business.TS.helper.NaturalOrderComparator.compareTo;
@@ -34,6 +33,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
+import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
@@ -223,27 +223,29 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		final Map<String, RiskInformation> riskInformations = analysis.getRiskInformations().stream().collect(Collectors.toMap(RiskInformation::getKey, Function.identity()));
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
-		final Map<String, String> sharedStrings = getSharedStrings(workbook);
+		final DataFormatter formatter = new DataFormatter();
 		final Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 		final Pattern exposurePattern = Pattern.compile(REGEXP_VALID_RISKINFORMATION_EXPOSED);
 		final int min = 2, max = 90;
 		int multi = (max - min) / 3, progress = min, indexProgress = 1;
-		for (String[] mapper : RI_SHEET_MAPPERS) {
+		for (Object[] mapper : RI_SHEET_MAPPERS) {
 
-			String category = mapper[0].toLowerCase();
+			String category = mapper[0].toString().toLowerCase();
 
 			MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category, String.format("Processing of %s in progress", category),
 					progress);
 
 			serviceTaskFeedback.send(getId(), messageHandler);
 
-			SheetData sheet = findSheet(workbook, mapper[1]);
+			SheetData sheet = findSheet(workbook, mapper[1].toString());
 			if (sheet == null)
-				throw new TrickException("error.risk.information.sheet.not.found", String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1]), mapper[1]);
+				throw new TrickException("error.risk.information.sheet.not.found", String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1].toString()),
+						mapper[1].toString());
 			TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
 			if (tablePart == null)
 				throw new TrickException("error.risk.information.table.not.found",
-						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1], mapper[0] + "Table"), mapper[1], mapper[0] + "Table");
+						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),
+						mapper[0] + "Table");
 			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
 
 			final int maxProgress = progress + (multi * indexProgress), minProgress = progress, size = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size());
@@ -254,16 +256,16 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 				Row row = sheet.getRow().get(i);
 
-				String chapter = getString(row, colIndex++, sharedStrings);
+				String chapter = getString(row, colIndex++, formatter);
 
 				if (StringUtils.isEmpty(chapter))
-					emptyCellError(mapper[1], i, colIndex);
+					emptyCellError(mapper[1].toString(), i, colIndex);
 				else if (chapterIndexer.containsKey(chapter))
-					duplicateCellError(mapper[1], i, colIndex);
+					duplicateCellError(mapper[1].toString(), i, colIndex);
 				else
 					chapterIndexer.put(chapter, true);
 
-				RiskInformation riskInformation = riskInformations.remove(RiskInformation.key(mapper[0], chapter));
+				RiskInformation riskInformation = riskInformations.remove(RiskInformation.key(mapper[0].toString(), chapter));
 				if (riskInformation == null)
 					analysis.getRiskInformations().add(riskInformation = new RiskInformation(chapter));
 
@@ -273,12 +275,12 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 					else
 						riskInformation.setCategory(RI_TYPE_RISK_TBA);
 				} else if (riskInformation.getId() < 1)
-					riskInformation.setCategory(mapper[0]);
+					riskInformation.setCategory(mapper[0].toString());
 
-				String name = getString(row, colIndex++, sharedStrings);
+				String name = getString(row, colIndex++, formatter);
 
 				if (StringUtils.isEmpty(name))
-					emptyCellError(mapper[1], i, colIndex);
+					emptyCellError(mapper[1].toString(), i, colIndex);
 
 				if (!riskInformation.isCustom() && riskInformation.getId() > 0) {
 					String label = getOrignalLabel(locale, riskInformation);
@@ -292,19 +294,19 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				}
 
 				if (mapper[0].equals(RI_TYPE_THREAT))
-					riskInformation.setAcronym(getString(row, colIndex++, sharedStrings));
+					riskInformation.setAcronym(getString(row, colIndex++, formatter));
 
-				String exposed = getString(row, colIndex++, sharedStrings);
+				String exposed = getString(row, colIndex++, formatter);
 				if (StringUtils.isEmpty(exposed) || exposurePattern.matcher(exposed.trim()).matches())
 					riskInformation.setExposed(exposed);
 				else
-					errorInvalidValue(mapper[0], i, colIndex);
+					errorInvalidValue(mapper[0].toString(), i, colIndex);
 
-				riskInformation.setOwner(getString(row, colIndex++, sharedStrings));
+				riskInformation.setOwner(getString(row, colIndex++, formatter));
 
-				riskInformation.setComment(getString(row, colIndex++, sharedStrings));
+				riskInformation.setComment(getString(row, colIndex++, formatter));
 
-				riskInformation.setHiddenComment(getString(row, colIndex++, sharedStrings));
+				riskInformation.setHiddenComment(getString(row, colIndex++, formatter));
 
 				messageHandler.setProgress((int) (minProgress + ((i / (double) size) * maxProgress)));
 			}

@@ -3,10 +3,12 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.formatting;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.docx4j.XmlUtils;
+import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
@@ -55,8 +57,7 @@ public abstract class Docx4jFormatter implements DocxFormatter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.exportation.word.DocxFormatter#format(java.lang.
+	 * @see lu.itrust.business.TS.exportation.word.DocxFormatter#format(java.lang.
 	 * Object)
 	 */
 	@Override
@@ -108,13 +109,36 @@ public abstract class Docx4jFormatter implements DocxFormatter {
 			return ((List<?>) support).contains(findId(table));
 		return false;
 	}
-	
+
 	protected Stream<Tc> getTcs(Tbl table) {
 		return getTrs(table).flatMap(tr -> tr.getContent().parallelStream()).map(tc -> (Tc) tc);
 	}
-	
-	protected Stream<Tr> getTrs(Tbl table){
-		return table.getContent().parallelStream().map(c-> XmlUtils.unwrap(c)).filter(c-> c instanceof Tr).map(tr -> (Tr) tr);
+
+	protected Stream<Tr> getTrs(Tbl table) {
+		return table.getContent().parallelStream().map(c -> XmlUtils.unwrap(c)).filter(c -> c instanceof Tr).map(tr -> (Tr) tr);
+	}
+
+	public static void updateRow(Tr tr, int[] cols, String type) {
+		if (cols == null) {
+			tr.getContent().parallelStream().map(tc -> (Tc) tc).forEach(tc -> {
+				if (tc.getTcPr() == null)
+					tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
+				if (tc.getTcPr().getTcW() == null)
+					tc.getTcPr().setTcW(Context.getWmlObjectFactory().createTblWidth());
+				tc.getTcPr().getTcW().setType(type);
+				tc.getTcPr().getTcW().setW(BigInteger.valueOf(0));
+			});
+		} else {
+			for (int i = 0; i < cols.length; i++) {
+				Tc tc = (Tc) tr.getContent().get(i);
+				if (tc.getTcPr() == null)
+					tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
+				if (tc.getTcPr().getTcW() == null)
+					tc.getTcPr().setTcW(Context.getWmlObjectFactory().createTblWidth());
+				tc.getTcPr().getTcW().setType(type);
+				tc.getTcPr().getTcW().setW(BigInteger.valueOf(cols[i]));
+			}
+		}
 	}
 
 }

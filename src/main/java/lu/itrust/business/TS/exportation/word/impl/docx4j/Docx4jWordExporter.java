@@ -765,8 +765,10 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		table.getTblPr().getJc().setVal(JcEnumeration.CENTER);
 		if (table.getTblPr().getTblW() == null)
 			table.getTblPr().setTblW(factory.createTblWidth());
-		table.getTblPr().getTblW().setType("auto");
-		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
+		/*if(table.getTblPr().getTblLayout() == null)
+			table.getTblPr().setTblLayout(factory.createCTTblLayoutType());*/
+		table.getTblPr().getTblW().setType("pct");
+		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
 		return table;
 	}
 

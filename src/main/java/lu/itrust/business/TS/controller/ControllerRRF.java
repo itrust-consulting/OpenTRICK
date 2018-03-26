@@ -1,11 +1,10 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.xlsx4j.jaxb.Context;
+import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
@@ -787,12 +787,12 @@ public class ControllerRRF {
 
 	private Object importRawRRF(String tempPath, int idAnalysis, MultipartFile file, String username, Locale locale) throws Exception {
 		try {
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
-			Map<String, String> sharedStrings = getSharedStrings(mlPackage.getWorkbookPart());
-			loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), sharedStrings);
-			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), sharedStrings);
-			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), sharedStrings);
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
+			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
+			final DataFormatter formatter = new DataFormatter();
+			loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
+			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
+			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
@@ -803,7 +803,7 @@ public class ControllerRRF {
 		}
 	}
 
-	private void loadStandards(List<AnalysisStandard> analysisStandards, WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+	private void loadStandards(List<AnalysisStandard> analysisStandards, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		for (AnalysisStandard analysisStandard : analysisStandards) {
 			if (analysisStandard instanceof MaturityStandard)
 				continue;
@@ -811,58 +811,58 @@ public class ControllerRRF {
 			if (sheet == null)
 				continue;
 			if (analysisStandard instanceof AssetStandard)
-				loadStandard((AssetStandard) analysisStandard, sheet, sharedStrings);
+				loadStandard((AssetStandard) analysisStandard, sheet, formatter);
 			else if (analysisStandard instanceof NormalStandard)
-				loadStandard((NormalStandard) analysisStandard, sheet, sharedStrings);
+				loadStandard((NormalStandard) analysisStandard, sheet, formatter);
 		}
 	}
 
-	private void loadStandard(AssetStandard analysisStandard, SheetData sheet, Map<String, String> sharedStrings) {
+	private void loadStandard(AssetStandard analysisStandard, SheetData sheet, DataFormatter formatter) {
 
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
-		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
+		Map<Integer, String> columnMapper = new LinkedHashMap<Integer, String>();
 		Row header = sheet.getRow().get(0);
-		Integer index = mappingColumns(header, REFERENCE, cellIndexToFieldName, sharedStrings);
+		Integer index = mappingColumns(header, REFERENCE, columnMapper, formatter);
 		if (index == null)
 			throw new TrickException("error.import.raw.rrf.standard.reference", "Standard reference column cannot be found");
 		Map<String, AssetMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(), measure -> (AssetMeasure) measure));
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			Row row = sheet.getRow().get(i);
-			String value = getString(row.getC().get(index), sharedStrings);
-			if (value == null)
+			String value = getString(row.getC().get(index), formatter);
+			if (isEmpty(value))
 				continue;
 			AssetMeasure measure = mappingMeasures.get(value);
 			if (measure == null)
 				continue;
-			loadMeasureData(measure, row, index, cellIndexToFieldName);
+			loadMeasureData(measure, row, index, columnMapper, formatter);
 		}
 	}
 
-	private void loadStandard(NormalStandard analysisStandard, SheetData sheet, Map<String, String> sharedStrings) {
+	private void loadStandard(NormalStandard analysisStandard, SheetData sheet, DataFormatter formatter) {
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
-		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
+		Map<Integer, String> columnMapper = new LinkedHashMap<Integer, String>();
 		Row header = sheet.getRow().get(0);
-		Integer index = mappingColumns(header, REFERENCE, cellIndexToFieldName, sharedStrings);
+		Integer index = mappingColumns(header, REFERENCE, columnMapper, formatter);
 		if (index == null)
 			throw new TrickException("error.import.raw.rrf.standard.reference", "Standard reference column cannot be found");
 		Map<String, NormalMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(), measure -> (NormalMeasure) measure));
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			Row row = sheet.getRow().get(i);
-			String value = getString(row.getC().get(index), sharedStrings);
-			if (value == null)
+			String value = getString(row.getC().get(index), formatter);
+			if (isEmpty(value))
 				continue;
 			NormalMeasure measure = mappingMeasures.get(value);
 			if (measure == null)
 				continue;
-			loadMeasureData(measure, row, index, cellIndexToFieldName);
+			loadMeasureData(measure, row, index, columnMapper, formatter);
 		}
 	}
 
-	private void loadMeasureData(NormalMeasure measure, Row row, Integer index, Map<Integer, String> cellIndexToFieldName) {
+	private void loadMeasureData(NormalMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper, DataFormatter formatter) {
 		Map<String, AssetTypeValue> assetValues = measure.getAssetTypeValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAssetType().getName(), Function.identity()));
 		MeasureProperties properties = measure.getMeasurePropertyList();
@@ -870,10 +870,10 @@ public class ControllerRRF {
 			if (i == index)
 				continue;
 			Cell cell = row.getC().get(i);
-			String nameField = cellIndexToFieldName.get(i);
+			String nameField = columnMapper.get(i);
 			if (nameField == null)
 				continue;
-			double value = getDouble(cell);
+			double value = getDouble(cell, formatter);
 			if (assetValues.containsKey(nameField))
 				assetValues.get(nameField).setValue((int) value);
 			else
@@ -882,7 +882,7 @@ public class ControllerRRF {
 		measure.setMeasurePropertyList(properties);
 	}
 
-	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> cellIndexToFieldName) {
+	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper, DataFormatter formatter) {
 		Map<String, MeasureAssetValue> assetValues = measure.getMeasureAssetValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAsset().getName(), Function.identity()));
 		MeasureProperties properties = measure.getMeasurePropertyList();
@@ -890,10 +890,10 @@ public class ControllerRRF {
 			if (i == index)
 				continue;
 			Cell cell = row.getC().get(i);
-			String nameField = cellIndexToFieldName.get(i);
+			String nameField = columnMapper.get(i);
 			if (nameField == null)
 				continue;
-			double value = getDouble(cell);
+			double value = getDouble(cell, formatter);
 			if (assetValues.containsKey(nameField))
 				assetValues.get(nameField).setValue((int) value);
 			else
@@ -945,35 +945,35 @@ public class ControllerRRF {
 		}
 	}
 
-	private void loadScenarios(List<Scenario> scenarios, WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+	private void loadScenarios(List<Scenario> scenarios, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, RAW_SCENARIOS);
 		if (sheet == null || scenarios.isEmpty())
 			return;
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.scenario", "Scenario cannot be loaded");
 		Row header = sheet.getRow().get(0);
-		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
-		Integer nameIndex = mappingColumns(header, RAW_SCENARIO, cellIndexToFieldName, sharedStrings);
+		Map<Integer, String> columnMapper = new LinkedHashMap<Integer, String>();
+		Integer nameIndex = mappingColumns(header, RAW_SCENARIO, columnMapper, formatter);
 		if (nameIndex == null)
 			throw new TrickException("error.import.raw.rrf.scenario.name", "Scenario name column cannot be found");
 		Map<String, Scenario> scenarioMappings = scenarios.stream().collect(Collectors.toMap(Scenario::getName, Function.identity()));
 		for (Row row : sheet.getRow()) {
 			if (row.equals(header))
 				continue;
-			String key = getString(row.getC().get(nameIndex), sharedStrings);
-			if (key == null)
+			String key = getString(row.getC().get(nameIndex), formatter);
+			if (isEmpty(key))
 				continue;
 			Scenario scenario = scenarioMappings.get(key);
 			if (scenario == null)
 				continue;
-			loadScenarioData(scenario, row, nameIndex, cellIndexToFieldName);
+			loadScenarioData(scenario, row, nameIndex, columnMapper, formatter);
 		}
 	}
 
-	private Integer mappingColumns(Row row, String identifier, Map<Integer, String> cellIndexToFieldName, Map<String, String> sharedStrings) {
+	private Integer mappingColumns(Row row, String identifier, Map<Integer, String> cellIndexToFieldName, DataFormatter formatter) {
 		Integer identifierIndex = null;
 		for (int i = 0; i < row.getC().size(); i++) {
-			String value = getString(row.getC().get(i), sharedStrings);
+			String value = getString(row.getC().get(i), formatter);
 			if (identifier.equalsIgnoreCase(value))
 				identifierIndex = i;
 			else
@@ -982,15 +982,15 @@ public class ControllerRRF {
 		return identifierIndex;
 	}
 
-	private void loadScenarioData(Scenario scenario, Row row, Integer nameIndex, Map<Integer, String> cellIndexToFieldName) {
+	private void loadScenarioData(Scenario scenario, Row row, Integer nameIndex, Map<Integer, String> columnMapper, DataFormatter formatter) {
 
 		for (int i = 0; i < row.getC().size(); i++) {
 			if (i == nameIndex)
 				continue;
-			String nameField = cellIndexToFieldName.get(i);
+			String nameField = columnMapper.get(i);
 			if (nameField == null)
 				continue;
-			double value = getDouble(row.getC().get(i));
+			double value = getDouble(row.getC().get(i), formatter);
 			switch (nameField) {
 			case RAW_EXTERNAL_THREAT:
 				scenario.setExternalThreat((int) value);
@@ -1023,7 +1023,7 @@ public class ControllerRRF {
 		}
 	}
 
-	private void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, Map<String, String> sharedStrings) throws Exception {
+	private void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, TS_INFO_FOR_IMPORT);
 		if (sheet == null)
 			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
@@ -1035,18 +1035,18 @@ public class ControllerRRF {
 			org.xlsx4j.sml.Cell cell = row.getC().get(i), cellData = data.getC().get(i);
 			if (cellData == null)
 				break;
-			switch (getString(cell, sharedStrings)) {
+			switch (getString(cell, formatter)) {
 			case IDENTIFIER:
-				identifier = getString(cellData, sharedStrings);
+				identifier = getString(cellData, formatter);
 				break;
 			case VERSION:
-				version = getString(cellData, sharedStrings);
+				version = getString(cellData, formatter);
 				break;
 			}
-			if (!(identifier == null || version == null))
+			if (!(isEmpty(identifier) || isEmpty(version)))
 				break;
 		}
-		if (identifier == null || version == null)
+		if (isEmpty(identifier) || isEmpty(version))
 			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
 		else if (!(analysis.getIdentifier().equals(identifier) && analysis.getVersion().equals(version)))
 			throw new TrickException("error.import.raw.rrf.bad.analysis", String.format("Please try again with this analysis: %s version: %s", identifier, version), identifier,

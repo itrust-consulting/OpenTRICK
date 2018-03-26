@@ -396,9 +396,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 		insertBefore(paragraph, table);
 
-		if (!summary.isEmpty()) {
+		if (!summary.isEmpty())
 			setCustomProperty("FINAL_ALE_VAL", (long) (summary.get(summary.size() - 1).getTotalALE() * 0.001));
-		}
 	}
 
 	@Override

@@ -5,7 +5,6 @@ package lu.itrust.business.TS.exportation.word.impl.docx4j.formatting;
 
 import java.math.BigInteger;
 
-import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
 
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -40,17 +39,10 @@ public class Docx4jAssetFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 272, 865, 453, 920, 1143} : new int[] { 272, 865, 964, 857, 731, 865 });
+		int[] cols = (type.isQualitative() ? new int[] { 274, 1751, 964, 591, 5996} : new int[] { 274, 1751, 964, 591, 444, 5604 });
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
-		getTcs(table).forEach(tc -> {
-			if (tc.getTcPr() == null)
-				tc.setTcPr(Context.getWmlObjectFactory().createTcPr());
-			if (tc.getTcPr().getTcW() == null)
-				tc.getTcPr().setTcW(Context.getWmlObjectFactory().createTblWidth());
-			tc.getTcPr().getTcW().setType("auto");
-			tc.getTcPr().getTcW().setW(BigInteger.valueOf(0));
-		});
+		getTrs(table).forEach(tr-> updateRow(tr, cols, "dxa"));
 		return true;
 	}
 

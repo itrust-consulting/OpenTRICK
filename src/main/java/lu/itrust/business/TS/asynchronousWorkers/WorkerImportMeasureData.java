@@ -7,7 +7,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getSharedStrings;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
@@ -25,6 +24,7 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.STSheetState;
 import org.xlsx4j.sml.Sheet;
@@ -194,7 +194,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 	private void loadMeasures(Analysis analysis) throws Exception {
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
-		final Map<String, String> sharedStrings = getSharedStrings(workbook);
+		final DataFormatter formatter = new DataFormatter();
 		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream().filter(s -> s.getState() == STSheetState.VISIBLE)
 				.collect(Collectors.toMap(Sheet::getName, Function.identity()));
 		final Map<Integer, Phase> phases = analysis.getPhases().stream().collect(Collectors.toMap(Phase::getNumber, Function.identity()));
@@ -231,7 +231,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
-			String reference = getString(row, refIndex, sharedStrings);
+			String reference = getString(row, refIndex, formatter);
 			if (isEmpty(reference))
 				continue;
 			Measure measure = measures.get(reference);
@@ -245,29 +245,29 @@ public class WorkerImportMeasureData extends WorkerImpl {
 
 				switch (name) {
 				case "Status":
-					measure.setStatus(getString(row, j, sharedStrings));
+					measure.setStatus(getString(row, j, formatter));
 					break;
 				case "Phase":
-					measure.setPhase(phases.getOrDefault(getInt(row, j), measure.getPhase()));
+					measure.setPhase(phases.getOrDefault(getInt(row, j, formatter), measure.getPhase()));
 					break;
 				case "Responsible":
-					measure.setResponsible(getString(row, j, sharedStrings));
+					measure.setResponsible(getString(row, j, formatter));
 					break;
 				case "To check":
 					if (measure instanceof AbstractNormalMeasure)
-						((AbstractNormalMeasure) measure).setToCheck(getString(row, j, sharedStrings));
+						((AbstractNormalMeasure) measure).setToCheck(getString(row, j, formatter));
 					break;
 				case "Comment":
-					measure.setComment(getString(row, j, sharedStrings));
+					measure.setComment(getString(row, j, formatter));
 					break;
 				case "To do":
-					measure.setToDo(getString(row, j, sharedStrings));
+					measure.setToDo(getString(row, j, formatter));
 					break;
 				default:
 					boolean tmpUpdateCost = true;
 					switch (name) {
 					case "Implemention":
-						double value = getDouble(row, j) * 100;
+						double value = getDouble(row, j, formatter) * 100;
 						if (value > 100)
 							value = 100;
 						else if (value < 0)
@@ -278,25 +278,25 @@ public class WorkerImportMeasureData extends WorkerImpl {
 							measure.setImplementationRate(value);
 						break;
 					case "Internal Workload":
-						measure.setInternalWL(getDouble(row, j));
+						measure.setInternalWL(getDouble(row, j, formatter));
 						break;
 					case "External Workload":
-						measure.setExternalWL(getDouble(row, j));
+						measure.setExternalWL(getDouble(row, j, formatter));
 						break;
 					case "Investment":
-						measure.setInvestment(getDouble(row, j) * 1000);
+						measure.setInvestment(getDouble(row, j, formatter) * 1000);
 						break;
 					case "Life time":
-						measure.setLifetime(getDouble(row, j));
+						measure.setLifetime(getDouble(row, j, formatter));
 						break;
 					case "Internal Maintenance":
-						measure.setInternalMaintenance(getDouble(row, j));
+						measure.setInternalMaintenance(getDouble(row, j, formatter));
 						break;
 					case "External Maintenance":
-						measure.setExternalMaintenance(getDouble(row, j));
+						measure.setExternalMaintenance(getDouble(row, j, formatter));
 						break;
 					case "Recurrent Maintenance":
-						measure.setRecurrentInvestment(getDouble(row, j) * 1000);
+						measure.setRecurrentInvestment(getDouble(row, j, formatter) * 1000);
 						break;
 					default:
 						tmpUpdateCost = false;

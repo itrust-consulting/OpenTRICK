@@ -60,6 +60,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CellRef;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -232,18 +233,23 @@ public class ControllerRiskInformation {
 			FileUtils.copyFile(new File(request.getServletContext().getRealPath(template)), workFile);
 			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
 			WorkbookPart workbook = mlPackage.getWorkbookPart();
-			for (String[] mapper : RI_SHEET_MAPPERS) {
+			for (Object[] mapper : RI_SHEET_MAPPERS) {
 				List<RiskInformation> riskInformations = riskInformationMap.get(mapper[0]);
-				SheetData sheet = findSheet(workbook, mapper[1]);
+				SheetData sheet = findSheet(workbook, mapper[1].toString());
 				if (sheet == null)
 					throw new TrickException("error.risk.information.template.sheet.not.found",
-							String.format("Something wrong with template: Sheet `%s` cannot be found", mapper[1]), mapper[1]);
+							String.format("Something wrong with template: Sheet `%s` cannot be found", mapper[1].toString()), mapper[1].toString());
 				TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
 				if (tablePart == null)
 					throw new TrickException("error.risk.information.template.table.not.found",
-							String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1], mapper[0] + "Table"), mapper[1], mapper[0] + "Table");
+							String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),
+							mapper[0] + "Table");
 				AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-				address.getEnd().setRow(riskInformations.size());
+				if (address.getEnd() == null)
+					address.setEnd(new CellRef(riskInformations.size(), (int) mapper[2]-1));
+				else
+					address.getEnd().setRow(riskInformations.size());
+				
 				CTTable table = tablePart.getContents();
 				table.setRef(address.toString());
 
@@ -277,7 +283,7 @@ public class ControllerRiskInformation {
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.risk.information",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT, analysis.getIdentifier(),
 					analysis.getVersion());
-
+			
 			return null;
 		} finally {
 			if (workFile.exists() && !workFile.delete())

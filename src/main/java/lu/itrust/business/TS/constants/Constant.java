@@ -342,10 +342,11 @@ public class Constant {
 	public static final String RI_TYPE_RISK_TBA = "Risk_TBA";
 
 	/**
-	 * [[{@code RI_TYPE_RISK, SheetName}], [{@code RI_TYPE_VUL, SheetName}],
-	 * [{@code RI_TYPE_THREAT, SheetName}] ]
+	 * [[{@code RI_TYPE_RISK, SheetName,column size}],
+	 * [{@code RI_TYPE_VUL, SheetName, column size}],
+	 * [{@code RI_TYPE_THREAT, SheetName,column size}] ]
 	 */
-	public static final String[][] RI_SHEET_MAPPERS = { { RI_TYPE_RISK, "Risks" }, { RI_TYPE_VUL, "Vulnerabilities" }, { RI_TYPE_THREAT, "Threats" } };
+	public static final Object[][] RI_SHEET_MAPPERS = { { RI_TYPE_RISK, "Risks", 6 }, { RI_TYPE_VUL, "Vulnerabilities", 6 }, { RI_TYPE_THREAT, "Threats", 7 } };
 
 	/** SimpleParameter Attributes */
 	public final static String PARAMATTRIBUTE_NAME = "Name";
