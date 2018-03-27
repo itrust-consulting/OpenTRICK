@@ -89,11 +89,10 @@ function loadMeasureData(id) {
 				var $measureUI = $("div#measure-ui", new DOMParser().parseFromString(response, "text/html"));
 				if ($measureUI.length) {
 					
-					backupFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],"#tab-measure-edition");
+					backupFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],$currentUI);
+					restoreFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],$measureUI);
 					
 					$currentUI.replaceWith($measureUI);
-					
-					restoreFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],"#tab-measure-edition");
 					
 					$("#description-switch-language .btn", $measureUI).on("click", e => {
 						return updateDescription($(e.currentTarget), id,$("#description", $measureUI),$progress);
