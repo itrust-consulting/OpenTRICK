@@ -86,12 +86,15 @@ var OPEN_MODE = {
 		value : "edit-measure",
 		name : "EDIT_MEASURE"
 	},
-	isReadOnly : function() {
-		return application.openMode && application.openMode.value.startsWith("read-only");
+	isReadOnly : function(mode) {
+		if(mode === undefined)
+			return application.openMode && application.openMode.value.startsWith("read-only");
+		var openMode = this.valueOf(mode);
+		return openMode && openMode.value.startsWith("read-only");
 	},
 	valueOf : function(value) {
 		for ( var key in OPEN_MODE) {
-			if (key == "valueOf")
+			if (key == "valueOf" || key == "isReadOnly")
 				continue;
 			else if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
 				return OPEN_MODE[key];
@@ -1196,14 +1199,13 @@ $(document)
 					$("#logout-form").on("submit", (e) => application["taskManager"].Disconnect());
 					
 					// Prevent click on disabled menus
-					$("li>a").on("click", (e) => {
+					$("li>a,a").on("click", (e) => {
 						var parent = e.currentTarget.closest("li");
 						if(e.currentTarget.classList.contains("disabled") || parent && parent.classList.contains("disabled")){
+							e.preventDefault();
 							e.stopPropagation();
 							return false;
 						}
-							
-						
-					})
+					});
 					
 				});

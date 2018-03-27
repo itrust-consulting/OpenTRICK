@@ -4,6 +4,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.io.IOException;
 import java.security.Principal;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -13,18 +14,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,17 +44,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.CustomerBuilder;
 import lu.itrust.business.TS.component.CustomerManager;
+import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.AnalysisRightForm;
 import lu.itrust.business.TS.controller.form.NotificationForm;
+import lu.itrust.business.TS.controller.form.ReportTemplateForm;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMessageNotifier;
+import lu.itrust.business.TS.database.service.ServiceReportTemplate;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
@@ -71,6 +79,7 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.helper.Notification;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -148,9 +157,15 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceMessageNotifier serviceMessageNotifier;
-	
+
 	@Autowired
-	private CustomerBuilder customerBuilder;
+	private ServiceLanguage serviceLanguage;
+
+	@Autowired
+	private ServiceReportTemplate serviceReportTemplate;
+
+	@Autowired
+	private DefaultReportTemplateLoader defaultReportTemplateLoader;
 
 	@Value("${app.settings.otp.enable}")
 	private boolean enabledOTP = true;
@@ -160,6 +175,12 @@ public class ControllerAdministration {
 
 	@Value("${app.settings.version}")
 	private String version;
+
+	@Value("${app.settings.report.template.max.size}")
+	private Long maxTemplateSize;
+
+	@Value("${app.settings.upload.file.max.size}")
+	private Long maxUploadFileSize;
 
 	/**
 	 * loadAll: <br>
@@ -665,7 +686,7 @@ public class ControllerAdministration {
 		}
 		return errors;
 	}
-	
+
 	/**
 	 * loadCustomerUsers: <br>
 	 * Description
@@ -723,7 +744,7 @@ public class ControllerAdministration {
 			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
-	
+
 	/**
 	 * section: <br>
 	 * Description
@@ -739,7 +760,7 @@ public class ControllerAdministration {
 		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/customer/customers";
 	}
-	
+
 	/**
 	 * save: <br>
 	 * Description
@@ -753,7 +774,7 @@ public class ControllerAdministration {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			Customer customer = new Customer();
-			if (!customerBuilder.buildCustomer(errors, customer, value, locale))
+			if (!customerManager.buildCustomer(errors, customer, value, locale))
 				return errors;
 			User user = serviceUser.get(principal.getName());
 
@@ -797,6 +818,109 @@ public class ControllerAdministration {
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
+	}
+
+	@GetMapping(value = "Customer/{customerId}/Report-template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal, Locale locale) {
+		Customer customer = serviceCustomer.get(customerId);
+		if (customer == null || customer.isCanBeUsed())
+			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+		model.addAttribute("customer", customer);
+		model.addAttribute("reportTemplates", defaultReportTemplateLoader.findAll());
+		model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
+		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
+		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxTemplateSize));
+		return "knowledgebase/customer/form/report-template";
+	}
+
+	@PostMapping(value = "Customer/{customerId}/Report-template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object reportTemplateSave(@PathVariable("customerId") int customerId, @ModelAttribute ReportTemplateForm templateForm, Model model, Principal principal,
+			Locale locale) {
+		Customer customer = serviceCustomer.get(customerId);
+		if (customer == null || customer.isCanBeUsed())
+			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+		ReportTemplate template = serviceReportTemplate.findByIdAndCustomer(templateForm.getId(), customerId);
+		if (template == null)
+			return JsonMessage.Error(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+		Map<String, Object> result = new LinkedHashMap<>();
+		try {
+			long maxSize = Math.min(maxUploadFileSize, maxTemplateSize);
+			if (templateForm.getFile().getSize() > maxSize)
+				result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
+			else {
+				template.setFilename(templateForm.getFile().getOriginalFilename());
+				template.setFile(templateForm.getFile().getBytes());
+				template.setSize(templateForm.getFile().getSize());
+				if (!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
+					result.put("file", messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
+			}
+		} catch (IOException e) {
+			result.put("file", messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
+		}
+
+		if (template.getFile() == null || template.getFile().length == 0)
+			result.put("file", messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
+
+		if (result.isEmpty()) {
+			template.setEditable(false);
+			template.setCreated(new Timestamp(System.currentTimeMillis()));
+			serviceReportTemplate.saveOrUpdate(template);
+			return JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale));
+		}
+		return result;
+	}
+
+	/**
+	 * download: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param principal
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("Customer/Report-template/{id}/Download")
+	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+
+		ReportTemplate reportTemplate = serviceReportTemplate.findOne(id);
+
+		// if file could not be found retrun 404 error
+		if (reportTemplate == null)
+			return "errors/404";
+
+		Customer customer = serviceCustomer.findByReportTemplateId(id);
+
+		if (customer == null)
+			return "errors/404";
+
+		if (customer.isCanBeUsed())
+			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+
+		// set response contenttype to sqlite
+		response.setContentType("docx");
+
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("%s_v%s.docx", reportTemplate.getLabel(), reportTemplate.getVersion()) + "\"");
+
+		// set sqlite file size as response size
+		response.setContentLength((int) reportTemplate.getSize());
+
+		// return the sqlite file (as copy) to the response outputstream ( whihc
+		// creates on the
+		// client side the sqlite file)
+		FileCopyUtils.copy(reportTemplate.getFile(), response.getOutputStream());
+		/**
+		 * Log
+		 */
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
+				String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s", customer.getContactPerson(), reportTemplate.getLabel(),
+						reportTemplate.getVersion(), reportTemplate.getCreated(), reportTemplate.getType(), reportTemplate.getLanguage().getAlpha3()),
+				principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), reportTemplate.getLabel(), reportTemplate.getVersion(),
+				String.valueOf(reportTemplate.getCreated()), String.valueOf(reportTemplate.getType()), reportTemplate.getLanguage().getAlpha3());
+
+		// return
+		return null;
 	}
 
 	@GetMapping(value = "/Notification/ALL", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

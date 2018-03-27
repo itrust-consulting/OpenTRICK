@@ -554,13 +554,13 @@
 	<spring:message code="label.comment_argumentation" text="Comment / Argumentation" var='comment' />
 	<spring:message text="${assessment.comment}" var="commentContent" />
 	<label class='label-control'>${comment}</label>
-	<textarea class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
+	<textarea id="assessment-comment" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
 <div class='form-group form-group-fill'>
 	<spring:message code="label.risk_treatment" text="Risk treatment" var='riskTreatment' />
 	<spring:message text='${riskProfile.riskTreatment}' var="riskTreatmentContent" />
 	<label class='label-control'>${riskTreatment}</label>
-	<textarea class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;" placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
+	<textarea id="assessment-riskTreatment" class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;" placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
 </div>
 <div class='form-group' id="section_estimation_action_plan">
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
@@ -638,7 +638,7 @@
 		</tbody>
 	</table>
 	<spring:message code="info.analysis.estimation.action_plan.addition.field" var="actionPlanInfo" />
-	<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlanInfo}"
+	<textarea id="assessment-actionPlan" class="form-control" name="riskProfile.actionPlan" title="${actionPlanInfo}"
 		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};"
 		placeholder="${empty actionPlanContent? actionPlanInfo : actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 </div>
@@ -647,6 +647,6 @@
 		<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 		<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 		<label class='label-control'>${hiddenComment}</label>
-		<textarea class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
+		<textarea id="assessment-hiddenComment" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
 	</div>
 </c:if>

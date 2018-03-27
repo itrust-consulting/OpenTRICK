@@ -88,9 +88,12 @@ function loadMeasureData(id) {
 			success: function (response) {
 				var $measureUI = $("div#measure-ui", new DOMParser().parseFromString(response, "text/html"));
 				if ($measureUI.length) {
-					backupDescriptionHeight();
+					
+					backupFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],"#tab-measure-edition");
+					
 					$currentUI.replaceWith($measureUI);
-					restoreDescriptionHeight();
+					
+					restoreFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],"#tab-measure-edition");
 					
 					$("#description-switch-language .btn", $measureUI).on("click", e => {
 						return updateDescription($(e.currentTarget), id,$("#description", $measureUI),$progress);
@@ -138,35 +141,6 @@ function updateDescription($element,id,$description, $progress){
 			else unknowError();
 		},error: unknowError
 	}).complete(() => $progress.hide());
-	return false;
-}
-
-function backupDescriptionHeight() {
-	var $description = $("#tab-measure-edition #description");
-	if ($description.length) {
-		var height = $description.outerHeight(), defaultHeight = application["measure-description-default-size"];
-		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
-			application["measure-description-size-prev"] = application["measure-description-size"];
-			application["measure-description-size"] = $description.outerHeight();
-		} else if (application["measure-description-size"] && application["measure-description-size"] != height && application["measure-description-size-prev"] != height) {
-			delete application["measure-description-size"];
-			delete application["measure-description-size-prev"]
-		}
-	}
-	return false;
-}
-
-function restoreDescriptionHeight() {
-	var $description = $("#tab-measure-edition #description");
-	if ($description.length) {
-		application["measure-description-default-size"] = $description.outerHeight();
-		var height = application["measure-description-size"];
-		if (height != undefined) {
-			$("#tab-measure-edition #description").css({
-				"height": height
-			});
-		}
-	}
 	return false;
 }
 
@@ -227,7 +201,7 @@ function updateMeasureView() {
 	var $section = $("#tab-measure-edition");
 	if ($section.is(":visible")) {
 		if (!application["measure-view-init"])
-			initilisateMeasureView();
+			initiliseMeasureView();
 		updateMeasureUI();
 		updateMeasureNavigation();
 	} else
@@ -300,7 +274,7 @@ function removeFromMeasureNavigation(idStandard, idMeasure) {
 	return false;
 }
 
-function initilisateMeasureView() {
+function initiliseMeasureView() {
 
 	var $nav = $("#tab-measure-edition ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateMeasureNavigation), $returnAnalysis = $("a[data-base-url]",
 		$nav), $standardSelector = $("select[name='standard']"), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']"), $chapterSelector = $("#tab-measure-edition select[name='chapter']");

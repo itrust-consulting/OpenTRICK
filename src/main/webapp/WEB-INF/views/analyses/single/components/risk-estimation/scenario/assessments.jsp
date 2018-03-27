@@ -29,7 +29,7 @@
 	${fn:replace(probabilityScaleTitle,"'", "\\'" )}
 </c:set>
 <fmt:setLocale value="fr" scope="session" />
-<div class="col-lg-10 col-md-9 trick-ui" id="section_scenario_assessment" data-view='estimation-ui' data-trick-asset-id='-1' data-trick-scenario-id='${scenario.id}'
+<div class="col-lg-10 col-md-9 trick-ui" id="section_scenario_assessment" data-view-type='table'  data-view-name='estimation-ui' data-trick-asset-id='-1' data-trick-scenario-id='${scenario.id}'
 	data-trick-content='scenario'>
 	<div class="page-header tab-content-header">
 		<div class="container">

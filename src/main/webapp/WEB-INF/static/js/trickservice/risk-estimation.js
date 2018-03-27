@@ -264,7 +264,7 @@ function AssessmentHelder() {
 	this.updateLocked = false;
 	this.names = ["asset", "scenario"];
 	this.$tabSection = $("#tab-risk-estimation");
-	this.section = "div[data-view='estimation-ui']";
+	this.section = "div[data-view-name='estimation-ui']";
 	this.asset = $("select[name='asset']", this.$tabSection);
 	this.scenario = $("select[name='scenario']", this.$tabSection);
 	this.isReadOnly = application.openMode.value.startsWith("read-only");
@@ -466,7 +466,15 @@ AssessmentHelder.prototype = {
 			success: function (response) {
 				var $assessmentUI = $(instance.section, new DOMParser().parseFromString(response, "text/html"));
 				if ($assessmentUI.length) {
+					
+					backupFieldHeight("assesment",["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment","assessment-actionPlan"],$currentUI);
+					
+					restoreFieldHeight("assesment",["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment","assessment-actionPlan"],$assessmentUI);
+					
 					$currentUI.replaceWith($assessmentUI);
+					
+					toggleAdditionalActionPlan();
+					
 					if (OPEN_MODE.isReadOnly()) {
 						$("select:not([disabled])", $assessmentUI).prop("disabled", true);
 						$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
@@ -513,8 +521,6 @@ AssessmentHelder.prototype = {
 					}
 
 					$("a[data-action='hide'],a[data-action='show']", $assessmentUI).on("click", toggleAdditionalActionPlan)
-
-					toggleAdditionalActionPlan();
 
 					$('[data-toggle="tooltip"]', $assessmentUI).tooltip().on('show.bs.tooltip', toggleToolTip);
 

@@ -74,8 +74,6 @@ function deleteStandard(idStandard, name) {
 }
 
 function uploadImportStandardFile() {
-	if (findSelectItemIdBySection("section_kb_standard").length)
-		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/KnowledgeBase/Standard/Upload",
@@ -103,8 +101,6 @@ function uploadImportStandardFile() {
 }
 
 function importNewStandard() {
-	if (findSelectItemIdBySection("section_kb_standard").length)
-		return false;
 	$("#updateStandardNotification").empty();
 	var $uploadFile = $("#upload-file-info"), $progress = $("#loading-indicator");
 	if (!$uploadFile.length)
@@ -179,8 +175,6 @@ function editSingleStandard(idStandard) {
 }
 
 function getImportStandardTemplate() {
-	if (findSelectItemIdBySection("section_kb_standard").length)
-		return false;
 	window.location = context + '/KnowledgeBase/Standard/Template';
 	return false;
 }

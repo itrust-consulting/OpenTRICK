@@ -17,7 +17,7 @@
 		</div>
 	</div>
 	<ul class="nav nav-pills bordered-bottom" id="menu_measure_description">
-		<li data-trick-ignored="true"><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.norm" text="Add" /> </a></li>
+		<li data-trick-ignored="true"><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
 		<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 					code="label.menu.edit.norm" text="Edit" /> </a></li>
 		<c:if test="${!empty languages}">
@@ -31,7 +31,7 @@
 			<li class="disabled pull-right" data-trick-selectable="true" title='<spring:message code="label.action.force.delete" text="Force delete"/>'><a href="#" class="text-danger"
 				onclick="return deleteMeasure(true)"><span class="glyphicon glyphicon-remove-circle"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
 		</sec:authorize>
-		<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-trash"></span>
+		<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-remove"></span>
 				<spring:message code="label.menu.delete.norm" text="Delete" /> </a></li>
 	</ul>
 	<table class="table table-striped table-hover" data-fh-scroll-multi="0.995">

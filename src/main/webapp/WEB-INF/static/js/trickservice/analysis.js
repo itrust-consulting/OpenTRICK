@@ -1492,6 +1492,50 @@ function importRiskInformation() {
 	return false;
 }
 
+function backupFieldHeight(baseName,name, container) {
+	if(Array.isArray(name)){
+		for (let field of name)
+			backupFieldHeight(baseName,field,container  );
+	}
+	else {
+		var backupName = baseName+"-"+name+"-height", data = application[backupName];
+		if(data!==undefined){
+			var $textarea = $("#"+name,container);
+			if ($textarea.length) {
+				var height = $textarea.outerHeight();
+				if (Math.abs(height - data.defaultValue) > 8) {
+					data.previous = data.value;
+					data.value = $textarea.outerHeight();
+				} else if (data.value != height && data.previous != height)
+					data.previous = data.value = null;
+			}
+		}
+	}
+	return false;
+}
+
+function restoreFieldHeight(baseName,name, container) {
+	if(Array.isArray(name)) {
+		for (let field of name)
+			restoreFieldHeight(baseName,field,container  );
+	}
+	else {
+		var $textarea = $("#"+name,container);
+		if ($textarea.length) {
+			var backupName = baseName+"-"+name+"-height", height = $textarea.outerHeight(), data = application[backupName];
+			if(data === undefined)
+				data = application[backupName] = {defaultValue : height, value : null, previous : null};
+			else data.defaultValue = height;
+			if (data.value !== null) {
+				$textarea.css({
+					"height": data.value
+				});
+			}
+		}
+	}
+	return false;
+}
+
 
 function openTicket(section) {
 	if (!application.isLinkedToProject)

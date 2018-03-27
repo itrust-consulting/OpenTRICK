@@ -171,7 +171,7 @@ function editSingleCustomer(customerId) {
 }
 
 
-function editManageCustomer(customerId) {
+function manageCustomerTemplate(customerId) {
 	if (customerId == null || customerId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
@@ -337,18 +337,27 @@ function editReportTemplate(e) {
 	var $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
-	var $form = $("#reportTemplate-form", $current.closest(".modal"));
+	var $modal = $current.closest(".modal"), $form = $("#reportTemplate-form",$modal);
 	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-editable='true'] input:checked").closest("tr");
 	if (!$tr.length)
 		return false;
 	var type = $("td[data-trick-field='type']", $tr).attr("data-trick-real-value"),
-		idLanguage = $("td[data-trick-field='language']", $tr).attr("data-trick-real-value");
+		idLanguage = $("td[data-trick-field='language']", $tr).attr("data-trick-real-value"), isProfile = $modal.attr("data-trick-is-profile")==="true";
 	$("select[name='language']", $form).val(idLanguage);
 	$("input[name='id']", $form).val($tr.attr("data-trick-id"));
-	$("input[type='file']", $form).removeAttr("required").trigger("reset").trigger("change");
+	
+	if(isProfile){
+		$("input[type='file']", $form).attr("required",true).trigger("reset").trigger("change");
+		$("label[data-trick-real-value].btn", $form).removeClass("active").filter("[data-trick-real-value='"+type+"']").addClass("active");
+	}
+	else {
+		$("input[type='file']", $form).removeAttr("required").trigger("reset").trigger("change");
+		$("input[name='type'][value='" + type + "']", $form).closest(".btn").trigger("click");
+	}
+	
 	$("input[name='version']", $form).val($("td[data-trick-field='version']", $tr).text());
 	$("textarea[name='label']", $form).val($("td[data-trick-field='label']", $tr).text());
-	$("input[name='type'][value='" + type + "']", $form).closest(".btn").trigger("click");
+
 	return true;
 }
 

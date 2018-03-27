@@ -207,14 +207,14 @@
 					<spring:message code="label.measure.tocheck" var='tocheck' />
 					<spring:message text="${selectedMeasure.toCheck}" var="toCheckContent" />
 					<label class='label-control form-group-fill'>${tocheck}</label>
-					<textarea rows="${rowSize}" class="form-control" name="toCheck" title="${tocheck}" style="resize: vertical;" placeholder="${toCheckContent}" data-trick-type='string'>${toCheckContent}</textarea>
+					<textarea id="measure-tocheck" rows="${rowSize}" class="form-control" name="toCheck" title="${tocheck}" style="resize: vertical;" placeholder="${toCheckContent}" data-trick-type='string'>${toCheckContent}</textarea>
 				</div>
 			</c:if>
 			<div class='form-group form-group-fill'>
 				<spring:message code="label.comment" var='comment' />
 				<spring:message text="${selectedMeasure.comment}" var="commentContent" />
 				<label class='label-control'>${comment}</label>
-				<textarea rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
+				<textarea id="measure-comment" rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 			</div>
 			<div class='form-group form-group-fill'>
 				<spring:message code="label.measure.todo" var='todo' />
@@ -222,10 +222,10 @@
 				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
 				<c:choose>
 					<c:when test="${showTodo}">
-						<textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea>
+						<textarea id="measure-todo" rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea>
 					</c:when>
 					<c:otherwise>
-						<textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled"></textarea>
+						<textarea id="measure-todo" rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled"></textarea>
 					</c:otherwise>
 				</c:choose>
 			</div>

@@ -4,8 +4,8 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="reportTemplateModal" tabindex="-1" role="dialog" data-aria-labelledby="reportTemplateModal" data-aria-hidden="true">
-	<div class="modal-dialog modal-mdl">
+<div class="modal fade" data-trick-is-profile="${not customer.canBeUsed}" id="reportTemplateModal" tabindex="-1" role="dialog" data-aria-labelledby="reportTemplateModal" data-aria-hidden="true">
+	<div class="modal-dialog modal-mdl" >
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>

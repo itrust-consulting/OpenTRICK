@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.CustomerBuilder;
+import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -75,7 +75,7 @@ public class ControllerCustomer {
 	private ServiceCustomer serviceCustomer;
 
 	@Autowired
-	private CustomerBuilder customerBuilder;
+	private CustomerManager customerManager;
 
 	@Autowired
 	private CustomDelete customDelete;
@@ -162,7 +162,7 @@ public class ControllerCustomer {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			Customer customer = new Customer();
-			if (!customerBuilder.buildCustomer(errors, customer, value, locale))
+			if (!customerManager.buildCustomer(errors, customer, value, locale))
 				return errors;
 			User user = serviceUser.get(principal.getName());
 
@@ -252,9 +252,10 @@ public class ControllerCustomer {
 					result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
 				else {
 					template.setFilename(templateForm.getFile().getOriginalFilename());
-					template.setFile(templateForm.getFile().getBytes());
 					template.setSize(templateForm.getFile().getSize());
-					if (!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
+					if (DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
+						template.setFile(templateForm.getFile().getBytes());
+					else
 						result.put("file", messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 				}
 			} catch (IOException e) {
@@ -308,11 +309,10 @@ public class ControllerCustomer {
 			result.put("language", messageSource.getMessage("error.language.not.found", null, "Lnaguage cannot be found", locale));
 
 		if (result.isEmpty()) {
-			if (template.getId() < 1) {
+			if (template.getId() < 1)
 				customer.getTemplates().add(template);
-				template.setCreated(new Timestamp(System.currentTimeMillis()));
-			}
 			template.setEditable(true);
+			template.setCreated(new Timestamp(System.currentTimeMillis()));
 			serviceCustomer.saveOrUpdate(customer);
 			return templateForm.getId() > 0 ? JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale))
 					: JsonMessage.Success(messageSource.getMessage("success.report.template.save", null, locale));

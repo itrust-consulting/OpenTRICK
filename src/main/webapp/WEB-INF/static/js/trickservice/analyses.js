@@ -976,12 +976,12 @@ function selectAnalysis(analysisId, mode) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
-	if(open === OPEN_MODE.READ || !isArchived()){
+	var open = OPEN_MODE.valueOf(mode);
+	if(open === OPEN_MODE.READ || !isArchived() && userCan(analysisId, ANALYSIS_RIGHT.MODIFY)){
 		$("#loading-indicator").show();
 		setTimeout(() => {
 			window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value);
-		}, 0);
+		}, 1);
 	}
 	return false;
 }

@@ -21,8 +21,7 @@ function exportAnalysis(analysisId) {
 			},
 			error: unknowError
 		}).complete(()  => $progress.hide());
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -49,8 +48,7 @@ function exportAnalysisSOA(analysisId) {
 			},
 			error: unknowError
 		}).complete(()  =>$progress.hide());
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -71,8 +69,7 @@ function exportRawActionPlan(analysisId, type) {
 				window.location = context + "/Analysis/Export/Raw-Action-plan/"+analysisId+"/"+e.currentTarget.getAttribute("data-trick-type");
 			});
 		}else window.location = context + "/Analysis/Export/Raw-Action-plan/"+analysisId+"/"+type;
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -178,8 +175,7 @@ function exportAnalysisReport(analysisId) {
 			},
 			error: unknowError
 		}).complete(()  =>$progress.hide())
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -244,8 +240,7 @@ function exportRiskSheet(idAnalysis, report) {
 			},
 			error: unknowError
 		}).complete(()  =>$progress.hide());
-	} else
-		permissionError();
+	}
 	return false;
 }
 
@@ -272,7 +267,6 @@ function exportRiskRegister(analysisId) {
 			},
 			error: unknowError
 		}).complete(()  =>$progress.hide());
-	} else
-		permissionError();
+	}
 	return false;
 }

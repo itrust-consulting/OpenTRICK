@@ -264,19 +264,17 @@ function manageAnalysisIDSAccess(section) {
 }
 
 function findTrickisProfile(element) {
-	if (element != undefined && element != null && element.length > 0 && element.length < 2)
+	if (element && element.length == 1)
 		if ($(element).attr("data-trick-is-profile") != undefined)
 			return $(element).attr("data-trick-is-profile");
-		else if ($(element).parent().prop("tagName") != "BODY")
-			return findTrickisProfile($(element).parent());
 		else
-			return null;
+			return findTrickisProfile($(element).closest("[data-trick-is-profile]"));
 	else
 		return null;
 }
 
 function isProfile(section) {
-	return findTrickisProfile($(section + " tbody :checked")) != "true";
+	return findTrickisProfile($(section + " tbody :checked")) !== "true";
 }
 
 function adminCustomerChange(selector) {
@@ -671,7 +669,11 @@ function manageCustomerAccess(customerID) {
 }
 
 function isNotCustomerProfile() {
-	return $("#section_customer tbody>tr>td>input:checked").parent().parent().attr("data-trick-is-profile") === "false";
+	return isCustomerProfile();
+}
+
+function isCustomerProfile() {
+	return !isProfile("#section_customer");
 }
 
 function updateCustomerAccess(e,$view,$progress,customerID) {
