@@ -153,7 +153,7 @@ public class CustomerManager {
 
 			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

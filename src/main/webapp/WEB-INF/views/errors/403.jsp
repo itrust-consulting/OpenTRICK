@@ -27,7 +27,7 @@
 				</h1>
 			</div>
 			<div class="content" id="content" role="main" data-spy="scroll">
-				<spring:message code="error.403.access.denied" text="You do not have the nessesary permissions to perform this action!" />
+				<spring:message code="error.403.message" text="You do not have the nessesary permissions to perform this action!" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

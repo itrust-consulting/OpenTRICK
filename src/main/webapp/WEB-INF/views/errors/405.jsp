@@ -27,7 +27,7 @@
 				</h1>
 			</div>
 			<div class="content" id="content" data-spy="scroll">
-				<spring:message code="error.405.method_not_allowed" text="The method used for this request is not allowed!" />
+				<spring:message code="error.405.message" text="The method used for this request is not allowed!" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

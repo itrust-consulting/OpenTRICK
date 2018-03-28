@@ -501,7 +501,7 @@ public class ControllerAdministration {
 			TrickLogManager.Persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -641,7 +641,7 @@ public class ControllerAdministration {
 			if (e instanceof TrickException)
 				errors.put("user", messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+				errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 		return errors;
 	}
@@ -741,7 +741,7 @@ public class ControllerAdministration {
 		} catch (Exception e) {
 			// return errors
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -799,7 +799,7 @@ public class ControllerAdministration {
 				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;

@@ -27,7 +27,7 @@
 				</h1>
 			</div>
 			<div class="content" id="content" data-spy="scroll">
-				<spring:message code="error.400.bad_request" text="The request could not be understand by the server!" />
+				<spring:message code="error.400.message" text="The request could not be understand by the server!" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

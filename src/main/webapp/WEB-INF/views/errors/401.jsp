@@ -27,7 +27,7 @@
 				</h1>
 			</div>
 			<div class="content" id="content">
-				<spring:message code="error.401.unauthorized" text="Unauthorised" />
+				<spring:message code="error.401.message" text="Unauthorised" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

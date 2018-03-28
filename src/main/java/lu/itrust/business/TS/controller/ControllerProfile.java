@@ -181,7 +181,7 @@ public class ControllerProfile {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -389,7 +389,7 @@ public class ControllerProfile {
 			serviceUser.saveOrUpdate(user);
 			return errors;
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -605,7 +605,7 @@ public class ControllerProfile {
 					user.setLocale(userlocale);
 			}
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

@@ -130,7 +130,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -164,7 +164,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			errors.add(JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale)));
+			errors.add(JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale)));
 			return errors;
 		}
 	}
@@ -334,7 +334,7 @@ public class ControllerScenario {
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("scenario", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("scenario", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return results;
@@ -535,7 +535,7 @@ public class ControllerScenario {
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("scenario", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("scenario", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

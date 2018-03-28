@@ -203,7 +203,7 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
 	}
 
@@ -261,7 +261,7 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
 	}
 

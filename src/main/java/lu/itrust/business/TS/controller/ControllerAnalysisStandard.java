@@ -1302,7 +1302,7 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
-			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} finally {
@@ -1382,7 +1382,7 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
-			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} finally {
@@ -1430,7 +1430,7 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
-			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} finally {
@@ -1467,7 +1467,7 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
-			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		} finally {

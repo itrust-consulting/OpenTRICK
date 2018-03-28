@@ -235,6 +235,8 @@ public class ControllerRiskInformation {
 			WorkbookPart workbook = mlPackage.getWorkbookPart();
 			for (Object[] mapper : RI_SHEET_MAPPERS) {
 				List<RiskInformation> riskInformations = riskInformationMap.get(mapper[0]);
+				if(riskInformations == null)
+					continue;
 				SheetData sheet = findSheet(workbook, mapper[1].toString());
 				if (sheet == null)
 					throw new TrickException("error.risk.information.template.sheet.not.found",

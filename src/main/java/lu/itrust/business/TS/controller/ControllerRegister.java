@@ -257,7 +257,7 @@ public class ControllerRegister {
 
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 		return "redirect:/Login";
 	}
@@ -415,7 +415,7 @@ public class ControllerRegister {
 				user.setLocale(userlocale);
 
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

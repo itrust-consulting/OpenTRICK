@@ -714,7 +714,7 @@ public class ControllerAnalysis {
 			return "redirect:/Error";
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			return "redirect:/Error";
 		} finally {
 			if (client != null) {
@@ -1188,7 +1188,7 @@ public class ControllerAnalysis {
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("analysis", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("analysis", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return false;

@@ -82,7 +82,7 @@ public class ControllerAnalysisManageAccess {
 		} catch (TrickException e) {
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return "redirect:/Analysis/All";
@@ -136,7 +136,7 @@ public class ControllerAnalysisManageAccess {
 			TrickLogManager.Persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 

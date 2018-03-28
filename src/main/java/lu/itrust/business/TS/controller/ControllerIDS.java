@@ -142,7 +142,7 @@ public class ControllerIDS {
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -165,7 +165,7 @@ public class ControllerIDS {
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -193,7 +193,7 @@ public class ControllerIDS {
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 

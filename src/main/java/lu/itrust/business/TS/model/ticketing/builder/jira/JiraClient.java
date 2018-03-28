@@ -324,7 +324,7 @@ public class JiraClient implements Client {
 	@Override
 	public boolean createIssues(String idProject, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, MessageHandler handler, int maxProgess) {
 		if (restClient == null)
-			throw new TrickException("error.internal", "Internal error");
+			throw new TrickException("error.500.message", "Internal error");
 		Project project = restClient.getProjectClient().getProject(idProject).claim();
 		if (project == null)
 			throw new TrickException("error.project.not_found", "Project cannot be found");

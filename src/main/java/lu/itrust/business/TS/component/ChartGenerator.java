@@ -820,7 +820,7 @@ public class ChartGenerator {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, locale));
 		}
 
 	}
@@ -859,7 +859,7 @@ public class ChartGenerator {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, e.getMessage(), locale));
 		}
 
 	}

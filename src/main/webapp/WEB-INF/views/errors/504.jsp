@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html lang="${locale.language}">
 <!-- Include Header -->
-<c:set scope="request" var="title" value="title.404" />
+<c:set scope="request" var="title" value="title.error.504" />
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
@@ -23,11 +23,11 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
-					<spring:message code="title.error.404" text="404: Page not found" />
+					<spring:message code="title.error.504" />
 				</h1>
 			</div>
 			<div class="content" id="content" data-spy="scroll">
-				<spring:message code="error.404.message" text="The page you trying to access could not be found!" />
+				<spring:message code="error.504.message" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>
@@ -37,3 +37,4 @@
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>
+				

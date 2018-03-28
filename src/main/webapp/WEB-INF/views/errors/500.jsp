@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html lang="${locale.language}">
 <!-- Include Header -->
-<c:set scope="request" var="title" value="title.500" />
+<c:set scope="request" var="title" value="title.error.500" />
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
@@ -27,7 +27,7 @@
 				</h1>
 			</div>
 			<div class="content" id="content" data-spy="scroll">
-				<spring:message code="error.500.internal.sever.error" text="" />
+				<spring:message code="error.500.message" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

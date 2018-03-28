@@ -279,7 +279,7 @@ function showDialog(dialog, message, title, url, onClose, placement) {
 		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
 	} else {
-		return showNotifcation(notificationType.type, message, notificationType.icon, title, url, onClose, placement);
+		return showNotifcation(notificationType.type, message, notificationType.icon, url, title, onClose, placement);
 	}
 }
 
@@ -354,13 +354,29 @@ function onElementInserted(elementClass, callback) {
 function unknowError(jqXHR, textStatus, errorThrown) {
 	if (typeof textStatus != 'undefined' && textStatus === 'abort' || application["isReloading"])
 		return false;
-	if (jqXHR != undefined) {
-		if (textStatus == "timeout" || textStatus == "error" && jqXHR.readyState == 0)
-			showDialog("#alert-dialog", MessageResolver("error.timeout", "The server may be down, overloaded, or there may be too much net traffic."));
-		else if (jqXHR.readyState == 4 && textStatus == "error") {
-			switch (errorThrown) {
-			case "Forbidden":
-				showDialog("#alert-dialog", MessageResolver("error.forbidden", "Action is not allowed, no analysis selected or you are no longer logged in"));
+	if (jqXHR !== undefined) {
+		 if (jqXHR.status!==undefined) {
+			switch (jqXHR.status) {
+			case 400:
+				showDialog("#alert-dialog", MessageResolver("error.400.message"));
+				break;
+			case 401:
+				showDialog("#alert-dialog", MessageResolver("error.401.message"));
+				break;
+			case 403:
+				showDialog("#alert-dialog", MessageResolver("error.403.message"));
+				break;
+			case 404:
+				showDialog("#alert-dialog", MessageResolver("error.404.message"));
+				break;
+			case 500:
+				showDialog("#alert-dialog", MessageResolver("error.500.message"));
+				break;
+			case 503:
+				showDialog("#alert-dialog", MessageResolver("error.503.message"));
+				break;
+			case 504:
+				showDialog("#alert-dialog", MessageResolver("error.504.message"));
 				break;
 			default:
 				showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));

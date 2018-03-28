@@ -187,7 +187,7 @@ public class ControllerCustomer {
 				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -278,7 +278,7 @@ public class ControllerCustomer {
 				else
 					template.setLabel(templateForm.getLabel());
 			} catch (UnsupportedEncodingException e) {
-				result.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+				result.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			}
 		}
 
@@ -294,7 +294,7 @@ public class ControllerCustomer {
 				else
 					template.setVersion(templateForm.getVersion());
 			} catch (UnsupportedEncodingException e) {
-				result.put("customer", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+				result.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			}
 		}
 

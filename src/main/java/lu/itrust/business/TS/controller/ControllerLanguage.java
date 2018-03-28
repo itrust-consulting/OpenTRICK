@@ -127,7 +127,7 @@ public class ControllerLanguage {
 					LogAction.CREATE_OR_UPDATE, language.getAlpha3());
 
 		} catch (Exception e) {
-			errors.put("language",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("language",  messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -220,7 +220,7 @@ public class ControllerLanguage {
 			return errors.isEmpty();
 
 		} catch (Exception e) {
-			errors.put("language",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("language",  messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}

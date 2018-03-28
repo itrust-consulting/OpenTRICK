@@ -25,7 +25,9 @@
 	</sec:authorize>
 	<script type="text/javascript">
 	<!--
-		resolveMessage("error.timeout", "<spring:message code='error.timeout' />");
+		resolveMessage("error.504.message", "<spring:message code='error.504.message' />");
+		resolveMessage("error.503.message", "<spring:message code='error.503.message' />");
+		resolveMessage("error.403.message", "<spring:message code='error.403.message' />");
 		resolveMessage("label.action.remove", "<spring:message code='label.action.remove' />");
 		resolveMessage("label.action.add", "<spring:message code='label.action.add' />");
 		resolveMessage("error.not_authorized", "<spring:message code='error.not_authorized' />");
@@ -55,7 +57,6 @@
 		application['language'] = "${locale.language=='en'? 'en' : 'fr'}";
 		application['isAdministration']=${isAdministration}
 		application['taskManager'] = new TaskManager().Start();
-		
 		-->
 	</script>
 </sec:authorize>

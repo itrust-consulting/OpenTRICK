@@ -177,7 +177,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				serviceTaskFeedback.send(getId(), new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e));
 			} else {
 				TrickLogManager.Persist(e);
-				serviceTaskFeedback.send(getId(), new MessageHandler("error.internal", "Internal error occurred", e));
+				serviceTaskFeedback.send(getId(), new MessageHandler("error.500.message", "Internal error occurred", e));
 			}
 		} finally {
 			try {

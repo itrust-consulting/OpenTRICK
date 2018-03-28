@@ -131,7 +131,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 				TrickException e1 = (TrickException) e;
 				serviceTaskFeedback.send(getId(), new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
 			} else
-				serviceTaskFeedback.send(getId(), new MessageHandler("error.internal", null, "Internal error", e));
+				serviceTaskFeedback.send(getId(), new MessageHandler("error.500.message", null, "Internal error", e));
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {

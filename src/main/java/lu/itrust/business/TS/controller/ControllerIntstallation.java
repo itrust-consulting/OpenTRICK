@@ -174,7 +174,7 @@ public class ControllerIntstallation {
 			return false;
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			errors.put("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			return false;
 		}
 	}

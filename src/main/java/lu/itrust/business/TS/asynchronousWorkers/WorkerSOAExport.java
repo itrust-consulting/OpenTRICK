@@ -189,7 +189,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			if (e instanceof TrickException)
 				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
 			else
-				messageHandler = new MessageHandler("error.internal", "Internal error", e);
+				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			serviceTaskFeedback.send(getId(), messageHandler);
 			TrickLogManager.Persist(e);
 		} finally {

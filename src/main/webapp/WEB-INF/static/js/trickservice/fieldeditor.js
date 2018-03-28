@@ -357,10 +357,7 @@ function FieldEditor(element, validator) {
 
 						return true;
 					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						that.Rollback();
-						showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-					}
+					error : (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
 				});
 			} else {
 				that.Rollback();
@@ -424,6 +421,14 @@ function FieldEditor(element, validator) {
 		delete that;
 		return null;
 	};
+	
+	FieldEditor.prototype.Error = function(jqXHR, textStatus, errorThrown){
+		this.Rollback();
+		if(jqXHR.status === 403)
+			showDialog("error", MessageResolver("error.forbidden"));
+		else unknowError(jqXHR,textStatus,  errorThrown);
+		return this;
+	}
 
 }
 
@@ -462,10 +467,7 @@ function ExtendedFieldEditor(section, element) {
 						else
 							showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						that.Rollback();
-						showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-					}
+					error :  (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
 				});
 			} else {
 				that.Rollback();
@@ -576,10 +578,7 @@ function AssessmentFieldEditor(element) {
 						}
 						return true;
 					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						that.Rollback();
-						application["estimation-helper"].error(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-					}
+					error :  (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
 				});
 
 			} else

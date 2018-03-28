@@ -302,7 +302,7 @@ public class ControllerApi {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -327,7 +327,7 @@ public class ControllerApi {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -412,7 +412,7 @@ public class ControllerApi {
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (!analysis.isUserAuthorized(principal.getName(), AnalysisRight.EXPORT))
-			throw new TrickException("error.403.access.denied", "You do not have the necessary permissions to perform this action");
+			throw new TrickException("error.403.message", "You do not have the necessary permissions to perform this action");
 		Map<String, AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream()
 				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getLabel(), Function.identity()));
 		Assessment assessment = analysis.getAssessments().stream()
