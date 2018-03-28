@@ -57,12 +57,10 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
-import lu.itrust.business.TS.model.scale.Translation;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -446,7 +444,6 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			Tbl table = createTable("TableTSAsset", assets.size() + 1, 5);
 			Tr row = (Tr) table.getContent().get(0);
 			TextAlignment alignmentLeft = createAlignment("left"), alignmentCenter = createAlignment("center");
-			;
 			// set header
 			setCellText((Tc) row.getContent().get(0), getMessage("report.asset.title.number.row", null, "Nr", locale));
 			setCellText((Tc) row.getContent().get(1), getMessage("report.asset.title.name", null, "Name", locale));
@@ -476,7 +473,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 	 */
 	@Override
 	protected void generateExtendedParameters(String type) throws Exception {
-		String parmetertype = "", languuage = locale.getLanguage().toUpperCase();
+		String parmetertype = "";
 		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 			parmetertype = "Impact";
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
@@ -487,16 +484,14 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			List<Object> contents = new LinkedList<>();
 			if (parmetertype == "Proba")
-				buildImpactProbabilityTable(contents, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
+				buildQualitativeImpactProbabilityTable(contents, getMessage("report.parameter.title." + type.toLowerCase(), null, type, locale), parmetertype,
 						analysis.getLikelihoodParameters());
 			else {
 				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().filter(parameter -> !parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))
 						.collect(Collectors.groupingBy(ImpactParameter::getType));
 				generateImpactList(impacts.keySet());
-				for (ScaleType scaleType : impacts.keySet()) {
-					Translation title = scaleType.get(languuage);
-					buildImpactProbabilityTable(contents, title == null ? scaleType.getDisplayName() : title.getName(), parmetertype, impacts.get(scaleType));
-				}
+				for (ScaleType scaleType : impacts.keySet())
+					buildQualitativeImpactProbabilityTable(contents, scaleType.getTranslate(languageAlpha2), parmetertype, impacts.get(scaleType));
 			}
 			insertAllBefore(paragraph, contents);
 		}
@@ -521,28 +516,6 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 				contents.add(setText(setStyle(factory.createP(), style), getMessage("report.format.bullet.list.iteam", new Object[] { value }, value, locale)));
 		}
 		insertAllBefore(paragraph, contents);
-	}
-
-	private void buildImpactProbabilityTable(List<Object> contents, String title, String type, List<? extends IBoundedParameter> parameters) {
-		contents.add(setText(setStyle(factory.createP(), "TSEstimationTitle"), title));
-		Tbl table = createTable("TableTS" + type, parameters.size(), 3);
-		setCurrentParagraphId(TS_TAB_TEXT_2);
-		Tr row = (Tr) table.getContent().get(0);
-		for (int i = 1; i < 3; i++)
-			setColor((Tc) row.getContent().get(i), HEADER_COLOR);
-		setCellText((Tc) row.getContent().get(0), getMessage("report.parameter.level", null, "Level", locale));
-		setCellText((Tc) row.getContent().get(1), getMessage("report.parameter.label", null, "Label", locale));
-		setCellText((Tc) row.getContent().get(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
-		TextAlignment alignment = createAlignment("center");
-		for (IBoundedParameter parameter : parameters) {
-			if (parameter.getLevel() == 0)
-				continue;
-			row = (Tr) table.getContent().get(parameter.getLevel());
-			setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel(), alignment);
-			setCellText((Tc) row.getContent().get(1), parameter.getLabel());
-			setCellText((Tc) row.getContent().get(2), parameter.getDescription());
-		}
-		contents.add(table);
 	}
 
 	/*
@@ -714,7 +687,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 			contents.add(legends);
 			contents.add(setStyle(factory.createP(), "Endlist"));
 			contents.add(table);
-			
+
 			insertAllBefore(paragraphOriginal, contents);
 		}
 

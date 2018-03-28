@@ -39,6 +39,7 @@ import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 import org.springframework.context.MessageSource;
+import org.springframework.util.StringUtils;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
@@ -46,11 +47,12 @@ import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
@@ -58,8 +60,11 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -74,6 +79,8 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	private static final String NUMBER_FORMAT = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[>0.509]#\\k\\€;#,##0\\k\\€";
 
+	private boolean mixte = false;
+
 	public Docx4jQuantitativeReportExporter() {
 	}
 
@@ -81,6 +88,12 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		setMessageSource(messageSource);
 		setContextPath(contextPath);
 		setServiceTaskFeedback(serviceTaskFeedback);
+	}
+
+	@Override
+	public void exportToWordDocument(Analysis analysis, ReportTemplate reportTemplate) throws Exception {
+		setMixte(analysis.isQualitative() && (boolean) analysis.getSetting(AnalysisSetting.ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT));
+		super.exportToWordDocument(analysis, reportTemplate);
 	}
 
 	@Override
@@ -177,7 +190,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 			}
 			case 3: {
 				setCellText((Tc) row.getContent().get(0), "1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
-				
+
 				for (int i = 1; i < summary.size(); i++)
 					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
 				break;
@@ -430,21 +443,27 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 		if (paragraphOrigin != null && assessments.size() > 0) {
 
-			List<Object> contents = new LinkedList<>();
+			final List<Object> contents = new LinkedList<>();
+			final Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
+			final Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
 
-			Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
-			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
 			AssessmentAndRiskProfileManager.SplitAssessment(assessments, alesmap, assessementsmap);
-			List<ALE> ales = new ArrayList<ALE>(alesmap.size());
+
+			final List<ALE> ales = new ArrayList<ALE>(alesmap.size());
+
 			for (ALE ale : alesmap.values())
 				ales.add(ale);
 			alesmap.clear();
+
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			Collections.sort(ales, new AssetComparatorByALE());
 			P paragraph = setStyle(factory.createP(), "TSAssessmentTotalALE");
 			setText(paragraph, getMessage("report.assessment.total_ale.assets", null, "Total ALE for all assets", locale));
 			addTab(paragraph);
 			addText(paragraph, String.format("%s k€", kEuroFormat.format(totalale * 0.001)));
+
+			List<ScaleType> scaleTypes = analysis.getImpactParameters().stream().filter(p -> isMixte() && !p.getTypeName().equals(Constant.DEFAULT_IMPACT_NAME))
+					.map(ImpactParameter::getType).distinct().collect(Collectors.toList());
 
 			contents.add(paragraph);
 
@@ -464,28 +483,34 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 				contents.add(paragraph);
 
+				int rowIndex = 0, colIndex = 0;
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
-				Tbl table = createTable("TableTSAssessment", assessmentsofasset.size() + 1, 6);
-				Tr row = (Tr) table.getContent().get(0);
-				setCellText((Tc) row.getContent().get(0), getMessage("report.assessment.scenarios", null, "Scenarios", locale), alignmentLeft);
-				setCellText((Tc) row.getContent().get(1), getMessage("report.assessment.impact.financial", null, "Fin.", locale), alignmentCenter);
-				setCellText((Tc) row.getContent().get(2), getMessage("report.assessment.probability", null, "P.", locale), alignmentCenter);
-				setCellText((Tc) row.getContent().get(3), getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
-				setCellText((Tc) row.getContent().get(4), getMessage("report.assessment.owner", null, "Owner", locale));
-				setCellText((Tc) row.getContent().get(5), getMessage("report.assessment.comment", null, "Comment", locale));
-				int index = 1;
+				Tbl table = createTable("TableTSAssessment", assessmentsofasset.size() + 1, 6 + scaleTypes.size());
+				Tr row = (Tr) table.getContent().get(rowIndex++);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.scenarios", null, "Scenarios", locale), alignmentLeft);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.impact.financial", null, "Fin.", locale), alignmentCenter);
+				for (ScaleType impact : scaleTypes)
+					setCellText((Tc) row.getContent().get(colIndex++), impact.getShortName(languageAlpha2), alignmentCenter);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.probability", null, "P.", locale), alignmentCenter);
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.owner", null, "Owner", locale));
+				setCellText((Tc) row.getContent().get(colIndex++), getMessage("report.assessment.comment", null, "Comment", locale));
+
 				for (Assessment assessment : assessmentsofasset) {
-					row = (Tr) table.getContent().get(index++);
-					setCellText((Tc) row.getContent().get(0), assessment.getScenario().getName(), alignmentLeft);
-					IValue impact = assessment.getImpact(Constant.DEFAULT_IMPACT_NAME);
-					if (impact == null)
-						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
-					addCellNumber((Tc) row.getContent().get(1), kEuroFormat.format(impact.getReal() * 0.001));
-					setCellText((Tc) row.getContent().get(2), formatLikelihood(assessment.getLikelihood()), alignmentCenter);
-					addCellNumber((Tc) row.getContent().get(3),
+					colIndex = 0;
+					row = (Tr) table.getContent().get(rowIndex++);
+					setCellText((Tc) row.getContent().get(colIndex++), assessment.getScenario().getName(), alignmentLeft);
+					addCellNumber((Tc) row.getContent().get(colIndex++), kEuroFormat.format(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME) * 0.001));
+					for (ScaleType type : scaleTypes) {
+						IValue value = assessment.getImpact(type.getName());
+						addCellNumber((Tc) row.getContent().get(colIndex++),
+								value == null || value.getLevel() == 0 ? getMessage("label.status.na", null, "na", locale) : value.getLevel().toString());
+					}
+					setCellText((Tc) row.getContent().get(colIndex++), formatLikelihood(assessment.getLikelihood()), alignmentCenter);
+					addCellNumber((Tc) row.getContent().get(colIndex++),
 							assessment.getALE() == 0 ? kEuroFormat.format(assessment.getALE() * 0.001) : assessmentFormat.format(assessment.getALE() * 0.001));
-					addCellParagraph((Tc) row.getContent().get(4), assessment.getOwner());
-					addCellParagraph((Tc) row.getContent().get(5), assessment.getComment());
+					addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
+					addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getComment());
 				}
 
 				contents.add(table);
@@ -600,8 +625,25 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					setColor((Tc) row.getContent().get(i), SUB_HEADER_COLOR);
 				countrow++;
 			}
+
 			contents.add(table);
 			insertAllBefore(paragraph, contents);
+
+			if (isMixte() && type.equals(Constant.DEFAULT_IMPACT_NAME)) {
+				contents.clear();
+				Map<ScaleType, List<ImpactParameter>> impacts = analysis.getImpactParameters().stream().filter(p -> !p.getTypeName().equals(type))
+						.sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).collect(Collectors.groupingBy(ImpactParameter::getType));
+
+				for (Entry<ScaleType, List<ImpactParameter>> entry : impacts.entrySet()) {
+					String name = entry.getKey().getTranslate(languageAlpha2),
+							captionName = getMessage("report.impact_scale.table.caption", new Object[] { name }, String.format("%s impact scale", name), locale);
+					buildQualitativeImpactProbabilityTable(contents, name, parmetertype, entry.getValue());
+					contents.add(addTableCaption(StringUtils.capitalize(captionName.toLowerCase())));
+				}
+
+				insertAllAfter(paragraph, contents);
+			}
+
 		}
 	}
 
@@ -951,6 +993,14 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				reportExcelSheet.save();
 		}
 
+	}
+
+	public boolean isMixte() {
+		return mixte;
+	}
+
+	public void setMixte(boolean mixte) {
+		this.mixte = mixte;
 	}
 
 }

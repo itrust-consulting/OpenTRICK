@@ -13,8 +13,10 @@ import java.util.List;
 public enum AnalysisSetting {
 
 	ALLOW_RISK_ESTIMATION_RAW_COLUMN("label.analysis.setting.allow_risk_estimation_raw_column", Boolean.class, true, AnalysisType.QUALITATIVE,
-			AnalysisType.HYBRID), ALLOW_RISK_HIDDEN_COMMENT("label.analysis.setting.allow_hidden_comment", Boolean.class,
-					true), ALLOW_DYNAMIC_ANALYSIS("label.analysis.setting.allow_dynamic_analysis", Boolean.class, false, AnalysisType.QUANTITATIVE, AnalysisType.HYBRID);
+			AnalysisType.HYBRID), ALLOW_RISK_HIDDEN_COMMENT("label.analysis.setting.allow_hidden_comment", Boolean.class, true), ALLOW_DYNAMIC_ANALYSIS(
+					"label.analysis.setting.allow_dynamic_analysis", Boolean.class, false, AnalysisType.QUANTITATIVE,
+					AnalysisType.HYBRID), ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT("label.analysis.setting.allow_qualitative_in_quantitative_report", Boolean.class,
+							false, AnalysisType.HYBRID);
 
 	private String code;
 

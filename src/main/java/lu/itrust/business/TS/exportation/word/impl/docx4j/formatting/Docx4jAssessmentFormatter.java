@@ -40,7 +40,7 @@ public class Docx4jAssessmentFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? createWith(table.getTblGrid().getGridCol().size()) : new int[] { 2500, 370, 267, 370, 400, 5669 });
+		int[] cols = table.getTblGrid().getGridCol().size() != 6 ? createWith(table.getTblGrid().getGridCol().size()) : new int[] { 2500, 370, 267, 370, 400, 5669 };
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		getTrs(table).forEach(tr -> updateRow(tr, cols, "dxa"));
@@ -48,12 +48,12 @@ public class Docx4jAssessmentFormatter extends Docx4jFormatter {
 	}
 
 	private int[] createWith(int size) {
-		int cols [] = new int [size];
+		int cols[] = new int[size];
 		cols[0] = 1947;
-		cols[size-3] = 370;
-		cols[size-2] = 400;
-		cols[size-1] = 4851;
-		for (int i = 1; i < (cols.length-3); i++)
+		cols[size - 3] = 370;
+		cols[size - 2] = 400;
+		cols[size - 1] = 4851;
+		for (int i = 1; i < (cols.length - 3); i++)
 			cols[i] = 300;
 		return cols;
 	}

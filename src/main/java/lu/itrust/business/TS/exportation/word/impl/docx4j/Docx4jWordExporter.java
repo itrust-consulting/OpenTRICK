@@ -129,6 +129,7 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -1909,6 +1910,29 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 		return parts;
 	}
+	
+	protected void buildQualitativeImpactProbabilityTable(List<Object> contents, String title, String type, List<? extends IBoundedParameter> parameters) {
+		contents.add(setText(setStyle(factory.createP(), "TSEstimationTitle"), title));
+		Tbl table = createTable("TableTS" + type, parameters.size(), 3);
+		setCurrentParagraphId(TS_TAB_TEXT_2);
+		Tr row = (Tr) table.getContent().get(0);
+		for (int i = 1; i < 3; i++)
+			setColor((Tc) row.getContent().get(i), HEADER_COLOR);
+		setCellText((Tc) row.getContent().get(0), getMessage("report.parameter.level", null, "Level", locale));
+		setCellText((Tc) row.getContent().get(1), getMessage("report.parameter.label", null, "Label", locale));
+		setCellText((Tc) row.getContent().get(2), getMessage("report.parameter.qualification", null, "Qualification", locale));
+		TextAlignment alignment = createAlignment("center");
+		for (IBoundedParameter parameter : parameters) {
+			if (parameter.getLevel() == 0)
+				continue;
+			row = (Tr) table.getContent().get(parameter.getLevel());
+			setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel(), alignment);
+			setCellText((Tc) row.getContent().get(1), parameter.getLabel());
+			setCellText((Tc) row.getContent().get(2), parameter.getDescription());
+		}
+		contents.add(table);
+	}
+
 
 	/**
 	 * @return the docxFormatter
@@ -2003,5 +2027,11 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	public void setRefurbished(Boolean refurbished) {
 		this.refurbished = refurbished;
 	}
+
+	public String getAlpha3() {
+		return analysis.getLanguage().getAlpha3();
+	}
+	
+	
 
 }
