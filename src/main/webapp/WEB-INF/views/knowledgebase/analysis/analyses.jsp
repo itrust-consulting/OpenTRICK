@@ -9,13 +9,13 @@
 	<div class="section" id="section_profile_analysis">
 		<ul class="nav nav-pills bordered-bottom" id="menu_analysis">
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<spring:message
-						code="label.menu.open.profile" text="Open Profile" /></a></li>
-			<li class="disabled" data-trick-selectable="true" data-trick-check="!isDefaultProfile()"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
-						code="label.menu.analysis.set_default.profile" text="Set as default" /></a></li>
-			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-align-justify"></span> <spring:message
-						code="label.edit.info" text="Edit info" /></a></li>
+						code="label.action.open"/></a></li>
+			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
+						code="label.properties"/></a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span
-							class="glyphicon glyphicon glyphicon-export"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
+							class="glyphicon glyphicon-export"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
+			<li class="disabled" data-trick-selectable="true" data-trick-check="!isDefaultProfile()"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')">&nbsp;&nbsp;<span class="glyphicon glyphicon-check"></span> <spring:message
+						code="label.menu.analysis.set_default.profile" text="Set as default" /></a></li>
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isDefaultProfile()" ><a href="#" class="text-danger" onclick="return deleteAnalysisProfile();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>

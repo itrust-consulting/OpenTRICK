@@ -257,11 +257,27 @@ public final class ExcelHelper {
 	}
 
 	public static String getString(Cell cell, DataFormatter formatter) {
-		/*
-		 * switch (cell.getT()) { case INLINE_STR: return
-		 * cell.getIs().getT().getValue(); case S: return strings.get(cell.getV()); case
-		 * N: case B: case STR: case E: return cell.getV(); }
-		 */
+		if (cell == null)
+			return "";
+		else if (cell.getWorksheetPart().getWorkbookPart().getSharedStrings() == null || cell.getWorksheetPart().getWorkbookPart().getStylesPart() == null) {
+			switch (cell.getT()) {
+			case INLINE_STR:
+				if (cell.getWorksheetPart().getWorkbookPart().getSharedStrings() == null)
+					return cell.getIs().getT().getValue();
+				break;
+			case S:
+			case STR:
+				if (cell.getWorksheetPart().getWorkbookPart().getSharedStrings() != null)
+					break;
+			case N:
+				if (cell.getWorksheetPart().getWorkbookPart().getStylesPart() != null)
+					break;
+			case B:
+				return cell.getV();
+			case E:
+				return "";
+			}
+		}
 		return formatter.formatCellValue(cell);
 	}
 
