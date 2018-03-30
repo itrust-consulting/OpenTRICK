@@ -30,7 +30,8 @@ function Application() {
 			from : "bottom",
 			align : "right"
 		},
-		delay : 5500
+		delay : 5000,
+		errorDelay: 10000
 	}
 	this.currencyFormat = new Intl.NumberFormat("fr-FR", {style: "currency", currency: "EUR", maximumFractionDigits:0, minimumFractionDigits:0});
 	this.numberFormat = new Intl.NumberFormat("fr-FR");
@@ -308,7 +309,7 @@ function showNotifcation(type, message, icon, url, title, onClose,placement) {
 		z_index : application.notification.z_index,
 		offset : application.notification.offset,
 		placement : placement === undefined? application.notification.placement : placement,
-		delay : application.notification.delay,
+		delay : type ==="danger" || type ==="warning"? application.notification.errorDelay : application.notification.delay,
 		onClose : onClose
 	});
 }

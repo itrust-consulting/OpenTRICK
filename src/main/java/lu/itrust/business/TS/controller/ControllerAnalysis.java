@@ -61,7 +61,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xlsx4j.jaxb.Context;
 import org.xlsx4j.sml.ObjectFactory;
@@ -84,6 +83,7 @@ import lu.itrust.business.TS.component.MeasureManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.ExportWordReportForm;
+import lu.itrust.business.TS.controller.form.ImportAnalysisForm;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
@@ -591,12 +591,14 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Import")
-	public String importAnalysis(Principal principal, Map<String, Object> model) throws Exception {
-
-		// add the customers of the user to the data model
-		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		return "analyses/importAnalysis";
+	@GetMapping(value = "/Import/{idCustomer}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String importAnalysis(@PathVariable Integer idCustomer, Principal principal, Model model) throws Exception {
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
+		if (customer == null)
+			throw new AccessDeniedException("access denied");
+		model.addAttribute("maxFileSize", maxUploadFileSize);
+		model.addAttribute("customer",customer);
+		return "analyses/all/forms/import";
 	}
 
 	// *****************************************************************
@@ -616,54 +618,28 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import/Execute", method = RequestMethod.POST)
-	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
-			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
-
-		User user = serviceUser.get(principal.getName());
-		if (user == null)
-			return "redirect:/Logout";
-
+	@PostMapping(value = "/Import/{idCustomer}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object importAnalysisSave(@PathVariable Integer idCustomer, @ModelAttribute ImportAnalysisForm form, Principal principal, HttpServletRequest request,
+			Locale locale) throws Exception {
 		// retrieve the customer
-		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
-
-		if (customer == null) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
-			throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("error"));
-		}
-
-		// if the customer or the file are not correct
-		if (customer == null || file.isEmpty()) {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
-			return "analyses/importAnalysis";
-		}
-
-		// set selected customer, the selected customer of the analysis
-		request.getSession().setAttribute(CURRENT_CUSTOMER, customer.getId());
-
-		if (customerId != user.getInteger(LAST_SELECTED_CUSTOMER_ID)) {
-			user.setSetting(LAST_SELECTED_CUSTOMER_ID, String.valueOf(customerId));
-			serviceUser.saveOrUpdate(user);
-		}
-
+		if (!serviceCustomer.hasAccess(principal.getName(), idCustomer))
+			throw new AccessDeniedException("access denied");
+		if (form.getFile().isEmpty())
+			return JsonMessage.Error(messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
+		else if (form.getFile().getSize() > maxUploadFileSize)
+			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
 		// the file to import
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
-
-		// transfer form file to java file
-		file.transferTo(importFile);
-
+		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".tsdb");
 		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
-
+		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, idCustomer, principal.getName());
 		// register worker to tasklist
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			// execute task
-			executor.execute(worker);
-		else
-			// prepare error return message
-			// add return message
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		return "redirect:/Analysis/Import";
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		// transfer form file to java file
+		form.getFile().transferTo(importFile);
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("sucess.analysis.importing", null, "Please wait while importing your analysis", locale));
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
@@ -963,7 +939,7 @@ public class ControllerAnalysis {
 			}
 
 			PhaseManager.updateStatistics(measuresByStandard.values(), valueFactory, (double) model.asMap().get("soaThreshold"));
-			
+
 			model.addAttribute("totalPhase", PhaseManager.computeTotal(analysis.getPhases()));
 
 			if (!analysis.isProfile()) {

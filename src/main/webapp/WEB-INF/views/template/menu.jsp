@@ -16,7 +16,10 @@
 	<div class="container">
 		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
 			<div class="navbar-header">
-				<a class="navbar-brand" id='main_menu_brand' href="${pageContext.request.contextPath}/Home"></a>
+				<c:if test='${not (empty menu or menu == "Home")}'>
+					<c:set var="homeURL" value="${pageContext.request.contextPath}/Home" />
+				</c:if>
+				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"></a>
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>
@@ -24,40 +27,35 @@
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')">
-						<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a href="${pageContext.request.contextPath}/KnowledgeBase" id='main_menu_knowledgebase'> <spring:message
+						<c:if test='${not menu.startsWith("KnowledgeBase")}'>
+							<c:set var="knowledgeBaseURL" value="${pageContext.request.contextPath}/KnowledgeBase" />
+						</c:if>
+						<li ${empty knowledgeBaseURL? "class='active'" : ''}><a href="${empty knowledgeBaseURL? '#' : knowledgeBaseURL}" id='main_menu_knowledgebase'> <spring:message
 									code="label.menu.analysis.knowledgebase" text="Knowledge base" /></a></li>
 					</sec:authorize>
 					<c:choose>
-						<c:when test="${not menu.startsWith('Analysis')}">
-							<li><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
-							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
-										text="Risk evolution" /></a></li>
-							<li><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
-						</c:when>
 						<c:when test="${menu.startsWith('Analysis/Risk-evolution')}">
 							<li><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
-							<li class='active'><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
-										text="Risk evolution" /></a></li>
-							<li><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
+							<li class='active'><a href="#" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution" text="Risk evolution" /></a></li>
 						</c:when>
-						<c:when test="${menu.startsWith('Analysis/Import')}">
+						<c:when test="${menu.startsWith('Analysis')}">
+							<li class="active"><a href="#" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
+										text="Risk evolution" /></a></li>
+						</c:when>
+						<c:otherwise>
 							<li><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
 							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
 										text="Risk evolution" /></a></li>
-							<li class='active'><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis"
-										text="Import" /></a></li>
-						</c:when>
-						<c:otherwise>
-							<li class="active"><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
-							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
-										text="Risk evolution" /></a></li>
-							<li><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
 						</c:otherwise>
 					</c:choose>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li ${menu.equals("Account")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Account" id='main_menu_profile'> <sec:authentication
-								var="currentUsername" property="name" /> <c:choose>
+					<c:if test='${not menu.equals("Account")}'>
+						<c:set var="accountURL" value="${pageContext.request.contextPath}/Account" />
+					</c:if>
+					<li ${empty accountURL? "class='active'" : "" }><a href="${empty accountURL? '#' : accountURL }" id='main_menu_profile'> <sec:authentication var="currentUsername"
+								property="name" /> <c:choose>
 								<c:when test="${not empty currentUsername }">
 									<spring:message text='${currentUsername}' />
 								</c:when>
@@ -67,9 +65,12 @@
 							</c:choose> <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;" title='<spring:message code='label.info.analysis.invitation.count'/>'>${analysisSharedCount}</span>
 					</a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-						<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin" id='main_menu_admin'> <spring:message
-									code="label.administration" text="Admin" /></a></li>
-						<c:set var="isAdministration" value="${menu == 'Admin'}" scope="request"/>
+						<c:if test='${not menu.equals("Admin")}'>
+							<c:set var="adminURL" value="${pageContext.request.contextPath}/Admin" />
+						</c:if>
+						<li ${empty adminURL? "class='active'" : "" }><a href="${empty adminURL? '#' : adminURL}" id='main_menu_admin'> <spring:message code="label.administration"
+									text="Admin" /></a></li>
+						<c:set var="isAdministration" value="${menu == 'Admin'}" scope="request" />
 					</sec:authorize>
 					<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 						<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown" id='main_menu_runtime'><spring:message code="label.runtime" text="Runtime" /><span

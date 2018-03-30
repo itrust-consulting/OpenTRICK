@@ -22,7 +22,6 @@ import org.hibernate.Session;
 
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
-import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -282,6 +281,12 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
+	
+	protected void notifyUpdate(MessageHandler handler,String code, String message, int progress) {
+		handler.update(code,message, progress);
+		serviceTaskFeedback.send(idTask,handler);
+	}
+	
 	public boolean ImportAnAnalysis(Session hbernateSession) throws Exception {
 
 		try {
@@ -302,72 +307,73 @@ public class ImportAnalysis {
 			// * Histories. Creates Analysis Entries into the Database
 			// ****************************************************************
 
-			MessageHandler messageHandler = new MessageHandler("info.analysis.importing", "Importing", increase(1));
+			MessageHandler handler = new MessageHandler();
 
-			serviceTaskFeedback.send(idTask, messageHandler);
+			notifyUpdate(handler, "info.analysis.importing", "Importing", increase(1));
 			importAnalyses();
 
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
 
-			messageHandler.update("info.risk_information.importing", "Importing risk information", increase(1));
+			notifyUpdate(handler, "info.risk_information.importing", "Importing risk information", increase(1));
 			importRiskInformation();
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
 
-			messageHandler.update("info.risk_information.importing", "Import item information", increase(4));
+			notifyUpdate(handler, "info.risk_information.importing", "Import item information", increase(4));
+			
 			importItemInformation();
 
 			// ****************************************************************
 			// * import simple parameters
 			// ****************************************************************
 
-			messageHandler.update("info.simple_parameters.importing", "Import simple parameters", increase(6));
+			notifyUpdate(handler, "info.simple_parameters.importing", "Import simple parameters", increase(6));
 			importSimpleParameters();
 
 			// ****************************************************************
 			// * import dynamic parameters
 			// ****************************************************************
 
-			messageHandler.update("info.dynamic_parameters.importing", "Import dynamic parameters", increase(2));// 12%
+			notifyUpdate(handler, "info.dynamic_parameters.importing", "Import dynamic parameters", increase(2));// 12%
 			importDynamicParameters();
 
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
-			messageHandler.update("info.impact_type.importing", "Import parameter type", increase(3));// 15%
+			notifyUpdate(handler, "info.impact_type.importing", "Import parameter type", increase(3));// 15%
 			importImpactParameterTypes();
 
-			messageHandler.update("info.extended_parameters.importing", "Import extended parameters", increase(3));// 18%
+			notifyUpdate(handler, "info.extended_parameters.importing", "Import extended parameters", increase(3));// 18%
 			importImpactParameters();
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
-			messageHandler.update("info.extended_parameters.importing", "Import extended parameters", increase(2));// 20%
+			notifyUpdate(handler, "info.extended_parameters.importing", "Import extended parameters", increase(2));// 20%
 			importProbabilities();
 
 			// ****************************************************************
 			// * import maturity parameters
 			// ****************************************************************
 
-			messageHandler.update("info.maturity_parameters.importing", "Import maturity parameters", increase(3));// 23%
+			notifyUpdate(handler, "info.maturity_parameters.importing", "Import maturity parameters", increase(3));// 23%
 			importMaturityParameters();
 
 			// ****************************************************************
 			// * import assets
 			// ****************************************************************
 
-			messageHandler.update("info.asset.importing", "Import assets", increase(10));// 25%
+			notifyUpdate(handler, "info.asset.importing", "Import assets", increase(10));// 25%
 			importAssets();
 
 			// ****************************************************************
 			// * import scenarios
 			// ****************************************************************
 
-			messageHandler.update("info.scenario.importing", "Import scenarios", increase(5));// 35%
+			notifyUpdate(handler, "info.scenario.importing", "Import scenarios", increase(5));// 35%
 			importScenarios();
 
 			// Update value factory
@@ -377,23 +383,23 @@ public class ImportAnalysis {
 			// * import assessments
 			// ****************************************************************
 
-			messageHandler.update("info.assessments.importing", "Import assessments", increase(5));// 40%
+			notifyUpdate(handler, "info.assessments.importing", "Import assessments", increase(5));// 40%
 			importAssessments();
 
-			messageHandler.update("info.risk_profile.importing", "Import risk profile", increase(10));// 45%
+			notifyUpdate(handler, "info.risk_profile.importing", "Import risk profile", increase(10));// 45%
 			importRiskProfile();
 
 			// ****************************************************************
 			// * import phases
 			// ****************************************************************
 
-			messageHandler.update("info.phase.importing", "Import phases", increase(5));// 55%
+			notifyUpdate(handler, "info.phase.importing", "Import phases", increase(5));// 55%
 			importPhases();
 
 			// ****************************************************************
 			// * import AnalysisStandard measures
 			// ****************************************************************
-			messageHandler.update("info.norm_measures.importing", "Analysis normal measures", increase(10));// 60%
+			notifyUpdate(handler, "info.norm_measures.importing", "Analysis normal measures", increase(10));// 60%
 			importNormalMeasures();
 
 			importRiskProfileMeasures();
@@ -401,7 +407,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * import asset type values
 			// ****************************************************************
-			messageHandler.update("info.asset_type_value.importing", "Import asset type values", increase(10));// 70%
+			notifyUpdate(handler, "info.asset_type_value.importing", "Import asset type values", increase(10));// 70%
 			importAssetTypeValues();
 
 			importAssetValues();
@@ -410,7 +416,7 @@ public class ImportAnalysis {
 			// * import maturity measures
 			// ****************************************************************
 
-			messageHandler.update("info.maturity_measure.importing", "Import maturity measures", increase(10));// 80%
+			notifyUpdate(handler, "info.maturity_measure.importing", "Import maturity measures", increase(10));// 80%
 			importMaturityMeasures();
 
 			if (measures != null)
@@ -418,7 +424,7 @@ public class ImportAnalysis {
 
 			// System.out.println("Saving Data to Database...");
 
-			messageHandler.update("import.saving.analysis", "Saving Data to Database", increase(5));// 90%
+			notifyUpdate(handler, "import.saving.analysis", "Saving Data to Database", increase(5));// 90%
 
 			System.out.println("Saving Analysis Data...");
 
@@ -436,18 +442,16 @@ public class ImportAnalysis {
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
-			messageHandler.update("info.commit.transcation", "Commit transaction", increase(5));// 95%
+			notifyUpdate(handler, "info.commit.transcation", "Commit transaction", increase(5));// 95%
 			if (session != null) {
 				session.getTransaction().commit();
-				messageHandler.update("success.saving.analysis", "Analysis has been successfully saved", increase(5));// 100%
+				notifyUpdate(handler, "success.saving.analysis", "Analysis has been successfully saved", increase(5));// 100%
 			}
 			System.out.println("Import Done!");
 
 			return true;
 		} catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
-				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {

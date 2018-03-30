@@ -174,7 +174,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		if (getMessageHandler() == null)
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", 100));
 		if (getAsyncCallback() == null)
-			setAsyncCallback(new AsyncCallback("gotToPage", "/Analysis/All"));
+			setAsyncCallback(new AsyncCallback("updateAnalysisFilter", customerId, "ALL"));
 		getMessageHandler().setAsyncCallbacks(getAsyncCallback());
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();

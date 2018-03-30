@@ -795,11 +795,10 @@ function customAnalysis(element) {
 									if (response.error != undefined)
 										showDialog("error", response.error);
 									else if (response.success != undefined) {
+										updateAnalysisFilter($("form select[name='customer']", $modalBody).val(),"ALL");
 										showDialog("success", response.success);
 										$saveButton.unbind();
 										modal.Destroy();
-										$("select#customerSelectorFilter").val($("form select[name='customer']", $modalBody).val());
-										$("select#nameSelectorFilter").val("ALL").trigger("change");
 									} else {
 										var errorContainer = document.getElementById("build-analysis-modal-error");
 										for (var error in response) {
@@ -1055,6 +1054,17 @@ function archiveAnalysis(){
 	return false;
 }
 
+function updateAnalysisFilter(customerId, trickName){
+	var $customer = $("#nameSelectorFilter"), $analysis = $("#nameSelectorFilter");
+	if($.isNumeric(customerId))
+		$customer.val(customerId);
+	if(trickName)
+		$analysis.val(trickName);
+	else $analysis.val("ALL");
+	$customer.trigger("change");
+	return false;
+}
+
 function customerChange(customer, nameFilter) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -1073,6 +1083,89 @@ function customerChange(customer, nameFilter) {
 						cssTopOffset: ".navbar-fixed-top"
 					});
 				});
+			} else
+				unknowError();
+		},
+		error: unknowError
+	}).complete(function () {
+		$progress.hide();
+	});
+	return false;
+}
+
+function importAnalysis(){
+	var customer  = parseInt( $("#customerSelectorFilter").val());
+	if(!customer || customer < 1)
+		return false;
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Import/" + customer,
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			var $viewModal= $("#analysis-import-dialog", new DOMParser().parseFromString(response, "text/html"));
+			if ($viewModal.length) {
+				$viewModal.appendTo("#widget").modal("show").on("hidden.bs.modal", (e)=> $viewModal.remove());
+				
+				var $btnBrowse = $("button[name='browse']", $viewModal), $inputFile = $("input[name='file']", $viewModal), $importBtn = $("button[name='import']", $viewModal),
+				
+				$fileInfo = $("input[name='filename']", $viewModal), $form =  $("form", $viewModal),$btnSubmit = $("button[name='submit']", $viewModal);
+				
+				$importBtn.on("click", (e) => $btnSubmit.trigger("click"));
+				
+				$btnBrowse.on("click", (e)=> $inputFile.trigger("click"));
+			
+				var updateImportButtonState = () => {
+					var fileValue = $fileInfo.val();
+					$importBtn.prop("disabled", fileValue ==="" || !fileValue);
+				}
+				
+				$inputFile.on("change", (e) => {
+					var value = $inputFile.val();
+					if(value.trim() === '')
+						updateImportButtonState();
+					else {
+						var size = parseInt($inputFile.attr("maxlength"))
+						if($inputFile[0].files[0].size > size){
+							showDialog("error", MessageResolver("error.file.too.large",undefined, size ));
+							return false;
+						}else if(!checkExtention(value,".sqlite,.SQLITE,.tsdb,.TSDB", $importBtn))
+							return false
+					}
+					$fileInfo.val(value);
+				});
+				
+				updateImportButtonState();
+				
+				$form.on("submit", (e) => {
+					$progress.show();
+					$.ajax({
+						url: context + "/Analysis/Import/" + customer ,
+						type: 'POST',
+						data: new FormData($form[0]),
+						cache: false,
+						contentType: false,
+						processData: false,
+						success: function (response, textStatus, jqXHR) {
+							if (response.success){
+								$viewModal.modal("hide");
+								showDialog("success", response.success);
+								application["taskManager"].Start();
+							}
+							else if (response.error)
+								showDialog("#alert-dialog", response.error);
+							else
+								unknowError();
+						},
+						error: unknowError
+
+					}).complete(function () {
+						$progress.hide();
+					});
+			
+					return false;
+					
+				});
+				
 			} else
 				unknowError();
 		},

@@ -20,8 +20,8 @@
 			<div class="section" id="section_analysis">
 				<ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis" data-trick-callback='updateDropdown'>
 					<li data-trick-ignored="true" class="nav-dropdown-menu"><a class="pull-left" href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span>
-							<spring:message code="label.menu.build.analysis" text="Build an analysis" /></a> <a href="#" class="pull-left dropdown-toggle disabled" data-toggle="dropdown" aria-haspopup="true"
-						aria-expanded="false"><i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i></a>
+							<spring:message code="label.menu.build.analysis" text="Build an analysis" /></a> <a href="#" class="pull-left dropdown-toggle disabled" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i></a>
 						<ul class="dropdown-menu">
 							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return addHistory()"> <span
 									class="glyphicon glyphicon-duplicate"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
@@ -60,13 +60,19 @@
 							</ul>
 						</c:if></li>
 
-					<li class="disabled nav-dropdown-menu" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a class="pull-left" href="#" onclick="return exportAnalysisReport()"> <span
-							class="glyphicon glyphicon-export"></span> <spring:message code="label.action.export.report" text="Export" /></a> <a href="#" class="pull-left dropdown-toggle"
-						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i></a>
+					<li class="disabled nav-dropdown-menu" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a class="pull-left" href="#"
+						onclick="return exportAnalysisReport()"> <span class="glyphicon glyphicon-export"></span> <spring:message code="label.action.export.report" text="Export" /></a> <a href="#"
+						class="pull-left dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i></a>
 						<ul class="dropdown-menu">
 							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysis()"> <span
 									class="glyphicon glyphicon glyphicon-export"></span> <spring:message code="label.action.export.database" text="Export" /></a></li>
 						</ul></li>
+
+					<c:if test="${not empty customers}">
+						<li data-trick-ignored="true"><a href="#" onclick="return importAnalysis()"> <span class="glyphicon glyphicon-import"></span> <spring:message
+									code="label.action.import" />
+						</a></li>
+					</c:if>
 
 					<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isOwner() || !isArchived() && hasRight('ALL')"><a href="#"
 						onclick="return deleteAnalysis();" class="text-danger"> <span class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.delete.analysis" text="Delete" />

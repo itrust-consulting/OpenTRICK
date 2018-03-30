@@ -7,13 +7,11 @@ import static lu.itrust.TS.controller.TS_02_InstallApplication.ME_CUSTOMER;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
@@ -27,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -120,10 +117,9 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		MvcResult mvcResult = this.mockMvc.perform(fileUpload("/Analysis/Import/Execute").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-				.param("customerId", getInteger(ME_CUSTOMER).toString())).andExpect(status().isFound()).andExpect(redirectedUrl("/Analysis/Import")).andReturn();
-		notNull(mvcResult, "Request should have result");
-		assertFalse((String) mvcResult.getFlashMap().get("error"), mvcResult.getFlashMap().containsKey("error"));
+		this.mockMvc.perform(fileUpload("/Analysis/Import/" + getInteger(ME_CUSTOMER)).file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
+				getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
 		Worker worker = null;
 
 		for (int i = 0; i < 30; i++) {

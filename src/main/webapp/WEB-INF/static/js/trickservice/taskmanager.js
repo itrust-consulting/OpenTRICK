@@ -91,6 +91,8 @@ function TaskManager(title) {
 			var content =  message.messages[self.getLangue()], notification = application.currentNotifications[message.id]
 			if(!content)
 				content = MessageResolver(message.code, content, message.parameters);
+			if(content===null)
+				content = "...";
 			if(notification)
 				notification.update("message",content);
 			else {

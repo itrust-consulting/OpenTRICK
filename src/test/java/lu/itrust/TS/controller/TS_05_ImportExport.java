@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
@@ -118,10 +117,9 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		MvcResult mvcResult = this.mockMvc.perform(fileUpload("/Analysis/Import/Execute").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-				.param("customerId", getInteger(ME_CUSTOMER).toString())).andExpect(status().isFound()).andExpect(redirectedUrl("/Analysis/Import")).andReturn();
-		notNull(mvcResult, "Request should have result");
-		assertFalse((String) mvcResult.getFlashMap().get("error"), mvcResult.getFlashMap().containsKey("error"));
+		this.mockMvc.perform(fileUpload("/Analysis/Import/"+getInteger(ME_CUSTOMER)).file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.param("customer", getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+	
 		Worker worker = null;
 
 		for (int i = 0; i < 3000; i++) {
