@@ -31,20 +31,37 @@ pre {
 	white-space: pre-wrap;
 }
 
-/* Layout */
+/* Screen layout */
 
-html, body {
-	height: 100%;
+@media screen {
+	html, body {
+		height: 100%;
+	}
+	body {
+		display: flex;
+		align-items: stretch;
+		font-family: Corbel, sans-serif;
+	}
+	body>* {
+		flex-grow: 1;
+	}
+	#toc, #main {
+		height: 100%;
+		overflow-y: auto;
+	}
 }
-body {
-	display: flex;
-	align-items: stretch;
-	font-family: Corbel, sans-serif;
-}
-body>* {
-	flex-grow: 1;
-}
-#toc, #main {
-	height: 100%;
-	overflow-y: auto;
+
+/* Print layout */
+
+@media print {
+	body>.row {
+		display: block;
+	}
+	#toc {
+		display: none;
+	}
+	#main {
+		width: 100%;
+		max-width: 100%;
+	}
 }

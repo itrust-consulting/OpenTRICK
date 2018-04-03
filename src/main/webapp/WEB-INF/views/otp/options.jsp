@@ -18,7 +18,7 @@
 <body>
 	<div id="wrap">
 		<div class="container">
-			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" /> style="height: 200px;">
+			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src='<spring:url value="/images/TrickService.png" />?version=${imageVersion}' style="height: 200px;">
 			<spring:message code="label.action.send.code" text="Send code" var="sendCode"/>
 			<spring:message code="label.action.signin" var="signing"/>
 			<div class="form-signin" id="login" style="margin: 0 auto; max-width: 330px;">

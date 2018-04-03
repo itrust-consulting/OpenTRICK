@@ -17,14 +17,14 @@
 		<div class="pull-left" style="width: 25%;">
 			<c:choose>
 				<c:when test="${locale.language=='en'}">
-					<a role="changeUILanguage" data-lang='en' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/en_disabled.png" />" /> English</a>&nbsp;
+					<a role="changeUILanguage" data-lang='en' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/en_disabled.png" />?version=${imageVersion}" /> English</a>&nbsp;
    				<a href="${persiteParameter}lang=fr" role="changeUILanguage" style="color: #ffffff; display: inline-block; padding: 5px;"
-						onclick="return switchLangueTo('${persiteParameter}lang=fr')"><img src="<spring:url value="/images/flags/fr.png" />" /> Français</a>
+						onclick="return switchLangueTo('${persiteParameter}lang=fr')"><img src="<spring:url value="/images/flags/fr.png" />?version=${imageVersion}" /> Français</a>
 				</c:when>
 				<c:when test="${locale.language=='fr'}">
 					<a href="${persiteParameter}lang=en" role="changeUILanguage" style="color: #ffffff; display: inline-block; padding: 5px;"
-						onclick="return switchLangueTo('${persiteParameter}lang=en')"><img src="<spring:url value="/images/flags/en.png" />" /> English</a>&nbsp;
-   				<a role="changeUILanguage" data-lang='fr' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/fr_disabled.png" />" /> Français</a>
+						onclick="return switchLangueTo('${persiteParameter}lang=en')"><img src="<spring:url value="/images/flags/en.png" />?version=${imageVersion}" /> English</a>&nbsp;
+   				<a role="changeUILanguage" data-lang='fr' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/fr_disabled.png" />?version=${imageVersion}" /> Français</a>
 				</c:when>
 			</c:choose>
 		</div>

@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-	<title>TRICK Service 2.9 User Guide</title>
+	<title>TRICK Service 2.10 User Guide</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<link rel="stylesheet" href="css/bootstrap-4.0.0-beta.2.min.css" />
+	<link rel="stylesheet" href="css/bootstrap-4.0.0.min.css" />
 	<link rel="stylesheet" href="css/main.css" type="text/css" />
 	<script type="text/javascript" src="js/main.js?9A5692"></script>
 </head>
@@ -261,40 +261,44 @@
 	</ul>
 	<p>How to create a new profile is explained in <a href="#new-profile">[Section]</a>.</p>
 	<h2 id="analysis"><a id="analyses"></a>Analysis</h2>
-	<p>The Analysis page shows you a list of all current analyses. Using the drop-down lists in the centre of the screen (see Figure
-		21), you can easily filter the analyses by customer and analyses name.</p>
+	<p>The Analysis page shows you a list of all current analyses. Using the drop-down lists in the centre of the screen (see <a href="#_FIG_21">[Figure]</a>), you can easily filter the analyses by customer and analysis name.</p>
 	<figure id="_FIG_21" class="figure">
-		<img src="img/23.png" class="figure-img img-fluid" />
+		<img src="img/navigation-analyses.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">All Analyses.</figcaption>
 	</figure>
 	<p>When no analyses are selected in the list, you can do the following:</p>
 	<ul>
 		<li>
-			<strong>New analysis</strong>: Create a new analysis (<a href="#creating-a-new-analysis">[Section]</a>).</li>
+			<strong>New analysis</strong>: Create a new analysis.</li>
 	</ul>
 	<p>When an analysis is selected in the list, you can do the following:</p>
 	<ul>
 		<li>
-			<strong>Read only</strong> /
-			<strong>Edit</strong>: Open an analysis in “read-only” mode or in “read-write” mode;</li>
-		<li>
-			<strong>Manage access rights</strong>: Manage the users who can access the selected analysis;</li>
-		<li>
 			<strong>New version</strong>: Create a new version for the selected analysis;</li>
-		<li>
-			<strong>Details</strong>: Display and change the settings of the selected analysis;</li>
 		<li>
 			<strong>New profile</strong>:
 			<strong> </strong>Create a profile from the selected analysis;</li>
 		<li>
-			<strong>Export report</strong>: Export an exhaustive Word report for the select analysis;</li>
+			<strong>Open</strong> /
+			<strong>Open read only</strong>: Open an analysis in “read-write” mode or in “read-only” mode;</li>
 		<li>
-			<strong>Export</strong>: Download a back-up for the selected analysis;</li>
+			<strong>Properties</strong>: Display and change the settings of the selected analysis;</li>
+		<li>
+			<strong>Manage access rights</strong>: Manage the users who can access the selected analysis;</li>
+		<li>
+			<strong>Manage probe subscriptions</strong>: Manage the external agents/probes that can report dynamic risk information via the API;</li>
+		<li>
+			<strong>Export a report</strong>: Export an exhaustive Word report for the select analysis;</li>
+		<li>
+			<strong>Export the database</strong>: Download a back-up for the selected analysis;</li>
+		<li>
+			<strong>Import</strong>: Upload a previously exported back-up for the selected analysis;</li>
 		<li>
 			<strong>Archive</strong>: Flag the selected analysis as archived (this will disallow any future changes);</li>
 		<li>
 			<strong>Delete</strong>: Remove the analysis completely.</li>
 	</ul>
+	<p>Further documentation for these actions can be found in the following subsections.</p>
 	<h3 id="creating-a-new-analysis">Creating a new analysis</h3>
 	<p>To create a new analysis, click on the “New analysis” button (see <a href="#_FIG_22">[Figure]</a>).</p>
 	<p>Once you clicked on the “New analysis” button, the pop-up box depicted in <a href="#_FIG_22">[Figure]</a> will appear.</p>
@@ -348,21 +352,6 @@
 	</figure>
 	<p>You can copy the scope, the risk information (brainstorming), the parameters, the assets, the scenarios, the risk estimation,
 		the used measure collections, the risk profile, and the implementation phases from the existing analysis.</p>
-	<h3 id="open-an-analysis-in-read-only-mode">Open an analysis in read-only mode</h3>
-	<p>To open an analysis in read-only mode, select the analysis from the list by clicking the relevant box next to the required
-		analysis and click on the “Read only” button.</p>
-	<figure id="_FIG_25" class="figure">
-		<img src="img/27.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Open an analysis in read only modus.</figcaption>
-	</figure>
-	<h3 id="editing-a-previous-analysis">Editing a previous analysis</h3>
-	<p>To edit a previously created risk analysis, select the analysis from the list by clicking the relevant box next to the required
-		analysis and click on the “Edit” button.</p>
-	<figure id="_FIG_26" class="figure">
-		<img src="img/28.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Editing an analysis.</figcaption>
-	</figure>
-	<p>The following options for editing a risk analysis can be found in <a href="#creating-a-risk-analysis-using-trick-service">[Section]</a>.</p>
 	<h3 id="manage-access-rights">Manage access rights</h3>
 	<p>The button “Manage Access Rights” allows editing the access rights of other users for a risk analysis version. Select the
 		version for which you want to change access rights and click on the “Manage Access Rights” button. A new window will appear
@@ -442,6 +431,14 @@
 		<img src="img/33.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Create new risk analysis profile.</figcaption>
 	</figure>
+	<h3 id="import"><a id="import-analysis"></a>Import</h3>
+	<p>The Import page allows importing an SQLite database including a risk analysis into TRICK Service.</p>
+	<p>The selected file must be an SQLite database that has been previously exported from (any) TRICK Service instance. Backwards-compatibility is guaranteed.</p>
+	<figure id="_FIG_33" class="figure">
+		<img src="img/35.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Importing an analysis.</figcaption>
+	</figure>
+	<p>The analysis is imported for the customer that is currently selected (as a filter) in the analyses overview.</p>
 	<h3 id="export">Export</h3>
 	<p>With the “Export” button, you can export the selected risk analysis. The exported file is an SQLite database file including
 		all data of the risk analysis. The exported file can be used as backup or to import it in another TRICK Service instance
@@ -458,19 +455,6 @@
 		<img src="img/34.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk evolution.</figcaption>
 	</figure>
-	<h2 id="import"><a id="import-analysis"></a>Import</h2>
-	<p>The Import page allows importing an SQLite database including a risk analysis into TRICK Service.</p>
-	<figure id="_FIG_33" class="figure">
-		<img src="img/35.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Importing an analysis.</figcaption>
-	</figure>
-	<p>To import the new analysis, you should:</p>
-	<ul>
-		<li>Select a customer (this is linked to the customer list in the knowledge base. If the customer does not appear here in the
-			drop-down list, add a new customer in the knowledge base);</li>
-		<li>Select an SQLite file by clicking “browse” to search for SQLite files stored on your computer.</li>
-	</ul>
-	<p>Once parameters 1 and 2 have been completed, click on “Start import” to begin importing the analysis.</p>
 	<h2 id="profile">Profile</h2>
 	<p>The profile page can be accessed from the right-hand side of the ribbon. The profile page includes five different sections:</p>
 	<ul>
@@ -892,7 +876,7 @@
 		<img src="img/50.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk acceptance threshold management.</figcaption>
 	</figure>
-	<h4>Various parameters</h4>
+	<h4 id="various-parameters">Various parameters</h4>
 	<p>The options of the “Various parameters” table are the following:</p>
 	<ul>
 		<li>Internal setup rate: Average cost of one internal man-day. Used to compute implementation costs of security measures.</li>
@@ -1822,6 +1806,21 @@
 	<h5><a id="analysis-phase"></a>Implementation phases</h5>
 	<p>The “Phases” section gives the user the possibility to define implementation phases for the different security measures
 		included in the action plan.</p>
+	<figure id="_FIG_70b" class="figure">
+		<img src="img/phases.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">List of implementation phases.</figcaption>
+	</figure>
+	<p>The columns contain the following value:</p>
+	<ul>
+		<li><strong>Begin:</strong> The inclusive date when the phase begins.</li>
+		<li><strong>End:</strong> The inclusive date when the phase ends.</li>
+		<li><strong>Duration:</strong> The duration of the phase in calendar days.</li>
+		<li><strong>Number of measures:</strong> The number of applicable and measurable measures. Note that this number is for informational purposes only and might differ from indications on the action plan.</li>
+		<li><strong>Internal workload:</strong> The sum of the internal workload for all applicable and measurable measures. Note that this number is for informational purposes only and might differ from indications on the action plan.</li>
+		<li><strong>External workload:</strong> The sum of the external workload for all applicable and measurable measures. Note that this number is for informational purposes only and might differ from indications on the action plan.</li>
+		<li><strong>Investment:</strong> The sum of the investments for all applicable and measurable measures. Note that this number is for informational purposes only and might differ from indications on the action plan.</li>
+		<li><strong>Compliance rate:</strong> The percentage of measures that have reached the statement-of-applicability threshold (configured in <a href="#various-parameters">[Section]</a>) with respect to all applicable and measurable measures. Note that this number is for informational purposes only and might differ from indications on the action plan.</li>
+	</ul>
 	<p>The user has the options to add, edit or delete implementation phases. These options are explained in the following paragraphs.</p>
 	<p>By clicking on the “Add” button, the user get a new window where he can define a start and end date of an implementation
 		phase. By clicking on the “Save” button, the new implementation phase will be added to the list of implementation phases.</p>
@@ -1829,9 +1828,11 @@
 		<img src="img/74.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add new implementation phase.</figcaption>
 	</figure>
-	<p>To modify a start and end date of an implementation phase, the user should double click on the date field or select the
+	<p>To modify the start or end date of an implementation phase, the user should double click on the date field or select the
 		phase to modify and click on the edit button.</p>
+	<div class="alert alert-warning">The start date can only be changed for the first phase. For all other phases, the start date is implicitly computed as the end date of the previous phase + 1 day.</div>
 	<p>To delete an implementation phase, the user should select the implementation phase and click on the “Delete” button.</p>
+	<div class="alert alert-warning">If a phase is deleted, all other phases are updated such that the start date of each phase corresponds to the end date of the previous phase + 1 day.</div>
 	<h5><a id="analysis-action-plan"></a>Action plan</h5>
 	<p>The security measures to be implemented will be displayed in the “Action plan” section. For the computation of the action
 		plan and of the security measures to be implemented see <a href="#manual-update">[Section]</a>.</p>
@@ -2200,10 +2201,6 @@
 	<p>The import RRF option allows the user to import the RRF values from a risk analysis profile or from another customer. First
 		the user has to select from which profile/ customer and from which analysis he likes to import the RRF values and second
 		he has to select for which standard he wants to copy the values.</p>
-	<figure id="_FIG_76" class="figure">
-		<img src="img/80.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Change impact scales.</figcaption>
-	</figure>
 	<p>Once the user selected a profile and a standard, he can import the RRF values defined in the profile for the selected standard
 		to the current analysis. Note that the RRF values of the standard in the current analysis will be overwritten by the RRF
 		values from the standard of the analysis profile.</p>
@@ -2236,20 +2233,24 @@
 		displays the currently defined levels in the risk analysis (in the example: 3). The right hand-side contains the new levels.
 		Click the “+” button to add an additional level to the scale. Drag an old level from the left and drop it onto a level
 		on the right. All levels dropped onto a new level will be replaced by the latter.</p>
-	<figure id="_FIG_77" class="figure">
-		<img src="img/81.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Exit symbol.</figcaption>
+	<figure id="_FIG_76" class="figure">
+		<img src="img/80.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Change impact scales.</figcaption>
 	</figure>
-	<h4>Advanced settings</h4>
+	<h4 id="advanced-settings">Advanced settings</h4>
 	<p>Opens a dialog where advanced options can be shown or hidden for the risk analysis:</p>
 	<ul>
 		<li>Show raw estimation: shows the RAW risk estimations in the risk sheets ( <a href="#risk-assessment">[Section]</a>).</li>
 		<li>Show hidden comments: displays the “hidden comment” in the risk sheets ( <a href="#risk-assessment">[Section]</a>). This field was used in old TRICK Service versions, and is hidden by default in more recent releases.</li>
 		<li>Show dynamic analysis: enables the use of dynamic parameters in the risk analysis for the sake of real-time risk monitoring.</li>
+		<li>Include qualitative impacts into quantitative report: whether to include risk assessments for <em>qualitative</em> impacts in a <em>quantitative</em> report.</li>
 	</ul>
 	<h2 id="close-analysis">Close analysis</h2>
-
-	<p>By clicking on the Exit symbol, the current risk analysis will be closed and the user will be redirected to the “Analysis” <a href="#analysis">[Section]</a>. This option allows the user to close the current analysis without logging out of the application.</p>
+	<p>By clicking on the Exit symbol, the current risk analysis will be closed and the user will be redirected to <a href="#analysis">[Section]</a>. This option allows the user to close the current analysis without logging out of the application.</p>
+	<figure id="_FIG_77" class="figure">
+		<img src="img/81.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Exit symbol.</figcaption>
+	</figure>
 	<h1 id="annex-a-trick-service-user-roles">Annex A – TRICK Service user roles</h1>
 	<p>The following table resumes the different access rights of the different user roles available in TRICK Service. To see and
 		modify the user’s roles, please refer to <a href="#users">[Section]</a>.</p>
@@ -3167,9 +3168,21 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+	<h2 id="whats-new-in-ts-2.10">What's new in TRICK Service 2.10</h2>
+	<ul>
+		<li>Re-arranged menu bar in analyses overview.</li>
+		<li>Quantitative reports now optionally include qualitative assessments, as well. They can be enabled in the <a href="#advanced-settings">Advanced settings</a>.</li>
+		<li>The &quot;To do&quot; column can now also be filled in for measure chapters, not only for measures.</li>
+		<li>Exported reports are now automatically delected after 30 days (configurable).</li>
+		<li>Removed the possibility to specify both start and end date for a phase.</li>
+		<li>&quot;Add&quot; or &quot;Create&quot; buttons are no longer greyed out when an item in the list below is selected.</li>
+		<li>The security measures view remembers the size of the text boxes when switching measures.</li>
+		<li>Minor bug fixes.</li>
+	</ul>
 	<h2 id="whats-new-in-ts-2.9">What's new in TRICK Service 2.9</h2>
 	<ul>
 		<li>Users can upload their own templates which serve as base for the risk analysis report.</li>
+		<li>Added functionality to import and export the collection of measures to/from an Excel file.</li>
 		<li>Fixed a rare bug causing the phase dates not to be applied correctly.</li>
 	</ul>
 	<h2 id="whats-new-in-ts-2.8">What's new in TRICK Service 2.8</h2>
