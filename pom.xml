@@ -5,8 +5,8 @@
 	<version>2.10</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.springframework.version>4.3.14.RELEASE</org.springframework.version>
-		<org.springframework.security.version>4.2.4.RELEASE</org.springframework.security.version>
+		<org.springframework.version>4.3.15.RELEASE</org.springframework.version>
+		<org.springframework.security.version>4.2.5.RELEASE</org.springframework.security.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.hibernate.version>5.2.16.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -189,7 +189,7 @@
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>3.5.2</version>
+			<version>3.4.0</version>
 		</dependency>
 
 		<dependency>
