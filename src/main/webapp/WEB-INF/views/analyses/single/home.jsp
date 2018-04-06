@@ -66,6 +66,7 @@
 					</c:if>
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
+				<jsp:include page="../../template/tab-option.jsp" />
 			</div>
 		</div>
 		<jsp:include page="../../template/footer.jsp" />

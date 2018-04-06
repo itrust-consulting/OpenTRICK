@@ -739,7 +739,15 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 
 function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	
-	var $section = $((appModalVar == undefined || appModalVar == null) ? idsection : application[appModalVar].modal);  $menu = $(idMenu, $section);
+	var $section, $menu;
+	
+	if(!(appModalVar == undefined || appModalVar == null)){
+		$section = $(application[appModalVar].modal);
+		$menu = $(idMenu, $section);
+	}else {
+		$section = $(idsection);
+		$menu = $(idsection+" "+idMenu+", #menu-option "+idMenu);
+	}
 	
 	if (sender) {
 		var $sender = $(sender), items = $("tbody :checked", $section);
@@ -759,7 +767,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 			$sender.closest("tr").removeClass("selected")
 	}
 
-	var cachingChecker = {},$lis = $("li", $menu), $selectedItems = $("tbody :checked", $section);
+	var cachingChecker = {}, $lis = $("li", $menu), $selectedItems = $("tbody :checked", $section);
 	if ($selectedItems.length > 1) {
 		for (var i = 0; i < $lis.length; i++) {
 			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
@@ -1040,7 +1048,7 @@ $(document)
 
 					if ($tabNav.length) {
 
-						var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
+						var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabContainer.find("#menu-option");
 						$window.on("resize.window", function() {
 							$tabContainer.css({
 								"margin-top" : $tabNav.height() + 10
@@ -1085,7 +1093,7 @@ $(document)
 										cloneOption.appendTo($option);
 										cloneOption.removeClass();
 										cloneOption.find("li").removeClass("pull-right")
-										cloneOption.addClass("dropdown-menu")
+										cloneOption.addClass("dropdown-menu dropdown-menu-right")
 									}
 
 									if (!$option.is(":visible")) {

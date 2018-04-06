@@ -920,6 +920,12 @@ input[type=number],input[type=date]:disabled {
 	padding-bottom: 8px;
 }
 
+#menu-option{
+	display: none;
+	position: fixed; 
+	bottom: 32px; 
+	right: 3px;
+}
 .phase-date-range .add-on{
 	.display: inline-block;
 	width: auto;

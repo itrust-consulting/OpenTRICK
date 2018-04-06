@@ -21,8 +21,6 @@
 				<c:if test="${enabledOTP}">
 					<li><a href="#tab-otp" data-toggle="tab"><spring:message code="label.menu.otp.options" text="My sign-in settings" /></a></li>
 				</c:if>
-				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
-					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<!-- profile -->
@@ -37,6 +35,9 @@
 				<c:if test="${enabledOTP}">
 					<jsp:include page="otp/section.jsp" />
 				</c:if>
+
+				<jsp:include page="../template/tab-option.jsp" />
+
 			</div>
 		</div>
 		<jsp:include page="../template/footer.jsp" />

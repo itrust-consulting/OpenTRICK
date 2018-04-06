@@ -27,8 +27,6 @@
 				<li><a href="#tab-ts-setting" data-toggle="tab"><spring:message code="label.settings" text="Settings" /></a></li>
 				<li><a href="#tab-broadcasting" data-toggle="tab"><spring:message code="label.administrator.messages" text="Messages" /></a></li>
 				<li><a href="#tab-log" data-toggle="tab"><spring:message code="label.logs" text="Logs" /></a></li>
-				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
-					data-toggle="dropdown" style="padding-bottom: 6px; padding-top: 6px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="status.jsp" />
@@ -40,6 +38,7 @@
 				<jsp:include page="notification/home.jsp" />
 				<jsp:include page="log/home.jsp" />
 				<jsp:include page="widget.jsp" />
+				<jsp:include page="../template/tab-option.jsp" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

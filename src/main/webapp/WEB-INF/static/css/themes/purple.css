@@ -873,6 +873,12 @@ a:hover, .btn-link{
 	padding-bottom: 8px;
 }
 
+#menu-option{
+	display: none;
+	position: fixed; 
+	bottom: 32px; 
+	right: 3px;
+}
 
 @media ( min-width : 992px) {
 	.max-height {

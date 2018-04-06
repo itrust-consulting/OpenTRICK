@@ -910,6 +910,13 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	padding-bottom: 8px;
 }
 
+#menu-option{
+	display: none;
+	position: fixed; 
+	bottom: 32px; 
+	right: 3px;
+}
+
 
 @media (min-width: 768px) {
 
