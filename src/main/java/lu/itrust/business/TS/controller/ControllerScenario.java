@@ -469,7 +469,7 @@ public class ControllerScenario {
 			error = validator.validate(scenario, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if ((scenario.getId() > 0 && !scenario.getName().equals(name) || scenario.getId() < 0) && serviceScenario.exist(idAnalysis, name))
+			else if ((scenario.getId() > 0 && !scenario.getName().equalsIgnoreCase(name) || scenario.getId() < 0) && serviceScenario.exist(idAnalysis, name))
 				errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
 						String.format("Scenario (%s) already exists", scenario.getName()), locale));
 			else

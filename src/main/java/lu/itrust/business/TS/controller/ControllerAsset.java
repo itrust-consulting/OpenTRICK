@@ -395,7 +395,7 @@ public class ControllerAsset {
 			error = validator.validate(asset, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if ((asset.getId() > 0 && !asset.getName().equals(name) || asset.getId() < 0) && serviceAsset.exist(idAnalysis, name))
+			else if ((asset.getId() > 0 && !asset.getName().equalsIgnoreCase(name) || asset.getId() < 0) && serviceAsset.exist(idAnalysis, name))
 				errors.put("name", messageSource.getMessage("error.asset.duplicate", null, String.format("Asset name is already in use", name), locale));
 			else
 				asset.setName(name);
