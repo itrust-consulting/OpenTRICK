@@ -259,24 +259,23 @@ public final class ExcelHelper {
 	public static String getString(Cell cell, DataFormatter formatter) {
 		if (cell == null)
 			return "";
-		else if (cell.getWorksheetPart().getWorkbookPart().getSharedStrings() == null || cell.getWorksheetPart().getWorkbookPart().getStylesPart() == null) {
-			switch (cell.getT()) {
-			case INLINE_STR:
-				if (cell.getWorksheetPart().getWorkbookPart().getSharedStrings() == null)
-					return cell.getIs().getT().getValue();
+		switch (cell.getT()) {
+		case INLINE_STR:
+			if (cell.getIs() != null)
+				return cell.getIs().getT().getValue();
+			break;
+		case S:
+		case STR:
+			if (cell.getV() == null)
+				return null;
+			break;
+		case N:
+			if (cell.getWorksheetPart().getWorkbookPart().getStylesPart() != null)
 				break;
-			case S:
-			case STR:
-				if (cell.getWorksheetPart().getWorkbookPart().getSharedStrings() != null)
-					break;
-			case N:
-				if (cell.getWorksheetPart().getWorkbookPart().getStylesPart() != null)
-					break;
-			case B:
-				return cell.getV();
-			case E:
-				return "";
-			}
+		case B:
+			return cell.getV();
+		case E:
+			return "";
 		}
 		return formatter.formatCellValue(cell);
 	}
@@ -306,7 +305,7 @@ public final class ExcelHelper {
 	public static double getDouble(Cell cell, DataFormatter formatter) {
 		try {
 			String value = getString(cell, formatter);
-			if (value == null)
+			if (isEmpty(value))
 				return 0;
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
@@ -317,7 +316,7 @@ public final class ExcelHelper {
 	public static double getDouble(Row row, int index, DataFormatter formatter) {
 		try {
 			String value = getString(row, index, formatter);
-			if (value == null)
+			if (isEmpty(value))
 				return 0;
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
@@ -328,7 +327,7 @@ public final class ExcelHelper {
 	public static int getInt(Cell cell, DataFormatter formatter) {
 		try {
 			String value = getString(cell, formatter);
-			if (value == null)
+			if (isEmpty(value))
 				return 0;
 			return Integer.parseInt(value);
 		} catch (NumberFormatException e) {
@@ -339,7 +338,7 @@ public final class ExcelHelper {
 	public static int getInt(Row row, int index, DataFormatter formatter) {
 		try {
 			String value = getString(row, index, formatter);
-			if (value == null)
+			if (isEmpty(value))
 				return 0;
 			return Integer.parseInt(value);
 		} catch (NumberFormatException e) {
@@ -350,7 +349,7 @@ public final class ExcelHelper {
 	public static boolean getBoolean(Cell cell, DataFormatter formatter) {
 		String value = getString(cell, formatter);
 		try {
-			return !(value == null || Integer.parseInt(value) == 0);
+			return !(isEmpty(value) || Integer.parseInt(value) == 0);
 		} catch (NumberFormatException e) {
 			return Boolean.valueOf(value);
 		}
@@ -359,7 +358,7 @@ public final class ExcelHelper {
 	public static boolean getBoolean(Row row, int index) {
 		String value = getString(row, index, new DataFormatter());
 		try {
-			return !(value == null || Integer.parseInt(value) == 0);
+			return !(isEmpty(value) || Integer.parseInt(value) == 0);
 		} catch (NumberFormatException e) {
 			return Boolean.valueOf(value);
 		}
@@ -367,7 +366,7 @@ public final class ExcelHelper {
 
 	public static SheetData findSheet(WorkbookPart workbookPart, String name) throws Exception {
 		String id = workbookPart.getContents().getSheets().getSheet().parallelStream().filter(s -> s.getName().equals(name)).map(s -> s.getId()).findAny().orElse(null);
-		if (id == null)
+		if (isEmpty(id))
 			return null;
 		WorksheetPart worksheetPart = (WorksheetPart) workbookPart.getRelationshipsPart().getPart(id);
 		return worksheetPart.getContents().getSheetData();
