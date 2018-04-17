@@ -197,4 +197,6 @@ public interface ServiceAnalysis {
 	public <T> T findSetting(Integer idAnalysis, AnalysisSetting setting);
 
 	public Analysis findByIdAndEager(Integer analysisId);
+
+	public String findIdentifierByCustomerAndLabel(int id, String label);
 }

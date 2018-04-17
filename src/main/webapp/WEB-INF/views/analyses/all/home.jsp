@@ -37,8 +37,8 @@
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)"> <span
 							class="glyphicon glyphicon-eye-open"></span>&nbsp;<spring:message code="label.action.open.read_only" text="Read only" /></a></li>
 
-					<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
-						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.properties" /></a></li>
+					<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && hasRight('ALL')"><a href="#" onclick="return editSingleAnalysis();"> <span
+							class="glyphicon glyphicon-edit"></span> <spring:message code="label.properties" /></a></li>
 
 					<c:if test="${allowedTicketing}">
 						<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && !isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span

@@ -766,4 +766,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		
 		return daoAnalysis.findByIdAndEager(analysisId);
 	}
+
+	@Override
+	public String findIdentifierByCustomerAndLabel(int customerId, String label) {
+		return daoAnalysis.findIdentifierByCustomerAndLabel(customerId, label);
+	}
 }

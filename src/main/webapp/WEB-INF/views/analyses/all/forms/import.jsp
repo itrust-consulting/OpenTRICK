@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<!-- dialog body -->
-			<div class="modal-body" style="padding-top: 5px;">
+			<div class="modal-body">
 				<form class="form form-inline" action="${pageContext.request.contextPath}/Analysis/Import/${customer.id}" method="post" enctype="multipart/form-data">
 					<input type="hidden" name="customer" id="importAnalysis.customer" value="${customer.id}">
 					<c:choose>

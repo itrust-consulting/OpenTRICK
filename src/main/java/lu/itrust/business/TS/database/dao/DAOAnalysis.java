@@ -211,4 +211,6 @@ public interface DAOAnalysis {
 
 	public Analysis findByIdAndEager(Integer analysisId);
 
+	public String findIdentifierByCustomerAndLabel(int customerId, String label);
+
 }

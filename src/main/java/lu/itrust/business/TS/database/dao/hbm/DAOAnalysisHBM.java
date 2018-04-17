@@ -918,7 +918,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.setParameter("idAnalysis", idAnalysis).setParameter("key", setting.name()).uniqueResult();
 		return (T) Analysis.findSetting(setting, value);
 	}
-	
+
 	@Override
 	public Analysis findByIdAndEager(Integer analysisId) {
 		Analysis analysis = get(analysisId);
@@ -945,5 +945,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			Hibernate.isInitialized(analysis.getSummaries());
 		}
 		return analysis;
+	}
+
+	@Override
+	public String findIdentifierByCustomerAndLabel(int customerId, String label) {
+		return getSession().createQuery("Select analysis.identifier From Analysis analysis where analysis.label = :label and analysis.customer.id = :customerId", String.class)
+				.setParameter("label", label).setParameter("customerId", customerId).setMaxResults(1).uniqueResult();
 	}
 }

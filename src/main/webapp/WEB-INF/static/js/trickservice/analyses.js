@@ -904,7 +904,7 @@ function editSingleAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	if (!isArchived(analysisId) && userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
+	if (!isArchived(analysisId) && userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Edit/" + analysisId,
@@ -930,13 +930,13 @@ function editSingleAnalysis(analysisId) {
 								for (var error in response) {
 									var $errorElement = $("<label class='label label-danger' />").text(response[error]);
 									switch (error) {
-										case "analysiscustomer":
-											$errorElement.appendTo($("#analysiscustomercontainer", $view));
+										case "customer":
+											$errorElement.appendTo($("#customercontainer", $view));
 											break;
-										case "analysislanguage":
-											$errorElement.appendTo($("#analysislanguagecontainer", $view));
+										case "language":
+											$errorElement.appendTo($("#languagecontainer", $view));
 											break;
-										case "comment":
+										case "label":
 										case "profile":
 										case "owner":
 										case "version":

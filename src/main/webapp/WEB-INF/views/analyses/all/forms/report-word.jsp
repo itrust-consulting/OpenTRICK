@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<!-- dialog body -->
-			<div class="modal-body" style="padding-top: 5px;">
+			<div class="modal-body">
 				<form class="form form-inline" action="${pageContext.request.contextPath}/Analysis/Export/Report/{analysis.id}" method="post" enctype="multipart/form-data">
 
 					<input type="hidden" name="analysis" id="exportWord.analysis" value="${analysis.id}">

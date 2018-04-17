@@ -91,7 +91,6 @@ import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceReportTemplate;
 import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
-import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -184,9 +183,6 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private ServiceRole serviceRole;
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
@@ -597,7 +593,7 @@ public class ControllerAnalysis {
 		if (customer == null)
 			throw new AccessDeniedException("access denied");
 		model.addAttribute("maxFileSize", maxUploadFileSize);
-		model.addAttribute("customer",customer);
+		model.addAttribute("customer", customer);
 		return "analyses/all/forms/import";
 	}
 
@@ -789,21 +785,18 @@ public class ControllerAnalysis {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 			// prepare permission verifier
-			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
-
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-
+			final PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
+			final JsonNode contents = new ObjectMapper().readTree(value);
 			// retrieve analysis id to compute
-			int analysisId = jsonNode.get("id").asInt();
-
+			final int analysisId = contents.get("id").asInt();
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
-			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-					|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
+			final User user = serviceUser.get(principal.getName());
 
-				// create/update analysis object and set access rights
-				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
+			final boolean isProfile = serviceAnalysis.isProfile(analysisId);
+
+			if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.ALL) || isProfile && user.isAutorised(RoleType.ROLE_CONSULTANT)) {
+				save(analysisId, serviceUser.get(principal.getName()), contents, errors, locale);
 			} else
 				// throw error
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
@@ -1082,83 +1075,90 @@ public class ControllerAnalysis {
 	 * buildAnalysis: <br>
 	 * Description
 	 * 
-	 * @param errors
+	 * @param id
 	 * @param owner
-	 * @param source
+	 * @param contents
+	 * @param errors
 	 * @param locale
 	 * @param session
+	 * 
 	 * @return
 	 */
-	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale, HttpSession session) {
+	private boolean save(int id, User owner, JsonNode contents, Map<String, String> errors, Locale locale) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			Analysis analysis = null;
-			Customer customer = null;
 
-			int id = jsonNode.get("id").asInt();
-			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
+			Analysis analysis = serviceAnalysis.get(id);
 
-			if (id > 0) {
-				if (!serviceAnalysis.exists(id))
-					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-				else if (!serviceAnalysis.isProfile(id)) {
-					customer = serviceCustomer.get(idCustomer);
+			Language language = serviceLanguage.get(findId(contents, "language"));
+
+			String label = (contents.has("label") ? contents.get("label").asText("") : "").trim();
+
+			boolean uncertainty = contents.has("uncertainty") ? !contents.get("uncertainty").asText().isEmpty() : false;
+
+			Customer customer = serviceCustomer.get(findId(contents, "customer"));
+
+			if (analysis == null)
+				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+			else {
+				if (!analysis.isProfile()) {
 					if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
-						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+						errors.put("customer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
 					else {
-						if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
-							customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer, owner.getLogin());
-						analysis = serviceAnalysis.get(id);
+						if (!serviceAnalysis.isAnalysisCustomer(id, customer.getId()))
+							customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), customer.getId(), owner.getLogin());
 						if (customer.getId() != analysis.getCustomer().getId())
 							analysis.setCustomer(customer);
 					}
-				} else
-					analysis = serviceAnalysis.get(id);
-				/**
-				 * Log
-				 */
-				if (analysis != null)
-					TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.edit.analysis.information",
-							String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), owner.getLogin(), LogAction.UPDATE,
-							analysis.getIdentifier(), analysis.getVersion());
-			} else {
-				if (idCustomer < 1)
-					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
-				else {
-					customer = serviceCustomer.get(idCustomer);
-					if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
-						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+				}
+
+				if (label.isEmpty())
+					errors.put("label", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
+				else if (!(analysis.getLabel().equalsIgnoreCase(label) || customer == null)) {
+					String identifier = serviceAnalysis.findIdentifierByCustomerAndLabel(customer.getId(), label);
+					if (!(identifier == null || analysis.getIdentifier().equalsIgnoreCase(identifier))) {
+						String error = analysis.isProfile()
+								? messageSource.getMessage("error.analysis_profile.name_in_used", null, "Another analysis profile with the same description already exists", locale)
+								: messageSource.getMessage("error.analysis.name.in_used.for.customer", new Object[] { customer.getOrganisation() },
+										String.format("Name cannot be used for %s", customer.getOrganisation()), locale);
+						errors.put("label", error);
+					}
 				}
 			}
 
-			if (!errors.isEmpty())
-				return false;
-
-			int idLanguage = jsonNode.has("analysislanguage") ? jsonNode.get("analysislanguage").asInt() : -1;
-
-			Language language = serviceLanguage.get(idLanguage);
-
-			String comment = jsonNode.has("comment") ? jsonNode.get("comment").asText() : "";
-
-			boolean uncertainty = jsonNode.has("uncertainty") ? !jsonNode.get("uncertainty").asText().isEmpty() : false;
-
-			if (idLanguage < 1)
-				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
-			else if (language == null)
-				errors.put("analysislanguage", messageSource.getMessage("error.language.not_valid", null, "Language is not valid", locale));
-			if (comment.trim().isEmpty())
-				errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
+			if (language == null)
+				errors.put("language", messageSource.getMessage("error.language.not_valid", null, "Language is not valid", locale));
 
 			if (!errors.isEmpty())
 				return false;
-			boolean update = analysis.getId() > 0 && !analysis.isProfile();
-			analysis.setLabel(comment);
+
 			analysis.setLanguage(language);
 			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
-			if (update)
+			if (analysis.getId() > 0 && !analysis.isProfile())
 				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
-			serviceAnalysis.saveOrUpdate(analysis);
+
+			if (!analysis.getLabel().equalsIgnoreCase(label)) {
+				serviceAnalysis.getAllByIdentifier(analysis.getIdentifier()).forEach(tmpAnalysis -> {
+					String name = tmpAnalysis.getLabel();
+					tmpAnalysis.setLabel(label);
+					serviceAnalysis.saveOrUpdate(tmpAnalysis);
+					/**
+					 * Log
+					 */
+					TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.rename.analysis",
+							String.format("Analysis: %s, version: %s, old: %s, new: %s ", analysis.getIdentifier(), analysis.getVersion(), name, tmpAnalysis.getLabel()),
+							owner.getLogin(), LogAction.RENAME, analysis.getIdentifier(), analysis.getVersion(), name, tmpAnalysis.getLabel());
+				});
+
+			} else {
+				serviceAnalysis.saveOrUpdate(analysis);
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.edit.analysis.information",
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), owner.getLogin(), LogAction.UPDATE, analysis.getIdentifier(),
+						analysis.getVersion());
+			}
+
 			return true;
 		} catch (TrickException e) {
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1168,6 +1168,10 @@ public class ControllerAnalysis {
 			TrickLogManager.Persist(e);
 		}
 		return false;
+	}
+
+	private int findId(JsonNode jsonNode, String name) {
+		return jsonNode.has(name) ? jsonNode.get(name).asInt() : -1;
 	}
 
 	private Client buildClient(String username) {

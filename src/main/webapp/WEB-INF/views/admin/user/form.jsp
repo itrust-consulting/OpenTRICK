@@ -26,7 +26,7 @@
 				<form name="user" action="User/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="user_form" name="user">
 					<input type="hidden" name="id" value="${user.id}" id="user_id" ${user.id>0? 'readonly':''}>
 					<fieldset>
-						<legend>
+						<legend style="font-size: 15px">
 							<spring:message code="label.user.title.login_information" text="Login Information" />
 						</legend>
 						<div class="form-group">
@@ -60,7 +60,7 @@
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend>
+						<legend style="font-size: 15px">
 							<spring:message code="label.user.title.personal_information" text="Personal Information" />
 						</legend>
 						<div class="form-group">
@@ -89,7 +89,7 @@
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend>
+						<legend style="font-size: 15px">
 							<spring:message code='label.user.title.account.authentication' text='Authentication information' />
 						</legend>
 						<div class="form-group">

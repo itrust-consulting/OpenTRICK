@@ -16,7 +16,7 @@
 			<div class="modal-body">
 				<form name="customer" action="Customer/Create?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="customer_form">
 					<fieldset>
-						<legend><spring:message code='label.contact' text='Contact'/></legend>
+						<legend style="font-size: 15px"><spring:message code='label.contact' text='Contact'/></legend>
 						<input type="hidden" name="id" value="-1" id="customer_id">
 						<div class="form-group">
 							<label for="organisation" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.organisation" />' > <spring:message code="label.customer.organisation" text="Company" />
@@ -48,7 +48,7 @@
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend><spring:message code="label.address" text="Address"/></legend>
+						<legend style="font-size: 15px"><spring:message code="label.address" text="Address"/></legend>
 						<div class="form-group">
 							<label for="address" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.address" />' > <spring:message code="label.customer.address" text="Address" />
 							</label>
