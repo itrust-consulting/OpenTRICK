@@ -917,6 +917,17 @@ table.form-group-fill, .form-horizontal.form-group-fill, .form-no-fill{
 	right: 3px;
 }
 
+.progress-success{
+	background-color: #dff0d8;
+}
+
+.progress-warning{
+	background-color: #fcf8e3;
+}
+
+.progress-danger{
+	background-color: #f2dede;
+}
 
 @media (min-width: 768px) {
 

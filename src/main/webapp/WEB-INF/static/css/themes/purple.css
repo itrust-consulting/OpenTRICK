@@ -873,6 +873,19 @@ a:hover, .btn-link{
 	padding-bottom: 8px;
 }
 
+.progress-success{
+	background-color: #dff0d8;
+}
+
+.progress-warning{
+	background-color: #fcf8e3;
+}
+
+.progress-danger{
+	background-color: #f2dede;
+}
+
+
 #menu-option{
 	display: none;
 	position: fixed; 

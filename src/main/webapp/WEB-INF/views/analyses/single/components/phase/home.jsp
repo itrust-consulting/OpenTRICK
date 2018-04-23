@@ -113,8 +113,9 @@
 								</spring:message></td>
 							<td class='statistic' align="right"><fmt:formatNumber value="${phase.investment*0.001}" maxFractionDigits="2" /> k€</td>
 							<td class='statistic' align="center" title="${complainceTitle}"><fmt:formatNumber value="${phase.complianceRate*100}" maxFractionDigits="0" var="complianceRate" />
-								<div class="progress" style="margin-bottom: 0">
-									<div class="progress-bar ${phase.outToDate? 'progress-bar-danger' : 'progress-bar-success' }" role="progressbar" aria-valuenow="${complianceRate}" aria-valuemin="0"
+								<c:set var="progressType" value="${phase.outToDate? 'danger' : 'success' }"/>
+								<div class="progress progress-${progressType}" style="margin-bottom: 0">
+									<div class="progress-bar progress-bar-${progressType}" role="progressbar" aria-valuenow="${complianceRate}" aria-valuemin="0"
 										aria-valuemax="100" style="width: ${complianceRate}%;">${complianceRate}%</div>
 								</div></td>
 
@@ -171,8 +172,9 @@
 						</spring:message></td>
 					<td class='statistic' align="right"><fmt:formatNumber value="${totalPhase.investment*0.001}" maxFractionDigits="2" /> k€</td>
 					<td class='statistic' align="center"><fmt:formatNumber value="${totalPhase.complianceRate*100}" maxFractionDigits="0" var="complianceRate" />
-						<div class="progress" style="margin-bottom: 0">
-							<div class="progress-bar ${totalPhase.outToDate? 'progress-bar-danger' : 'progress-bar-success' }" role="progressbar" aria-valuenow="${complianceRate}" aria-valuemin="0"
+						<c:set var="progressType" value="${totalPhase.outToDate? 'danger' : 'success' }"/>
+						<div class="progress progress-${progressType}" style="margin-bottom: 0">
+							<div class="progress-bar progress-bar-${progressType}" role="progressbar" aria-valuenow="${complianceRate}" aria-valuemin="0"
 								aria-valuemax="100" style="width: ${complianceRate}%;">${complianceRate}%</div>
 						</div></td>
 				</tr>

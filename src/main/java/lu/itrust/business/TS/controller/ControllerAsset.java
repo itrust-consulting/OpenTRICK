@@ -378,19 +378,19 @@ public class ControllerAsset {
 			if (validator == null)
 				serviceDataValidation.register(validator = new AssetValidator());
 
-			String name = jsonNode.get("name").asText();
+			String name = jsonNode.get("name").asText("").trim();
 
 			JsonNode node = jsonNode.get("assetType");
 
-			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
+			AssetType assetType = serviceAssetType.get(node.get("id").asInt(-1));
 
 			Double value = getDouble(jsonNode);
 
 			String error = null;
 
-			asset.setComment(jsonNode.get("comment").asText());
+			asset.setComment(jsonNode.get("comment").asText("").trim());
 
-			asset.setHiddenComment(jsonNode.get("hiddenComment").asText(""));
+			asset.setHiddenComment(jsonNode.get("hiddenComment").asText("").trim());
 
 			error = validator.validate(asset, "name", name);
 			if (error != null)

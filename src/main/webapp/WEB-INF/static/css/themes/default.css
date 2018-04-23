@@ -943,6 +943,18 @@ input[type=number],input[type=date]:disabled {
 	margin-right: -5px;
 }
 
+.progress-success{
+	background-color: #dff0d8;
+}
+
+.progress-warning{
+	background-color: #fcf8e3;
+}
+
+.progress-danger{
+	background-color: #f2dede;
+}
+
 @media (min-width: 768px) {
 
     .pull-sm-left {

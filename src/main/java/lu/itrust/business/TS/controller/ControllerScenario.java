@@ -431,7 +431,7 @@ public class ControllerScenario {
 
 			JsonNode jsonNode = mapper.readTree(source);
 
-			int idScenario = jsonNode.get("id").asInt();
+			int idScenario = jsonNode.get("id").asInt(-1);
 
 			Scenario scenario = null;
 
@@ -447,13 +447,13 @@ public class ControllerScenario {
 
 			String error = null;
 
-			String name = jsonNode.get("name").asText();
+			String name = jsonNode.get("name").asText("").trim();
 
 			JsonNode node = jsonNode.get("scenarioType");
 			ScenarioType scenarioType = null;
 
 			try {
-				Integer i = node.get("id").asInt();
+				Integer i = node.get("id").asInt(-1);
 				if (i == -1)
 					throw new TrickException("error.scenario_type.not_selected", "You need to select a scenario type");
 				scenarioType = ScenarioType.valueOf(i);
@@ -464,7 +464,7 @@ public class ControllerScenario {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			}
 
-			String description = jsonNode.get("description").asText();
+			String description = jsonNode.get("description").asText("").trim();
 
 			error = validator.validate(scenario, "name", name);
 			if (error != null)

@@ -679,6 +679,18 @@ img.support-logo+img.support-logo{
 	right: 3px;
 }
 
+.progress-success{
+	background-color: #dff0d8;
+}
+
+.progress-warning{
+	background-color: #fcf8e3;
+}
+
+.progress-danger{
+	background-color: #f2dede;
+}
+
 @media ( min-width : 992px) {
 	
 	.max-height {
