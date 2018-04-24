@@ -325,7 +325,7 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	if(!selectedAnalysis.length)
 		return false;
 
-	var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+	var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?",selectedAnalysis.length));
 	$("button[name='delete']", $modal).unbind().one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax(

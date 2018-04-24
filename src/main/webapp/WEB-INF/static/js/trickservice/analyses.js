@@ -248,7 +248,7 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (isOwner(analysisId) || !isArchived(analysisId) && userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
-		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?", 1));
 		$("button[name='delete']", $modal).unbind().one("click", function () {
 			var $progress = $("#loading-indicator").show();
 			$.ajax({
@@ -788,6 +788,7 @@ function customAnalysis(element) {
 							url: context + "/Analysis/Build/Save",
 							type: "post",
 							data: $("form", $modalBody).serialize(),
+							DataType : "application/json;charset=UTF-8",
 							contentType: "application/x-www-form-urlencoded;charset=UTF-8",
 							success: function (data, textStatus, jqXHR) {
 								var response = parseJson(data);

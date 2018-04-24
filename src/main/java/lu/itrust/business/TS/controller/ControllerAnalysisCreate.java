@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -194,7 +195,7 @@ public class ControllerAnalysisCreate {
 
 	}
 
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded;charset=UTF-8", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody Object buildCustomSave(@ModelAttribute AnalysisForm analysisForm, Principal principal, Locale locale) throws Exception {
 		try {
 			if (!serviceDataValidation.isRegistred(AnalysisForm.class))
