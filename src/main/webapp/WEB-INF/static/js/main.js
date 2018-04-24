@@ -192,6 +192,17 @@ if (!String.prototype.startsWith) {
 	};
 }
 
+if (!Array.prototype.removeIf) {
+	Array.prototype.removeIf = function(callback) {
+		var i = this.length;
+		while (i--) {
+			if (callback(this[i], i)) {
+				this.splice(i, 1);
+			}
+		}
+	}
+}
+
 function isFunction(value) {
 	 var getType = {};
 	 return value && getType.toString.call(value) === '[object Function]';

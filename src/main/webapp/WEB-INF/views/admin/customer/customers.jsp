@@ -16,7 +16,7 @@
 			<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 				<li class="disabled" data-trick-selectable="true" data-trick-check="isCustomerProfile()" ><a href="#" onclick="return manageCustomerTemplate();"><span class="glyphicon glyphicon-list"></span> <spring:message
 						code="label.action.manage.template" text="Manage template" /> </a></li>
-				<li class="disabled" data-trick-selectable="true" data-trick-check="isCustomerProfile()"><a href="#" onclick="return manageCustomerAccess();"><span
+				<li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()"><a href="#" onclick="return manageCustomerAccess();"><span
 						class="glyphicon glyphicon-edit"></span> <spring:message code="label.menu.manage.access.user_customer" text="Manage user access" /> </a></li>
 			</sec:authorize>
 		</ul>

@@ -24,6 +24,10 @@ function loadTargetContext() {
 	return context + (application['isAdministration'] ? "/Admin" : "/KnowledgeBase");
 }
 
+function canManageCustomerTemplate(){
+	return application['isAdministration'] ?  isCustomerProfile() : true;
+}
+
 function getCustomerSection() {
 	return application['isAdministration'] ? "section_admin_customer" : "section_customer";
 }
@@ -179,7 +183,7 @@ function manageCustomerTemplate(customerId) {
 		customerId = selectedScenario[0];
 	}
 
-	if (customerId == null || customerId == undefined)
+	if (customerId == null || customerId == undefined || !canManageCustomerTemplate())
 		return false;
 
 	var $progress = $("#loading-indicator").show();

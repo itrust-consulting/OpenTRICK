@@ -39,7 +39,7 @@ function installTrickService() {
 
 function switchCustomer(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
-	if (!isProfile("#" + section) || selectedAnalysis.length != 1)
+	if (isProfile("#" + section) || selectedAnalysis.length != 1)
 		return false;
 	var $progress = $("#loading-indicator").show(), idAnalysis = selectedAnalysis[0];
 	$.ajax({
@@ -87,7 +87,7 @@ function switchCustomer(section) {
 
 function switchOwner(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
-	if (!isProfile("#" + section) || selectedAnalysis.length != 1)
+	if (isProfile("#" + section) || selectedAnalysis.length != 1)
 		return false;
 	var $progress = $("#loading-indicator").show(), idAnalysis = selectedAnalysis[0];
 	$.ajax({
@@ -138,7 +138,7 @@ function switchOwner(section) {
 }
 
 function manageAnalysisAccess(analysisId, section_analysis) {
-	if (!isProfile("#" + section_analysis))
+	if (isProfile("#" + section_analysis))
 		return false;
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection(section_analysis);
@@ -211,7 +211,7 @@ function updateAnalysisAccess(e) {
 }
 
 function manageAnalysisIDSAccess(section) {
-	if(!isAnalysisType("QUANTITATIVE", "#"+section))
+	if(!isAnalysisType("QUANTITATIVE", "#"+section) || isProfile("#" + section))
 		return false;
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (selectedAnalysis.length != 1)
@@ -273,8 +273,21 @@ function findTrickisProfile(element) {
 		return null;
 }
 
+function isDefaultProfile(section, id){
+	if(id === undefined || id === null){
+		var $items = $(section+">table>tbody :checked");
+		if($items.length !==1)
+			return false;
+		return $items.closest("[data-trick-is-profile='true'][data-trick-is-default='true']").length>0;
+	}else return $(section+">table>tbody>tr[data-trick-id='"+id+"'][data-trick-is-profile='true'][data-trick-is-default='true']").length>0;
+}
+
+function hasDefaultProfile(section){
+	return $(section+">table>tbody :checked").closest("[data-trick-is-profile='true'][data-trick-is-default='true']").length>0
+}
+
 function isProfile(section) {
-	return findTrickisProfile($(section + " tbody :checked")) !== "true";
+	return findTrickisProfile($(section + " tbody :checked")) === "true";
 }
 
 function adminCustomerChange(selector) {
@@ -307,6 +320,11 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	else
 		selectedAnalysis = analysisId;
 	
+	selectedAnalysis.removeIf(i=> isDefaultProfile("#"+section_analysis, i));
+	
+	if(!selectedAnalysis.length)
+		return false;
+
 	var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 	$("button[name='delete']", $modal).unbind().one("click", function () {
 		var $progress = $("#loading-indicator").show();
@@ -641,7 +659,7 @@ function saveNotification(e){
 
 
 function manageCustomerAccess(customerID) {
-	if (!isNotCustomerProfile())
+	if (isCustomerProfile())
 		return false;
 	if (customerID == null || customerID == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_customer");
@@ -669,11 +687,11 @@ function manageCustomerAccess(customerID) {
 }
 
 function isNotCustomerProfile() {
-	return isCustomerProfile();
+	return !isCustomerProfile();
 }
 
 function isCustomerProfile() {
-	return !isProfile("#section_customer");
+	return isProfile("#section_customer");
 }
 
 function updateCustomerAccess(e,$view,$progress,customerID) {

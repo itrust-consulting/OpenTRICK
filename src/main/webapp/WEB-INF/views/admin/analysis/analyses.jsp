@@ -8,22 +8,22 @@
 <div class="tab-pane" id="tab-analyses">
 	<div class="section" id="section_admin_analysis">
 		<ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
-			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+			<li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message code="label.menu.manage.access.analysis"
 						text="Manage access rights" /></a></li>
 
-			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis') && isAnalysisType('QUANTITATIVE','#section_admin_analysis')"><a
+			<li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis') && isAnalysisType('QUANTITATIVE','#section_admin_analysis')"><a
 				href="#" onclick="return manageAnalysisIDSAccess('section_admin_analysis');"> <span class="fa fa-rss-square"></span> <spring:message
 						code="label.menu.manage.ids.access.analysis" text="Manage IDS" /></a></li>
 
-			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+			<li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return switchCustomer('section_admin_analysis');"> <span class="glyphicon glyphicon-transfer"></span> <spring:message code="label.menu.switch.customer"
 						text="Switch customer" /></a></li>
 
-			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+			<li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return switchOwner('section_admin_analysis');"> <span class="fa fa-exchange fa-sw"></span> <spring:message code="label.menu.switch.owner" text="Switch owner" /></a></li>
 
-			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+			<li class="disabled pull-right" data-trick-selectable="multi" data-trick-check="!hasDefaultProfile('#section_admin_analysis')"><a href="#"
 				onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>
@@ -44,7 +44,7 @@
 		<table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;" data-fh-scroll-multi="0.995">
 			<thead>
 				<tr>
-					<th width="1%"></th>
+					<th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'admin_analysis')"></th>
 					<th><spring:message code="label.analysis.identifier" text="Identifier" /></th>
 					<th width="5%"><spring:message code="label.analysis.type" text="Type" /></th>
 					<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
@@ -57,7 +57,7 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr class='${analysis.archived? "text-muted":""}' data-trick-archived='${analysis.archived}' data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}" data-trick-type='${analysis.type}'>
+					<tr class='${analysis.archived? "text-muted":""}' data-trick-archived='${analysis.archived}' data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}" data-trick-is-default="${analysis.defaultProfile}"   data-trick-type='${analysis.type}'>
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
 						<td><c:choose>
 								<c:when test="${analysis.archived}">
