@@ -987,15 +987,14 @@ function selectAnalysis(analysisId, mode) {
 }
 
 function duplicateAnalysis(form, analyisId) {
-	$(".label-danger", $modal).remove();
 	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal");
-	$("#history_oldVersion", $modal).val("value", $("#history_oldVersion", $modal).val());
 	$.ajax({
 		url: context + "/Analysis/Duplicate/" + analyisId,
 		type: "post",
 		data: serializeForm(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
+			$(".label-danger", $modal).remove();
 			if (response["analysis_task_id"] == undefined) {
 				for (var error in response) {
 					var errorElement = document.createElement("label");

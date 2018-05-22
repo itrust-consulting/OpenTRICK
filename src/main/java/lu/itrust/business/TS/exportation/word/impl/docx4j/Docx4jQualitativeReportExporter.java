@@ -154,20 +154,21 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		final List<SummaryStage> summary = getSummaryStage();
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 		final List<String> collectionNames = getStandardNames();
-		final Tbl table = createTable("TableTSSummary", 20 + (collectionNames.size()*2-1), summary.size() + 1);
+		final Tbl table = createTable("TableTSSummary", 20 + computeSommuryLength(collectionNames), summary.size() + 1);
 		generateSummaryResourcePlanning(summary, table, generateSummaryCompliance(summary, collectionNames, table, generateSummaryHeaders(dateFormat, summary, table, 0)));
 		insertBefore(paragraph, table);
 	}
 
+	
 	private void generateSummaryResourcePlanning(final List<SummaryStage> summary, final Tbl table, int rownumber) {
-		Tr row  = (Tr) table.getContent().get(rownumber++);
+		Tr row = (Tr) table.getContent().get(rownumber++);
 		MergeCell(row, 0, summary.size() + 1, null);
-		setCellText((Tc) row.getContent().get(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
+		setCellText((Tc) row.getContent().get(0), "4	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
 		row = (Tr) table.getContent().get(rownumber++);
 		MergeCell(row, 0, summary.size() + 1, null);
-		setCellText((Tc) row.getContent().get(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
-		row = (Tr) table.getContent().get(rownumber);
-		setCellText((Tc) row.getContent().get(0), "5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(0), "4.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
 		int cellnumber = 0;
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
@@ -175,60 +176,59 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0),
-				"5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getImplementCostOfPhase() * 0.001), true);
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		MergeCell(row, 0, summary.size() + 1, null);
-		setCellText((Tc) row.getContent().get(0), "5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
+		setCellText((Tc) row.getContent().get(0), "4.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getRecurrentInvestment() * 0.001));
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001), true);
 		numberFormat.setMaximumFractionDigits(0);
 		row = (Tr) table.getContent().get(rownumber++);
 		cellnumber = 0;
-		setCellText((Tc) row.getContent().get(0), "5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
+		setCellText((Tc) row.getContent().get(0), "4.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
 		numberFormat.setMaximumFractionDigits(1);
 		for (SummaryStage stage : summary)
 			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getTotalCostofStage() * 0.001), true);

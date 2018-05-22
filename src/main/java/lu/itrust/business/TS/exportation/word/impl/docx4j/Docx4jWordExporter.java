@@ -1207,6 +1207,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		}
 	}
 
+	protected int computeSommuryLength(final List<String> collectionNames) {
+		if (collectionNames.contains(Constant.STANDARD_27001)) {
+			if (collectionNames.contains(Constant.STANDARD_27002))
+				return 4 + collectionNames.size() - 2;
+			return 2 + (collectionNames.size() - 1);
+		} else if (collectionNames.contains(Constant.STANDARD_27002))
+			return 2 + (collectionNames.size() - 1);
+		else
+			return collectionNames.size();
+	}
+
 	private String getPropertyString(String name) {
 		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
 		return property == null ? null : property.getLpwstr();

@@ -164,7 +164,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		final List<String> collectionNames = analysis.getStandards().stream()
 				.map(c -> c.is(Constant.STANDARD_27001) ? Constant.STANDARD_27001 : c.is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getLabel())
 				.sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
-		final Tbl table = createTable("TableTSSummary", 26 + (collectionNames.size() * 2 - 1), summary.size() + 1);
+		final Tbl table = createTable("TableTSSummary", 26 + computeSommuryLength(collectionNames), summary.size() + 1);
 		generateSummaryCosts(summary, table,
 				generateSummaryProfitabilities(summary, table, generateSummaryCompliance(summary, collectionNames, table, generateSummaryHeaders(dateFormat, summary, table, 0))));
 		insertBefore(paragraph, table);
