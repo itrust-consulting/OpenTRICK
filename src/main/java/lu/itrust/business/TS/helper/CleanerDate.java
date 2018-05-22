@@ -105,7 +105,7 @@ public class CleanerDate {
 	private static void readNumber(CleanerDate date, String data, AtomicInteger pointer) {
 		int index = pointer.get(), value = 0, c = 0;
 		while (Character.isDigit(c = data.charAt(index++)) && data.length() > index)
-			value = value * 10 + Integer.parseInt(String.valueOf((char) c));
+			value = value * 10 + Character.digit(c, 10);
 		switch (c) {
 		case 'y':
 		case 'Y':

@@ -945,7 +945,7 @@ public class ControllerAnalysis {
 					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
-
+			analysis.getHistories().sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);

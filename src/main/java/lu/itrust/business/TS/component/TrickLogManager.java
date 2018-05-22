@@ -234,19 +234,12 @@ public class TrickLogManager {
 			} catch (Exception e1) {
 			}
 
-			if (e != null && instance.logger.isDebugEnabled())
+			if (e != null && getInstance().logger.isDebugEnabled())
 				e.printStackTrace();
 		}
 	}
 
-	public static boolean Persist(TrickException e) {
-		try {
-			if (e == null)
-				return false;
-			return Persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
-		} finally {
-			if (e != null && instance.logger.isDebugEnabled())
-				e.printStackTrace();
-		}
+	protected static boolean Persist(TrickException e) {
+		return Persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
 	}
 }

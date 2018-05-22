@@ -47,6 +47,7 @@ import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
@@ -157,260 +158,143 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		P paragraph = findTableAnchor("Summary");
 		if (paragraph == null)
 			return;
+		setCurrentParagraphId(TS_TAB_TEXT_2);
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 		final List<SummaryStage> summary = getSummaryStage();
-		final Tbl table = createTable("TableTSSummary", 30, summary.size() + 1);
-		setCurrentParagraphId(TS_TAB_TEXT_2);
-		// set header
-		int rownumber = 0;
-
-		while (rownumber < 30) {
-			Tr row = (Tr) table.getContent().get(rownumber);
-			switch (rownumber) {
-			case 0: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), getMessage("report.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
-				for (SummaryStage stage : summary) {
-					setCellText((Tc) row.getContent().get(++cellnumber),
-							stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("report.summary_stage.phase.start", null, stage.getStage(), locale)
-									: getMessage("report.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
-				}
-				setRepeatHeader(row);
-				break;
-			}
-			case 1:
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0), "1	" + getMessage("report.summary_stage.phase_duration", null, "Phase duration", locale));
-				break;
-			case 2: {
-				setCellText((Tc) row.getContent().get(0), "1.1	" + getMessage("report.summary_stage.date.beginning", null, "Beginning date", locale));
-				for (int i = 1; i < summary.size(); i++)
-					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getBeginDate()));
-				break;
-			}
-			case 3: {
-				setCellText((Tc) row.getContent().get(0), "1.2	" + getMessage("report.summary_stage.date.end", null, "End date", locale));
-
-				for (int i = 1; i < summary.size(); i++)
-					addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
-				break;
-			}
-
-			case 4:
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0), "2	" + getMessage("report.summary_stage.compliance", null, "Compliance", locale));
-				break;
-			case 5: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"2.1	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber),
-							numberFormat.format(stage.getSingleConformance("27001") == null ? 0 : stage.getSingleConformance("27001") * 100));
-				break;
-			}
-			case 6: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"2.2	" + getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber),
-							numberFormat.format(stage.getSingleConformance("27002") == null ? 0 : stage.getSingleConformance("27002") * 100));
-				break;
-			}
-
-			case 7: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"2.3	" + getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27001" }, "Non-compliant measures of the 27001", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getNotCompliantMeasure27001Count() + "");
-				break;
-			}
-
-			case 8: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"2.4	" + getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27002" }, "Non-compliant measures of the 27002", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getNotCompliantMeasure27002Count() + "");
-				break;
-			}
-
-			case 9:
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0),
-						"3	" + getMessage("report.summary_stage.evolution_of_implemented_measure", null, "Evolution of implemented measures", locale));
-				break;
-			case 10: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"3.1	" + getMessage("report.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), "" + stage.getMeasureCount());
-				break;
-			}
-			case 11: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"3.2	" + getMessage("report.summary_stage.implementted_measures", null, "Implemented measures (number)...", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), "" + stage.getImplementedMeasuresCount());
-				break;
-			}
-			case 12: {
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0), "4	" + getMessage("report.summary_stage.profitability", null, "Profitability", locale));
-				break;
-			}
-			case 13: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "4.1	" + getMessage("report.summary_stage.ale_at_end", null, "ALE (k€/y)... at end", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getTotalALE() * 0.001));
-				break;
-			}
-			case 14: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "4.2	" + getMessage("report.summary_stage.risk_reduction", null, "Risk reduction (k€/y)", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getDeltaALE() * 0.001));
-				break;
-			}
-			case 15: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"4.3	" + getMessage("report.summary_stage.average_yearly_cost_of_phase", null, "Average yearly cost of phase (k€/y)", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getCostOfMeasures() * 0.001));
-				break;
-			}
-			case 16: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "4.3	" + getMessage("report.summary_stage.rosi", null, "ROSI (k€/y)", locale));
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getROSI() * 0.001));
-				break;
-			}
-			case 17: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "4.4	" + getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
-				DecimalFormat format = (DecimalFormat) numberFormat.clone();
-				format.setMaximumFractionDigits(2);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), format.format(stage.getRelativeROSI()));
-				break;
-			}
-			case 18: {
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
-				break;
-			}
-
-			case 19: {
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
-				break;
-			}
-			case 20: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getInternalWorkload()));
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			case 21: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			case 22: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			case 23: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getImplementCostOfPhase() * 0.001), true);
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-
-			case 24: {
-				MergeCell(row, 0, summary.size() + 1, null);
-				setCellText((Tc) row.getContent().get(0), "5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
-				break;
-			}
-
-			case 25: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			case 26: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			case 27: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getRecurrentInvestment() * 0.001));
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-
-			case 28: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber),
-						"5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001), true);
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			case 29: {
-				int cellnumber = 0;
-				setCellText((Tc) row.getContent().get(cellnumber), "5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
-				numberFormat.setMaximumFractionDigits(1);
-				for (SummaryStage stage : summary)
-					addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getTotalCostofStage() * 0.001), true);
-				numberFormat.setMaximumFractionDigits(0);
-				break;
-			}
-			}
-			rownumber++;
-		}
-
+		final List<String> collectionNames = analysis.getStandards().stream()
+				.map(c -> c.is(Constant.STANDARD_27001) ? Constant.STANDARD_27001 : c.is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getLabel())
+				.sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
+		final Tbl table = createTable("TableTSSummary", 26 + (collectionNames.size() * 2 - 1), summary.size() + 1);
+		generateSummaryCosts(summary, table,
+				generateSummaryProfitabilities(summary, table, generateSummaryCompliance(summary, collectionNames, table, generateSummaryHeaders(dateFormat, summary, table, 0))));
 		insertBefore(paragraph, table);
-
 		if (!summary.isEmpty())
 			setCustomProperty("FINAL_ALE_VAL", (long) (summary.get(summary.size() - 1).getTotalALE() * 0.001));
+	}
+
+	private int generateSummaryProfitabilities(final List<SummaryStage> summary, final Tbl table, int rownumber) {
+		Tr row = (Tr) table.getContent().get(rownumber++);
+		MergeCell(row, 0, summary.size() + 1, null);
+		setCellText((Tc) row.getContent().get(0), "4	" + getMessage("report.summary_stage.profitability", null, "Profitability", locale));
+
+		int cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "4.1	" + getMessage("report.summary_stage.ale_at_end", null, "ALE (k€/y)... at end", locale));
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getTotalALE() * 0.001));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "4.2	" + getMessage("report.summary_stage.risk_reduction", null, "Risk reduction (k€/y)", locale));
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getDeltaALE() * 0.001));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber),
+				"4.3	" + getMessage("report.summary_stage.average_yearly_cost_of_phase", null, "Average yearly cost of phase (k€/y)", locale));
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getCostOfMeasures() * 0.001));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "4.3	" + getMessage("report.summary_stage.rosi", null, "ROSI (k€/y)", locale));
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getROSI() * 0.001));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "4.4	" + getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
+		DecimalFormat format = (DecimalFormat) numberFormat.clone();
+		format.setMaximumFractionDigits(2);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), format.format(stage.getRelativeROSI()));
+		return rownumber;
+	}
+
+	private void generateSummaryCosts(final List<SummaryStage> summary, final Tbl table, int rownumber) {
+		Tr row = (Tr) table.getContent().get(rownumber++);
+		MergeCell(row, 0, summary.size() + 1, null);
+		setCellText((Tc) row.getContent().get(0), "5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
+
+		row = (Tr) table.getContent().get(rownumber++);
+		MergeCell(row, 0, summary.size() + 1, null);
+		setCellText((Tc) row.getContent().get(0), "5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
+
+		int cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getInternalWorkload()));
+		numberFormat.setMaximumFractionDigits(0);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
+		numberFormat.setMaximumFractionDigits(0);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
+		numberFormat.setMaximumFractionDigits(0);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber),
+				"5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getImplementCostOfPhase() * 0.001), true);
+		numberFormat.setMaximumFractionDigits(0);
+
+		row = (Tr) table.getContent().get(rownumber++);
+		MergeCell(row, 0, summary.size() + 1, null);
+		setCellText((Tc) row.getContent().get(0), "5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
+		numberFormat.setMaximumFractionDigits(0);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
+		numberFormat.setMaximumFractionDigits(0);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getRecurrentInvestment() * 0.001));
+		numberFormat.setMaximumFractionDigits(0);
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		setCellText((Tc) row.getContent().get(cellnumber), "5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001), true);
+		numberFormat.setMaximumFractionDigits(0);
+		row = (Tr) table.getContent().get(rownumber++);
+		cellnumber = 0;
+		setCellText((Tc) row.getContent().get(cellnumber), "5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
+		numberFormat.setMaximumFractionDigits(1);
+		for (SummaryStage stage : summary)
+			addCellNumber((Tc) row.getContent().get(++cellnumber), numberFormat.format(stage.getTotalCostofStage() * 0.001), true);
+		numberFormat.setMaximumFractionDigits(0);
 	}
 
 	@Override
@@ -662,11 +546,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 		setCustomProperty("TOTAL_ASSET_VAL", decimalFormat.format(assetTotalValue * 0.001));
 
-		Double compliance = analysis.getAnalysisStandards().stream().mapToDouble(analysisStandard -> ChartGenerator.ComputeCompliance(analysisStandard, valueFactory)).average()
-				.orElse(0);
-
-		setCustomProperty("CURRENT_COMPLIANCE", compliance.longValue());
-
 		List<Phase> phases = analysis.findUsablePhase();
 
 		double time = 0, sumRosi = 0, sumDRosi = 0, sumCost = 0;
@@ -681,20 +560,19 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		}
 
 		if (time == 0)
-			time = 1;
+			time = 1.0;
 		if (sumCost == 0)
-			sumCost = 1;
+			sumCost = 1.0;
 
-		double avRosi = sumRosi / (time * 1000), avDRosi = sumDRosi / (time * sumCost);
+		double avRosi = sumRosi / (time * 1000.0), avDRosi = sumDRosi / (time * sumCost);
 
 		setCustomProperty("AV_ROSI_VAL", decimalFormat.format(avRosi));
 
 		setCustomProperty("AV_DROSI_VAL", (long) avDRosi);
 
 		decimalFormat.setMaximumFractionDigits(2);
-
+		decimalFormat.setMinimumFractionDigits(1);
 		setCustomProperty("GAIN_VAL", decimalFormat.format(1 + avDRosi * 0.01));
-
 	}
 
 	@Override
