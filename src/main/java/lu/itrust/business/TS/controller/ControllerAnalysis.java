@@ -1246,7 +1246,7 @@ public class ControllerAnalysis {
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
-		if (customer == null || nameFilter == null) {
+		if (customer == null || StringUtils.isEmpty(nameFilter)) {
 			user = serviceUser.get(principal.getName());
 			if (user == null)
 				throw new AccessDeniedException("Access denied");
@@ -1260,9 +1260,9 @@ public class ControllerAnalysis {
 				}
 				session.setAttribute(CURRENT_CUSTOMER, customer);
 			}
-			if (nameFilter == null) {
+			if (StringUtils.isEmpty(nameFilter)) {
 				nameFilter = user.getSetting(LAST_SELECTED_ANALYSIS_NAME);
-				if (nameFilter == null && customer != null) {
+				if (StringUtils.isEmpty(nameFilter) && customer != null) {
 					names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
 					if (!names.isEmpty()) {
 						user.setSetting(LAST_SELECTED_ANALYSIS_NAME, nameFilter = names.get(0));
@@ -1273,17 +1273,17 @@ public class ControllerAnalysis {
 		}
 
 		if (customer != null) {
-			if (names == null)
+			if (names == null || names.isEmpty())
 				names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
 			// load model with objects by the selected customer
-			if (nameFilter == null || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
+			if (StringUtils.isEmpty(nameFilter) || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 			else
 				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
 		}
 		loadUserSettings(principal, model, user);
 		model.addAttribute("names", names);
-		model.addAttribute("analysisSelectedName", nameFilter);
+		model.addAttribute("analysisSelectedName", StringUtils.isEmpty(nameFilter) ? "ALL" : nameFilter);
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
