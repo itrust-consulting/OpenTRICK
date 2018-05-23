@@ -140,13 +140,22 @@
 								ondblclick="return editSingleAnalysis(${analysis.id});" data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><c:choose>
+										<c:when test="${analysis.defaultProfile}">
+											<i class="fa fa-file" aria-hidden="true" title='<spring:message code="label.analysis.default.profile"/>'></i>
+										</c:when>
+										<c:when test="${analysis.profile}">
+											<i class="fa fa-file-o" aria-hidden="true" title='<spring:message code="label.analysis.profile"/>'></i>
+										</c:when>
+										<c:when test="${not analysis.data}">
+											<i class="fa fa-folder-o" aria-hidden="true" title='<spring:message code="label.analysis.empty"/>'></i>
+										</c:when>
 										<c:when test="${analysis.archived}">
-											<span class="glyphicon glyphicon-folder-close" style="margin-right: 5px;" title='<spring:message code="label.analysis.archived"/>'></span>
+											<i class="fa fa-archive" aria-hidden="true" title='<spring:message code="label.analysis.archived"/>'></i>
 										</c:when>
 										<c:otherwise>
-											<span class="glyphicon glyphicon-folder-open" style="margin-right: 5px;" title='<spring:message code="label.analysis.editable"/>'></span>
+											<i class="fa fa-folder" aria-hidden="true" title='<spring:message code="label.analysis.editable"/>'></i>
 										</c:otherwise>
-									</c:choose> <spring:message text="${analysis.label}" /></td>
+									</c:choose> <span style="margin-left: 5px;"><spring:message text="${analysis.label}" /></span></td>
 								<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
 								<td data-trick-content='text'><spring:message text="${analysis.lastHistory.comment}" /></td>
 								<c:if test="${allowedTicketing}">
