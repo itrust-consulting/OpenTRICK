@@ -19,8 +19,14 @@ public class AnalysisComparator implements Comparator<Analysis> {
 		int test = o1.getCustomer().getOrganisation().compareToIgnoreCase(o2.getCustomer().getOrganisation());
 		if (test == 0) {
 			test = o1.getIdentifier().compareToIgnoreCase(o2.getIdentifier());
-			if(test == 0)
-				return NaturalOrderComparator.compareTo(o1.getVersion(), o2.getVersion());
+			if (test == 0) {
+				test = Boolean.compare(o1.hasData(), o2.hasData());
+				if (test == 0) {
+					test = o1.getType().compareTo(o2.getType());
+					if (test == 0)
+						return NaturalOrderComparator.compareTo(o1.getVersion(), o2.getVersion());
+				}
+			}
 		}
 		return test;
 	}

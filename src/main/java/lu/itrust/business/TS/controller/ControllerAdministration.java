@@ -223,11 +223,13 @@ public class ControllerAdministration {
 		model.put("status", getStatus());
 		if (customers != null && customers.size() > 0) {
 			model.put("customers", customers);
+			List<Analysis> analyses = Collections.emptyList();
 			if (customerID != null) {
 				model.put("customer", customerID);
-				model.put("analyses", serviceAnalysis.getAllFromCustomer(customerID));
-			} else
-				model.put("analyses", serviceAnalysis.getAll());
+				analyses = serviceAnalysis.getAllFromCustomer(customerID);
+				analyses.sort(new AnalysisComparator().reversed());
+			}
+			model.put("analyses", analyses);
 		}
 
 		List<TSSetting> tsSettings = new LinkedList<TSSetting>(), ticketingSystems = new LinkedList<>();
