@@ -65,7 +65,7 @@ public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 			if (!(candidate instanceof String))
 				return ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED;
 			stringCanditate = (String) candidate;
-			if (stringCanditate == null || stringCanditate.trim().isEmpty())
+			if (stringCanditate == null)
 				return ERROR_MEASURE_DESCRIPTION_TEXT_DESCRIPTION_DESCRIPTION_CANNOT_BE_EMPTY;
 			break;
 		}
