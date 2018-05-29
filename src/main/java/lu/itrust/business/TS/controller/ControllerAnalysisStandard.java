@@ -882,7 +882,7 @@ public class ControllerAnalysisStandard {
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition",
-					"attachment; filename=\"" + String.format("%s_V%s.xlsx", analysisStandard.getStandard().getLabel(), analysisStandard.getStandard().getVersion()) + "\"");
+					"attachment; filename=\"" + String.format("%s_v%s.xlsx", analysisStandard.getStandard().getLabel(), analysisStandard.getStandard().getVersion()) + "\"");
 			mlPackage.save(response.getOutputStream());
 			// Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
@@ -975,11 +975,7 @@ public class ControllerAnalysisStandard {
 	}
 
 	private void prepareTableHeader(AnalysisStandard analysisStandard, WorksheetPart worksheetPart, String[] columns) throws Exception {
-		createHeader(worksheetPart, "Measures", columns, analysisStandard.getMeasures().size());/*
-																								 * .getTableColumns().getTableColumn().parallelStream() .filter(c ->
-																								 * c.getName().equalsIgnoreCase("Implemention")).findAny().ifPresent(c -> {
-																								 * c.setDataCellStyle("Percent"); c.setDataDxfId(0L); });
-																								 */
+		createHeader(worksheetPart, "Measures", columns, analysisStandard.getMeasures().size());
 	}
 
 	private String[] getColumns(AnalysisStandard analysisStandard) {

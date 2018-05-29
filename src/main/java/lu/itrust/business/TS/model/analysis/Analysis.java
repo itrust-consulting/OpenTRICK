@@ -1340,7 +1340,9 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<ScaleType> getImpacts() {
-		return getImpactParameters().stream().map(ImpactParameter::getType).distinct().sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
+		return getImpactParameters().stream().map(ImpactParameter::getType).distinct().sorted(
+				(s1, s2) -> s1.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? 1 : s2.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? -1 : s1.getName().compareTo(s2.getName()))
+				.collect(Collectors.toList());
 	}
 
 	/**

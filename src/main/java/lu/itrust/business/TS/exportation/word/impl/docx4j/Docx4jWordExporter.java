@@ -437,7 +437,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				currentCompliance += complaince;
 			}
 			insertAllBefore(paragraphOriginal, contents);
-			setCustomProperty("CURRENT_COMPLIANCE", currentCompliance / count);
+			setCustomProperty("CURRENT_COMPLIANCE", currentCompliance / (double) count);
 		}
 	}
 
@@ -2024,7 +2024,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected void setCustomProperty(String name, Object value) throws Docx4JException {
 		if (value instanceof Number) {
 			if (value instanceof Double)
-				createProperty(name, false).setR8(((Number) value).doubleValue());
+				createProperty(name, false).setR8(Double.isNaN((double) value)? 0:((Number) value).doubleValue());
 			else
 				createProperty(name, false).setI4(((Number) value).intValue());
 		} else if (value instanceof Boolean)
