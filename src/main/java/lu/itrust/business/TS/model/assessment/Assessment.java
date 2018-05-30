@@ -176,8 +176,8 @@ public class Assessment implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Checks this Assessment to other to find out if they are equal or not.
-	 * Equal means: ID, Asset and Scenario are equal.<br>
+	 * Checks this Assessment to other to find out if they are equal or not. Equal
+	 * means: ID, Asset and Scenario are equal.<br>
 	 * <br>
 	 * 
 	 * <b>NOTE:</b>This Method is auto generated
@@ -422,11 +422,10 @@ public class Assessment implements Cloneable {
 
 	/**
 	 * isUsable: <br>
-	 * Checks if the Asset and the Scenario are Selected and ALE is not 0.
-	 * Checks if this Assessment can be used for Action Plan calculation.
+	 * Checks if the Asset and the Scenario are Selected and ALE is not 0. Checks if
+	 * this Assessment can be used for Action Plan calculation.
 	 * 
-	 * @return True: if the Assessment is usable; False: if Assessment is not
-	 *         usable
+	 * @return True: if the Assessment is usable; False: if Assessment is not usable
 	 */
 	public boolean isUsable() {
 		return (this.getAsset() == null) || (this.getScenario() == null) ? false
@@ -435,7 +434,7 @@ public class Assessment implements Cloneable {
 
 	public IValue remove(ScaleType scaleType) {
 		IValue value = impacts.stream().filter(impact -> impact.getName().equals(scaleType.getName())).findAny().orElse(null);
-		if(value != null)
+		if (value != null)
 			impacts.remove(value);
 		return value;
 	}
@@ -504,7 +503,10 @@ public class Assessment implements Cloneable {
 	 *            The value to set "comment"
 	 */
 	public void setComment(String comment) {
-		this.comment = comment;
+		if (comment == null)
+			this.comment = "";
+		else
+			this.comment = comment;
 	}
 
 	/**
@@ -515,7 +517,10 @@ public class Assessment implements Cloneable {
 	 *            The Value to set the hiddenComment field
 	 */
 	public void setHiddenComment(String hiddenComment) {
-		this.hiddenComment = hiddenComment;
+		if (hiddenComment == null)
+			this.hiddenComment = "";
+		else
+			this.hiddenComment = hiddenComment;
 	}
 
 	/**
@@ -570,7 +575,10 @@ public class Assessment implements Cloneable {
 	 *            The value to set "likelihood"
 	 */
 	public void setLikelihood(String likelihood) {
-		this.likelihood = likelihood;
+		if (likelihood == null || likelihood.isEmpty())
+			this.likelihood = "0";
+		else
+			this.likelihood = likelihood;
 	}
 
 	/**
@@ -659,11 +667,22 @@ public class Assessment implements Cloneable {
 
 	@Transient
 	public static String key(Asset asset, Scenario scenario) {
-		return asset.getId() + "^-'ASSESSMENT'-^" + scenario.getId();
+		return key(asset.getId(), scenario.getId());
 	}
 
+	@Transient
 	public static String keyName(Asset asset, Scenario scenario) {
-		return asset.getName() + "^NAME-'ASSESSMENT'-NAME^" + scenario.getName();
+		return keyName(asset.getName(), scenario.getName());
+	}
+
+	@Transient
+	public static String key(int assetId, int scenarioId) {
+		return assetId + "^-'ASSESSMENT'-^" + scenarioId;
+	}
+
+	@Transient
+	public static String keyName(String assetName, String scenarioName) {
+		return assetName + "^NAME-'ASSESSMENT'-NAME^" + scenarioName;
 	}
 
 }

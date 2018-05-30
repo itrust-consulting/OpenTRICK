@@ -207,7 +207,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 			return;
 		TablePart table = findTable(sheetData.getWorksheetPart(), "Measures");
 		if (table == null)
-			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!");
+			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!", "Measures");
 
 		AddressRef address = AddressRef.parse(table.getContents().getRef());
 
@@ -242,7 +242,6 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				String name = columnsMapper.get(columns.get(j));
 				if (name == null || j == refIndex)
 					continue;
-
 				switch (name) {
 				case "Status":
 					measure.setStatus(getString(row, j, formatter));

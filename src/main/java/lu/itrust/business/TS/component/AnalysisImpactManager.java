@@ -45,6 +45,9 @@ public class AnalysisImpactManager {
 
 	@Autowired
 	private DAOScaleType daoScaleType;
+	
+	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Transactional
 	public boolean manageImpactScaleSave(Integer idAnalysis, Map<Integer, Boolean> impacts) {
@@ -64,7 +67,7 @@ public class AnalysisImpactManager {
 		});
 		if (change[0]) {
 			analysis.updateType();
-			AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
+			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 			daoAnalysis.saveOrUpdate(analysis);
 			parameters.entrySet().stream().filter(entry -> !impacts.getOrDefault(entry.getKey(), true)).forEach(entry -> daoImpactParameter.delete(entry.getValue()));
 		}

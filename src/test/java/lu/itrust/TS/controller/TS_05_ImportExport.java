@@ -117,9 +117,9 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		this.mockMvc.perform(fileUpload("/Analysis/Import/"+getInteger(ME_CUSTOMER)).file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-				.param("customer", getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-	
+		this.mockMvc.perform(fileUpload("/Analysis/Import/" + getInteger(ME_CUSTOMER)).file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
+				getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
 		Worker worker = null;
 
 		for (int i = 0; i < 3000; i++) {
@@ -382,7 +382,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
-			put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+			put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallbacks()[0].getArgs().get(1).toString()));
 		} finally {
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 		}
@@ -421,11 +421,9 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		assertTrue("Template cannot be found", idTemplate > 0);
 
-		this.mockMvc
-				.perform(post("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8).param("type", "QUANTITATIVE").param("template", idTemplate + ""))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		
+		this.mockMvc.perform(post("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.param("type", "QUANTITATIVE").param("template", idTemplate + "")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
@@ -456,7 +454,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
-			put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+			put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1).toString()));
 		} finally {
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 		}

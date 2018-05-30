@@ -141,6 +141,7 @@
 							</a></li>
 						</c:when>
 					</c:choose>
+					<li><a href="${pageContext.request.contextPath}/Analysis/Data-manager/Risk-estimation/Export-process" download><spring:message code="label.risk_estimation" text="Risk estimation"/></a></li>
 					<li><c:choose>
 							<c:when test="${type.hybrid}">
 								<a href="#" onclick="return exportRawActionPlan('${analysis.id}','${type}')"><spring:message code="label.raw_action_plan" /></a>
@@ -149,6 +150,9 @@
 								<a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}/${type}" download><spring:message code="label.raw_action_plan" /></a>
 							</c:otherwise>
 						</c:choose></li>
+					<li class="divider"></li>
+					<li><a href="#" onclick="return importRiskEstimation()"> <spring:message code="label.action.import.risk_estimation" text="Import risk estimation"/>
+					</a></li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>

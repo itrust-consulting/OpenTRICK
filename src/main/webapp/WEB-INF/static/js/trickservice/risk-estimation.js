@@ -438,7 +438,7 @@ AssessmentHelder.prototype = {
 			return (!this.invalidate && $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
 				&& $currentUI.attr("data-trick-content") == activeSelector) ? this : this.load($currentUI, idAsset, idScenario);
 		}
-		this.$tabSection.attr("data-update-required", helper.invalidate = true);
+		this.$tabSection.attr("data-update-required", this.invalidate = true);
 		return this;
 
 	}, load: function ($section, idAsset, idScenario) {
@@ -1044,4 +1044,62 @@ function initialiseRiskEstimation() {
 	$("button[name='add-asset']", application["estimation-helper"].$tabSection).on("click", function () {
 		return editAsset(undefined, true);
 	});
+}
+
+function importRiskEstimation(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Data-manager/Risk-estimation/Import-form",
+		success: function (response, textStatus, jqXHR) {
+			var $modal = $("#import-risk-estimation-modal", new DOMParser().parseFromString(response, "text/html"));
+			if($modal.length){
+				$("button[name='import']", $modal).on("click", importRiskEstimationProcess);
+				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
+			}else if (response["error"])
+				showDialog("#alert-dialog", response['error']);
+			else
+				unknowError();
+		},
+		error: unknowError
+
+	}).complete(function () {
+		$progress.hide();
+	});
+	return false;
+}
+
+function importRiskEstimationProcess() {
+	var $modal = $("#import-risk-estimation-modal"), $uploadFile = $("#upload-file-info-risk-estimation", $modal), $progress = $("#loading-indicator"), $measureNotification = $("#riskEstimationNotification",$modal);
+	if (!$uploadFile.length)
+		return false;
+	else if ($uploadFile.val() == "") {
+		$measureNotification.text(MessageResolver("error.import.risk_estimation.no_select.file", "Please select file to import!"));
+		return false;
+	}
+	try {
+		$progress.show();
+		$.ajax({
+			url: context + "/Analysis/Data-manager/Risk-estimation/Import-process",
+			type: 'POST',
+			data: new FormData($('#importRiskEstimationForm',$modal)[0]),
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function (response, textStatus, jqXHR) {
+				if (response.success)
+					application["taskManager"].SetTitle(MessageResolver("label.title.import.risk.estimation", "Import risk estimation")).Start();
+				else if (response.error)
+					showDialog("#alert-dialog", response.error);
+				else
+					showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
+			},
+			error: unknowError
+	
+		}).complete(function () {
+			$progress.hide();
+		});
+	}finally{
+		$modal.modal("hide");
+	}
+	return false;
 }

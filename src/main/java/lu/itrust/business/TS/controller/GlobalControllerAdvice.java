@@ -67,7 +67,6 @@ public class GlobalControllerAdvice {
 
 	@ModelAttribute
 	public void globalAttributes(HttpServletRequest request, Model model, Principal principal) {
-
 		if (principal != null) {
 			TSSetting url = serviceTSSetting.get(TSSettingName.USER_GUIDE_URL);
 			if (url != null) {
@@ -79,8 +78,7 @@ public class GlobalControllerAdvice {
 				serviceTaskFeedback.update(principal.getName(), new Locale(request.getParameter("lang")));
 			model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(principal.getName()));
 			model.addAttribute("userGuideVersion", userGuideVersion);
-		} //else model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(null));
-
+		}
 		model.addAttribute("jsVersion", jsVersion);
 		model.addAttribute("cssVersion", cssVersion);
 		model.addAttribute("fontVersion", fontVersion);

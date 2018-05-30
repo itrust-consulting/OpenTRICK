@@ -14,7 +14,7 @@ public class AsyncCallback {
 
 	private String action;
 
-	private List<String> args;
+	private List<Object> args;
 
 	/**
 	 * 
@@ -26,7 +26,7 @@ public class AsyncCallback {
 	 * @param action
 	 * @param args
 	 */
-	public AsyncCallback(String action, List<String> args) {
+	public AsyncCallback(String action, List<Object> args) {
 		this.action = action;
 		this.args = args;
 	}
@@ -38,9 +38,9 @@ public class AsyncCallback {
 	public AsyncCallback(String action, Object... args) {
 		this.action = action;
 		if (args.length > 0) {
-			this.args = new ArrayList<String>(args.length);
+			this.args = new ArrayList<Object>(args.length);
 			for (Object arg : args)
-				this.args.add(String.valueOf(arg));
+				this.args.add(arg);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class AsyncCallback {
 	/**
 	 * @return the args
 	 */
-	public List<String> getArgs() {
+	public List<Object> getArgs() {
 		return args;
 	}
 
@@ -70,7 +70,7 @@ public class AsyncCallback {
 	 * @param args
 	 *            the args to set
 	 */
-	public void setArgs(List<String> args) {
+	public void setArgs(List<Object> args) {
 		this.args = args;
 	}
 }
