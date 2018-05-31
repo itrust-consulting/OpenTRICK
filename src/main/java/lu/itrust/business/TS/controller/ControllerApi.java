@@ -420,7 +420,7 @@ public class ControllerApi {
 				.orElseThrow(() -> new TrickException("error.assessment.not_found", "Assessment cannot be found"));
 		ApiRRF apiRRF = new ApiRRF(idAnalysis, assessment.getImpactReal(), assessment.getLikelihoodReal());
 		apiRRF.setScenario(new ApiScenario(assessment.getScenario().getId(), assessment.getScenario().getName(), assessment.getScenario().getType().getValue(), assessment.getScenario().getType().getName()));
-		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getAssetType().getId(), assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue()));
+		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getAssetType().getId(), assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue(), assessment.getAsset().isSelected()));
 		IParameter rrfTuning = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		ValueFactory factory = new ValueFactory(analysis.getParameters());
 		for (String name : standardNames) {
