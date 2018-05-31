@@ -32,13 +32,12 @@ public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.validator.field.ValidatorField#validate(java.lang.
+	 * @see lu.itrust.business.validator.field.ValidatorField#validate(java.lang.
 	 * Object, java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public String validate(String fieldName, Object candidate) {
-		if ( fieldName == null || fieldName.trim().isEmpty())
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		String stringCanditate = null;
 		switch (fieldName) {
@@ -62,11 +61,10 @@ public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 				return ERROR_MEASURE_DESCRIPTION_TEXT_DOMAIN_DOMAIN_CANNOT_BE_EMPTY;
 			break;
 		case DESCRIPTION:
-			if (!(candidate instanceof String))
-				return ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED;
-			stringCanditate = (String) candidate;
-			if (stringCanditate == null || stringCanditate.trim().isEmpty())
+			if (candidate == null)
 				return ERROR_MEASURE_DESCRIPTION_TEXT_DESCRIPTION_DESCRIPTION_CANNOT_BE_EMPTY;
+			else if (!(candidate instanceof String))
+				return ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED;
 			break;
 		}
 		return null;
@@ -75,8 +73,7 @@ public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.validator.field.ValidatorField#validate(java.lang.
+	 * @see lu.itrust.business.validator.field.ValidatorField#validate(java.lang.
 	 * Object, java.lang.String, java.lang.Object, java.lang.Object[])
 	 */
 	@Override
@@ -87,8 +84,7 @@ public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.validator.field.ValidatorField#validate(java.lang.
+	 * @see lu.itrust.business.validator.field.ValidatorField#validate(java.lang.
 	 * Object, java.lang.String, java.lang.Object, java.util.List)
 	 */
 	@Override

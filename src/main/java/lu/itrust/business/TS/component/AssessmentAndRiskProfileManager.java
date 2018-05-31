@@ -394,7 +394,7 @@ public class AssessmentAndRiskProfileManager {
 			UpdateAssetALE(analysis, factory);
 	}
 
-	private static void GenerateRiskProfileIdentifer(List<RiskProfile> riskProfiles) {
+	public static void GenerateRiskProfileIdentifer(List<RiskProfile> riskProfiles) {
 		String maxId = riskProfiles.stream().filter(risk -> !StringUtils.isEmpty(risk.getIdentifier())).map(RiskProfile::getIdentifier)
 				.max((i1, i2) -> NaturalOrderComparator.compareTo(i1, i2)).orElse("R0");
 		Object[] numbering = extractNumbering(maxId);

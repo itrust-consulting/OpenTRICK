@@ -268,7 +268,7 @@ public class ValueFactory {
 
 	}
 
-	private Double ToDouble(String value, Double defaultValue) {
+	public static Double ToDouble(String value, Double defaultValue) {
 		try {
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
@@ -457,6 +457,11 @@ public class ValueFactory {
 	}
 
 	public ILevelParameter findParameter(Double value, String type) {
+		IValue result = findValue(value, type);
+		return result == null ? null : result.getParameter();
+	}
+	
+	public ILevelParameter findParameter(Object value, String type) {
 		IValue result = findValue(value, type);
 		return result == null ? null : result.getParameter();
 	}

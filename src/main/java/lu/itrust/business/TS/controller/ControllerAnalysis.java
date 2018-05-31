@@ -468,30 +468,6 @@ public class ControllerAnalysis {
 		exportRawActionPlan(response, analysis, type == null ? analysis.getType() : type, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
 	}
 
-	@GetMapping(value = "/Export/Report/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
-
-		final Analysis analysis = serviceAnalysis.get(analysisId);
-		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
-		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
-
-		analysis.getCustomer().getTemplates().stream()
-				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
-				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
-					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
-						p.setOutToDate(true);
-				});
-
-		if (analysis.isHybrid())
-			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
-		model.addAttribute("analysis", analysis);
-		model.addAttribute("templates", reportTemplates);
-		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
-		return "analyses/all/forms/report-word";
-	}
-
 	/**
 	 * computeRiskRegister: <br>
 	 * Description
@@ -552,6 +528,30 @@ public class ControllerAnalysis {
 				throw e;
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
+	}
+
+	@GetMapping(value = "/Export/Report/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
+
+		final Analysis analysis = serviceAnalysis.get(analysisId);
+		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
+		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+
+		analysis.getCustomer().getTemplates().stream()
+				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
+				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
+					reportTemplates.add(p);
+					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
+						p.setOutToDate(true);
+				});
+
+		if (analysis.isHybrid())
+			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
+		model.addAttribute("analysis", analysis);
+		model.addAttribute("templates", reportTemplates);
+		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
+		return "analyses/all/forms/report-word";
 	}
 
 	/**
@@ -1071,6 +1071,166 @@ public class ControllerAnalysis {
 		}
 	}
 
+	private Client buildClient(String username) {
+		User user = serviceUser.get(username);
+		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+		if (urlSetting == null || nameSetting == null)
+			throw new TrickException("error.load.setting", "Setting cannot be loaded");
+		Map<String, Object> settings = new HashMap<>(3);
+		settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		settings.put("url", urlSetting.getValue());
+		Client client = null;
+		boolean isConnected = false;
+		try {
+			client = ClientBuilder.Build(nameSetting.getString());
+			isConnected = client.connect(settings);
+		} catch (TrickException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
+		} finally {
+			if (!(client == null || isConnected)) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
+		return client;
+	}
+
+	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, AnalysisType type, String username, Locale locale) throws Exception {
+
+		ObjectFactory factory = Context.getsmlObjectFactory();
+		SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+		WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
+				messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale), 1);
+		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
+		SheetData sheet = worksheetPart.getContents().getSheetData();
+		Row row = factory.createRow();
+		sheet.getRow().add(row);
+		int colCount = type == AnalysisType.QUANTITATIVE ? 21 : 19;
+
+		for (int i = 0; i < colCount; i++)
+			row.getC().add(factory.createCell());
+
+		addActionPLanHeader(row, type, locale);
+
+		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type == AnalysisType.QUANTITATIVE ? ActionPlanMode.APPN : ActionPlanMode.APQ);
+
+		for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
+			row = factory.createRow();
+			writeActionPLanData(row, colCount, actionPlanEntry, type, expressionParameters, locale);
+			sheet.getRow().add(row);
+		}
+
+		response.setContentType("xlsx");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		spreadsheetMLPackage.save(response.getOutputStream());
+		// Log
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
+				String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
+				analysis.getIdentifier(), analysis.getVersion());
+
+	}
+
+	private int findId(JsonNode jsonNode, String name) {
+		return jsonNode.has(name) ? jsonNode.get(name).asInt() : -1;
+	}
+
+	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
+		List<String> names = null;
+		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
+		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
+		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
+		if (customer == null || StringUtils.isEmpty(nameFilter)) {
+			user = serviceUser.get(principal.getName());
+			if (user == null)
+				throw new AccessDeniedException("Access denied");
+			if (customer == null) {
+				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
+				// check if the current customer is set -> no
+				if (customer == null && !customers.isEmpty()) {
+					// use first customer as selected customer
+					user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
+					serviceUser.saveOrUpdate(user);
+				}
+				session.setAttribute(CURRENT_CUSTOMER, customer);
+			}
+			if (StringUtils.isEmpty(nameFilter)) {
+				nameFilter = user.getSetting(LAST_SELECTED_ANALYSIS_NAME);
+				if (StringUtils.isEmpty(nameFilter) && customer != null) {
+					names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
+					if (!names.isEmpty()) {
+						user.setSetting(LAST_SELECTED_ANALYSIS_NAME, nameFilter = names.get(0));
+						serviceUser.saveOrUpdate(user);
+					}
+				}
+			}
+		}
+
+		if (customer != null) {
+			if (names == null || names.isEmpty())
+				names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
+			// load model with objects by the selected customer
+			if (StringUtils.isEmpty(nameFilter) || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
+				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
+			else
+				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
+		}
+		loadUserSettings(principal, model, user);
+		model.addAttribute("names", names);
+		model.addAttribute("analysisSelectedName", StringUtils.isEmpty(nameFilter) ? "ALL" : nameFilter);
+		model.addAttribute("customer", customer);
+		model.addAttribute("customers", customers);
+		model.addAttribute("login", principal.getName());
+		model.addAttribute("allowIDS", serviceIDS.exists(true));
+		return "analyses/all/home";
+	}
+
+	private boolean loadUserSettings(Principal principal, @Nullable Model model, @Nullable User user) {
+		boolean allowedTicketing = false;
+		try {
+			if (user == null)
+				user = serviceUser.get(principal.getName());
+			TSSetting name = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME), url = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
+					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
+			if (model != null && allowedTicketing) {
+				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+				model.addAttribute(TICKETING_URL, url.getString());
+			}
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		} finally {
+			if (model != null)
+				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
+		}
+		return allowedTicketing;
+	}
+
+	/**
+	 * mapMeasures: <br>
+	 * Description
+	 * 
+	 * @param standards
+	 * @return
+	 */
+	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
+		Comparator<Measure> comparator = new MeasureComparator();
+		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
+		for (AnalysisStandard standard : standards) {
+			Collections.sort(standard.getMeasures(), comparator);
+			measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
+		}
+		return measuresmap;
+	}
+
 	/**
 	 * buildAnalysis: <br>
 	 * Description
@@ -1168,166 +1328,6 @@ public class ControllerAnalysis {
 			TrickLogManager.Persist(e);
 		}
 		return false;
-	}
-
-	private int findId(JsonNode jsonNode, String name) {
-		return jsonNode.has(name) ? jsonNode.get(name).asInt() : -1;
-	}
-
-	private Client buildClient(String username) {
-		User user = serviceUser.get(username);
-		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
-		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
-		if (urlSetting == null || nameSetting == null)
-			throw new TrickException("error.load.setting", "Setting cannot be loaded");
-		Map<String, Object> settings = new HashMap<>(3);
-		settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
-		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
-		settings.put("url", urlSetting.getValue());
-		Client client = null;
-		boolean isConnected = false;
-		try {
-			client = ClientBuilder.Build(nameSetting.getString());
-			isConnected = client.connect(settings);
-		} catch (TrickException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
-		} finally {
-			if (!(client == null || isConnected)) {
-				try {
-					client.close();
-				} catch (IOException e) {
-					TrickLogManager.Persist(e);
-				}
-			}
-		}
-		return client;
-	}
-
-	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, AnalysisType type, String username, Locale locale) throws Exception {
-
-		ObjectFactory factory = Context.getsmlObjectFactory();
-		SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
-		WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
-				messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale), 1);
-		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
-		SheetData sheet = worksheetPart.getContents().getSheetData();
-		Row row = factory.createRow();
-		sheet.getRow().add(row);
-		int colCount = type == AnalysisType.QUANTITATIVE ? 21 : 19;
-
-		for (int i = 0; i < colCount; i++)
-			row.getC().add(factory.createCell());
-
-		addActionPLanHeader(row, type, locale);
-
-		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type == AnalysisType.QUANTITATIVE ? ActionPlanMode.APPN : ActionPlanMode.APQ);
-
-		for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
-			row = factory.createRow();
-			writeActionPLanData(row, colCount, actionPlanEntry, type, expressionParameters, locale);
-			sheet.getRow().add(row);
-		}
-
-		response.setContentType("xlsx");
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-		spreadsheetMLPackage.save(response.getOutputStream());
-		// Log
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
-				String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
-				analysis.getIdentifier(), analysis.getVersion());
-
-	}
-
-	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
-		List<String> names = null;
-		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
-		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
-		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
-		if (customer == null || StringUtils.isEmpty(nameFilter)) {
-			user = serviceUser.get(principal.getName());
-			if (user == null)
-				throw new AccessDeniedException("Access denied");
-			if (customer == null) {
-				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
-				// check if the current customer is set -> no
-				if (customer == null && !customers.isEmpty()) {
-					// use first customer as selected customer
-					user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
-					serviceUser.saveOrUpdate(user);
-				}
-				session.setAttribute(CURRENT_CUSTOMER, customer);
-			}
-			if (StringUtils.isEmpty(nameFilter)) {
-				nameFilter = user.getSetting(LAST_SELECTED_ANALYSIS_NAME);
-				if (StringUtils.isEmpty(nameFilter) && customer != null) {
-					names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
-					if (!names.isEmpty()) {
-						user.setSetting(LAST_SELECTED_ANALYSIS_NAME, nameFilter = names.get(0));
-						serviceUser.saveOrUpdate(user);
-					}
-				}
-			}
-		}
-
-		if (customer != null) {
-			if (names == null || names.isEmpty())
-				names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
-			// load model with objects by the selected customer
-			if (StringUtils.isEmpty(nameFilter) || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
-				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
-			else
-				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
-		}
-		loadUserSettings(principal, model, user);
-		model.addAttribute("names", names);
-		model.addAttribute("analysisSelectedName", StringUtils.isEmpty(nameFilter) ? "ALL" : nameFilter);
-		model.addAttribute("customer", customer);
-		model.addAttribute("customers", customers);
-		model.addAttribute("login", principal.getName());
-		model.addAttribute("allowIDS", serviceIDS.exists(true));
-		return "analyses/all/home";
-	}
-
-	private boolean loadUserSettings(Principal principal, @Nullable Model model, @Nullable User user) {
-		boolean allowedTicketing = false;
-		try {
-			if (user == null)
-				user = serviceUser.get(principal.getName());
-			TSSetting name = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME), url = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
-			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
-			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
-					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing) {
-				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
-				model.addAttribute(TICKETING_URL, url.getString());
-			}
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-		} finally {
-			if (model != null)
-				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
-		}
-		return allowedTicketing;
-	}
-
-	/**
-	 * mapMeasures: <br>
-	 * Description
-	 * 
-	 * @param standards
-	 * @return
-	 */
-	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
-		Comparator<Measure> comparator = new MeasureComparator();
-		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
-		for (AnalysisStandard standard : standards) {
-			Collections.sort(standard.getMeasures(), comparator);
-			measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
-		}
-		return measuresmap;
 	}
 
 	// ******************************************************************************************************************

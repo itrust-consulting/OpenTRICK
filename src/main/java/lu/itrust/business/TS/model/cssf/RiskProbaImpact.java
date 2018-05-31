@@ -122,6 +122,8 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public IImpactParameter add(ImpactParameter impact) {
+		if (impact == null)
+			return null;
 		IImpactParameter parameter = getImpactMapper().get(impact.getTypeName());
 		if (parameter != null)
 			remove(parameter);
@@ -199,5 +201,4 @@ public class RiskProbaImpact implements Cloneable {
 	public ILevelParameter getProbability(ILevelParameter defaultValue) {
 		return getValueOrDefault(probability, defaultValue);
 	}
-
 }

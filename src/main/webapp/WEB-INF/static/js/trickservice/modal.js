@@ -29,7 +29,7 @@ function Modal(content, body) {
 
 	Modal.prototype.Size = function (map) {
 		var size = 0;
-		for (var value in map)
+		for (let value of map)
 			size++;
 		return size;
 	};
@@ -133,8 +133,8 @@ function Modal(content, body) {
 			$(this).remove();
 		});
 
-		for (var button in this.modal_head_buttons)
-			this.modal_header.insertBefore(this.modal_head_buttons[button], this.modal_header.firstChild);
+		for (let button of this.modal_head_buttons)
+			this.modal_header.insertBefore(button, this.modal_header.firstChild);
 		return false;
 	};
 
@@ -146,8 +146,8 @@ function Modal(content, body) {
 			$(this).remove();
 		});
 
-		for (var button in this.modal_footer_buttons)
-			this.modal_footer.appendChild(this.modal_footer_buttons[button]);
+		for (let button of this.modal_footer_buttons)
+			this.modal_footer.appendChild(button);
 		return false;
 	};
 

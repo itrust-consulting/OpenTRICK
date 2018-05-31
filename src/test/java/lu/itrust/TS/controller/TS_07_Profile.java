@@ -107,7 +107,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
 
-			put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+			put("key_sql_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1).toString()));
 		} finally {
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 		}
@@ -162,7 +162,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
 			notNull(messageHandler.getAsyncCallbacks(), "AsyncCallback should not be null");
 			notEmpty(messageHandler.getAsyncCallbacks()[0].getArgs(), "AsyncCallback args should not be empty");
-			put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1)));
+			put("key_word_export_delete", Integer.parseInt(messageHandler.getAsyncCallbacks()[0].getArgs().get(1).toString()));
 		} finally {
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 		}

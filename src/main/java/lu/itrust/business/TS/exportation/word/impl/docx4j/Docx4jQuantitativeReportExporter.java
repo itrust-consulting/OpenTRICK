@@ -858,7 +858,6 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 				ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 				setValue(getRow(sheet, rowCount++, colSzie), 0, ale.getAssetName());
-
 			}
 
 			ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));

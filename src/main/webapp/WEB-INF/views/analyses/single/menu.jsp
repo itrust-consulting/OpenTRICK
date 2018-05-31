@@ -123,6 +123,9 @@
 					<c:if test="${type.quantitative and hasMaturity}">
 						<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
 					</c:if>
+					<li class="divider"></li>
+					<li><a href="#" onclick="return importRiskEstimation()"> <spring:message code="label.action.import.risk_estimation" text="Import risk estimation" />
+					</a></li>
 				</c:if>
 				<c:if test="${canExport and isEditable}">
 					<li class="divider"></li>
@@ -131,6 +134,8 @@
 					<c:if test="${not empty soas}">
 						<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>
 					</c:if>
+					<li><a href="${pageContext.request.contextPath}/Analysis/Data-manager/Risk-estimation/Export-process" download><spring:message code="label.risk_estimation"
+								text="Risk estimation" /></a></li>
 					<c:choose>
 						<c:when test="${type.qualitative}">
 							<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />

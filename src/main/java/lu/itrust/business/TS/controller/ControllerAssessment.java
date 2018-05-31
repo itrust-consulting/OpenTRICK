@@ -83,6 +83,9 @@ public class ControllerAssessment {
 	@Autowired
 	private ServiceMeasure serviceMeasure;
 
+	
+
+	
 	@RequestMapping(value = "/Asset/{idAsset}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssetAssessment(@PathVariable int idAsset, @RequestParam(value = "idScenario", defaultValue = "-1") int idScenario, Model model, HttpSession session,
@@ -120,13 +123,6 @@ public class ControllerAssessment {
 		return "analyses/single/components/risk-estimation/asset/home";
 	}
 
-	private void loadAnalysisSettings(Model model, Analysis analysis) {
-		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
-		model.addAttribute("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
-		model.addAttribute("showRawColumn", analysis.getSetting(rawSetting));
-		model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
-	}
-
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadSceanrioAssessment(@PathVariable int idScenario, @RequestParam(value = "idAsset", defaultValue = "-1") int idAsset, Model model, HttpSession session,
@@ -162,6 +158,21 @@ public class ControllerAssessment {
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		return "analyses/single/components/risk-estimation/scenario/home";
 
+	}
+
+	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
+			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String manageRiskProfileMeasure(@RequestParam(name = "idAsset") Integer idAsset, @RequestParam(name = "idScenario") Integer idScenario, Model model, HttpSession session,
+			Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
+		if (riskProfile == null)
+			return null;
+		model.addAttribute("riskProfile", riskProfile);
+		model.addAttribute("valueFactory", new ValueFactory(Collections.emptyList()));
+		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class, AssetStandard.class));
+		return "analyses/single/components/risk-estimation/form/measure";
 	}
 
 	/**
@@ -203,8 +214,40 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
+			return new String(
+					"{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
+	}
+
+	@RequestMapping(value = "/Chart/Risk-evolution-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Chart riskEvolutionHeatMapChart(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.generateRiskEvolutionHeatMap(idAnalysis);
+	}
+
+	@RequestMapping(value = "/Chart/Risk-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Chart riskHeatMapChart(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return chartGenerator.generateRiskHeatMap(idAnalysis);
+	}
+
+	@RequestMapping(value = "/RiskProfile/Update/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
+			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String saveRiskProfileMeasure(@RequestBody List<Integer> measureIds, @RequestParam(name = "idAsset") Integer idAsset,
+			@RequestParam(name = "idScenario") Integer idScenario, HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
+		if (riskProfile == null)
+			return JsonMessage.Error(messageSource.getMessage("error.risk_profile.not_found", null, "Risk profile cannot be found", locale));
+		Map<Integer, Measure> measures = serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).stream().collect(Collectors.toMap(Measure::getId, Function.identity()));
+		riskProfile.getMeasures().removeIf(measure -> !measures.containsKey(measure.getId()));
+		riskProfile.getMeasures().forEach(measure -> measures.remove(measure.getId()));
+		riskProfile.getMeasures().addAll(measures.values());
+		serviceRiskProfile.saveOrUpdate(riskProfile);
+		return JsonMessage.Success(messageSource.getMessage("success.save.risk_profile", null, "Risk profile has been successfully save", locale));
 	}
 
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -261,54 +304,9 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
+			return new String(
+					"{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
-	}
-
-	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
-			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String manageRiskProfileMeasure(@RequestParam(name = "idAsset") Integer idAsset, @RequestParam(name = "idScenario") Integer idScenario, Model model, HttpSession session,
-			Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
-		if (riskProfile == null)
-			return null;
-		model.addAttribute("riskProfile", riskProfile);
-		model.addAttribute("valueFactory", new ValueFactory(Collections.emptyList()));
-		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class, AssetStandard.class));
-		return "analyses/single/components/risk-estimation/form/measure";
-	}
-
-	@RequestMapping(value = "/RiskProfile/Update/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
-			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String saveRiskProfileMeasure(@RequestBody List<Integer> measureIds, @RequestParam(name = "idAsset") Integer idAsset,
-			@RequestParam(name = "idScenario") Integer idScenario, HttpSession session, Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
-		if (riskProfile == null)
-			return JsonMessage.Error(messageSource.getMessage("error.risk_profile.not_found", null, "Risk profile cannot be found", locale));
-		Map<Integer, Measure> measures = serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).stream().collect(Collectors.toMap(Measure::getId, Function.identity()));
-		riskProfile.getMeasures().removeIf(measure -> !measures.containsKey(measure.getId()));
-		riskProfile.getMeasures().forEach(measure -> measures.remove(measure.getId()));
-		riskProfile.getMeasures().addAll(measures.values());
-		serviceRiskProfile.saveOrUpdate(riskProfile);
-		return JsonMessage.Success(messageSource.getMessage("success.save.risk_profile", null, "Risk profile has been successfully save", locale));
-	}
-
-	@RequestMapping(value = "/Chart/Risk-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart riskHeatMapChart(HttpSession session, Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return chartGenerator.generateRiskHeatMap(idAnalysis);
-	}
-
-	@RequestMapping(value = "/Chart/Risk-evolution-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart riskEvolutionHeatMapChart(HttpSession session, Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return chartGenerator.generateRiskEvolutionHeatMap(idAnalysis);
 	}
 
 	private Comparator<? super Assessment> assessmentAssetComparator() {
@@ -338,6 +336,15 @@ public class ControllerAssessment {
 		};
 	}
 
+	
+
+	private void loadAnalysisSettings(Model model, Analysis analysis) {
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		model.addAttribute("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
+		model.addAttribute("showRawColumn", analysis.getSetting(rawSetting));
+		model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
+	}
+
 	private void loadAssessmentData(Model model, Locale locale, Analysis analysis) {
 		model.addAttribute("valueFactory", new ValueFactory(analysis.getParameters()));
 		model.addAttribute("impactTypes", analysis.getImpacts());
@@ -359,7 +366,7 @@ public class ControllerAssessment {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", riskProfile);
 			List<ColorBound> colorBounds = ChartGenerator.GenerateColorBounds(analysis.getRiskAcceptanceParameters());
-			
+
 			Integer netImportance = factory.findImportance(assessment);
 			model.addAttribute("computedNetImportance", colorBounds.stream().filter(v -> v.isAccepted(netImportance))
 					.map(v -> new FieldValue("importance", netImportance, v.getLabel(), null, v.getColor())).findAny().orElse(new FieldValue("importance", netImportance)));

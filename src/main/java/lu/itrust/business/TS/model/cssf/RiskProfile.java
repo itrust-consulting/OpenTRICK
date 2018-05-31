@@ -79,18 +79,21 @@ public class RiskProfile implements Cloneable {
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "RiskProfileMeasures", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiMeasure"), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"fiRiskProfile", "fiMeasure" }))
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private List<Measure> measures = new LinkedList<Measure>();
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
 			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileRawImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiRawImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
 					"fiRawImpact", "fiRiskProfile" }))) })
+	@Cascade(CascadeType.ALL)
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
 			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileExpImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiExpImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
 					"fiExpImpact", "fiRiskProfile" }))) })
+	@Cascade(CascadeType.ALL)
 	private RiskProbaImpact expProbaImpact;
 
 	/**
@@ -272,26 +275,6 @@ public class RiskProfile implements Cloneable {
 		return keyName(asset, scenario);
 	}
 
-	/**
-	 * 
-	 * @param asset
-	 * @param scenario
-	 * @return asset.id+"^ID-'RISK_PROFILE'-ID^"+scenario.id
-	 */
-	public static String key(Asset asset, Scenario scenario) {
-		return asset.getId() + "^ID-'RISK_PROFILE'-ID^" + scenario.getId();
-	}
-
-	/**
-	 * 
-	 * @param asset
-	 * @param scenario
-	 * @return asset.getName()+"^NAME-'RISK_PROFILE'-NAME^"+scenario.getName()
-	 */
-	public static String keyName(Asset asset, Scenario scenario) {
-		return asset.getName() + "^NAME-'RISK_PROFILE'-NAME^" + scenario.getName();
-	}
-
 	public Boolean is(int idAsset, int idScenario) {
 		return asset.getId() == idAsset && scenario.getId() == idScenario;
 	}
@@ -358,4 +341,45 @@ public class RiskProfile implements Cloneable {
 			expProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));
 	}
 
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return KEY
+	 * @see #key(int, int)
+	 */
+	public static String key(Asset asset, Scenario scenario) {
+		return key(asset.getId(), scenario.getId());
+	}
+
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return key
+	 * @see #keyName(String, String)
+	 */
+	public static String keyName(Asset asset, Scenario scenario) {
+		return keyName(asset.getName(), scenario.getName());
+	}
+
+	/**
+	 * 
+	 * @param assetId
+	 * @param scenarioId
+	 * @return assetId+"^ID-'RISK_PROFILE'-ID^"+scenarioId
+	 */
+	public static String key(int assetId, int scenarioId) {
+		return assetId + "^ID-'RISK_PROFILE'-ID^" + scenarioId;
+	}
+
+	/**
+	 * 
+	 * @param assetName
+	 * @param scenarioName
+	 * @return assetName+"^NAME-'RISK_PROFILE'-NAME^"+scenarioName
+	 */
+	public static String keyName(String assetName, String scenarioName) {
+		return assetName + "^NAME-'RISK_PROFILE'-NAME^" + scenarioName;
+	}
 }

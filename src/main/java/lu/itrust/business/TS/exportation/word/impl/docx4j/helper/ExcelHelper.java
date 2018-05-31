@@ -18,6 +18,7 @@ import org.docx4j.relationships.Relationship;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.jaxb.Context;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
+import org.xlsx4j.sml.CTMergeCell;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTSheetDimension;
 import org.xlsx4j.sml.CTTable;
@@ -29,6 +30,7 @@ import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
+import org.xlsx4j.sml.Worksheet;
 
 public final class ExcelHelper {
 
@@ -168,26 +170,37 @@ public final class ExcelHelper {
 	/**
 	 * 
 	 * @param row1
-	 *            >= 1
+	 *            >= 0
 	 * @param col1
 	 *            >= 0
 	 * @param row2
-	 *            >= 1
+	 *            >= 0
 	 * @param col2
 	 *            >= 0
 	 * @return address
 	 */
 	public static String getAddress(int row1, int col1, int row2, int col2) {
-		assert row1 >= 1;
-		assert row2 >= 1;
+		assert row1 >= 0;
+		assert row2 >= 0;
 		assert col1 >= 0;
 		assert col2 >= 0;
-		return String.format("%s%d:%s%d", numToColString(col1), row1, numToColString(col2), row2);
+		return String.format("%s%d:%s%d", numToColString(col1), (row1 + 1), numToColString(col2), (row2 + 1));
+	}
+
+	public static void mergeCell(Worksheet worksheet, int rowStart, int colStart, int rowEnd, int colEnd) {
+		CTMergeCell mergeCell = Context.getsmlObjectFactory().createCTMergeCell();
+		if (worksheet.getMergeCells() == null)
+			worksheet.setMergeCells(Context.getsmlObjectFactory().createCTMergeCells());
+		worksheet.getMergeCells().getMergeCell().add(mergeCell);
+		mergeCell.setRef(getAddress(rowStart, colStart, rowEnd, colEnd));
 	}
 
 	public static WorksheetPart createWorkSheetPart(SpreadsheetMLPackage mlPackage, String name) throws Exception {
 		int index = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().size() + 1;
-		return mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), name, index);
+		WorksheetPart part = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), name, index);
+		part.getContents().getSheetData().setParent(part.getContents());
+		part.getContents().setParent(part);
+		return part;
 	}
 
 	public static TablePart createTablePart(WorksheetPart worksheetPart) throws Exception {
@@ -220,7 +233,7 @@ public final class ExcelHelper {
 	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String[] columns, int lenght) throws Exception {
 		TablePart tablePart = createTablePart(worksheetPart);
 		CTTable table = tablePart.getContents();
-		Row row = createRow(worksheetPart.getContents().getSheetData());
+		Row row = getRow(worksheetPart.getContents().getSheetData(), 0, columns.length);
 		for (int i = 0; i < columns.length; i++) {
 			CTTableColumn column = new CTTableColumn();
 			column.setId(i + 1);

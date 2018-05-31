@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
@@ -8,7 +9,7 @@
 		<org.springframework.version>4.3.15.RELEASE</org.springframework.version>
 		<org.springframework.security.version>4.2.5.RELEASE</org.springframework.security.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<org.hibernate.version>5.2.16.Final</org.hibernate.version>
+		<org.hibernate.version>5.2.17.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
@@ -182,7 +183,7 @@
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
+			<artifactId>hibernate-jcache</artifactId>
 			<version>${org.hibernate.version}</version>
 		</dependency>
 

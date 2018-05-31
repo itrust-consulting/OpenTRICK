@@ -14,6 +14,7 @@ public class ApiAsset extends ApiNamable {
 	private double value;
 	private Integer assetTypeId;
 	private String assetTypeName;
+	private boolean selected;
 	
 	/**
 	 * 
@@ -26,15 +27,16 @@ public class ApiAsset extends ApiNamable {
 	 * @param name
 	 * @param value
 	 */
-	public ApiAsset(Integer id, String name, Integer assetTypeId, String assetTypeName, double value) {
+	public ApiAsset(Integer id, String name, Integer assetTypeId, String assetTypeName, double value, boolean selected) {
 		super(id, name);
 		this.value = value;
 		this.assetTypeId = assetTypeId;
 		this.assetTypeName = assetTypeName;
+		this.selected = selected;
 	}
 
 	public static ApiAsset create(Asset asset) {
-		return new ApiAsset(asset.getId(), asset.getName(), asset.getAssetType().getId(), asset.getAssetType().getName(), asset.getValue());
+		return new ApiAsset(asset.getId(), asset.getName(), asset.getAssetType().getId(), asset.getAssetType().getName(), asset.getValue(), asset.isSelected());
 	}
 
 	/**
@@ -65,6 +67,14 @@ public class ApiAsset extends ApiNamable {
 
 	public void setAssetTypeName(String assetTypeName) {
 		this.assetTypeName = assetTypeName;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 
 }
