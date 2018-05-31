@@ -515,15 +515,13 @@ function MaturityMeasureFieldEditor(element) {
 		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; width:80px; position:absolute; z-index:2; margin-right:auto;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 
-		for ( var i in this.implementations) {
+		for ( let item in this.implementations) {
 			var option = document.createElement("option"), $option = $(option);
-			option.setAttribute("value", this.implementations[i].value);
-			option.setAttribute("data-trick-id", this.implementations[i].id);
-
-			if (this.defaultValue == this.implementations[i].value)
+			option.setAttribute("value", item.value);
+			option.setAttribute("data-trick-id", item.id);
+			if (this.defaultValue == item.value)
 				option.setAttribute("selected", true);
-
-			$option.text(this.implementations[i].value);
+			$option.text(item.value);
 			$option.appendTo($fieldEditor);
 		}
 

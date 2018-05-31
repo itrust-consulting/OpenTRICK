@@ -104,7 +104,7 @@ function switchOwner(section) {
 						$("#switchOwnerModal").replaceWith($content);
 					else
 						$content.appendTo($("#widget"));
-					$content.find(".modal-footer>button[name='save']").on("click", function() {
+						$content.find(".modal-footer>button[name='save']").on("click", function() {
 						$content.find(".label").remove();
 						$progress.show();
 						$.ajax({

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ehcache>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+<ehcache>
 
 	<diskStore path="java.io.tmpdir/ts-ehcache" />
 

@@ -211,7 +211,7 @@ public class ControllerDataManager {
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		file.transferTo(workFile);
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation.data", null, "Importing of risk estimation data", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation", null, "Importing of risk estimation data", locale));
 	}
 
 	private String[] createTableHeader(List<ScaleType> scales, WorkbookPart workbook, boolean qualitative, boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
@@ -237,24 +237,28 @@ public class ControllerDataManager {
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, RiskProbaImpact probaImpact, List<ScaleType> scales) {
+		int columnCount = 1;
 		if (probaImpact == null) {
-			for (int i = 0; i <= scales.size(); i++)
-				setValue(row, colIndex++, 0);
+			for (ScaleType type : scales) {
+				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME)) {
+					setValue(row, colIndex++, 0);
+					columnCount++;
+				}
+			}
 		} else {
 			setValue(row, colIndex++, probaImpact.getProbability() == null ? 0 : probaImpact.getProbability().getAcronym());
 			for (ScaleType type : scales) {
-				if (type.getName().equals(Constant.DEFAULT_IMPACT_NAME))
-					setValue(row, colIndex++, Constant.MEASURE_STATUS_NOT_APPLICABLE);
-				else {
+				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME)) {
 					IImpactParameter parameter = probaImpact.get(type.getName());
 					if (parameter == null)
 						setValue(row, colIndex++, 0);
 					else
 						setValue(row, colIndex++, "i" + parameter.getLevel());
+					columnCount++;
 				}
 			}
 		}
-		return 1 + scales.size();
+		return columnCount;
 	}
 
 }

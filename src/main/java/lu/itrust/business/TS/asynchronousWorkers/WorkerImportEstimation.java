@@ -314,7 +314,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 				case "Response":
 					if (riskProfile == null)
 						continue;
-					riskProfile.setRiskStrategy(isEmpty(value) ? RiskStrategy.ACCEPT : RiskStrategy.valueOf(value.toUpperCase()));
+
+					riskProfile.setRiskStrategy(parseResponse(value, riskProfile.getRiskStrategy()));
 					break;
 				case "Probability":
 					assessment.setLikelihood(value);
@@ -388,22 +389,30 @@ public class WorkerImportEstimation extends WorkerImpl {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	private RiskStrategy parseResponse(String value, RiskStrategy defaultValue) {
+		try {
+			return RiskStrategy.valueOf(value);
+		} catch (Exception e) {
+			return defaultValue;
+		}
+	}
+
 	private boolean loadMeasures(RiskProfile riskProfile, String value, Map<String, Map<String, Measure>> measuresMapper) {
 		if (riskProfile == null)
 			return true;
 		riskProfile.getMeasures().clear();
-		String[] lines = value.split("\n");
+		String[] lines = value.trim().split("\n");
 		Map<Integer, Boolean> contains = new HashMap<>();
 		for (String line : lines) {
-			String[] data = line.split(":");
+			String[] data = line.trim().split(":");
 			if (data.length != 2)
 				continue;
 			Map<String, Measure> measures = measuresMapper.get(data[0].trim());
 			if (measures == null)
 				continue;
-			String[] references = data[1].split(";");
+			String[] references = data[1].trim().split(";");
 			for (String reference : references) {
-				Measure measure = measures.get(reference);
+				Measure measure = measures.get(reference.trim());
 				if (measure == null || contains.containsKey(measure.getId()) || !measure.getMeasureDescription().isComputable() || measure instanceof MaturityMeasure)
 					continue;
 				contains.put(measure.getId(), riskProfile.getMeasures().add(measure));
@@ -415,7 +424,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 	private boolean loadImpact(Assessment assessment, ScaleType type, String value, Number defaultValue, ValueFactory factory, List<IValue> valuesToDelete) {
 		if (type == null)
 			return false;
-		IValue impact = assessment.getImpact(type.getName()), iValue = factory.findValue(parseValue(type, value), type.getName());
+		IValue impact = assessment.getImpact(type.getName()), iValue = loadImpactValue(type, value, factory, defaultValue);
 		if (impact == null) {
 			if (iValue == null)
 				return false;
@@ -431,6 +440,15 @@ public class WorkerImportEstimation extends WorkerImpl {
 			}
 		}
 		return false;
+	}
+
+	private IValue loadImpactValue(ScaleType type, String value, ValueFactory factory, Number defaultValue) {
+		if (defaultValue instanceof Double) {
+			Double tempValue = ValueFactory.ToDouble(value, null);
+			if (tempValue != null)
+				return factory.findValue(tempValue * 1000, type.getName());
+		}
+		return factory.findValue(parseValue(type, value), type.getName());
 	}
 
 	private String parseValue(ScaleType type, String value) {
@@ -450,15 +468,19 @@ public class WorkerImportEstimation extends WorkerImpl {
 			columns.add(new Column("Response"));
 			if (rowColumn) {
 				columns.add(new Column("RAW Probability"));
-				for (ScaleType type : scales)
-					columns.add(new Column("RAW " + type.getDisplayName()));
+				for (ScaleType type : scales) {
+					if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME))
+						columns.add(new Column("RAW " + type.getDisplayName()));
+				}
 			}
 			columns.add(new Column("Probability"));
 			for (ScaleType type : scales)
 				columns.add(new Column(type.getDisplayName()));
 			columns.add(new Column("EXP Probability"));
-			for (ScaleType type : scales)
-				columns.add(new Column("EXP " + type.getDisplayName()));
+			for (ScaleType type : scales) {
+				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME))
+					columns.add(new Column("EXP " + type.getDisplayName()));
+			}
 		} else {
 			columns.add(new Column("Probability"));
 			columns.add(new Column("Impact"));

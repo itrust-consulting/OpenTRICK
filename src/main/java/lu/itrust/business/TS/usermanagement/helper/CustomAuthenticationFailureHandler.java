@@ -85,9 +85,9 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			/**
 			 * Log
 			 */
-			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' on time password failed! Requesting IP: " + remoteaddr);
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' one time password failed! Requesting IP: " + remoteaddr);
 			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.otp.failure",
-					String.format("%s attempts to connect from %s but on time password failed", username, remoteaddr), username, LogAction.AUTHENTICATE, username, remoteaddr);
+					String.format("%s attempts to connect from %s but one time password failed", username, remoteaddr), username, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception instanceof LockedException) {
 			AccountLocker locker = accountLockerManager.lock(username, remoteaddr);
 			if (locker == null)

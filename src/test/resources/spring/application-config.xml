@@ -106,11 +106,11 @@
 				<prop key="hibernate.dialect">${jdbc.dialect}</prop>
 				<prop key="hibernate.show_sql">${jdbc.show_sql}</prop>
 				<prop key="hibernate.hbm2ddl.auto">${jdbc.hbm2ddl.auto}</prop>
-				<!-- <prop key="hibernate.javax.cache.provider">${jdbc.cache.javax.provider}</prop> -->
+				<prop key="hibernate.javax.cache.provider">${jdbc.cache.provider}</prop>
 				<prop key="hibernate.cache.use_query_cache">${jdbc.cache.use_query_cache}</prop>
 				<prop key="hibernate.cache.region.factory_class">${jdbc.cache.factory_class}</prop>
 				<prop key="hibernate.cache.use_second_level_cache">${jdbc.cache.use_second_level}</prop>
-				<prop key="net.sf.ehcache.configurationResourceName">/persistence/ehcache-${jdbc.cache.storage.type}.xml</prop>
+				<!-- <prop key="net.sf.ehcache.configurationResourceName">/persistence/ehcache-${jdbc.cache.storage.type}.xml</prop> -->
 			</props>
 		</property>
 	</bean>
@@ -130,14 +130,6 @@
 	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="${app.settings.smtp.host}" />
 		<property name="port" value="${app.settings.smtp.port}" />
-		<!-- <property name="username" value="${app.settings.smtp.username}" />
-		<property name="password" value="${app.settings.smtp.password}" />
-		<property name="javaMailProperties">
-			<props>
-				<prop key="mail.smtp.auth">true</prop>
-				<prop key="mail.smtp.starttls.enable">true</prop>
-			</props>
-		</property> -->
 	</bean>
 
 	<!-- File Uploader -->

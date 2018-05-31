@@ -597,8 +597,8 @@ function deleteEstimationMeasures(idAsset, idScenario, $assessmentUI, $progress)
 		contentType: "application/json;charset=UTF-8",
 		success: function (response) {
 			if (response.success) {
-				for (var i in $toDelete)
-					$toDelete[i].remove();
+				for (let item of $toDelete)
+					item.remove();
 				$("thead input[type='checkbox']", $assessmentUI).trigger('change');
 			}
 			else if (response.error)
@@ -811,8 +811,8 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							},
 							updateStandardUI: function (standard) {
 								var that = this, measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text(), isCustomed = $("option:selected", this.$standardSelector).attr("data-trick-custom"), $btnAddMeasure = $("button[name='add-measure']", this.$measureManager);
-								for (var idMeasure in measures) {
-									var measure = measures[idMeasure], $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"),
+								for (let measure of measures) {
+									var $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"),
 										$button = $("<button class='btn btn-xs'></button>"), status = application.measureStatus[measure.status];
 									$button.appendTo($("<td />").appendTo($tr));
 									$("<td data-real-value='" + measure.idStandard + "' >" + standardName + "</td>").appendTo($tr);
@@ -1034,8 +1034,8 @@ function initialiseRiskEstimation() {
 
 	$("div.list-group>.list-group-item", application["estimation-helper"].$tabSection).on("click", changeAssessment);
 
-	for (var i in helper.names)
-		application["estimation-helper"].getCurrent(helper.names[i]).on('change', updateSelector)
+	for (let tmpName of helper.names)
+		application["estimation-helper"].getCurrent(tmpName).on('change', updateSelector)
 
 	$("button[name='add-scenario']", application["estimation-helper"].$tabSection).on("click", function () {
 		return editScenario(undefined, true);
