@@ -87,6 +87,7 @@ public class ControllerDataManager {
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
+	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
