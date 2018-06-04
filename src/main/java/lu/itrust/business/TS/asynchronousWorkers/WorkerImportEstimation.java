@@ -62,6 +62,9 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -386,6 +389,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 		valuesToDelete.forEach(v -> daoAssessment.delete(v));
 		riskProfileManager.updateAssessment(analysis, factory);
 		daoAnalysis.saveOrUpdate(analysis);
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.risk.estimation",
+				String.format("Analysis: %s, version: %s, type: Risk estimation", analysis.getIdentifier(), analysis.getVersion()), getUsername(), LogAction.IMPORT,
+				analysis.getIdentifier(), analysis.getVersion());
 	}
 
 	private RiskStrategy parseResponse(String value, RiskStrategy defaultValue) {
