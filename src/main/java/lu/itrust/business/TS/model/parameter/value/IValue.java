@@ -24,6 +24,8 @@ public interface IValue extends Cloneable {
 	String getVariable();
 
 	Double getReal();
+	
+	Object getRaw();
 
 	ILevelParameter getParameter();
 	

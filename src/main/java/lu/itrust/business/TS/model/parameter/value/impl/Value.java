@@ -46,4 +46,11 @@ public class Value extends AbstractValue {
 		setParameter(value.getParameter());
 		return true;
 	}
+
+	@Override
+	public String getRaw() {
+		return getVariable();
+	}
+	
+	
 }

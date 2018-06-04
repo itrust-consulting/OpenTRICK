@@ -72,4 +72,9 @@ public class LevelValue extends NumericValue {
 		return true;
 	}
 
+	@Override
+	public Object getRaw() {
+		return getVariable();
+	}
+
 }

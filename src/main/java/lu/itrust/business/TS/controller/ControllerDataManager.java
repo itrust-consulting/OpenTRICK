@@ -156,7 +156,7 @@ public class ControllerDataManager {
 				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales);
 			} else {
 				setValue(row, cellIndex++, assessment.getLikelihood());
-				setValue(row, cellIndex++, assessment.getImpactValue(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME) * 0.001);
+				writeQuantitativeImpact(row, cellIndex++, assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME));
 			}
 
 			if (uncertainty)
@@ -229,7 +229,7 @@ public class ControllerDataManager {
 			if (value == null)
 				setValue(row, colIndex++, 0);
 			else if (type.getName().equals(Constant.DEFAULT_IMPACT_NAME))
-				setValue(row, colIndex++, value.getReal() * 0.001);
+				writeQuantitativeImpact(row, colIndex++, value);
 			else
 				setValue(row, colIndex++, "i" + value.getLevel());
 		}
@@ -259,6 +259,15 @@ public class ControllerDataManager {
 			}
 		}
 		return columnCount;
+	}
+
+	private void writeQuantitativeImpact(Row row, int cellIndex, IValue impact) {
+		if (impact == null)
+			setValue(row, cellIndex, 0);
+		else if (impact.getRaw() instanceof Double)
+			setValue(row, cellIndex, impact.getReal() * 0.001);
+		else
+			setValue(row, cellIndex, impact.getVariable());
 	}
 
 }

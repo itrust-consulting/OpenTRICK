@@ -282,8 +282,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 						.collect(Collectors.groupingBy(m -> m.getMeasureDescription().getStandard().getLabel(),
 								Collectors.mapping(Function.identity(), Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()))));
 		final List<IValue> valuesToDelete = new LinkedList<>();
-		final Map<String, ScaleType> scalesMapper = riskProfiles.isEmpty() ? Collections.emptyMap()
-				: scaleTypes.stream().collect(Collectors.toMap(ScaleType::getDisplayName, Function.identity()));
+		final Map<String, ScaleType> scalesMapper = scaleTypes.stream().collect(Collectors.toMap(ScaleType::getDisplayName, Function.identity()));
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String assetName = getString(row, assetIndex, formatter), scenarioName = getString(row, scenarioIndex, formatter);

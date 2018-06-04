@@ -24,7 +24,7 @@ import lu.itrust.business.TS.model.parameter.value.NumericValue;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@AttributeOverride(name = "id", column = @Column(name="idRealValue"))
+@AttributeOverride(name = "id", column = @Column(name = "idRealValue"))
 public class RealValue extends NumericValue {
 
 	/**
@@ -58,11 +58,11 @@ public class RealValue extends NumericValue {
 	public Double getReal() {
 		return getNumber().doubleValue();
 	}
-	
-	public void setReal(double real){
+
+	public void setReal(double real) {
 		setNumber(real);
 	}
-	
+
 	@Override
 	public boolean merge(IValue value) {
 		if (value == null || !(value instanceof RealValue))
@@ -70,6 +70,11 @@ public class RealValue extends NumericValue {
 		setReal(value.getReal());
 		setParameter(value.getParameter());
 		return true;
+	}
+
+	@Override
+	public Double getRaw() {
+		return getReal();
 	}
 
 }
