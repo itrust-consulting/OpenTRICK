@@ -270,7 +270,7 @@ public class ValueFactory {
 
 	public static Double ToDouble(String value, Double defaultValue) {
 		try {
-			return Double.parseDouble(value);
+			return value == null ? defaultValue : Double.parseDouble(value);
 		} catch (NumberFormatException e) {
 			return defaultValue;
 		}
@@ -460,7 +460,7 @@ public class ValueFactory {
 		IValue result = findValue(value, type);
 		return result == null ? null : result.getParameter();
 	}
-	
+
 	public ILevelParameter findParameter(Object value, String type) {
 		IValue result = findValue(value, type);
 		return result == null ? null : result.getParameter();
