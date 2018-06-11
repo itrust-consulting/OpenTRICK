@@ -316,7 +316,6 @@ public class WorkerImportEstimation extends WorkerImpl {
 				case "Response":
 					if (riskProfile == null)
 						continue;
-
 					riskProfile.setRiskStrategy(parseResponse(value, riskProfile.getRiskStrategy()));
 					break;
 				case "Probability":

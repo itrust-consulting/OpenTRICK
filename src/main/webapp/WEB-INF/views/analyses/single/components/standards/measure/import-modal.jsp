@@ -35,9 +35,9 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<div class="col-lg-8" style="color: #d9534f;" align="left" id="riskEstimationDataNotification"></div>
+				<div class="col-lg-8" style="color: #d9534f;" align="left" id="measureDataNotification"></div>
 				<div class="col-lg-4">
-					<button type="button" name="import" class="btn btn-primary" id="btnImportRiskEstimation" disabled="disabled">
+					<button type="button" name="import" class="btn btn-primary" id="btnImportMeasureData" disabled="disabled">
 						<spring:message code="label.action.import" text="Import" />
 					</button>
 					<button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">
