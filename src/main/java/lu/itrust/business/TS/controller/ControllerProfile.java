@@ -30,7 +30,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.core.token.Sha512DigestUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -141,6 +142,9 @@ public class ControllerProfile {
 
 	@Autowired
 	private ServiceEmailSender serviceEmailSender;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
@@ -462,10 +466,9 @@ public class ControllerProfile {
 	@PostMapping(value = "/Validate/Email", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String validateEmail(Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		final ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 		final SecureRandom random = new SecureRandom();
-		final String token = passwordEncoder.encodePassword(UUID.randomUUID().toString() + "-email-validation-" + System.nanoTime() + user.getEmail() + random.nextLong(),
-				principal.getName());
+		final String token = Sha512DigestUtils
+				.shaHex(UUID.randomUUID().toString() + "-email-validation-" + System.nanoTime() + user.getEmail() + random.nextLong() + principal.getName());
 		final EmailValidatingRequest validatingRequest = new EmailValidatingRequest(user, token);
 		serviceEmailValidatingRequest.deleteByUser(user);
 		serviceEmailValidatingRequest.saveOrUpdate(validatingRequest);
@@ -513,7 +516,6 @@ public class ControllerProfile {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
@@ -529,7 +531,7 @@ public class ControllerProfile {
 			if (user.getConnexionType() != User.LADP_CONNEXION) {
 				if (StringUtils.isEmpty(currentPassword))
 					errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
-				else if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
+				else if (!isMatch(oldPassword, currentPassword, user.getLogin()))
 					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
 			}
 
@@ -549,7 +551,7 @@ public class ControllerProfile {
 							user.setPassword(oldPassword);
 							errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
 						} else {
-							user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+							user.setPassword(passwordEncoder.encode(user.getPassword()));
 						}
 					}
 				}
@@ -611,6 +613,10 @@ public class ControllerProfile {
 
 		return errors.isEmpty();
 
+	}
+
+	private boolean isMatch(String oldPassword, String currentPassword, String login) {
+		return passwordEncoder.matches(currentPassword + (oldPassword.startsWith("{SHA-256}") ? "{" + login + "}" : ""), oldPassword);
 	}
 
 	private String generateQRCode(User user, String secret) {

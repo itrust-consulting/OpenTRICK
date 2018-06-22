@@ -3,20 +3,11 @@
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-4.2.xsd">
-
-
-	<authentication-manager id="authenticationManager">
+           
+           
+     <authentication-manager id="authenticationManager">
 		<!-- Standard Authentication, it can be commented if not used -->
-		<authentication-provider>
-			<jdbc-user-service data-source-ref="dataSource"
-				users-by-username-query="SELECT dtLogin as username, dtPassword as password, dtEnabled as enable from 
-			User where 1> dtConnexionType and dtLogin=?"
-				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.fiUser = User.idUser 
-			AND UserRole.fiRole = Role.idRole AND User.dtLogin = ?" />
-			<password-encoder ref="passwordEncoder">
-				<salt-source user-property="username" />
-			</password-encoder>
-		</authentication-provider>
+		<authentication-provider ref="customDAOAuthentificationProvider" />
 
 		<!-- LDAP Active Directory Authentication, it can be commented if not used -->
 		<!--<authentication-provider ref="adAuthenticationProvider" /> -->
@@ -26,6 +17,19 @@
 			group-role-attribute="${app.settings.ldap.group_role_attribute}" group-search-base="${app.settings.ldap.group_search_base}" user-search-filter="${app.settings.ldap.user_search_filter}"
 			user-search-base="${app.settings.ldap.user_search_base}" group-search-filter="${app.settings.ldap.group_search_filter}" /> -->
 	</authentication-manager>
+           
+     
+     <!-- Standard Authentication, it can be commented if not used -->
+     <jdbc-user-service id="userDetailsService" data-source-ref="dataSource"
+				users-by-username-query="SELECT dtLogin as username, dtPassword as password, dtEnabled as enable from 
+			User where 1> dtConnexionType and dtLogin=?"
+				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.fiUser = User.idUser 
+			AND UserRole.fiRole = Role.idRole AND User.dtLogin = ?" />
+			
+	<beans:bean id="customDAOAuthentificationProvider" class="lu.itrust.business.TS.usermanagement.helper.CustomerDAOAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="userDetailsService"/>
+		<beans:property name="passwordEncoder" ref="passwordEncoder"/>
+	</beans:bean>
 
 	<!-- LDAP Authentication, it can be commented if not used -->
 	<!-- <beans:bean id="TRICKLdapUserDetailsMapper" class="lu.itrust.business.TS.usermanagement.helper.TRICKLdapUserDetailsMapper">

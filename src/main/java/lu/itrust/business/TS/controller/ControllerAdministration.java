@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -181,6 +181,9 @@ public class ControllerAdministration {
 
 	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * loadAll: <br>
@@ -1050,8 +1053,7 @@ public class ControllerAdministration {
 					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
 				else {
 					user.setPassword(password);
-					ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+					user.setPassword(passwordEncoder.encode(user.getPassword()));
 				}
 			}
 		} else if (!User.LDAP_KEY_PASSWORD.equals(user.getPassword()))

@@ -1,8 +1,8 @@
 <?xml  version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:sec="http://www.springframework.org/schema/security"
-	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
-	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:websocket="http://www.springframework.org/schema/websocket"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
@@ -27,25 +27,25 @@
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
-		<property name="queueCapacity" value="${app.settings.background.task.queue.capacity}"/>
+		<property name="queueCapacity" value="${app.settings.background.task.queue.capacity}" />
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
 
 	<bean id="emailTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="5" />
 		<property name="maxPoolSize" value="10" />
-		<property name="queueCapacity" value="30"/>
+		<property name="queueCapacity" value="30" />
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
-	
+
 	<task:scheduler id="scheduler" pool-size="${app.settings.scheduler.pool.size}" />
 
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
-	
+
 	<bean id="dataCleaner" class="lu.itrust.business.TS.component.DataCleaner" />
-	
+
 	<task:scheduled-tasks scheduler="scheduler">
-		<task:scheduled ref="dataCleaner" method="cleanUp" cron="${app.settings.cleaner.cron.setup}"/>
+		<task:scheduled ref="dataCleaner" method="cleanUp" cron="${app.settings.cleaner.cron.setup}" />
 	</task:scheduled-tasks>
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
@@ -81,25 +81,10 @@
 		<property name="cookieName" value="TS_THEME_NAME" />
 	</bean>
 
-	<mvc:interceptors>
-		<!-- Changes the locale when a 'lang' request parameter is sent; e.g. /?lang=fr -->
-		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-			<property name="paramName" value="lang" />
-		</bean>
-
-		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
-			<property name="paramName" value="theme" />
-		</bean>
-
-		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
-			<property name="sessionFactory" ref="sessionFactory" />
-		</bean>
-	</mvc:interceptors>
-
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
 
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}" p:username="${jdbc.username}"
-		p:password="${jdbc.password}" />
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
+		p:username="${jdbc.username}" p:password="${jdbc.password}" />
 
 	<bean id="baselineVersion" class="org.flywaydb.core.api.MigrationVersion" factory-method="fromVersion">
 		<constructor-arg value="${app.settings.database.version}" />
@@ -162,15 +147,31 @@
 
 	<!-- File Uploader -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		<property name="maxUploadSize" value="${app.settings.upload.file.max.size}"/>
+		<property name="maxUploadSize" value="${app.settings.upload.file.max.size}" />
 	</bean>
 
 	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
 		<property name="password" value="${app.settings.password.ecryption.key}" />
 	</bean>
+	
+	<mvc:interceptors>
+		<!-- Changes the locale when a 'lang' request parameter is sent; e.g. /?lang=fr -->
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+			<property name="paramName" value="lang" />
+		</bean>
+
+		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
+			<property name="paramName" value="theme" />
+		</bean>
+
+		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+		
+	</mvc:interceptors>
 
 	<import resource="spring-security.xml" />
-	
+
 	<import resource="web-socket-config.xml" />
 
 </beans>

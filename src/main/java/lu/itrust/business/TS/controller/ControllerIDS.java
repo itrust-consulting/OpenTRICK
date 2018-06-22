@@ -19,7 +19,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -121,9 +121,8 @@ public class ControllerIDS {
 			} else {
 				if (serviceIDS.existByPrefix(ids.getPrefix()))
 					return JsonMessage.Field("prefix", messageSource.getMessage("error.ids.prefix.used", null, "Name is already in used", locale));
-				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 				do {
-					ids.setToken(passwordEncoder.encodePassword(UUID.randomUUID().toString(), ids.getPrefix() + System.nanoTime()));
+					ids.setToken(Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + ids.getPrefix() + System.nanoTime()));
 				} while (serviceIDS.exists(ids.getToken()));
 			}
 
@@ -173,13 +172,13 @@ public class ControllerIDS {
 	@RequestMapping(value = "/Admin/IDS/Renew/Token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody Object renewToken(@RequestBody List<Integer> IDs, Principal principal, Locale locale) {
 		try {
-			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+
 			Map<Integer, String> newToken = new LinkedHashMap<>(IDs.size());
 			IDs.forEach(id -> {
 				IDS ids = serviceIDS.get(id);
 				if (ids != null) {
 					do {
-						ids.setToken(passwordEncoder.encodePassword(UUID.randomUUID().toString(), ids.getPrefix() + System.nanoTime()));
+						ids.setToken(Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + ids.getPrefix() + System.nanoTime()));
 					} while (serviceIDS.exists(ids.getToken()));
 					serviceIDS.saveOrUpdate(ids);
 					TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids.token",

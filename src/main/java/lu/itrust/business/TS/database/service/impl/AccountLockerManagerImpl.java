@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Component;
 
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -66,8 +66,7 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.service.AccountLockerManager#setLocked(
+	 * @see lu.itrust.business.TS.database.service.AccountLockerManager#setLocked(
 	 * java.lang.String)
 	 */
 	@Override
@@ -86,7 +85,7 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 		if (accountLocker.isLocked()) {
 			long lockMinute = lockTime / 60000;
 			String[] names = username.split(AccountLockerManager.SEPRARATOR);
-			String key = new ShaPasswordEncoder(256).encodePassword(UUID.randomUUID().toString(), accountLocker.hashCode());
+			String key = Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + ":" + accountLocker.hashCode());
 			if (names.length == 2) {
 				TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.ip.locked",
 						String.format("%s account is locked for %d minutes from %s", names[0], lockMinute, names[1]), names[0], LogAction.LOCK_ACCOUNT, names[0], lockMinute + "",

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%t] %-5p %c - %m%n" />
+		</Console>
+		<Socket name="RemoteLogger" host="vm-lan-logger.itrust.lu" port="5142" ReconnectionDelay="10000">
+			<PatternLayout pattern="%t %-5p %c{2} - %m%n" />
+		</Socket>
+	</Appenders>
+	<Loggers>
+		<logger name="TRICKLogManager" level='DEBUG'>
+			<AppenderRef ref="RemoteLogger" />
+		</logger>
+		
+		<logger name="org.docx4j" level='ERROR' />
+		
+		<logger name="org.docx4j.jaxb.JaxbValidationEventHandler" level='ERROR' />
+		
+		<logger name="org.docx4j.jaxb.NamespacePrefixMapperUtils" level='ERROR' />
+		
+		<logger name="org.docx4j.openpackaging.contenttype.ContentTypeManager" level='ERROR' />
+		
+		<logger name="org.docx4j.utils.XSLTUtils" level='ERROR' />
+		
+		<logger name="org.hibernate" level='WARN' />
+		
+		<logger name="org.hibernate.type" level='WARN' />
+			
+		<logger name="org.springframework.security" level='WARN' />
+	
+		<logger name="org.springframework.web" level='WARN' />
+		
+		<logger name="org.xlsx4j.jaxb.Context" level='WARN' />
+		
+		<logger name="stdout.org.springframework" level='WARN' />
+		
+		<Root level="INFO">
+			<AppenderRef ref="STDOUT" />
+		</Root>
+	</Loggers>
+</Configuration>

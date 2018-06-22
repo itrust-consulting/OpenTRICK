@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -177,10 +177,9 @@ public class ManageAnalysisRight {
 	}
 
 	private void sendInvitation(String email, Analysis analysis, User host, AnalysisRight right) {
-		final ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 		final SecureRandom random = new SecureRandom();
-		final String token = passwordEncoder.encodePassword(UUID.randomUUID().toString() + "--" + System.nanoTime(),
-				email + "-*/" + host.getEmail() + "@=" + analysis.getIdentifier() + random.nextLong());
+		final String token = Sha512DigestUtils
+				.shaHex(UUID.randomUUID().toString() + "--" + System.nanoTime() + ":" + email + "-*/" + host.getEmail() + "@=" + analysis.getIdentifier() + random.nextLong());
 		final AnalysisShareInvitation invitation = new AnalysisShareInvitation(token, analysis, host, email, right);
 		daoAnalysisShareInviatation.saveOrUpdate(invitation);
 		serviceEmailSender.send(invitation);
@@ -232,8 +231,8 @@ public class ManageAnalysisRight {
 		if (!user.isEmailValidated()) {
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.share.analysis.access.not.validated.mail",
-					String.format("Cause: Invalidated e-mail, Analysis: %s, version: %s, access: %s, Guest: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
-							invitation.getEmail()),
+					String.format("Cause: Invalidated e-mail, Analysis: %s, version: %s, access: %s, Guest: %s", analysis.getIdentifier(), analysis.getVersion(),
+							invitation.getRight().toLower(), invitation.getEmail()),
 					principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail());
 
 			throw new TrickException("error.accpet.invitation.email.not.validate", "Please validate your address mail and try again: Account -> My Profile -> Verify email");
@@ -242,8 +241,8 @@ public class ManageAnalysisRight {
 		if (!user.getEmail().equalsIgnoreCase(invitation.getEmail())) {
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.share.analysis.access.bad.mail",
-					String.format("Cause: Bad e-mail, Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
-							invitation.getEmail(), user.getEmail()),
+					String.format("Cause: Bad e-mail, Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(),
+							invitation.getRight().toLower(), invitation.getEmail(), user.getEmail()),
 					principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
 					user.getEmail());
 			throw new TrickException("error.accpet.invitation.bad.email", "Access denied: your email address does not match that of the guest");

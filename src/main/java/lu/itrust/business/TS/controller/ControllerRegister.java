@@ -19,7 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.core.token.Sha512DigestUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -86,6 +87,9 @@ public class ControllerRegister {
 
 	@Autowired
 	private ServiceResetPassword serviceResetPassword;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Value("${app.settings.time.to.valid.reset.password}")
 	private int timeoutValue;
@@ -235,9 +239,8 @@ public class ControllerRegister {
 				ResetPassword resetPassword2 = serviceResetPassword.get(user);
 				if (resetPassword2 != null)
 					serviceResetPassword.delete(resetPassword2);
-				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 				resetPassword2 = new ResetPassword(user,
-						passwordEncoder.encodePassword(String.valueOf(System.nanoTime()), String.valueOf(new Random(System.currentTimeMillis()).nextDouble())),
+						Sha512DigestUtils.shaHex(String.valueOf(System.nanoTime()) + String.valueOf(new Random(System.currentTimeMillis()).nextDouble())),
 						new Timestamp(System.currentTimeMillis() + timeoutValue));
 				serviceResetPassword.saveOrUpdate(resetPassword2);
 				serviceEmailSender.send(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
@@ -321,8 +324,7 @@ public class ControllerRegister {
 
 		try {
 			String username = resetPassword.getUser().getLogin();
-			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			resetPassword.getUser().setPassword(passwordEncoder.encodePassword(changePassword.getPassword(), resetPassword.getUser().getLogin()));
+			resetPassword.getUser().setPassword(passwordEncoder.encode(changePassword.getPassword()));
 			serviceUser.saveOrUpdate(resetPassword.getUser());
 			serviceResetPassword.delete(resetPassword);
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
@@ -356,7 +358,6 @@ public class ControllerRegister {
 			// System.out.println(source);
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
@@ -386,7 +387,7 @@ public class ControllerRegister {
 			if (error != null)
 				errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
-				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+				user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 			error = validator.validate(user, "firstName", firstname);
 			if (error != null)
