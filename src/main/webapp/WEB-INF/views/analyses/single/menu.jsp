@@ -124,12 +124,14 @@
 						<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
 					</c:if>
 					<li class="divider"></li>
+					<li><a href="#" onclick="return importDataManager(${analysis.id})"> <spring:message code="label.action.import"/> (Alpha)</a></li>
 					<li><a href="#" onclick="return importRiskEstimation()"> <spring:message code="label.action.import.risk_estimation" text="Import risk estimation" />
 					</a></li>
 				</c:if>
 				<c:if test="${canExport and isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
+					<li><a href="#" onclick="return exportDataManager(${analysis.id})"> <spring:message code="label.action.export"/> (Alpha)</a></li>
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:if test="${not empty soas}">
 						<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>

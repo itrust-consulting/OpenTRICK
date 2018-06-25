@@ -1,3 +1,25 @@
+function exportDataManager(idAnalysis) {
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url : context + "/Analysis/Data-manager/Export" + ($.isNumeric(idAnalysis) ? "?analysisId=" + idAnalysis : ""),
+		type : "GET",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			var $view = $("#export-modal", new DOMParser().parseFromString(response, "text/html"));
+			if($view.length){
+				$view.appendTo("#dialog-body").modal("show").on("hidden.bs.modal", () => $view.remove());
+			}else
+				unknowError();
+		},
+		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+	});
+	return false;
+}
+
+
+
 function exportAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");

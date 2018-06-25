@@ -130,13 +130,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	width: 20px;
 }
 
-.anchor {
-	display: block;
-	height: 100px;
-	margin-top: -100px;
-	visibility: hidden;
-}
-
 .textaligncenter {
 	text-align: center;
 }
@@ -155,25 +148,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	margin-bottom: 0px;
 	margin: 0;
 	padding: 0;
-}
-
-.cellwidth_650 {
-	width: 500px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	line-height: 1.5;
-	display: block;
-	margin: 0;
-	padding: 0;
-}
-
-.cellwidth_250 {
-	width: 250px;
-}
-
-.cellwidth_80 {
-	width: 80px;
 }
 
 .tablesorter thead tr.tablesorter-filter-row {
@@ -953,6 +927,37 @@ input[type=number],input[type=date]:disabled {
 
 .progress-danger{
 	background-color: #f2dede;
+}
+
+#import-modal .modal-body, 
+#export-modal .modal-body{
+	padding: 0px;
+}
+
+#import-modal .tabs-left>li:first-child, 
+#export-modal .tabs-left>li:first-child{
+	margin-top: -3px;
+}
+
+#import-modal .tabs-left>li.active:first-child>a, 
+#export-modal .tabs-left>li.active:first-child>a{
+	border-radius: 0 0 0 4px;
+}
+
+#import-modal .tabs-left>li.active:last-child>a, 
+#export-modal .tabs-left>li.active:last-child>a{
+	border-radius: 4px 0 0 0;
+}
+
+#import-modal .tabs-left, 
+#export-modal .tabs-left{
+	height: 550px;
+}
+
+#import-modal .tab-pane,  
+#export-modal .tab-pane{
+	padding: 10px;
+	height: 550px;
 }
 
 @media (min-width: 768px) {

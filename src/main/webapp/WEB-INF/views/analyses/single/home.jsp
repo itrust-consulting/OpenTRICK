@@ -85,6 +85,9 @@
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/rrf.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-measure.js?version=${jsVersion}" />"></script>
+	<c:if test="${isEditable}">
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisImport.js?version=${jsVersion}" />"></script>
+	</c:if>
 	<c:if test="${!isProfile}">
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js?version=${jsVersion}" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js?version=${jsVersion}" />"></script>

@@ -9,6 +9,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 
 import java.io.File;
 import java.security.Principal;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,6 +45,7 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerImportEstimation;
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.controller.form.DataManagerItem;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -97,14 +99,36 @@ public class ControllerDataManager {
 	private Long maxUploadFileSize;
 
 	@GetMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String importManager(Model model, HttpSession session, Locale locale) {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String importManager(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
+		List<DataManagerItem> items = new LinkedList<>();
+		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", null, ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process", null, ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-process", "/Analysis/Data-manager/Measure/Import-form", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", null, ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", null, ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("rrf", "/Analysis/Data-manager/RRF/Import-process", "/Analysis/Data-manager/RRF/Import-form", null));
+		items.add(new DataManagerItem("raw-rrf", "/Analysis/Data-manager/RRF-RAW/Import-process", null, ".xls,.xlsx,.xlsm"));
+		model.addAttribute("items", items);
 		return "analyses/single/components/data-manager/import";
 	}
 
 	@GetMapping(value = "/Export", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportManager(HttpSession session, Locale locale) {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportManager(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
+		List<DataManagerItem> items = new LinkedList<>();
+		items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Import-process", null, null));
+		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", null, null));
+		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process", null, null));
+		items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-process", "/Analysis/Data-manager/Measure/Import-form", null));
+		items.add(new DataManagerItem("report", "/Analysis/Data-manager/Report/Import-process", "/Analysis/Data-manager/Report/Import-form", null));
+		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", null, null));
+		items.add(new DataManagerItem("rrf-raw", "/Analysis/Data-manager/RRF-RAW/Import-process", null, null));
+		items.add(new DataManagerItem("risk-register", "/Analysis/Data-manager/Risk-register/Import-process", "/Analysis/Data-manager/Risk-register/Import-form", null));
+		items.add(new DataManagerItem("risk-sheet", "/Analysis/Data-manager/Risk-sheet/Import-process", "/Analysis/Data-manager/Risk-sheet/Import-form", null));
+		items.add(new DataManagerItem("risk-sheet-raw", "/Analysis/Data-manager/Risk-sheet-raw/Import-process", "/Analysis/Data-manager/Risk-sheet-raw/Import-form", null));
+		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", null, null));
+		model.addAttribute("items", items);
 		return "analyses/single/components/data-manager/export";
 	}
 

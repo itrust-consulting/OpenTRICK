@@ -11,7 +11,7 @@ public class DataManagerItem {
 	
 	private String name;
 
-	private String proccessURL;
+	private String processURL;
 	
 	private String viewURL;
 	
@@ -26,13 +26,14 @@ public class DataManagerItem {
 
 	/**
 	 * @param name
-	 * @param proccessURL
+	 * @param processURL
 	 * @param extensions
 	 */
-	public DataManagerItem(String name, String proccessURL, String viewURL, String extensions) {
+	public DataManagerItem(String name, String processURL, String viewURL, String extensions) {
 		this.name = name;
-		this.proccessURL = proccessURL;
+		this.processURL = processURL;
 		this.extensions = extensions;
+		this.viewURL = viewURL;
 	}
 	
 	public String getName() {
@@ -43,12 +44,12 @@ public class DataManagerItem {
 		this.name = name;
 	}
 
-	public String getProccessURL() {
-		return proccessURL;
+	public String getProcessURL() {
+		return processURL;
 	}
 
-	public void setProccessURL(String proccessURL) {
-		this.proccessURL = proccessURL;
+	public void setProcessURL(String processURL) {
+		this.processURL = processURL;
 	}
 
 	public String getExtensions() {
