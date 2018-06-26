@@ -26,6 +26,17 @@
 				</div>
 				<div class="col-xs-9">
 					<div id="import-view-container" class="tab-content">
+						<c:choose>
+							<c:when test="${ maxFileSize< 1024}">
+								<spring:message code="label.max.unit.data.byte" arguments="${maxFileSize}" var="maxSizeInfo" />
+							</c:when>
+							<c:when test="${ maxFileSize < 1048576}">
+								<spring:message code="label.max.unit.data.kilo.byte" arguments="${maxFileSize / 1024}" var="maxSizeInfo" />
+							</c:when>
+							<c:otherwise>
+								<spring:message code="label.max.unit.data.mega.byte" arguments="${maxFileSize / 1048576}" var="maxSizeInfo" />
+							</c:otherwise>
+						</c:choose>
 						<c:forEach items="${items}" var="item" varStatus="status">
 							<div class='tab-pane ${status.index==0?"active":""}' id="import-${item.name}" data-view-name='${item.name}' data-view-url='${item.viewURL}'
 								data-view-process-url='${item.processURL}' data-view-extentions='${item.extensions}'>
@@ -40,9 +51,9 @@
 											<div class="col-lg-12">
 												<div class="input-group-btn">
 													<spring:message text="${fn:replace(item.extensions,'.','')}" var="extension"/>
-													<input id="file-${item.name}" type="file" accept="${item.extensions}"
+													<input id="file-${item.name}" type="file" accept="${item.extensions}" maxlength="${maxFileSize}"
 														onchange='{$("#upload-file-info-${item.name}").prop("value",$(this).prop("value")); checkExtention($("#upload-file-info-${item.name}").val(),"${extension}","#btn-import");}'
-														name="file" style="display: none;" /> <input id="upload-file-info-${item.name}" class="form-control" readonly="readonly" required="required" style="width: 88%;" />
+														name="file" style="display: none;" /> <input id="upload-file-info-${item.name}" class="form-control" readonly="readonly" required="required" style="width: 88%;" placeholder="${maxSizeInfo}"/>
 													<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file-${item.name}]').click();" style="margin-left: -5px;">
 														<spring:message code="label.action.browse" text="Browse" />
 													</button>
@@ -50,9 +61,7 @@
 											</div>
 										</div>
 									</form>
-									
 									<div class="col-lg-8" style="color: #d9534f;" align="left" id="import${item.name}Notification"></div>
-
 								</c:if>
 							</div>
 						</c:forEach>

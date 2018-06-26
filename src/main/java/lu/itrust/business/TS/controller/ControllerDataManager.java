@@ -1,14 +1,19 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.RI_SHEET_MAPPERS;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -20,7 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
@@ -32,40 +39,59 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.xlsx4j.sml.CTTable;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerImportEstimation;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportRiskInformation;
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
+import lu.itrust.business.TS.component.MeasureManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.DataManagerItem;
+import lu.itrust.business.TS.controller.form.ImportRRFForm;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CellRef;
 import lu.itrust.business.TS.helper.Column;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
+import lu.itrust.business.TS.helper.RRFExportImport;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationComparator;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
@@ -81,6 +107,9 @@ public class ControllerDataManager {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
+	private ServiceAssetType serviceAssetType;
+
+	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
@@ -93,42 +122,40 @@ public class ControllerDataManager {
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
+	private MeasureManager measureManager;
+
+	@Autowired
+	private ServiceStandard serviceStandard;
+
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+
+	@Autowired
 	private TaskExecutor executor;
 
 	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
 
-	@GetMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String importManager(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
-		List<DataManagerItem> items = new LinkedList<>();
-		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", null, ".xls,.xlsx,.xlsm"));
-		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process", null, ".xls,.xlsx,.xlsm"));
-		items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-process", "/Analysis/Data-manager/Measure/Import-form", ".xls,.xlsx,.xlsm"));
-		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", null, ".xls,.xlsx,.xlsm"));
-		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", null, ".xls,.xlsx,.xlsm"));
-		items.add(new DataManagerItem("rrf", "/Analysis/Data-manager/RRF/Import-process", "/Analysis/Data-manager/RRF/Import-form", null));
-		items.add(new DataManagerItem("raw-rrf", "/Analysis/Data-manager/RRF-RAW/Import-process", null, ".xls,.xlsx,.xlsm"));
-		model.addAttribute("items", items);
-		return "analyses/single/components/data-manager/import";
-	}
+	@Value("${app.settings.risk.information.template.path}")
+	private String brainstormingTemplate;
 
 	@GetMapping(value = "/Export", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportManager(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
+	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
 		List<DataManagerItem> items = new LinkedList<>();
-		items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Import-process", null, null));
-		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", null, null));
-		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process", null, null));
-		items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-process", "/Analysis/Data-manager/Measure/Import-form", null));
-		items.add(new DataManagerItem("report", "/Analysis/Data-manager/Report/Import-process", "/Analysis/Data-manager/Report/Import-form", null));
-		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", null, null));
-		items.add(new DataManagerItem("rrf-raw", "/Analysis/Data-manager/RRF-RAW/Import-process", null, null));
-		items.add(new DataManagerItem("risk-register", "/Analysis/Data-manager/Risk-register/Import-process", "/Analysis/Data-manager/Risk-register/Import-form", null));
-		items.add(new DataManagerItem("risk-sheet", "/Analysis/Data-manager/Risk-sheet/Import-process", "/Analysis/Data-manager/Risk-sheet/Import-form", null));
-		items.add(new DataManagerItem("risk-sheet-raw", "/Analysis/Data-manager/Risk-sheet-raw/Import-process", "/Analysis/Data-manager/Risk-sheet-raw/Import-form", null));
-		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", null, null));
+		items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Import-process"));
+		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process"));
+		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process"));
+		items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-form", "/Analysis/Data-manager/Measure/Import-process", null, null, null));
+		items.add(new DataManagerItem("report", "/Analysis/Data-manager/Report/Import-form", "/Analysis/Data-manager/Report/Import-process"));
+		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process"));
+		items.add(new DataManagerItem("rrf-raw", "/Analysis/Data-manager/RRF-RAW/Import-process"));
+		items.add(new DataManagerItem("risk-register", "/Analysis/Data-manager/Risk-register/Import-form", "/Analysis/Data-manager/Risk-register/Import-process", null));
+		items.add(new DataManagerItem("risk-sheet", "/Analysis/Data-manager/Risk-sheet/Import-form", "/Analysis/Data-manager/Risk-sheet/Import-process", null));
+		items.add(new DataManagerItem("risk-sheet-raw", "/Analysis/Data-manager/Risk-sheet-raw/Import-form", "/Analysis/Data-manager/Risk-sheet-raw/Import-process", null));
+		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", null));
 		model.addAttribute("items", items);
+		model.addAttribute("maxFileSize", maxUploadFileSize);
 		return "analyses/single/components/data-manager/export";
 	}
 
@@ -214,10 +241,133 @@ public class ControllerDataManager {
 
 	}
 
-	@GetMapping(value = "/Risk-estimation/Import-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String importEstimationForm(Model model, HttpSession session, Principal principal, Locale locale) {
-		return "analyses/single/components/data-manager/import/risk-estimation";
+	@GetMapping("/Risk-information/Export-proccess")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportRiskInformationProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		Locale analysisLocale = new Locale(analysis.getLanguage().getAlpha2());
+		Map<String, List<RiskInformation>> riskInformationMap = analysis.getRiskInformations().stream().map(riskInformation -> {
+			if (!riskInformation.isCustom()) {
+				switch (riskInformation.getCategory()) {
+				case "Risk_TBA":
+					riskInformation.setLabel(messageSource.getMessage(String.format("label.risk_information.risk_tba.", riskInformation.getChapter().replace(".", "_")), null,
+							riskInformation.getLabel(), analysisLocale));
+					break;
+				case "Risk_TBS":
+					riskInformation.setLabel(messageSource.getMessage(String.format("label.risk_information.risk_tbs.", riskInformation.getChapter().replace(".", "_")), null,
+							riskInformation.getLabel(), analysisLocale));
+					break;
+				default:
+					riskInformation.setLabel(messageSource.getMessage(
+							String.format("label.risk_information.%s.", riskInformation.getCategory().toLowerCase(), riskInformation.getChapter().replace(".", "_")), null,
+							riskInformation.getLabel(), analysisLocale));
+					break;
+				}
+			}
+			return riskInformation;
+		}).sorted(new RiskInformationComparator())
+				.collect(Collectors.groupingBy(riskInformation -> riskInformation.getCategory().startsWith("Risk_TB") ? "Risk" : riskInformation.getCategory()));
+
+		File workFile = new File(request.getServletContext().getRealPath(String.format("/WEB-INF/tmp/TMP_Risk-information_%d_%d.xlsx", analysis.getId(), System.nanoTime())));
+
+		try {
+			FileUtils.copyFile(new File(request.getServletContext().getRealPath(brainstormingTemplate)), workFile);
+			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+			WorkbookPart workbook = mlPackage.getWorkbookPart();
+			for (Object[] mapper : RI_SHEET_MAPPERS) {
+				List<RiskInformation> riskInformations = riskInformationMap.get(mapper[0]);
+				if (riskInformations == null)
+					continue;
+				SheetData sheet = findSheet(workbook, mapper[1].toString());
+				if (sheet == null)
+					throw new TrickException("error.risk.information.template.sheet.not.found",
+							String.format("Something wrong with template: Sheet `%s` cannot be found", mapper[1].toString()), mapper[1].toString());
+				TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
+				if (tablePart == null)
+					throw new TrickException("error.risk.information.template.table.not.found",
+							String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),
+							mapper[0] + "Table");
+				AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
+				if (address.getEnd() == null)
+					address.setEnd(new CellRef(riskInformations.size(), (int) mapper[2] - 1));
+				else
+					address.getEnd().setRow(riskInformations.size());
+
+				CTTable table = tablePart.getContents();
+				table.setRef(address.toString());
+
+				if (table.getAutoFilter() != null)
+					table.getAutoFilter().setRef(table.getRef());
+
+				if (sheet.getWorksheetPart().getContents().getDimension() != null)
+					sheet.getWorksheetPart().getContents().getDimension().setRef(table.getRef());
+				int rowIndex = 1, colSize = address.getEnd().getCol();
+				for (RiskInformation riskInformation : riskInformations) {
+					int colIndex = 0;
+					Row row = getRow(sheet, rowIndex++, colSize);
+					setValue(row.getC().get(colIndex++), riskInformation.getChapter());
+					setValue(row.getC().get(colIndex++), riskInformation.getLabel());
+					if (riskInformation.getCategory().equals(Constant.RI_TYPE_THREAT))
+						setValue(row.getC().get(colIndex++), riskInformation.getAcronym());
+					setValue(row.getC().get(colIndex++), riskInformation.getExposed());
+					setValue(row.getC().get(colIndex++), riskInformation.getOwner());
+					setValue(row.getC().get(colIndex++), riskInformation.getComment());
+					setValue(row.getC().get(colIndex++), riskInformation.getHiddenComment());
+				}
+			}
+
+			String identifierName = "TS_Brainstorming_" + analysis.getIdentifier() + "_Version_" + analysis.getVersion();
+			response.setContentType("xlsx");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
+			mlPackage.save(response.getOutputStream());
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.risk.information",
+					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT, analysis.getIdentifier(),
+					analysis.getVersion());
+
+			return null;
+		} finally {
+			if (workFile.exists() && !workFile.delete())
+				workFile.deleteOnExit();
+		}
+	}
+
+	@RequestMapping(value = "/RRF-Raw/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportRRFRawProcess(Model model, HttpSession session, HttpServletResponse response, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName(), locale);
+	}
+	
+	///
+	///Import part.
+	///
+	
+	/**
+	 * 
+	 * @param idAnalysis
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 */
+	@GetMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String importation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
+		List<DataManagerItem> items = new LinkedList<>();
+		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-form", "/Analysis/Data-manager/Measure/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("rrf", "/Analysis/Data-manager/RRF/Import-form", "/Analysis/Data-manager/RRF/Import-process", null));
+		items.add(new DataManagerItem("raw-rrf", "/Analysis/Data-manager/RRF-RAW/Import-process", ".xls,.xlsx,.xlsm"));
+		model.addAttribute("items", items);
+		model.addAttribute("maxFileSize", maxUploadFileSize);
+		return "analyses/single/components/data-manager/import";
 	}
 
 	@PostMapping(value = "/Risk-estimation/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -236,6 +386,92 @@ public class ControllerDataManager {
 		file.transferTo(workFile);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation", null, "Importing of risk estimation data", locale));
+	}
+
+	@PostMapping(value = "/Risk-information/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request, Locale locale)
+			throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
+		Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), workFile, messageSource, workersPoolManager, sessionFactory, serviceTaskFeedback);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		file.transferTo(workFile);
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.import.risk.information", null, "Importing of risk information", locale));
+	}
+
+	/**
+	 * importRRF: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/RRF/Import-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String importRRFForm(HttpSession session, Principal principal, Model model) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
+		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()));
+		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards, AnalysisType.QUANTITATIVE, AnalysisType.HYBRID);
+		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards,
+				AnalysisType.QUANTITATIVE, AnalysisType.HYBRID));
+		analyses.removeIf(analysis -> analysis.getId() == idAnalysis);
+		Collections.sort(analyses, new AnalysisComparator());
+		List<Customer> customers = new ArrayList<Customer>();
+		analyses.stream().map(analysis -> analysis.getCustomer()).distinct().forEach(customer -> customers.add(customer));
+		model.addAttribute("standards", standards);
+		model.addAttribute("customers", customers);
+		model.addAttribute("analyses", analyses);
+		return "analyses/single/components/rrf/form/importMeasure";
+
+	}
+
+	/**
+	 * 
+	 * @param rrfForm
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/RRF/Import-process", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object importRRFProcess(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
+		try {
+			if (rrfForm.getAnalysis() < 1)
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_analysis", null, "No analysis selected", locale));
+			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
+			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis())
+					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			else if (!rrfForm.getStandards().stream().allMatch(idStandard -> serviceStandard.belongsToAnalysis(rrfForm.getAnalysis(), idStandard)))
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			measureManager.importStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
+			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+		}
+
+	}
+
+	@RequestMapping(value = "/RRF-RAW/Import-process", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object importRRFRawProcess(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request, Locale locale)
+			throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).importRawRRF(request.getServletContext().getRealPath("/WEB-INF/tmp/"), idAnalysis, file,
+				principal.getName(), locale);
 	}
 
 	private String[] createTableHeader(List<ScaleType> scales, WorkbookPart workbook, boolean qualitative, boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
