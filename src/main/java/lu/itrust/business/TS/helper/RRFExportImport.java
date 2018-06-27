@@ -108,7 +108,7 @@ public class RRFExportImport {
 	public void exportRawRRF(Analysis analysis, HttpServletResponse response, String username, Locale locale) throws Exception {
 		SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
 		List<AssetType> assetTypes = serviceAssetType.getAll();
-		writeAnalysisIdentifier(analysis, mlPackage);
+		//writeAnalysisIdentifier(analysis, mlPackage);
 		writeScenario(analysis.getScenarios(), mlPackage, locale);
 		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
 			writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, mlPackage, locale);
@@ -128,7 +128,7 @@ public class RRFExportImport {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
 			final DataFormatter formatter = new DataFormatter();
-			loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
+			//loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
 			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
 			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
@@ -162,7 +162,8 @@ public class RRFExportImport {
 		return colIndex;
 	}
 	
-	private void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
+	@Deprecated
+	protected void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, TS_INFO_FOR_IMPORT);
 		if (sheet == null)
 			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
@@ -412,7 +413,8 @@ public class RRFExportImport {
 		}
 	}
 
-	private void writeAnalysisIdentifier(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
+	@Deprecated
+	protected void writeAnalysisIdentifier(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
 		int index = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().size() + 1;
 		WorksheetPart worksheetPart = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), TS_INFO_FOR_IMPORT, index);
 		SheetData analysisSheet = worksheetPart.getContents().getSheetData();

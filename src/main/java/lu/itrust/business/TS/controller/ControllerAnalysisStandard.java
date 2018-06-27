@@ -2,15 +2,9 @@ package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
-import static lu.itrust.business.TS.constants.Constant.APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -28,12 +22,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,25 +33,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerGenerateTickets;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerImportMeasureData;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerSOAExport;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
@@ -95,7 +79,6 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
-import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.helper.chartJS.model.Chart;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -107,9 +90,6 @@ import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
@@ -508,55 +488,6 @@ public class ControllerAnalysisStandard {
 		return "redirect:/Error";
 	}
 
-	@GetMapping("/{idStandard}/Export/Measure")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportMeasure(@PathVariable("idStandard") int idStandard, HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		AnalysisStandard analysisStandard = analysis.getAnalysisStandardByStandardId(idStandard);
-		if (analysisStandard == null)
-			response.sendError(HttpServletResponse.SC_NOT_FOUND,
-					messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not beloong to analysis!", locale));
-		else {
-			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
-			WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
-			exportMeasureStandard(new ValueFactory(analysis.getParameters()), analysisStandard, mlPackage, worksheetPart);
-			response.setContentType("xlsx");
-			// set response header with location of the filename
-			response.setHeader("Content-Disposition",
-					"attachment; filename=\"" + String.format("%s_v%s.xlsx", analysisStandard.getStandard().getLabel(), analysisStandard.getStandard().getVersion()) + "\"");
-			mlPackage.save(response.getOutputStream());
-			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
-					String.format("Analysis: %s, version: %s, type: Measure data", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
-					analysis.getIdentifier(), analysis.getVersion());
-		}
-	}
-
-	/**
-	 * getSOA: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param principal
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/SOA/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody String exportSOA(@RequestParam("idAnalysis") Integer idAnalysis, Principal principal, HttpServletRequest request, Model model, Locale locale)
-			throws Exception {
-		Worker worker = new WorkerSOAExport(principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), idAnalysis, messageSource, serviceTaskFeedback,
-				workersPoolManager, sessionFactory);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		// execute task
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.exporting.soa", null, "SOA exporting was successfully started", locale));
-	}
-
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody TicketingForm form, Principal principal, HttpSession session, Locale locale) {
@@ -623,31 +554,6 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
-	}
-
-	@GetMapping("/{idStandard}/Import/Measure/Form")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String importMeasure(@PathVariable("idStandard") int idStandard, Model model, HttpSession session, Principal principal) {
-		model.addAttribute("idStandard", idStandard);
-		return "analyses/single/components/standards/measure/import-modal";
-	}
-
-	/**
-	 * manage analysis standards (manage menu)
-	 */
-
-	@PostMapping(value = "/{idStandard}/Import/Measure", produces = APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idStandard, 'Standard', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Object importMeasure(@PathVariable("idStandard") int idStandard, @RequestParam("file") MultipartFile file, HttpServletRequest request, HttpSession session,
-			Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
-		Worker worker = new WorkerImportMeasureData(principal.getName(), idAnalysis, idStandard, workFile, serviceTaskFeedback, workersPoolManager, sessionFactory);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		file.transferTo(workFile);
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.import.measure.data", null, "Importing of security measures data", locale));
 	}
 
 	@RequestMapping(value = "/Ticketing/Link/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1520,71 +1426,7 @@ public class ControllerAnalysisStandard {
 		return null;
 	}
 
-	private void exportMeasureStandard(ValueFactory valueFactory, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
-		String[] columns = getColumns(analysisStandard);
-		prepareTableHeader(analysisStandard, worksheetPart, columns);
-		SheetData sheetData = worksheetPart.getContents().getSheetData();
-		analysisStandard.getMeasures().sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getMeasureDescription().getReference(), m2.getMeasureDescription().getReference()));
-		for (Measure measure : analysisStandard.getMeasures()) {
-			Row row = createRow(sheetData);
-			for (int i = 0; i < columns.length; i++) {
-				switch (columns[i]) {
-				case "Reference":
-					setValue(row, i, measure.getMeasureDescription().getReference());
-					break;
-				case "Status":
-					setValue(row, i, measure.getStatus());
-					break;
-				case "Implemention":
-					setValue(row, i, measure.getImplementationRateValue(valueFactory) * 0.01);
-					break;
-				case "Internal Workload":
-					setValue(row, i, measure.getInternalWL());
-					break;
-				case "External Workload":
-					setValue(row, i, measure.getExternalWL());
-					break;
-				case "Investment":
-					setValue(row, i, measure.getInvestment() * 0.001);
-					break;
-				case "Life time":
-					setValue(row, i, measure.getLifetime());
-					break;
-				case "Internal Maintenance":
-					setValue(row, i, measure.getInternalMaintenance());
-					break;
-				case "External Maintenance":
-					setValue(row, i, measure.getExternalMaintenance());
-					break;
-				case "Recurrent Maintenance":
-					setValue(row, i, measure.getRecurrentInvestment() * 0.001);
-					break;
-				case "Phase":
-					setValue(row, i, measure.getPhase().getNumber());
-					break;
-				case "Responsible":
-					setValue(row, i, measure.getResponsible());
-					break;
-				case "To check":
-					if (measure instanceof AbstractNormalMeasure)
-						setValue(row, i, ((AbstractNormalMeasure) measure).getToCheck());
-					break;
-				case "Comment":
-					setValue(row, i, measure.getComment());
-					break;
-				case "To do":
-					setValue(row, i, measure.getToDo());
-					break;
-				default:
-					break;
-				}
-			}
-		}
-	}
-
-	private String[] getColumns(AnalysisStandard analysisStandard) {
-		return analysisStandard instanceof MaturityStandard ? Constant.MATURITY_MEASURE_COLUMNS : Constant.NORMAL_MEASURE_COLUMNS;
-	}
+	
 
 	private void loadAnalysisSettings(Model model, Integer integer) {
 		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
@@ -1651,10 +1493,6 @@ public class ControllerAnalysisStandard {
 				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
 		}
 		return allowedTicketing;
-	}
-
-	private void prepareTableHeader(AnalysisStandard analysisStandard, WorksheetPart worksheetPart, String[] columns) throws Exception {
-		createHeader(worksheetPart, "Measures", columns, analysisStandard.getMeasures().size());
 	}
 
 	private Map<String, Object> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type, Language language, Locale locale,

@@ -931,9 +931,9 @@ input[type=number],input[type=date]:disabled {
 
 #import-modal .modal-body, 
 #export-modal .modal-body{
-	padding: 0px;
+	padding: 5px 0px;
 }
-
+/*
 #import-modal .tabs-left>li:first-child, 
 #export-modal .tabs-left>li:first-child{
 	margin-top: -3px;
@@ -948,17 +948,26 @@ input[type=number],input[type=date]:disabled {
 #export-modal .tabs-left>li.active:last-child>a{
 	border-radius: 4px 0 0 0;
 }
-
+*/
 #import-modal .tabs-left, 
 #export-modal .tabs-left{
 	height: 550px;
 }
 
-#import-modal .tab-pane,  
-#export-modal .tab-pane{
-	padding: 10px;
+#import-modal .tab-pane.tab-pane-main,  
+#export-modal .tab-pane.tab-pane-main{
 	height: 550px;
 }
+
+#import-modal [data-view-tab='main'], 
+#export-modal [data-view-tab='main']{
+	padding-top : 5px;
+}
+
+#import-modal [data-view-tab='secondary'],
+#export-modal [data-view-tab='secondary']{
+	padding-top : 10px;
+} 
 
 @media (min-width: 768px) {
 

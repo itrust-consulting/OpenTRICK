@@ -16,7 +16,7 @@
 			</div>
 			<div class="modal-body">
 				<div class='col-xs-3'>
-					<ul class="nav nav-tabs tabs-left">
+					<ul class="nav nav-pills nav-stacked">
 						<c:forEach items="${items}" var="item" varStatus="status">
 							<li ${status.index==0?"class='active'":""}><a href="#import-${item.name}" data-toggle="tab"><spring:message
 										code="label.action.import.${fn:replace(item.name, '-','_')}" /></a></li>
@@ -25,7 +25,7 @@
 					<div class="clearfix"></div>
 				</div>
 				<div class="col-xs-9">
-					<div id="import-view-container" class="tab-content">
+					<div id="import-view-container" class="tab-content" data-view-tab='main'>
 						<c:choose>
 							<c:when test="${ maxFileSize< 1024}">
 								<spring:message code="label.max.unit.data.byte" arguments="${maxFileSize}" var="maxSizeInfo" />
@@ -38,30 +38,37 @@
 							</c:otherwise>
 						</c:choose>
 						<c:forEach items="${items}" var="item" varStatus="status">
-							<div class='tab-pane ${status.index==0?"active":""}' id="import-${item.name}" data-view-name='${item.name}' data-view-url='${item.viewURL}'
+							<div class='tab-pane ${status.index==0?"active":""} tab-pane-main' id="import-${item.name}" data-view-name='${item.name}' data-view-url='${item.viewURL}'
 								data-view-process-url='${item.processURL}' data-view-extentions='${item.extensions}'>
 								<c:if test="${empty item.viewURL}">
-									<div class='alert alert-sm alert-danger' style="margin-bottom: 10px">
-										<spring:message code="info.import.${fn:replace(item.name,'-','_')}" />
-									</div>
-									<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
-										id="form-${item.name}" enctype="multipart/form-data">
-										<div class="row">
-											<label class="col-lg-12" for="name"> <spring:message code="label.import.${fn:replace(item.name,'-','_')}.choose_file" text="Choose the file containing data to import" /></label>
-											<div class="col-lg-12">
-												<div class="input-group-btn">
-													<spring:message text="${fn:replace(item.extensions,'.','')}" var="extension"/>
-													<input id="file-${item.name}" type="file" accept="${item.extensions}" maxlength="${maxFileSize}"
-														onchange='{$("#upload-file-info-${item.name}").prop("value",$(this).prop("value")); checkExtention($("#upload-file-info-${item.name}").val(),"${extension}","#btn-import");}'
-														name="file" style="display: none;" /> <input id="upload-file-info-${item.name}" class="form-control" readonly="readonly" required="required" style="width: 88%;" placeholder="${maxSizeInfo}"/>
-													<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file-${item.name}]').click();" style="margin-left: -5px;">
-														<spring:message code="label.action.browse" text="Browse" />
-													</button>
+									<fieldset>
+										<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
+										<legend>
+											<spring:message code="label.title.import.${viewName}" />
+										</legend>
+										<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
+											<spring:message code="info.import.${viewName}" />
+										</div>
+										<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
+											id="form-${item.name}" enctype="multipart/form-data">
+											<div class="row">
+												<label class="col-lg-12" for="name"> <spring:message code="label.import.${viewName}.choose_file" text="Choose the file containing data to import" /></label>
+												<div class="col-lg-12">
+													<div class="input-group-btn">
+														<spring:message text="${fn:replace(item.extensions,'.','')}" var="extension" />
+														<input id="file-${item.name}" type="file" accept="${item.extensions}" maxlength="${maxFileSize}"
+															onchange='{$("#upload-file-info-${item.name}").prop("value",$(this).prop("value")); checkExtention($("#upload-file-info-${item.name}").val(),"${extension}","#btn-import");}'
+															name="file" style="display: none;" /> <input id="upload-file-info-${item.name}" class="form-control" readonly="readonly" required="required" style="width: 88%;"
+															placeholder="${maxSizeInfo}" />
+														<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file-${item.name}]').click();" style="margin-left: -5px;">
+															<spring:message code="label.action.browse" text="Browse" />
+														</button>
+													</div>
 												</div>
 											</div>
-										</div>
-									</form>
-									<div class="col-lg-8" style="color: #d9534f;" align="left" id="import${item.name}Notification"></div>
+										</form>
+										<div class="col-lg-12" style="color: #d9534f;" align="left" data-view-notification="${item.name}"></div>
+									</fieldset>
 								</c:if>
 							</div>
 						</c:forEach>

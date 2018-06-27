@@ -4,7 +4,7 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTableNameStartWith;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
@@ -63,19 +64,16 @@ public class WorkerImportMeasureData extends WorkerImpl {
 
 	private Integer idAnalysis;
 
-	private Integer idStandard;
-
 	private String username;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
-	public WorkerImportMeasureData(String username, Integer idAnalysis, Integer idStandard, File file, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
+	public WorkerImportMeasureData(String username, Integer idAnalysis, File file, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
 			SessionFactory sessionFactory) {
 		super(poolManager, sessionFactory);
 		setWorkFile(file);
 		setUsername(username);
 		setIdAnalysis(idAnalysis);
-		setIdStandard(idStandard);
 		setName(TaskName.IMPORT_MEASURE_DATA);
 		setServiceTaskFeedback(serviceTaskFeedback);
 	}
@@ -198,14 +196,21 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream().filter(s -> s.getState() == STSheetState.VISIBLE)
 				.collect(Collectors.toMap(Sheet::getName, Function.identity()));
 		final Map<Integer, Phase> phases = analysis.getPhases().stream().collect(Collectors.toMap(Phase::getNumber, Function.identity()));
-		AnalysisStandard analysisStandard = analysis.getAnalysisStandardByStandardId(idStandard);
+		final int maxProgress = 90 / Math.max(analysis.getAnalysisStandards().size(), 1);
+		int index = 1, minProgress = 6;
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+			minProgress = loadData(analysis, workbook, formatter, sheets, phases, analysisStandard, minProgress, maxProgress * index++);
+	}
+
+	private int loadData(Analysis analysis, final WorkbookPart workbook, final DataFormatter formatter, final Map<String, Sheet> sheets, final Map<Integer, Phase> phases,
+			AnalysisStandard analysisStandard, final int minProgress, final int maxProgress) throws Exception, Docx4JException {
 		Sheet sheet = sheets.get(analysisStandard.getStandard().getLabel());
 		if (sheet == null)
-			return;
+			return minProgress;
 		SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
-			return;
-		TablePart table = findTable(sheetData.getWorksheetPart(), "Measures");
+			return minProgress;
+		TablePart table = findTableNameStartWith(sheetData.getWorksheetPart(), "Measures");
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!", "Measures");
 
@@ -214,21 +219,18 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		int size = (int) Math.min(address.getEnd().getRow() + 1, sheetData.getRow().size());
 
 		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
-			return;
+			return minProgress;
 		final List<SimpleParameter> parameters = findMaturityImplementationRates(analysis, analysisStandard);
 		final List<String> columns = table.getContents().getTableColumns().getTableColumn().stream().map(c -> c.getName().toLowerCase()).collect(Collectors.toList());
 		final Map<String, Measure> measures = analysisStandard.getMeasures().stream().collect(Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()));
 		final Map<String, String> columnsMapper = new LinkedHashMap<>(Constant.NORMAL_MEASURE_COLUMNS.length);
 		for (String column : Constant.NORMAL_MEASURE_COLUMNS)
 			columnsMapper.put(column.toLowerCase(), column);
-		final int refIndex = columns.indexOf("reference"), min = 6, max = 90;
+		final int refIndex = columns.indexOf("reference");
 		if (refIndex == -1)
 			throw new TrickException("error.import.measure.data.no.reference", "Reference column cannot be found!");
-
-		MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", min);
-
+		MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", minProgress);
 		serviceTaskFeedback.send(getId(), handler);
-
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String reference = getString(row, refIndex, formatter);
@@ -307,12 +309,12 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				if (updateCost)
 					Measure.ComputeCost(measure, analysis);
 
-				handler.setProgress((int) (min + (i / (double) size) * max));
+				handler.setProgress((int) (minProgress + (i / (double) size) * maxProgress));
 				serviceTaskFeedback.send(getId(), handler);
 			}
 
 		}
-
+		return handler.getProgress();
 	}
 
 	private List<SimpleParameter> findMaturityImplementationRates(Analysis analysis, AnalysisStandard analysisStandard) {
@@ -365,13 +367,4 @@ public class WorkerImportMeasureData extends WorkerImpl {
 	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
-
-	public Integer getIdStandard() {
-		return idStandard;
-	}
-
-	public void setIdStandard(Integer idStandard) {
-		this.idStandard = idStandard;
-	}
-
 }

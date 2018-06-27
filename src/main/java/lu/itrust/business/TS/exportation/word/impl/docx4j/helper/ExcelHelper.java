@@ -415,6 +415,15 @@ public final class ExcelHelper {
 		return null;
 	}
 
+	public static TablePart findTableNameStartWith(WorksheetPart worksheetPart, String name) throws Exception {
+		for (CTTablePart ctTablePart : worksheetPart.getContents().getTableParts().getTablePart()) {
+			TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
+			if (table.getContents().getName().startsWith(name) || table.getContents().getDisplayName().startsWith(name))
+				return table;
+		}
+		return null;
+	}
+
 	public static boolean isEmptyOrWhiteSpace(String value) {
 		return isEmpty(value) || value.trim().length() == 0;
 	}
