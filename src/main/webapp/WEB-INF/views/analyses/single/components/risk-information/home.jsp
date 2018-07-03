@@ -29,10 +29,6 @@
 							<c:if test="${isEditable}">
 								<span class="pull-right" style="margin-top: -1px;"> <a href="#" class="btn btn-xs btn-link"  onclick="return manageBrainstorming('${category}');">
 										<i class="glyphicon glyphicon-cog"></i> <spring:message code="label.action.manage" />
-								</a> <c:if test="${canExport}">
-										<a href='<spring:url value="/Analysis/Risk-information/Export" />' class="btn btn-xs btn-link" download> <i class="glyphicon glyphicon-export"></i>
-											<spring:message code="label.action.export" /></a>
-									</c:if> <a href='#' onclick="return importRiskInformationForm();" class="btn btn-xs btn-link"> <i class="glyphicon glyphicon-import"></i> <spring:message code="label.action.import" />
 								</a></span>
 							</c:if>
 						</h3>

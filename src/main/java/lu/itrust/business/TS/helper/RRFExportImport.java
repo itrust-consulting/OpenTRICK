@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,9 +65,9 @@ public class RRFExportImport {
 	private static final String VERSION = "version";
 
 	private static final String IDENTIFIER = "identifier";
-	
+
 	private static final String RAW_SCENARIO = "Scenario";
-	
+
 	private static final int SCENARIO_RRF_DEFAULT_FIELD_COUNT = 10;
 
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
@@ -92,43 +93,35 @@ public class RRFExportImport {
 	private static final String RAW_INTERNAL_THREAT = "Internal Threat";
 
 	private static final String RAW_EXTERNAL_THREAT = "External Threat";
-	
+
 	private ServiceAssetType serviceAssetType;
-	
+
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	private MessageSource messageSource;
-	
+
 	public RRFExportImport(ServiceAssetType serviceAssetType, ServiceAnalysis serviceAnalysis, MessageSource messageSource) {
 		this.serviceAssetType = serviceAssetType;
 		this.serviceAnalysis = serviceAnalysis;
 		this.messageSource = messageSource;
 	}
 
-	public void exportRawRRF(Analysis analysis, HttpServletResponse response, String username, Locale locale) throws Exception {
+	public void exportRawRRF(Analysis analysis, HttpServletResponse response, Locale locale, Consumer<SpreadsheetMLPackage> callback) throws Exception {
 		SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
 		List<AssetType> assetTypes = serviceAssetType.getAll();
-		//writeAnalysisIdentifier(analysis, mlPackage);
+		// writeAnalysisIdentifier(analysis, mlPackage);
 		writeScenario(analysis.getScenarios(), mlPackage, locale);
 		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
 			writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, mlPackage, locale);
-		response.setContentType("xlsx");
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-		mlPackage.save(response.getOutputStream());
-		// Log
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.rrf",
-				String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT, analysis.getIdentifier(),
-				analysis.getVersion());
-
+		callback.accept(mlPackage);
 	}
-	
+
 	public Object importRawRRF(String tempPath, int idAnalysis, MultipartFile file, String username, Locale locale) throws Exception {
 		try {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
 			final DataFormatter formatter = new DataFormatter();
-			//loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
+			// loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
 			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
 			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
@@ -140,7 +133,7 @@ public class RRFExportImport {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
-	
+
 	private int generateMeasureHeader(Row row, Map<String, Integer> mappedValue, String[] categories, int totalCol) {
 		for (int i = 0; i < totalCol; i++)
 			row.getC().add(Context.getsmlObjectFactory().createCell());
@@ -161,7 +154,7 @@ public class RRFExportImport {
 			setValue(row.getC().get(++colIndex), category);
 		return colIndex;
 	}
-	
+
 	@Deprecated
 	protected void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, TS_INFO_FOR_IMPORT);
@@ -192,7 +185,7 @@ public class RRFExportImport {
 			throw new TrickException("error.import.raw.rrf.bad.analysis", String.format("Please try again with this analysis: %s version: %s", identifier, version), identifier,
 					version);
 	}
-	
+
 	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper, DataFormatter formatter) {
 		Map<String, MeasureAssetValue> assetValues = measure.getMeasureAssetValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAsset().getName(), Function.identity()));
@@ -369,7 +362,7 @@ public class RRFExportImport {
 		}
 		return identifierIndex;
 	}
-	
+
 	private void updateMeasureProperties(MeasureProperties properties, String nameField, double value) {
 
 		if (MeasureProperties.isCategoryKey(nameField))
@@ -432,7 +425,7 @@ public class RRFExportImport {
 		setValue(data.getC().get(1), analysis.getVersion());
 		mlPackage.getWorkbookPart().getContents().getSheets().getSheet().get(index - 1).setState(STSheetState.VERY_HIDDEN);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
 		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());

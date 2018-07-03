@@ -21,78 +21,11 @@ $(document).ready(function () {
 
 	$("#measure-collection-selector").on("change", function () {
 		$("[id^='tab-standard-'][id!='" + this.value + "']:visible").hide();
-		var $menu = $("#standard-control-import-export"), $selected = $("#" + this.value);
-		if($menu.length){
-			if($selected.attr("data-trick-has-menu") ==="false")
-				$("[data-trick-action='export']", $menu.removeAttr("style")).attr("href", $selected.attr("data-trick-export-url"));
-			else  $menu.hide();
-		}
-		triggerCaller($selected.show());
+		triggerCaller($("#" + this.value).show());
 		disableEditMode();
 	}).trigger("change");
-	
-	$("[data-trick-action='import']").on("click", importMeasureDataForm);
 
 });
-
-function importMeasureDataForm(){
-	var $progress = $("#loading-indicator").show(), idStandard =$("[id^='tab-standard-']:visible").attr("data-trick-id");
-	$.ajax({
-		url: context + "/Analysis/Standard/"+idStandard+"/Import/Measure/Form",
-		success: function (response, textStatus, jqXHR) {
-			var $modal = $("#import-measure-data-modal", new DOMParser().parseFromString(response, "text/html"));
-			if($modal.length){
-				$("button[name='import']", $modal).on("click", importMeasureData);
-				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
-			}else if (response["error"])
-				showDialog("#alert-dialog", response['error']);
-			else
-				unknowError();
-		},
-		error: unknowError
-
-	}).complete(function () {
-		$progress.hide();
-	});
-	return false;
-}
-
-function importMeasureData() {
-	var $modal = $("#import-measure-data-modal"), idStandard = $("input[name='idStandard']", $modal).val(), $uploadFile = $("#upload-file-info-measure", $modal), $progress = $("#loading-indicator"), $measureNotification = $("#measureDataNotification",$modal);
-	if (!$uploadFile.length)
-		return false;
-	else if ($uploadFile.val() == "") {
-		$measureNotification.text(MessageResolver("error.import.measure.data.no_select.file", "Please select file to import!"));
-		return false;
-	}
-	try {
-		$progress.show();
-		$.ajax({
-			url: context + "/Analysis/Standard/"+idStandard+"/Import/Measure",
-			type: 'POST',
-			data: new FormData($('#importMeasureDataForm',$modal)[0]),
-			cache: false,
-			contentType: false,
-			processData: false,
-			success: function (response, textStatus, jqXHR) {
-				if (response.success)
-					application["taskManager"].SetTitle(MessageResolver("label.title.import.measure.data", "Import measure data")).Start();
-				else if (response.error)
-					showDialog("#alert-dialog", response.error);
-				else
-					showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
-			},
-			error: unknowError
-	
-		}).complete(function () {
-			$progress.hide();
-		});
-	}finally{
-		$modal.modal("hide");
-	}
-	return false;
-}
-
 
 function isAnalysisOnlyStandard(section) {
 	var selectedStandard = $(section + " tbody :checked").parent().parent().attr("data-trick-analysisOnly");

@@ -14,12 +14,13 @@
 					<spring:message code="label.title.analysis.export.report" text="Exporting analysis word report" />
 				</h4>
 			</div>
+			<c:set var="nameControl" value="${fn:toLowerCase(analysis.type)}" />
 			<!-- dialog body -->
 			<div class="modal-body">
-				<form class="form form-inline" action="${pageContext.request.contextPath}/Analysis/Export/Report/{analysis.id}" method="post" enctype="multipart/form-data">
-
-					<input type="hidden" name="analysis" id="exportWord.analysis" value="${analysis.id}">
-
+				<form class="form form-inline" action="${pageContext.request.contextPath}/Analysis/Report/Export-process" method="post" enctype="multipart/form-data" data-type-control='${nameControl}'>
+					
+					<input type="hidden" name="analysis" id="exportWord.analysis.${nameControl}" value="${analysis.id}">
+					
 					<c:if test="${not empty  types}">
 						<fieldset>
 							<legend style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.type" />'>
@@ -43,7 +44,7 @@
 						</legend>
 
 						<div class='col-sm-12 text-center' data-trick-info="template">
-							<select name='template' class="form-control" id="exportWord.template" required="required" style="width: 100%">
+							<select name='template' class="form-control" id="exportWord.template.${nameControl}" required="required" style="width: 100%">
 								<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 								<c:forEach items="${templates}" var="template">
 									<option value="${template.id}" class='${template.outToDate?"text-danger":""}' data-trick-type='${template.type}'>
@@ -71,17 +72,17 @@
 								<spring:message code="label.max.unit.data.mega.byte" arguments="${maxFileSize / 1048576}" var="maxSizeInfo" />
 							</c:otherwise>
 						</c:choose>
-						
-						
+
 						<div class="col-sm-12">
 							<div class="input-group-btn">
-								<input id="exportWord.file" type="file" accept=".docx" name="file" style="display: none;" maxlength="${maxFileSize}" /> <input id="exportWord.file.info" name="filename" placeholder="${maxSizeInfo}"
-									class="form-control" readonly="readonly" required="required" style="width: 83%" />
-								<button class="btn btn-primary" type="button" id="exportWord.file.browse.button" name="browse" style="margin-left: -5px;">
-									<spring:message code="label.action.browse" text="Browse" />
+								<input id="exportWord.file.${nameControl}" type="file" accept=".docx" name="file" style="display: none;" maxlength="${maxFileSize}" /> <input
+									id="exportWord.file.info.${nameControl}" name="filename" placeholder="${maxSizeInfo}" class="form-control" readonly="readonly" required="required" style="width: 83%" />
+								<button class="btn btn-primary" type="button" id="exportWord.file.browse.button.${nameControl}" name="browse" style="margin-left: -5px;">
+									<spring:message code="label.action.browse.${nameControl}" text="Browse" />
 								</button>
 							</div>
 						</div>
+						
 					</fieldset>
 
 					<button name='submit' type="submit" style="display: none"></button>

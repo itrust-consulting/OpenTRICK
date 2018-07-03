@@ -7,5 +7,4 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="widget">
 	<jsp:include page="forms/analysis.jsp" />
-	<jsp:include page="forms/raw-action-plan.jsp" />
 </div>

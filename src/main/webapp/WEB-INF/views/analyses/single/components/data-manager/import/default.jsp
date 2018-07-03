@@ -9,15 +9,15 @@
 	<fieldset>
 		<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
 		<legend>
-			<spring:message code="label.title.import.${viewName}" />
+			<spring:message code="label.title.data-manager.import.${viewName}" />
 		</legend>
 		<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
-			<spring:message code="info.import.${viewName}" />
+			<spring:message code="info.data-manager.import.${viewName}" />
 		</div>
 		<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
 			id="form-${item.name}" enctype="multipart/form-data">
 			<div class="row">
-				<label class="col-lg-12" for="name"> <spring:message code="label.import.${viewName}.choose_file" text="Choose the file containing data to import" /></label>
+				<label class="col-lg-12" for="name"> <spring:message code="label.import.${viewName}.choose_file" /></label>
 				<div class="col-lg-12">
 					<div class="input-group-btn">
 						<spring:message text="${fn:replace(item.extensions,'.','')}" var="extension" />

@@ -931,7 +931,7 @@ input[type=number],input[type=date]:disabled {
 
 #import-modal .modal-body, 
 #export-modal .modal-body{
-	padding: 5px 0px;
+	padding: 0px;
 }
 /*
 #import-modal .tabs-left>li:first-child, 
@@ -952,22 +952,38 @@ input[type=number],input[type=date]:disabled {
 #import-modal .tabs-left, 
 #export-modal .tabs-left{
 	height: 550px;
+	overflow-x: hidden;
+	overflow-y: auto;  
 }
 
 #import-modal .tab-pane.tab-pane-main,  
 #export-modal .tab-pane.tab-pane-main{
 	height: 550px;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
-#import-modal [data-view-tab='main'], 
+/*#import-modal [data-view-tab='main'], 
 #export-modal [data-view-tab='main']{
 	padding-top : 5px;
-}
+}*/
 
 #import-modal [data-view-tab='secondary'],
 #export-modal [data-view-tab='secondary']{
 	padding-top : 10px;
 } 
+
+#import-modal [data-view-part],
+#export-modal [data-view-part]{
+  padding-top : 8px;
+}
+
+
+#import-modal [data-view-part='content'],
+#export-modal [data-view-part='content']{
+  border-left: 1px solid #eee;
+}
+
 
 @media (min-width: 768px) {
 

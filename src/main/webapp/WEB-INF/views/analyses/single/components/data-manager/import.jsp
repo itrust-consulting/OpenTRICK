@@ -11,20 +11,20 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.title.modal.import" />
+					<spring:message code="label.title.data-manager.import" />
 				</h4>
 			</div>
 			<div class="modal-body">
-				<div class='col-xs-3'>
+				<div class='col-xs-3' data-view-part='nav'>
 					<ul class="nav nav-pills nav-stacked">
 						<c:forEach items="${items}" var="item" varStatus="status">
 							<li ${status.index==0?"class='active'":""}><a href="#import-${item.name}" data-toggle="tab"><spring:message
-										code="label.action.import.${fn:replace(item.name, '-','_')}" /></a></li>
+										code="label.menu.data-manager.import.${fn:replace(item.name, '-','_')}" /></a></li>
 						</c:forEach>
 					</ul>
 					<div class="clearfix"></div>
 				</div>
-				<div class="col-xs-9">
+				<div class="col-xs-9" data-view-part='content'>
 					<div id="import-view-container" class="tab-content" data-view-tab='main'>
 						<c:choose>
 							<c:when test="${ maxFileSize< 1024}">
@@ -44,15 +44,15 @@
 									<fieldset>
 										<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
 										<legend>
-											<spring:message code="label.title.import.${viewName}" />
+											<spring:message code="label.title.data-manager.import.${viewName}" />
 										</legend>
 										<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
-											<spring:message code="info.import.${viewName}" />
+											<spring:message code="info.data-manager.import.${viewName}" />
 										</div>
 										<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
 											id="form-${item.name}" enctype="multipart/form-data">
 											<div class="row">
-												<label class="col-lg-12" for="name"> <spring:message code="label.import.${viewName}.choose_file" text="Choose the file containing data to import" /></label>
+												<label class="col-lg-12" for="name"> <spring:message code="label.import.${viewName}.choose_file"/></label>
 												<div class="col-lg-12">
 													<div class="input-group-btn">
 														<spring:message text="${fn:replace(item.extensions,'.','')}" var="extension" />

@@ -183,7 +183,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 					return;
 				setWorking(true);
 				setStarted(new Timestamp(System.currentTimeMillis()));
-				setName(TaskName.EXPORT_RISK_REGISTER);
+				setName(TaskName.IMPORT_RISK_ESTIMATION);
 				setCurrent(Thread.currentThread());
 			}
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));

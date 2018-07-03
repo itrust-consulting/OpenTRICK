@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.controller.form;
 
+import java.util.UUID;
+
 /**
  * @author eomar
  *
@@ -21,28 +23,33 @@ public class DataManagerItem {
 	
 	private String processMethod;
 	
+	private boolean background;
+	
+	private String token = UUID.randomUUID().toString();
+	
 	/**
 	 * 
 	 */
 	public DataManagerItem() {
 	}
 	
-	
-	
 	public DataManagerItem(String name, String processURL) {
 		this.name = name;
 		this.processURL = processURL;
 	}
+	
+	
 
-
+	public DataManagerItem(String name, String processURL, boolean background) {
+		this(name, processURL);
+		this.background = background;
+	}
 
 	public DataManagerItem(String name, String processURL, String extensions) {
 		this(name, processURL);
 		this.extensions = extensions;
 	}
-
-
-
+	
 	/**
 	 * @param name
 	 * @param processURL
@@ -105,6 +112,22 @@ public class DataManagerItem {
 
 	public void setProcessMethod(String processMethod) {
 		this.processMethod = processMethod;
+	}
+
+	public boolean isBackground() {
+		return background;
+	}
+
+	public void setBackground(boolean background) {
+		this.background = background;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 }

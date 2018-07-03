@@ -12,14 +12,13 @@
 	</ul>
 	<div class="tab-content" data-view-tab='secondary'>
 		<c:set var="item" value="${rawRRFItem}" scope="request" />
-		<div class='tab-pane active' id="import-${item.name}" data-view-name='${item.name}' data-view-process-url='${item.processURL}'
-			data-view-extentions='${item.extensions}'>
+		<div class='tab-pane active' id="import-${item.name}" data-view-name='${item.name}' data-view-process-url='${item.processURL}' data-view-extentions='${item.extensions}'>
 			<jsp:include page="default.jsp" />
 		</div>
 		<div class='tab-pane' id="import-${rrfItem.name}" data-view-name='${rrfItem.name}' data-view-process-url='${rrfItem.processURL}'>
 			<fieldset>
 				<legend>
-					<spring:message code="label.title.rrf.import.measure_characteristics" />
+					<spring:message code="label.title.data-manager.import.rrf" />
 				</legend>
 				<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
 					<spring:message code="info.import.rrf" />
@@ -62,8 +61,9 @@
 							<c:forEach items="${analyses}" var="analysis">
 								<c:forEach items="${analysis.analysisStandards}" var="analysisStandard">
 									<c:if test="${standards.contains(analysisStandard.standard)}">
-										<option title="${analysisStandard.standard.label} - v.${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" data-trick-id="${analysis.id}"><spring:message
-												text="${analysisStandard.standard.label}" /></option>
+										<option title="<spring:message
+												text='${analysisStandard.standard.label} - v.${analysisStandard.standard.version}' />" value="${analysisStandard.standard.id}"
+											data-trick-id="${analysis.id}"><spring:message text="${analysisStandard.standard.label}" /></option>
 									</c:if>
 								</c:forEach>
 							</c:forEach>

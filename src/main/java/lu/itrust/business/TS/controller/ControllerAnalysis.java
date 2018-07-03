@@ -15,7 +15,6 @@ import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAG
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,12 +34,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.docx4j.openpackaging.parts.PartName;
-import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,10 +57,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.xlsx4j.jaxb.Context;
-import org.xlsx4j.sml.ObjectFactory;
-import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.SheetData;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,8 +94,6 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQualitativeRepor
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQuantitativeReportExporter;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
-import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
@@ -124,7 +113,6 @@ import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.helper.PhaseManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
@@ -134,7 +122,6 @@ import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.helper.StandardComparator;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
 import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
@@ -197,22 +184,10 @@ public class ControllerAnalysis {
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
-	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
-
-	@Autowired
 	private SessionFactory sessionFactory;
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
-	private DefaultReportTemplateLoader defaultReportTemplateLoader;
-
-	@Autowired
-	private ServiceReportTemplate serviceReportTemplate;
-
-	@Value("${app.settings.report.refurbish.max.size}")
-	private long maxRefurbishReportSize;
 
 	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
@@ -428,132 +403,7 @@ public class ControllerAnalysis {
 
 	}
 
-	/**
-	 * exportAnalysis: <br>
-	 * Description
-	 * 
-	 * @param analysisId
-	 * @param principal
-	 * @param request
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
-
-		// create worker
-		Worker worker = new WorkerExportAnalysis(serviceTaskFeedback, sessionFactory, principal, request.getServletContext(), workersPoolManager, analysisId);
-
-		// register worker
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
-			executor.execute(worker);
-			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.start.export.analysis", null, "Analysis export was started successfully", locale));
-		} else
-
-			// return error message
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-	}
-
-	// *****************************************************************
-	// * reload customer section by pageindex
-	// *****************************************************************
-
-	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.hasPermission(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportRawActionPlan(@PathVariable Integer idAnalysis, @PathVariable AnalysisType type, Principal principal, HttpServletResponse response) throws Exception {
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		exportRawActionPlan(response, analysis, type == null ? analysis.getType() : type, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
-	}
-
-	/**
-	 * computeRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param analysisId
-	 * @param attributes
-	 * @return
-	 * @throws Exception
-	 */
-	@PostMapping(value = "/Export/Report/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody String exportReport(@PathVariable Integer analysisId, @ModelAttribute ExportWordReportForm form, HttpServletRequest request, Principal principal,
-			Locale locale) throws Exception {
-		try {
-			Integer customerId = serviceAnalysis.getCustomerIdByIdAnalysis(analysisId);
-			if (form.isInternal()) {
-				if (!serviceReportTemplate.isUseAuthorised(form.getTemplate(), customerId))
-					throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-				form.setType(serviceReportTemplate.findTypeById(form.getTemplate()));
-			} else {
-				if (form.getType() == null)
-					form.setType(serviceAnalysis.getAnalysisTypeById(analysisId));
-				if (form.getFile() == null)
-					return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
-			}
-			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
-				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
-
-			if (!form.isInternal()) {
-				long maxSize = Math.min(maxUploadFileSize, maxRefurbishReportSize);
-				if (form.getFile().getSize() > maxSize)
-					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
-				if (!DefaultReportTemplateLoader.isDocx(form.getFile().getInputStream()))
-					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
-			}
-
-			ExportReport exportAnalysisReport = form.getType() == AnalysisType.QUANTITATIVE
-					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
-					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
-			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-			if (!form.isInternal()) {
-				exportAnalysisReport.setWorkFile(new File(
-						request.getServletContext().getRealPath("/WEB-INF/tmp") + "/Report-template-" + principal.getName() + "-" + UUID.randomUUID().toString() + ".docx"));
-				form.getFile().transferTo(exportAnalysisReport.getWorkFile());
-				exportAnalysisReport.getWorkFile().deleteOnExit();
-			}
-			exportAnalysisReport.setRefurbished(!form.isInternal());
-			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			if (e instanceof AccessDeniedException)
-				throw e;
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}
-	}
-
-	@GetMapping(value = "/Export/Report/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
-
-		final Analysis analysis = serviceAnalysis.get(analysisId);
-		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
-		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
-
-		analysis.getCustomer().getTemplates().stream()
-				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
-				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
-					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
-						p.setOutToDate(true);
-				});
-
-		if (analysis.isHybrid())
-			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
-		model.addAttribute("analysis", analysis);
-		model.addAttribute("templates", reportTemplates);
-		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
-		return "analyses/all/forms/report-word";
-	}
-
+	
 	/**
 	 * displayAll: <br>
 	 * Description
@@ -578,65 +428,7 @@ public class ControllerAnalysis {
 			return "redirect:/Analysis/All";
 	}
 
-	/**
-	 * importAnalysis: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@GetMapping(value = "/Import/{idCustomer}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String importAnalysis(@PathVariable Integer idCustomer, Principal principal, Model model) throws Exception {
-		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
-		if (customer == null)
-			throw new AccessDeniedException("access denied");
-		model.addAttribute("maxFileSize", maxUploadFileSize);
-		model.addAttribute("customer", customer);
-		return "analyses/all/forms/import";
-	}
-
-	// *****************************************************************
-	// * select or deselect analysis
-	// *****************************************************************
-
-	/**
-	 * importAnalysisSave: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param customerId
-	 * @param request
-	 * @param file
-	 * @param attributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@PostMapping(value = "/Import/{idCustomer}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object importAnalysisSave(@PathVariable Integer idCustomer, @ModelAttribute ImportAnalysisForm form, Principal principal, HttpServletRequest request,
-			Locale locale) throws Exception {
-		// retrieve the customer
-		if (!serviceCustomer.hasAccess(principal.getName(), idCustomer))
-			throw new AccessDeniedException("access denied");
-		if (form.getFile().isEmpty())
-			return JsonMessage.Error(messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
-		else if (form.getFile().getSize() > maxUploadFileSize)
-			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
-		// the file to import
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".tsdb");
-		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, idCustomer, principal.getName());
-		// register worker to tasklist
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		// transfer form file to java file
-		form.getFile().transferTo(importFile);
-		// execute task
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("sucess.analysis.importing", null, "Please wait while importing your analysis", locale));
-	}
+	
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	@RequestMapping(value = "/{idAnalysis}/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1043,34 +835,7 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void addActionPLanHeader(Row row, AnalysisType type, Locale locale) {
-		int colIndex = 0;
-		setValue(row.getC().get(colIndex), messageSource.getMessage("report.action_plan.norm", null, "Stds", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.status", null, "ST", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.comment", null, "Comment", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.to_do", null, "To Do", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.responsible", null, "Resp.", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.internal.workload", null, "IS(md)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.external.workload", null, "ES(md)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.investment", null, "INV(k€)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.life_time", null, "LT(y)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale));
-		setValue(row.getC().get(++colIndex), messageSource.getMessage("label.measure.phase", null, "Phase", locale));
-		if (type == AnalysisType.QUALITATIVE)
-			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale));
-		else if (type == AnalysisType.QUANTITATIVE) {
-			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
-			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
-			setValue(row.getC().get(++colIndex), messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
-		}
-	}
-
+	
 	private Client buildClient(String username) {
 		User user = serviceUser.get(username);
 		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
@@ -1102,42 +867,7 @@ public class ControllerAnalysis {
 		return client;
 	}
 
-	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, AnalysisType type, String username, Locale locale) throws Exception {
-
-		ObjectFactory factory = Context.getsmlObjectFactory();
-		SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
-		WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
-				messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale), 1);
-		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
-		SheetData sheet = worksheetPart.getContents().getSheetData();
-		Row row = factory.createRow();
-		sheet.getRow().add(row);
-		int colCount = type == AnalysisType.QUANTITATIVE ? 21 : 19;
-
-		for (int i = 0; i < colCount; i++)
-			row.getC().add(factory.createCell());
-
-		addActionPLanHeader(row, type, locale);
-
-		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type == AnalysisType.QUANTITATIVE ? ActionPlanMode.APPN : ActionPlanMode.APQ);
-
-		for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
-			row = factory.createRow();
-			writeActionPLanData(row, colCount, actionPlanEntry, type, expressionParameters, locale);
-			sheet.getRow().add(row);
-		}
-
-		response.setContentType("xlsx");
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-		spreadsheetMLPackage.save(response.getOutputStream());
-		// Log
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
-				String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
-				analysis.getIdentifier(), analysis.getVersion());
-
-	}
-
+	
 	private int findId(JsonNode jsonNode, String name) {
 		return jsonNode.has(name) ? jsonNode.get(name).asInt() : -1;
 	}
@@ -1350,39 +1080,4 @@ public class ControllerAnalysis {
 		});
 		return mapper;
 	}
-
-	private void writeActionPLanData(Row row, int colCount, ActionPlanEntry actionPlanEntry, AnalysisType type, List<IProbabilityParameter> expressionParameters, Locale locale) {
-		for (int i = 0; i < colCount; i++) {
-			if (row.getC().size() < i)
-				row.getC().add(Context.smlObjectFactory.createCell());
-		}
-		int colIndex = 0;
-		Measure measure = actionPlanEntry.getMeasure();
-		MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(locale.getISO3Language());
-		setValue(row.getC().get(colIndex), measure.getAnalysisStandard().getStandard().getLabel());
-		setValue(row.getC().get(++colIndex), measure.getMeasureDescription().getReference());
-		setValue(row.getC().get(++colIndex), descriptionText.getDomain());
-		setValue(row.getC().get(++colIndex), measure.getStatus());
-		setValue(row.getC().get(++colIndex), measure.getComment());
-		setValue(row.getC().get(++colIndex), measure.getToDo());
-		setValue(row.getC().get(++colIndex), measure.getResponsible());
-		setValue(row.getC().get(++colIndex), measure.getImplementationRateValue(expressionParameters));
-		setValue(row.getC().get(++colIndex), measure.getInternalWL());
-		setValue(row.getC().get(++colIndex), measure.getExternalWL());
-		setValue(row.getC().get(++colIndex), measure.getInvestment() * 0.001);
-		setValue(row.getC().get(++colIndex), measure.getLifetime());
-		setValue(row.getC().get(++colIndex), measure.getInternalMaintenance());
-		setValue(row.getC().get(++colIndex), measure.getExternalMaintenance());
-		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
-		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
-		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
-		if (type == AnalysisType.QUALITATIVE)
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getRiskCount());
-		else {
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getTotalALE() * 0.001);
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getDeltaALE() * 0.001);
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getROI() * 0.001);
-		}
-	}
-
 }

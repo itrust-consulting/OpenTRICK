@@ -3,11 +3,11 @@
  */
 
 var DataManagerImport = {
-	"default" : {
-		setup : ($view, $tab) =>{
+	"default": {
+		setup: ($view, $tab) => {
 			$("form", $view).trigger("reset").find("input[type='file']").trigger("change");
 		},
-		process : ($view, $from, $tab) => {
+		process: ($view, $from, $tab) => {
 			var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-process-url"), $btnImport = $("button[name='import']", $view).prop("disabled", true);
 			$.ajax({
 				url: context + url,
@@ -17,7 +17,7 @@ var DataManagerImport = {
 				contentType: false,
 				processData: false,
 				success: function (response, textStatus, jqXHR) {
-					if (response.success){
+					if (response.success) {
 						application["taskManager"].Start();
 						$view.modal("hide");
 					}
@@ -27,43 +27,43 @@ var DataManagerImport = {
 						showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 				},
 				error: unknowError
-		
+
 			}).complete(function () {
 				$progress.hide();
 				$btnImport.prop("disabled", false);
 			});
 		}
 	},
-	"asset" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
+	"asset": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
-	"risk-information" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
+	"risk-information": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
-	"risk-estimation" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
+	"risk-estimation": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
-	"scenario" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
+	"scenario": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
-	"raw-rrf" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
+	"raw-rrf": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
-	"rrf-knowledge-base" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => {
+	"rrf-knowledge-base": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => {
 			var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-process-url"), $btnImport = $("button[name='import']", $view).prop("disabled", true);
 			$.ajax({
 				url: context + url,
 				type: "post",
 				data: $from.serialize(),
 				success: function (response, textStatus, jqXHR) {
-					if (response.success != undefined){
+					if (response.success != undefined) {
 						showDialog("success", response.success);
 						$view.modal("hide");
 					}
@@ -74,19 +74,19 @@ var DataManagerImport = {
 							unknowError();
 					}
 				},
-				error:unknowError
+				error: unknowError
 			}).complete(() => {
 				$progress.hide();
-				$btnImport.prop("disabled",false);
+				$btnImport.prop("disabled", false);
 			});
 		}
 	},
-	"measure" : {
-		setup : ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
-		process : ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
+	"measure": {
+		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
-	"rrf" : {
-		setup : ($view, $tab) => {
+	"rrf": {
+		setup: ($view, $tab) => {
 			DataManagerImport["default"].setup($view, $tab);
 			var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnImport = $("button[name='import']", $view);
 			$.ajax({
@@ -96,20 +96,20 @@ var DataManagerImport = {
 					var $content = $("[data-view-content-name='rrf']", new DOMParser().parseFromString(response, "text/html"));
 					if ($content.length) {
 						var $tabs = $(".tab-pane", $tab);
-						if($tabs.length){
-							$tabs.each((i,e) =>{
-								var $this = $(e), $newTab = $("#"+e.id, $content) ,active = $this.hasClass('active');
+						if ($tabs.length) {
+							$tabs.each((i, e) => {
+								var $this = $(e), $newTab = $("#" + e.id, $content), active = $this.hasClass('active');
 								$this.replaceWith($newTab);
-								if(active)
+								if (active)
 									$newTab.addClass("active");
 								else $newTab.removeClass("active");
 							});
 							$content = $tab;
-						}else  $content.appendTo($tab);
-						
+						} else $content.appendTo($tab);
+
 						var $customers = $("select[name='customer']", $content),
-						$analyses = $("select[name='analysis']", $content), 
-						$standards = $("select[name='standards']", $content), $selectedTab = $("ul.nav>li.active>a",$tab);
+							$analyses = $("select[name='analysis']", $content),
+							$standards = $("select[name='standards']", $content), $selectedTab = $("ul.nav>li.active>a", $tab);
 						$customers.change(function () {
 							var value = $(this).val();
 							$analyses.find("option[data-trick-id!='" + value + "']").hide().prop("selected", false);
@@ -124,57 +124,60 @@ var DataManagerImport = {
 							$standards.find("option[data-trick-id='" + value + "']").show();
 							$standards.trigger("change");
 						});
-						
+
 						$standards.on("change", (e) => {
-							$btnImport.prop("disabled", $standards.val()===null);
+							$btnImport.prop("disabled", $standards.val() === null);
 						});
 						$customers.trigger("change");
-						
-						if($selectedTab.length)
-							$("ul.nav>li>a[href='"+$selectedTab.attr("href")+"']", $content).tab("show");
-						
-						
-					}else {
+
+						if ($selectedTab.length)
+							$("ul.nav>li>a[href='" + $selectedTab.attr("href") + "']", $content).tab("show");
+
+
+					} else {
 						$(".tab-pane", $tab).empty();
 						unknowError();
 					}
-				},error: (jqXHR, textStatus, errorThrown) => {
-					$tab.empty();
+				}, error: (jqXHR, textStatus, errorThrown) => {
+					$(".tab-pane", $tab).empty();
 					unknowError(jqXHR, textStatus, errorThrown);
 				}
-				}).complete(() => $progress.hide());
+			}).complete(() => $progress.hide());
 		},
-		process : ($view, $from, $mainTab) => {}
+		process: ($view, $from, $mainTab) => { }
 	},
 };
 
 function importDataManager(idAnalysis) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Analysis/Data-manager/Import" + ($.isNumeric(idAnalysis) ? "?analysisId=" + idAnalysis : ""),
-		type : "GET",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		url: context + "/Analysis/Data-manager/Import" + ($.isNumeric(idAnalysis) ? "?analysisId=" + idAnalysis : ""),
+		type: "GET",
+		contentType: "application/json;charset=UTF-8",
+		success: function (response) {
 			var $view = $("#import-modal", new DOMParser().parseFromString(response, "text/html"));
-			if($view.length){
-				var $exportBtn = $("button[name='import']", $view);
+			if ($view.length) {
+				var $importBtn = $("button[name='import']", $view);
+
 				$view.appendTo("#dialog-body").modal("show").on("hidden.bs.modal", () => $view.remove());
-				$('a[data-toggle="tab"]', $view).on('shown.bs.tab', function(e) {
-					var $tab = $("div.tab-pane-main.active", $view), manager = DataManagerImport[$tab.attr("data-view-name")];
-					if(manager!==undefined)
+
+				$('a[data-toggle="tab"]', $view).on('show.bs.tab', function (e) {
+					var $tab = $(".tab-pane" + e.currentTarget.getAttribute("href"), $view), manager = DataManagerImport[$tab.attr("data-view-name")];
+					if (manager !== undefined)
 						manager.setup($view, $tab);
-					
+
+				}).first().trigger("show.bs.tab");
+
+				$importBtn.on("click", function (e) {
+					var $tab = $("div.tab-pane.active:visible:last", $view), $form = $("form:visible", $tab), manager = DataManagerImport[$tab.attr("data-view-name")];
+					if (manager !== undefined)
+						manager.process($view, $form, $tab);
 				});
-				$exportBtn.on("click", function(e) {
-					var $tab = $("div.tab-pane.active:visible:last", $view), $form = $("form:visible", $tab),  manager = DataManagerImport[$tab.attr("data-view-name")];
-					if(manager!==undefined)
-						manager.process($view,$form, $tab);
-				});
-			}else
+			} else
 				unknowError();
 		},
-		error : unknowError
-	}).complete(function() {
+		error: unknowError
+	}).complete(function () {
 		$progress.hide();
 	});
 	return false;

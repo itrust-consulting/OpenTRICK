@@ -1099,7 +1099,7 @@ function importAnalysis(){
 		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: context + "/Analysis/Import/" + customer,
+		url: context + "/Analysis/Data-manager/Sqlite/Import-form?idCustomer=" + customer,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			var $viewModal= $("#analysis-import-dialog", new DOMParser().parseFromString(response, "text/html"));
@@ -1139,7 +1139,7 @@ function importAnalysis(){
 				$form.on("submit", (e) => {
 					$progress.show();
 					$.ajax({
-						url: context + "/Analysis/Import/" + customer ,
+						url: context + "/Analysis/Data-manager/Sqlite/Import-process",
 						type: 'POST',
 						data: new FormData($form[0]),
 						cache: false,

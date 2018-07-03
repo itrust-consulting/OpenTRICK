@@ -123,55 +123,20 @@
 					<c:if test="${type.quantitative and hasMaturity}">
 						<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
 					</c:if>
-					<li class="divider"></li>
-					<li><a href="#" onclick="return importDataManager(${analysis.id})"> <spring:message code="label.action.import"/> (Alpha)</a></li>
-					<li><a href="#" onclick="return importRiskEstimation()"> <spring:message code="label.action.import.risk_estimation" text="Import risk estimation" />
-					</a></li>
 				</c:if>
-				<c:if test="${canExport and isEditable}">
+				<c:if test="${canExport or isEditable}">
 					<li class="divider"></li>
-					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
-					<li><a href="#" onclick="return exportDataManager(${analysis.id})"> <spring:message code="label.action.export"/> (Alpha)</a></li>
-					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
-					<c:if test="${not empty soas}">
-						<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>
+					<li class="dropdown-header"><spring:message code="label.menu.title.data.manager" /></li>
+					<c:if test="${canExport}">
+						<li><a href="#" onclick="return exportDataManager(${analysis.id})"> <spring:message code="label.action.export" /></a></li>
 					</c:if>
-					<li><a href="${pageContext.request.contextPath}/Analysis/Data-manager/Risk-estimation/Export-process" download><spring:message code="label.risk_estimation"
-								text="Risk estimation" /></a></li>
-					<c:choose>
-						<c:when test="${type.qualitative}">
-							<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
-							</a></li>
-							<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
-							</a></li>
-							<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','RAW')"> <spring:message code="label.raw_risk_sheet" />
-							</a></li>
-						</c:when>
-					</c:choose>
-					<li><c:choose>
-							<c:when test="${type.hybrid}">
-								<a href="#" onclick="return exportRawActionPlan('${analysis.id}','${type}')"><spring:message code="label.raw_action_plan" /></a>
-							</c:when>
-							<c:otherwise>
-								<a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}/${type}" download><spring:message code="label.raw_action_plan" /></a>
-							</c:otherwise>
-						</c:choose></li>
+					<li><a href="#" onclick="return importDataManager(${analysis.id})"> <spring:message code="label.action.import" /></a></li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
 			<c:if test="${isProfile or isEditable}">
 				<c:if test="${type.quantitative}">
-					<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
-					<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.edit" /></a></li>
-					<c:if test="${isProfile or isEditable}">
-						<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
-						<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
-						<c:set var="importRRF" value="true" />
-					</c:if>
-					<c:if test="${canExport}">
-						<li><a href="${pageContext.request.contextPath}/Analysis/RRF/Export/Raw/${analysis.id}" download> <spring:message code="label.action.export.rrf.raw" /></a></li>
-						<c:set var="exportRRF" value="true" />
-					</c:if>
+					<li><a href="#" onclick="return loadRRF();"><spring:message code="label.title.rrf" /></a></li>
 					<li class="divider"></li>
 				</c:if>
 				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
