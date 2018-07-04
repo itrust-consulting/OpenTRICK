@@ -29,41 +29,46 @@ var DataManagerExport = {
 	},
 	"measure": {
 		setup: ($view, $tab) => {
-			var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $oldContent = $("[data-view-content-name='measure']", $tab);
-			$.ajax({
-				url: context + url,
-				type: "GET",
-				contentType: "application/json;charset=UTF-8",
-				success: function (response, textStatus, jqXHR) {
-					var $content = $("[data-view-content-name='measure']", new DOMParser().parseFromString(response, "text/html"));
-					if ($content.length) {
-						if ($oldContent.length)
-							$oldContent.replaceWith($content);
-						else $content.appendTo($tab);
-
-						$("select[name='standards']", $content).on("change", (e) => {
-							var $current = $(e.currentTarget);
-							$btnExport.prop("disabled", !$current.val());
-						}).trigger("change");
-
-						$("form", $content).on("submit", (e) => downloadProgress($progress, $content.attr("data-view-token"), () => $view.modal("hide")));
-
-						DataManagerExport["default"].postSetup($view, $tab);
-					}
-					else {
-						if (response["error"] != undefined)
-							showDialog("#alert-dialog", response["error"]);
-						else
-							unknowError();
-
+			var $currentUI = $("[data-view-content-name='measure']", $tab);
+			if($currentUI.length)
+				$("select[name='standards']", $currentUI).trigger("change");
+			else {
+				var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $oldContent = $("[data-view-content-name='measure']", $tab);
+				$.ajax({
+					url: context + url,
+					type: "GET",
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
+						var $content = $("[data-view-content-name='measure']", new DOMParser().parseFromString(response, "text/html"));
+						if ($content.length) {
+							if ($oldContent.length)
+								$oldContent.replaceWith($content);
+							else $content.appendTo($tab);
+	
+							$("select[name='standards']", $content).on("change", (e) => {
+								var $current = $(e.currentTarget);
+								$btnExport.prop("disabled", !$current.val());
+							}).trigger("change");
+	
+							$("form", $content).on("submit", (e) => downloadProgress($progress, $content.attr("data-view-token"), () => $view.modal("hide")));
+	
+							DataManagerExport["default"].postSetup($view, $tab);
+						}
+						else {
+							if (response["error"] != undefined)
+								showDialog("#alert-dialog", response["error"]);
+							else
+								unknowError();
+	
+							$tab.empty();
+						}
+					},
+					error: (jqXHR, textStatus, errorThrown) => {
 						$tab.empty();
+						unknowError(jqXHR, textStatus, errorThrown);
 					}
-				},
-				error: (jqXHR, textStatus, errorThrown) => {
-					$tab.empty();
-					unknowError(jqXHR, textStatus, errorThrown);
-				}
-			}).complete(() => $progress.hide());
+				}).complete(() => $progress.hide());
+			}
 		},
 		process: ($view, $tab) => $("button[type='submit']").trigger("click")
 	},
@@ -105,37 +110,42 @@ var DataManagerExport = {
 		process: ($view, $tab) => DataManagerExport["async-export"].process($view, $tab)
 	}, "risk-sheet": {
 		setup: ($view, $tab) => {
-			var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $selectedTab = $("ul.nav>li.active>a", $tab);
-			$.ajax({
-				url: context + url,
-				contentType: "application/json;charset=UTF-8",
-				success: function (response, textStatus, jqXHR) {
-					var $content = $("[data-view-content-name='risk-sheet']", new DOMParser().parseFromString(response, "text/html"));
-					if ($content.length) {
-						var $tabs = $(".tab-pane", $tab);
-						if ($tabs.length) {
-							$tabs.each((i, e) => {
-								var $this = $(e), $newTab = $("#" + e.id, $content), active = $this.hasClass('active');
-								$this.replaceWith($newTab);
-								if (active)
-									$newTab.addClass("active");
-								else $newTab.removeClass("active");
-							});
-							$content = $tab;
-						} else $content.appendTo($tab);
-						if ($selectedTab.length)
-							$("ul.nav>li>a[href='" + $selectedTab.attr("href") + "']", $content).tab("show");
-						DataManagerExport["default"].postSetup($view, $tab);
-						setTimeout(() => $btnExport.prop("disabled", false), 200);
-					} else {
+			var $currentUI = $("[data-view-content-name='risk-sheet']", $tab);
+			if($currentUI.length)
+				$("button[name='export']", $view).prop("disabled", false)
+			else{
+				var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $selectedTab = $("ul.nav>li.active>a", $tab), $btnExport = $("button[name='export']", $view).prop("disabled", true);
+				$.ajax({
+					url: context + url,
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
+						var $content = $("[data-view-content-name='risk-sheet']", new DOMParser().parseFromString(response, "text/html"));
+						if ($content.length) {
+							var $tabs = $(".tab-pane", $tab);
+							if ($tabs.length) {
+								$tabs.each((i, e) => {
+									var $this = $(e), $newTab = $("#" + e.id, $content), active = $this.hasClass('active');
+									$this.replaceWith($newTab);
+									if (active)
+										$newTab.addClass("active");
+									else $newTab.removeClass("active");
+								});
+								$content = $tab;
+							} else $content.appendTo($tab);
+							if ($selectedTab.length)
+								$("ul.nav>li>a[href='" + $selectedTab.attr("href") + "']", $content).tab("show");
+							DataManagerExport["default"].postSetup($view, $tab);
+							$btnExport.prop("disabled", false);
+						} else {
+							$(".tab-pane", $tab).empty();
+							unknowError();
+						}
+					}, error: (jqXHR, textStatus, errorThrown) => {
 						$(".tab-pane", $tab).empty();
-						unknowError();
+						unknowError(jqXHR, textStatus, errorThrown);
 					}
-				}, error: (jqXHR, textStatus, errorThrown) => {
-					$(".tab-pane", $tab).empty();
-					unknowError(jqXHR, textStatus, errorThrown);
-				}
-			}).complete(() => $progress.hide());
+				}).complete(() => $progress.hide());
+			}
 		},
 		process: ($view, $tab) => {
 			var $progress = $("#loading-indicator").show(), data = $("form", $tab).serializeJSON(), $btnExport = $("button[name='export']", $view).prop("disabled", true);
@@ -194,61 +204,68 @@ var DataManagerExport = {
 		process: ($view, $tab) => DataManagerExport["risk-sheet"].process($view, $tab)
 	}, "word-report": {
 		setup: ($view, $tab) => {
-			var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $selectedTab = $("ul.nav>li.active>a", $tab);
-			$.ajax({
-				url: context + url,
-				contentType: "application/json;charset=UTF-8",
-				success: function (response, textStatus, jqXHR) {
-					var $content = $("[data-view-content-name='word-report']", new DOMParser().parseFromString(response, "text/html"));
-					if ($content.length) {
-						var $tabs = $(".tab-pane", $tab);
-						if ($tabs.length) {
-							$tabs.each((i, e) => {
-								var $this = $(e), $newTab = $("#" + e.id, $content), active = $this.hasClass('active');
-								$this.replaceWith($newTab);
-								if (active)
-									$newTab.addClass("active");
-								else $newTab.removeClass("active");
-							});
-							$content = $tab;
+			var $currentUI = $("[data-view-content-name='word-report']",$tab);
+			if($currentUI.length)
+				DataManagerExport["report"].updateStatus($view, $(".tab-pane.active", $currentUI));
+			else {
+				var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $selectedTab = $("ul.nav>li.active>a", $tab);
+				$.ajax({
+					url: context + url,
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
+						var $content = $("[data-view-content-name='word-report']", new DOMParser().parseFromString(response, "text/html"));
+						if ($content.length) {
+							var $tabs = $(".tab-pane", $tab);
+							if ($tabs.length) {
+								$tabs.each((i, e) => {
+									var $this = $(e), $newTab = $("#" + e.id, $content), active = $this.hasClass('active');
+									$this.replaceWith($newTab);
+									if (active)
+										$newTab.addClass("active");
+									else $newTab.removeClass("active");
+								});
+								$content = $tab;
+							} else {
+								$content.appendTo($tab.empty());
+								$('a[data-toggle="tab"]', $tab).on('show.bs.tab', function (e) {
+									DataManagerExport["report"].updateStatus($view, $(".tab-pane" + e.currentTarget.getAttribute("href"), $tab));
+								}).first().trigger("show.bs.tab");
+							}
+	
+							if ($selectedTab.length)
+								$("ul.nav>li>a[href='" + $selectedTab.attr("href") + "']", $content).tab("show");
+	
+							$tabs = $(".tab-pane", $tab);
+	
+							if ($tabs.length)
+								$tabs.each((i, e) => DataManagerExport["report"].setup($view, $(e)));
+							else DataManagerExport["report"].setup($view, $tab);
+	
+							DataManagerExport["default"].postSetup($view, $tab);
+	
 						} else {
-							$content.appendTo($tab);
-							$('a[data-toggle="tab"]', $tab).on('show.bs.tab', function (e) {
-								DataManagerExport["report"].updateStatus($view, $(".tab-pane" + e.currentTarget.getAttribute("href"), $tab));
-							}).first().trigger("show.bs.tab");
+	
+							if ($selectedTab.length)
+								$(".tab-pane", $tab).empty();
+							else $tab.empty();
+	
+							unknowError();
 						}
-
-						if ($selectedTab.length)
-							$("ul.nav>li>a[href='" + $selectedTab.attr("href") + "']", $content).tab("show");
-
-						$tabs = $(".tab-pane", $tab);
-
-						if ($tabs.length)
-							$tabs.each((i, e) => DataManagerExport["report"].setup($view, $(e)));
-						else DataManagerExport["report"].setup($view, $tab);
-
-						DataManagerExport["default"].postSetup($view, $tab);
-
-					} else {
-
+					}, error: (jqXHR, textStatus, errorThrown) => {
+	
 						if ($selectedTab.length)
 							$(".tab-pane", $tab).empty();
 						else $tab.empty();
-
-						unknowError();
+	
+						unknowError(jqXHR, textStatus, errorThrown);
 					}
-				}, error: (jqXHR, textStatus, errorThrown) => {
-
-					if ($selectedTab.length)
-						$(".tab-pane", $tab).empty();
-					else $tab.empty();
-
-					unknowError(jqXHR, textStatus, errorThrown);
-				}
-			}).complete(() => $progress.hide());
+				}).complete(() => $progress.hide());
+			}
 		},
 		process: ($view, $tab) => DataManagerExport["report"].process($view, $tab)
-	}, "report": {
+	},
+	//see exportAnalysisReport and DataManagerExport['word-report']
+	"report": {
 		setup: ($view, $tab) => {
 			var $inputFile = $("input[name='file']", $tab), $template = $("select[name='template']", $tab), $exportBtn = $("button[name='export']", $view);
 			var $form = $("form", $tab), $type = $("input[name='type']", $tab), $fileInfo = $("input[name='filename']", $tab);
