@@ -11,7 +11,6 @@
 		<org.springframework.version>5.0.7.RELEASE</org.springframework.version>
 		<org.apache.logging.log4j.version>2.11.0</org.apache.logging.log4j.version>
 		<com.fasterxml.jackson.core.version>2.9.6</com.fasterxml.jackson.core.version>
-		<!-- <org.hibernate-validator.version>6.0.5.Final</org.hibernate-validator.version> -->
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.springframework.security.version>5.0.6.RELEASE</org.springframework.security.version>
 		<org.hibernate.javax.persistence.version>1.0.0.Final</org.hibernate.javax.persistence.version>
@@ -148,7 +147,7 @@
 			<version>${org.springframework.security.version}</version>
 		</dependency>
 
-		<!-- For Spring security  -->
+		<!-- For Spring security -->
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
@@ -422,7 +421,7 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>6.14.3</version>
+			<version>6.13.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -472,6 +471,13 @@
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.1.6</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.beanshell</groupId>
+			<artifactId>bsh</artifactId>
+			<version>2.0b5</version>
 			<scope>test</scope>
 		</dependency>
 

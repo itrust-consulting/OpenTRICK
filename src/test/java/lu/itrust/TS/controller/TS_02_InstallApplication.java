@@ -33,7 +33,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 
-@Test(groups = "Installation", dependsOnGroups = "firstAccount")
+@Test(groups = "Installation", dependsOnGroups = "firstAccount",singleThreaded=true)
 public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	public static final String PROFILE_CUSTOMER = "profile-customer";
