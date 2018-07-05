@@ -81,7 +81,7 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
 	 */
 	@Override
 	default int compare(T o1, T o2) {
-		return compareTo(o1.toString(), o2.toString());
+		return compareTo(o1 == null ? null : o1.toString(), o2 == null ? null : o2.toString());
 	}
 
 	static int compareTo(String a, String b)
@@ -90,6 +90,11 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
         int nza = 0, nzb = 0;
         char ca, cb;
         int result;
+        
+        if (a == null)
+			a = "";
+		if (b == null)
+			b = "";
 
         while (true)
         {
