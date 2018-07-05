@@ -166,8 +166,8 @@ public class ExternalNotification {
 	 * Sets the severity of this notification.
 	 */
 	public void setSeverity(double severity) throws TrickException {
-		if (severity < 0.0 || severity > 1.0)
-			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
+		if (severity < 0.0)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { 0.0, Double.POSITIVE_INFINITY });
 		this.severity = severity;
 	}
 

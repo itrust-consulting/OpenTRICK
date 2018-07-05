@@ -28,7 +28,7 @@ public class ApiExternalNotification {
 	 * Represents the severity of the notification.
 	 * The severity is the conditional probability that an incident of this category occurs
 	 * given that there has been an alert (a notification).
-	 * Values lie in the range [0.0,1.0] where 0 is least severe.
+	 * Values lie in the range [0.0,infinity) where 0 is least severe.
 	 */
 	private double severity = 0;
 	

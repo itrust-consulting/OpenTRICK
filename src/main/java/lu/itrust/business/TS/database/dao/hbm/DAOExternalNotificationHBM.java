@@ -8,9 +8,7 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
-import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
-import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 
 /**
@@ -71,47 +69,31 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability){
-		// Note that the probability decays exponentially with time. In particular, it never becomes zero.
-		// However, for performance reasons, we start neglecting it once it reaches 1/128 (which is < 1%). It does so after 7 times the half life.  
+
+		// Select the latest external notification for each category
+		// (Take the external notifications. Join them to all external notifications that occur later. Those who do not have a later external notification are the latest ones. Fetch these.)
+		final String query = ""
+				+ "SELECT extnot "
+				+ "FROM ExternalNotification extnot "
+				+ "LEFT JOIN ExternalNotification extnotmax WITH extnotmax.sourceUserName=:sourceUserName AND extnotmax.timestamp <= :now AND extnotmax.category=extnot.category AND extnotmax.timestamp > extnot.timestamp "
+				+ "WHERE extnot.sourceUserName = :sourceUserName AND extnot.timestamp <= :now AND extnotmax.id IS NULL";
+
 		Map<String, Double> probabilities = new HashMap<>();
-		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp <= :now AND extnot.timestamp + extnot.halfLife*7 > :now AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
-		// TODO: An analysis of the forward-error is needed here!
-		// The reason why I left it like this is because I plan to also support "setting" a probability
-		// level, ignoring the past probability level. Unfortunately this cannot be achieved using a SUM
-		// and thus the HQL approach seems infeasible (need to figure out a solution to this!). -- smuller, 07.08.2015
-		
-		// Compute probability for each category using the formula:
-		//    totalProb := 1 - (1 - inverseAssertiveness * totalProb) * (1 - Pr[event])
-		// for each event, starting at totalProb := 0.
-		// Note that Pr[event] follows the exponential-decay model, i.e. Pr[event](t) = p0 * (1/2) ^ ((t - t0)/T)
-		// where p0 := initial probability = severity, t0 := timestamp of notification, T := half-life. 
-		getSession().createQuery(query).setParameter("now", timestamp).setParameter("sourceUserName", sourceUserName).getResultList().forEach(notification -> {
+		getSession().createQuery(query).setParameter("now", timestamp).setParameter("sourceUserName", sourceUserName).getResultStream().forEach(notification -> {
 			ExternalNotification extNot = (ExternalNotification) notification;
 			// Deduce parameter name from category
 			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, extNot .getCategory());
 
-			// Get parameters resulting from previous step
+			// Compute probability level:
+			// Pr[event] follows the exponential-decay model, i.e. Pr[event](t) = p0 * (1/2) ^ ((t - t0)/T)
+			// where p0 := initial probability = severity, t0 := timestamp of notification, T := half-life.
 			final double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
 			final double p = extNot.getSeverity() * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
-			double totalProbability = probabilities.getOrDefault(parameterName, 0.0);
-			
-			// Determine new probability
-			if (extNot.getType().equals(ExternalNotificationType.RELATIVE))
-				totalProbability = 1.0 - (1.0 - totalProbability) * Math.pow(1.0 - p, extNot.getNumber());
-			else if (extNot.getType().equals(ExternalNotificationType.ABSOLUTE))
-				totalProbability = extNot.getSeverity();
-			else
-				throw new TrickException("error.unknown.notification.type","Unknown notification type: " + extNot.getType().name(), extNot.getType().name());
 
 			// Store new computed probability
-			totalProbability = Math.max(minimumProbability, totalProbability);
-			probabilities.put(parameterName, totalProbability);
+			probabilities.put(parameterName, p);
 		});
 
-		
-
-	
-	
 		return probabilities;
 	}
 
@@ -119,97 +101,44 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability){
-		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.category, extnot.timestamp ASC";
-		
-		// Note that the notifications are ordered by time of occurrence. Our strategy looks as follows.
-		// Take the whole time interval and all notifications issued during that period, and whenever such a notification is issued, chop the interval into smaller segments. 
-		// That one one gets a collection of intervals and a one-to-one mapping between them and the notifications.
-		// Then integrate the probability function over that interval and sum all these partial integrals up to get the final probability.
-		//
-		// For relatively acting notifications (those with type = RELATIVE), we do some optimization:
-		// Note that the probability function depends not only on the probability evolution of the notification associated to the interval in question,
-		// but also on all prior notifications. For computational feasibility, we neglect the dependence of the previous notifications, though.
-		// Thus, the probability function which usually looks like
-		//     f_new(t) = 1 - (1 - f_old(t)) * (1 - p(t))
-		// where p(t) := severity * 2 ^ (-Δt / halflife) is the probability evolution of the current notification,
-		// now looks like
-		//     f_new(t) = (1 - (1 - f_old(T)) * (1 - p(T))) * p(t) / p(T)
-		// where T is the beginning time stamp of the interval (when the notification was issued).
-		// It can be rewritten as
-		//     f_new(t) = (f_old(T) + severity - f_old(T) * severity) * p(t) / p(T)
-		// since severity = p(T).
+		// Ignore all external notifications that are older than seven times their half-life time, because their influence is (1/2)^7 < 1%,
+		// which can be neglected if the severity is roughly the same for all notifications of the same category (which we assume).
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp DESC";
+
+		// Our strategy looks as follows.
+		// Take the whole time interval and all notifications issued during that period.
+		// Chop the interval into smaller segments such that each segment starts with an external notification.
+		// On each such interval, the time-dependent probability function can be explicitly inferred from that single external notification.
+		// Then integrate the probability function over that interval.
+		// Finally, sum all these partial integrals up to get the final probability.
+
+		// Note that the notifications are ordered by time of occurrence in DESCENDING order (i.e. starting with the most recent one!).
 
 		final long totalInterval = timestampEnd - timestampBegin;
-		// NB: notifications are ordered by time of occurrence
-		final Map<String, Double> probabilityLevel = new HashMap<>(); // last probability level per category (more precisely, the probability level at the last notification issue date, but not considering the impact of the last notification)
-		final Map<String, Double> totalProbability = new HashMap<>(); // accumulated probability per category
-		final Map<String, ExternalNotification> lastNotification = new HashMap<>(); // store last external notification per category
+		final Map<String, Double> nextProbabilityLevel = new HashMap<>(); // initial probability level of the next more recent notification, per category
+		final Map<String, Long> nextNotificationTime = new HashMap<>(); // store next more recent external notification, per category
+		final Map<String, Double> totalProbability = new HashMap<>(); // accumulated probability, per category
 
-		getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).getResultList().forEach(notification ->{
-			final ExternalNotification next = (ExternalNotification) notification;
-			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, next.getCategory());
-			final ExternalNotification last = lastNotification.put(parameterName, next);
-			if (last != null){
-				// Get last known probability settings
-				final double lastProbabilityLevelBeforeNotif = probabilityLevel.getOrDefault(parameterName, 0.0); // level at `last.getTimestamp()` before `last` was issued 
-				final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0); // total probability before `last.getTimestamp()`
-	
-				// Get time differences relative to beginning of interval
-				// IMPORTANT: immediately cast to double, otherwise integer division will apply below
-				final double deltaTimeBegin = Math.max(timestampBegin, last.getTimestamp()) - last.getTimestamp();
-				final double deltaTimeEnd = Math.max(timestampBegin, next.getTimestamp()) - last.getTimestamp();
-	
-				// Compute the new probability settings
-				final double lastProbabilityLevelAfterNotif;
-				final double addedProbability;
-				if (last.getType().equals(ExternalNotificationType.RELATIVE)) {
-					// 1 - (1 - last) * (1 - severity)
-					lastProbabilityLevelAfterNotif = lastProbabilityLevelBeforeNotif + last.getSeverity() - lastProbabilityLevelBeforeNotif * last.getSeverity();
-					addedProbability = lastProbabilityLevelAfterNotif * last.getHalfLife() / Math.log(2) * (Math.pow(.5, deltaTimeBegin / last.getHalfLife()) - Math.pow(.5, deltaTimeEnd / last.getHalfLife()));
-				}
-				else if (last.getType().equals(ExternalNotificationType.ABSOLUTE)) {
-					lastProbabilityLevelAfterNotif = last.getSeverity();
-					addedProbability = lastProbabilityLevelAfterNotif * (deltaTimeEnd - deltaTimeBegin);
-				}
-				else
-					throw new TrickException("error.unknown.external.notification.type","Unknown external notification type: " + last.getType().name(), last.getType().name());
-				
-				// Store
-				probabilityLevel.put(parameterName, lastProbabilityLevelAfterNotif * Math.pow(.5, (double)(next.getTimestamp() - last.getTimestamp()) / last.getHalfLife()));
-				totalProbability.put(parameterName, lastTotalProbability + addedProbability / totalInterval);
-			}
+		getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).getResultList().forEach(notificationObject -> {
+			final ExternalNotification notification = (ExternalNotification)notificationObject;
+			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, notification.getCategory());
+
+			// Compute aggregated probability for this notification until the time where it is no longer applicable
+
+			// The probability level at any time t is given by severity*(1/2)^(t-t0)/T where t0 is the time of reporting.
+			// The integral of this expression is severity*T/log(1/2)*(1/2)^(t-t0)/T.
+			// Compute the time deltas (t-t0) respectively for the beginning and end of the applicable interval.
+			final double deltaTimeBegin = Math.max(timestampBegin, notification.getTimestamp()) - notification.getTimestamp();
+			final double deltaTimeEnd = nextNotificationTime.getOrDefault(parameterName, timestampEnd) - notification.getTimestamp();
+
+			// Compute integrated probability
+			final double integratedProbability = notification.getSeverity() * notification.getHalfLife() / Math.log(0.5) * (Math.pow(.5, deltaTimeEnd / notification.getHalfLife()) - Math.pow(.5, deltaTimeBegin / notification.getHalfLife()));
+			totalProbability.put(parameterName, totalProbability.getOrDefault(parameterName, 0.0) + integratedProbability / totalInterval);
+
+			// Prepare next iteration
+			nextProbabilityLevel.put(parameterName, notification.getSeverity());
+			nextNotificationTime.put(parameterName, notification.getTimestamp());
 		});
-
-		// while loop is always one entry behind, do not forget to add it to the total probability
-		for (String parameterName : lastNotification.keySet()) {
-			final ExternalNotification last = lastNotification.get(parameterName);
-			
-			// Get last known probability settings
-			final double lastProbabilityLevelBeforeNot = probabilityLevel.getOrDefault(parameterName, 0.0);
-			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
-
-			// Get time differences relative to beginning of interval
-			// IMPORTANT: immediately cast to double, otherwise integer division will apply below
-			final double deltaTimeBegin = Math.max(timestampBegin, last.getTimestamp()) - last.getTimestamp();
-			final double deltaTimeEnd = timestampEnd - last.getTimestamp();
-
-			// Compute the new probability settings
-			final double lastProbabilityLevelAfterNotif;
-			final double addedProbability;
-			if (last.getType().equals(ExternalNotificationType.RELATIVE)) {
-				// 1 - (1 - last) * (1 - severity)
-				lastProbabilityLevelAfterNotif = lastProbabilityLevelBeforeNot + last.getSeverity() - lastProbabilityLevelBeforeNot * last.getSeverity();
-				addedProbability = lastProbabilityLevelAfterNotif * last.getHalfLife() / Math.log(2) * (Math.pow(.5, deltaTimeBegin / last.getHalfLife()) - Math.pow(.5, deltaTimeEnd / last.getHalfLife()));
-			}
-			else if (last.getType().equals(ExternalNotificationType.ABSOLUTE)) {
-				lastProbabilityLevelAfterNotif = last.getSeverity();
-				addedProbability = lastProbabilityLevelAfterNotif * (deltaTimeEnd - deltaTimeBegin);
-			}
-			else
-				throw new TrickException("error.unknown.external.notification.type","Unknown external notification type: " + last.getType().name(), last.getType().name());
-			// Store
-			totalProbability.put(parameterName, lastTotalProbability + addedProbability / totalInterval);
-		}
 
 		return totalProbability;
 	}
