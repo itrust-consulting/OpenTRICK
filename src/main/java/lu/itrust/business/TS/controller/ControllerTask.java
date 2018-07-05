@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -56,7 +55,7 @@ public class ControllerTask {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Task/Status/{id}")
+	@GetMapping(value="/Task/Status/{id}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody AsyncResult status(@PathVariable String id, Principal principal, Locale locale) {
 
 		// create result
@@ -126,7 +125,7 @@ public class ControllerTask {
 	 * @return
 	 */
 	@MessageMapping("/Task/Done")
-	@RequestMapping("/Task/{id}/Done")
+	@GetMapping(value="/Task/{id}/Done",headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@ResponseBody
 	public String stop(@PathVariable String id, Principal principal, Locale locale) {
 		serviceTaskFeedback.unregisterTask(principal.getName(), id);
@@ -156,7 +155,7 @@ public class ControllerTask {
 					.collect(Collectors.toList());
 	}
 
-	@RequestMapping("/Task/Exist")
+	@GetMapping(value="/Task/Exist", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean hasTask(Principal principal) {
 		// check if user has a task
 		return serviceTaskFeedback.userHasTask(principal.getName());
