@@ -147,16 +147,6 @@ public class DynamicParameterComputer {
 			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
 		}
 
-		/*
-		 * This is problematic if there are two reporting sources: one deletes
-		 * the dynamic parameters of the other.
-		 * 
-		 * // Remove all parameters which are no longer needed // (these are all
-		 * parameters which have not been removed from 'dynamicParameters') for
-		 * (DynamicParameter dynamicParameter : dynamicParameters.values())
-		 * daoParameter.delete(dynamicParameter);
-		 */
-
 		// Update assessment to reflect the new values of the dynamic parameters
 		assessmentManager.updateAssessment(analysis, null);
 

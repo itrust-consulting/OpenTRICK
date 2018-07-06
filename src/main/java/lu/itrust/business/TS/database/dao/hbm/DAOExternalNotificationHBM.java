@@ -79,16 +79,16 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				+ "WHERE extnot.sourceUserName = :sourceUserName AND extnot.timestamp <= :now AND extnotmax.id IS NULL";
 
 		Map<String, Double> probabilities = new HashMap<>();
-		getSession().createQuery(query).setParameter("now", timestamp).setParameter("sourceUserName", sourceUserName).getResultStream().forEach(notification -> {
-			ExternalNotification extNot = (ExternalNotification) notification;
+		getSession().createQuery(query).setParameter("now", timestamp).setParameter("sourceUserName", sourceUserName).getResultStream().forEach(notificationObject -> {
+			ExternalNotification notification = (ExternalNotification) notificationObject;
 			// Deduce parameter name from category
-			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, extNot .getCategory());
+			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, notification.getCategory());
 
 			// Compute probability level:
 			// Pr[event] follows the exponential-decay model, i.e. Pr[event](t) = p0 * (1/2) ^ ((t - t0)/T)
 			// where p0 := initial probability = severity, t0 := timestamp of notification, T := half-life.
-			final double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
-			final double p = extNot.getSeverity() * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
+			final double timeElapsed = timestamp - notification.getTimestamp(); // we know this quantity to be >= 0
+			final double p = notification.getSeverity() * Math.pow(0.5, timeElapsed / notification.getHalfLife());
 
 			// Store new computed probability
 			probabilities.put(parameterName, p);
@@ -119,7 +119,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		final Map<String, Long> nextNotificationTime = new HashMap<>(); // store next more recent external notification, per category
 		final Map<String, Double> totalProbability = new HashMap<>(); // accumulated probability, per category
 
-		getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).getResultList().forEach(notificationObject -> {
+		getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).getResultStream().forEach(notificationObject -> {
 			final ExternalNotification notification = (ExternalNotification)notificationObject;
 			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, notification.getCategory());
 
@@ -132,12 +132,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			final double deltaTimeEnd = nextNotificationTime.getOrDefault(parameterName, timestampEnd) - notification.getTimestamp();
 
 			// Compute integrated probability
-			final double integratedProbability = notification.getSeverity() * notification.getHalfLife() / Math.log(0.5) * (Math.pow(.5, deltaTimeEnd / notification.getHalfLife()) - Math.pow(.5, deltaTimeBegin / notification.getHalfLife()));
+			final double integratedProbability = notification.getSeverity() * notification.getHalfLife() / Math.log(0.5) * (Math.pow(0.5, deltaTimeEnd / notification.getHalfLife()) - Math.pow(0.5, deltaTimeBegin / notification.getHalfLife()));
 			totalProbability.put(parameterName, totalProbability.getOrDefault(parameterName, 0.0) + integratedProbability / totalInterval);
 
 			// Prepare next iteration
 			nextProbabilityLevel.put(parameterName, notification.getSeverity());
-			nextNotificationTime.put(parameterName, notification.getTimestamp());
+			nextNotificationTime.put(parameterName, Math.max(timestampBegin, notification.getTimestamp()));
 		});
 
 		return totalProbability;
