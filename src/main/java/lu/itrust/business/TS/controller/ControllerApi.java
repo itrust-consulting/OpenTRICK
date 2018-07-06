@@ -50,9 +50,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiNotifyRequest;
-import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
-import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
 import lu.itrust.business.TS.model.api.basic.ApiAssessment;
 import lu.itrust.business.TS.model.api.basic.ApiAssessmentValue;
 import lu.itrust.business.TS.model.api.basic.ApiAsset;
@@ -187,40 +185,6 @@ public class ControllerApi {
 
 		serviceIDS.saveOrUpdate(ids);
 
-		// Success
-		return new ApiResult(0);
-	}
-
-	/**
-	 * This method is responsible for accepting requests that set the value of a
-	 * dynamic parameter ready to be used within the TRICK service user
-	 * interface (asset/scenario estimation).
-	 * 
-	 * @param data
-	 *            One or multiple notifications sent to TRICK Service.
-	 * @return Returns an error code (0 = success).
-	 * @throws Exception
-	 */
-	@Transactional
-	@RequestMapping(value = "/ids/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
-
-		IDS ids = serviceIDS.get(principal.getName()).notifyUpdate();
-
-		for (ApiParameterSetter apiObj : request.getData())
-			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, ids.getPrefix()));
-
-		// Trigger execution of worker which computes dynamic parameters.
-		// This method only schedules the task if it does not have been
-		// scheduled yet for the given user.
-		//
-		// Note that we cannot set the value directly because we do not know
-		// whether there are other parameter setters
-		// or external notifications in the database which also impact the value
-		// of the parameter.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
-
-		serviceIDS.saveOrUpdate(ids);
 		// Success
 		return new ApiResult(0);
 	}
