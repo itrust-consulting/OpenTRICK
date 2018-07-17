@@ -42,6 +42,10 @@
 			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>
 	</http>
+	
+	<beans:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall"/>
+	
+	<http-firewall ref="firewall" />
 
 	<beans:import resource="authentication-manager.xml" />
 	
