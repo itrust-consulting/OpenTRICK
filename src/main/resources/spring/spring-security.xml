@@ -69,7 +69,10 @@
 		<beans:property name="force2FA" value="${app.settings.otp.force}" />
 	</beans:bean>
 
-	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationFilter" p:url="/signin" p:redirectURL="/OTP/Options" />
+	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationFilter">
+		<beans:constructor-arg name="url" value="/signin"/>
+		<beans:constructor-arg name="redirectURL" value="/OTP/Options"/>
+	</beans:bean>
 		
 	<beans:bean id="otpAuthenticationProcessingFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationProcessingFilter">
 		<beans:constructor-arg name="url" value="/OTP/Authorise" />
@@ -77,7 +80,9 @@
 		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
 	</beans:bean>
 
-	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint" p:loginFormUrl="/Login" />
+	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint" >
+		<beans:constructor-arg name="loginFormUrl" value="/Login"/>
+	</beans:bean>
 	
 	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder" />
 
