@@ -212,7 +212,7 @@ public class WorkerImportStandard implements Worker {
 		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
 
 		final WorkbookPart workbookPart = SpreadsheetMLPackage.load(importFile).getWorkbookPart();
-		
+
 		final DataFormatter formatter = new DataFormatter();
 
 		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
@@ -236,7 +236,7 @@ public class WorkerImportStandard implements Worker {
 	 * @param sharedStrings
 	 * 
 	 */
-	public void getStandard(WorkbookPart workbookPart,DataFormatter formatter) throws Exception {
+	public void getStandard(WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		this.newstandard = null;
 		SheetData infoSheet = findSheet(workbookPart, "NormInfo");
 		if (infoSheet == null)
@@ -309,19 +309,17 @@ public class WorkerImportStandard implements Worker {
 
 		final int begin = address.getBegin().getRow() + 1, end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size()),
 				startIndex = getStartIndex(sheet, begin, formatter);
-		
-		
 
 		for (int i = begin; i < end; i++) {
 			final Row row = sheet.getRow().get(i);
 			final String reference = getString(row.getC().get(startIndex), formatter);
+			if (isEmpty(reference))
+				continue;
 			MeasureDescription measureDescription = daoMeasureDescription.getByReferenceAndStandard(reference, newstandard);
 			if (measureDescription == null)
 				measureDescription = new MeasureDescription(reference, newstandard);
 			measureDescription.setComputable(getBoolean(row.getC().get(startIndex + 1), formatter));
-
 			final int languageCount = (address.getEnd().getCol() - (startIndex + 1)) / 2;
-
 			for (int j = 0; j < languageCount; j++) {
 				Language language = languages.get(j);
 				int domInd = j * 2 + (startIndex + 2), descInd = domInd + 1;

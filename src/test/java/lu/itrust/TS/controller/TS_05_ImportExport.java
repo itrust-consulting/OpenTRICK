@@ -27,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -117,7 +117,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		this.mockMvc.perform(fileUpload("/Analysis/Import/" + getInteger(ME_CUSTOMER)).file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
+		this.mockMvc.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
 				getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;
@@ -350,8 +350,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public synchronized void test_04_ExportSQLite() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
-		this.mockMvc.perform(get("/Analysis/Export/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc.perform(get("/Analysis/Data-manager/Sqlite/Export-process").with(csrf()).param("idAnalysis", idAnalysis + "").with(httpBasic(USERNAME, PASSWORD))
+				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
@@ -412,7 +412,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(idAnalysis, "Analysis cannot be found");
 
 		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
-				.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.perform(
+						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
 
 		notEmpty(templates, "No template can be found");
@@ -421,8 +422,10 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		assertTrue("Template cannot be found", idTemplate > 0);
 
-		this.mockMvc.perform(post("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-				.param("type", "QUANTITATIVE").param("template", idTemplate + "")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc
+				.perform(post("/Analysis/Data-manager/Report/Export-process").param("analysis", idAnalysis + "").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8).param("type", "QUANTITATIVE").param("template", idTemplate + ""))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {

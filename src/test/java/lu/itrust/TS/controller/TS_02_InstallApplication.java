@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -33,7 +34,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 
-@Test(groups = "Installation", dependsOnGroups = "firstAccount",singleThreaded=true)
+@Test(groups = "Installation", dependsOnGroups = "firstAccount")
 public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	public static final String PROFILE_CUSTOMER = "profile-customer";
@@ -73,11 +74,13 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	@Test
 	public void test_00_Install() throws Exception {
-		INSTALL_TASK_ID = new ObjectMapper().readTree(this.mockMvc.perform(post("/Install").with(httpBasic(USERNAME, PASSWORD)).with(csrf())).andExpect(status().isOk())
-				.andExpect(jsonPath("$.idTask").exists()).andReturn().getResponse().getContentAsString()).findValue("idTask").asText(null);
+		INSTALL_TASK_ID = new ObjectMapper()
+				.readTree(this.mockMvc.perform(post("/Install").contentType(MediaType.APPLICATION_JSON_UTF8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()))
+						.andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn().getResponse().getContentAsString())
+				.findValue("idTask").asText(null);
 	}
 
-	@Test(timeOut = 120000)
+	@Test(timeOut = 120000, dependsOnMethods = "test_00_Install")
 	public synchronized void test_01_WaitForWorker() throws InterruptedException {
 		Worker worker = workersPoolManager.get(INSTALL_TASK_ID);
 		notNull(worker, "Installation worker cannot be found");
@@ -87,7 +90,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 		isNull(worker.getError(), "Installation failed");
 	}
 
-	@Test
+	@Test(dependsOnMethods = "test_01_WaitForWorker")
 	@Transactional(readOnly = true)
 	public void test_04_CheckForInstallVersion() throws Exception {
 		TrickService trickService = serviceTrickService.getStatus();
@@ -95,7 +98,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 		assertEquals("Versions do not match", version, trickService.getVersion());
 	}
 
-	@Test
+	@Test(dependsOnMethods = "test_01_WaitForWorker")
 	@Transactional(readOnly = true)
 	public void test_05_CheckCustomerProfile() throws Exception {
 		Customer customer = serviceCustomer.getProfile();
@@ -103,38 +106,35 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 		put(PROFILE_CUSTOMER, customer.getId());
 	}
 
-	@Test
+	@Test(dependsOnMethods = "test_01_WaitForWorker")
 	@Transactional(readOnly = true)
 	public void test_06_CheckDefaultLangauge() throws Exception {
 		Language language = serviceLanguage.get(1);
 		notNull(language, "Language with id '1' cannot be found");
 	}
 
-	@Test
+	@Test(dependsOnMethods = "test_01_WaitForWorker")
 	@Transactional(readOnly = true)
 	public void test_07_CheckAnalysisProfile() throws Exception {
 		List<Analysis> analyses = serviceAnalysis.getDefaultProfiles();
 		notNull(analyses, "Default Analysis profile cannot be found");
-		analyses.forEach(analysis-> {
+		analyses.forEach(analysis -> {
 			isTrue(analysis.isProfile(), "Analysis should be a profile");
 			isTrue(analysis.isDefaultProfile(), "Analysis should be default profile");
 		});
-	
+
 	}
 
 	@Test
 	public void test_08_CreateCustomer() throws UnsupportedEncodingException, Exception {
-		this.mockMvc
-				.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format(
-								"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-								CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
-								CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS))
-						.with(httpBasic(USERNAME, PASSWORD)))
-				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
+		this.mockMvc.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).content(String.format(
+				"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
+				CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
+				CUSTOMER_OTHER_FIELDS)).with(httpBasic(USERNAME, PASSWORD))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
+				.andExpect(content().string("{}"));
 	}
 
-	@Test
+	@Test(dependsOnMethods = "test_08_CreateCustomer")
 	@Transactional(readOnly = true)
 	public void test_09_LoadCustomer() throws Exception {
 		Customer customer = serviceCustomer.getFromContactPerson(CUSTOMER_OTHER_FIELDS);
@@ -142,7 +142,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 		put(ME_CUSTOMER, customer.getId());
 	}
 
-	@Test
+	@Test(dependsOnMethods = "test_01_WaitForWorker")
 	@Transactional(readOnly = true)
 	public void test_11_LoadLanguage() throws Exception {
 		Language language = serviceLanguage.getByAlpha3(FRA_ALPHA_3);

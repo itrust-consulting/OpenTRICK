@@ -281,12 +281,12 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	
-	protected void notifyUpdate(MessageHandler handler,String code, String message, int progress) {
-		handler.update(code,message, progress);
-		serviceTaskFeedback.send(idTask,handler);
+
+	protected void notifyUpdate(MessageHandler handler, String code, String message, int progress) {
+		handler.update(code, message, progress);
+		serviceTaskFeedback.send(idTask, handler);
 	}
-	
+
 	public boolean ImportAnAnalysis(Session hbernateSession) throws Exception {
 
 		try {
@@ -324,7 +324,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			notifyUpdate(handler, "info.risk_information.importing", "Import item information", increase(4));
-			
+
 			importItemInformation();
 
 			// ****************************************************************
@@ -452,7 +452,8 @@ public class ImportAnalysis {
 			return true;
 		} catch (Exception e) {
 			try {
-				if (session != null && session.getTransaction().getStatus().canRollback())
+				e.printStackTrace();
+				if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -1733,7 +1734,7 @@ public class ImportAnalysis {
 					// fill measure description data
 					mesDesc.setStandard(analysisStandard.getStandard());
 					mesDesc.setReference(chapter);
-					//mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
+					// mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 					// fill measure description text
 					mesText.setDomain(rs.getString(Constant.MATURITY_DOMAIN).replace("'", "''"));
@@ -2193,7 +2194,7 @@ public class ImportAnalysis {
 					// fill measure description with data
 					mesDesc.setStandard(analysisStandard.getStandard());
 					mesDesc.setReference(measureRefMeasure);
-					//mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
+					// mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 					// fill measure description text with data
 					mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
@@ -2263,7 +2264,7 @@ public class ImportAnalysis {
 				measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 				if (measure instanceof AbstractNormalMeasure)
 					((AbstractNormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? "" : rs.getString(Constant.MEASURE_REVISION));
-				
+
 				measure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
 				measure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));

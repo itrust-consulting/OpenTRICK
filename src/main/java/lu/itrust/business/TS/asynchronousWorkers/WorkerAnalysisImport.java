@@ -88,6 +88,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	@Override
 	public void cancel() {
 		try {
+			System.out.println("Task has been canceled");
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {

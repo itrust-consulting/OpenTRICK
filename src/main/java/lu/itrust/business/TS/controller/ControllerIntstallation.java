@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,7 +62,7 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private TaskExecutor executor;
-	
+
 	@Autowired
 	private DefaultReportTemplateLoader defaultReportTemplateLoader;
 
@@ -85,7 +86,7 @@ public class ControllerIntstallation {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Install", method = RequestMethod.POST)
+	@RequestMapping(value = "/Install", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, method = RequestMethod.POST)
 	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -149,9 +150,9 @@ public class ControllerIntstallation {
 					return false;
 				}
 			}
-			
+
 			defaultReportTemplateLoader.loadLanguages();
-			
+
 			defaultReportTemplateLoader.load();
 
 			// owner

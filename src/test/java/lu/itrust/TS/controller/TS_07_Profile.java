@@ -66,8 +66,8 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	public synchronized void test_GenerateSqlite() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
-		this.mockMvc.perform(get("/Analysis/Export/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc.perform(get("/Analysis/Data-manager/Sqlite/Export-process").param("idAnalysis", idAnalysis + "").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 30; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
@@ -120,7 +120,8 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		notNull(idAnalysis, "Analysis cannot be found");
 
 		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
-				.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.perform(
+						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
 
 		notEmpty(templates, "No template can be found");
@@ -129,8 +130,10 @@ public class TS_07_Profile extends SpringTestConfiguration {
 
 		assertTrue("Template cannot be found", idTemplate > 0);
 
-		this.mockMvc.perform(post("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-				.param("type", "QUANTITATIVE").param("template", idTemplate + "")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc
+				.perform(post("/Analysis/Data-manager/Report/Export-process").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.param("analysis", idAnalysis + "").param("type", "QUANTITATIVE").param("template", idTemplate + ""))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;
 		for (int i = 0; i < 30; i++) {

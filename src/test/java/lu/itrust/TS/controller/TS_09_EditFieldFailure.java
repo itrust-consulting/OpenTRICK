@@ -9,7 +9,7 @@ import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -117,7 +117,7 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		this.mockMvc.perform(fileUpload("/Analysis/Import/" + getInteger(ME_CUSTOMER)).file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
+		this.mockMvc.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
 				getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;

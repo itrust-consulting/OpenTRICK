@@ -35,7 +35,7 @@
 		
 		<logger name="stdout.org.springframework" level='WARN' />
 		
-		<Root level="INFO">
+		<Root level="WARN">
 			<AppenderRef ref="STDOUT" />
 		</Root>
 	</Loggers>
