@@ -2,7 +2,6 @@ package lu.itrust.business.TS.model.externalnotification.helper;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
-import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
 import lu.itrust.business.expressions.StringExpressionHelper;
@@ -29,26 +28,6 @@ public class ExternalNotificationHelper {
 		modelObj.setNumber(apiObj.getN());
 		modelObj.setType(ExternalNotificationType.RELATIVE);
 		modelObj.setSeverity(apiObj.getS());
-		modelObj.setSourceUserName(userName);
-		return modelObj;
-	}
-
-	/**
-	 * Creates a new database entity for the given parameter setter.
-	 * @param apiObj The object which has been obtained via an API call.
-	 * @param userName The user name of the reporting user.
-	 * @return Returns the created entity.
-	 * @throws TrickException
-	 */
-	public static ExternalNotification createEntityBasedOn(ApiParameterSetter apiObj, String userName) throws TrickException {
-		ExternalNotification modelObj = new ExternalNotification();
-		// Copy all properties from API object to a new entity
-		modelObj.setCategory(apiObj.getC());
-		modelObj.setTimestamp(apiObj.getT());
-		modelObj.setHalfLife(Integer.MAX_VALUE);
-		modelObj.setNumber(1);
-		modelObj.setType(ExternalNotificationType.ABSOLUTE);
-		modelObj.setSeverity(apiObj.getV());
 		modelObj.setSourceUserName(userName);
 		return modelObj;
 	}
