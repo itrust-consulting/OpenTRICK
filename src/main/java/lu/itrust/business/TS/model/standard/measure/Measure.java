@@ -108,6 +108,13 @@ public abstract class Measure implements Cloneable {
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
+	
+	public Measure() {
+	}
+
+	public Measure(MeasureDescription measureDescription) {
+		this.measureDescription = measureDescription;
+	}
 
 	/***********************************************************************************************
 	 * Getters and Setters

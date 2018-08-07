@@ -10,6 +10,7 @@ import org.hibernate.proxy.HibernateProxy;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * AssetMeasureNorm: <br>
@@ -146,6 +147,12 @@ public class AssetStandard extends AnalysisStandard {
 	@Override
 	public void add(Measure measure) {
 		addMeasure((AssetMeasure) measure);
+	}
+
+	@Override
+	public void add(MeasureDescription measureDescription) {
+		add(new AssetMeasure(measureDescription));
+		
 	}
 
 }

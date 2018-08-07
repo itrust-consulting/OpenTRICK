@@ -790,7 +790,7 @@ public class ControllerRRF {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
 			final DataFormatter formatter = new DataFormatter();
-			loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
+			//loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
 			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
 			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
@@ -1023,7 +1023,8 @@ public class ControllerRRF {
 		}
 	}
 
-	private void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
+	@Deprecated
+	public void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, TS_INFO_FOR_IMPORT);
 		if (sheet == null)
 			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");

@@ -15,7 +15,7 @@ import lu.itrust.business.TS.model.standard.Standard;
  * @since 24 janv. 2013
  */
 public interface DAOAnalysisStandard {
-	
+
 	public AnalysisStandard get(Integer id);
 
 	public List<AnalysisStandard> getAll();
@@ -23,15 +23,15 @@ public interface DAOAnalysisStandard {
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId);
 
 	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId);
-	
+
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis);
 
 	public List<AnalysisStandard> getAllFromStandard(Standard standard);
-	
+
 	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard);
 
 	public void deleteAllFromAnalysis(Integer analysisId);
-	
+
 	public void save(AnalysisStandard analysisStandard);
 
 	public void saveOrUpdate(AnalysisStandard analysisStandard);
@@ -51,14 +51,18 @@ public interface DAOAnalysisStandard {
 	public Boolean hasStandard(Integer idAnalysis, String standard);
 
 	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean state, Integer idAnalysis);
-	
-	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?> ... classes);
+
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?>... classes);
 
 	public AnalysisStandard findOne(int id, int analysisId);
 
-	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?> ... classes);
+	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes);
 
-	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?> ... classes);
+	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes);
 
 	public List<Standard> findStandardByAnalysisIdAndTypeIn(Integer idAnalysis, Class<?>... classes);
+
+	public List<AnalysisStandard> findByStandard(int page, int size, Standard standard);
+
+	public long countByStandard(Standard standard);
 }

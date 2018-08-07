@@ -181,3 +181,32 @@ function addCSSFParameters() {
 	});
 	return false;
 }
+
+function synchroniseAnalysesMeasureCollection() {
+	var $confirmDialog = $("#confirm-dialog");
+	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.synchronise.analyses.measure.collection", "Are you sure, you want to synchronise.analyses.measure.collection?"));
+	$confirmDialog.find("button[name='yes']").one("click", function () {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Patch/Synchronise/Analyses/Measure-collection",
+			contentType: "application/json;charset=UTF-8",
+			type: 'POST',
+			success: function (response, textStatus, jqXHR) {
+				if (response["success"] != undefined)
+					showDialog("success", response["success"]);
+				else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else 
+					showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				showDialog("#alert-dialog",MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			}
+		}).complete(function () {
+			$progress.hide();
+		});
+		$confirmDialog.modal("hide");
+	});
+	$confirmDialog.modal("show");
+	return false;
+}

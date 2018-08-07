@@ -18,7 +18,7 @@ public enum TaskName {
 									"label.title.import.measure.collection"), IMPORT_RISK_INFORMATION(
 											"label.title.import.risk.information"), IMPORT_MEASURE_DATA("label.title.import.measure.data") , INSTALL_APPLICATION(
 									"label.title.install.application"), RESET_ANALYSIS_RIGHT("label.title.reset.analysis.right"), COMPUTE_DYNAMIC_PARAMETER("label.title.compute.dynamic.parameter"),EXPORT_RISK_ESTIMATION("label.title.export.risk_estimation"), EXPORT_RISK_REGISTER(
-													"label.title.export.risk_register"), EXPORT_RISK_SHEET("label.title.export.risk_sheet"), SCALE_LEVEL_MIGRATE("label.scale.level.migrate");
+													"label.title.export.risk_register"), EXPORT_RISK_SHEET("label.title.export.risk_sheet"), SCALE_LEVEL_MIGRATE("label.scale.level.migrate"), SYNCHRONIZE_ANALYSES_MEASURE_COLLECION("label.title.synchronise.analyses.measure.collection");
 	private String action;
 
 

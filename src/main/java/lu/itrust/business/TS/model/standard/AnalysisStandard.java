@@ -28,6 +28,7 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * AnalysisStandard: <br>
@@ -293,5 +294,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	}
 
 	public abstract void add(Measure measure);
+
+	public abstract void add(MeasureDescription measureDescription);
 
 }

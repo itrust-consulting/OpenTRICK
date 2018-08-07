@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.expressions.StringExpressionParser;
 
 @Cacheable
@@ -36,6 +37,11 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	protected MeasureProperties measurePropertyList = null;
 
 	public AbstractNormalMeasure() {
+	}
+
+	public AbstractNormalMeasure(MeasureDescription measureDescription) {
+		super(measureDescription);
+		setMeasurePropertyList(new MeasureProperties());
 	}
 
 	/**
@@ -151,7 +157,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof String || implementationRate instanceof Double))
+		if (!(implementationRate instanceof String || implementationRate instanceof Number))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
 		setImplementationRate(implementationRate.toString());
 	}
