@@ -41,6 +41,9 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceIDS;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -50,15 +53,16 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiNotifyRequest;
-import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
-import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
 import lu.itrust.business.TS.model.api.basic.ApiAssessment;
 import lu.itrust.business.TS.model.api.basic.ApiAssessmentValue;
 import lu.itrust.business.TS.model.api.basic.ApiAsset;
 import lu.itrust.business.TS.model.api.basic.ApiMeasure;
 import lu.itrust.business.TS.model.api.basic.ApiNamable;
 import lu.itrust.business.TS.model.api.basic.ApiRRF;
+import lu.itrust.business.TS.model.api.basic.ApiRiskAcceptance;
+import lu.itrust.business.TS.model.api.basic.ApiRiskAcceptanceLevel;
+import lu.itrust.business.TS.model.api.basic.ApiRiskLevel;
 import lu.itrust.business.TS.model.api.basic.ApiScenario;
 import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -67,6 +71,7 @@ import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificat
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
@@ -123,6 +128,15 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceStandard serviceStandard;
+
+	@Autowired
+	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
+
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
 
 	@Autowired
 	private ServiceIDS serviceIDS;
@@ -191,40 +205,6 @@ public class ControllerApi {
 		return new ApiResult(0);
 	}
 
-	/**
-	 * This method is responsible for accepting requests that set the value of a
-	 * dynamic parameter ready to be used within the TRICK service user
-	 * interface (asset/scenario estimation).
-	 * 
-	 * @param data
-	 *            One or multiple notifications sent to TRICK Service.
-	 * @return Returns an error code (0 = success).
-	 * @throws Exception
-	 */
-	@Transactional
-	@RequestMapping(value = "/ids/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
-
-		IDS ids = serviceIDS.get(principal.getName()).notifyUpdate();
-
-		for (ApiParameterSetter apiObj : request.getData())
-			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, ids.getPrefix()));
-
-		// Trigger execution of worker which computes dynamic parameters.
-		// This method only schedules the task if it does not have been
-		// scheduled yet for the given user.
-		//
-		// Note that we cannot set the value directly because we do not know
-		// whether there are other parameter setters
-		// or external notifications in the database which also impact the value
-		// of the parameter.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
-
-		serviceIDS.saveOrUpdate(ids);
-		// Success
-		return new ApiResult(0);
-	}
-
 	@CrossOrigin
 	@RequestMapping(value = "/data/customers", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadUserCustomer(Principal principal, Locale locale) throws Exception {
@@ -254,6 +234,17 @@ public class ControllerApi {
 			throw new TrickException("error.custmer.not_found", "Customer cannot be found");
 		return serviceAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier, idCustomer, principal.getName()).stream()
 				.map(version -> new ApiNamable(version[0], version[1].toString())).collect(Collectors.toList());
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/risk-acceptance", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisRiskAcceptance(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) {
+		ApiRiskAcceptance apiObject = new ApiRiskAcceptance();
+		apiObject.setAcceptanceLevels(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis).stream().map(ApiRiskAcceptanceLevel::create).collect(Collectors.toList()));
+		apiObject.setImpactLevels(serviceImpactParameter.findByAnalysisId(idAnalysis).stream().collect(Collectors.groupingBy(ImpactParameter::getTypeName, Collectors.mapping(ApiRiskLevel::create, Collectors.toList()))));
+		apiObject.setLikelihoodLevels(serviceLikelihoodParameter.findByAnalysisId(idAnalysis).stream().map(ApiRiskLevel::create).collect(Collectors.toList()));
+		return apiObject;
 	}
 
 	@CrossOrigin

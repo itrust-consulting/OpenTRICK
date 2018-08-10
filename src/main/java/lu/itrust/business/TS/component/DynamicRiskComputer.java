@@ -255,7 +255,7 @@ public class DynamicRiskComputer {
 		long nextTimeIntervalSize = 60; // in seconds
 
 		Map<TAggregator, Map<Long, Double>> data = new HashMap<>();
-		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
+		for (long timeEnd = timeUpperBound; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
 			// Add x-axis values to a list in reverse order (we use
 			// Collections.reverse() later on)
 			if (out_timePoints != null)
