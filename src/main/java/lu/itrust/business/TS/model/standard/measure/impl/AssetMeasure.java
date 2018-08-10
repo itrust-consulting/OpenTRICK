@@ -23,6 +23,7 @@ import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * MaturityMeasure: <br>
@@ -46,6 +47,14 @@ public class AssetMeasure extends AbstractNormalMeasure implements Cloneable {
 
 	/** The List of AssetTypeValues */
 	private List<MeasureAssetValue> measureAssetValues = new ArrayList<MeasureAssetValue>();
+	
+
+	public AssetMeasure() {
+	}
+
+	public AssetMeasure(MeasureDescription measureDescription) {
+		super(measureDescription);
+	}
 
 	/**
 	 * getAssetTypeValue: <br>

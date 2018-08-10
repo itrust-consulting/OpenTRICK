@@ -1,15 +1,19 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
+import static lu.itrust.business.TS.component.MeasureManager.update;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getBoolean;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,10 +33,16 @@ import org.xlsx4j.sml.SheetData;
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
+import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOStandard;
+import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisStandardHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
@@ -46,6 +56,9 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.standard.AssetStandard;
+import lu.itrust.business.TS.model.standard.MaturityStandard;
+import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
@@ -65,6 +78,8 @@ public class WorkerImportStandard implements Worker {
 
 	private boolean canceled = false;
 
+	private boolean updated = false;
+
 	private Pattern pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
 
 	private ServiceTaskFeedback serviceTaskFeedback;
@@ -78,6 +93,12 @@ public class WorkerImportStandard implements Worker {
 	private DAOMeasureDescription daoMeasureDescription;
 
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
+
+	private DAOAnalysisStandard daoAnalysisStandard;
+
+	private DAOAnalysis daoAnalysis;
+
+	private DAOAssetType daoAssetType;
 
 	private DAOLanguage daoLanguage;
 
@@ -99,6 +120,9 @@ public class WorkerImportStandard implements Worker {
 	public void initialiseDAO(Session session) {
 		daoLanguage = new DAOLanguageHBM(session);
 		daoStandard = new DAOStandardHBM(session);
+		daoAnalysis = new DAOAnalysisHBM(session);
+		daoAssetType = new DAOAssetTypeHBM(session);
+		daoAnalysisStandard = new DAOAnalysisStandardHBM(session);
 		daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 		daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
 	}
@@ -267,6 +291,7 @@ public class WorkerImportStandard implements Worker {
 		standard.setDescription(getString(data.getC().get(startCol + 2), formatter));
 		standard.setComputable(getBoolean(data.getC().get(startCol + 3), formatter));
 		if (standard.getId() > 0) {
+			setUpdated(true);
 			daoStandard.saveOrUpdate(standard);
 			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getLabel(), standard.getVersion() },
 					String.format("Updating of standard %s, version %d. No measure shall be waived.", standard.getLabel(), standard.getVersion()), 10));
@@ -278,6 +303,7 @@ public class WorkerImportStandard implements Worker {
 			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm", new Object[] { standard.getLabel(), standard.getVersion() },
 					String.format("Import standard %s, version %d.", standard.getLabel(), standard.getVersion()), 10));
 			daoStandard.save(standard);
+			setUpdated(false);
 		}
 		return standard;
 	}
@@ -309,6 +335,8 @@ public class WorkerImportStandard implements Worker {
 
 		final int begin = address.getBegin().getRow() + 1, end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size()),
 				startIndex = getStartIndex(sheet, begin, formatter);
+		
+		final List<MeasureDescription> measureDescriptions = new LinkedList<>();
 
 		for (int i = begin; i < end; i++) {
 			final Row row = sheet.getRow().get(i);
@@ -316,8 +344,13 @@ public class WorkerImportStandard implements Worker {
 			if (isEmpty(reference))
 				continue;
 			MeasureDescription measureDescription = daoMeasureDescription.getByReferenceAndStandard(reference, newstandard);
-			if (measureDescription == null)
+
+			if (measureDescription == null) {
 				measureDescription = new MeasureDescription(reference, newstandard);
+				if (isUpdated())
+					measureDescriptions.add(measureDescription);
+			}
+
 			measureDescription.setComputable(getBoolean(row.getC().get(startIndex + 1), formatter));
 			final int languageCount = (address.getEnd().getCol() - (startIndex + 1)) / 2;
 			for (int j = 0; j < languageCount; j++) {
@@ -332,10 +365,27 @@ public class WorkerImportStandard implements Worker {
 				if (!StringUtils.isEmpty(description))
 					descriptionText.setDescription(description);
 			}
-
 			daoMeasureDescription.saveOrUpdate(measureDescription);
 		}
+
+		if (!measureDescriptions.isEmpty()) {
+			serviceTaskFeedback.send(id, new MessageHandler("info.synchronise.analyses.measure.collection", "Synchronising measure collection of knowledge base to analyses", 50));
+			final int total = (int) daoAnalysisStandard.countByStandard(newstandard), size = 40, count = (total / size) + 1;
+			for (int page = 1; page <= count; page++) {
+				daoAnalysisStandard.findByStandard(page, size, newstandard).forEach(a -> {
+					if (a instanceof MaturityStandard)
+						update((MaturityStandard) a, measureDescriptions, daoAnalysisStandard, daoAnalysis);
+					else if (a instanceof AssetStandard)
+						update((AssetStandard) a, measureDescriptions, daoAnalysisStandard, daoAnalysis);
+					else if (a instanceof NormalStandard)
+						update((NormalStandard) a, measureDescriptions, daoAnalysisStandard, daoAnalysis, daoAssetType);
+				});
+			}
+		}
+
 	}
+
+	
 
 	private int getStartIndex(final SheetData sheet, final int begin, final DataFormatter formatter) {
 		if (sheet.getRow().size() < begin || begin < 0)
@@ -463,6 +513,14 @@ public class WorkerImportStandard implements Worker {
 
 	protected void setCurrent(Thread current) {
 		this.current = current;
+	}
+
+	public boolean isUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(boolean updated) {
+		this.updated = updated;
 	}
 
 }

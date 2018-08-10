@@ -10,6 +10,7 @@ import org.hibernate.proxy.HibernateProxy;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * NormalStandard: <br>
@@ -144,6 +145,11 @@ public class NormalStandard extends AnalysisStandard {
 	@Override
 	public void add(Measure measure) {
 		addMeasure((NormalMeasure) measure);
+	}
+
+	@Override
+	public void add(MeasureDescription measureDescription) {
+		add(new NormalMeasure(measureDescription));
 	}
 
 }

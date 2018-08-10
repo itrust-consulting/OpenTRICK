@@ -11,6 +11,7 @@ import org.hibernate.proxy.HibernateProxy;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * MaturityStandard: <br>
@@ -152,6 +153,11 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	@Override
 	public void add(Measure measure) {
 		addMeasure((MaturityMeasure) measure);
+	}
+
+	@Override
+	public void add(MeasureDescription measureDescription) {
+		add(new MaturityMeasure(measureDescription));
 	}
 
 }

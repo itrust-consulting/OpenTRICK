@@ -25,6 +25,7 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * NormalMeasure: <br>
@@ -50,11 +51,21 @@ public class NormalMeasure extends AbstractNormalMeasure {
 	/** The List of AssetTypeValues */
 	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
+	
+	public NormalMeasure() {
+	}
+
+	public NormalMeasure(MeasureDescription measureDescription) {
+		super(measureDescription);
+	}
+
+	
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	
 	/**
 	 * getAssetTypeValue: <br>
 	 * Returns the Asset Type value at position "index" of the Asset Type Value

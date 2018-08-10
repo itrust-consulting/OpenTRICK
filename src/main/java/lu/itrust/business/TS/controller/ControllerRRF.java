@@ -429,15 +429,6 @@ public class ControllerRRF {
 			}
 		}
 		return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
-
 	}
-
-	
-
-	
-
-	
-	
-	
 
 }

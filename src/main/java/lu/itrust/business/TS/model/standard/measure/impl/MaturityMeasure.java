@@ -22,6 +22,7 @@ import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * MaturityMeasure: <br>
@@ -56,6 +57,14 @@ public class MaturityMeasure extends Measure implements Cloneable {
 
 	/** The Cost to get to the Security Maturity Level 5 */
 	private double SML5Cost = 0;
+	
+	
+	public MaturityMeasure() {
+	}
+
+	public MaturityMeasure(MeasureDescription measureDescription) {
+		super(measureDescription);
+	}
 
 	/***********************************************************************************************
 	 * Getters and Setters

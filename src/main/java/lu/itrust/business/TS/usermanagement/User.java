@@ -69,8 +69,10 @@ public class User implements Serializable, IUser {
 	@Transient
 	private static final long serialVersionUID = 1L;
 
+	@Transient
 	private static final String USER_2_FACTOR_SECRET = "user-2-factor-secret";
 
+	@Transient
 	private static final String USER_USING_2_FACTOR_AUTHENTICATION = "user-using-2-factor-authentication";
 
 	/** Fields */

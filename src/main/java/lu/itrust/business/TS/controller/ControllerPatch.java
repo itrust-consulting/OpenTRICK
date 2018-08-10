@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerRestoreAnalyisRight;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerSynchroniseMeasureCollectionAndAnalysis;
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -176,6 +177,31 @@ public class ControllerPatch {
 					LogAction.APPLY, "Restore-analysis-Right");
 		}
 	}
+	
+	
+	@RequestMapping(value = "/Synchronise/Analyses/Measure-collection", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String synchroniseAnalysesMeasureCollection(Principal principal, Locale locale) {
+		try {
+			Worker worker = new WorkerSynchroniseMeasureCollectionAndAnalysis(principal.getName(),serviceTaskFeedback, workersPoolManager, sessionFactory);
+			worker.setPoolManager(workersPoolManager);
+			// register worker to tasklist
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			// execute task
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.start.synchronise.analyses.measure.collection", null, "Synchronising analyses measure collection", locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		} finally {
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Synchronise-analyses-measure-collection"), principal.getName(),
+					LogAction.APPLY, "Synchronise-analyses-measure-collection");
+		}
+	}
+
 
 	@RequestMapping(value = "/Update/Analyses/Risk-item-information", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateRiskInformationAndRiskItem(Principal principal, Locale locale) {

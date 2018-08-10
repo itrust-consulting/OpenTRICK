@@ -66,6 +66,7 @@ import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.helper.JsonMessage;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
@@ -371,8 +372,11 @@ public class ControllerKnowledgeBaseStandard {
 			 */
 
 			sheet = findSheet(workbook, "NormData");
-			List<Language> languages = serviceLanguage.getAll();
-			List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
+			final List<Language> languages = serviceLanguage.getAll();
+			final List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
+			
+			measuredescriptions.sort((m1,m2)-> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
+			
 			int referenceCol = 0, computableCol = 1, colSize = (languages.size() + 1) * 2, index = 0;
 			sheet.getRow().clear();
 			Row sheetRow = getRow(sheet, 0, colSize);

@@ -96,6 +96,8 @@
 								</a></li>
 								<li><a href="#" onclick="return updateAnalysesScopes()"> <spring:message code="label.update.analyses.scopes" text="Update analyses scopes" />
 								</a></li>
+								<li><a href="#" onclick="return synchroniseAnalysesMeasureCollection()"> <spring:message code="label.synchronise.analyses.measure.collection" text="Synchronise measure collections" />
+								</a></li>
 							</ul></li>
 					</sec:authorize>
 					<li><a href="#" onclick="return $('#logoutFormSubmiter').click()" id='main_menu_logout'><spring:message code="label.menu.logout" text="Logout" /></a>
