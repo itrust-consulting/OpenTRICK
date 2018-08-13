@@ -3,7 +3,11 @@ package lu.itrust.business.TS.helper;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
-
+/**
+ * 
+ * @author eomar
+ *
+ */
 public class CleanerDate {
 
 	private int year;
