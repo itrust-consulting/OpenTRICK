@@ -416,14 +416,17 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void generateCurrentCompliance() throws Exception {
+		final Map<String, Double> compliances = new LinkedHashMap<>();
 		P paragraphOriginal = findTableAnchor("CurrentSecurityLevel");
 		if (paragraphOriginal == null || analysis.getAnalysisStandards().isEmpty())
-			setCustomProperty("CURRENT_COMPLIANCE",
-					analysis.getAnalysisStandards().stream().mapToDouble(c -> ChartGenerator.ComputeCompliance(c, valueFactory)).average().orElse(0d));
+			analysis.getAnalysisStandards().forEach(c -> {
+				String name = c.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
+						: c.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getStandard().getLabel();
+				compliances.put(name, ChartGenerator.ComputeCompliance(c, valueFactory));
+			});
 		else {
 			final List<Object> contents = new LinkedList<>();
 			int count = analysis.getAnalysisStandards().size(), index = 0;
-			double currentCompliance = 0;
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
 				double complaince = ChartGenerator.ComputeCompliance(analysisStandard, valueFactory);
 				String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
@@ -434,11 +437,19 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				else
 					setText(paragraph, getMessage("report.current.security.level", new Object[] { name, (int) complaince, (++index) == count ? 1 : 0 }, null, locale));
 				contents.add(paragraph);
-				currentCompliance += complaince;
+				compliances.put(name, complaince);
 			}
 			insertAllBefore(paragraphOriginal, contents);
-			setCustomProperty("CURRENT_COMPLIANCE", currentCompliance / (double) count);
+
 		}
+		compliances.forEach((s, v) -> {
+			try {
+				setCustomProperty(s + " current compliance", v);
+			} catch (Docx4JException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		setCustomProperty("CURRENT_COMPLIANCE", compliances.values().stream().mapToDouble(c -> c).average().orElse(0));
 	}
 
 	public String getAlpha3() {
@@ -2024,7 +2035,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected void setCustomProperty(String name, Object value) throws Docx4JException {
 		if (value instanceof Number) {
 			if (value instanceof Double)
-				createProperty(name, false).setR8(Double.isNaN((double) value)? 0:((Number) value).doubleValue());
+				createProperty(name, false).setR8(Double.isNaN((double) value) ? 0 : ((Number) value).doubleValue());
 			else
 				createProperty(name, false).setI4(((Number) value).intValue());
 		} else if (value instanceof Boolean)

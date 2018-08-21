@@ -169,14 +169,10 @@ public final class ExcelHelper {
 
 	/**
 	 * 
-	 * @param row1
-	 *            >= 0
-	 * @param col1
-	 *            >= 0
-	 * @param row2
-	 *            >= 0
-	 * @param col2
-	 *            >= 0
+	 * @param row1 >= 0
+	 * @param col1 >= 0
+	 * @param row2 >= 0
+	 * @param col2 >= 0
 	 * @return address
 	 */
 	public static String getAddress(int row1, int col1, int row2, int col2) {
@@ -230,7 +226,7 @@ public final class ExcelHelper {
 		return part;
 	}
 
-	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String[] columns, int lenght) throws Exception {
+	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String[] columns, int length) throws Exception {
 		TablePart tablePart = createTablePart(worksheetPart);
 		CTTable table = tablePart.getContents();
 		Row row = getRow(worksheetPart.getContents().getSheetData(), 0, columns.length);
@@ -242,7 +238,7 @@ public final class ExcelHelper {
 			setValue(row, i, columns[i]);
 		}
 		table.getTableColumns().setCount((long) columns.length);
-		table.setRef(new AddressRef(new CellRef(0, 0), new CellRef(lenght, columns.length - 1)).toString());
+		table.setRef(new AddressRef(new CellRef(0, 0), new CellRef(length == 0 ? 1 : length, columns.length - 1)).toString());
 		table.getAutoFilter().setRef(table.getRef());
 		worksheetPart.getContents().setDimension(new CTSheetDimension());
 		worksheetPart.getContents().getDimension().setRef(table.getRef());

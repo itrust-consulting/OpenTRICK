@@ -395,7 +395,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	private RiskStrategy parseResponse(String value, RiskStrategy defaultValue) {
 		try {
-			return RiskStrategy.valueOf(value);
+			return value == null || value.length() == 0 ? defaultValue : RiskStrategy.valueOf(value.toUpperCase());
 		} catch (Exception e) {
 			return defaultValue;
 		}

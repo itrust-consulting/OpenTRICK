@@ -334,8 +334,7 @@ public class Analysis implements Cloneable {
 	 * addAnAssessment<br>
 	 * Adds an Assessment Object to the List of Assessments
 	 * 
-	 * @param assessment
-	 *            The Assessment Object to Add
+	 * @param assessment The Assessment Object to Add
 	 */
 	public void add(Assessment assessment) {
 		if (this.assessments.contains(assessment))
@@ -347,8 +346,7 @@ public class Analysis implements Cloneable {
 	 * addAnAsset: <br>
 	 * Adds an Asset Object to the List of Assets
 	 * 
-	 * @param asset
-	 *            The asset Object to Add
+	 * @param asset The asset Object to Add
 	 * @throws TrickException
 	 */
 	public void add(Asset asset) throws TrickException {
@@ -361,8 +359,7 @@ public class Analysis implements Cloneable {
 	 * addAParameter: <br>
 	 * Adds a SimpleParameter to the List of Parameters
 	 * 
-	 * @param param
-	 *            The SimpleParameter object to Add
+	 * @param param The SimpleParameter object to Add
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean add(IParameter param) {
@@ -380,8 +377,7 @@ public class Analysis implements Cloneable {
 	 * addAnItemInformation: <br>
 	 * Adds an Item Information Object to the List of Item Information
 	 * 
-	 * @param iteminformation
-	 *            The Item Information Object to Add
+	 * @param iteminformation The Item Information Object to Add
 	 */
 	public boolean add(ItemInformation itemInformation) {
 		return this.itemInformations.add(itemInformation);
@@ -401,8 +397,7 @@ public class Analysis implements Cloneable {
 	 * addARiskInformation: <br>
 	 * Adds an Risk Information Object to the List of Risk Information
 	 * 
-	 * @param riskInfo
-	 *            The Risk Information Object to Add
+	 * @param riskInfo The Risk Information Object to Add
 	 */
 	public void add(RiskInformation riskInfo) {
 		this.riskInformations.add(riskInfo);
@@ -412,8 +407,7 @@ public class Analysis implements Cloneable {
 	 * setAScenario: <br>
 	 * Adds a Scenario Object to the List of Scenarios
 	 * 
-	 * @param scenario
-	 *            The Scenario Object to Add
+	 * @param scenario The Scenario Object to Add
 	 */
 	public void add(Scenario scenario) {
 		if (this.scenarios.contains(scenario)) {
@@ -426,8 +420,7 @@ public class Analysis implements Cloneable {
 	 * addAHistory: <br>
 	 * Adds a new History object to the List of History Entries.
 	 * 
-	 * @param hist
-	 *            The History object to add
+	 * @param hist The History object to add
 	 */
 	public void addAHistory(History hist) {
 		this.histories.add(hist);
@@ -437,11 +430,9 @@ public class Analysis implements Cloneable {
 	 * addAnActionPlanEntry: <br>
 	 * Adds an ActionPlanEntry of a given type to the corresponding Action Plan.
 	 * 
-	 * @param type
-	 *            The Identifier of the Action Plan Type
+	 * @param type       The Identifier of the Action Plan Type
 	 * 
-	 * @param actionplan
-	 *            the action plan entry to add
+	 * @param actionplan the action plan entry to add
 	 */
 	public void addAnActionPlanEntry(ActionPlanEntry actionplanentry) {
 		this.actionPlans.add(actionplanentry);
@@ -451,8 +442,7 @@ public class Analysis implements Cloneable {
 	 * addARiskRegisterItem: <br>
 	 * Adds a Risk Register Item to the Risk Register
 	 * 
-	 * @param riskItem
-	 *            The RiskRegisterItem Object to Add
+	 * @param riskItem The RiskRegisterItem Object to Add
 	 */
 	public void addARiskRegisterItem(RiskRegisterItem riskItem) {
 		this.riskRegisters.add(riskItem);
@@ -462,10 +452,8 @@ public class Analysis implements Cloneable {
 	 * setSummary: <br>
 	 * Sets a List of SummaryStages of a given type.
 	 * 
-	 * @param type
-	 *            The Summary Type (same as Action Plan Type)
-	 * @param summary
-	 *            The List of SummaryStages to set
+	 * @param type    The Summary Type (same as Action Plan Type)
+	 * @param summary The List of SummaryStages to set
 	 */
 	public void addSummaryEntries(List<SummaryStage> summary) {
 		this.summaries.addAll(summary);
@@ -519,8 +507,7 @@ public class Analysis implements Cloneable {
 	 * computeCost: <br>
 	 * Returns the Calculated Cost of a given Measure.
 	 * 
-	 * @param measure
-	 *            The Measure to calculate the Cost
+	 * @param measure The Measure to calculate the Cost
 	 * 
 	 * @return The Calculated Cost
 	 */
@@ -611,8 +598,7 @@ public class Analysis implements Cloneable {
 	 * Method to identify if this object equals another. Equal means the fields
 	 * identifier, version and creationDate are the same.
 	 * 
-	 * @param obj
-	 *            The other object to check
+	 * @param obj The other object to check
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -912,8 +898,7 @@ public class Analysis implements Cloneable {
 	 * getActionPlan: <br>
 	 * Returns the Action Plan of a given Action Plan Type.
 	 * 
-	 * @param type
-	 *            The Identifier of the Action Plan Type
+	 * @param type The Identifier of the Action Plan Type
 	 * 
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
@@ -925,8 +910,7 @@ public class Analysis implements Cloneable {
 	 * getActionPlan: <br>
 	 * Returns the Action Plan of a given Action Plan Type.
 	 * 
-	 * @param type
-	 *            The Identifier of the Action Plan Type
+	 * @param type The Identifier of the Action Plan Type
 	 * 
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
@@ -945,8 +929,7 @@ public class Analysis implements Cloneable {
 	 * getActionPlans: <br>
 	 * Returns the Action Plan of a given Action Plan Type.
 	 * 
-	 * @param type
-	 *            The Identifier of the Action Plan Type
+	 * @param type The Identifier of the Action Plan Type
 	 * 
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
@@ -958,8 +941,7 @@ public class Analysis implements Cloneable {
 	 * getAHistory: <br>
 	 * Returns a History Entry at position "index" from the History List.
 	 * 
-	 * @param index
-	 *            The Position to retrieve the Object
+	 * @param index The Position to retrieve the Object
 	 * 
 	 * @return The Histroy Object at position "index"
 	 */
@@ -971,8 +953,7 @@ public class Analysis implements Cloneable {
 	 * getALEOfAsset: <br>
 	 * Returns the Sum of ALE from Assessments for the given Asset.
 	 * 
-	 * @param asset
-	 *            The Asset to get ALE from
+	 * @param asset The Asset to get ALE from
 	 * @return The Total ALE of the Asset
 	 * @throws TrickException
 	 */
@@ -1072,8 +1053,7 @@ public class Analysis implements Cloneable {
 	 * getAnAssessment: <br>
 	 * Returns an Assessment from the List of Assessment at position "index"
 	 * 
-	 * @param index
-	 *            The Position to retrieve the Object
+	 * @param index The Position to retrieve the Object
 	 * 
 	 * @return The Assessment Object at position "index"
 	 */
@@ -1085,8 +1065,7 @@ public class Analysis implements Cloneable {
 	 * getAnAsset: <br>
 	 * Returns an Asset from the List of Asset at position "index"
 	 * 
-	 * @param index
-	 *            The Position to retrieve the Object
+	 * @param index The Position to retrieve the Object
 	 * 
 	 * @return The AssetObject at position "index"
 	 */
@@ -1099,8 +1078,7 @@ public class Analysis implements Cloneable {
 	 * Returns a Single Item Information from the List of Item Information at the
 	 * postion "index"
 	 * 
-	 * @param index
-	 *            The Position in the List to retrieve the Item Information
+	 * @param index The Position in the List to retrieve the Item Information
 	 * 
 	 * @return The Item Information object at position "index"
 	 */
@@ -1112,8 +1090,7 @@ public class Analysis implements Cloneable {
 	 * getAPhase: <br>
 	 * Returns a Phase at the position "index" given as parameter.
 	 * 
-	 * @param index
-	 *            The index of the Phase to return
+	 * @param index The index of the Phase to return
 	 * @return The Phase object at requested position
 	 */
 	public Phase getAPhase(int index) {
@@ -1125,8 +1102,7 @@ public class Analysis implements Cloneable {
 	 * Returns a Risk Information from the List of Risk Information at position
 	 * "index"
 	 * 
-	 * @param index
-	 *            The Position to retrieve the Object
+	 * @param index The Position to retrieve the Object
 	 * 
 	 * @return The Risk Information Object at position "index"
 	 */
@@ -1138,8 +1114,7 @@ public class Analysis implements Cloneable {
 	 * getARiskRegisterEntry: <br>
 	 * Returns a Risk Register Item from the RiskRegister at position "index"
 	 * 
-	 * @param index
-	 *            The Position to retrieve the Object
+	 * @param index The Position to retrieve the Object
 	 * 
 	 * @return The Risk Register Object at position "index"
 	 */
@@ -1151,8 +1126,7 @@ public class Analysis implements Cloneable {
 	 * getAScenario: <br>
 	 * Returns a Scenario from the List of Scenarios at position "index"
 	 * 
-	 * @param index
-	 *            The Position to retrieve the Object
+	 * @param index The Position to retrieve the Object
 	 * 
 	 * @return The Scenario Object at position "index"
 	 */
@@ -1297,8 +1271,7 @@ public class Analysis implements Cloneable {
 	 * getHistory: <br>
 	 * returns history entry at index
 	 * 
-	 * @param index
-	 *            The index inside the histories list
+	 * @param index The index inside the histories list
 	 * 
 	 * @return history
 	 */
@@ -1382,7 +1355,7 @@ public class Analysis implements Cloneable {
 	 * @return last history
 	 */
 	public History getLastHistory() {
-		return histories == null || histories.isEmpty() ? null : histories.get(histories.size() - 1);
+		return histories == null ? null : histories.stream().max((c1, c2) -> NaturalOrderComparator.compareTo(c1.getVersion(), c2.getVersion())).orElse(null);
 	}
 
 	/**
@@ -1393,24 +1366,8 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public String getLatestVersion() {
-
-		Integer v = 0;
-
-		String finalVersion = "";
-
-		for (int i = 0; i < histories.size(); i++) {
-			Integer t = 0;
-			String version = histories.get(i).getVersion();
-			String[] splittedVerison = version.split("\\.");
-			t = (Integer.valueOf(splittedVerison[0])) + (Integer.valueOf(splittedVerison[1])) + (Integer.valueOf(splittedVerison[2]));
-			if (v < t) {
-				v = t;
-				finalVersion = version;
-			}
-		}
-
-		return finalVersion;
-
+		History history = getLastHistory();
+		return history == null ? "" : history.getVersion();
 	}
 
 	@OneToMany
@@ -1456,8 +1413,7 @@ public class Analysis implements Cloneable {
 	 * getParameter: <br>
 	 * Returns the SimpleParameter value of a given SimpleParameter.
 	 * 
-	 * @param parameter
-	 *            The Label of the SimpleParameter
+	 * @param parameter The Label of the SimpleParameter
 	 * @return The Value of the SimpleParameter if it exists, or -1 if the parameter
 	 *         was not found
 	 */
@@ -1474,8 +1430,7 @@ public class Analysis implements Cloneable {
 	 * getParameter: <br>
 	 * Returns the SimpleParameter value of a given SimpleParameter.
 	 * 
-	 * @param parameter
-	 *            The Label of the SimpleParameter
+	 * @param parameter The Label of the SimpleParameter
 	 * @return The Value of the SimpleParameter if it exists, or defaultValue if the
 	 *         parameter was not found
 	 */
@@ -1649,8 +1604,7 @@ public class Analysis implements Cloneable {
 	 * getSummary: <br>
 	 * Returns the summary of a given Action Plan Type.
 	 * 
-	 * @param type
-	 *            The Identifier of the Action Plan Type
+	 * @param type The Identifier of the Action Plan Type
 	 * 
 	 * @return The List of Summary Entries for the requested Action Plan Type
 	 */
@@ -1662,8 +1616,7 @@ public class Analysis implements Cloneable {
 	 * getSummary: <br>
 	 * Returns the summary of a given Action Plan Type.
 	 * 
-	 * @param type
-	 *            The Identifier of the Action Plan Type
+	 * @param type The Identifier of the Action Plan Type
 	 * 
 	 * @return The List of Summary Entries for the requested Action Plan Type
 	 */
@@ -2020,10 +1973,8 @@ public class Analysis implements Cloneable {
 	 * setActionPlan: <br>
 	 * Sets a List of ActionPlanEntries of a given type.
 	 * 
-	 * @param type
-	 *            The Action Plan Type
-	 * @param actionPlan
-	 *            The List of ActionPlanEntries to set
+	 * @param type       The Action Plan Type
+	 * @param actionPlan The List of ActionPlanEntries to set
 	 */
 	public void setActionPlans(List<ActionPlanEntry> actionPlan) {
 
@@ -2044,8 +1995,7 @@ public class Analysis implements Cloneable {
 	 * setAssessments<br>
 	 * Sets the list of Assessment Objects.
 	 * 
-	 * @param assessments
-	 *            The List of Assessments
+	 * @param assessments The List of Assessments
 	 */
 	public void setAssessments(List<Assessment> assessments) {
 		this.assessments = assessments;
@@ -2055,8 +2005,7 @@ public class Analysis implements Cloneable {
 	 * setAssets: <br>
 	 * Sets the List of Asset Objects.
 	 * 
-	 * @param assets
-	 *            The List of Asset Objects
+	 * @param assets The List of Asset Objects
 	 */
 	public void setAssets(List<Asset> assets) {
 		this.assets = assets;
@@ -2066,8 +2015,7 @@ public class Analysis implements Cloneable {
 	 * setBasedOnAnalysis: <br>
 	 * Sets the Field "basedOnAnalysis" with a value.
 	 * 
-	 * @param basedOnAnalysis
-	 *            The Value to set the basedOnAnalysis field
+	 * @param basedOnAnalysis The Value to set the basedOnAnalysis field
 	 */
 	public void setBasedOnAnalysis(Analysis basedOnAnalysis) {
 		this.basedOnAnalysis = basedOnAnalysis;
@@ -2077,8 +2025,7 @@ public class Analysis implements Cloneable {
 	 * setCreationDate: <br>
 	 * Sets the "creationDate" field with avalue
 	 * 
-	 * @param creationdate
-	 *            The value to set the Creation Date
+	 * @param creationdate The value to set the Creation Date
 	 */
 	public void setCreationDate(Timestamp creationdate) {
 		this.creationDate = creationdate;
@@ -2088,8 +2035,7 @@ public class Analysis implements Cloneable {
 	 * setCustomerid: <br>
 	 * Sets the "customer" field with a object
 	 * 
-	 * @param customer
-	 *            The Object to set the Customer
+	 * @param customer The Object to set the Customer
 	 */
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
@@ -2099,8 +2045,7 @@ public class Analysis implements Cloneable {
 	 * sethasData: <br>
 	 * Sets the "hasData" field with a value
 	 * 
-	 * @param hasData
-	 *            The value to set the hasData Analysis Flag
+	 * @param hasData The value to set the hasData Analysis Flag
 	 */
 	public void setData(boolean data) {
 		this.data = data;
@@ -2110,8 +2055,7 @@ public class Analysis implements Cloneable {
 	 * setDefaultProfile: <br>
 	 * Sets the Field "defaultProfile" with a value.
 	 * 
-	 * @param defaultProfile
-	 *            The Value to set the defaultProfile field
+	 * @param defaultProfile The Value to set the defaultProfile field
 	 */
 	public void setDefaultProfile(boolean defaultProfile) {
 		this.defaultProfile = defaultProfile;
@@ -2147,8 +2091,7 @@ public class Analysis implements Cloneable {
 	 * setHistory: <br>
 	 * Set History List object.
 	 * 
-	 * @param hist
-	 *            The List of History objects to add
+	 * @param hist The List of History objects to add
 	 */
 	public void setHistory(List<History> hists) {
 		this.histories = hists;
@@ -2158,8 +2101,7 @@ public class Analysis implements Cloneable {
 	 * setId: <br>
 	 * Sets the Field "id" with a value.
 	 * 
-	 * @param id
-	 *            The Value to set the id field
+	 * @param id The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -2169,8 +2111,7 @@ public class Analysis implements Cloneable {
 	 * setIdentifier: <br>
 	 * Sets the "identifier" field with a value
 	 * 
-	 * @param identifier
-	 *            The value to set the Analysis ID
+	 * @param identifier The value to set the Analysis ID
 	 */
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
@@ -2184,8 +2125,7 @@ public class Analysis implements Cloneable {
 	 * setItemInformations: <br>
 	 * Adds an Item Information Object to the List of Item Information
 	 * 
-	 * @param iteminformations
-	 *            The Item Information Object to Add
+	 * @param iteminformations The Item Information Object to Add
 	 */
 	public void setItemInformations(List<ItemInformation> itemInformations) {
 		this.itemInformations = itemInformations;
@@ -2195,8 +2135,7 @@ public class Analysis implements Cloneable {
 	 * setLabel: <br>
 	 * Sets the "label" field with a value
 	 * 
-	 * @param label
-	 *            The value to set the Analysis Label
+	 * @param label The value to set the Analysis Label
 	 */
 	public void setLabel(String label) {
 		this.label = label;
@@ -2206,8 +2145,7 @@ public class Analysis implements Cloneable {
 	 * setLanguage: <br>
 	 * Sets the "language" field with a Language Object
 	 * 
-	 * @param language
-	 *            The Object to set the Language
+	 * @param language The Object to set the Language
 	 */
 	public void setLanguage(Language language) {
 		this.language = language;
@@ -2225,8 +2163,7 @@ public class Analysis implements Cloneable {
 	 * setOwner: <br>
 	 * Sets the Field "owner" with a value.
 	 * 
-	 * @param owner
-	 *            The Value to set the owner field
+	 * @param owner The Value to set the owner field
 	 */
 	public void setOwner(User owner) {
 		this.owner = owner;
@@ -2236,8 +2173,7 @@ public class Analysis implements Cloneable {
 	 * setParameters: <br>
 	 * Adds a SimpleParameter to the List of Parameters
 	 * 
-	 * @param params
-	 *            The SimpleParameter object to Add
+	 * @param params The SimpleParameter object to Add
 	 */
 	public void setParameters(Map<String, List<? extends IParameter>> params) {
 		this.parameters = params;
@@ -2254,8 +2190,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * @param profile
-	 *            the profile to set
+	 * @param profile the profile to set
 	 */
 	public void setProfile(boolean profile) {
 		this.profile = profile;
@@ -2264,8 +2199,7 @@ public class Analysis implements Cloneable {
 	/**
 	 * Ticketing project id
 	 * 
-	 * @param project
-	 *            the project to set
+	 * @param project the project to set
 	 */
 	public void setProject(String project) {
 		this.project = project;
@@ -2279,16 +2213,14 @@ public class Analysis implements Cloneable {
 	 * setRiskInformations: <br>
 	 * Sets the Risk Information List Object.
 	 * 
-	 * @param riskInfos
-	 *            The List of Risk Information Objects
+	 * @param riskInfos The List of Risk Information Objects
 	 */
 	public void setRiskInformations(List<RiskInformation> riskInfos) {
 		this.riskInformations = riskInfos;
 	}
 
 	/**
-	 * @param riskProfiles
-	 *            the riskProfiles to set
+	 * @param riskProfiles the riskProfiles to set
 	 */
 	public void setRiskProfiles(List<RiskProfile> riskProfiles) {
 		this.riskProfiles = riskProfiles;
@@ -2298,8 +2230,7 @@ public class Analysis implements Cloneable {
 	 * setRiskRegisters: <br>
 	 * Sets the Field "riskRegisters" with a value.
 	 * 
-	 * @param riskRegisters
-	 *            The Value to set the riskRegisters field
+	 * @param riskRegisters The Value to set the riskRegisters field
 	 */
 	public void setRiskRegisters(List<RiskRegisterItem> riskRegisters) {
 		this.riskRegisters = riskRegisters;
@@ -2309,8 +2240,7 @@ public class Analysis implements Cloneable {
 	 * setScenarios: <br>
 	 * Sets the list of Scenario Objects.
 	 * 
-	 * @param scenarios
-	 *            The List of Scenarios
+	 * @param scenarios The List of Scenarios
 	 */
 	public void setScenarios(List<Scenario> scenarios) {
 		this.scenarios = scenarios;
@@ -2333,16 +2263,14 @@ public class Analysis implements Cloneable {
 	 * setSummaries: <br>
 	 * Sets the Field "summaries" with a value.
 	 * 
-	 * @param summaries
-	 *            The Value to set the summaries field
+	 * @param summaries The Value to set the summaries field
 	 */
 	public void setSummaries(List<SummaryStage> summaries) {
 		this.summaries = summaries;
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param type the type to set
 	 */
 	public void setType(AnalysisType type) {
 		this.type = type;
@@ -2352,8 +2280,7 @@ public class Analysis implements Cloneable {
 	 * setUncertainty: <br>
 	 * Sets the Field "uncertainty" with a value.
 	 * 
-	 * @param uncertainty
-	 *            The Value to set the uncertainty field
+	 * @param uncertainty The Value to set the uncertainty field
 	 */
 	public void setUncertainty(boolean uncertainty) {
 		this.uncertainty = uncertainty;
@@ -2363,8 +2290,7 @@ public class Analysis implements Cloneable {
 	 * setUserRights: <br>
 	 * Sets the Field "userRights" with a value.
 	 * 
-	 * @param userRights
-	 *            The Value to set the userRights field
+	 * @param userRights The Value to set the userRights field
 	 */
 	public void setUserRights(List<UserAnalysisRight> userRights) {
 		this.userRights = userRights;
@@ -2374,8 +2300,7 @@ public class Analysis implements Cloneable {
 	 * setVersion: <br>
 	 * Sets the "version" field with a value
 	 * 
-	 * @param version
-	 *            The value to set the Analysis Version
+	 * @param version The value to set the Analysis Version
 	 */
 	public void setVersion(String version) {
 		this.version = version;
@@ -2486,10 +2411,8 @@ public class Analysis implements Cloneable {
 	 * This method Calculates an Double Value that Indicates the Difference between
 	 * two Dates. It is used to Calculate the Size of the Phase in Years.
 	 * 
-	 * @param beginDate
-	 *            begin date (should be smallest date)
-	 * @param endDate
-	 *            end date (should be biggest date)
+	 * @param beginDate begin date (should be smallest date)
+	 * @param endDate   end date (should be biggest date)
 	 * @return
 	 */
 	@Deprecated
@@ -2695,8 +2618,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * @param archived
-	 *            the archived to set
+	 * @param archived the archived to set
 	 */
 	public void setArchived(boolean archived) {
 		this.archived = archived;

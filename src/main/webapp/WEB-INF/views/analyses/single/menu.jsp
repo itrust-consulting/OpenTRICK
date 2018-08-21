@@ -126,7 +126,6 @@
 				</c:if>
 				<c:if test="${canExport or isEditable}">
 					<li class="divider"></li>
-					<li class="dropdown-header"><spring:message code="label.menu.title.data.manager" /></li>
 					<c:if test="${canExport}">
 						<li><a href="#" onclick="return exportDataManager(${analysis.id})"> <spring:message code="label.action.export" /></a></li>
 					</c:if>

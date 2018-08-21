@@ -17,6 +17,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -114,6 +116,8 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
@@ -132,6 +136,8 @@ import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationComparator;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -232,6 +238,125 @@ public class ControllerDataManager {
 
 	}
 
+	@RequestMapping(value = "/Asset/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportAssetProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal, Locale locale) throws Exception {
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+		exportAsset(analysis, spreadsheetMLPackage);
+		response.setContentType("xlsx");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("Assets of %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		updateTokenCookie(request, response);
+		spreadsheetMLPackage.save(response.getOutputStream());
+		// Log
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
+				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
+				analysis.getIdentifier(), analysis.getVersion());
+	}
+
+	@RequestMapping(value = "/Scenario/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportScenarioProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal, Locale locale) throws Exception {
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+		exportScenario(analysis, spreadsheetMLPackage);
+		response.setContentType("xlsx");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("Scenarios of %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		updateTokenCookie(request, response);
+		spreadsheetMLPackage.save(response.getOutputStream());
+		// Log
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
+				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
+				analysis.getIdentifier(), analysis.getVersion());
+	}
+
+	private void exportScenario(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception {
+		final String name = "Scenarios";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final String[] columns = { "Name", "Type", "Selected", "Description" };
+		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"), name, 1);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		createHeader(worksheetPart, name, columns, analysis.getScenarios().size());
+		final Map<String, String> scenarioTypes = exportScenarioType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory, 2);
+		for (Scenario scenario : analysis.getScenarios()) {
+			Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0), scenario.getName());
+			setValue(row.getC().get(1), scenarioTypes.getOrDefault(scenario.getType().getName(), scenario.getType().getName()));
+			setValue(row.getC().get(2), scenario.isSelected());
+			setValue(row.getC().get(3), scenario.getDescription());
+			sheet.getRow().add(row);
+		}
+	}
+
+	private Map<String, String> exportScenarioType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale, ObjectFactory factory, int index) throws Exception {
+		final String name = "Parameters";
+		final ScenarioType[] scenarioTypes = ScenarioType.values();
+		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + index + ".xml"), name, index);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		createHeader(worksheetPart, name, new String[] { "Name", "Display name" }, scenarioTypes.length);
+		final Map<String, String> names = new LinkedHashMap<>(scenarioTypes.length);
+		for (ScenarioType scenarioType : ScenarioType.values()) {
+			String value = messageSource.getMessage("label.scenario.type." + scenarioType.getName().replaceAll("-", "_").toLowerCase(), null, scenarioType.getName(), locale);
+			names.put(scenarioType.getName(), value);
+			final Row row = factory.createRow();
+			setValue(row, 0, scenarioType.getName());
+			setValue(row, 1, value);
+			sheet.getRow().add(row);
+		}
+		return names;
+	}
+
+	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception, JAXBException {
+		final String name = "Assets";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final boolean hidenComment = analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
+		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"), name, 1);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final String[] columns = hidenComment ? new String[] { "Name", "Type", "Selected", "Value", "Comment", "Hidden comment" }
+				: new String[] { "Name", "Type", "Selected", "Value", "Comment" };
+		createHeader(worksheetPart, name, columns, analysis.getAssets().size());
+		final Map<String, String> assetTypes = exportAssetType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory, 2);
+		for (Asset asset : analysis.getAssets()) {
+			Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0), asset.getName());
+			setValue(row.getC().get(1), assetTypes.getOrDefault(asset.getAssetType().getName(), asset.getAssetType().getName()));
+			setValue(row.getC().get(2), asset.isSelected());
+			setValue(row.getC().get(3), asset.getValue() * 0.001);
+			setValue(row.getC().get(4), asset.getComment());
+			if (hidenComment)
+				setValue(row.getC().get(5), asset.getHiddenComment());
+			sheet.getRow().add(row);
+		}
+	}
+
+	private Map<String, String> exportAssetType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale, ObjectFactory factory, int index) throws JAXBException, Exception {
+		final String name = "Parameters";
+		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + index + ".xml"), name, index);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final List<AssetType> assetTypes = serviceAssetType.getAll();
+		createHeader(worksheetPart, name, new String[] { "Name", "Display name" }, assetTypes.size());
+		final Map<String, String> names = new LinkedHashMap<>(assetTypes.size());
+		for (AssetType assetType : assetTypes) {
+			String value = messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale);
+			names.put(assetType.getName(), value);
+			final Row row = factory.createRow();
+			setValue(row, 0, assetType.getName());
+			setValue(row, 1, value);
+			sheet.getRow().add(row);
+		}
+		return names;
+	}
+
 	@GetMapping(value = "/Export", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
@@ -239,8 +364,7 @@ public class ControllerDataManager {
 		final List<DataManagerItem> items = new LinkedList<>();
 		if (!analysis.getActionPlans().isEmpty())
 			items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Export-process"));
-		// items.add(new DataManagerItem("asset",
-		// "/Analysis/Data-manager/Asset/Export-process"));
+		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Export-process"));
 		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Export-process"));
 		if (!analysis.getAnalysisStandards().isEmpty())
 			items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Export-form", null, null));
@@ -256,8 +380,7 @@ public class ControllerDataManager {
 
 		if (analysis.isQuantitative())
 			items.add(new DataManagerItem("rrf-raw", "/Analysis/Data-manager/RRF-Raw/Export-process"));
-		// items.add(new DataManagerItem("scenario",
-		// "/Analysis/Data-manager/Scenario/Export-process"));
+		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Export-process"));
 
 		if (analysis.getAnalysisStandards().stream().anyMatch(AnalysisStandard::isSoaEnabled))
 			items.add(new DataManagerItem("soa", "/Analysis/Data-manager/SOA/Export-process", true));
@@ -647,7 +770,7 @@ public class ControllerDataManager {
 				if (form.getFile() == null)
 					return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
 			}
-			
+
 			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
 				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
 
@@ -720,13 +843,13 @@ public class ControllerDataManager {
 					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
 						p.setOutToDate(true);
 				});
-		
+
 		if (analysis.isHybrid())
 			model.addAttribute("items", new DataManagerItem[] { new DataManagerItem(AnalysisType.QUANTITATIVE.name(), "/Analysis/Data-manager/Report/Export-process", ".docx"),
 					new DataManagerItem(AnalysisType.QUALITATIVE.name(), "/Analysis/Data-manager/Report/Export-process", ".docx") });
 		else
 			model.addAttribute("item", new DataManagerItem(analysis.getType().name(), "/Analysis/Data-manager/Report/Export-process", ".docx"));
-		
+
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("templates", reportTemplates);
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
@@ -899,7 +1022,7 @@ public class ControllerDataManager {
 	 * @throws Exception
 	 */
 	@GetMapping(value = "/Sqlite/Import-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String importAnalysis(@RequestParam(name="idCustomer") Integer idCustomer, Principal principal, Model model) throws Exception {
+	public String importAnalysis(@RequestParam(name = "idCustomer") Integer idCustomer, Principal principal, Model model) throws Exception {
 		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
 		if (customer == null)
 			throw new AccessDeniedException("access denied");
@@ -926,8 +1049,8 @@ public class ControllerDataManager {
 	 * @throws Exception
 	 */
 	@PostMapping(value = "/Sqlite/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object importAnalysisSave(@RequestParam(name="customer") Integer idCustomer, @ModelAttribute ImportAnalysisForm form, Principal principal, HttpServletRequest request,
-			Locale locale) throws Exception {
+	public @ResponseBody Object importAnalysisSave(@RequestParam(name = "customer") Integer idCustomer, @ModelAttribute ImportAnalysisForm form, Principal principal,
+			HttpServletRequest request, Locale locale) throws Exception {
 		// retrieve the customer
 		if (!serviceCustomer.hasAccess(principal.getName(), idCustomer))
 			throw new AccessDeniedException("access denied");
@@ -1029,6 +1152,8 @@ public class ControllerDataManager {
 			final ActionPlanMode type = types[i];
 			final int colCount = type == ActionPlanMode.APPN ? 21 : 19;
 			final List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type);
+			if (actionPlanEntries.isEmpty())
+				continue;
 			final String name = messageSource.getMessage("label.title.plan_type." + type.getName().toLowerCase(), null, type.getName(), locale);
 			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + (i + 1) + ".xml"), name, i + 1);
 			final SheetData sheet = worksheetPart.getContents().getSheetData();
