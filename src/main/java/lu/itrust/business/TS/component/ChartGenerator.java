@@ -877,7 +877,7 @@ public class ChartGenerator {
 			String chartTitle) throws Exception {
 
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
-		final List<IParameter> allParameters = analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_SIMPLE);
+		final List<IParameter> allParameters = analysis.getParameters().values().stream().flatMap(list -> list.stream()).collect(Collectors.toList());
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved
