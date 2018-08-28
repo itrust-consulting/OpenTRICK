@@ -171,8 +171,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		} catch (Exception e) {
 			if (session != null) {
 				try {
-					if (session.beginTransaction().getStatus().canRollback())
-						session.beginTransaction().rollback();
+					if (session.getTransaction().getStatus().canRollback())
+						session.getTransaction().rollback();
 				} catch (Exception e1) {
 				}
 			}

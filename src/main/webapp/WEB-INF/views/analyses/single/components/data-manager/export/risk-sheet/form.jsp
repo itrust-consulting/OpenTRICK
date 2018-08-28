@@ -11,10 +11,10 @@
 <fieldset>
 	<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
 	<legend>
-		<spring:message code="label.title.data-manager.export.${viewName}" />
+		<spring:message code="label.title.data_manager.export.${viewName}" />
 	</legend>
 	<div class='alert alert-sm alert-info' style="margin-bottom: 15px">
-		<spring:message code="info.data-manager.export.${viewName}" />
+		<spring:message code="info.data_manager.export.${viewName}" />
 	</div>
 	<form class='form form-horizontal' name='filter'>
 		<input value="${type}" name="type" hidden="hidden">

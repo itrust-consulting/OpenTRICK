@@ -22,10 +22,10 @@
 						data-view-extentions='${item.extensions}'>
 						<fieldset>
 							<legend>
-								<spring:message code='label.title.data-manager.export.word_report_${fn:toLowerCase(item.name)}' />
+								<spring:message code='label.title.data_manager.export.word_report_${fn:toLowerCase(item.name)}' />
 							</legend>
 							<div class='alert alert-sm alert-info' style="margin-bottom: 15px">
-								<spring:message code="info.data-manager.export.${fn:replace(typeName, '-','_')}" />
+								<spring:message code="info.data_manager.export.${fn:replace(typeName, '-','_')}" />
 							</div>
 							<jsp:include page="form.jsp" />
 						</fieldset>
@@ -36,10 +36,10 @@
 		<c:otherwise>
 			<fieldset>
 				<legend>
-					<spring:message code='label.title.data-manager.export.word_report' />
+					<spring:message code='label.title.data_manager.export.word_report' />
 				</legend>
 				<div class='alert alert-sm alert-info' style="margin-bottom: 15px">
-					<spring:message code="info.data-manager.export.word_report" />
+					<spring:message code="info.data_manager.export.word_report" />
 				</div>
 				<jsp:include page="form.jsp" />
 			</fieldset>

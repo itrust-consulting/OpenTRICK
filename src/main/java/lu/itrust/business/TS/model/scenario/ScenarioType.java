@@ -137,6 +137,10 @@ public enum ScenarioType {
 	public String getName() {
 		return NAMES[this.value - 1];
 	}
+	
+	public String getCategory() {
+		return JAVAKEYS[this.value - 1];
+	}
 
 	public static ScenarioType getByName(String name) {
 		ScenarioType[] values = values();

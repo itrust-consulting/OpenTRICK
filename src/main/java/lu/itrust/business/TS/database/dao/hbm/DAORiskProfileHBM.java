@@ -35,8 +35,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAORiskProfile#get(java.lang.Integer)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskProfile#get(java.lang.Integer)
 	 */
 	@Override
 	public RiskProfile get(Integer id) {
@@ -52,9 +51,8 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer idRiskProfile) {
-		return (boolean) getSession()
-				.createQuery(
-						"Select count(riskProfile)>0 From Analysis analysis inner join analysis.riskProfiles riskProfile where analysis.id = :idAnalysis and riskProfile.id = :idRiskProfile")
+		return (boolean) getSession().createQuery(
+				"Select count(riskProfile)>0 From Analysis analysis inner join analysis.riskProfiles riskProfile where analysis.id = :idAnalysis and riskProfile.id = :idRiskProfile")
 				.setParameter("idAnalysis", analysisId).setParameter("idRiskProfile", idRiskProfile).getSingleResult();
 	}
 
@@ -110,8 +108,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAORiskProfile#deleteAllFromAnalysis(
+	 * @see lu.itrust.business.TS.database.dao.DAORiskProfile#deleteAllFromAnalysis(
 	 * java.lang.Integer)
 	 */
 	@Override
@@ -156,16 +153,22 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 
 	@Override
 	public boolean isUsed(String identifier, Integer idAnalysis) {
-		return (boolean) getSession()
-				.createQuery(
-						"Select count(*)>0 From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.identifier = :identifier")
+		return (boolean) getSession().createQuery(
+				"Select count(*)>0 From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.identifier = :identifier")
 				.setParameter("identifier", identifier).setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 	@Override
 	public List<RiskProfile> findByIdAnalysisAndContainsMeasure(Integer idAnalysis, Measure measure) {
-		return getSession().createQuery("Select riskProfile From Analysis analysis inner join analysis.riskProfiles riskProfile inner join riskProfile.measures as measure where analysis.id = :idAnalysis and measure = :measure", RiskProfile.class)
-				.setParameter("idAnalysis", idAnalysis).setParameter("measure", measure).getResultList();
+		return getSession().createQuery(
+				"Select riskProfile From Analysis analysis inner join analysis.riskProfiles riskProfile inner join riskProfile.measures as measure where analysis.id = :idAnalysis and measure = :measure",
+				RiskProfile.class).setParameter("idAnalysis", idAnalysis).setParameter("measure", measure).getResultList();
+	}
+
+	@Override
+	public void resetRiskIdByIds(List<Integer> ids) {
+		if (!ids.isEmpty())
+			getSession().createQuery("Update RiskProfile r set r.identifier = null where r.id in (:ids)").setParameterList("ids", ids).executeUpdate();
 	}
 
 }

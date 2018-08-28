@@ -83,6 +83,13 @@ public class Asset implements Cloneable {
 	@Column(name = "dtALEO", nullable = false)
 	private double ALEO = 0;
 
+	public Asset() {
+	}
+
+	public Asset(String name) {
+		this.name = name;
+	}
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -101,8 +108,7 @@ public class Asset implements Cloneable {
 	 * setId: <br>
 	 * Sets the "id" field of the asset with a value
 	 * 
-	 * @param id
-	 *            The value to set the "id" field
+	 * @param id The value to set the "id" field
 	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
@@ -125,8 +131,7 @@ public class Asset implements Cloneable {
 	 * setName: <br>
 	 * Sets the "name" field of the asset with a value
 	 * 
-	 * @param name
-	 *            The value to set the Asset "name" field
+	 * @param name The value to set the Asset "name" field
 	 * @throws TrickException
 	 */
 	public void setName(String name) throws TrickException {
@@ -149,8 +154,7 @@ public class Asset implements Cloneable {
 	 * setType: <br>
 	 * Sets the "assetType" field of the asset with a value
 	 * 
-	 * @param assetType
-	 *            The value to set the Asset "assetType" field
+	 * @param assetType The value to set the Asset "assetType" field
 	 * @throws TrickException
 	 */
 	public void setAssetType(AssetType assetType) throws TrickException {
@@ -173,8 +177,7 @@ public class Asset implements Cloneable {
 	 * setValue: <br>
 	 * Sets the "value" field of the asset with a value
 	 * 
-	 * @param value
-	 *            The value to set the Asset "value" field
+	 * @param value The value to set the Asset "value" field
 	 * @throws TrickException
 	 */
 	public void setValue(double value) throws TrickException {
@@ -197,11 +200,13 @@ public class Asset implements Cloneable {
 	 * setComment: <br>
 	 * Sets the "comment" field of the asset with a value
 	 * 
-	 * @param comment
-	 *            The value to set the "comment" field
+	 * @param comment The value to set the "comment" field
 	 */
 	public void setComment(String comment) {
-		this.comment = comment;
+		if (comment == null)
+			this.comment = "";
+		else
+			this.comment = comment;
 	}
 
 	/**
@@ -218,11 +223,13 @@ public class Asset implements Cloneable {
 	 * setHiddenComment: <br>
 	 * Sets the Field "hiddenComment" with a value.
 	 * 
-	 * @param hideComment
-	 *            The Value to set the hiddenComment field
+	 * @param hideComment The Value to set the hiddenComment field
 	 */
 	public void setHiddenComment(String hiddenComment) {
-		this.hiddenComment = hiddenComment;
+		if (hiddenComment == null)
+			this.hiddenComment = "";
+		else
+			this.hiddenComment = hiddenComment;
 	}
 
 	/**
@@ -239,10 +246,8 @@ public class Asset implements Cloneable {
 	 * setSelected: <br>
 	 * Sets the "selected" field of the asset with a value
 	 * 
-	 * @param selected
-	 *            The value to set the "selected" field
-	 * @throws InvalidAttributesException
-	 *             if others fields are not initialized yet
+	 * @param selected The value to set the "selected" field
+	 * @throws InvalidAttributesException if others fields are not initialized yet
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
@@ -267,8 +272,8 @@ public class Asset implements Cloneable {
 	}
 
 	/**
-	 * equals: This method checks if an object Asset equals another object
-	 * Asset. Fields taken in concideration: ID, name, assetType.<br>
+	 * equals: This method checks if an object Asset equals another object Asset.
+	 * Fields taken in concideration: ID, name, assetType.<br>
 	 * <br>
 	 * <b>NOTE:</b> This Method is auto generated
 	 * 

@@ -8,10 +8,10 @@
 <div data-view-content-name='${item.name}' data-view-token='${item.token}'>
 	<fieldset>
 		<legend>
-			<spring:message code="label.title.data-manager.export.measure" />
+			<spring:message code="label.title.data_manager.export.measure" />
 		</legend>
 		<div class='alert alert-sm alert-info' style="margin-bottom: 15px">
-			<spring:message code="info.data-manager.export.measure" />
+			<spring:message code="info.data_manager.export.measure" />
 		</div>
 		<form action='<spring:url value="${item.processURL}?token=${item.token}" />' class="form" method="post" enctype="application/x-www-form-urlencoded">
 			<div class="form-group">

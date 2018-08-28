@@ -11,7 +11,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.title.data-manager.export" />
+					<spring:message code="label.title.data_manager.export" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -19,7 +19,7 @@
 					<ul class="nav nav-pills nav-stacked">
 						<c:forEach items="${items}" var="item" varStatus="status">
 							<li ${status.index==0?"class='active'":""}><a href="#export-${item.name}" data-toggle="tab"><spring:message
-										code="label.menu.data-manager.export.${fn:replace(item.name, '-','_')}" /></a></li>
+										code="label.menu.data_manager.export.${fn:replace(item.name, '-','_')}" /></a></li>
 						</c:forEach>
 					</ul>
 					<div class="clearfix"></div>
@@ -33,10 +33,10 @@
 									<fieldset>
 										<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
 										<legend>
-											<spring:message code="label.title.data-manager.export.${viewName}" />
+											<spring:message code="label.title.data_manager.export.${viewName}" />
 										</legend>
 										<div class='alert alert-sm alert-info' style="margin-bottom: 15px">
-											<spring:message code="info.data-manager.export.${viewName}" />
+											<spring:message code="info.data_manager.export.${viewName}" />
 										</div>
 										<c:if test="${not item.background}">
 											<div class="hidden">

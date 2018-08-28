@@ -34,7 +34,10 @@
 		<div class="container">
 			<div class="row-fluid">
 				<h3 role="title">
-					<spring:message code="label.assessment.for.asset" arguments="${asset.name}" />
+					<spring:message code="label.assessment.for.asset">
+						<spring:argument value="${asset.name}"/>
+						<spring:argument><fmt:formatNumber value="${fct:round(asset.value*0.001,0)}" /></spring:argument>
+					</spring:message>
 				</h3>
 			</div>
 		</div>

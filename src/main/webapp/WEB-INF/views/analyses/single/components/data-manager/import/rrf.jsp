@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div data-view-content-name='rrf'>
 	<ul class="nav nav-tabs nav-justified">
-		<li class='active'><a href="#import-${rawRRFItem.name}" data-toggle="tab"><spring:message code='label.from.file' text="File" /></a></li>
+		<li class='active'><a href="#import-${rawRRFItem.name}" data-toggle="tab"><spring:message code='label.from.excel.file' text="File" /></a></li>
 		<li><a href="#import-${rrfItem.name}" data-toggle="tab"><spring:message code='label.from.knowledge_base' text="knowledge base" /></a></li>
 	</ul>
 	<div class="tab-content" data-view-tab='secondary'>
@@ -18,7 +18,7 @@
 		<div class='tab-pane' id="import-${rrfItem.name}" data-view-name='${rrfItem.name}' data-view-process-url='${rrfItem.processURL}'>
 			<fieldset>
 				<legend>
-					<spring:message code="label.title.data-manager.import.rrf" />
+					<spring:message code="label.title.data_manager.import.rrf" />
 				</legend>
 				<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
 					<spring:message code="info.import.rrf" />

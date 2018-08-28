@@ -9,10 +9,10 @@
 	<fieldset>
 		<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
 		<legend>
-			<spring:message code="label.title.data-manager.import.${viewName}" />
+			<spring:message code="label.title.data_manager.import.${viewName}" />
 		</legend>
 		<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
-			<spring:message code="info.data-manager.import.${viewName}" />
+			<spring:message code="info.data_manager.import.${viewName}" />
 		</div>
 		<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
 			id="form-${item.name}" enctype="multipart/form-data">

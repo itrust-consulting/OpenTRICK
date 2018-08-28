@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.springframework.context.MessageSource;
@@ -29,7 +28,6 @@ import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.STSheetState;
 import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -62,17 +60,11 @@ public class RRFExportImport {
 
 	private static final String REFERENCE = "Reference";
 
-	private static final String VERSION = "version";
-
-	private static final String IDENTIFIER = "identifier";
-
 	private static final String RAW_SCENARIO = "Scenario";
 
 	private static final int SCENARIO_RRF_DEFAULT_FIELD_COUNT = 10;
 
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
-
-	private static final String TS_INFO_FOR_IMPORT = "^!TS-InfO_fOr-ImpOrt!^";
 
 	private static final String RAW_SCENARIOS = "Scenarios";
 
@@ -109,7 +101,6 @@ public class RRFExportImport {
 	public void exportRawRRF(Analysis analysis, HttpServletResponse response, Locale locale, Consumer<SpreadsheetMLPackage> callback) throws Exception {
 		SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
 		List<AssetType> assetTypes = serviceAssetType.getAll();
-		// writeAnalysisIdentifier(analysis, mlPackage);
 		writeScenario(analysis.getScenarios(), mlPackage, locale);
 		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
 			writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, mlPackage, locale);
@@ -121,7 +112,6 @@ public class RRFExportImport {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
 			final DataFormatter formatter = new DataFormatter();
-			// loadAnalysisInfo(analysis, mlPackage.getWorkbookPart(), formatter);
 			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
 			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
@@ -153,37 +143,6 @@ public class RRFExportImport {
 		for (String category : categories)
 			setValue(row.getC().get(++colIndex), category);
 		return colIndex;
-	}
-
-	@Deprecated
-	protected void loadAnalysisInfo(Analysis analysis, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
-		SheetData sheet = findSheet(workbookPart, TS_INFO_FOR_IMPORT);
-		if (sheet == null)
-			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
-		String identifier = null, version = null;
-		Row row = sheet.getRow().get(0), data = sheet.getRow().get(1);
-		if (row == null || data == null)
-			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
-		for (int i = 0; i < row.getC().size(); i++) {
-			org.xlsx4j.sml.Cell cell = row.getC().get(i), cellData = data.getC().get(i);
-			if (cellData == null)
-				break;
-			switch (getString(cell, formatter)) {
-			case IDENTIFIER:
-				identifier = getString(cellData, formatter);
-				break;
-			case VERSION:
-				version = getString(cellData, formatter);
-				break;
-			}
-			if (!(isEmpty(identifier) || isEmpty(version)))
-				break;
-		}
-		if (isEmpty(identifier) || isEmpty(version))
-			throw new TrickException("error.import.raw.rrf.analysis.info", "Analysis information cannot be loaded");
-		else if (!(analysis.getIdentifier().equals(identifier) && analysis.getVersion().equals(version)))
-			throw new TrickException("error.import.raw.rrf.bad.analysis", String.format("Please try again with this analysis: %s version: %s", identifier, version), identifier,
-					version);
 	}
 
 	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper, DataFormatter formatter) {
@@ -235,6 +194,7 @@ public class RRFExportImport {
 			if (nameField == null)
 				continue;
 			double value = getDouble(row.getC().get(i), formatter);
+
 			switch (nameField) {
 			case RAW_EXTERNAL_THREAT:
 				scenario.setExternalThreat((int) value);
@@ -286,8 +246,11 @@ public class RRFExportImport {
 			if (isEmpty(key))
 				continue;
 			Scenario scenario = scenarioMappings.get(key);
-			if (scenario == null)
-				continue;
+			if (scenario == null) {
+				scenario = scenarioMappings.get(key.trim());
+				if (scenario == null)
+					continue;
+			}
 			loadScenarioData(scenario, row, nameIndex, columnMapper, formatter);
 		}
 	}
@@ -404,26 +367,6 @@ public class RRFExportImport {
 				break;
 			}
 		}
-	}
-
-	@Deprecated
-	protected void writeAnalysisIdentifier(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
-		int index = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().size() + 1;
-		WorksheetPart worksheetPart = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), TS_INFO_FOR_IMPORT, index);
-		SheetData analysisSheet = worksheetPart.getContents().getSheetData();
-		ObjectFactory factory = Context.getsmlObjectFactory();
-		Row header = factory.createRow(), data = factory.createRow();
-		for (int i = 0; i < 2; i++) {
-			header.getC().add(factory.createCell());
-			data.getC().add(factory.createCell());
-		}
-		analysisSheet.getRow().add(header);
-		analysisSheet.getRow().add(data);
-		setValue(header.getC().get(0), IDENTIFIER);
-		setValue(data.getC().get(0), analysis.getIdentifier());
-		setValue(header.getC().get(1), VERSION);
-		setValue(data.getC().get(1), analysis.getVersion());
-		mlPackage.getWorkbookPart().getContents().getSheets().getSheet().get(index - 1).setState(STSheetState.VERY_HIDDEN);
 	}
 
 	@SuppressWarnings("unchecked")

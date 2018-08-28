@@ -39,7 +39,7 @@ public class TrickLogManager {
 
 	private Queue<TrickLog> trickLogs = new LinkedList<TrickLog>();
 
-	private Logger logger = LogManager.getLogger("TRICKLogManager");
+	private Logger logger = LogManager.getLogger(TrickLogManager.class.getSimpleName());
 
 	private TrickLogManager() {
 	}

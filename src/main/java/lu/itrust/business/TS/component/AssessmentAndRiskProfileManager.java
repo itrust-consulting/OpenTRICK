@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -144,8 +145,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoAnalysis
-	 *            the daoAnalysis to set
+	 * @param daoAnalysis the daoAnalysis to set
 	 */
 	@Autowired
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
@@ -153,8 +153,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoAssessment
-	 *            the daoAssessment to set
+	 * @param daoAssessment the daoAssessment to set
 	 */
 	@Autowired
 	public void setDaoAssessment(DAOAssessment daoAssessment) {
@@ -162,8 +161,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoAsset
-	 *            the daoAsset to set
+	 * @param daoAsset the daoAsset to set
 	 */
 	@Autowired
 	public void setDaoAsset(DAOAsset daoAsset) {
@@ -171,8 +169,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoRiskProfile
-	 *            the daoRiskProfile to set
+	 * @param daoRiskProfile the daoRiskProfile to set
 	 */
 	@Autowired
 	public void setDaoRiskProfile(DAORiskProfile daoRiskProfile) {
@@ -180,8 +177,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoScenario
-	 *            the daoScenario to set
+	 * @param daoScenario the daoScenario to set
 	 */
 	@Autowired
 	public void setDaoScenario(DAOScenario daoScenario) {
@@ -262,16 +258,16 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void updateAssessment(Analysis analysis, ValueFactory factory) {
-		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+	public void updateAssessment(Analysis analysis, ValueFactory factory, boolean generateIds) {
+		final Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		if (analysis.isQualitative()) {
-			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
+			final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
-					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
-					RiskProfile riskProfile = riskProfiles.get(RiskProfile.key(asset, scenario));
+					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
@@ -289,11 +285,12 @@ public class AssessmentAndRiskProfileManager {
 					}
 				}
 			}
-			GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
+			if (generateIds)
+				GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
 		} else {
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
-					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
+					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
@@ -309,6 +306,11 @@ public class AssessmentAndRiskProfileManager {
 
 		if (analysis.isQuantitative())
 			UpdateAssetALE(analysis, factory);
+	}
+
+	@Transactional
+	public void updateAssessment(Analysis analysis, ValueFactory factory) {
+		updateAssessment(analysis, factory, true);
 	}
 
 	/**
@@ -362,7 +364,7 @@ public class AssessmentAndRiskProfileManager {
 						if (assessment == null)
 							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
-							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
+							GenerateRiskProfile(analysis.getRiskProfiles(), asset, scenario);
 					} else {
 						if (assessment != null)
 							analysis.getAssessments().remove(assessment);
@@ -400,15 +402,13 @@ public class AssessmentAndRiskProfileManager {
 		Object[] numbering = extractNumbering(maxId);
 		if (numbering[1] == null)
 			return;
+		AtomicLong id = new AtomicLong((long) numbering[1]);
 		riskProfiles.stream().sorted((r1, r2) -> {
 			int result = Boolean.compare(r1.isSelected(), r2.isSelected());
 			if (result == 0)
 				result = Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance());
 			return result * -1;
-		}).filter(risk -> StringUtils.isEmpty(risk.getIdentifier())).forEach(riskProfile -> {
-			numbering[1] = (Long) numbering[1] + 1;
-			riskProfile.setIdentifier(numbering[0] + "" + numbering[1]);
-		});
+		}).filter(risk -> StringUtils.isEmpty(risk.getIdentifier())).forEach(riskProfile -> riskProfile.setIdentifier(numbering[0] + "" + id.incrementAndGet()));
 	}
 
 	/**
@@ -475,15 +475,12 @@ public class AssessmentAndRiskProfileManager {
 	/**
 	 * Add or remove assessment Only for QUANTITATIVE Analysis.
 	 * 
-	 * @param id
-	 *            asset or scenario
+	 * @param id                asset or scenario
 	 * @param asset
 	 * @param scenario
 	 * @param assessments
-	 * @param mappedAssessments
-	 *            mapped by scenario.id
-	 * @param valueFactory
-	 *            impacts only
+	 * @param mappedAssessments mapped by scenario.id
+	 * @param valueFactory      impacts only
 	 */
 	private void createOrRemoveAssessment(Integer id, Asset asset, Scenario scenario, List<Assessment> assessments, Map<Integer, Assessment> mappedAssessments,
 			ValueFactory valueFactory) {
@@ -506,20 +503,15 @@ public class AssessmentAndRiskProfileManager {
 	 * @param asset
 	 * @param riskProfile
 	 * @param analysis
-	 * @param valueFactory
-	 *            impacts + likelihood
+	 * @param valueFactory impacts + likelihood
 	 */
 	private void createOrRemoveAssessmentAndRiskProfile(Assessment assessment, Scenario scenario, Asset asset, RiskProfile riskProfile, Analysis analysis,
 			ValueFactory valueFactory) {
 		if (scenario.hasInfluenceOnAsset(asset)) {
-			if (assessment == null) {
-				assessment = new Assessment(asset, scenario);
-				for (String impact : valueFactory.getImpactNames())
-					createImpact(valueFactory, assessment, impact);
-				analysis.getAssessments().add(assessment);
-			}
+			if (assessment == null)
+				GenerateAssessment(analysis.getAssessments(), valueFactory, asset, scenario);
 			if (riskProfile == null)
-				analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
+				GenerateRiskProfile(analysis.getRiskProfiles(), asset, scenario);
 		} else {
 			if (assessment != null) {
 				analysis.getAssessments().remove(assessment);
@@ -532,11 +524,11 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	private static void GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
-		Assessment assessment;
-		assessment = new Assessment(asset, scenario);
+	public static Assessment GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
+		Assessment assessment = new Assessment(asset, scenario);
 		factory.getImpactNames().forEach(impact -> createImpact(factory, assessment, impact));
 		assessments.add(assessment);
+		return assessment;
 	}
 
 	private static void createImpact(ValueFactory factory, Assessment assessment, String impact) {
@@ -702,6 +694,12 @@ public class AssessmentAndRiskProfileManager {
 			assessments.addAll(assessmentByAssets.get(ale.getAssetName()));
 		}
 		return assessments;
+	}
+
+	public static RiskProfile GenerateRiskProfile(List<RiskProfile> riskProfiles, Asset asset, Scenario scenario) {
+		RiskProfile riskProfile = new RiskProfile(asset, scenario);
+		riskProfiles.add(riskProfile);
+		return riskProfile;
 	}
 
 }

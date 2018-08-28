@@ -46,7 +46,7 @@ public class Docx4jSummaryFormatter extends Docx4jFormatter {
 			tc.getTcPr().getTcW().setType("auto");
 			tc.getTcPr().getTcW().setW(BigInteger.valueOf(0));
 		});
-		return false;
+		return true;
 	}
 
 }

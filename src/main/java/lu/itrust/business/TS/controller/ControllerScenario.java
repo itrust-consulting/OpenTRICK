@@ -48,7 +48,6 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -376,7 +375,7 @@ public class ControllerScenario {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}
-	
+
 	/**
 	 * aleByAsset: <br>
 	 * Description
@@ -410,7 +409,6 @@ public class ControllerScenario {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return chartGenerator.riskByScenarioType(idAnalysis, locale);
 	}
-
 
 	/**
 	 * buildScenario: <br>
@@ -457,9 +455,11 @@ public class ControllerScenario {
 				if (i == -1)
 					throw new TrickException("error.scenario_type.not_selected", "You need to select a scenario type");
 				scenarioType = ScenarioType.valueOf(i);
-				scenario.setType(scenarioType);
-				// set category according to value of scenario type
-				scenario.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
+				if (scenario.getType() != scenarioType) {
+					scenario.setType(scenarioType);
+					for (String category : ScenarioType.JAVAKEYS)
+						scenario.setCategoryValue(category, 0);
+				}
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			}
@@ -469,7 +469,7 @@ public class ControllerScenario {
 			error = validator.validate(scenario, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if ((scenario.getId() > 0 && !scenario.getName().equalsIgnoreCase(name) || scenario.getId() < 0) && serviceScenario.exist(idAnalysis, name))
+			else if ((scenario.getId() > 0 && !scenario.getName().trim().equalsIgnoreCase(name.trim()) || scenario.getId() < 0) && serviceScenario.exist(idAnalysis, name))
 				errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
 						String.format("Scenario (%s) already exists", scenario.getName()), locale));
 			else

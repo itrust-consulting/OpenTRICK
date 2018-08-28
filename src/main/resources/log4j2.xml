@@ -9,7 +9,7 @@
 		</Socket>
 	</Appenders>
 	<Loggers>
-		<logger name="TRICKLogManager" level='DEBUG'>
+		<logger name="TrickLogManager" level='DEBUG'>
 			<AppenderRef ref="RemoteLogger" />
 		</logger>
 		

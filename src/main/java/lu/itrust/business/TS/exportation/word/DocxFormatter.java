@@ -20,9 +20,9 @@ public interface DocxFormatter {
 	/**
 	 * Look for class can format data
 	 * @param data
+	 * @param style 
 	 * @param type analysis type
 	 * @return true or false
 	 */
-	boolean format(Object data, AnalysisType type);
-	
+	boolean format(Object data, Object style, AnalysisType type);
 }

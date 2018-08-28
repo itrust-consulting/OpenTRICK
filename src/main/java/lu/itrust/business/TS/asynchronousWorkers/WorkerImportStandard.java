@@ -174,7 +174,7 @@ public class WorkerImportStandard implements Worker {
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
-				session.getTransaction().rollback();
+				transaction.rollback();
 		} finally {
 			try {
 				if (session != null && !session.isOpen())

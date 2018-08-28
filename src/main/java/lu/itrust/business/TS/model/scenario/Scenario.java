@@ -76,6 +76,10 @@ public class Scenario extends SecurityCriteria {
 	 * Setters and Getters
 	 **********************************************************************************************/
 
+	public Scenario(String name) {
+		setName(name);
+	}
+
 	/**
 	 * addAssetTypeValue<br />
 	 * Appends the specified element to the end of this list.
@@ -587,6 +591,7 @@ public class Scenario extends SecurityCriteria {
 		if ((type == null) || (type.getName() == null) || (type.getName().trim().isEmpty()))
 			throw new TrickException("error.scenario.type.empty", "Type cannot be empty!");
 		this.type = type;
+		setCategoryValue(getType().getCategory(), 1);
 	}
 
 	/*

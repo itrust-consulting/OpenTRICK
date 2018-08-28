@@ -194,7 +194,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			serviceTaskFeedback.send(getId(), new MessageHandler("error.import.risk.information", "Import of risk information failed!", e));
 			TrickLogManager.Persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
-				session.getTransaction().rollback();
+				transaction.rollback();
 		} finally {
 			try {
 				if (session != null && !session.isOpen())

@@ -40,4 +40,6 @@ public interface DAORiskProfile {
 
 	List<RiskProfile> findByIdAnalysisAndContainsMeasure(Integer idAnalysis, Measure measure);
 
+	void resetRiskIdByIds(List<Integer> ids);
+
 }

@@ -11,7 +11,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.title.data-manager.import" />
+					<spring:message code="label.title.data_manager.import" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -19,7 +19,7 @@
 					<ul class="nav nav-pills nav-stacked">
 						<c:forEach items="${items}" var="item" varStatus="status">
 							<li ${status.index==0?"class='active'":""}><a href="#import-${item.name}" data-toggle="tab"><spring:message
-										code="label.menu.data-manager.import.${fn:replace(item.name, '-','_')}" /></a></li>
+										code="label.menu.data_manager.import.${fn:replace(item.name, '-','_')}" /></a></li>
 						</c:forEach>
 					</ul>
 					<div class="clearfix"></div>
@@ -44,10 +44,10 @@
 									<fieldset>
 										<spring:message text="${fn:replace(item.name,'-','_')}" var="viewName" />
 										<legend>
-											<spring:message code="label.title.data-manager.import.${viewName}" />
+											<spring:message code="label.title.data_manager.import.${viewName}" />
 										</legend>
 										<div class='alert alert-sm alert-danger' style="margin-bottom: 15px">
-											<spring:message code="info.data-manager.import.${viewName}" />
+											<spring:message code="info.data_manager.import.${viewName}" />
 										</div>
 										<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
 											id="form-${item.name}" enctype="multipart/form-data">

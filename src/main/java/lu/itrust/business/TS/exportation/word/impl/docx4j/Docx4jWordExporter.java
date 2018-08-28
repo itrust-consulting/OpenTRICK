@@ -165,7 +165,6 @@ public abstract class Docx4jWordExporter implements ExportReport {
 			synchronized (Docx4jWordExporter.class) {
 				if (docxFormatter == null)
 					docxFormatter = buildFormatter();
-
 			}
 
 		}
@@ -408,8 +407,10 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		generateGraphics();
 
 		updateProperties();
-
-		document.getContent().parallelStream().forEach(data -> getDocxFormatter().format(data, getType()));
+		
+		final Style defaultStyle = styles.get("TableTS");
+		
+		document.getContent().parallelStream().forEach(data -> getDocxFormatter().format(data, defaultStyle, getType()));
 
 		wordMLPackage.save(workFile);
 
@@ -1521,6 +1522,8 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		Style value = styles.get(styleId);
 		if (value != null)
 			table.getTblPr().getTblStyle().setVal(value.getName().getVal());
+		else
+			table.getTblPr().getTblStyle().setVal(styleId);
 		if (table.getTblPr().getJc() == null)
 			table.getTblPr().setJc(factory.createJc());
 		table.getTblPr().getJc().setVal(JcEnumeration.CENTER);

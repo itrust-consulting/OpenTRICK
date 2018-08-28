@@ -157,7 +157,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
 				TrickLogManager.Persist(e);
-				if (transaction != null)
+				if (transaction != null && transaction.getStatus().canRollback())
 					transaction.rollback();
 			} catch (Exception e1) {
 				TrickLogManager.Persist(e1);
@@ -167,7 +167,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 				this.error = e;
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));
 				TrickLogManager.Persist(e);
-				if (transaction != null)
+				if (transaction != null && transaction.getStatus().canRollback())
 					transaction.rollback();
 			} catch (Exception e1) {
 				TrickLogManager.Persist(e1);

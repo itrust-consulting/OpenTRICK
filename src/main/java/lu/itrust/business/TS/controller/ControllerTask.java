@@ -23,6 +23,7 @@ import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncResult;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 /**
@@ -129,7 +130,7 @@ public class ControllerTask {
 	@ResponseBody
 	public String stop(@PathVariable String id, Principal principal, Locale locale) {
 		serviceTaskFeedback.unregisterTask(principal.getName(), id);
-		return messageSource.getMessage("success.task.done", null, "Task was done successfully", locale);
+		return JsonMessage.Info(messageSource.getMessage("success.task.done", null, "Task was done successfully", locale));
 	}
 
 	/**

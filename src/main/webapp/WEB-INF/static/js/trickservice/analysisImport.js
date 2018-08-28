@@ -18,6 +18,7 @@ var DataManagerImport = {
 				processData: false,
 				success: function (response, textStatus, jqXHR) {
 					if (response.success) {
+						showDialog("success", response.success);
 						application["taskManager"].Start();
 						$view.modal("hide");
 					}

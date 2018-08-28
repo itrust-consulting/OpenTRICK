@@ -34,6 +34,8 @@ import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
@@ -255,108 +257,6 @@ public class ControllerDataManager {
 				analysis.getIdentifier(), analysis.getVersion());
 	}
 
-	@RequestMapping(value = "/Scenario/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportScenarioProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal, Locale locale) throws Exception {
-		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
-		exportScenario(analysis, spreadsheetMLPackage);
-		response.setContentType("xlsx");
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("Scenarios of %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-		updateTokenCookie(request, response);
-		spreadsheetMLPackage.save(response.getOutputStream());
-		// Log
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
-				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
-				analysis.getIdentifier(), analysis.getVersion());
-	}
-
-	private void exportScenario(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception {
-		final String name = "Scenarios";
-		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final String[] columns = { "Name", "Type", "Selected", "Description" };
-		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"), name, 1);
-		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		createHeader(worksheetPart, name, columns, analysis.getScenarios().size());
-		final Map<String, String> scenarioTypes = exportScenarioType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory, 2);
-		for (Scenario scenario : analysis.getScenarios()) {
-			Row row = factory.createRow();
-			for (int i = 0; i <= columns.length; i++) {
-				if (row.getC().size() < i)
-					row.getC().add(Context.smlObjectFactory.createCell());
-			}
-			setValue(row.getC().get(0), scenario.getName());
-			setValue(row.getC().get(1), scenarioTypes.getOrDefault(scenario.getType().getName(), scenario.getType().getName()));
-			setValue(row.getC().get(2), scenario.isSelected());
-			setValue(row.getC().get(3), scenario.getDescription());
-			sheet.getRow().add(row);
-		}
-	}
-
-	private Map<String, String> exportScenarioType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale, ObjectFactory factory, int index) throws Exception {
-		final String name = "Parameters";
-		final ScenarioType[] scenarioTypes = ScenarioType.values();
-		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + index + ".xml"), name, index);
-		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		createHeader(worksheetPart, name, new String[] { "Name", "Display name" }, scenarioTypes.length);
-		final Map<String, String> names = new LinkedHashMap<>(scenarioTypes.length);
-		for (ScenarioType scenarioType : ScenarioType.values()) {
-			String value = messageSource.getMessage("label.scenario.type." + scenarioType.getName().replaceAll("-", "_").toLowerCase(), null, scenarioType.getName(), locale);
-			names.put(scenarioType.getName(), value);
-			final Row row = factory.createRow();
-			setValue(row, 0, scenarioType.getName());
-			setValue(row, 1, value);
-			sheet.getRow().add(row);
-		}
-		return names;
-	}
-
-	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception, JAXBException {
-		final String name = "Assets";
-		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final boolean hidenComment = analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
-		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"), name, 1);
-		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		final String[] columns = hidenComment ? new String[] { "Name", "Type", "Selected", "Value", "Comment", "Hidden comment" }
-				: new String[] { "Name", "Type", "Selected", "Value", "Comment" };
-		createHeader(worksheetPart, name, columns, analysis.getAssets().size());
-		final Map<String, String> assetTypes = exportAssetType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory, 2);
-		for (Asset asset : analysis.getAssets()) {
-			Row row = factory.createRow();
-			for (int i = 0; i <= columns.length; i++) {
-				if (row.getC().size() < i)
-					row.getC().add(Context.smlObjectFactory.createCell());
-			}
-			setValue(row.getC().get(0), asset.getName());
-			setValue(row.getC().get(1), assetTypes.getOrDefault(asset.getAssetType().getName(), asset.getAssetType().getName()));
-			setValue(row.getC().get(2), asset.isSelected());
-			setValue(row.getC().get(3), asset.getValue() * 0.001);
-			setValue(row.getC().get(4), asset.getComment());
-			if (hidenComment)
-				setValue(row.getC().get(5), asset.getHiddenComment());
-			sheet.getRow().add(row);
-		}
-	}
-
-	private Map<String, String> exportAssetType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale, ObjectFactory factory, int index) throws JAXBException, Exception {
-		final String name = "Parameters";
-		final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + index + ".xml"), name, index);
-		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		final List<AssetType> assetTypes = serviceAssetType.getAll();
-		createHeader(worksheetPart, name, new String[] { "Name", "Display name" }, assetTypes.size());
-		final Map<String, String> names = new LinkedHashMap<>(assetTypes.size());
-		for (AssetType assetType : assetTypes) {
-			String value = messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale);
-			names.put(assetType.getName(), value);
-			final Row row = factory.createRow();
-			setValue(row, 0, assetType.getName());
-			setValue(row, 1, value);
-			sheet.getRow().add(row);
-		}
-		return names;
-	}
-
 	@GetMapping(value = "/Export", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
@@ -384,6 +284,8 @@ public class ControllerDataManager {
 
 		if (analysis.getAnalysisStandards().stream().anyMatch(AnalysisStandard::isSoaEnabled))
 			items.add(new DataManagerItem("soa", "/Analysis/Data-manager/SOA/Export-process", true));
+		items.sort((i1, i2) -> NaturalOrderComparator.compareTo(messageSource.getMessage("label.menu.data_manager.export." + i1.getName().replaceAll("-", "_"), null, locale),
+				messageSource.getMessage("label.menu.data_manager.export." + i2.getName().replaceAll("-", "_"), null, locale)));
 		model.addAttribute("items", items);
 		model.addAttribute("maxFileSize", maxUploadFileSize);
 		return "analyses/single/components/data-manager/export";
@@ -402,7 +304,8 @@ public class ControllerDataManager {
 		final boolean qualitative = analysis.isHybrid() || analysis.isQualitative();
 		final boolean rowColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 		final boolean uncertainty = analysis.isUncertainty();
-		assessmentAndRiskProfileManager.updateAssessment(analysis, new ValueFactory(analysis.getParameters()));
+		final ValueFactory factory = new ValueFactory(analysis.getParameters());
+		assessmentAndRiskProfileManager.updateAssessment(analysis, factory);
 		final List<ScaleType> scales = analysis.getImpacts();
 		final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 		final String[] columns = createTableHeader(scales, workbook, qualitative, hiddenComment, rowColumn, uncertainty);
@@ -458,7 +361,8 @@ public class ControllerDataManager {
 			}
 
 		}
-
+		exportAsset(analysis, mlPackage, hiddenComment);
+		exportScenario(analysis, mlPackage);
 		response.setContentType("xlsx");
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("Risk estimation for %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
@@ -503,6 +407,120 @@ public class ControllerDataManager {
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
 				String.format("Analysis: %s, version: %s, type: Measure data", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
 				analysis.getIdentifier(), analysis.getVersion());
+	}
+
+	@GetMapping(value = "/Report/Export-form/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
+		final Analysis analysis = serviceAnalysis.get(analysisId);
+		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
+		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+		analysis.getCustomer().getTemplates().stream()
+				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
+				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
+					reportTemplates.add(p);
+					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
+						p.setOutToDate(true);
+				});
+
+		if (analysis.isHybrid())
+			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
+		model.addAttribute("analysis", analysis);
+		model.addAttribute("templates", reportTemplates);
+		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
+		return "analyses/single/components/data-manager/export/report/modal";
+	}
+
+	@GetMapping(value = "/Report/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportReportForm(Model model, HttpSession session, Principal principal, Locale locale) {
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
+		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+		analysis.getCustomer().getTemplates().stream()
+				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
+				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
+					reportTemplates.add(p);
+					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
+						p.setOutToDate(true);
+				});
+
+		if (analysis.isHybrid())
+			model.addAttribute("items", new DataManagerItem[] { new DataManagerItem(AnalysisType.QUANTITATIVE.name(), "/Analysis/Data-manager/Report/Export-process", ".docx"),
+					new DataManagerItem(AnalysisType.QUALITATIVE.name(), "/Analysis/Data-manager/Report/Export-process", ".docx") });
+		else
+			model.addAttribute("item", new DataManagerItem(analysis.getType().name(), "/Analysis/Data-manager/Report/Export-process", ".docx"));
+
+		model.addAttribute("analysis", analysis);
+		model.addAttribute("templates", reportTemplates);
+		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
+		return "analyses/single/components/data-manager/export/report/home";
+	}
+
+	// *****************************************************************
+	// * reload customer section by pageindex
+	// *****************************************************************
+	/**
+	 * computeRiskRegister: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value = "/Report/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody String exportReportProcess(@RequestParam(name = "analysis") Integer analysisId, @ModelAttribute ExportWordReportForm form, HttpServletRequest request,
+			Principal principal, Locale locale) throws Exception {
+		try {
+			Integer customerId = serviceAnalysis.getCustomerIdByIdAnalysis(analysisId);
+			if (form.isInternal()) {
+				if (!serviceReportTemplate.isUseAuthorised(form.getTemplate(), customerId))
+					throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+				form.setType(serviceReportTemplate.findTypeById(form.getTemplate()));
+			} else {
+				if (form.getType() == null)
+					form.setType(serviceAnalysis.getAnalysisTypeById(analysisId));
+				if (form.getFile() == null)
+					return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
+			}
+
+			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
+				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
+
+			if (!form.isInternal()) {
+				long maxSize = Math.min(maxUploadFileSize, maxRefurbishReportSize);
+				if (form.getFile().getSize() > maxSize)
+					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
+				if (!DefaultReportTemplateLoader.isDocx(form.getFile().getInputStream()))
+					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
+			}
+
+			ExportReport exportAnalysisReport = form.getType() == AnalysisType.QUANTITATIVE
+					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
+					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
+			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			if (!form.isInternal()) {
+				exportAnalysisReport.setWorkFile(new File(
+						request.getServletContext().getRealPath("/WEB-INF/tmp") + "/Report-template-" + principal.getName() + "-" + UUID.randomUUID().toString() + ".docx"));
+				form.getFile().transferTo(exportAnalysisReport.getWorkFile());
+				exportAnalysisReport.getWorkFile().deleteOnExit();
+			}
+			exportAnalysisReport.setRefurbished(!form.isInternal());
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			if (e instanceof AccessDeniedException)
+				throw e;
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
 	}
 
 	@GetMapping("/Risk-information/Export-process")
@@ -692,6 +710,23 @@ public class ControllerDataManager {
 		new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).exportRawRRF(analysis, response, locale, callback);
 	}
 
+	@RequestMapping(value = "/Scenario/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportScenarioProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session, Principal principal, Locale locale) throws Exception {
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+		exportScenario(analysis, spreadsheetMLPackage);
+		response.setContentType("xlsx");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("Scenarios of %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+		updateTokenCookie(request, response);
+		spreadsheetMLPackage.save(response.getOutputStream());
+		// Log
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
+				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.EXPORT,
+				analysis.getIdentifier(), analysis.getVersion());
+	}
+
 	/**
 	 * getSOA: <br>
 	 * Description
@@ -742,118 +777,67 @@ public class ControllerDataManager {
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 	}
 
-	// *****************************************************************
-	// * reload customer section by pageindex
-	// *****************************************************************
 	/**
-	 * computeRiskRegister: <br>
+	 * importAnalysis: <br>
 	 * Description
 	 * 
-	 * @param analysisId
-	 * @param attributes
+	 * @param principal
+	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@PostMapping(value = "/Report/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody String exportReportProcess(@RequestParam(name = "analysis") Integer analysisId, @ModelAttribute ExportWordReportForm form, HttpServletRequest request,
+	@GetMapping(value = "/Sqlite/Import-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String importAnalysis(@RequestParam(name = "idCustomer") Integer idCustomer, Principal principal, Model model) throws Exception {
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
+		if (customer == null)
+			throw new AccessDeniedException("access denied");
+		model.addAttribute("maxFileSize", maxUploadFileSize);
+		model.addAttribute("customer", customer);
+		return "analyses/single/components/data-manager/import/sqlite";
+	}
+
+	/**
+	 * importAnalysisSave: <br>
+	 * Description
+	 * 
+	 * @param principal
+	 * @param customerId
+	 * @param request
+	 * @param file
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value = "/Sqlite/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object importAnalysisSave(@RequestParam(name = "customer") Integer idCustomer, @ModelAttribute ImportAnalysisForm form, Principal principal,
+			HttpServletRequest request, Locale locale) throws Exception {
+		// retrieve the customer
+		if (!serviceCustomer.hasAccess(principal.getName(), idCustomer))
+			throw new AccessDeniedException("access denied");
+		if (form.getFile().isEmpty())
+			return JsonMessage.Error(messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
+		else if (form.getFile().getSize() > maxUploadFileSize)
+			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
+		// the file to import
+		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".tsdb");
+		// create worker
+		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, idCustomer, principal.getName());
+		// register worker to tasklist
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		// transfer form file to java file
+		form.getFile().transferTo(importFile);
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("sucess.analysis.importing", null, "Please wait while importing your analysis", locale));
+	}
+
+	@PostMapping(value = "/Asset/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String importAssetProcess(@RequestParam(value = "file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
-		try {
-			Integer customerId = serviceAnalysis.getCustomerIdByIdAnalysis(analysisId);
-			if (form.isInternal()) {
-				if (!serviceReportTemplate.isUseAuthorised(form.getTemplate(), customerId))
-					throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-				form.setType(serviceReportTemplate.findTypeById(form.getTemplate()));
-			} else {
-				if (form.getType() == null)
-					form.setType(serviceAnalysis.getAnalysisTypeById(analysisId));
-				if (form.getFile() == null)
-					return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
-			}
-
-			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
-				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
-
-			if (!form.isInternal()) {
-				long maxSize = Math.min(maxUploadFileSize, maxRefurbishReportSize);
-				if (form.getFile().getSize() > maxSize)
-					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
-				if (!DefaultReportTemplateLoader.isDocx(form.getFile().getInputStream()))
-					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
-			}
-
-			ExportReport exportAnalysisReport = form.getType() == AnalysisType.QUANTITATIVE
-					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
-					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
-			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-			if (!form.isInternal()) {
-				exportAnalysisReport.setWorkFile(new File(
-						request.getServletContext().getRealPath("/WEB-INF/tmp") + "/Report-template-" + principal.getName() + "-" + UUID.randomUUID().toString() + ".docx"));
-				form.getFile().transferTo(exportAnalysisReport.getWorkFile());
-				exportAnalysisReport.getWorkFile().deleteOnExit();
-			}
-			exportAnalysisReport.setRefurbished(!form.isInternal());
-			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			if (e instanceof AccessDeniedException)
-				throw e;
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}
-	}
-
-	@GetMapping(value = "/Report/Export-form/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
-		final Analysis analysis = serviceAnalysis.get(analysisId);
-		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
-		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
-		analysis.getCustomer().getTemplates().stream()
-				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
-				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
-					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
-						p.setOutToDate(true);
-				});
-
-		if (analysis.isHybrid())
-			model.addAttribute("types", new AnalysisType[] { AnalysisType.QUANTITATIVE, AnalysisType.QUALITATIVE });
-		model.addAttribute("analysis", analysis);
-		model.addAttribute("templates", reportTemplates);
-		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
-		return "analyses/single/components/data-manager/export/report/modal";
-	}
-
-	@GetMapping(value = "/Report/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportReportForm(Model model, HttpSession session, Principal principal, Locale locale) {
-		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
-		final Map<String, String> versions = reportTemplates.stream().collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
-		analysis.getCustomer().getTemplates().stream()
-				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true : analysis.getType() == p.getType())
-				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
-					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
-						p.setOutToDate(true);
-				});
-
-		if (analysis.isHybrid())
-			model.addAttribute("items", new DataManagerItem[] { new DataManagerItem(AnalysisType.QUANTITATIVE.name(), "/Analysis/Data-manager/Report/Export-process", ".docx"),
-					new DataManagerItem(AnalysisType.QUALITATIVE.name(), "/Analysis/Data-manager/Report/Export-process", ".docx") });
-		else
-			model.addAttribute("item", new DataManagerItem(analysis.getType().name(), "/Analysis/Data-manager/Report/Export-process", ".docx"));
-
-		model.addAttribute("analysis", analysis);
-		model.addAttribute("templates", reportTemplates);
-		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
-		return "analyses/single/components/data-manager/export/report/home";
+		return importRisEstimation(true, false, file, request, model, session, principal, locale);
 	}
 
 	/**
@@ -870,15 +854,12 @@ public class ControllerDataManager {
 	public String importation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session, Principal principal, Locale locale) {
 		final Analysis analysis = serviceAnalysis.findByIdAndEager(idAnalysis);
 		final List<DataManagerItem> items = new LinkedList<>();
-		// items.add(new DataManagerItem("asset",
-		// "/Analysis/Data-manager/Asset/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", ".xls,.xlsx,.xlsm"));
 		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process", ".xls,.xlsx,.xlsm"));
 		if (!analysis.getAnalysisStandards().isEmpty())
 			items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Import-process", ".xls,.xlsx,.xlsm"));
-		if (!analysis.getAssessments().isEmpty())
-			items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", ".xls,.xlsx,.xlsm"));
-		// items.add(new DataManagerItem("scenario",
-		// "/Analysis/Data-manager/Scenario/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", ".xls,.xlsx,.xlsm"));
 		if (analysis.isQuantitative())
 			items.add(new DataManagerItem("rrf", "/Analysis/Data-manager/RRF/Import-form", null, null));
 		model.addAttribute("items", items);
@@ -890,23 +871,8 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String importEstimationProcess(@RequestParam(value = "file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
-		if (file.isEmpty())
-			return JsonMessage.Error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
-		if (file.getSize() > maxUploadFileSize)
-			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".xslx");
-		Worker worker = new WorkerImportEstimation(idAnalysis, principal.getName(), workFile, serviceTaskFeedback, workersPoolManager, sessionFactory);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		file.transferTo(workFile);
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation", null, "Importing of risk estimation data", locale));
+		return importRisEstimation(false, false, file, request, model, session, principal, locale);
 	}
-
-	///
-	/// Import part.
-	///
 
 	/**
 	 * manage analysis standards (manage menu)
@@ -1012,64 +978,15 @@ public class ControllerDataManager {
 				principal.getName(), locale);
 	}
 
-	/**
-	 * importAnalysis: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@GetMapping(value = "/Sqlite/Import-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String importAnalysis(@RequestParam(name = "idCustomer") Integer idCustomer, Principal principal, Model model) throws Exception {
-		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
-		if (customer == null)
-			throw new AccessDeniedException("access denied");
-		model.addAttribute("maxFileSize", maxUploadFileSize);
-		model.addAttribute("customer", customer);
-		return "analyses/single/components/data-manager/import/sqlite";
-	}
+	///
+	/// Import part.
+	///
 
-	// *****************************************************************
-	// * select or deselect analysis
-	// *****************************************************************
-
-	/**
-	 * importAnalysisSave: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param customerId
-	 * @param request
-	 * @param file
-	 * @param attributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@PostMapping(value = "/Sqlite/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object importAnalysisSave(@RequestParam(name = "customer") Integer idCustomer, @ModelAttribute ImportAnalysisForm form, Principal principal,
-			HttpServletRequest request, Locale locale) throws Exception {
-		// retrieve the customer
-		if (!serviceCustomer.hasAccess(principal.getName(), idCustomer))
-			throw new AccessDeniedException("access denied");
-		if (form.getFile().isEmpty())
-			return JsonMessage.Error(messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
-		else if (form.getFile().getSize() > maxUploadFileSize)
-			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
-		// the file to import
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".tsdb");
-		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, idCustomer, principal.getName());
-		// register worker to tasklist
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		// transfer form file to java file
-		form.getFile().transferTo(importFile);
-		// execute task
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("sucess.analysis.importing", null, "Please wait while importing your analysis", locale));
+	@PostMapping(value = "/Scenario/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String importScenarioProcess(@RequestParam(value = "file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
+		return importRisEstimation(false, true, file, request, model, session, principal, locale);
 	}
 
 	private String[] createTableHeader(List<ScaleType> scales, WorkbookPart workbook, boolean qualitative, boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
@@ -1078,6 +995,56 @@ public class ControllerDataManager {
 		for (int i = 0; i < columns.size(); i++)
 			result[i] = columns.get(i).getName();
 		return result;
+	}
+
+	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception, JAXBException {
+		final boolean hidenComment = analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
+		exportAsset(analysis, spreadsheetMLPackage, hidenComment);
+	}
+
+	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, final boolean hidenComment)
+			throws InvalidFormatException, JAXBException, Docx4JException, Exception {
+		final String name = "Assets";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final String[] columns = hidenComment ? new String[] { "Name", "Type", "Selected", "Value", "Comment", "Hidden comment" }
+				: new String[] { "Name", "Type", "Selected", "Value", "Comment" };
+		createHeader(worksheetPart, name, columns, analysis.getAssets().size());
+		final Map<String, String> assetTypes = exportAssetType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory);
+		for (Asset asset : analysis.getAssets()) {
+			Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0), asset.getName());
+			setValue(row.getC().get(1), assetTypes.getOrDefault(asset.getAssetType().getName(), asset.getAssetType().getName()));
+			setValue(row.getC().get(2), asset.isSelected());
+			setValue(row.getC().get(3), asset.getValue() * 0.001);
+			setValue(row.getC().get(4), asset.getComment());
+			if (hidenComment)
+				setValue(row.getC().get(5), asset.getHiddenComment());
+			sheet.getRow().add(row);
+		}
+	}
+
+	private Map<String, String> exportAssetType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale, ObjectFactory factory) throws JAXBException, Exception {
+		final String name = "AssetTypes";
+		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final List<AssetType> assetTypes = serviceAssetType.getAll();
+		createHeader(worksheetPart, name, new String[] { "Name", "Display name" }, assetTypes.size());
+		final Map<String, String> names = new LinkedHashMap<>(assetTypes.size());
+		for (AssetType assetType : assetTypes) {
+			String value = messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale);
+			names.put(assetType.getName(), value);
+			final Row row = factory.createRow();
+			setValue(row, 0, assetType.getName());
+			setValue(row, 1, value);
+			sheet.getRow().add(row);
+		}
+		return names;
 	}
 
 	private void exportMeasureStandard(ValueFactory valueFactory, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
@@ -1142,6 +1109,10 @@ public class ControllerDataManager {
 		}
 	}
 
+	// *****************************************************************
+	// * select or deselect analysis
+	// *****************************************************************
+
 	private void exportRawActionPlan(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, Locale locale) throws Exception {
 		ObjectFactory factory = Context.getsmlObjectFactory();
 		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
@@ -1161,6 +1132,47 @@ public class ControllerDataManager {
 			for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
 				sheet.getRow().add(writeActionPLanData(factory.createRow(), colCount, actionPlanEntry, expressionParameters, locale));
 		}
+	}
+
+	private void exportScenario(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception {
+		final String name = "Scenarios";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final String[] columns = { "Name", "Type", "Apply to", "Selected", "Description" };
+		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		createHeader(worksheetPart, name, columns, analysis.getScenarios().size());
+		final Map<String, String> scenarioTypes = exportScenarioType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory);
+		for (Scenario scenario : analysis.getScenarios()) {
+			Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0), scenario.getName());
+			setValue(row.getC().get(1), scenarioTypes.getOrDefault(scenario.getType().getName(), scenario.getType().getName()));
+			setValue(row.getC().get(2), scenario.isAssetLinked() ? "Asset" : "Asset type");
+			setValue(row.getC().get(3), scenario.isSelected());
+			setValue(row.getC().get(4), scenario.getDescription());
+			sheet.getRow().add(row);
+		}
+	}
+
+	private Map<String, String> exportScenarioType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale, ObjectFactory factory) throws Exception {
+		final String name = "ScenarioTypes";
+		final ScenarioType[] scenarioTypes = ScenarioType.values();
+		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		createHeader(worksheetPart, name, new String[] { "Name", "Display name" }, scenarioTypes.length);
+		final Map<String, String> names = new LinkedHashMap<>(scenarioTypes.length);
+		for (ScenarioType scenarioType : ScenarioType.values()) {
+			String value = messageSource.getMessage("label.scenario.type." + scenarioType.getName().replaceAll("-", "_").toLowerCase(), null, scenarioType.getName(), locale);
+			names.put(scenarioType.getName(), value);
+			final Row row = factory.createRow();
+			setValue(row, 0, scenarioType.getName());
+			setValue(row, 1, value);
+			sheet.getRow().add(row);
+		}
+		return names;
 	}
 
 	private String[] generateActionPlanColumns(final int count, ActionPlanMode type, Locale locale) {
@@ -1195,6 +1207,38 @@ public class ControllerDataManager {
 
 	private String[] getColumns(AnalysisStandard analysisStandard) {
 		return analysisStandard instanceof MaturityStandard ? Constant.MATURITY_MEASURE_COLUMNS : Constant.NORMAL_MEASURE_COLUMNS;
+	}
+
+	/**
+	 * Import full risk estimation: asset, risk scenario, risk estimation
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @param file
+	 * @param request
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	private String importRisEstimation(boolean asset, boolean scenario, MultipartFile file, HttpServletRequest request, Model model, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
+		if (file.isEmpty())
+			return JsonMessage.Error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
+		if (file.getSize() > maxUploadFileSize)
+			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".xslx");
+		Worker worker = new WorkerImportEstimation(idAnalysis, principal.getName(), workFile, serviceTaskFeedback, workersPoolManager, sessionFactory, asset, scenario);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		file.transferTo(workFile);
+		executor.execute(worker);
+		return asset ? JsonMessage.Success(messageSource.getMessage("success.start.import.asset", null, "Importing of assets data", locale))
+				: scenario ? JsonMessage.Success(messageSource.getMessage("success.start.import.risk.scenario", null, "Importing of risk scenarios data", locale))
+						: JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation", null, "Importing of risk estimations data", locale));
 	}
 
 	private void prepareTableHeader(AnalysisStandard analysisStandard, WorksheetPart worksheetPart, String[] columns) throws Exception {

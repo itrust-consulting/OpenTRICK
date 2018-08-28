@@ -295,7 +295,7 @@ public final class ExcelHelper {
 	}
 
 	public static String getString(SheetData sheet, int row, int cell, DataFormatter formatter) {
-		return sheet.getRow().size() > row ? getString(sheet.getRow().get(row), cell, formatter) : null;
+		return sheet.getRow().size() > row && row >= 0 ? getString(sheet.getRow().get(row), cell, formatter) : null;
 	}
 
 	public static Cell getCellAt(Row row, int index) {

@@ -281,7 +281,7 @@ public class RRF {
 		// check if not Division by 0
 		if (categoryDenominator == 0) {
 			throw new TrickException("error.scenario.rrf.compute.arithmetic_denominator_zero",
-					String.format("Please check scenario (%s) data: RRF is not a number", scenario.getName()), scenario.getName());
+					String.format("Please check RRF settings for scenario (%s)", scenario.getName()), scenario.getName());
 		}
 
 		// **************************************************************
