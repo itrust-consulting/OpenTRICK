@@ -11,7 +11,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<spring:message code='label.title.parameter'/>
+						<spring:message code='label.title.parameter' />
 					</h3>
 				</div>
 			</div>
@@ -38,11 +38,13 @@
 						<tr data-trick-class="SimpleParameter" class='editable'>
 							<c:forEach items="${mappedParameters['SINGLE']}" var="parameter">
 								<c:choose>
-									<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
-										<c:if test="${parameter.description!='max_rrf' or type.quantitative}">
-											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
-												onclick="return editField(this);" data-trick-callback='soaThresholdUpdate()'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
-										</c:if>
+									<c:when test="${parameter.description=='soaThreshold'}">
+										<td data-trick-id="${parameter.id}" data-name="soaThreshold" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
+											onclick="return editField(this);" data-trick-callback='soaThresholdUpdate()'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+									</c:when>
+									<c:when test="${parameter.description=='max_rrf'}">
+										<td data-trick-id="${parameter.id}" data-name="max_rrf" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
+											onclick="return editField(this);" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description== 'lifetime_default'}">
 										<td data-trick-id="${parameter.id}" data-trick-min-value='1e-19' class="textaligncenter" data-trick-field="value" data-trick-callback='updateMeasuresCost()'
@@ -57,7 +59,7 @@
 											onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:otherwise>
 								</c:choose>
-		
+
 							</c:forEach>
 						</tr>
 					</tbody>
@@ -88,8 +90,9 @@
 								<c:forEach items="${mappedParameters['CSSF']}" var="parameter">
 									<c:choose>
 										<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
-											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1' class="editable textaligncenter" data-trick-field="value"
-												data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1' class="editable textaligncenter"
+												data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
+													pattern="#" /></td>
 										</c:when>
 										<c:when test="${parameter.description== 'cssfCIASize' or parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
 											<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfSize" />
@@ -114,7 +117,7 @@
 					</table>
 				</fieldset>
 			</div>
-			
+
 			<div class="col-sm-3">
 				<fieldset>
 					<legend>
@@ -128,13 +131,14 @@
 							</tr>
 						</thead>
 						<tbody>
-							
+
 							<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
 								<c:if test="${parameter.level>0}">
 									<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
 										<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 										<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
-											data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+											data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message
+												text="${parameter.label}" /></td>
 									</tr>
 								</c:if>
 							</c:forEach>
@@ -160,7 +164,8 @@
 									<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 										<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 										<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
-											data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message text="${parameter.label}" /></td>
+											data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message
+												text="${parameter.label}" /></td>
 									</tr>
 								</c:if>
 							</c:forEach>

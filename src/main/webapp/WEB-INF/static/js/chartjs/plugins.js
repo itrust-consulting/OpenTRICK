@@ -484,7 +484,7 @@ function rffOptions(title) {
 				ticks : {
 					autoSkip : false,
 					min : 0,
-					max : 1,
+					max : application["maxRRF"] === undefined? 1: application["maxRRF"]*0.01,
 					userCallback : function(value, index, values) {
 						return application.percentageFormat.format(value);
 					}

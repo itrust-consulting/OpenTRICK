@@ -862,6 +862,8 @@ public class ControllerDataManager {
 		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Import-process", ".xls,.xlsx,.xlsm"));
 		if (analysis.isQuantitative())
 			items.add(new DataManagerItem("rrf", "/Analysis/Data-manager/RRF/Import-form", null, null));
+		items.sort((i1, i2) -> NaturalOrderComparator.compareTo(messageSource.getMessage("label.menu.data_manager.import." + i1.getName().replaceAll("-", "_"), null, locale),
+				messageSource.getMessage("label.menu.data_manager.import." + i2.getName().replaceAll("-", "_"), null, locale)));
 		model.addAttribute("items", items);
 		model.addAttribute("maxFileSize", maxUploadFileSize);
 		return "analyses/single/components/data-manager/import";

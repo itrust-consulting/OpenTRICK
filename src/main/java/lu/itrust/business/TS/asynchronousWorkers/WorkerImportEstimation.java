@@ -422,6 +422,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
 			serviceTaskFeedback.send(getId(), handler);
 		}
+		
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
+				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), getUsername(), LogAction.IMPORT,
+				analysis.getIdentifier(), analysis.getVersion());
 
 	}
 
@@ -685,6 +689,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 			serviceTaskFeedback.send(getId(), handler);
 
 		}
+		
+		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
+				String.format("Analysis: %s, version: %s, type: Scenario", analysis.getIdentifier(), analysis.getVersion()), getUsername(), LogAction.IMPORT,
+				analysis.getIdentifier(), analysis.getVersion());
 	}
 
 	private void updateAssetTypeValue(final List<AssetType> assetTypes, final Scenario scenario) {

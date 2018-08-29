@@ -10,6 +10,10 @@ function rrfError(message) {
 	return false;
 }
 
+function updateMaxRRF() {
+	application["maxRRF"] = parseInt($("td[data-name='max_rrf']","#section_parameter").text().replace(/\s/g,'').replace(",","."));
+}
+
 function loadRRF() {
 	var $progress = $("#loading-indicator").show();
 	$
@@ -25,6 +29,8 @@ function loadRRF() {
 					unknowError();
 					return false;
 				} else {
+					if(application["maxRRF"]===undefined)
+						updateMaxRRF();
 					$("#rrfEditor").replaceWith($rrfUI);
 
 					initialiseMeasureSliders();
@@ -109,6 +115,7 @@ function loadRRF() {
 					$rrfUI.on("hidden.bs.modal", (e) => {
 						if (window["rrf-chart"]) {
 							window["rrf-chart"].destroy();
+							
 							delete window["rrf-chart"];
 						}
 					})
