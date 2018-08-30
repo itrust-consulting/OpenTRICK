@@ -93,14 +93,14 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	@Override
 	public void exportToWordDocument(Analysis analysis, ReportTemplate reportTemplate) throws Exception {
-		setMixte(analysis.isQualitative() && (boolean) analysis.getSetting(AnalysisSetting.ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT));
+		setMixte(analysis.isQualitative() && (boolean) analysis.findSetting(AnalysisSetting.ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT));
 		super.exportToWordDocument(analysis, reportTemplate);
 	}
 
 	@Override
 	protected void generateActionPlan() throws Exception {
 		P paragraph = findTableAnchor("ActionPlan");
-		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
+		List<ActionPlanEntry> actionplan = analysis.findActionPlan(ActionPlanMode.APPN);
 		if (!(paragraph == null || actionplan.isEmpty())) {
 			setCurrentParagraphId(TS_TAB_TEXT_2);
 			TextAlignment alignment = createAlignment("left"), alignmentCenter = createAlignment("center");
@@ -161,7 +161,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 		final List<SummaryStage> summary = getSummaryStage();
-		final List<String> collectionNames = analysis.getStandards().stream()
+		final List<String> collectionNames = analysis.findStandards().stream()
 				.map(c -> c.is(Constant.STANDARD_27001) ? Constant.STANDARD_27001 : c.is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getLabel())
 				.sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
 		final Tbl table = createTable("TableTSSummary", 26 + computeSommuryLength(collectionNames), summary.size() + 1);
@@ -302,7 +302,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 		P paragraphOrigin = findTableAnchor("Assessment");
 
-		List<Assessment> assessments = analysis.getSelectedAssessments();
+		List<Assessment> assessments = analysis.findSelectedAssessments();
 
 		Collections.sort(assessments, new AssessmentComparator());
 
@@ -701,7 +701,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	private void generateALEByAssetTypeGraphic() throws Exception {
-		List<Assessment> assessments = analysis.getSelectedAssessments();
+		List<Assessment> assessments = analysis.findSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
@@ -716,7 +716,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	}
 
 	private void generateALEByScenarioGraphic() throws Exception {
-		List<Assessment> assessments = analysis.getSelectedAssessments();
+		List<Assessment> assessments = analysis.findSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getScenario().getId());
@@ -730,7 +730,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	private void generateALEByScenarioTypeGraphic() throws Exception {
 
-		List<Assessment> assessments = analysis.getSelectedAssessments();
+		List<Assessment> assessments = analysis.findSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -768,7 +768,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 
 	private void generateALEByAssetGraphic() throws Exception {
 
-		List<Assessment> assessments = analysis.getSelectedAssessments();
+		List<Assessment> assessments = analysis.findSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getAsset().getId());

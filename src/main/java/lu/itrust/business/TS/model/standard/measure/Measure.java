@@ -625,11 +625,11 @@ public abstract class Measure implements Cloneable {
 		// * select external and internal setup rate from parameters
 		// ****************************************************************
 
-		internalSetupValue = analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		internalSetupValue = analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
-		externalSetupValue = analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		externalSetupValue = analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
-		lifetimeDefault = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		lifetimeDefault = analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
 		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),

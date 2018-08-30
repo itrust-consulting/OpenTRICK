@@ -340,14 +340,14 @@ public class ControllerAssessment {
 
 	private void loadAnalysisSettings(Model model, Analysis analysis) {
 		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
-		model.addAttribute("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
-		model.addAttribute("showRawColumn", analysis.getSetting(rawSetting));
-		model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
+		model.addAttribute("showHiddenComment", analysis.findSetting(hiddenCommentSetting));
+		model.addAttribute("showRawColumn", analysis.findSetting(rawSetting));
+		model.addAttribute("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 	}
 
 	private void loadAssessmentData(Model model, Locale locale, Analysis analysis) {
 		model.addAttribute("valueFactory", new ValueFactory(analysis.getParameters()));
-		model.addAttribute("impactTypes", analysis.getImpacts());
+		model.addAttribute("impactTypes", analysis.findImpacts());
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("language", locale.getISO3Country());
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
@@ -376,7 +376,7 @@ public class ControllerAssessment {
 			model.addAttribute("computedExpImportance", colorBounds.stream().filter(v -> v.isAccepted(expImportance))
 					.map(v -> new FieldValue("importance", expImportance, v.getLabel(), null, v.getColor())).findAny().orElse(new FieldValue("importance", expImportance)));
 
-			if (analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN).equals(true)) {
+			if (analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN).equals(true)) {
 				Integer rawImportance = riskProfile.getComputedRawImportance();
 				model.addAttribute("computedRawImportance", colorBounds.stream().filter(v -> v.isAccepted(rawImportance))
 						.map(v -> new FieldValue("importance", rawImportance, v.getLabel(), null, v.getColor())).findAny().orElse(new FieldValue("importance", rawImportance)));

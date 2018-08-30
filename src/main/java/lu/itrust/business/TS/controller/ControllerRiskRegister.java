@@ -94,9 +94,9 @@ public class ControllerRiskRegister {
 	
 	private void loadAnalysisSettings(Map<String, Object> model, Analysis analysis) {
 		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
-		model.put("showHiddenComment", analysis.getSetting(hiddenCommentSetting));
-		model.put("showRawColumn", analysis.getSetting(rawSetting));
-		model.put("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
+		model.put("showHiddenComment", analysis.findSetting(hiddenCommentSetting));
+		model.put("showRawColumn", analysis.findSetting(rawSetting));
+		model.put("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 	}
 
 	@Value("${app.settings.risk_sheet.french.template.name}")

@@ -51,7 +51,7 @@ public class SwitchAnalysisOwnerHelper {
 		User previousOwner = analysis.getOwner();
 		analysis.setOwner(owner);
 		AnalysisRight right = null; // for log
-		UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(owner);
+		UserAnalysisRight userAnalysisRight = analysis.findRightsforUser(owner);
 		if (userAnalysisRight == null)
 			analysis.addUserRight(owner, AnalysisRight.ALL);
 		else if ((right = userAnalysisRight.getRight()) != AnalysisRight.ALL)

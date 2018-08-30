@@ -142,7 +142,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@Override
 	public List<Standard> getAllFromAnalysis(Analysis analysis) {
-		return analysis.getStandards();
+		return analysis.findStandards();
 	}
 
 	/**

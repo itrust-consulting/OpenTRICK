@@ -320,7 +320,7 @@ public class MeasureManager {
 	public void removeStandardFromAnalysis(Integer idAnalysis, int idStandard) throws Exception {
 		Analysis analysis = daoAnalysis.findByIdAndEager(idAnalysis);
 
-		AnalysisStandard analysisStandard = analysis.getAnalysisStandardByStandardId(idStandard);
+		AnalysisStandard analysisStandard = analysis.findAnalysisStandardByStandardId(idStandard);
 
 		analysis.removeAnalysisStandard(analysisStandard);
 

@@ -300,13 +300,13 @@ public class ControllerDataManager {
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Risk estimation");
 		final SheetData sheetData = worksheetPart.getContents().getSheetData();
-		final boolean hiddenComment = analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
+		final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
 		final boolean qualitative = analysis.isHybrid() || analysis.isQualitative();
-		final boolean rowColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+		final boolean rowColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 		final boolean uncertainty = analysis.isUncertainty();
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
 		assessmentAndRiskProfileManager.updateAssessment(analysis, factory);
-		final List<ScaleType> scales = analysis.getImpacts();
+		final List<ScaleType> scales = analysis.findImpacts();
 		final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 		final String[] columns = createTableHeader(scales, workbook, qualitative, hiddenComment, rowColumn, uncertainty);
 		createHeader(worksheetPart, "Risk_estimation", columns, analysis.getAssessments().size());
@@ -380,7 +380,7 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session,#principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportMeasureForm(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		model.addAttribute("standards", analysis.getStandards());
+		model.addAttribute("standards", analysis.findStandards());
 		model.addAttribute("item", new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Export-process"));
 		return "analyses/single/components/data-manager/export/measure";
 	}
@@ -1000,7 +1000,7 @@ public class ControllerDataManager {
 	}
 
 	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception, JAXBException {
-		final boolean hidenComment = analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
+		final boolean hidenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
 		exportAsset(analysis, spreadsheetMLPackage, hidenComment);
 	}
 
@@ -1124,7 +1124,7 @@ public class ControllerDataManager {
 		for (int i = 0; i < types.length; i++) {
 			final ActionPlanMode type = types[i];
 			final int colCount = type == ActionPlanMode.APPN ? 21 : 19;
-			final List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlan(type);
+			final List<ActionPlanEntry> actionPlanEntries = analysis.findActionPlan(type);
 			if (actionPlanEntries.isEmpty())
 				continue;
 			final String name = messageSource.getMessage("label.title.plan_type." + type.getName().toLowerCase(), null, type.getName(), locale);

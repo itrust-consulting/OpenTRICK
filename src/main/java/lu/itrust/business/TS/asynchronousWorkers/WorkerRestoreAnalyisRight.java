@@ -177,7 +177,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 		for (Analysis analysis : analyses) {
 			if (previous != null) {
 				previous.getUserRights().forEach(analysisRight -> {
-					UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(analysisRight.getUser());
+					UserAnalysisRight userAnalysisRight = analysis.findRightsforUser(analysisRight.getUser());
 					if (userAnalysisRight != null && userAnalysisRight.getRight() != analysisRight.getRight()) {
 						AnalysisRight old = userAnalysisRight.getRight();
 						userAnalysisRight.setRight(analysisRight.getRight());

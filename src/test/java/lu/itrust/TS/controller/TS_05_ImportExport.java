@@ -258,7 +258,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public void test_04_CheckActionPlanSummary() throws Exception {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
 		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
-		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
+		List<SummaryStage> summaryStages = analysis.findSummary(ActionPlanMode.APPN);
 		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildRawData(summaryStages, analysis.getPhases());
 		Map<String, Object[]> exceptedResults = new LinkedHashMap<String, Object[]>();
 

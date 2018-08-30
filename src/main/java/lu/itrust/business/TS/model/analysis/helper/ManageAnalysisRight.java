@@ -77,7 +77,7 @@ public class ManageAnalysisRight {
 			if (analysis.getOwner().equals(user) && !AnalysisRight.isValid(useraccess))
 				continue;
 
-			UserAnalysisRight uar = analysis.getRightsforUser(user);
+			UserAnalysisRight uar = analysis.findRightsforUser(user);
 			if (uar != null) {
 				if (useraccess == -1) {
 					analysis.getUserRights().remove(uar);
@@ -140,7 +140,7 @@ public class ManageAnalysisRight {
 			if (rightForm.getNewRight() == null)
 				removeRight(principal, analysis, user);
 			else {
-				UserAnalysisRight userRight = analysis.getRightsforUser(user);
+				UserAnalysisRight userRight = analysis.findRightsforUser(user);
 				if (userRight == null)
 					giveAccess(principal.getName(), analysis, rightForm, user);
 				else

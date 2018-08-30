@@ -875,7 +875,7 @@ public class ImportAnalysis {
 			// * check if analysis and version exists
 			// ****************************************************************
 
-			history = this.analysis.getAHistory(i);
+			history = this.analysis.getHistories().get(i);
 
 			// check if analysis with this version does NOT already exist -> YES
 			if (!daoAnalysis.exists(this.analysis.getIdentifier(), history.getVersion())) {
@@ -908,7 +908,6 @@ public class ImportAnalysis {
 				analysis.editUserRight(this.analysis.getOwner(), AnalysisRight.ALL);
 				// add history entries to this history entry
 				for (int j = 0; j <= i; j++) {
-
 					// clone history entry and add it to the list of history
 					// entries
 					analysis.addAHistory((History) this.analysis.getHistories().get(j).duplicate());
@@ -1826,8 +1825,8 @@ public class ImportAnalysis {
 						|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
 
 					// calculate cost
-					cost = Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-							this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
+					cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
+							this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
 							rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"), rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL),
 							rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), rs.getInt(Constant.MEASURE_LIFETIME));
 				} else {
@@ -2272,8 +2271,8 @@ public class ImportAnalysis {
 				measure.getMeasureDescription().setComputable(measurecomputable);
 
 				// calculate cost
-				cost = Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-						this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+				cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+						this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT), measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 						measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 
 				measure.setCost(cost);

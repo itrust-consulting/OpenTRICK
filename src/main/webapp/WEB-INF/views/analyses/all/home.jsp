@@ -136,7 +136,7 @@
 					<tbody>
 						<c:forEach items="${analyses}" var="analysis">
 							<tr class='${analysis.archived?"text-muted":""}' data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-archived='${analysis.archived}'
-								data-is-linked='${not empty analysis.project}' data-trick-type='${analysis.type}' data-trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"
+								data-is-linked='${not empty analysis.project}' data-trick-type='${analysis.type}' data-trick-rights-id="${analysis.findRightsforUserString(login).right.ordinal()}"
 								ondblclick="return editSingleAnalysis(${analysis.id});" data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><c:choose>
@@ -179,7 +179,7 @@
 									</c:when>
 								</c:choose>
 								<td><spring:message text="${analysis.language.name}" /></td>
-								<c:set var="right" value="${analysis.getRightsforUserString(login).right}" />
+								<c:set var="right" value="${analysis.findRightsforUserString(login).right}" />
 								<td><spring:message code="label.analysis.right.${fn:toLowerCase(right)}" text="${fn:replace(right,'_', ' ')}" /></td>
 							</tr>
 						</c:forEach>

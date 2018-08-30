@@ -456,7 +456,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		riskProfileManager.updateAssessment(analysis, factory);
 		final boolean qualitative = analysis.isQualitative();
 		final List<IValue> valuesToDelete = new LinkedList<>();
-		final List<ScaleType> scaleTypes = analysis.getImpacts();
+		final List<ScaleType> scaleTypes = analysis.findImpacts();
 		final Map<String, String> columnsMapper = generateColumns(scaleTypes, qualitative, true, true, true).stream()
 				.collect(Collectors.toMap(s -> s.getName().toLowerCase(), Column::getName));
 		final Map<String, Assessment> assessments = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));

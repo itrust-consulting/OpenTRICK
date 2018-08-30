@@ -23,6 +23,7 @@ import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisUtils;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
@@ -323,7 +324,7 @@ public class AssessmentAndRiskProfileManager {
 	 */
 	public static void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
 		List<Asset> assets = analysis.findSelectedAsset();
-		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
+		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.getAssessments().stream().filter(a-> a.isSelected()).collect(Collectors.groupingBy(a-> a.getAsset().getId()));
 		try {
 			if (factory == null)
 				factory = new ValueFactory(analysis.getParameters());
@@ -567,7 +568,7 @@ public class AssessmentAndRiskProfileManager {
 		Map<Integer, ALE[]>[] ales = new LinkedHashMap[2];
 		for (int i = 0; i < 2; i++)
 			ales[i] = new LinkedHashMap<Integer, ALE[]>();
-		Map<Integer, List<Assessment>>[] assessments = Analysis.MappedSelectedAssessment(analysis.getAssessments());
+		Map<Integer, List<Assessment>>[] assessments = AnalysisUtils.MappedSelectedAssessment(analysis.getAssessments());
 		for (Asset asset : analysis.getAssets()) {
 			ALE[] ales2 = new ALE[3];
 			for (int i = 0; i < ales2.length; i++)
@@ -609,7 +610,7 @@ public class AssessmentAndRiskProfileManager {
 
 	public static Map<Integer, ALE[]> ComputeAssetALE(List<Asset> assets, List<Assessment> assessments2) {
 		Map<Integer, ALE[]> ales = new LinkedHashMap<>();
-		Map<Integer, List<Assessment>> assessments = Analysis.MappedSelectedAssessmentByAsset(assessments2);
+		Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByAsset(assessments2);
 		for (Asset asset : assets) {
 			ALE[] ales2 = new ALE[3];
 			for (int i = 0; i < ales2.length; i++)
@@ -623,7 +624,7 @@ public class AssessmentAndRiskProfileManager {
 
 	public static Map<Integer, ALE[]> ComputeScenarioALE(List<Scenario> scenarios, List<Assessment> assessments2) {
 		Map<Integer, ALE[]> ales = new LinkedHashMap<>();
-		Map<Integer, List<Assessment>> assessments = Analysis.MappedSelectedAssessmentByScenario(assessments2);
+		Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByScenario(assessments2);
 		for (Scenario scenario : scenarios) {
 			ALE[] ales2 = new ALE[3];
 			for (int i = 0; i < ales2.length; i++)

@@ -58,7 +58,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@Override
 	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) {
-		return analysis.getRightsforUser(user);
+		return analysis.findRightsforUser(user);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@Override
 	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) {
-		return analysis.getRightsforUser(user).getRight();
+		return analysis.findRightsforUser(user).getRight();
 	}
 
 	/**

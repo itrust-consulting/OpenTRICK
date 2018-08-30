@@ -390,7 +390,7 @@ public class CustomDelete {
 						if (owner == null || analysis == null)
 							throw new TrickException("error.action.not_authorise", "Action does not authorised");
 						switchAnalysisOwnerHelper.switchOwner(principal, analysis, owner);
-						UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(user);
+						UserAnalysisRight userAnalysisRight = analysis.findRightsforUser(user);
 						if (userAnalysisRight != null && analysis.getUserRights().remove(userAnalysisRight))
 							daoUserAnalysisRight.delete(userAnalysisRight);
 					} catch (TrickException e) {

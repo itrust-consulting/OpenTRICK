@@ -313,7 +313,7 @@ public class ControllerPatch {
 
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-				List<NormalStandard> normalStandards = analysis.getAllNormalStandards();
+				List<NormalStandard> normalStandards = analysis.findAllNormalStandards();
 
 				List<AssetType> assetTypes = serviceAssetType.getAll();
 

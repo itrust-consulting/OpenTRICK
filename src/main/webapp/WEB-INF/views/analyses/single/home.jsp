@@ -14,7 +14,7 @@
 <html lang="${language}">
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <jsp:include page="../../template/header.jsp" />
-<c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}" />
+<c:set var="canModify" value="${analysis.profile or analysis.findRightsforUserString(login).right.ordinal()<3}" />
 <body>
 	<div id="wrap" class="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
@@ -23,7 +23,7 @@
 		<div class="container" data-ug-root="analysis">
 			<jsp:include page="menu.jsp" />
 			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis"
-				data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}" data-trick-language="${locale.language}">
+				data-trick-rights-id="${analysis.profile? 0 : analysis.findRightsforUserString(login).right.ordinal()}" data-trick-language="${locale.language}">
 				<c:if test="${!isProfile}">
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
@@ -33,7 +33,7 @@
 					<jsp:include page="./components/itemInformation.jsp" />
 				</c:if>
 				<c:if test="${type.qualitative}">
-					<c:set var="impactTypes" value="${analysis.impacts}" scope="request" />
+					<c:set var="impactTypes" value="${analysis.findImpacts()}" scope="request" />
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 				<jsp:include page="./components/parameters/home.jsp" />

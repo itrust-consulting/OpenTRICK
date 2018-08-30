@@ -40,9 +40,9 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		setPhases(new ArrayList<>());
 		setCurrentValues(new SummaryValues(analysisStandards));
 		setPreMaintenance(new MaintenanceRecurrentInvestment());
-		setInternalSetupRate(analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE));
-		setExternalSetupRate(analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
-		setSoa(analysis.getParameter(Constant.SOA_THRESHOLD, 100));
+		setInternalSetupRate(analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE));
+		setExternalSetupRate(analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
+		setSoa(analysis.findParameter(Constant.SOA_THRESHOLD, 100));
 		generatePreMaintenance(analysisStandards);
 	}
 
@@ -55,7 +55,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 	 */
 	@Override
 	public void compute(ActionPlanMode mode) {
-		setActionPlans(getAnalysis().getActionPlan(mode));
+		setActionPlans(getAnalysis().findActionPlan(mode));
 		if (getActionPlans().isEmpty())
 			return;
 		resetClassData();

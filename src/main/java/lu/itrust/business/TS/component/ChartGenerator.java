@@ -1308,7 +1308,7 @@ public class ChartGenerator {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Integer> importanceByCount = new LinkedHashMap<>();
-		for (Assessment assessment : analysis.getSelectedAssessments()) {
+		for (Assessment assessment : analysis.findSelectedAssessments()) {
 			Integer impact = factory.findImpactLevel(assessment.getImpacts()), probability = factory.findProbLevel(assessment.getLikelihood());
 			if (impact == 0 || probability == 0)
 				continue;

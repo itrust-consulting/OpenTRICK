@@ -168,7 +168,7 @@ public class ControllerRiskEvolution {
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
 		ALEChart[] chartData = new ALEChart[analyses.size()];
 		for (Analysis analysis : analyses) {
-			List<Assessment> assessments = analysis.getSelectedAssessments();
+			List<Assessment> assessments = analysis.findSelectedAssessments();
 			Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 			List<ALE> ales = new LinkedList<ALE>();
 			for (Assessment assessment : assessments) {
@@ -208,7 +208,7 @@ public class ControllerRiskEvolution {
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
 		ALEChart[] charts = new ALEChart[analyses.size()];
 		for (Analysis analysis : analyses) {
-			List<Assessment> assessments = analysis.getSelectedAssessments();
+			List<Assessment> assessments = analysis.findSelectedAssessments();
 			Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 			List<ALE> ales = new LinkedList<ALE>();
 			for (Assessment assessment : assessments) {
@@ -233,7 +233,7 @@ public class ControllerRiskEvolution {
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
 		ALEChart[] chartData = new ALEChart[analyses.size()];
 		for (Analysis analysis : analyses) {
-			List<Assessment> assessments = analysis.getSelectedAssessments();
+			List<Assessment> assessments = analysis.findSelectedAssessments();
 			Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 			List<ALE> ales = new LinkedList<ALE>();
 			for (Assessment assessment : assessments) {
@@ -273,7 +273,7 @@ public class ControllerRiskEvolution {
 		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
 		ALEChart[] charts = new ALEChart[analyses.size()];
 		for (Analysis analysis : analyses) {
-			List<Assessment> assessments = analysis.getSelectedAssessments();
+			List<Assessment> assessments = analysis.findSelectedAssessments();
 			Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 			List<ALE> ales = new LinkedList<ALE>();
 			for (Assessment assessment : assessments) {

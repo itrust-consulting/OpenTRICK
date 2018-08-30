@@ -3,7 +3,6 @@ package lu.itrust.business.TS.model.analysis;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -473,7 +472,7 @@ public class Analysis implements Cloneable {
 	public UserAnalysisRight addUserRight(User user, AnalysisRight right) {
 		if (user == null)
 			return null;
-		UserAnalysisRight userAnalysisRight = getRightsforUser(user);
+		UserAnalysisRight userAnalysisRight = findRightsforUser(user);
 		if (userAnalysisRight == null)
 			this.userRights.add(userAnalysisRight = new UserAnalysisRight(this, user, right));
 		else if (right == null)
@@ -525,11 +524,11 @@ public class Analysis implements Cloneable {
 		// * select external and internal setup rate from parameters
 		// ****************************************************************
 
-		internalSetupValue = this.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		internalSetupValue = this.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
-		externalSetupValue = this.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		externalSetupValue = this.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
-		lifetimeDefault = this.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		lifetimeDefault = this.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
 		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
@@ -629,22 +628,65 @@ public class Analysis implements Cloneable {
 		return true;
 	}
 
-	public Assessment findAssessmentByAssetAndScenario(int idAsset, int idScenario) {
-		return assessments.stream().filter(assessment -> assessment.is(idAsset, idScenario)).findAny().orElse(null);
+	/***********************************************************************************************
+	 * Computation of Measure Cost - END
+	 **********************************************************************************************/
+
+	public List<NormalStandard> findAllNormalStandards() {
+		List<NormalStandard> normalStandards = new ArrayList<NormalStandard>();
+		for (AnalysisStandard standard : analysisStandards)
+			if (standard instanceof NormalStandard)
+				normalStandards.add((NormalStandard) standard);
+		return normalStandards;
 	}
 
-	public Map<Integer, List<Assessment>> findAssessmentByAssetAndSelected() {
-		Map<Integer, List<Assessment>> assessmentSorted = new LinkedHashMap<Integer, List<Assessment>>();
-		for (Assessment assessment : assessments) {
-			if (assessment.isSelected()) {
-				int assetId = assessment.getAsset().getId();
-				List<Assessment> assessments = assessmentSorted.get(assetId);
-				if (assessments == null)
-					assessmentSorted.put(assetId, assessments = new ArrayList<Assessment>());
-				assessments.add(assessment);
+	/**
+	 * getAnalysisStandards: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<AnalysisStandard> findAnalysisOnlyStandards() {
+		return analysisStandards.stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
+
+	}
+
+	/**
+	 * getAnalysisStandardByLabel: <br>
+	 * Description
+	 * 
+	 * @param label
+	 * @return
+	 */
+	public AnalysisStandard findAnalysisStandardByLabel(String label) {
+		for (AnalysisStandard analysisStandard : this.analysisStandards) {
+			if (analysisStandard.getStandard().is(label)) {
+				return analysisStandard;
 			}
 		}
-		return assessmentSorted;
+		return null;
+	}
+
+	public AnalysisStandard findAnalysisStandardByStandardId(Integer standardID) {
+		for (AnalysisStandard standard : analysisStandards)
+			if (standard.getStandard().getId() == standardID)
+				return standard;
+		return null;
+	}
+
+	public Map<Asset, List<Assessment>> findAssessmentByAsset() {
+		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = mapping.get(assessment.getAsset());
+			if (assessments == null)
+				mapping.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+		return mapping;
+	}
+
+	public Assessment findAssessmentByAssetAndScenario(int idAsset, int idScenario) {
+		return assessments.stream().filter(assessment -> assessment.is(idAsset, idScenario)).findAny().orElse(null);
 	}
 
 	public Map<Integer, Assessment> findAssessmentByAssetId(int id) {
@@ -746,17 +788,6 @@ public class Analysis implements Cloneable {
 
 	public IParameter findParameter(String type, String baseKey) {
 		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.isMatch(type, baseKey)).findAny().orElse(null);
-	}
-
-	@Deprecated
-	public IProbabilityParameter findParameterByTypeAndAcronym(String type, String acronym) {
-		return (IProbabilityParameter) findParameter(type, acronym);
-	}
-
-	@Deprecated
-	public IParameter findParameterByTypeAndDescription(String typeLabel, String description) {
-		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(p -> p.getTypeName().equals(typeLabel) && p.getDescription().equals(description))
-				.findAny().orElse(null);
 	}
 
 	public List<? extends IParameter> findParametersByType(String type) {
@@ -864,6 +895,7 @@ public class Analysis implements Cloneable {
 		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
 	}
 
+
 	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
 		return this.analysisStandards.stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
 				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
@@ -902,7 +934,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
-	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
+	public List<ActionPlanEntry> findActionPlan(ActionPlanMode mode) {
 		return this.actionPlans.stream().filter(actionPlan -> actionPlan.getActionPlanType().getActionPlanMode() == mode).collect(Collectors.toList());
 	}
 
@@ -914,7 +946,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
-	public List<ActionPlanEntry> getActionPlan(String mode) {
+	public List<ActionPlanEntry> findActionPlan(String mode) {
 
 		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
 		for (int i = 0; i < this.actionPlans.size(); i++) {
@@ -938,108 +970,6 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * getAHistory: <br>
-	 * Returns a History Entry at position "index" from the History List.
-	 * 
-	 * @param index The Position to retrieve the Object
-	 * 
-	 * @return The Histroy Object at position "index"
-	 */
-	public History getAHistory(int index) {
-		return histories.get(index);
-	}
-
-	/**
-	 * getALEOfAsset: <br>
-	 * Returns the Sum of ALE from Assessments for the given Asset.
-	 * 
-	 * @param asset The Asset to get ALE from
-	 * @return The Total ALE of the Asset
-	 * @throws TrickException
-	 */
-	public double getALEOfAsset(Asset asset) throws TrickException {
-
-		// initialise return value
-		double result = 0;
-
-		// check if asset exists and if assessments are not empty
-		if (asset == null)
-			throw new TrickException("error.ale.asset_null", "Asset cannot be empty");
-		if (this.assessments.isEmpty())
-			throw new TrickException("error.ale.Assessments_empty", "Assessment cannot be empty");
-		// parse assessments
-		for (Assessment assessment : assessments) {
-
-			// check if current Asset equals Asset parameter
-			if (assessment.getAsset().equals(asset)) {
-
-				// sum the ALE value
-				result += assessment.getALE();
-			}
-		}
-
-		// return the result
-		return result;
-	}
-
-	/***********************************************************************************************
-	 * Computation of Measure Cost - END
-	 **********************************************************************************************/
-
-	public List<NormalStandard> getAllNormalStandards() {
-		List<NormalStandard> normalStandards = new ArrayList<NormalStandard>();
-		for (AnalysisStandard standard : analysisStandards)
-			if (standard instanceof NormalStandard)
-				normalStandards.add((NormalStandard) standard);
-		return normalStandards;
-	}
-
-	/**
-	 * getAnalysisStandards: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public List<AnalysisStandard> getAnalysisOnlyStandards() {
-		return analysisStandards.stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
-
-	}
-
-	/**
-	 * getAnalysisStandard: <br>
-	 * Description
-	 * 
-	 * @param index
-	 * @return
-	 */
-	public AnalysisStandard getAnalysisStandard(int index) {
-		return analysisStandards.get(index);
-	}
-
-	/**
-	 * getAnalysisStandardByLabel: <br>
-	 * Description
-	 * 
-	 * @param label
-	 * @return
-	 */
-	public AnalysisStandard getAnalysisStandardByLabel(String label) {
-		for (AnalysisStandard analysisStandard : this.analysisStandards) {
-			if (analysisStandard.getStandard().is(label)) {
-				return analysisStandard;
-			}
-		}
-		return null;
-	}
-
-	public AnalysisStandard getAnalysisStandardByStandardId(Integer standardID) {
-		for (AnalysisStandard standard : analysisStandards)
-			if (standard.getStandard().getId() == standardID)
-				return standard;
-		return null;
-	}
-
-	/**
 	 * getAnalysisStandards: <br>
 	 * Description
 	 * 
@@ -1047,113 +977,6 @@ public class Analysis implements Cloneable {
 	 */
 	public List<AnalysisStandard> getAnalysisStandards() {
 		return analysisStandards;
-	}
-
-	/**
-	 * getAnAssessment: <br>
-	 * Returns an Assessment from the List of Assessment at position "index"
-	 * 
-	 * @param index The Position to retrieve the Object
-	 * 
-	 * @return The Assessment Object at position "index"
-	 */
-	public Assessment getAnAssessment(int index) {
-		return assessments.get(index);
-	}
-
-	/**
-	 * getAnAsset: <br>
-	 * Returns an Asset from the List of Asset at position "index"
-	 * 
-	 * @param index The Position to retrieve the Object
-	 * 
-	 * @return The AssetObject at position "index"
-	 */
-	public Asset getAnAsset(int index) {
-		return assets.get(index);
-	}
-
-	/**
-	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at the
-	 * postion "index"
-	 * 
-	 * @param index The Position in the List to retrieve the Item Information
-	 * 
-	 * @return The Item Information object at position "index"
-	 */
-	public ItemInformation getAnIteminformation(int index) {
-		return itemInformations.get(index);
-	}
-
-	/**
-	 * getAPhase: <br>
-	 * Returns a Phase at the position "index" given as parameter.
-	 * 
-	 * @param index The index of the Phase to return
-	 * @return The Phase object at requested position
-	 */
-	public Phase getAPhase(int index) {
-		return phases.get(index);
-	}
-
-	/**
-	 * getARiskInformation: <br>
-	 * Returns a Risk Information from the List of Risk Information at position
-	 * "index"
-	 * 
-	 * @param index The Position to retrieve the Object
-	 * 
-	 * @return The Risk Information Object at position "index"
-	 */
-	public RiskInformation getARiskInformation(int index) {
-		return riskInformations.get(index);
-	}
-
-	/**
-	 * getARiskRegisterEntry: <br>
-	 * Returns a Risk Register Item from the RiskRegister at position "index"
-	 * 
-	 * @param index The Position to retrieve the Object
-	 * 
-	 * @return The Risk Register Object at position "index"
-	 */
-	public RiskRegisterItem getARiskRegisterEntry(int index) {
-		return riskRegisters.get(index);
-	}
-
-	/**
-	 * getAScenario: <br>
-	 * Returns a Scenario from the List of Scenarios at position "index"
-	 * 
-	 * @param index The Position to retrieve the Object
-	 * 
-	 * @return The Scenario Object at position "index"
-	 */
-	public Scenario getAScenario(int index) {
-		return scenarios.get(index);
-	}
-
-	public Map<Asset, List<Assessment>> getAssessmentByAsset() {
-		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
-		assessments.forEach(assessment -> {
-			List<Assessment> assessments = mapping.get(assessment.getAsset());
-			if (assessments == null)
-				mapping.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
-			assessments.add(assessment);
-		});
-		return mapping;
-	}
-
-	public Map<Scenario, List<Assessment>> getAssessmentByScenario() {
-		Map<Scenario, List<Assessment>> mapping = new LinkedHashMap<>();
-		assessments.forEach(assessment -> {
-			List<Assessment> assessments = mapping.get(assessment.getScenario());
-			if (assessments == null)
-				mapping.put(assessment.getScenario(), assessments = new ArrayList<Assessment>());
-			assessments.add(assessment);
-		});
-		return mapping;
 	}
 
 	/**
@@ -1186,6 +1009,7 @@ public class Analysis implements Cloneable {
 		return basedOnAnalysis;
 	}
 
+	@Transient
 	public List<IBoundedParameter> getBoundedParamters() {
 		List<IBoundedParameter> parameters = getImpactParameters().stream().collect(Collectors.toList());
 		parameters.addAll(getLikelihoodParameters());
@@ -1218,7 +1042,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The hasData Analysis Flag
 	 */
-	public boolean getData() {
+	public boolean isData() {
 		return data;
 	}
 
@@ -1242,6 +1066,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#findExpressionParameterByAnalysis(Integer)
 	 */
+	@Transient
 	public List<IProbabilityParameter> getExpressionParameters() {
 		// We assume that all parameters that have an acronym can be used in an
 		// expression
@@ -1265,18 +1090,6 @@ public class Analysis implements Cloneable {
 	 */
 	public List<History> getHistories() {
 		return histories;
-	}
-
-	/**
-	 * getHistory: <br>
-	 * returns history entry at index
-	 * 
-	 * @param index The index inside the histories list
-	 * 
-	 * @return history
-	 */
-	public History getHistory(int index) {
-		return histories == null || histories.isEmpty() ? null : histories.get(index);
 	}
 
 	/**
@@ -1312,7 +1125,7 @@ public class Analysis implements Cloneable {
 		return impacts;
 	}
 
-	public List<ScaleType> getImpacts() {
+	public List<ScaleType> findImpacts() {
 		return getImpactParameters().stream().map(ImpactParameter::getType).distinct().sorted(
 				(s1, s2) -> s1.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? 1 : s2.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? -1 : s1.getName().compareTo(s2.getName()))
 				.collect(Collectors.toList());
@@ -1354,6 +1167,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return last history
 	 */
+	@Transient
 	public History getLastHistory() {
 		return histories == null ? null : histories.stream().max((c1, c2) -> NaturalOrderComparator.compareTo(c1.getVersion(), c2.getVersion())).orElse(null);
 	}
@@ -1365,6 +1179,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return
 	 */
+	@Transient
 	public String getLatestVersion() {
 		History history = getLastHistory();
 		return history == null ? "" : history.getVersion();
@@ -1395,6 +1210,7 @@ public class Analysis implements Cloneable {
 		return parameters;
 	}
 
+	@Transient
 	public MaturityStandard getMaturityStandard() {
 		return (MaturityStandard) analysisStandards.stream().filter(analysisStandard -> analysisStandard instanceof MaturityStandard).findAny().orElse(null);
 	}
@@ -1417,11 +1233,12 @@ public class Analysis implements Cloneable {
 	 * @return The Value of the SimpleParameter if it exists, or -1 if the parameter
 	 *         was not found
 	 */
-	public double getParameter(String name) {
-		return getParameter(name, -1D);
+	
+	public double findParameter(String name) {
+		return findParameter(name, -1D);
 	}
 
-	public double getParameter(String name, double defaultValue) {
+	public double findParameter(String name, double defaultValue) {
 		return getParameters().values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.getDescription().equals(name))
 				.map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
@@ -1434,7 +1251,7 @@ public class Analysis implements Cloneable {
 	 * @return The Value of the SimpleParameter if it exists, or defaultValue if the
 	 *         parameter was not found
 	 */
-	public double getParameter(String type, String name, double defaultValue) {
+	public double findParameter(String type, String name, double defaultValue) {
 		return getParameters().values().stream().flatMap(parametersList -> parametersList.stream()).filter(parameter -> parameter.isMatch(type, name))
 				.map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
@@ -1445,6 +1262,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The SimpleParameter Object List
 	 */
+	@Transient
 	public Map<String, List<? extends IParameter>> getParameters() {
 		return parameters;
 	}
@@ -1475,8 +1293,8 @@ public class Analysis implements Cloneable {
 	 * @param user
 	 * @return
 	 */
-	public UserAnalysisRight getRightsforUser(User user) {
-		return getRightsforUserString(user.getLogin());
+	public UserAnalysisRight findRightsforUser(User user) {
+		return findRightsforUserString(user.getLogin());
 	}
 
 	/**
@@ -1486,12 +1304,12 @@ public class Analysis implements Cloneable {
 	 * @param user
 	 * @return
 	 */
-	public UserAnalysisRight getRightsforUserString(String login) {
+	public UserAnalysisRight findRightsforUserString(String login) {
 		return userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny().orElse(null);
 	}
 
-	public AnalysisRight getRightValue(User user) {
-		UserAnalysisRight analysisRight = getRightsforUser(user);
+	public AnalysisRight findRightValue(User user) {
+		UserAnalysisRight analysisRight = findRightsforUser(user);
 		return analysisRight == null ? null : analysisRight.getRight();
 	}
 
@@ -1551,7 +1369,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return
 	 */
-	public List<Assessment> getSelectedAssessments() {
+	public List<Assessment> findSelectedAssessments() {
 		List<Assessment> tmpassessments = new ArrayList<Assessment>();
 		for (Assessment assessment : assessments)
 			if (assessment.isSelected())
@@ -1559,21 +1377,7 @@ public class Analysis implements Cloneable {
 		return tmpassessments;
 	}
 
-	/**
-	 * getSelectedAssets: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public List<Asset> getSelectedAssets() {
-		List<Asset> tmpassets = new ArrayList<Asset>();
-		for (Asset asset : assets)
-			if (asset.isSelected())
-				tmpassets.add(asset);
-		return tmpassets;
-	}
-
-	public <T> T getSetting(AnalysisSetting setting) {
+	public <T> T findSetting(AnalysisSetting setting) {
 		return findSetting(setting, settings.get(setting.name()));
 	}
 
@@ -1595,7 +1399,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return
 	 */
-	public List<Standard> getStandards() {
+	public List<Standard> findStandards() {
 		return analysisStandards.stream().map(AnalysisStandard::getStandard).collect(Collectors.toList());
 
 	}
@@ -1620,7 +1424,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The List of Summary Entries for the requested Action Plan Type
 	 */
-	public List<SummaryStage> getSummary(ActionPlanMode mode) {
+	public List<SummaryStage> findSummary(ActionPlanMode mode) {
 
 		List<SummaryStage> sums = new ArrayList<SummaryStage>();
 
@@ -1760,7 +1564,7 @@ public class Analysis implements Cloneable {
 		List<Phase> tmpPhases = new ArrayList<Phase>();
 
 		Phase smallest = null;
-		List<NormalStandard> normalStandards = this.getAllNormalStandards();
+		List<NormalStandard> normalStandards = this.findAllNormalStandards();
 		MaturityStandard maturityStandard = this.getMaturityStandard();
 
 		// ****************************************************************
@@ -1861,6 +1665,13 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
+	 * @return the archived
+	 */
+	public boolean isArchived() {
+		return archived;
+	}
+
+	/**
 	 * isDefaultProfile: <br>
 	 * Returns the defaultProfile field value.
 	 * 
@@ -1870,11 +1681,26 @@ public class Analysis implements Cloneable {
 		return defaultProfile;
 	}
 
+	@Transient
+	public boolean isHybrid() {
+		return AnalysisType.isHybrid(type);
+	}
+
 	/**
 	 * @return the profile
 	 */
 	public boolean isProfile() {
 		return profile;
+	}
+
+	@Transient
+	public boolean isQualitative() {
+		return AnalysisType.isQualitative(type);
+	}
+
+	@Transient
+	public boolean isQuantitative() {
+		return AnalysisType.isQuantitative(type);
 	}
 
 	/**
@@ -1887,6 +1713,7 @@ public class Analysis implements Cloneable {
 		return uncertainty;
 	}
 
+	@Transient
 	public boolean isUserAuthorized(String username, AnalysisRight right) {
 		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username) && UserAnalysisRight.userIsAuthorized(userRight, right));
 	}
@@ -1899,6 +1726,7 @@ public class Analysis implements Cloneable {
 	 * @param right
 	 * @return
 	 */
+	@Transient
 	public boolean isUserAuthorized(User user, AnalysisRight right) {
 		for (UserAnalysisRight uar : userRights) {
 			if (uar.getUser().equals(user))
@@ -1953,7 +1781,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight removeRights(User user) {
-		UserAnalysisRight userRight = getRightsforUser(user);
+		UserAnalysisRight userRight = findRightsforUser(user);
 		return userRight == null ? null : userRights.remove(userRight) ? userRight : null;
 	}
 
@@ -1977,7 +1805,6 @@ public class Analysis implements Cloneable {
 	 * @param actionPlan The List of ActionPlanEntries to set
 	 */
 	public void setActionPlans(List<ActionPlanEntry> actionPlan) {
-
 		this.actionPlans = actionPlan;
 	}
 
@@ -1989,6 +1816,13 @@ public class Analysis implements Cloneable {
 	 */
 	public void setAnalysisStandards(List<AnalysisStandard> analysisStandards) {
 		this.analysisStandards = analysisStandards;
+	}
+
+	/**
+	 * @param archived the archived to set
+	 */
+	public void setArchived(boolean archived) {
+		this.archived = archived;
 	}
 
 	/**
@@ -2320,6 +2154,19 @@ public class Analysis implements Cloneable {
 				+ ", phases=" + phases + ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
+	@Transient
+	public void updateType() {
+		List<ScaleType> scaleTypes = findImpacts();
+		if (scaleTypes.isEmpty())
+			this.type = AnalysisType.QUALITATIVE;
+		else if (scaleTypes.size() == 1)
+			this.type = scaleTypes.get(0).getName().equals(Constant.DEFAULT_IMPACT_NAME) ? AnalysisType.QUANTITATIVE : AnalysisType.QUALITATIVE;
+		else if (scaleTypes.stream().anyMatch(scaleType -> scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)))
+			this.type = AnalysisType.HYBRID;
+		else
+			this.type = AnalysisType.QUALITATIVE;
+	}
+
 	/**
 	 * versionExists: <br>
 	 * Checks if given version string exists in analysis
@@ -2327,6 +2174,7 @@ public class Analysis implements Cloneable {
 	 * @param version
 	 * @return
 	 */
+	@Transient
 	public boolean versionExists(String version) {
 		boolean res = false;
 
@@ -2381,6 +2229,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The Calculated Cost
 	 */
+	@Transient
 	public static final double computeCost(double internalSetupRate, double externalSetupRate, double lifetimeDefault, double internalMaintenance, double externalMaintenance,
 			double recurrentInvestment, double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
 
@@ -2395,6 +2244,7 @@ public class Analysis implements Cloneable {
 				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
 	}
 
+	@Transient
 	@SuppressWarnings("unchecked")
 	public static <T> T findSetting(AnalysisSetting setting, String value) {
 		try {
@@ -2407,25 +2257,12 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference between
-	 * two Dates. It is used to Calculate the Size of the Phase in Years.
-	 * 
-	 * @param beginDate begin date (should be smallest date)
-	 * @param endDate   end date (should be biggest date)
-	 * @return
-	 */
-	@Deprecated
-	public static final double getYearsDifferenceBetweenTwoDates(Date beginDate, Date endDate) {
-		return Phase.ComputeDiff(beginDate, endDate);
-	}
-
-	/**
 	 * initialiseEmptyItemInformation: <br>
 	 * Description
 	 * 
 	 * @param analysis
 	 */
+	@Transient
 	public static final void InitialiseEmptyItemInformation(Analysis analysis) {
 
 		if (analysis == null)
@@ -2486,61 +2323,7 @@ public class Analysis implements Cloneable {
 		analysis.add(iteminfo);
 	}
 
-	/**
-	 * Mapping selected assessment by asset and scenario
-	 * 
-	 * @return Length : 2, 0 : Asset, 1 : Scenario
-	 */
-	@SuppressWarnings("unchecked")
-	public static Map<Integer, List<Assessment>>[] MappedSelectedAssessment(List<Assessment> assessments2) {
-		Map<Integer, List<Assessment>>[] mappings = new LinkedHashMap[2];
-		for (int i = 0; i < mappings.length; i++)
-			mappings[i] = new LinkedHashMap<Integer, List<Assessment>>();
-		for (Assessment assessment : assessments2) {
-			if (!assessment.isSelected())
-				continue;
-			Asset asset = assessment.getAsset();
-			List<Assessment> assessments = mappings[0].get(asset.getId());
-			if (assessments == null)
-				mappings[0].put(asset.getId(), assessments = new ArrayList<Assessment>());
-			assessments.add(assessment);
-			Scenario scenario = assessment.getScenario();
-			assessments = mappings[1].get(scenario.getId());
-			if (assessments == null)
-				mappings[1].put(scenario.getId(), assessments = new ArrayList<Assessment>());
-			assessments.add(assessment);
-		}
-		return mappings;
-	}
-
-	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByAsset(List<Assessment> assessments2) {
-		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
-		for (Assessment assessment : assessments2) {
-			if (!assessment.isSelected())
-				continue;
-			Asset asset = assessment.getAsset();
-			List<Assessment> assessments = mappings.get(asset.getId());
-			if (assessments == null)
-				mappings.put(asset.getId(), assessments = new ArrayList<Assessment>());
-			assessments.add(assessment);
-		}
-		return mappings;
-	}
-
-	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByScenario(List<Assessment> assessments2) {
-		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
-		for (Assessment assessment : assessments2) {
-			if (!assessment.isSelected())
-				continue;
-			Scenario scenario = assessment.getScenario();
-			List<Assessment> assessments = mappings.get(scenario.getId());
-			if (assessments == null)
-				mappings.put(scenario.getId(), assessments = new ArrayList<Assessment>());
-			assessments.add(assessment);
-		}
-		return mappings;
-	}
-
+	@Transient
 	@SuppressWarnings("unchecked")
 	public static <T> T ParseSettingValue(String value, Class<T> type) {
 		if (String.class.equals(type))
@@ -2558,94 +2341,6 @@ public class Analysis implements Cloneable {
 		return (T) value;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static List<ItemInformation>[] SplitItemInformations(List<ItemInformation> itemInformations) {
-		List<?>[] splits = new List<?>[2];
-		splits[0] = new ArrayList<ItemInformation>();
-		splits[1] = new ArrayList<ItemInformation>();
-		for (ItemInformation itemInformation : itemInformations) {
-			if (itemInformation.getType().equalsIgnoreCase("scope"))
-				((List<ItemInformation>) splits[0]).add(itemInformation);
-			else
-				((List<ItemInformation>) splits[1]).add(itemInformation);
-		}
-		return (List<ItemInformation>[]) splits;
-	}
-
-	/**
-	 * Retrieves parameter by type
-	 * 
-	 * @param parameters
-	 * @return Map<String, SimpleParameter>
-	 */
-	public static Map<String, List<IParameter>> SplitParameters(List<? extends IParameter> parameters) {
-		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
-		parameters.stream().forEach(parameter -> {
-			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
-			if (currentParameters == null)
-				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());
-			currentParameters.add(parameter);
-		});
-
-		return mappedParameters;
-
-	}
-
-	/**
-	 * Retrieves parameter by type
-	 * 
-	 * @param parameters
-	 * @return Map<String, SimpleParameter>
-	 */
-	public static Map<String, List<IParameter>> SplitParameters(Map<String, List<? extends IParameter>> parameters) {
-		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
-		parameters.values().parallelStream().flatMap(list -> list.parallelStream()).forEach(parameter -> {
-			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
-			if (currentParameters == null)
-				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());
-			currentParameters.add(parameter);
-		});
-
-		return mappedParameters;
-
-	}
-
-	/**
-	 * @return the archived
-	 */
-	public boolean isArchived() {
-		return archived;
-	}
-
-	/**
-	 * @param archived the archived to set
-	 */
-	public void setArchived(boolean archived) {
-		this.archived = archived;
-	}
-
-	public boolean isHybrid() {
-		return AnalysisType.isHybrid(type);
-	}
-
-	public boolean isQuantitative() {
-		return AnalysisType.isQuantitative(type);
-	}
-
-	public boolean isQualitative() {
-		return AnalysisType.isQualitative(type);
-	}
-
-	public void updateType() {
-		List<ScaleType> scaleTypes = getImpacts();
-		if (scaleTypes.isEmpty())
-			this.type = AnalysisType.QUALITATIVE;
-		else if (scaleTypes.size() == 1)
-			this.type = scaleTypes.get(0).getName().equals(Constant.DEFAULT_IMPACT_NAME) ? AnalysisType.QUANTITATIVE : AnalysisType.QUALITATIVE;
-		else if (scaleTypes.stream().anyMatch(scaleType -> scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)))
-			this.type = AnalysisType.HYBRID;
-		else
-			this.type = AnalysisType.QUALITATIVE;
-	}
+	
 
 }

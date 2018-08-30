@@ -126,7 +126,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@Override
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode){
-		return analysis.getActionPlan(mode);
+		return analysis.findActionPlan(mode);
 	}
 
 	/**

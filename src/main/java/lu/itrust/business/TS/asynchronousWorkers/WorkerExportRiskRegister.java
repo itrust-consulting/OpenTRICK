@@ -214,7 +214,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		File workFile = null;
 		try {
 
-			boolean showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+			boolean showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.backup", "Backup of user changes", progress));
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));

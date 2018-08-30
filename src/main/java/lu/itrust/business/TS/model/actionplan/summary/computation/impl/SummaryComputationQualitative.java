@@ -39,19 +39,19 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		setAnalysis(analysis);
 		setPhases(new ArrayList<>());
 		setSummaryStages(new ArrayList<SummaryStage>());
-		setActionPlans(analysis.getActionPlan(ActionPlanMode.APQ));
+		setActionPlans(analysis.findActionPlan(ActionPlanMode.APQ));
 		setMaintenances(new HashMap<>());
 		setCurrentValues(new SummaryValues(analysisStandards));
 		setPreMaintenance(new MaintenanceRecurrentInvestment());
-		this.setAnalysisStandards(analysisStandards.stream().map(analysisStandard -> analysis.getAnalysisStandardByLabel(analysisStandard.getStandard().getLabel()))
+		this.setAnalysisStandards(analysisStandards.stream().map(analysisStandard -> analysis.findAnalysisStandardByLabel(analysisStandard.getStandard().getLabel()))
 				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getLabel(), Function.identity())));
 		generatePreMaintenance(analysisStandards);
 
-		setInternalSetupRate(analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE));
+		setInternalSetupRate(analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE));
 
-		setExternalSetupRate(analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
+		setExternalSetupRate(analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
 
-		setSoa(analysis.getParameter(Constant.SOA_THRESHOLD, 100));
+		setSoa(analysis.findParameter(Constant.SOA_THRESHOLD, 100));
 
 		if (!getActionPlans().isEmpty())
 			setActionPlanType(getActionPlans().get(0).getActionPlanType());

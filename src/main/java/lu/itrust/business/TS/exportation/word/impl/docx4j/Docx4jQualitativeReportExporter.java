@@ -88,7 +88,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 
 		P paragraph = findTableAnchor("ActionPlan");
 
-		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APQ);
+		List<ActionPlanEntry> actionplan = analysis.findActionPlan(ActionPlanMode.APQ);
 
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 			Tbl table = createTable("TableTSActionPlan", actionplan.size() + 1, 11);
@@ -247,7 +247,7 @@ public class Docx4jQualitativeReportExporter extends Docx4jWordExporter {
 		setCurrentParagraphId(TS_TAB_TEXT_2);
 		Map<Asset, List<Assessment>> assessementsByAsset = analysis.findSelectedAssessmentByAsset();
 		if (paragraphOrigin != null && assessementsByAsset.size() > 0) {
-			List<ScaleType> scaleTypes = analysis.getImpacts();
+			List<ScaleType> scaleTypes = analysis.findImpacts();
 
 			List<Object> contents = new LinkedList<>();
 

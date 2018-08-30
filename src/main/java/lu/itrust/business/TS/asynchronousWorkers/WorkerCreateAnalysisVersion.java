@@ -166,7 +166,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				
 				copy.setArchived(false);
 
-				UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(userName);
+				UserAnalysisRight userAnalysisRight = copy.findRightsforUserString(userName);
 
 				copy.setOwner(userAnalysisRight.getUser());
 

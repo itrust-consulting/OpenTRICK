@@ -547,7 +547,7 @@ public class Duplicator {
 				int copycounter = 0;
 				for (Integer standardID : standards) {
 					copycounter++;
-					AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
+					AnalysisStandard standard = analysis.findAnalysisStandardByStandardId(standardID);
 					if (standard != null) {
 						copy.add(duplicateAnalysisStandard(standard, phases, parameters, null, true));
 						serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60 + (percentageperstandard * copycounter)));

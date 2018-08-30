@@ -677,19 +677,19 @@ public class ControllerAnalysis {
 					.collect(Collectors.toList());
 			Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards());
 			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
-			model.addAttribute("soaThreshold", analysis.getParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
+			model.addAttribute("soaThreshold", analysis.findParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
 			model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(
 					Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()))));
 			model.addAttribute("measuresByStandard", measuresByStandard);
 			model.addAttribute("show_uncertainty", analysis.isUncertainty());
 			model.addAttribute("type", analysis.getType());
 			model.addAttribute("standards", standards);
-			model.addAttribute("showHiddenComment", analysis.getSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT));
+			model.addAttribute("showHiddenComment", analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT));
 
 			if (analysis.isQualitative()) {
-				model.addAttribute("showRawColumn", analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
+				model.addAttribute("showRawColumn", analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
-				model.addAttribute("impactLabel", analysis.getImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
+				model.addAttribute("impactLabel", analysis.findImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
 						.map(ScaleType::getName).orElse(null));
 				int level = analysis.getLikelihoodParameters().size() - 1;
 				model.addAttribute("maxImportance", level * level);
@@ -697,7 +697,7 @@ public class ControllerAnalysis {
 			}
 
 			if (analysis.isQuantitative())
-				model.addAttribute("showDynamicAnalysis", analysis.getSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
+				model.addAttribute("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 
 			if (analysis.isHybrid() && hasMaturity) {
 				model.addAttribute("effectImpl27002",

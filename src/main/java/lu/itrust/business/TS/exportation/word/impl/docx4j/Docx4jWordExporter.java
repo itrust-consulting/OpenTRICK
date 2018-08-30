@@ -1905,13 +1905,13 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	protected List<String> getStandardNames() {
-		return analysis.getStandards().stream()
+		return analysis.findStandards().stream()
 				.map(c -> c.is(Constant.STANDARD_27001) ? Constant.STANDARD_27001 : c.is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getLabel())
 				.sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
 	}
 
 	protected List<SummaryStage> getSummaryStage() {
-		return analysis.getSummary(getActionPlanType());
+		return analysis.findSummary(getActionPlanType());
 	}
 
 	protected TblPr getTableStyle(String id) {

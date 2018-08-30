@@ -643,9 +643,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			else
 				dateFormat = new SimpleDateFormat("MM-dd-yyyy");
 
-			showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 
-			List<ScaleType> scaleTypes = analysis.getImpacts();
+			List<ScaleType> scaleTypes = analysis.findImpacts();
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			CSSFFilter cssfFilter = cssfExportForm.getFilter();
 			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
@@ -691,7 +691,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		MessageHandler messageHandler = null;
 		boolean isFirst = true;
 		try {
-			showRawColumn = analysis.getSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
 			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
 					Estimation.IdComparator());
@@ -705,7 +705,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			if (cssfExportForm.hasOwner())
 				estimations.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
 			document = wordprocessingMLPackage.getMainDocumentPart().getContents();
-			List<ScaleType> types = analysis.getImpacts();
+			List<ScaleType> types = analysis.findImpacts();
 			types.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			for (Estimation estimation : estimations) {
 				RiskProfile riskProfile = estimation.getRiskProfile();
