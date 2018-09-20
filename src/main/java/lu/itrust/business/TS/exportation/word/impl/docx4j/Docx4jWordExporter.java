@@ -419,20 +419,26 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		P paragraphOriginal = findTableAnchor("CurrentSecurityLevel");
 		if (paragraphOriginal == null || analysis.getAnalysisStandards().isEmpty())
 			setCustomProperty("CURRENT_COMPLIANCE",
-					analysis.getAnalysisStandards().stream().mapToDouble(c -> ChartGenerator.ComputeCompliance(c, valueFactory)).average().orElse(0d));
+					analysis.getAnalysisStandards().parallelStream()
+							.mapToDouble(c -> c.getMeasures().parallelStream()
+									.filter(m -> !m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE) && m.getMeasureDescription().isComputable())
+									.mapToDouble(m -> m.getImplementationRateValue(valueFactory)).average().orElse(0))
+							.average().orElse(0d));
 		else {
 			final List<Object> contents = new LinkedList<>();
 			int count = analysis.getAnalysisStandards().size(), index = 0;
 			double currentCompliance = 0;
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-				double complaince = ChartGenerator.ComputeCompliance(analysisStandard, valueFactory);
+				double complaince = analysisStandard.getMeasures().parallelStream()
+						.filter(m -> !m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE) && m.getMeasureDescription().isComputable())
+						.mapToDouble(m -> m.getImplementationRateValue(valueFactory)).average().orElse(0);
 				String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
 						: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getLabel();
 				P paragraph = setStyle(factory.createP(), "BulletL1");
 				if (name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002))
-					setText(paragraph, getMessage("report.current.security.level.iso", new Object[] { name, (int) complaince, (++index) == count ? 1 : 0 }, null, locale));
+					setText(paragraph, getMessage("report.current.security.level.iso", new Object[] { name, Math.round(complaince) , (++index) == count ? 1 : 0 }, null, locale));
 				else
-					setText(paragraph, getMessage("report.current.security.level", new Object[] { name, (int) complaince, (++index) == count ? 1 : 0 }, null, locale));
+					setText(paragraph, getMessage("report.current.security.level", new Object[] { name, Math.round( complaince), (++index) == count ? 1 : 0 }, null, locale));
 				contents.add(paragraph);
 				currentCompliance += complaince;
 			}
@@ -2024,7 +2030,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	protected void setCustomProperty(String name, Object value) throws Docx4JException {
 		if (value instanceof Number) {
 			if (value instanceof Double)
-				createProperty(name, false).setR8(Double.isNaN((double) value)? 0:((Number) value).doubleValue());
+				createProperty(name, false).setR8(Double.isNaN((double) value) ? 0 : ((Number) value).doubleValue());
 			else
 				createProperty(name, false).setI4(((Number) value).intValue());
 		} else if (value instanceof Boolean)

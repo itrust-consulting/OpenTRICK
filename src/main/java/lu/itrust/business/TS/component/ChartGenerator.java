@@ -557,7 +557,7 @@ public class ChartGenerator {
 						getColor(chart.getDatasets().size())));
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
-					dataset.getData().add(compliance == null ? 0 : Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+					dataset.getData().add(compliance == null ? 0 : Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
 				}
 				previouscompliances = compliances;
 			}
@@ -584,7 +584,7 @@ public class ChartGenerator {
 			Dataset<String> dataset = new Dataset<String>(reference.getAnalysisKey(), getColor(chart.getDatasets().size()));
 			for (String key : compliances.keySet()) {
 				Object[] compliance = compliances.get(key);
-				dataset.getData().add((int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+				dataset.getData().add( Math.round(((double) compliance[1]) / (double)(int) compliance[0]));
 				chart.getLabels().add(key);
 			}
 			chart.getDatasets().add(dataset);
@@ -598,7 +598,7 @@ public class ChartGenerator {
 						if (compliance == null)
 							dataset.getData().add(0);
 						else
-							dataset.getData().add((int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+							dataset.getData().add((int) Math.round(((double) compliance[1]) / (double)(int) compliance[0]));
 					}
 					chart.getDatasets().add(dataset);
 				}
@@ -1284,7 +1284,7 @@ public class ChartGenerator {
 	}
 
 	public static double ComputeCompliance(AnalysisStandard analysisStandard, ValueFactory factory) {
-		return ComputeComplianceBefore(analysisStandard.getMeasures(), factory).values().parallelStream().mapToDouble(compliance -> ((double) compliance[1] / (int) compliance[0]))
+		return ComputeComplianceBefore(analysisStandard.getMeasures(), factory).values().parallelStream().mapToDouble(compliance -> ((double) compliance[1] / (double)(int) compliance[0]))
 				.average().orElse(0);
 	}
 
@@ -1383,12 +1383,14 @@ public class ChartGenerator {
 			else
 				chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
 		});
+		
 		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
 			if (impact.getLevel() == 0)
 				chart.getYLabels().add(impact.getLevel() + "-" + notApplicable);
 			else
 				chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 		});
+		
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
