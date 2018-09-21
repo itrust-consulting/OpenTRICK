@@ -419,7 +419,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		P paragraphOriginal = findTableAnchor("CurrentSecurityLevel");
 		if (paragraphOriginal == null || analysis.getAnalysisStandards().isEmpty())
 			setCustomProperty("CURRENT_COMPLIANCE",
-					analysis.getAnalysisStandards().stream().mapToDouble(c -> ChartGenerator.ComputeCompliance(c, valueFactory)).average().orElse(0d));
+					Math.round(analysis.getAnalysisStandards().stream().mapToDouble(c -> ChartGenerator.ComputeCompliance(c, valueFactory)).average().orElse(0d)));
 		else {
 			final List<Object> contents = new LinkedList<>();
 			int count = analysis.getAnalysisStandards().size(), index = 0;
@@ -437,7 +437,7 @@ public abstract class Docx4jWordExporter implements ExportReport {
 				currentCompliance += complaince;
 			}
 			insertAllBefore(paragraphOriginal, contents);
-			setCustomProperty("CURRENT_COMPLIANCE", currentCompliance / (double) count);
+			setCustomProperty("CURRENT_COMPLIANCE", Math.round(currentCompliance / (double) count));
 		}
 	}
 
