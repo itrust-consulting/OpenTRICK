@@ -407,9 +407,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		generateGraphics();
 
 		updateProperties();
-		
+
 		final Style defaultStyle = styles.get("TableTS");
-		
+
 		document.getContent().parallelStream().forEach(data -> getDocxFormatter().format(data, defaultStyle, getType()));
 
 		wordMLPackage.save(workFile);
@@ -418,14 +418,14 @@ public abstract class Docx4jWordExporter implements ExportReport {
 
 	private void generateCurrentCompliance() throws Exception {
 		final Map<String, Double> compliances = new LinkedHashMap<>();
-		P paragraphOriginal = findTableAnchor("CurrentSecurityLevel");
-		if (paragraphOriginal == null || analysis.getAnalysisStandards().isEmpty())
+		final P paragraphOriginal = findTableAnchor("CurrentSecurityLevel");
+		if (paragraphOriginal == null || analysis.getAnalysisStandards().isEmpty()) {
 			analysis.getAnalysisStandards().forEach(c -> {
 				String name = c.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
 						: c.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getStandard().getLabel();
 				compliances.put(name, ChartGenerator.ComputeCompliance(c, valueFactory));
 			});
-		else {
+		} else {
 			final List<Object> contents = new LinkedList<>();
 			int count = analysis.getAnalysisStandards().size(), index = 0;
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
@@ -434,23 +434,22 @@ public abstract class Docx4jWordExporter implements ExportReport {
 						: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getLabel();
 				P paragraph = setStyle(factory.createP(), "BulletL1");
 				if (name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002))
-					setText(paragraph, getMessage("report.current.security.level.iso", new Object[] { name, (int) complaince, (++index) == count ? 1 : 0 }, null, locale));
+					setText(paragraph, getMessage("report.current.security.level.iso", new Object[] { name, Math.round(complaince), (++index) == count ? 1 : 0 }, null, locale));
 				else
-					setText(paragraph, getMessage("report.current.security.level", new Object[] { name, (int) complaince, (++index) == count ? 1 : 0 }, null, locale));
+					setText(paragraph, getMessage("report.current.security.level", new Object[] { name, Math.round(complaince), (++index) == count ? 1 : 0 }, null, locale));
 				contents.add(paragraph);
 				compliances.put(name, complaince);
 			}
 			insertAllBefore(paragraphOriginal, contents);
-
 		}
 		compliances.forEach((s, v) -> {
 			try {
-				setCustomProperty(s + " current compliance", v);
+				setCustomProperty(s + " current compliance", Math.round(v));
 			} catch (Docx4JException e) {
 				throw new RuntimeException(e);
 			}
 		});
-		setCustomProperty("CURRENT_COMPLIANCE", compliances.values().stream().mapToDouble(c -> c).average().orElse(0));
+		setCustomProperty("CURRENT_COMPLIANCE", Math.round(compliances.values().stream().mapToDouble(c -> c).average().orElse(0)));
 	}
 
 	public String getAlpha3() {

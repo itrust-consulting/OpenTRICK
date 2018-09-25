@@ -8,12 +8,11 @@
 	<properties>
 		<org.hibernate.version>5.3.6.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>5.0.8.RELEASE</org.springframework.version>
+		<org.springframework.version>5.0.9.RELEASE</org.springframework.version>
 		<org.apache.logging.log4j.version>2.11.1</org.apache.logging.log4j.version>
 		<com.fasterxml.jackson.core.version>2.9.6</com.fasterxml.jackson.core.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<org.springframework.security.version>5.0.7.RELEASE</org.springframework.security.version>
-		<org.hibernate.javax.persistence.version>1.0.0.Final</org.hibernate.javax.persistence.version>
+		<org.springframework.security.version>5.0.8.RELEASE</org.springframework.security.version>
 	</properties>
 	<dependencies>
 
@@ -203,12 +202,6 @@
 			<version>${org.hibernate.version}</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.1-api</artifactId>
-			<version>${org.hibernate.javax.persistence.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>

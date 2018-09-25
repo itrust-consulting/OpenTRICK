@@ -341,8 +341,7 @@ public class ChartGenerator {
 	 * Generates the JSON data configuring a "Highcharts" chart which displays the
 	 * ALE evolution of all asset types of an analysis.
 	 * 
-	 * @param idAnalysis
-	 *            The ID of the analysis to generate the graph for.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
 	 */
 	public Chart aleEvolutionOfAllAssetTypes(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -355,10 +354,8 @@ public class ChartGenerator {
 	 * Generates the JSON data configuring a "Highcharts" chart which displays the
 	 * ALE evolution of all scenarios of a specific asset type of an analysis.
 	 * 
-	 * @param idAnalysis
-	 *            The ID of the analysis to generate the graph for.
-	 * @param assetType
-	 *            The asset type to generate the graph for.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
+	 * @param assetType  The asset type to generate the graph for.
 	 */
 	public Chart aleEvolutionofAllScenarios(int idAnalysis, String assetType, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -371,10 +368,8 @@ public class ChartGenerator {
 	 * Generates the JSON data configuring a "Highcharts" chart which displays the
 	 * ALE evolution of all scenarios of a specific asset type of an analysis.
 	 * 
-	 * @param idAnalysis
-	 *            The ID of the analysis to generate the graph for.
-	 * @param assetType
-	 *            The asset type to generate the graph for.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
+	 * @param assetType  The asset type to generate the graph for.
 	 */
 	public List<Chart> allAleEvolutionsofAllScenarios(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -557,7 +552,7 @@ public class ChartGenerator {
 						getColor(chart.getDatasets().size())));
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
-					dataset.getData().add(compliance == null ? 0 : Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+					dataset.getData().add(compliance == null ? 0 : Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
 				}
 				previouscompliances = compliances;
 			}
@@ -584,7 +579,7 @@ public class ChartGenerator {
 			Dataset<String> dataset = new Dataset<String>(reference.getAnalysisKey(), getColor(chart.getDatasets().size()));
 			for (String key : compliances.keySet()) {
 				Object[] compliance = compliances.get(key);
-				dataset.getData().add((int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+				dataset.getData().add(Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
 				chart.getLabels().add(key);
 			}
 			chart.getDatasets().add(dataset);
@@ -598,7 +593,7 @@ public class ChartGenerator {
 						if (compliance == null)
 							dataset.getData().add(0);
 						else
-							dataset.getData().add((int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+							dataset.getData().add((int) Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
 					}
 					chart.getDatasets().add(dataset);
 				}
@@ -868,10 +863,8 @@ public class ChartGenerator {
 	 * Generates the JSON data configuring a "Highcharts" chart which displays the
 	 * ALE evolution of all scenarios of a specific asset type of an analysis.
 	 * 
-	 * @param idAnalysis
-	 *            The ID of the analysis to generate the graph for.
-	 * @param assetType
-	 *            The asset type to generate the graph for.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
+	 * @param assetType  The asset type to generate the graph for.
 	 */
 	private <T> Chart aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, T> aggregator, Function<T, String> axisLabelProvider,
 			String chartTitle) throws Exception {
@@ -1124,7 +1117,7 @@ public class ChartGenerator {
 	}
 
 	public List<Chart> generateAssessmentRisk(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<RiskAcceptanceParameter> riskAcceptanceParameters) {
-		return generateAssessmentRiskChart(valueFactory, assessments,  GenerateColorBounds(riskAcceptanceParameters));
+		return generateAssessmentRiskChart(valueFactory, assessments, GenerateColorBounds(riskAcceptanceParameters));
 	}
 
 	public static List<ColorBound> GenerateColorBounds(List<RiskAcceptanceParameter> riskAcceptanceParameters) {
@@ -1284,8 +1277,8 @@ public class ChartGenerator {
 	}
 
 	public static double ComputeCompliance(AnalysisStandard analysisStandard, ValueFactory factory) {
-		return ComputeComplianceBefore(analysisStandard.getMeasures(), factory).values().parallelStream().mapToDouble(compliance -> ((double) compliance[1] / (int) compliance[0]))
-				.average().orElse(0);
+		return analysisStandard.getMeasures().stream().filter(m -> !m.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && m.getMeasureDescription().isComputable())
+				.mapToDouble(m -> m.getImplementationRateValue(factory)).average().orElse(0);
 	}
 
 	/**
@@ -1383,12 +1376,14 @@ public class ChartGenerator {
 			else
 				chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
 		});
+
 		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
 			if (impact.getLevel() == 0)
 				chart.getYLabels().add(impact.getLevel() + "-" + notApplicable);
 			else
 				chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 		});
+
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
@@ -1538,8 +1533,7 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param aleChartMaxSize
-	 *            the aleChartMaxSize to set
+	 * @param aleChartMaxSize the aleChartMaxSize to set
 	 */
 	@Value("${app.settings.ale.chart.content.max.size}")
 	public void setAleChartMaxSize(int aleChartMaxSize) {
@@ -1554,8 +1548,7 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param aleChartSingleMaxSize
-	 *            the aleChartSingleMaxSize to set
+	 * @param aleChartSingleMaxSize the aleChartSingleMaxSize to set
 	 */
 	@Value("${app.settings.ale.chart.single.content.max.size}")
 	public void setAleChartSingleMaxSize(int aleChartSingleMaxSize) {
@@ -1570,8 +1563,7 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param aleChartSize
-	 *            the aleChartSize to set
+	 * @param aleChartSize the aleChartSize to set
 	 */
 	@Value("${app.settings.ale.chart.content.size}")
 	public void setAleChartSize(int aleChartSize) {
@@ -1586,8 +1578,7 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param defaultColors
-	 *            the defaultColors to set
+	 * @param defaultColors the defaultColors to set
 	 */
 	@Value("#{'${app.settings.default.chart.colors}'.split(',')}")
 	public void setDefaultColors(List<String> defaultColors) {
@@ -1614,8 +1605,7 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * @param staticColors
-	 *            the staticColors to set
+	 * @param staticColors the staticColors to set
 	 */
 	@Value("#{'${app.settings.default.chart.static.colors}'.split(',')}")
 	public void setStaticColors(List<String> staticColors) {
