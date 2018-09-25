@@ -22,8 +22,7 @@
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
-	<c:if
-		test="${isEditable and ( isAnalysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+	<c:if test="${isEditable and ( isAnalysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
@@ -50,9 +49,8 @@
 <c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}" />
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
-		<tr data-trick-computable="false" onclick="selectElement(this)" data-trick-class="Measure"
-			style="background-color: #F8F8F8;" data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
-			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
+		<tr data-trick-computable="false" onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
+			data-is-linked='${isLinkedToProject and not empty measure.ticket}' data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
@@ -121,8 +119,8 @@
 						onclick="return editField(this);">${implementationRateValue}</td>
 				</c:when>
 				<c:otherwise>
-					<td ${css} data-trick-field="implementationRate" ${implementationRateAttr} data-trick-field-type="string" data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
-						 title="${implementationRateValue} %" onclick="return editField(this);">${implementationRateValue}</td>
+					<td ${css} data-trick-field="implementationRate" ${implementationRateAttr} data-trick-field-type="string"
+						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" title="${implementationRateValue} %" onclick="return editField(this);">${implementationRateValue}</td>
 					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
 						<td class="text-center" data-trick-field='mer'><c:choose>
 								<c:when test="${empty effectImpl27002}">0</c:when>
@@ -170,7 +168,8 @@
 			<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 				<td ${css} onclick="return editField(this);" data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></td>
 			</c:if>
-			<td ${css} onclick="return editField(this);" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></td>
+			<td ${css} onclick="return editField(this);" data-trick-field="comment" data-trick-callback="tryToReloadSOA('${standardid}','${measure.id}')" data-trick-content="text"
+				data-trick-field-type="string"><spring:message text="${measure.comment}" /></td>
 			<td ${todoCSS} onclick="return editField(this);" data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></td>
 		</tr>
 	</c:otherwise>

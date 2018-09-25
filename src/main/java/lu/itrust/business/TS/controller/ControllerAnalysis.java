@@ -102,7 +102,6 @@ import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.helper.StandardComparator;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
@@ -386,7 +385,6 @@ public class ControllerAnalysis {
 
 	}
 
-	
 	/**
 	 * displayAll: <br>
 	 * Description
@@ -410,8 +408,6 @@ public class ControllerAnalysis {
 		else
 			return "redirect:/Analysis/All";
 	}
-
-	
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	@RequestMapping(value = "/{idAnalysis}/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -666,20 +662,21 @@ public class ControllerAnalysis {
 		User user = serviceUser.get(principal.getName());
 		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 		Boolean readOnly = OpenMode.isReadOnly(mode);
-		List<Standard> standards = null;
+	
 		boolean hasMaturity = false;
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
 			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-			standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
-					.collect(Collectors.toList());
-			Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards());
+			analysis.getAnalysisStandards().sort((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getLabel(), e2.getStandard().getLabel()));
+			final List<Standard> standards = analysis.findStandards();
+			final Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards());
 			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 			model.addAttribute("soaThreshold", analysis.findParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
-			model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(
-					Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()))));
+			model.addAttribute("soas",
+					analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard(),
+							analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()), (e1, e2) -> e1, LinkedHashMap::new)));
 			model.addAttribute("measuresByStandard", measuresByStandard);
 			model.addAttribute("show_uncertainty", analysis.isUncertainty());
 			model.addAttribute("type", analysis.getType());
@@ -818,7 +815,6 @@ public class ControllerAnalysis {
 		}
 	}
 
-	
 	private Client buildClient(String username) {
 		User user = serviceUser.get(username);
 		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
@@ -850,7 +846,6 @@ public class ControllerAnalysis {
 		return client;
 	}
 
-	
 	private int findId(JsonNode jsonNode, String name) {
 		return jsonNode.has(name) ? jsonNode.get(name).asInt() : -1;
 	}
@@ -935,7 +930,7 @@ public class ControllerAnalysis {
 	 * @return
 	 */
 	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
-		Comparator<Measure> comparator = new MeasureComparator();
+		final Comparator<Measure> comparator = new MeasureComparator();
 		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
 		for (AnalysisStandard standard : standards) {
 			Collections.sort(standard.getMeasures(), comparator);

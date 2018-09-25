@@ -79,6 +79,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.helper.chartJS.model.Chart;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -696,10 +697,11 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 
-		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream().map(analysisStandard -> {
-			analysisStandard.getMeasures().sort(comparator);
-			return analysisStandard;
-		}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures)));
+		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream()
+				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getLabel(), e2.getStandard().getLabel())).map(analysisStandard -> {
+					analysisStandard.getMeasures().sort(comparator);
+					return analysisStandard;
+				}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures, (e1, e2) -> e1, LinkedHashMap::new)));
 
 		return "analyses/single/components/soa/home";
 	}
@@ -1425,8 +1427,6 @@ public class ControllerAnalysisStandard {
 		}
 		return null;
 	}
-
-	
 
 	private void loadAnalysisSettings(Model model, Integer integer) {
 		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);

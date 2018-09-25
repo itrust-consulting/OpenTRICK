@@ -624,12 +624,12 @@ function manageSOA() {
 }
 
 function validateSOAState(idStandard, idMeasure) {
-	$("tr[data-trick-id='" + idMeasure + "']>td>pre[data-trick-field!='soaReference'][data-trick-field]", "#table_SOA_" + idStandard).each(function () {
-		var $this = $(this), $td = $this.parent();
+	$("tr[data-trick-id='" + idMeasure + "']>td[data-trick-field!='soaReference'][data-trick-field]", "#table_SOA_" + idStandard).each(function () {
+		var $this = $(this);
 		if ($this.text().trim() == "")
-			$td.addClass("warning");
+			$this.addClass("warning");
 		else
-			$td.removeClass("warning");
+			$this.removeClass("warning");
 	});
 	return false;
 }

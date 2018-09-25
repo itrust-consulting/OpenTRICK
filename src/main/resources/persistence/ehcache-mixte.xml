@@ -8,7 +8,7 @@
 		<jsr107:defaults default-template="defaultCache" enable-management="true" enable-statistics="true" />
 	</service>
 
-	<persistence directory="${app.settings.cache.path}" />
+	<persistence directory="${java.io.tmpdir}/ts-cache" />
 
 	<cache-template name="defaultCache">
 		<expiry>

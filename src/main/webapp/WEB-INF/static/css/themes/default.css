@@ -623,7 +623,9 @@ table.rrf-values th {
 	border-radius: 4px 0px 0px 4px;
 }
 
-tr.editable, td.editable, th.editable {
+.table>tbody>tr>td.editable,
+table>tbody>tr>td.editable,
+tr.editable,td.editable, th.editable{
 	background-color: #eff5fb;
 }
 
@@ -635,6 +637,8 @@ tr.editable>td.statistic {
 	background-color:#f3f8fc;
 }
 
+.table>tbody>tr:hover>td.editable,
+table>tbody>tr:hover>td.editable
 table>tbody>tr.editable:HOVER,
 table>tbody>tr:HOVER>.editable {
 	background-color: #b5d4f3;
@@ -643,11 +647,13 @@ table>tbody>tr:HOVER>.editable {
 tr.selected, table>tbody>tr.selected,
 table>tbody>tr.selected:nth-of-type(2n+1),
 table>tbody>tr.selected>td.statistic,
+table>tbody>tr.selected.active,
 table>tbody>tr.selected.info,
 table>tbody>tr.selected.succes,
 table>tbody>tr.selected.warning,
 table>tbody>tr.selected.danger,
 table>tbody>tr.selected.info,
+table>tbody>tr.selected.active td:not(.selected ),
 table>tbody>tr.selected.info td:not(.selected ),
 table>tbody>tr.selected.succes td:not(.selected ),
 table>tbody>tr.selected.warning td:not(.selected ),
@@ -658,11 +664,13 @@ table>tbody>tr.selected.info td:not(.selected ) {
 
 tr.selected:HOVER, table>tbody>tr.selected:HOVER,
 table>tbody>tr.editable:HOVER>td.statistic,
+table>tbody>tr.selected.active:HOVER,
 table>tbody>tr.selected.info:HOVER,
 table>tbody>tr.selected.succes:HOVER,
 table>tbody>tr.selected.warning:HOVER,
 table>tbody>tr.selected.danger:HOVER,
 table>tbody>tr.selected.info:HOVER,
+table>tbody>tr.selected.active:HOVER td:not(.selected ), 
 table>tbody>tr.selected.info:HOVER td:not(.selected ), 
 table>tbody>tr.selected.succes:HOVER td:not(.selected ),
 table>tbody>tr.selected.warning:HOVER td:not(.selected ),
@@ -933,22 +941,7 @@ input[type=number],input[type=date]:disabled {
 #export-modal .modal-body{
 	padding: 0px;
 }
-/*
-#import-modal .tabs-left>li:first-child, 
-#export-modal .tabs-left>li:first-child{
-	margin-top: -3px;
-}
 
-#import-modal .tabs-left>li.active:first-child>a, 
-#export-modal .tabs-left>li.active:first-child>a{
-	border-radius: 0 0 0 4px;
-}
-
-#import-modal .tabs-left>li.active:last-child>a, 
-#export-modal .tabs-left>li.active:last-child>a{
-	border-radius: 4px 0 0 0;
-}
-*/
 #import-modal .tabs-left, 
 #export-modal .tabs-left{
 	height: 550px;
@@ -962,11 +955,6 @@ input[type=number],input[type=date]:disabled {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-
-/*#import-modal [data-view-tab='main'], 
-#export-modal [data-view-tab='main']{
-	padding-top : 5px;
-}*/
 
 #import-modal [data-view-tab='secondary'],
 #export-modal [data-view-tab='secondary']{

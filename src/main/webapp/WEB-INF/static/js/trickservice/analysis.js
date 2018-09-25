@@ -495,6 +495,10 @@ function soaThresholdUpdate(){
 function reloadMeasureAndCompliance(standard, idMeasure) {
 	reloadMeasureRow(idMeasure, standard);
 	compliance(standard);
+	return tryToReloadSOA(standard, idMeasure);
+}
+
+function tryToReloadSOA(standard, idMeasure){
 	if (document.getElementById("table_SOA_" + standard))
 		reloadSection("section_soa");
 	return false;

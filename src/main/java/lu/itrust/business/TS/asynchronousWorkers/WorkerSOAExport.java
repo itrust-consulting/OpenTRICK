@@ -4,8 +4,8 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.MergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -54,7 +54,6 @@ import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -281,10 +280,9 @@ public class WorkerSOAExport extends WorkerImpl {
 			if (measure.getMeasureDescription().isComputable()) {
 				setCellText((Tc) row.getContent().get(2), messageSource.getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 				setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
-				MeasureProperties properties = measure instanceof AbstractNormalMeasure ? ((AbstractNormalMeasure) measure).getMeasurePropertyList() : null;
-				if (properties != null) {
-					setCellText((Tc) row.getContent().get(4), properties.getSoaComment());
-					setCellText((Tc) row.getContent().get(5), properties.getSoaReference());
+				if (measure instanceof AbstractNormalMeasure) {
+					setCellText((Tc) row.getContent().get(4), ((AbstractNormalMeasure) measure).getSoaComment());
+					setCellText((Tc) row.getContent().get(5), ((AbstractNormalMeasure) measure).getSoaReference());
 				}
 			} else
 				MergeCell(row, 1, 5, null);

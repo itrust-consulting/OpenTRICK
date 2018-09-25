@@ -58,7 +58,7 @@
 						<c:forEach items="${soas[standard]}" var="measure">
 							<c:choose>
 								<c:when test="${not measure.measureDescription.computable}">
-									<tr style="background-color: #F8F8F8;" data-trick-id='${measure.id}'>
+									<tr class='active' data-trick-id='${measure.id}'>
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 										<td><spring:message text="${measure.measureDescription.reference}" /></td>
 										<td colspan="${type.quantitative? '7' : '6' }"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
@@ -67,44 +67,44 @@
 								<c:otherwise>
 									<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
 									<c:set var="css">
-										<c:if test="${implementationRateValue < 100 and implementationRateValue < soaThreshold}">class="editable"</c:if>
+										<c:if test="${implementationRateValue < 100 and implementationRateValue < soaThreshold and measure.status!='NA'}">class="editable"</c:if>
 									</c:set>
-									<tr data-trick-class="SOA" data-trick-id="${measure.id}">
+									<tr  data-trick-class="SOA" data-trick-id="${measure.id}">
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 										<c:choose>
 											<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
-												<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''
+												<td class="popover-element ${measure.status == 'NA'? 'active':''}" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''
 													title='<spring:message
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 											</c:when>
 											<c:otherwise>
-												<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+												<td  class="popover-element ${measure.status == 'NA'? 'active':''}" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 													data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
 													title='<spring:message
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 											</c:otherwise>
 										</c:choose>
-										<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+										<td ${measure.status == 'NA'? 'class="active"':''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 										<c:choose>
 											<c:when test="${measure.status=='NA'}">
-												<td title="${titleStatusNA}">${statusNA}</td>
+												<td ${measure.status == 'NA'? 'class="active"':''} title="${titleStatusNA}" data-trick-field='status' data-trick-real-vlue='NA'>${statusNA}</td>
 											</c:when>
 											<c:when test="${measure.status=='AP'}">
-												<td title="${titleStatusAP}">${statusAP}</td>
+												<td ${measure.status == 'NA'? 'class="active"':''} title="${titleStatusAP}"  data-trick-field='status' data-trick-real-vlue='AP'>${statusAP}</td>
 											</c:when>
 											<c:otherwise>
-												<td title="${titleStatusM}">${statusM}</td>
+												<td ${measure.status == 'NA'? 'class="active"':''} title="${titleStatusM}"  data-trick-field='status' data-trick-real-vlue='M'>${statusM}</td>
 											</c:otherwise>
 										</c:choose>
-										<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
-										<td>${measure.phase.number}</td>
+										<td ${measure.status == 'NA'? 'class="active"':''} ><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
+										<td ${measure.status == 'NA'? 'class="active"':''} >${measure.phase.number}</td>
 										<c:if test="${type.quantitative}">
-											<td class='pre'><spring:message text="${measure.measurePropertyList.soaRisk}" /></td>
+											<td class="pre ${measure.status == 'NA'? 'active':''}"><spring:message text="${measure.soaRisk}" /></td>
 										</c:if>
-										<td ${empty measure.measurePropertyList.soaComment? 'class="warning"' : empty css? '' : css} onclick="return editField(this);" data-trick-field="soaComment" 
-											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaComment}" /></td>
+										<td ${empty measure.soaComment? 'class="warning"' :  empty css? '' : css} onclick="return editField(this);" data-trick-field="soaComment" 
+											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.soaComment}" /></td>
 										<td ${css} onclick="return editField(this);" data-trick-field="soaReference" data-trick-content="text" 
-											data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaReference}"/></td>
+											data-trick-field-type="string"><spring:message text="${measure.soaReference}"/></td>
 									</tr>
 								</c:otherwise>
 							</c:choose>

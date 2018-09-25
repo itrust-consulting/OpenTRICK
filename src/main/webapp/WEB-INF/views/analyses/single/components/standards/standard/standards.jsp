@@ -290,7 +290,7 @@
 											<td ${css} onclick="return editField(this);" data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message
 													text="${measure.toCheck}" /></td>
 										</c:if>
-										<td ${css} onclick="return editField(this);" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message
+										<td ${css} onclick="return editField(this);" data-trick-callback="tryToReloadSOA('${standardid}','${measure.id}')" data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message
 												text="${measure.comment}" /></td>
 										<td ${todoCSS} onclick="return editField(this);" data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message
 												text="${measure.toDo}" /></td>

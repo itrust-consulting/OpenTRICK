@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.model.standard.measure;
 
+import static lu.itrust.business.TS.model.general.helper.Utils.*;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
@@ -63,8 +66,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 * setMeasurePropertyList: <br>
 	 * Sets the "measurePropertyList" field with a measureProperties object
 	 * 
-	 * @param measurePropertyList
-	 *            The measureProperties Object to set the List of Properties
+	 * @param measurePropertyList The measureProperties Object to set the List of
+	 *                            Properties
 	 * @throws TrickException
 	 */
 	public void setMeasurePropertyList(MeasureProperties measurePropertyList) throws TrickException {
@@ -88,8 +91,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 * setToCheck: <br>
 	 * Sets the "toCheck" field with a value
 	 * 
-	 * @param toCheck
-	 *            The value to set the "To Check" Comment
+	 * @param toCheck The value to set the "To Check" Comment
 	 */
 	public void setToCheck(String toCheck) {
 		this.toCheck = toCheck == null ? "" : toCheck;
@@ -146,12 +148,27 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		}
 	}
 
+	@Transient
+	public String getSoaReference() {
+		return measurePropertyList == null ? "" : measurePropertyList.getSoaReference();
+	}
+
+	@Transient
+	public String getSoaComment() {
+		String value = measurePropertyList == null ? "" : measurePropertyList.getSoaComment();
+		return !hasText(value) && Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(getStatus()) ? getComment() : value;
+	}
+
+	@Transient
+	public String getSoaRisk() {
+		return measurePropertyList == null ? "" : measurePropertyList.getSoaRisk();
+	}
+
 	/**
 	 * setImplementationRate: <br>
 	 * Sets the Implementation Rate with a Value
 	 * 
-	 * @param implementationRate
-	 *            The Implementation Rate Value as object
+	 * @param implementationRate The Implementation Rate Value as object
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
 	 */
@@ -166,8 +183,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	 * setImplementationRate: <br>
 	 * Sets the Implementation Rate with a Value
 	 * 
-	 * @param implementationRate
-	 *            The Implementation Rate Value as Double
+	 * @param implementationRate The Implementation Rate Value as Double
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
 	 */
