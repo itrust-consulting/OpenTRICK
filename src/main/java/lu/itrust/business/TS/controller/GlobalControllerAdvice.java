@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.ModelAndView;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceAnalysisShareInvitation;
@@ -46,7 +45,7 @@ public class GlobalControllerAdvice {
 
 	@Autowired
 	private ServiceMessageNotifier serviceMessageNotifier;
-	
+
 	@Value("${app.settings.static.image.version}")
 	private String imageVersion;
 
@@ -61,7 +60,7 @@ public class GlobalControllerAdvice {
 
 	@Value("${app.settings.static.version}")
 	private String staticVersion;
-	
+
 	@Value("${app.settings.static.user.guide.version}")
 	private String userGuideVersion;
 
@@ -84,19 +83,13 @@ public class GlobalControllerAdvice {
 		model.addAttribute("fontVersion", fontVersion);
 		model.addAttribute("imageVersion", imageVersion);
 		model.addAttribute("staticVersion", staticVersion);
-		
 
 	}
 
 	@ExceptionHandler(value = Exception.class)
-	public ModelAndView defaultErrorHandler(HttpServletRequest request, Exception e) throws Exception {
-		if (e instanceof AccessDeniedException || e instanceof AuthenticationException || AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class) != null)
-			throw e;
-		TrickLogManager.Persist(e);
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.addObject("exception", e);
-		modelAndView.addObject("url", request.getRequestURL());
-		modelAndView.setViewName("errors/404");
-		return modelAndView;
+	public void defaultErrorHandler(HttpServletRequest request, Exception e) throws Exception {
+		if (!(e instanceof AccessDeniedException || e instanceof AuthenticationException || AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class) != null))
+			TrickLogManager.Persist(e);
+		throw e;
 	}
 }

@@ -49,7 +49,7 @@
 <c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}" />
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
-		<tr data-trick-computable="false" onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
+		<tr data-trick-computable="false" onclick="selectElement(this)" data-trick-class="Measure" class='active' data-trick-id="${measure.id}"
 			data-is-linked='${isLinkedToProject and not empty measure.ticket}' data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>

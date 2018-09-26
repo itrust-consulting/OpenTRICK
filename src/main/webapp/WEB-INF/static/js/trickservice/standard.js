@@ -1,4 +1,5 @@
 function saveStandard(form) {
+	var $progress = $("#loading-indicator").show();
 	$("#addStandardModel .label-danger").remove();
 	$.ajax({
 		url: context + "/KnowledgeBase/Standard/Save",
@@ -33,10 +34,8 @@ function saveStandard(form) {
 			return false;
 
 		},
-		error: function (jqXHR, textStatus, errorThrown) {
-			showDialog("#alert-dialog", MessageResolver("error.unknown.save.norm", "An unknown error occurred during saving standard"));
-		}
-	});
+		error: unknowError
+	}).complete(()=> $progress.hide());
 	return false;
 }
 

@@ -236,6 +236,8 @@ public class ControllerAnalysisStandard {
 			if (standard == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if(analysis.getAnalysisStandards().stream().anyMatch(a-> a.getStandard().getLabel().equalsIgnoreCase(standard.getLabel())))
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.duplicate", null, "Your analysis already has another version of the standard!", locale));
 			Measure measure = null;
 			AnalysisStandard analysisStandard = null;
 			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);

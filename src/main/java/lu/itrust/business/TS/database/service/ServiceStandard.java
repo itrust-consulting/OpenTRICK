@@ -17,9 +17,9 @@ import lu.itrust.business.TS.model.standard.StandardType;
 public interface ServiceStandard {
 	public Standard get(Integer id);
 
-	public List<Standard> getStandardByName(String standard);
+	public List<Standard> findByLabel(String standard);
 
-	public Standard getStandardNotCustomByName(String standard);
+	public List<Standard> findByLabelAndAnalysisOnlyFalse(String standard);
 
 	public Standard getStandardByNameAndVersion(String label, int version);
 
@@ -54,6 +54,10 @@ public interface ServiceStandard {
 	public boolean belongsToAnalysis(int idAnalysis, Integer idStandard);
 
 	public boolean isUsed(Standard tmpStandard);
+
+	public boolean existsByName(String name);
+
+	public boolean isConflicted(String newName, String oldName);
 
 	
 

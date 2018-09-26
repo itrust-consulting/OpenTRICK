@@ -41,7 +41,7 @@
 						</c:if>
 					</td>
 					<td><c:if test="${!empty trickLog.type}">
-							<spring:message code="label.log.type.${fn:toLowerCase(trickLog.type)}" text="${fn:toLowerCase(trickLog.type)}" />
+							<spring:message code="label.log.type.${fn:toLowerCase(trickLog.type)}" text="${fn:replace(fn:toLowerCase(trickLog.type),'_',' ')}" />
 						</c:if>
 					</td>
 					<td>

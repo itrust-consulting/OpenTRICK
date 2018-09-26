@@ -43,7 +43,7 @@
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_standard','#menu_standard',null,'showTabMeasure(${standard.id})');"></td>
 								<td><spring:message text="${standard.label}" /></td>
 								<td><spring:message text="${standard.version}" /></td>
-								<td><spring:message text="${standard.description}" /></td>
+								<td class='pre'><spring:message text="${standard.description}" /></td>
 								<td data-trick-type="${standard.type}"><spring:message code="label.norm.type_${fn:toLowerCase(standard.type)}" text="${standard.type}" /></td>
 								<td data-trick-computable="${standard.computable?'Yes':'No'}"><spring:message code="label.yes_no.${standard.computable}" text="${standard.computable?'Yes':'No'}" /></td>
 							</tr>

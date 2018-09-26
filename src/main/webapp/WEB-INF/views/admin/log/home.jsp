@@ -28,7 +28,7 @@
 						<option ${empty logFilter.type?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
 						<c:forEach items="${logTypes}" var="logType">
 							<option value="${logType}" ${logFilter.type == logType?'selected="selected"':''}><spring:message code="label.log.type.${fn:toLowerCase(logType)}"
-									text="${fn:toLowerCase(logType)}" /></option>
+									text="${fn:replace(fn:toLowerCase(logType),'_',' ')}" /></option>
 						</c:forEach>
 					</select>
 				</div>

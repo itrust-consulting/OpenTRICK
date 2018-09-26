@@ -17,9 +17,9 @@ import lu.itrust.business.TS.model.standard.StandardType;
 public interface DAOStandard {
 	public Standard get(Integer id);
 
-	public List<Standard> getStandardByName(String standard);
+	public List<Standard> findByLabel(String standard);
 
-	public Standard getStandardNotCustomByName(String standard);
+	public List<Standard> findByLabelAndAnalysisOnlyFalse(String label);
 
 	public Standard getStandardByNameAndVersion(String label, Integer version);
 
@@ -56,4 +56,8 @@ public interface DAOStandard {
 	public boolean isUsed(Standard standard);
 
 	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis);
+
+	public boolean existsByName(String name);
+
+	public boolean isConflicted(String newName, String oldName);
 }

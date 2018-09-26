@@ -20,7 +20,7 @@
 				<th>&nbsp;</th>
 				<th><spring:message code="label.norm.label" /></th>
 				<th><spring:message code="label.norm.version" /></th>
-				<th colspan="3"><spring:message code="label.norm.description" /></th>
+				<th width="50%"><spring:message code="label.norm.description" /></th>
 				<th class="text-center"><spring:message code="label.norm.computable" /></th>
 				<th class="text-center"><spring:message code="label.norm.type" /></th>
 				<th class="text-center"><spring:message code="label.norm.analysisOnly" /></th>
@@ -33,7 +33,7 @@
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_standards','#menu_manage_standards');"></td>
 					<td><spring:message text="${standard.label}" /></td>
 					<td><spring:message text="${standard.version}" /></td>
-					<td colspan="3"><spring:message text="${standard.description}" /></td>
+					<td><spring:message text="${standard.description}" /></td>
 					<td class="text-center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
 					<td class="text-center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
 					<td class="text-center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>

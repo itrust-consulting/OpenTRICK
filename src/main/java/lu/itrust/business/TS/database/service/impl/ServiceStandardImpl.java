@@ -47,11 +47,11 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardByName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#findByLabel(java.lang.String)
 	 */
 	@Override
-	public List<Standard> getStandardByName(String standard) {
-		return daoStandard.getStandardByName(standard);
+	public List<Standard> findByLabel(String standard) {
+		return daoStandard.findByLabel(standard);
 	}
 
 	/**
@@ -60,11 +60,11 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardNotCustomByName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#findByLabelAndAnalysisOnlyFalse(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardNotCustomByName(String standard) {
-		return daoStandard.getStandardNotCustomByName(standard);
+	public List<Standard> findByLabelAndAnalysisOnlyFalse(String standard) {
+		return daoStandard.findByLabelAndAnalysisOnlyFalse(standard);
 	}
 
 	/**
@@ -227,6 +227,16 @@ public class ServiceStandardImpl implements ServiceStandard {
 	@Override
 	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis) {
 		return daoStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis);
+	}
+
+	@Override
+	public boolean existsByName(String name) {
+		return daoStandard.existsByName(name);
+	}
+
+	@Override
+	public boolean isConflicted(String newName, String oldName) {
+		return daoStandard.isConflicted(newName, oldName);
 	}
 
 }

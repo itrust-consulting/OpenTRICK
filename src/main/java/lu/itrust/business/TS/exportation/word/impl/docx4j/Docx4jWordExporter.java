@@ -8,6 +8,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1280,6 +1283,9 @@ public abstract class Docx4jWordExporter implements ExportReport {
 	}
 
 	private void updateProperties() throws Docx4JException {
+		
+		final String currentTime = ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_INSTANT ).replaceAll("\\.\\d*", "");
+		
 		setCustomProperty(_27001_NA_MEASURES, nonApplicableMeasure27001);
 		setCustomProperty(_27002_NA_MEASURES, nonApplicableMeasure27002);
 		setCustomProperty(PROPERTY_REPORT_TYPE, getType());
@@ -1296,17 +1302,30 @@ public abstract class Docx4jWordExporter implements ExportReport {
 		setCustomProperty(NUMBER_MEASURES_ALL_PHASES, totalMeasure);
 
 		setCustomProperty(CLIENT_NAME, analysis.getCustomer().getOrganisation());
+		
+		wordMLPackage.getDocPropsCorePart().getContents().setLastPrinted(null);
+		
+		wordMLPackage.getDocPropsCorePart().getContents().getCreated().getContent().clear();
+		
+		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
+		
+		wordMLPackage.getDocPropsCorePart().getContents().getModified().getContent().clear();
 
 		wordMLPackage.getDocPropsExtendedPart().getContents().setCompany(analysis.getCustomer().getOrganisation());
 
 		wordMLPackage.getDocPropsExtendedPart().getContents().setManager(analysis.getCustomer().getContactPerson());
 
-		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent().clear();
-
 		wordMLPackage.getDocPropsCorePart().getContents().getCreator().getContent()
 				.add(String.format("%s %s", analysis.getOwner().getFirstName(), analysis.getOwner().getLastName()));
 
+		wordMLPackage.getDocPropsCorePart().getContents().getCreated().getContent().add(currentTime);
+
+		wordMLPackage.getDocPropsCorePart().getContents().getModified().getContent().add(currentTime);
+		
+		wordMLPackage.getDocPropsCorePart().getContents().setLastModifiedBy(getMessage("report.export.from.ts", null, "Exported from TRICK Service", locale));
+		
 		wordMLPackage.getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
+
 	}
 
 	protected R addCellNumber(Tc cell, String number) {

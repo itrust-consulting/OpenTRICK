@@ -163,7 +163,7 @@
 							<c:choose>
 								<c:when test="${not measure.measureDescription.computable}">
 									<tr data-trick-computable="false" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-class="Measure"
-										style="background-color: #F8F8F8;" data-trick-id="${measure.id}" data-is-linked='${hasTicket}' data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');"
+										class='active' data-trick-id="${measure.id}" data-is-linked='${hasTicket}' data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');"
 										${dblclickaction}>
 										<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
 											<td><input type="checkbox" ${not analysisOnly?'disabled':''} class="checkbox"

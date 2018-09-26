@@ -118,13 +118,13 @@ function importStandard(e) {
 		success: function (response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#importStandardTable");
 			if (!$content.length) {
-				$("<label class='label label-danger' />").text(MessageResolver("error.unknown.occurred", "An unknown error occurred")).appendTo("#error-standard-modal");
+				showDialog("error",MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 				e.preventDefault();
 			} else {
 				var $tableStandard = $standardModal.find("#table_current_standard");
 				$("#importStandardTable", $standardModal).replaceWith($content);
 				$content.find("button.btn").on("click", function (e) {
-					var $this = $(this), $tr = $this.closest("tr");
+					var $this = $(this), $tr = $this.closest("tr"), $tbodySource = $tr.closest("tbody") ;
 					$progress.show();
 					$.ajax({
 						url: context + "/Analysis/Standard/Add/" + $tr.attr("data-trick-id"),
@@ -132,15 +132,16 @@ function importStandard(e) {
 						contentType: "application/json;charset=UTF-8",
 						success: function (response, textStatus, jqXHR) {
 							if (response["error"] != undefined) {
-								$("<label class='label label-danger' />").text(response["error"]).appendTo("#error-standard-modal");
+								showDialog("error",response["error"]);
 							} else if (response["success"] != undefined) {
 								$tableStandard.find("tbody>tr:not([data-trick-id])").remove();
 								$tr.find("td:last-child").remove();
-								if ($tableStandard.find("tr[data-trick-id='" + $tr.attr("data-trick-id") + "']").length)
+								if ($("tbody>tr[data-trick-id='" + $tr.attr("data-trick-id") + "']",$tableStandard).length)
 									$tr.remove();
 								else
 									$tr.appendTo($tableStandard.find("tbody")).find("td:hidden").show();
 								$tr.on("click",(e) => {selectElement(e.currentTarget);});
+								$("tr[data-trick-name='"+$tr.attr("data-trick-name")+"']",$tbodySource).remove();
 								application["standard-change"] = true;
 							}
 						},

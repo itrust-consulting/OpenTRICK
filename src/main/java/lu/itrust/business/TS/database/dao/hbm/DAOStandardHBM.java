@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -54,11 +53,11 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardByName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#findByLabel(java.lang.String)
 	 */
 	@Override
-	public List<Standard> getStandardByName(String label) {
-		return  getSession().createQuery("from Standard where label = :label", Standard.class).setParameter("label", label).list();
+	public List<Standard> findByLabel(String label) {
+		return getSession().createQuery("from Standard where label = :label", Standard.class).setParameter("label", label).list();
 	}
 
 	/**
@@ -67,13 +66,11 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardNotCustomByName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#findByLabelAndAnalysisOnlyFalse(java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Standard getStandardNotCustomByName(String label) {
-		return (Standard) getSession().createQuery("from Standard where label = :label and label != :custom").setParameter("label", label)
-				.setParameter("custom", Constant.STANDARD_CUSTOM).uniqueResultOptional().orElse(null);
+	public List<Standard> findByLabelAndAnalysisOnlyFalse(String label) {
+		return getSession().createQuery("from Standard where label = :label and analysisOnly=false", Standard.class).setParameter("label", label).list();
 	}
 
 	/**
@@ -128,9 +125,8 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllFromAnalysis(Integer analysisId) {
-		return getSession()
-				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId order by analysisStandard.standard.label")
+		return getSession().createQuery(
+				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId order by analysisStandard.standard.label")
 				.setParameter("analysisId", analysisId).getResultList();
 	}
 
@@ -216,18 +212,16 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) {
-		return (List<Standard>) getSession()
-				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true order by analysisStandard.standard.label")
+		return (List<Standard>) getSession().createQuery(
+				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true order by analysisStandard.standard.label")
 				.setParameter("analysisId", analsisID).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) {
-		return getSession()
-				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId order by analysisStandard.standard.label")
+		return getSession().createQuery(
+				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId order by analysisStandard.standard.label")
 				.setParameter("analysisId", analysisId).getResultList();
 	}
 
@@ -246,9 +240,8 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 
 	@Override
 	public boolean belongsToAnalysis(int idAnalysis, Integer idStandard) {
-		return (boolean) getSession()
-				.createQuery(
-						"select count(*)>0 from Analysis analysis inner join analysis.analysisStandards as analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
+		return (boolean) getSession().createQuery(
+				"select count(*)>0 from Analysis analysis inner join analysis.analysisStandards as analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
 				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).getSingleResult();
 	}
 
@@ -268,6 +261,18 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 		return getSession().createQuery(
 				"Select standard From Standard standard where standard.type<> :type and standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId) order by standard.label",
 				Standard.class).setParameter("type", StandardType.MATURITY).setParameter("analysisId", idAnalysis).getResultList();
+	}
+
+	@Override
+	public boolean existsByName(String name) {
+		return getSession().createQuery("select count(*) > 0 from Standard where label = :name", Boolean.class).setParameter("name", name).uniqueResult();
+	}
+
+	@Override
+	public boolean isConflicted(String newName, String oldName) {
+		return getSession().createQuery(
+				"SELECT count(*)> 0 FROM Analysis als1 INNER JOIN als1.analysisStandards as alsStd1 where alsStd1.standard.label = :newName and (Select count(*)> 0 from Analysis als2 inner join als2.analysisStandards as alsStd2 where als1 = als2 and alsStd2.standard.label = :oldName) = true",
+				Boolean.class).setParameter("newName", newName).setParameter("oldName", oldName).uniqueResult();
 	}
 
 }

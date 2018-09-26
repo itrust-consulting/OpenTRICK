@@ -143,9 +143,6 @@ public class ControllerKnowledgeBaseStandard {
 	 */
 	@RequestMapping
 	public String displayAll(Model model) throws Exception {
-
-		// load all standards to model
-
 		model.addAttribute("standards", serviceStandard.getAllNotBoundToAnalysis());
 		return "knowledgebase/standards/standard/standards";
 	}
@@ -177,58 +174,81 @@ public class ControllerKnowledgeBaseStandard {
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 
 		// init errors list
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		final Map<String, String> errors = new LinkedHashMap<String, String>();
 
-		try {
-			// create new empty object
-			Standard standard = new Standard();
+		// create new empty object
+		Standard standard = new Standard();
 
-			// build standard object
-			if (!buildStandard(errors, standard, value, locale))
-				return errors;
+		// build standard object
+		if (!buildStandard(errors, standard, value, locale))
+			return errors;
 
-			// check if standard has to be create (new) or updated
-			if (standard.getId() < 1) {
+		// check if standard has to be create (new) or updated
+		if (standard.getId() < 1) {
+			if (serviceStandard.existsByNameAndVersion(standard.getLabel(), standard.getVersion()))
+				errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
+			else
+				serviceStandard.save(standard);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.add", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
+					principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
+		} else {
 
-				try {
-					serviceStandard.save(standard);
+			Standard persited = serviceStandard.get(standard.getId());
+			if (persited == null)
+				errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
+			else if (persited.isAnalysisOnly())
+				errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
+						"This standard can only be managed within the selected analysis where this standard belongs!", locale));
+			else if (!persited.getType().equals(standard.getType()) && serviceStandard.isUsed(persited))
+				errors.put("type", messageSource.getMessage("error.norm.type.update", null, "Standard is in use, type cannot be updated!", locale));
+			else {
+
+				if (!persited.getLabel().equalsIgnoreCase(standard.getLabel())) {
+					if (serviceStandard.isConflicted(standard.getLabel(), persited.getLabel()))
+						errors.put("label", messageSource.getMessage("error.norm.rename.conflict", null, locale));
+					else {
+						final List<Standard> standards = serviceStandard.findByLabelAndAnalysisOnlyFalse(persited.getLabel());
+						standards.remove(persited);
+						for (Standard std : standards) {
+							if (serviceStandard.existsByNameAndVersion(standard.getLabel(), std.getVersion())) {
+								errors.put("standard",
+										messageSource.getMessage("error.norm.rename.sub.version", null, locale));
+								break;
+							}
+						}
+						final String oldName = persited.getLabel();
+						if (errors.isEmpty()) {
+							standards.forEach(s -> {
+								s.setLabel(standard.getLabel());
+								serviceStandard.saveOrUpdate(s);
+								TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename",
+										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", s.getLabel(), s.getVersion(), oldName,
+												s.getVersion()),
+										principal.getName(), LogAction.RENAME, s.getLabel(), String.valueOf(s.getVersion()), oldName,
+										String.valueOf(s.getVersion()));
+							});
+							final int oldVersion = standard.getVersion();
+							serviceStandard.saveOrUpdate(persited.update(standard));
+							TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename",
+									String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", persited.getLabel(), persited.getVersion(), oldName,
+											oldVersion),
+									principal.getName(), LogAction.RENAME, persited.getLabel(), String.valueOf(persited.getVersion()), oldName, String.valueOf(oldVersion));
+
+						}
+					}
+				} else {
+					serviceStandard.saveOrUpdate(persited.update(standard));
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.add", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-							principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
-				} catch (Exception e) {
-					TrickLogManager.Persist(e);
-					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
+					TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.update", String.format("Standard: %s, version: %d", persited.getLabel(), persited.getVersion()),
+							principal.getName(), LogAction.UPDATE, persited.getLabel(), String.valueOf(persited.getVersion()));
 				}
-
-			} else {
-
-				Standard tmpStandard = serviceStandard.get(standard.getId());
-				if (tmpStandard == null)
-					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
-				else if (!tmpStandard.isAnalysisOnly()) {
-
-					if (!tmpStandard.getType().equals(standard.getType()) && serviceStandard.isUsed(tmpStandard))
-						errors.put("type", messageSource.getMessage("error.norm.type.update", null, "Standard is in use, type cannot be updated!", locale));
-					else {
-						serviceStandard.saveOrUpdate(tmpStandard.update(standard));
-						/**
-						 * Log
-						 */
-						TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.update", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-								principal.getName(), LogAction.UPDATE, standard.getLabel(), String.valueOf(standard.getVersion()));
-					}
-				} else
-					errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
-							"This standard can only be managed within the selected analysis where this standard belongs!", locale));
 			}
 
-			// errors
-		} catch (Exception e) {
-			// return errors
-			errors.put("standard", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -255,7 +275,7 @@ public class ControllerKnowledgeBaseStandard {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.standard.delete",
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.standard.delete",
 					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()), principal.getName(), LogAction.DELETE, standard.getLabel(),
 					String.valueOf(standard.getVersion()), principal.getName());
 			// return success message
@@ -374,9 +394,9 @@ public class ControllerKnowledgeBaseStandard {
 			sheet = findSheet(workbook, "NormData");
 			final List<Language> languages = serviceLanguage.getAll();
 			final List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
-			
-			measuredescriptions.sort((m1,m2)-> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
-			
+
+			measuredescriptions.sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
+
 			int referenceCol = 0, computableCol = 1, colSize = (languages.size() + 1) * 2, index = 0;
 			sheet.getRow().clear();
 			Row sheetRow = getRow(sheet, 0, colSize);
@@ -440,7 +460,7 @@ public class ControllerKnowledgeBaseStandard {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.standard",
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.export.standard",
 					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()), principal.getName(), LogAction.EXPORT, standard.getLabel(),
 					String.valueOf(standard.getVersion()));
 			// return
