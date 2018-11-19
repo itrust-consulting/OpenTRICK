@@ -3,13 +3,12 @@ package lu.itrust.business.TS.database.migration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import lu.itrust.business.TS.constants.Constant;
 
-public class V2_2_7__Fix_Qualitative_value implements SpringJdbcMigration {
+public class V2_2_7__Fix_Qualitative_value extends TrickServiceDataBaseMigration {
 
 	private final String LOAD_QUANTITATIVE_IMPACT_ID = "SELECT `ScaleType`.`idScaleType` FROM `ScaleType` where `ScaleType`.`dtName` = 'IMPACT';";
 

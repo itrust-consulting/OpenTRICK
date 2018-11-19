@@ -10,6 +10,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
@@ -308,6 +309,8 @@ public class ControllerDataManager {
 		assessmentAndRiskProfileManager.updateAssessment(analysis, factory);
 		final List<ScaleType> scales = analysis.findImpacts();
 		final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+		final Map<AssetType, String> assetTypes = serviceAssetType.getAll().stream()
+				.collect(Collectors.toMap(Function.identity(), e -> messageSource.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
 		final String[] columns = createTableHeader(scales, workbook, qualitative, hiddenComment, rowColumn, uncertainty);
 		createHeader(worksheetPart, "Risk_estimation", columns, analysis.getAssessments().size());
 		analysis.getAssessments().sort((a1, a2) -> {
@@ -359,7 +362,8 @@ public class ControllerDataManager {
 				setValue(row, cellIndex++, value);
 				setValue(row, cellIndex++, profile.getActionPlan());
 			}
-
+			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
+			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
 		}
 		exportAsset(analysis, mlPackage, hiddenComment);
 		exportScenario(analysis, mlPackage);
@@ -375,6 +379,7 @@ public class ControllerDataManager {
 				analysis.getIdentifier(), analysis.getVersion());
 
 	}
+
 
 	@GetMapping("/Measure/Export-form")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session,#principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -993,6 +998,8 @@ public class ControllerDataManager {
 
 	private String[] createTableHeader(List<ScaleType> scales, WorkbookPart workbook, boolean qualitative, boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
 		List<Column> columns = WorkerImportEstimation.generateColumns(scales, qualitative, hiddenComment, rowColumn, uncertainty);
+		columns.add(new Column("Asset type"));
+		columns.add(new Column("Asset selected"));
 		String[] result = new String[columns.size()];
 		for (int i = 0; i < columns.size(); i++)
 			result[i] = columns.get(i).getName();

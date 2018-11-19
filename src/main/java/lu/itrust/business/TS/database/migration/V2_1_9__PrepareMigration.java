@@ -5,14 +5,13 @@ package lu.itrust.business.TS.database.migration;
 
 import java.sql.ResultSet;
 
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * @author eomar
  *
  */
-public class V2_1_9__PrepareMigration implements SpringJdbcMigration {
+public class V2_1_9__PrepareMigration extends TrickServiceDataBaseMigration {
 
 	/**
 	 * 

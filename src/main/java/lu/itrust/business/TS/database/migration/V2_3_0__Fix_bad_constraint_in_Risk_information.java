@@ -2,10 +2,9 @@ package lu.itrust.business.TS.database.migration;
 
 import java.sql.ResultSet;
 
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class V2_3_0__Fix_bad_constraint_in_Risk_information implements SpringJdbcMigration {
+public class V2_3_0__Fix_bad_constraint_in_Risk_information extends TrickServiceDataBaseMigration {
 
 	@Override
 	public void migrate(JdbcTemplate jdbcTemplate) throws Exception {

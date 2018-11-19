@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+	<Properties>
+		<Property name="hostName" value="${bundle:deployment:app.settings.otp.name}" />
+	</Properties>
 	<Appenders>
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t] %-5p %c - %m%n" />
 		</Console>
-		<Socket name="RemoteLogger" host="vm-lan-logger.itrust.lu" port="5142" ReconnectionDelay="10000">
-			<PatternLayout pattern="%t %-5p %c{2} - %m%n" />
+		<Socket name="RemoteLogger" host="${bundle:deployment:app.settings.logger.server.host}" port="${bundle:deployment:app.settings.logger.server.port}" ReconnectionDelay="10000" protocol="SSL">
+			<LogstashLayout />
 		</Socket>
 	</Appenders>
 	<Loggers>
-		<logger name="TrickLogManager" level='DEBUG'>
+		<Asynclogger name="TrickLogManager" level='INFO'>
 			<AppenderRef ref="RemoteLogger" />
-		</logger>
+		</Asynclogger>
 		
 		<logger name="org.docx4j" level='ERROR' />
 		
@@ -35,7 +38,7 @@
 		
 		<logger name="stdout.org.springframework" level='WARN' />
 		
-		<Root level="INFO">
+		<Root level="WARN">
 			<AppenderRef ref="STDOUT" />
 		</Root>
 	</Loggers>

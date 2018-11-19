@@ -74,6 +74,12 @@ public final class ExcelHelper {
 		cell.setV(value ? "1" : "0");
 	}
 
+	public static Cell setFormula(Cell cell, String formula) {
+		cell.setF(Context.getsmlObjectFactory().createCTCellFormula());
+		cell.getF().setValue(formula);
+		return cell;
+	}
+
 	public static Row getRow(SheetData sheet, int index, int colSize) {
 		Row sheetRow;
 		while (sheet.getRow().size() <= index) {

@@ -6,13 +6,13 @@
 	<version>2.11</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.hibernate.version>5.3.6.Final</org.hibernate.version>
+		<org.hibernate.version>5.3.7.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>5.0.9.RELEASE</org.springframework.version>
+		<org.springframework.version>5.1.2.RELEASE</org.springframework.version>
 		<org.apache.logging.log4j.version>2.11.1</org.apache.logging.log4j.version>
-		<com.fasterxml.jackson.core.version>2.9.6</com.fasterxml.jackson.core.version>
+		<com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<org.springframework.security.version>5.0.8.RELEASE</org.springframework.security.version>
+		<org.springframework.security.version>5.1.1.RELEASE</org.springframework.security.version>
 	</properties>
 	<dependencies>
 
@@ -150,7 +150,7 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.10</version>
+			<version>2.10.1</version>
 		</dependency>
 
 		<!-- WEB SOCKET -->
@@ -195,23 +195,23 @@
 			<artifactId>hibernate-jcache</artifactId>
 			<version>${org.hibernate.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>${org.hibernate.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>3.6.0</version>
+			<version>3.6.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hibernate.common</groupId>
 			<artifactId>hibernate-commons-annotations</artifactId>
-			<version>5.0.4.Final</version>
+			<version>5.1.0.Final</version>
 		</dependency>
 
 		<dependency>
@@ -229,19 +229,25 @@
 		<dependency>
 			<groupId>javax.servlet.jsp.jstl</groupId>
 			<artifactId>javax.servlet.jsp.jstl-api</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.23.1</version>
+			<version>3.25.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.6</version>
 		</dependency>
 
 		<dependency>
@@ -274,6 +280,20 @@
 			<version>${org.apache.logging.log4j.version}</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.vlkan.log4j2/log4j2-logstash-layout -->
+		<dependency>
+			<groupId>com.vlkan.log4j2</groupId>
+			<artifactId>log4j2-logstash-layout</artifactId>
+			<version>0.14</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.lmax/disruptor -->
+		<dependency>
+			<groupId>com.lmax</groupId>
+			<artifactId>disruptor</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
@@ -303,12 +323,6 @@
 			<artifactId>jackson-dataformat-xml</artifactId>
 			<version>${com.fasterxml.jackson.core.version}</version>
 		</dependency>
-
-		<!-- <dependency> -->
-		<!-- <groupId>net.logstash.log4j</groupId> -->
-		<!-- <artifactId>jsonevent-layout</artifactId> -->
-		<!-- <version>1.7</version> -->
-		<!-- </dependency> -->
 
 		<!-- Docx4J(Generate Office document) -->
 
@@ -359,7 +373,7 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>5.1.4</version>
+			<version>5.2.1</version>
 		</dependency>
 
 		<!-- JIRA -->
@@ -522,7 +536,42 @@
 					</suiteXmlFiles>
 				</configuration>
 			</plugin>
-			<!-- <plugin> <groupId>org.docx4j</groupId> <artifactId>docx4j</artifactId> <version>2.8.0</version> </plugin> -->
+
+			<plugin>
+				<groupId>io.leonard.maven.plugins</groupId>
+				<artifactId>jspc-maven-plugin</artifactId>
+				<version>2.4.6</version>
+				<executions>
+					<execution>
+						<id>jspc</id>
+						<phase>package</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<threads>4</threads>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.tomcat</groupId>
+						<artifactId>tomcat-jasper</artifactId>
+						<version>9.0.13</version>
+						<exclusions>
+							<exclusion>
+								<groupId>org.eclipse.jdt.core.compiler</groupId>
+								<artifactId>ecj</artifactId>
+							</exclusion>
+						</exclusions>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.jdt.core.compiler</groupId>
+						<artifactId>ecj</artifactId>
+						<version>4.6.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

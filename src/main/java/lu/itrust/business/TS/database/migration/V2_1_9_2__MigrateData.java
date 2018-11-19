@@ -14,7 +14,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -39,7 +38,7 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  * @author eomar
  *
  */
-public class V2_1_9_2__MigrateData implements SpringJdbcMigration {
+public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 
 	private  final String QUERY_ASSESSMENT_SQL = "SELECT `idAssessment`, `dtALE`, `dtALEO`, `dtALEP`,`dtImpactFin`, `dtImpactLeg`, `dtImpactOp`, `dtImpactReal`, `dtImpactRep`, `dtLikelihood`, `dtLikelihoodReal`, `dtUncertainty` FROM `Assessment` WHERE `fiAnalysis` = ?";
 

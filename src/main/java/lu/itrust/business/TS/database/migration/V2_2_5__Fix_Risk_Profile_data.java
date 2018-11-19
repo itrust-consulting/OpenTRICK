@@ -3,11 +3,10 @@ package lu.itrust.business.TS.database.migration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
-public class V2_2_5__Fix_Risk_Profile_data implements SpringJdbcMigration {
+public class V2_2_5__Fix_Risk_Profile_data extends TrickServiceDataBaseMigration {
 
 	private final String EXP_REQUEST = "Select RiskProfile.fiAnalysis as idAnalysis, RiskProfile.idRiskProfile as idRiskProfile, ImpactParameter.idImpactParameter as idImpactParameter, ImpactParameter.dtAcronym as acronym From RiskProfile , RiskProfileExpImpacts , ImpactParameter where RiskProfileExpImpacts.fiRiskProfile = RiskProfile.idRiskProfile and RiskProfileExpImpacts.fiExpImpact = ImpactParameter.idImpactParameter and RiskProfile.fiAnalysis <> ImpactParameter.fiAnalysis;";
 	private final String RAW_REQUEST = "Select RiskProfile.fiAnalysis as idAnalysis, RiskProfile.idRiskProfile as idRiskProfile, ImpactParameter.idImpactParameter as idImpactParameter, ImpactParameter.dtAcronym as acronym From RiskProfile , RiskProfileRawImpacts , ImpactParameter where RiskProfileRawImpacts.fiRiskProfile = RiskProfile.idRiskProfile and RiskProfileRawImpacts.fiRawImpact = ImpactParameter.idImpactParameter and RiskProfile.fiAnalysis <> ImpactParameter.fiAnalysis;";

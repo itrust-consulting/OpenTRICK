@@ -85,11 +85,7 @@
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
 		p:username="${jdbc.username}" p:password="${jdbc.password}" />
 
-	<bean id="baselineVersion" class="org.flywaydb.core.api.MigrationVersion" factory-method="fromVersion">
-		<constructor-arg value="${app.settings.database.version}" />
-	</bean>
-
-	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+	<bean id="flywayConfig" class="org.flywaydb.core.api.configuration.ClassicConfiguration">
 		<property name="dataSource" ref="dataSource" />
 		<property name="baselineOnMigrate" value="false" />
 		<property name="table" value="SchemaVersion" />
@@ -100,6 +96,14 @@
 				<value>classpath:/migration</value>
 			</list>
 		</property>
+	</bean>
+
+	<bean id="baselineVersion" class="org.flywaydb.core.api.MigrationVersion" factory-method="fromVersion">
+		<constructor-arg value="${app.settings.database.version}" />
+	</bean>
+
+	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+		<constructor-arg ref="flywayConfig"/>
 	</bean>
 
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="flyway">
@@ -152,7 +156,7 @@
 	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
 		<property name="password" value="${app.settings.password.ecryption.key}" />
 	</bean>
-	
+
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'lang' request parameter is sent; e.g. /?lang=fr -->
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
@@ -166,7 +170,7 @@
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />
 		</bean>
-		
+
 	</mvc:interceptors>
 
 	<import resource="spring-security.xml" />
