@@ -124,7 +124,7 @@
 						<li><a href="#" onclick="return updateMeasureEffience(undefined, true)"><spring:message code="label.action.update.efficiency" /></a></li>
 					</c:if>
 				</c:if>
-				<c:if test="${canExport or isEditable}">
+				<c:if test="${isEditable}">
 					<li class="divider"></li>
 					<c:if test="${canExport}">
 						<li><a href="#" onclick="return exportDataManager(${analysis.id})"> <spring:message code="label.action.export" /></a></li>
