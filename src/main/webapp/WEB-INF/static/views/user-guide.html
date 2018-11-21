@@ -1101,24 +1101,19 @@
 		choose to provide a second comment in the “Hidden Comment” column which will not be displayed in the exported report. It
 		is not mandatory for the user to fill in this column however, in certain cases it may be necessary to add more useful information.</p>
 	<h4>Manage</h4>
-	<p>The content of each section (“threats”, “vulnerabilities”, and “risk”) can be edited. In the upper right corner, three options are available (also see <a href="#_FIG_brainstorming">[Figure]</a>):</p>
-	<ul>
-		<li><strong>Export</strong>: Export all data from all sheets into a single Excel file (with three sheets). The structure of the Excel file is the same as the one in TRICK Service.</li>
-		<li><strong>Import</strong>: Clears all data from the sheets in TRICK Service, and replaces it with the data contained in the provided Excel file (with three sheets). It is strongly recommended to use a previously exported file as a template.</li>
-		<li><strong>Manage</strong>: Opens a pop-up where quick changes can be made directly in TRICK Service. Each entry has three associated buttons:
-			<ul>
-				<li>[−] Deletes only the current line;</li>
-				<li>[−] Deletes the current line, and all lines starting with the same reference number;
-					<div class="alert alert-info">For historical reasons, this button ignores trailing zeroes (<code>0</code>) and periods (<code>.</code>). So, deleting <code>5.0.0.</code> with this button will also delete all references starting with <code>5</code>.</div>
-				</li>
-				<li>[+] Adds a new, empty line below the current line.</li>
-			</ul>
-		</li>
-	</ul>
+	<p>The content of each section (“threats”, “vulnerabilities”, and “risk”) can be edited. In the upper right corner, an option is available to change their content (also see <a href="#_FIG_brainstorming">[Figure]</a>).</p>
 	<figure id="_FIG_brainstorming" class="figure">
 		<img src="img/brainstorming.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Editing brainstorming sections through export, import, and manual editing.</figcaption>
 	</figure>
+	<p>Click the “Manage” button to open a pop-up where quick changes can be made directly in TRICK Service. Each entry has three associated buttons:</p>
+	<ul>
+		<li>[−] Deletes only the current line;</li>
+		<li>[−] Deletes the current line, and all lines starting with the same reference number;
+			<div class="alert alert-info">For historical reasons, this button ignores trailing zeroes (<code>0</code>) and periods (<code>.</code>). So, deleting <code>5.0.0.</code> with this button will also delete all references starting with <code>5</code>.</div>
+		</li>
+		<li>[+] Adds a new, empty line below the current line.</li>
+	</ul>
 	<h3 id="risk-assessment">Risk assessment</h3>
 	<h4><a id="analysis-asset"></a>Assets</h4>
 	<p>The assets section contains a table listing all assets that are within the scope of the risk assessment. In the ribbon above
@@ -2145,17 +2140,12 @@
 	<h4><a id="analysis-chart-budget"></a>Budget by Action Plan (only for quantitative risk analyses)</h4>
 	<p>The budget chart presents a chart containing the needed budget per implementation phase of the security measures.</p>
 	<h2 id="actions">Actions</h2>
-	<p>On the right-hand side of the analysis ribbon (highlighted in red in the figure below), is the actions drop-down menu. This
-		menu contains options which are described in detail in the following sections.</p>
-	<figure id="_FIG_74" class="figure">
+	<p>More advanced options can be found in the “Actions” menu (gear icon) on the right-hand side of the analysis ribbon (highlighted in red in <a href="#_FIG_actions">[Figure]</a> below). Its menu items are described in greater detail in the following sections.</p>
+	<figure id="_FIG_actions" class="figure">
 		<img src="img/76.png" class="figure-img img-fluid" />
 		<br />
-		<img src="img/77.png" class="figure-img img-fluid" />
-		<figure class="figure">
-			<img src="img/78.png" class="figure-img img-fluid" />
-			<figcaption class="figure-caption">Risk specificities definition view.</figcaption>
-		</figure>
-		<figcaption class="figure-caption" id="_FIG_73">Action menu.</figcaption>
+		<img src="img/actions.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Action menu.</figcaption>
 	</figure>
 	<h3 id="manual-update">Manual update</h3>
 	<h4>Compute action plan</h4>
@@ -2168,8 +2158,18 @@
 	<p>The update estimation option will recompute all ALE. This option should only be used when the automatic computation of the
 		ALE failed.</p>
 	<h3 id="export--">Export</h3>
+	<p>Clicking on “Export” will open the centralised export interface, from where most of the data entered into TRICK Service can be exported to portable formats.</p>
+	<figure class="figure" id="_FIG_exportui">
+		<img src="img/export_ui.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Centralized export interface.</figcaption>
+	</figure>
+	<p>The interface is structured as follows: on the right-hand side, the user can choose what shall be exported. The left-hand side of the interface will then show configuration options (if applicable), which are explained in the sub-sections below. As a final step, the data can be exported via the “Export” button in the lower right corner. See <a href="#_FIG_exportui">[Figure]</a> for an illustration.</p>
+	<h4>Brainstorming</h4>
+	<p>Export all data from all sheets from the “Brainstorming” section (see <a href="#brainstorming">[Section]</a>) into a single Excel file (with three sheets). The structure of the Excel file is the same as the one in TRICK Service.</p>
+	<h4 id="export--measures">Measures</h4>
+	<p>Exports all security measures from the selected measure collections as an Excel sheet. Multiple standards can be selected using the SHIFT and CTRL keys on the keyboard.</p>
 	<h4>Report</h4>
-	<p>By clicking on “Report”, the user will get a structured risk analysis report including all data of selected the risk analysis.
+	<p>By clicking on “Export”, the user will get a structured risk analysis report including all data of selected the risk analysis.
 		The report is a word file including macros for the creation of charts &amp; tables.</p>
 	<figure id="_FIG_74b" class="figure">
 		<img src="img/78b.png" class="figure-img img-fluid" />
@@ -2179,38 +2179,59 @@
 	<p>You can also upload a previously exported report that gets automatically updated (even if styling or content changes have been made to the document).</p>
 	<div class="alert alert-warning">This feature is still experimental, though, and might not work as expected.</div>
 	<h4>Statement of Applicability</h4>
-	<p>By clicking on “Statement of Applicability”, the user will get a word document including the statement of applicability.</p>
-	<h4>Risk register</h4>
-	<p>By clicking on “Risk register”, you will get a Word document including the risk register.</p>
-	<h4>Risk sheets</h4>
-	<p>By clicking on “Risk sheets”, you can choose with the help thresholds which risk sheets you want to export. The risk sheets
-		will be included in a word document.</p>
-	<h4>Risk sheets (raw)</h4>
-	<p>By clicking on “Risk sheets (raw), you get the risk sheets data in form of a Microsoft Excel file.</p>
-	<h4>Action plan (raw)</h4>
-	<p>This option allows to export the data of an action plan under Microsoft Excel format.</p>
-	<h3 id="rrf-only-for-quantitative-risk-analyses">RRF (only for quantitative risk analyses)</h3>
-	<h4>Open RRF</h4>
-	<p>The open RRF option opens the Risk Reduction Factor view where the user can define the risk specificities for the different
-		risk scenarios and the influence of the security measures on risks of the current risk analysis.</p>
+	<p>By clicking on “Export”, the user will get a word document including the statement of applicability.</p>
+	<h4 id="export--risk-estimations">Risk estimations</h4>
+	<p>By clicking on “Export”, you will get an Excel spreadsheet that contains all likelihood and impact estimations for all assets and scenarios.</p>
+	<p>In contrast to the risk sheet, this spreadsheet can be imported back into TRICK Service.</p>
+	<h4>Risk sheet</h4>
+	<p>This allows you to export a register of all the risks encoded in TRICK Service. It is a summary of all of the risk estimations, arranged visually.</p>
+	<p>The risk sheet can exported in two formats: as a Word report (for printing) or as an Excel file (for manipulation). The following options can be configured:</p>
+	<ul>
+		<li><strong>Risk sheets format:</strong> (Only for Word report) Whether the risk sheet should meet with the CSSF requirements.</li>
+		<li><strong>Impact threshold:</strong> The minimum impact starting at which a risk is exported. If a risk has a lower impact, it will be omitted in the export.</li>
+		<li><strong>Probability threshold:</strong> </li>
+		<li><strong>Direct size:</strong> The number of most important “direct” (in the CSSF sense) risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
+		<li><strong>Indirect size:</strong> The number of most important “indirect” (in the CSSF sense) risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
+		<li><strong>CIA size:</strong> The number of most important “confidentiality/integrity/integrity” risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
+		<li><strong>Owner:</strong> A filter for only exporting those risks that are associated to the selected owner. Select “All” to disable the filter.</li>
+	</ul>
+	<div class="alert alert-warning">The risk sheet is only meant for documentation/compliance purposes. It cannot be imported back into TRICK Service! Consider exporting the risk estimations, instead.</div>
+	<h4 id="export--rrf">RRF</h4>
+	<p>This option allows to export all RRF values of the different standards in Microsoft Excel format. This allows the user to modify more fast several RRF values. With the help of the Import option, the user can reimport and overwrite the RRF values again.</p>
+	<div class="alert alert-warning">
+		The exported file is bound to the analysis and analysis version that it was exported from!
+		Importing it to another analysis or version will fail.
+		This choice has been been made to prevent accidental upload of bad data and potential data loss.
+		If you absolutely want to copy the RRF values from analysis “A” to analysis “B”, you can always export the RRF values for both “A” and “B”, copy over the contents manually (in Excel) from the exported file “A” to the exported file “B”, and import file “B” into analysis “B”.
+	</div>
+	<h3 id="import--">Import</h3>
+	<p>Clicking on “Import” will open the centralised import interface, from where data can be imported back (again) into TRICK Service.</p>
+	<figure class="figure" id="_FIG_importui">
+		<img src="img/import_ui.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Centralized import interface.</figcaption>
+	</figure>
+	<p>The interface is structured as follows: on the right-hand side, the user can choose what shall be imported. The left-hand side of the interface will then show configuration options (if applicable) and a possibility to select the import file. The options are explained in the sub-sections below. As a final step, the data can be imported via the “Import” button in the lower right corner. See <a href="#_FIG_importui">[Figure]</a> for an illustration.</p>
+	<h4>Brainstorming</h4>
+	<p>Clears all data from the sheets in TRICK Service, and replaces it with the data contained in the provided Excel file (with three sheets). It is strongly recommended to use a previously exported file as a template.</p>
+	<h4>Measures</h4>
+	<p>Imports back previously exported security measures from an Excel spreadsheet. The format of the file is the same than the one exported by TRICK Service (<a href="#export--measures">[Section]</a>). Instead of starting from a raw file, consider exporting a file, adapting it, and importing it.</p>
+	<h4>Risk estimations</h4>
+	<p>Imports back previously exported risk estimations from an Excel spreadsheet. The format of the file is the same than the one exported by TRICK Service (<a href="#export--risk-estimations">[Section]</a>). Instead of starting from a raw file, consider exporting a file, adapting it, and importing it.</p>
+	<h4>RRF</h4>
+	<p>The RRF values can be imported either from a previously exported file, or from the knowledge database (i.e., from another analysis). In either case, the RRF values will be replaced by those in the file/analysis for the selected standards.</p>
+	<p>In the first case, the file must match the format of the file exported by TRICK Service (<a href="#export--rrf">[Section]</a>). The RRF values for all standards contained in the file will be imported. When a standard is missing in the file, the related RRF values will remain unchanged in the analysis.</p>
+	<p>In the second case, the user must select a risk analysis profile, or an analysis of a customer. In a seconds step, the user must select all standards for which he wishes to import the RRF values; multiple standards can be selected using the SHIFT or CTRL keys on the keyboard. When a standard is not selected, the related RRF values will remain unchanged in the analysis.</p>
 	<figure id="_FIG_75" class="figure">
 		<img src="img/79.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Import of risk specificity values.</figcaption>
 	</figure>
-	<h4>Import RRF</h4>
-	<p>The import RRF option allows the user to import the RRF values from a risk analysis profile or from another customer. First
-		the user has to select from which profile/ customer and from which analysis he likes to import the RRF values and second
-		he has to select for which standard he wants to copy the values.</p>
-	<p>Once the user selected a profile and a standard, he can import the RRF values defined in the profile for the selected standard
-		to the current analysis. Note that the RRF values of the standard in the current analysis will be overwritten by the RRF
-		values from the standard of the analysis profile.</p>
-	<h4>Import (Raw)</h4>
-	<p>With the help of the Import (Raw) option, the user can import and overwrite the RRF values of the selected risk analysis.
-		The import file must be under Microsoft Excel format and correspond to the format of the exported (raw) data file.</p>
-	<h4>Export (Raw)</h4>
-	<p>The export (raw) option allows to export all RRF values of the different standards in Microsoft Excel format. This allows
-		the user to modify more fast several RRF values. With the help of the Import (Raw) option, the user can reimport and overwrite
-		the RRF values of the selected risk analysis.</p>
+	<h3 id="rrf-only-for-quantitative-risk-analyses">RRF (only for quantitative risk analyses)</h3>
+	<p>The open RRF option opens the Risk Reduction Factor view where the user can define the risk specificities for the different
+		risk scenarios and the influence of the security measures on risks of the current risk analysis.</p>
+	<figure class="figure">
+		<img src="img/78.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Risk specificities definition view.</figcaption>
+	</figure>
 	<h3 id="edit-text-fields">Edit text fields</h3>
 	<p>You can choose between “open” or “close” edit modes to open or close all text fields of the selected risk analysis.</p>
 	<h3 id="settings--">Settings</h3>
@@ -3168,6 +3189,18 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+	<h2 id="whats-new-in-ts-2.11">What's new in TRICK Service 2.11</h2>
+	<ul>
+		<li>Central export interface: all im-/export features can now be found in a central place.</li>
+		<li>Import/export risk estimations from/to an Excel file.</li>
+		<li>Renaming an analysis now also renames all versions.</li>
+		<li>Fixed bug which caused an import of the brainstorming to fail under certain conditions.</li>
+		<li>Fixed bug where asset name could not be renamed if only the capitalisation of the name changed.</li>
+		<li>Fixed bug where measures could not be changed in the knowledge base.</li>
+		<li>Fixed bug which prevented measures from being selected in the risk estimation UI.</li>
+		<li>API: added support for exporting dynamic risk analysis</li>
+		<li>API: also exporting the &quot;selected&quot; flag of assets</li>
+	</ul>
 	<h2 id="whats-new-in-ts-2.10">What's new in TRICK Service 2.10</h2>
 	<ul>
 		<li>Re-arranged menu bar in analyses overview.</li>

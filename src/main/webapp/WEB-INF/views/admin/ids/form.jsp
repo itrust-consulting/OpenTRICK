@@ -24,7 +24,7 @@
 			<spring:message code="label.action.disable" text="Disable" var="disable" />
 			<div class="modal-body">
 				<jsp:include page="../../template/successErrors.jsp" />
-				<form:form commandName="ids" class="form-horizontal" name="ids" method="post">
+				<form:form modelAttribute="ids" class="form-horizontal" name="ids" method="post">
 					<form:hidden path="id" />
 
 					<div class="form-group">
