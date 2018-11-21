@@ -5,7 +5,12 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<c:set var="accessLevel" value="${analysis.findRightsforUserString(login).right.ordinal()}"/>
 <c:set var="isProfile" value="${analysis.profile}" scope="request" />
+<c:set var="canModify" value="${isProfile or accessLevel < 3}" scope="request"/>
+<c:set var="isEditable" value="${canModify and open!='READ'}" scope="request" />
+<c:set var="canExport" value="${accessLevel < 2 and not (isProfile or open=='READ')}" scope="request" />
+<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request" />
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
@@ -14,11 +19,8 @@
 <html lang="${language}">
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <jsp:include page="../../template/header.jsp" />
-<c:set var="canModify" value="${analysis.profile or analysis.findRightsforUserString(login).right.ordinal()<3}" />
 <body>
 	<div id="wrap" class="wrap">
-		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
-		<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container" data-ug-root="analysis">
 			<jsp:include page="menu.jsp" />
@@ -91,7 +93,9 @@
 	<c:if test="${!isProfile}">
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js?version=${jsVersion}" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js?version=${jsVersion}" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
+		<c:if test="${canExport}">
+			<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
+		</c:if>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/risk-estimation.js?version=${jsVersion}" />"></script>
 		<c:if test="${type.qualitative}" >
 			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js?version=${jsVersion}" />"></script>
