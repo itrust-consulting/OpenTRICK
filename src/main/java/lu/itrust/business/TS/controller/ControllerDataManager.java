@@ -1259,7 +1259,7 @@ public class ControllerDataManager {
 		if (token != null) {
 			Cookie cookie = new Cookie(token, "1");
 			cookie.setMaxAge(120);
-			cookie.setPath(request.getContextPath());
+			cookie.setPath("/");
 			response.addCookie(cookie);
 		}
 	}
