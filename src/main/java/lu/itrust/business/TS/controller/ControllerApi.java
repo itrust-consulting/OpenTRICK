@@ -14,19 +14,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
@@ -89,10 +91,10 @@ import lu.itrust.business.TS.usermanagement.IDS;
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 4, 2015
  */
-@Controller
-@RequestMapping("/Api")
-@ResponseBody
+@RestController
+@RequestMapping(value = "/Api", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ControllerApi {
+	
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
 
@@ -150,128 +152,10 @@ public class ControllerApi {
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
-	/**
-	 * Method is called whenever an exception of type TrickException is thrown
-	 * in this controller.
-	 */
-	@ResponseStatus(value = HttpStatus.FORBIDDEN)
-	@ExceptionHandler(TrickException.class)
-	private Object handleTrickException(TrickException ex) {
-		// Return the error message to the client (JSON).
-		// -1 denotes general errors.
-		return new ApiResult(-1, MessageFormat.format(ex.getMessage(), ex.getParameters()));
-	}
-
-	/**
-	 * Home of the API. Always returns success.
-	 */
-	@RequestMapping
-	public Object home(Principal principal) {
-		if (principal == null)
-			return new ApiResult(0, "<not logged in>");
-		else
-			return new ApiResult(0, principal.getName());
-	}
-
-	/**
-	 * This method is responsible for accepting external notifications which
-	 * serve as risk indicator (such as IDS alerts). From these, the
-	 * probabilities that certain events happen, are deduced and stored in
-	 * variables ready to be used within the TRICK service user interface
-	 * (asset/scenario estimation).
-	 * 
-	 * @param data
-	 *            One or multiple notifications sent to TRICK Service.
-	 * @return Returns an error code (0 = success).
-	 * @throws Exception
-	 */
-	@Transactional
-	@RequestMapping(value = "/ids/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
-
-		IDS ids = serviceIDS.get(principal.getName()).notifyAlert();
-
-		for (ApiExternalNotification apiObj : request.getData())
-			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, ids.getPrefix()));
-
-		// Trigger execution of worker which computes dynamic parameters.
-		// This method only schedules the task if it does not have been
-		// scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
-
-		serviceIDS.saveOrUpdate(ids);
-
-		// Success
-		return new ApiResult(0);
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/customers", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	public @ResponseBody Object loadUserCustomer(Principal principal, Locale locale) throws Exception {
-		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream().map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
-				.collect(Collectors.toList());
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/all", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	public @ResponseBody Object loadAnalyses(@RequestParam(name = "customerId") Integer idCustomer, Principal principal, Locale locale) {
-		if (idCustomer == null)
-			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
-		return serviceAnalysis.getIdentifierAndNameByUserAndCustomer(principal.getName(), idCustomer).stream().map(analysis -> new ApiNamable(analysis[0], analysis[1].toString()))
-				.collect(Collectors.toList());
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/versions", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	public @ResponseBody Object loadAnalysesVersion(@RequestParam(name = "customerId") Integer idCustomer, @RequestParam(name = "identifier") String identifier,
-			Principal principal, Locale locale) {
-		if (idCustomer == null)
-			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
-		if (identifier == null)
-			throw new TrickException("error.analysis.identifier", "Identifier cannot be empty");
-		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
-		if (customer == null)
-			throw new TrickException("error.custmer.not_found", "Customer cannot be found");
-		return serviceAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier, idCustomer, principal.getName()).stream()
-				.map(version -> new ApiNamable(version[0], version[1].toString())).collect(Collectors.toList());
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/risk-acceptance", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PostMapping("/data/analysis/{idAnalysis}/new-asset")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisRiskAcceptance(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) {
-		ApiRiskAcceptance apiObject = new ApiRiskAcceptance();
-		apiObject.setAcceptanceLevels(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis).stream().map(ApiRiskAcceptanceLevel::create).collect(Collectors.toList()));
-		apiObject.setImpactLevels(serviceImpactParameter.findByAnalysisId(idAnalysis).stream().collect(Collectors.groupingBy(ImpactParameter::getTypeName, Collectors.mapping(ApiRiskLevel::create, Collectors.toList()))));
-		apiObject.setLikelihoodLevels(serviceLikelihoodParameter.findByAnalysisId(idAnalysis).stream().map(ApiRiskLevel::create).collect(Collectors.toList()));
-		return apiObject;
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> ApiAsset.create(asset)).collect(Collectors.toList());
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/scenarios", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> ApiScenario.create(scenario)).collect(Collectors.toList());
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/standards", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/new-asset", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object createAnalysisAsset(@PathVariable Integer idAnalysis, @RequestParam(name = "name") String assetName, @RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object createAnalysisAsset(@PathVariable Integer idAnalysis, @RequestParam(name = "name") String assetName,
+			@RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
@@ -296,11 +180,26 @@ public class ControllerApi {
 			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets/{idAsset}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	
+	@DeleteMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object editAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, @RequestParam(name = "name") String assetName, @RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object deleteAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, Principal principal, Locale locale) throws Exception {
+		try {
+			customDelete.deleteAsset(idAsset, idAnalysis);
+			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+		}
+	}
+
+	@PostMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object editAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, @RequestParam(name = "name") String assetName,
+			@RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
@@ -322,61 +221,73 @@ public class ControllerApi {
 		}
 	}
 
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets/{idAsset}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.DELETE)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object deleteAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, Principal principal, Locale locale) throws Exception {
-		try {
-			customDelete.deleteAsset(idAsset, idAnalysis);
-			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
-		}
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/assessments", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@GetMapping("/data/analysis/{idAnalysis}/assessments")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object getAnalysisAssessments(@PathVariable Integer idAnalysis, Principal principal, Locale locale) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		return analysis.getAssessments().stream().map(assessment -> ApiAssessment.create(assessment)).collect(Collectors.toList());
 	}
 
-	@CrossOrigin
-	@RequestMapping(value = "/data/analysis/{idAnalysis}/assessments/save", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	/**
+	 * Home of the API. Always returns success.
+	 */
+	@RequestMapping
+	public Object home(Principal principal) {
+		if (principal == null)
+			return new ApiResult(0, "<not logged in>");
+		else
+			return new ApiResult(0, principal.getName());
+	}
+
+	@GetMapping("/data/analysis/all")
+	public @ResponseBody Object loadAnalyses(@RequestParam(name = "customerId") Integer idCustomer, Principal principal, Locale locale) {
+		if (idCustomer == null)
+			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
+		return serviceAnalysis.getIdentifierAndNameByUserAndCustomer(principal.getName(), idCustomer).stream().map(analysis -> new ApiNamable(analysis[0], analysis[1].toString()))
+				.collect(Collectors.toList());
+	}
+
+	@GetMapping("/data/analysis/versions")
+	public @ResponseBody Object loadAnalysesVersion(@RequestParam(name = "customerId") Integer idCustomer, @RequestParam(name = "identifier") String identifier,
+			Principal principal, Locale locale) {
+		if (idCustomer == null)
+			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
+		if (identifier == null)
+			throw new TrickException("error.analysis.identifier", "Identifier cannot be empty");
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
+		if (customer == null)
+			throw new TrickException("error.custmer.not_found", "Customer cannot be found");
+		return serviceAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier, idCustomer, principal.getName()).stream()
+				.map(version -> new ApiNamable(version[0], version[1].toString())).collect(Collectors.toList());
+	}
+
+	@GetMapping("/data/analysis/{idAnalysis}/assets")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object saveAnalysisAssessments(@PathVariable Integer idAnalysis, @RequestBody ApiAssessmentValue assessmentValue, Principal principal, Locale locale) throws Exception {
-		try {
-			// Find assessment
-			Assessment assessment = serviceAssessment.getFromAnalysisById(idAnalysis, (Integer)assessmentValue.getId());
-			// Set new likelihood
-			assessment.setLikelihood(Double.toString(assessmentValue.getLikelihood()));
-			assessment.setLikelihoodReal(assessmentValue.getLikelihood());
-			// Set new impacts
-			for (IValue currentValue : assessment.getImpacts()) {
-				final Double newValue = assessmentValue.getImpacts().get(currentValue.getName());
-				// Only update impact if a new value has been provided for it
-				if (newValue != null) {
-					if (currentValue instanceof RealValue)
-						((RealValue)currentValue).setReal(newValue);
-					else if (currentValue instanceof LevelValue)
-						((LevelValue)currentValue).setLevel((int)Math.round(newValue));
-					// silently ignore all other value types
-				}
-			}
-			serviceAssessment.save(assessment);
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
-		}
+	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
+		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> ApiAsset.create(asset)).collect(Collectors.toList());
+	}
+
+	@GetMapping("/data/analysis/{idAnalysis}/risk-acceptance")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisRiskAcceptance(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) {
+		ApiRiskAcceptance apiObject = new ApiRiskAcceptance();
+		apiObject.setAcceptanceLevels(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis).stream().map(ApiRiskAcceptanceLevel::create).collect(Collectors.toList()));
+		apiObject.setImpactLevels(serviceImpactParameter.findByAnalysisId(idAnalysis).stream()
+				.collect(Collectors.groupingBy(ImpactParameter::getTypeName, Collectors.mapping(ApiRiskLevel::create, Collectors.toList()))));
+		apiObject.setLikelihoodLevels(serviceLikelihoodParameter.findByAnalysisId(idAnalysis).stream().map(ApiRiskLevel::create).collect(Collectors.toList()));
+		return apiObject;
+	}
+
+	@GetMapping("/data/analysis/{idAnalysis}/scenarios")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
+		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> ApiScenario.create(scenario)).collect(Collectors.toList());
+	}
+
+	@GetMapping("/data/analysis/{idAnalysis}/standards")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
+		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
 	}
 
 	/**
@@ -390,8 +301,7 @@ public class ControllerApi {
 	 * @param response
 	 * @throws Exception
 	 */
-	@CrossOrigin
-	@RequestMapping(value = "/data/load-rrf", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@GetMapping("/data/load-rrf")
 	public @ResponseBody Object loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
 			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String standard, Principal principal, HttpServletResponse response,
 			Locale locale) throws Exception {
@@ -410,8 +320,10 @@ public class ControllerApi {
 				.filter(assessment1 -> assessment1.getAsset().getId() == idAsset && assessment1.getScenario().getId() == idScenario).findAny()
 				.orElseThrow(() -> new TrickException("error.assessment.not_found", "Assessment cannot be found"));
 		ApiRRF apiRRF = new ApiRRF(idAnalysis, assessment.getImpactReal(), assessment.getLikelihoodReal());
-		apiRRF.setScenario(new ApiScenario(assessment.getScenario().getId(), assessment.getScenario().getName(), assessment.getScenario().getType().getValue(), assessment.getScenario().getType().getName()));
-		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getAssetType().getId(), assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue(), assessment.getAsset().isSelected()));
+		apiRRF.setScenario(new ApiScenario(assessment.getScenario().getId(), assessment.getScenario().getName(), assessment.getScenario().getType().getValue(),
+				assessment.getScenario().getType().getName()));
+		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getAssetType().getId(),
+				assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue(), assessment.getAsset().isSelected()));
 		IParameter rrfTuning = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		ValueFactory factory = new ValueFactory(analysis.getParameters());
 		for (String name : standardNames) {
@@ -427,5 +339,86 @@ public class ControllerApi {
 		}
 		return apiRRF;
 
+	}
+
+	@GetMapping("/data/customers")
+	public @ResponseBody Object loadUserCustomer(Principal principal, Locale locale) throws Exception {
+		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream().map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * This method is responsible for accepting external notifications which serve
+	 * as risk indicator (such as IDS alerts). From these, the probabilities that
+	 * certain events happen, are deduced and stored in variables ready to be used
+	 * within the TRICK service user interface (asset/scenario estimation).
+	 * 
+	 * @param data One or multiple notifications sent to TRICK Service.
+	 * @return Returns an error code (0 = success).
+	 * @throws Exception
+	 */
+	@Transactional
+	@PostMapping("/ids/notify")
+	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
+
+		IDS ids = serviceIDS.get(principal.getName()).notifyAlert();
+
+		for (ApiExternalNotification apiObj : request.getData())
+			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, ids.getPrefix()));
+
+		// Trigger execution of worker which computes dynamic parameters.
+		// This method only schedules the task if it does not have been
+		// scheduled yet for the given user.
+		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
+
+		serviceIDS.saveOrUpdate(ids);
+
+		// Success
+		return new ApiResult(0);
+	}
+
+	@PostMapping("/data/analysis/{idAnalysis}/assessments/save")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object saveAnalysisAssessments(@PathVariable Integer idAnalysis, @RequestBody ApiAssessmentValue assessmentValue, Principal principal, Locale locale)
+			throws Exception {
+		try {
+			// Find assessment
+			Assessment assessment = serviceAssessment.getFromAnalysisById(idAnalysis, (Integer) assessmentValue.getId());
+			// Set new likelihood
+			assessment.setLikelihood(Double.toString(assessmentValue.getLikelihood()));
+			assessment.setLikelihoodReal(assessmentValue.getLikelihood());
+			// Set new impacts
+			for (IValue currentValue : assessment.getImpacts()) {
+				final Double newValue = assessmentValue.getImpacts().get(currentValue.getName());
+				// Only update impact if a new value has been provided for it
+				if (newValue != null) {
+					if (currentValue instanceof RealValue)
+						((RealValue) currentValue).setReal(newValue);
+					else if (currentValue instanceof LevelValue)
+						((LevelValue) currentValue).setLevel((int) Math.round(newValue));
+					// silently ignore all other value types
+				}
+			}
+			serviceAssessment.save(assessment);
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+		}
+	}
+
+	/**
+	 * Method is called whenever an exception of type TrickException is thrown in
+	 * this controller.
+	 */
+	@ResponseStatus(value = HttpStatus.FORBIDDEN)
+	@ExceptionHandler(TrickException.class)
+	private Object handleTrickException(TrickException ex) {
+		// Return the error message to the client (JSON).
+		// -1 denotes general errors.
+		return new ApiResult(-1, MessageFormat.format(ex.getMessage(), ex.getParameters()));
 	}
 }

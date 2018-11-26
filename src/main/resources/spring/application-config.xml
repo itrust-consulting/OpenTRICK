@@ -19,6 +19,10 @@
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
 
+	<mvc:cors>
+		<mvc:mapping path="/Api/**" allowed-origins="https://draw.trickservice.com" allowed-methods="GET,POST,DELETE,OPTIONS"/>
+	</mvc:cors>
+
 	<context:component-scan base-package="lu.itrust.business" />
 
 	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment.properties,classpath:deployment-ldap.properties" />
@@ -103,7 +107,7 @@
 	</bean>
 
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
-		<constructor-arg ref="flywayConfig"/>
+		<constructor-arg ref="flywayConfig" />
 	</bean>
 
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="flyway">
