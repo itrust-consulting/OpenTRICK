@@ -24,7 +24,7 @@
 	</http>
 
 	<!-- DATA API -->
-	<http pattern="/Api/data/**" realm="TRICK Service application" create-session="stateless">
+	<http pattern="/Api/data/**" realm="TRICK Service application" create-session="never">
 		<cors />
 		<!-- Authorise access -->
 		<intercept-url pattern="/Api/data/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" requires-channel="https" />
