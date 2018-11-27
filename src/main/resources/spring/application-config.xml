@@ -20,7 +20,7 @@
 	</mvc:annotation-driven>
 
 	<mvc:cors>
-		<mvc:mapping path="/Api/**" allowed-origins="${app.settings.api.cors.allowed.origins}" allowed-methods="${app.settings.api.cors.allowed.methods}"/>
+		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS"/>
 	</mvc:cors>
 
 	<context:component-scan base-package="lu.itrust.business" />

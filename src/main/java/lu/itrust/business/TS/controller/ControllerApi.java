@@ -159,16 +159,23 @@ public class ControllerApi {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			
 			Asset asset = new Asset();
+			
 			asset.setName(assetName);
+			
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+			
 			asset.setSelected(false);
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			
 			analysis.add(asset);
+			
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			assessmentAndRiskProfileManager.unSelectAsset(asset);
+			
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 
 			return JsonMessage.SuccessWithId(asset.getId());
@@ -203,8 +210,11 @@ public class ControllerApi {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			
 			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, idAsset);
+			
 			asset.setName(assetName);
+			
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
 
 			serviceAsset.saveOrUpdate(asset);
