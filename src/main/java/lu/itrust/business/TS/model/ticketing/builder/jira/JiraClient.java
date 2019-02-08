@@ -247,7 +247,7 @@ public class JiraClient implements Client {
 	 */
 	@Override
 	public List<TicketingProject> findProjects() {
-		List<TicketingProject> projects = new LinkedList<>();
+		final List<TicketingProject> projects = new LinkedList<>();
 		restClient.getProjectClient().getAllProjects().claim().forEach(project -> projects.add(new JiraProject(project.getKey(), project.getName())));
 		return projects;
 	}
@@ -386,7 +386,7 @@ public class JiraClient implements Client {
 			;
 		}
 
-		return false;
+		return true;
 	}
 
 	@Override
