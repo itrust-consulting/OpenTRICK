@@ -38,7 +38,7 @@
 												<c:otherwise>
 													<select class="form-control" name='implementationRate' data-trick-class='Measure'>
 														<c:forEach begin="0" end="100" var="implementationRate">
-															<option value="${implementationRate}" ${implementationRate==measure.implementationRate?'selected':''}>${implementationRate}%</option>
+															<option value="${implementationRate}" ${implementationRate==measure.implementationRateValue?'selected':''}>${implementationRate}%</option>
 														</c:forEach>
 													</select>
 												</c:otherwise>

@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.ticketing.builder;
 
 import lu.itrust.business.TS.model.ticketing.builder.jira.JiraClient;
+import lu.itrust.business.TS.model.ticketing.builder.redmine.RedmineClient;
 
 /**
  * @author eomar
@@ -15,6 +16,8 @@ public class ClientBuilder {
 		switch (name) {
 		case "jira":
 			return new JiraClient();
+		case "redmine":
+			return new RedmineClient();
 		default:
 			return null;
 		}

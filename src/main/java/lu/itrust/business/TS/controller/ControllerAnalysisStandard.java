@@ -611,7 +611,7 @@ public class ControllerAnalysisStandard {
 					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
 				}
-				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, 0));
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 0, 20));
 				model.addAttribute("measures", measures);
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
@@ -721,7 +721,7 @@ public class ControllerAnalysisStandard {
 				client = buildClient(principal.getName());
 				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
-				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, startIndex));
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 20));
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {

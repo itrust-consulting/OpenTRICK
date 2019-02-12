@@ -55,7 +55,7 @@
 				<div class="col-xs-3" style="height: 94.5%">
 					<div class="list-group" style="height: 100%">
 						<span class="list-group-item list-group-item-info"><spring:message code='label.tickets' text="Tickets" /></span>
-						<div class="scrollable" style="height: 100%;" id="task-container">
+						<div class="scrollable" style="height: 100%;" id="task-container" data-offset="${tasks.getNextOffset()}" data-max-size="${tasks.getMaxSize()}">
 							<c:forEach items="${tasks}" var="task">
 								<spring:message text="${task.id}" var='taskId' />
 								<a id='task-controller-${taskId}' class="list-group-item" href="#task-view-${taskId}" aria-labelledby='task-view-${taskId}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> <span

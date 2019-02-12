@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.ticketing.impl;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import lu.itrust.business.TS.model.ticketing.TickectingComment;
@@ -33,7 +34,7 @@ public abstract class AbstractTask implements TicketingTask {
 
 	private Date updated;
 	
-	private List<Comment> comments;
+	private List<Comment> comments = new LinkedList<>();
 
 	/**
 	 * 

@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.standard.measure;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -239,6 +240,11 @@ public abstract class Measure implements Cloneable {
 	 */
 	@Transient
 	public abstract double getImplementationRateValue(Map<String, Double> factory);
+	
+	@Transient
+	public double getImplementationRateValue() {
+		return getImplementationRateValue(Collections.emptyMap());
+	}
 
 	@Transient
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();

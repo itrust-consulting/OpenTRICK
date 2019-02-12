@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.ticketing.impl.redmine;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +17,24 @@ import lu.itrust.business.TS.model.ticketing.impl.AbstractTask;
  *
  */
 public class RedmineTask extends AbstractTask {
+	
+	private String type;
+	
+	private String status;
+	
+	private String priority;
+	
+	private List<RedmineTask> subTasks = new LinkedList<>();
+	
+	private List<RedmineIssueLink> issueLinks = new LinkedList<>();
+	
+	private Map<String, RedmineCustomField> customFields = new LinkedHashMap<>();
+	
 
 	/**
 	 * 
 	 */
 	public RedmineTask() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -41,8 +55,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public String getStatus() {
-		// TODO Auto-generated method stub
-		return null;
+		return status;
 	}
 
 	/* (non-Javadoc)
@@ -50,8 +63,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public String getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return type;
 	}
 
 	/* (non-Javadoc)
@@ -59,8 +71,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public String getPriority() {
-		// TODO Auto-generated method stub
-		return null;
+		return priority;
 	}
 
 	/* (non-Javadoc)
@@ -68,8 +79,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public List<? extends TicketingField> getIssueLinks() {
-		// TODO Auto-generated method stub
-		return null;
+		return issueLinks;
 	}
 
 	/* (non-Javadoc)
@@ -77,8 +87,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public List<? extends TicketingTask> getSubTasks() {
-		// TODO Auto-generated method stub
-		return null;
+		return subTasks;
 	}
 
 	/* (non-Javadoc)
@@ -86,8 +95,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public Map<String, ? extends TicketingField> getCustomFields() {
-		// TODO Auto-generated method stub
-		return null;
+		return customFields;
 	}
 
 	/* (non-Javadoc)
@@ -95,8 +103,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public void setStatus(String status) {
-		// TODO Auto-generated method stub
-
+		this.status = status;
 	}
 
 	/* (non-Javadoc)
@@ -104,8 +111,7 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public void setType(String type) {
-		// TODO Auto-generated method stub
-
+		this.type = type;
 	}
 
 	/* (non-Javadoc)
@@ -113,35 +119,36 @@ public class RedmineTask extends AbstractTask {
 	 */
 	@Override
 	public void setPriority(String priority) {
-		// TODO Auto-generated method stub
-
+		this.priority = priority;
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setIssueLinks(java.util.List)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setIssueLinks(List<? extends TicketingField> issueLinks) {
-		// TODO Auto-generated method stub
+		this.issueLinks = (List<RedmineIssueLink>) issueLinks;
 
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setSubTask(java.util.List)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setSubTask(List<? extends TicketingTask> subTasks) {
-		// TODO Auto-generated method stub
+		this.subTasks = (List<RedmineTask>) subTasks;
 
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setCustomFields(java.util.Map)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setCustomFields(Map<String, ? extends TicketingField> customFields) {
-		// TODO Auto-generated method stub
-
+		this.customFields = (Map<String, RedmineCustomField>) customFields;
 	}
 
 }

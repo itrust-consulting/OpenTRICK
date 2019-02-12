@@ -47,11 +47,13 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.ticketing.TicketingPageable;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
 import lu.itrust.business.TS.model.ticketing.helper.CommentComparator;
 import lu.itrust.business.TS.model.ticketing.impl.Comment;
+import lu.itrust.business.TS.model.ticketing.impl.TicketingPageableImpl;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraCustomField;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraIssueLink;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraProject;
@@ -340,7 +342,7 @@ public class JiraClient implements Client {
 		Map<String, Object> estimations = new HashMap<>(1);
 		for (Measure measure : measures) {
 			MeasureDescription description = measure.getMeasureDescription();
-			MeasureDescriptionText descriptionText = description.findByAlph2(language);
+			MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(language);
 			IssueInputBuilder builder = new IssueInputBuilder(project, issueType,
 					String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()));
 			builder.setDescription(measure.getToDo());
@@ -364,7 +366,7 @@ public class JiraClient implements Client {
 								String.format("Task for (%s - %s) cannot be found", description.getStandard().getLabel(), description.getReference()), 0,
 								description.getStandard().getLabel(), description.getReference());
 					} else {
-						MeasureDescriptionText descriptionText = description.findByAlph2(language);
+						MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(language);
 						IssueInputBuilder builder = new IssueInputBuilder(project, issue.getIssueType(),
 								String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()));
 						builder.setDescription(measure.getToDo());
@@ -390,8 +392,8 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public List<TicketingTask> findOtherTasksByProjectId(String idProject, Collection<String> excludes, int maxSize, int startIndex) {
-		List<TicketingTask> tasks = new LinkedList<>();
+	public TicketingPageable<TicketingTask> findOtherTasksByProjectId(String idProject, Collection<String> excludes, int startIndex, int maxSize) {
+		TicketingPageable<TicketingTask> tasks = new TicketingPageableImpl<>(maxSize);
 		Promise<SearchResult> promise = null;
 		if (excludes == null || excludes.isEmpty())
 			promise = restClient.getSearchClient().searchJql(String.format(LOAD_BY_PROJECT_KEY, idProject), maxSize, startIndex, null);

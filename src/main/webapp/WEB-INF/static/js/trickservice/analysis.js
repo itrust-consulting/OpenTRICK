@@ -1636,7 +1636,7 @@ function linkToTicketingSystem(section) {
 							$("#modal-ticketing-linker").remove();
 							$modal.appendTo($("#widgets")).modal("show");
 							var isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
-								.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = $tasks.length;
+								.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = parseInt($taskContainer.attr("data-offset"));
 							taskController = function () {
 								$view = $(this.getAttribute("href"));
 								if (!$view.is(":visible")) {
@@ -1661,7 +1661,7 @@ function linkToTicketingSystem(section) {
 									if (!isFinished && ($taskContainer.scrollTop() + $taskContainer.innerHeight() >= $taskContainer[0].scrollHeight)) {
 										isFinished = true;
 										$.ajax({
-											url: context + "/Analysis/Standard/Ticketing/Load?startIndex=" + (size + 1),
+											url: context + "/Analysis/Standard/Ticketing/Load?startIndex=" + size,
 											type: "POST",
 											contentType: "application/json;charset=UTF-8",
 											data: JSON.stringify(measures),
@@ -1669,10 +1669,10 @@ function linkToTicketingSystem(section) {
 												$subTaskContainer = $("#task-container", new DOMParser().parseFromString(response, "text/html"));
 												var $subTasks = $subTaskContainer.find("fieldset");
 												if (!(isFinished = $subTasks.length == 0)) {
-													size += $subTasks.length;
 													$subTasks.appendTo($taskViewer);
 													$subTaskContainer.find("a.list-group-item").appendTo($taskContainer).on("click", taskController);
 												}
+												size = parseInt($subTaskContainer.attr("data-offset"))
 											}
 										});
 									}

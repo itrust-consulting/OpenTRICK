@@ -7,14 +7,14 @@
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t] %-5p %c - %m%n" />
 		</Console>
-		<Socket name="RemoteLogger" host="${bundle:deployment:app.settings.logger.server.host}" port="${bundle:deployment:app.settings.logger.server.port}" ReconnectionDelay="10000" protocol="SSL">
+		<!-- <Socket name="RemoteLogger" host="${bundle:deployment:app.settings.logger.server.host}" port="${bundle:deployment:app.settings.logger.server.port}" ReconnectionDelay="10000" protocol="SSL">
 			<LogstashLayout />
-		</Socket>
+		</Socket> -->
 	</Appenders>
 	<Loggers>
-		<Asynclogger name="TrickLogManager" level='DEBUG'>
+		<!-- <Asynclogger name="TrickLogManager" level='DEBUG'>
 			<AppenderRef ref="RemoteLogger" />
-		</Asynclogger>
+		</Asynclogger> -->
 		
 		<logger name="org.docx4j" level='ERROR' />
 		

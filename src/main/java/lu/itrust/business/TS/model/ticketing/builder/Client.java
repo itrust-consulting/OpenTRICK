@@ -10,6 +10,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.ticketing.TicketingPageable;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
 
@@ -43,6 +44,6 @@ public interface Client extends Closeable {
 
 	List<TicketingTask> findByIdsAndProjectId(String project, Collection<String> keyIssues);
 
-	List<TicketingTask> findOtherTasksByProjectId(String project, Collection<String> excludes, int maxSize, int startIndex);
+	TicketingPageable<TicketingTask> findOtherTasksByProjectId(String project, Collection<String> excludes, int startIndex, int maxSize);
 
 }
