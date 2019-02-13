@@ -59,7 +59,7 @@
 							<div class='panel panel-info'>
 								<div class='panel-heading'>
 									<h4 class='panel-title'>
-										<spring:message text="${task.type} #${task.id}" />
+										<a href="${task.url}" target="_blank" ><spring:message text="${task.type} #${task.id}" /></a>
 									</h4>
 								</div>
 								<div class="panel-body" style="height: 300px; overflow-x: auto; ">
@@ -158,7 +158,7 @@
 															<tbody>
 																<c:forEach items="${task.subTasks}" var="subTask">
 																	<tr>
-																		<td><a href="#${subTask.id}"><spring:message text="${subTask.type} #${subTask.id}" /></a></td>
+																		<td><a href="${subTask.url}"  target="_blank"><spring:message text="${subTask.type} #${subTask.id}" /></a></td>
 																		<td><spring:message text="${subTask.name}" /></td>
 																		<td><spring:message text="${subTask.status}" /></td>
 																		<td><spring:message text="${subTask.assignee}" /></td>
@@ -187,7 +187,7 @@
 												<div id="issue-link-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-issue-link-${task.id}">
 													<div class='panel-body'>
 														<c:forEach items="${task.issueLinks}" var="issueLink">
-															<a href="${issueLink.link}" target="_blank" class="btn btn-link"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${issueLink.name}" /></a>
+															<a href="${issueLink.value}" target="_blank" class="btn btn-link"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${issueLink.name}" /></a>
 														</c:forEach>
 
 													</div>

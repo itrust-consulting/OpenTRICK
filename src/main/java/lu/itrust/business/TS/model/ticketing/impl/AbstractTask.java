@@ -16,6 +16,8 @@ import lu.itrust.business.TS.model.ticketing.TicketingTask;
  */
 public abstract class AbstractTask implements TicketingTask {
 
+	private String url;
+
 	private String assignee;
 
 	private Date created;
@@ -33,7 +35,7 @@ public abstract class AbstractTask implements TicketingTask {
 	private String reporter;
 
 	private Date updated;
-	
+
 	private List<Comment> comments = new LinkedList<>();
 
 	/**
@@ -51,12 +53,26 @@ public abstract class AbstractTask implements TicketingTask {
 	 * @param progress
 	 */
 	public AbstractTask(String id, String name, String type, String status, String description, int progress) {
-		this.id = id;
+		this(id, name, type, status, description, null, progress);
+	}
+
+	/**
+	 * @param id
+	 * @param name
+	 * @param type
+	 * @param status
+	 * @param description
+	 * @param progress
+	 */
+	public AbstractTask(String id, String name, String type, String status, String description, String url,
+			int progress) {
+		this.setId(id);
 		this.name = name;
 		this.description = description;
 		this.progress = progress;
 		setType(type);
 		setStatus(status);
+		setUrl(url);
 	}
 
 	/*
@@ -88,8 +104,7 @@ public abstract class AbstractTask implements TicketingTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingObject#getDescription()
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingObject#getDescription()
 	 */
 	@Override
 	public String getDescription() {
@@ -157,8 +172,7 @@ public abstract class AbstractTask implements TicketingTask {
 	}
 
 	/**
-	 * @param created
-	 *            the created to set
+	 * @param created the created to set
 	 */
 	@Override
 	public void setCreated(Date created) {
@@ -166,8 +180,7 @@ public abstract class AbstractTask implements TicketingTask {
 	}
 
 	/**
-	 * @param due
-	 *            the due to set
+	 * @param due the due to set
 	 */
 	@Override
 	public void setDue(Date deadline) {
@@ -200,8 +213,7 @@ public abstract class AbstractTask implements TicketingTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingBase#setName(java.lang.
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setName(java.lang.
 	 * String)
 	 */
 	@Override
@@ -212,8 +224,7 @@ public abstract class AbstractTask implements TicketingTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingObject#setProgress(int)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingObject#setProgress(int)
 	 */
 	@Override
 	public void setProgress(int progress) {
@@ -233,15 +244,16 @@ public abstract class AbstractTask implements TicketingTask {
 	}
 
 	/**
-	 * @param updated
-	 *            the updated to set
+	 * @param updated the updated to set
 	 */
 	@Override
 	public void setUpdated(Date lastUpdated) {
 		this.updated = lastUpdated;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getComments()
 	 */
 	@Override
@@ -249,12 +261,38 @@ public abstract class AbstractTask implements TicketingTask {
 		return this.comments;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setComments(java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingTask#setComments(java.util.
+	 * List)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setComments(List<? extends TickectingComment> comments) {
 		this.comments = (List<Comment>) comments;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getUrl()
+	 */
+	@Override
+	public String getUrl() {
+		return url;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingTask#setUrl(java.lang.String)
+	 */
+	@Override
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
 }

@@ -8,7 +8,7 @@
 </c:if>
 <fmt:setLocale value="${locale.language}" scope="session"/>
 <div class="modal fade" id="modal-ticketing-linker" tabindex="-1" role="dialog" data-aria-labelledby="modalTicketingLinker" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog" style="width: 98%;">
+	<div class="modal-dialog modal-lgx">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
@@ -24,7 +24,7 @@
 							<c:forEach items="${measures}" var="measure">
 								<c:set var="description" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 								<spring:message text='${measure.measureDescription.standard.label} - ${measure.measureDescription.reference} - ${description.domain}' var="measureTitle"/>
-								<a class="list-group-item" id="measure-controller-${measure.id}" aria-labelledby='measure-view-${measure.id}' href="#measure-view-${measure.id}"
+								<a class="list-group-item" id="measure-controller-${measure.id}" aria-labelledby='measure-view-${measure.id}' href="#measure-view-${measure.id}" title="${measureTitle}"
 									style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${measureTitle}</a>
 								<fieldset id='measure-view-${measure.id}' aria-controls='measure-controller-${measure.id}' 
 									style="display: none" data-trick-id='${measure.id}' data-trick-parent-id='${measure.measureDescription.standard.id}'>
@@ -55,10 +55,10 @@
 				<div class="col-xs-3" style="height: 94.5%">
 					<div class="list-group" style="height: 100%">
 						<span class="list-group-item list-group-item-info"><spring:message code='label.tickets' text="Tickets" /></span>
-						<div class="scrollable" style="height: 100%;" id="task-container" data-offset="${tasks.getNextOffset()}" data-max-size="${tasks.getMaxSize()}, ${tasks.getOffset()}">
+						<div class="scrollable" style="height: 100%;" id="task-container" data-offset="${tasks.getOffset()}" data-max-size="${tasks.getMaxSize()}, ${tasks.getOffset()}">
 							<c:forEach items="${tasks}" var="task">
 								<spring:message text="${task.id}" var='taskId' />
-								<a id='task-controller-${taskId}' class="list-group-item" href="#task-view-${taskId}" aria-labelledby='task-view-${taskId}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> <span
+								<a id='task-controller-${taskId}' class="list-group-item" href="#task-view-${taskId}" title='<spring:message text="${task.name}" />' aria-labelledby='task-view-${taskId}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> <span
 									class='list-group-item-heading'><spring:message text="${task.type} #${task.id}" /> - <spring:message text="${task.name}" /></span>
 								</a>
 								<fieldset id="task-view-${taskId}" aria-controls='task-controller-${taskId}' style="display: none" data-trick-id='${task.id}' data-title='<spring:message text="${task.type} #${task.id}" />'>

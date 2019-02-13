@@ -47,7 +47,13 @@ public class RedmineTask extends AbstractTask {
 	 */
 	public RedmineTask(String id, String name, String type, String status, String description, int progress) {
 		super(id, name, type, status, description, progress);
-		// TODO Auto-generated constructor stub
+	}
+	
+	
+
+	public RedmineTask(String id, String name, String type, String status, String description, String url,
+			int progress) {
+		super(id, name, type, status, description, url, progress);
 	}
 
 	/* (non-Javadoc)
@@ -139,7 +145,6 @@ public class RedmineTask extends AbstractTask {
 	@Override
 	public void setSubTask(List<? extends TicketingTask> subTasks) {
 		this.subTasks = (List<RedmineTask>) subTasks;
-
 	}
 
 	/* (non-Javadoc)

@@ -13,6 +13,8 @@ import java.util.Map;
  */
 public interface TicketingTask extends TicketingBase {
 	
+	String getUrl();
+	
 	String getStatus();
 	
 	String getType();
@@ -40,6 +42,8 @@ public interface TicketingTask extends TicketingBase {
 	Map<String, ? extends TicketingField> getCustomFields();
 	
 	List<? extends TickectingComment> getComments();
+	
+	void setUrl(String url);
 	
 	void setStatus(String status);
 	

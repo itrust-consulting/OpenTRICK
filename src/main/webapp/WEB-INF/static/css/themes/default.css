@@ -533,6 +533,7 @@ datalist {
 .modal-md{
 	width: 700px;
 }
+
 .modal-mdl{
 	width: 750px;
 }
@@ -1051,6 +1052,10 @@ input[type=number],input[type=date]:disabled {
 			height: calc(100% - 250px);
 		}
 	}
+	
+	.modal-lgx {
+    	width: 980px;
+	}
 }
 
 
@@ -1065,6 +1070,10 @@ input[type=number],input[type=date]:disabled {
     .pull-lg-none {
         float: none !important;
     }
+    
+    .modal-lgx {
+    	width: 1180px;
+	}
 }
 
 .pull-none {

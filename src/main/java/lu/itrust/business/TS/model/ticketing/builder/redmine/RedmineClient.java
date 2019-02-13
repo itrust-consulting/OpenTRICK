@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.taskadapter.redmineapi.Include;
 import com.taskadapter.redmineapi.IssueManager;
 import com.taskadapter.redmineapi.NotAuthorizedException;
 import com.taskadapter.redmineapi.NotFoundException;
@@ -60,8 +61,11 @@ public class RedmineClient implements Client {
 	private static final String ERROR_TASK_AUTHORISATION = "error.task.authorisation";
 	private static final String PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS = "Please check your ticketing system credentials";
 	private static final String ERROR_TASK_AUTHENTICATION = "error.task.authentication";
+	private static final String ISSUE_LINK_FORMAT = "%s/issues/%d";
 
 	private RedmineManager manager;
+
+	private String url;
 
 	/**
 	 * 
@@ -100,6 +104,7 @@ public class RedmineClient implements Client {
 	@Override
 	public boolean connect(String url, String username, String password) {
 		try {
+			setUrl(url);
 			this.manager = RedmineManagerFactory.createWithUserAuth(url, username, password);
 			return this.manager.getUserManager().getCurrentUser() != null;
 		} catch (RedmineException e) {
@@ -268,7 +273,8 @@ public class RedmineClient implements Client {
 		try {
 			if (manager == null)
 				return null;
-			return loadIssue(manager.getIssueManager().getIssueById(Integer.parseInt(idTask)));
+			return loadIssue(manager.getIssueManager().getIssueById(Integer.parseInt(idTask), Include.relations,
+					Include.journals, Include.children));
 		} catch (NotFoundException e) {
 			return null;
 		} catch (NotAuthorizedException e) {
@@ -292,8 +298,12 @@ public class RedmineClient implements Client {
 		try {
 			if (manager == null)
 				return null;
-			Issue issue = manager.getIssueManager().getIssueById(Integer.parseInt(idTask));
-			return issue.getProjectId().toString().equals(idProject) ? loadIssue(issue) : null;
+			final Map<String, String> parameters = new HashMap<>(3);
+			parameters.put("project_key", idProject);
+			parameters.put("status_id", "*");
+			parameters.put("issue_id", idTask);
+			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e))
+					.findAny().orElse(null);
 		} catch (NotFoundException e) {
 			return null;
 		} catch (NotAuthorizedException e) {
@@ -315,8 +325,7 @@ public class RedmineClient implements Client {
 	@Override
 	public TicketingProject findProjectById(String idProject) {
 		try {
-			return manager == null ? null
-					: buildProject(manager.getProjectManager().getProjectById(Integer.parseInt(idProject)));
+			return manager == null ? null : buildProject(manager.getProjectManager().getProjectByKey(idProject));
 		} catch (NotFoundException e) {
 			return null;
 		} catch (NotAuthorizedException e) {
@@ -329,7 +338,7 @@ public class RedmineClient implements Client {
 	}
 
 	private final static TicketingProject buildProject(Project project) {
-		return new RedmineProject(project.getId().toString(), project.getName(), project.getDescription());
+		return new RedmineProject(project.getIdentifier(), project.getName(), project.getDescription());
 	}
 
 	/*
@@ -365,12 +374,12 @@ public class RedmineClient implements Client {
 			if (manager == null)
 				return Collections.emptyList();
 			final Map<String, String> parameters = new HashMap<>(1);
-			parameters.put("project_id", idProject);
+			parameters.put("project_key", idProject);
 			parameters.put("status_id", "*");
-			ResultsWrapper<Issue> results = manager.getIssueManager().getIssues(parameters);
-			return results.hasSomeResults()
-					? results.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList())
-					: Collections.emptyList();
+			parameters.put("sort", "subject asc");
+			parameters.put("limit", "-1");
+			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e))
+					.collect(Collectors.toList());
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotAuthorizedException e) {
@@ -383,7 +392,8 @@ public class RedmineClient implements Client {
 	private RedmineTask loadIssue(Issue issue) {
 		final RedmineTask task = new RedmineTask(issue.getId().toString(), issue.getSubject(),
 				issue.getTracker() == null ? null : issue.getTracker().getName(), issue.getStatusName(),
-				issue.getDescription(), issue.getDoneRatio() == null ? 0 : issue.getDoneRatio());
+				issue.getDescription(), String.format(ISSUE_LINK_FORMAT, url, issue.getId()),
+				issue.getDoneRatio() == null ? 0 : issue.getDoneRatio());
 		task.setAssignee(issue.getAssigneeName());
 		task.setReporter(issue.getAuthorName());
 		task.setCreated(issue.getCreatedOn());
@@ -396,19 +406,34 @@ public class RedmineClient implements Client {
 				.collect(Collectors.toMap(TicketingField::getName, Function.identity())));
 
 		task.setComments(
-				issue.getJournals().stream().sorted((j1, j2) -> j1.getCreatedOn().compareTo(j2.getCreatedOn()))
+				issue.getJournals().stream().filter(c -> !(c.getNotes() == null || c.getNotes().isEmpty()))
+						.sorted((j1, j2) -> j1.getCreatedOn().compareTo(j2.getCreatedOn()))
 						.map(j -> new Comment(j.getId().toString(),
 								j.getUser() == null ? null : j.getUser().getFullName(), j.getCreatedOn(), j.getNotes()))
 						.collect(Collectors.toList()));
 		task.setSubTask(issue.getChildren().stream()
 				.map(st -> new RedmineTask(st.getId().toString(), st.getSubject(),
 						st.getTracker() == null ? null : st.getTracker().getName(), st.getStatusName(),
-						st.getDescription(), st.getDoneRatio() == null ? 0 : st.getDoneRatio()))
+						st.getDescription(), String.format(ISSUE_LINK_FORMAT, url, st.getId()),
+						st.getDoneRatio() == null ? 0 : st.getDoneRatio()))
 				.collect(Collectors.toList()));
-		task.setIssueLinks(issue.getRelations().stream()
-				.map(r -> new RedmineIssueLink(r.getId().toString(), r.getType(), r.getIssueId()))
+		task.setIssueLinks(issue.getRelations().stream().map(r -> new RedmineIssueLink(r.getId().toString(),
+				loadType(r.getIssueId()), String.format(ISSUE_LINK_FORMAT, url, r.getIssueId())))
 				.collect(Collectors.toList()));
 		return task;
+	}
+
+	private String loadType(Integer issueId) {
+		try {
+			final Map<String, String> parameters = new HashMap<>(2);
+			parameters.put("limit", "1");
+			parameters.put("status_id", "*");
+			parameters.put("issue_id", issueId + "");
+			return manager.getIssueManager().getIssues(parameters).getResults().stream()
+					.map(i -> i.getTracker().getName()).findAny().orElse(null);
+		} catch (RedmineException e) {
+			return null;
+		}
 	}
 
 	/*
@@ -424,15 +449,30 @@ public class RedmineClient implements Client {
 
 	private List<TicketingTask> findByIdsAndProjectId(String projectid, Collection<String> ids, boolean all) {
 		try {
-			if (manager == null)
+			if (manager == null || ids == null || ids.isEmpty())
 				return Collections.emptyList();
-			final Map<String, String> parameters = new HashMap<>(1);
-			parameters.put("project_id", projectid);
-			parameters.put("issue_id", ids.stream().collect(Collectors.joining(",")));
-			if (all)
-				parameters.put("status_id", "*");
-			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e))
-					.collect(Collectors.toList());
+			Project project = manager.getProjectManager().getProjectByKey(projectid);
+			return ids.stream().map(i -> {
+				try {
+					Issue issue = manager.getIssueManager().getIssueById(Integer.parseInt(i), Include.journals,
+							Include.relations, Include.children);
+					return !issue.getProjectId().equals(project.getId()) || !(all || issue.getClosedOn() == null) ? null
+							: loadIssue(issue);
+				} catch (RedmineException e) {
+					return null;
+				}
+			}).filter(i -> i != null).collect(Collectors.toList());
+			/*
+			 * final Map<String, String> parameters = new HashMap<>(1);
+			 * parameters.put("project_key", projectid); parameters.put("issue_id",
+			 * ids.stream().collect(Collectors.joining(","))); parameters.put("sort",
+			 * "subject asc"); parameters.put("include", "journals,relations,children");
+			 * parameters.put("limit", "10000"); if (all) parameters.put("status_id", "*");
+			 * 
+			 * return
+			 * manager.getIssueManager().getIssues(parameters).getResults().stream().map(e
+			 * -> loadIssue(e)) .collect(Collectors.toList());
+			 */
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotAuthorizedException e) {
@@ -468,22 +508,17 @@ public class RedmineClient implements Client {
 				size = Integer.MAX_VALUE;
 			if (manager == null)
 				return new TicketingPageableImpl<>(startIndex, size, Collections.emptyList());
+			if (!(excludes == null || excludes.isEmpty()))
+				return findOtherTasks(projectId, excludes, startIndex, size);
 			final Params parameters = new Params();
-
-			if (!(excludes == null || excludes.isEmpty())) {
-				if (!excludes.isEmpty())
-					return findOtherTasks(projectId, excludes, startIndex, size);
-				parameters.add("f[]", "issue_id");
-				parameters.add("op[issue_id]", "!");
-				excludes.forEach(e -> parameters.add("v[issue_id][]", e));
-			}
 			parameters.add("status_id", "*");
 			parameters.add("limit", size + "");
-			parameters.add("project_id", projectId);
+			parameters.add("project_key", projectId);
 			parameters.add("offset", startIndex + "");
-
-			return new TicketingPageableImpl<>(startIndex, size, manager.getIssueManager().getIssues(parameters)
-					.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
+			parameters.add("sort", "subject asc");
+			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
+			return new TicketingPageableImpl<>(wrapper.getResultsNumber(), size,
+					wrapper.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotAuthorizedException e) {
@@ -496,32 +531,40 @@ public class RedmineClient implements Client {
 	private TicketingPageable<TicketingTask> findOtherTasks(String projectId, Collection<String> excludes,
 			int startIndex, int size) throws RedmineException {
 		final TicketingPageable<TicketingTask> tasks = new TicketingPageableImpl<>(startIndex, size);
-		final Map<String, String> parameters = new LinkedHashMap<String, String>(4);
+		final Map<String, String> parameters = new LinkedHashMap<String, String>(5);
 		final Map<Integer, Boolean> mapperExcludes = excludes.stream().map(Integer::parseInt)
 				.collect(Collectors.toMap(Function.identity(), e -> false, (e1, e2) -> e1));
 		parameters.put("status_id", "*");
 		parameters.put("limit", size + "");
-		parameters.put("project_id", projectId);
+		parameters.put("project_key", projectId);
 		parameters.put("offset", startIndex + "");
+		parameters.put("sort", "subject asc");
 		while (true) {
-			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
-			if (!wrapper.hasSomeResults())
+			final List<Issue> issues = manager.getIssueManager().getIssues(parameters).getResults();
+			if (issues.isEmpty())
 				break;
-			final int currentSize = tasks.size(), reminde = size - currentSize;
-			wrapper.getResults().stream().filter(i -> mapperExcludes.getOrDefault(i.getId(), true)).limit(reminde)
-					.map(e -> loadIssue(e)).forEach(e -> tasks.add(e));
-			if (tasks.size() >= size) {
-				if (reminde < size && wrapper.getResultsNumber() == size) {
-					System.out.println(String.format("Offset: %d, reminde: %d, size :%d, new offset: %d",
-							tasks.getOffset(), reminde, size, tasks.getOffset() - size + reminde));
-					((TicketingPageableImpl<?>) tasks).setOffset(tasks.getOffset() - size + reminde);
-
+			for (int i = 0; i < issues.size(); i++) {
+				final Issue issue = issues.get(i);
+				tasks.increase(1);
+				if (!mapperExcludes.containsKey(issue.getId())) {
+					tasks.add(loadIssue(issue));
+					if (tasks.size() >= size)
+						break;
 				}
-				break;
 			}
-			parameters.put("offset", tasks.moveNext() + "");
+			if (tasks.size() >= size)
+				break;
+			parameters.put("offset", tasks.getOffset() + "");
 		}
 		return tasks;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

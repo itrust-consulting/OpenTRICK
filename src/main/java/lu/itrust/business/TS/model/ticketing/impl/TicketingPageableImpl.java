@@ -33,13 +33,13 @@ public class TicketingPageableImpl<E> implements TicketingPageable<E> {
 	}
 
 	public TicketingPageableImpl(int maxSize) {
-		this(0,maxSize,new ArrayList<>(maxSize));
-		
+		this(0, maxSize, new ArrayList<>(maxSize));
+
 	}
-	
+
 	public TicketingPageableImpl(int offSet, int maxSize) {
-		this(offSet,maxSize,new ArrayList<>(maxSize));
-		
+		this(offSet, maxSize, new ArrayList<>(maxSize));
+
 	}
 
 	public TicketingPageableImpl(int offSet, int maxSize, List<E> content) {
@@ -63,7 +63,7 @@ public class TicketingPageableImpl<E> implements TicketingPageable<E> {
 	}
 
 	public void setMaxSize(int size) {
-		this.maxSize = size;
+		this.maxSize = size < 0 ? 0 : size;
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class TicketingPageableImpl<E> implements TicketingPageable<E> {
 	}
 
 	public void setOffset(int offset) {
-		this.offset = offset;
+		this.offset = offset < 0 ? 0 : offset;
 	}
 
 	@Override
@@ -192,7 +192,12 @@ public class TicketingPageableImpl<E> implements TicketingPageable<E> {
 
 	@Override
 	public int moveNext() {
-		setOffset(getNextOffset());
+		return increase(getMaxSize());
+	}
+
+	@Override
+	public int increase(int offset) {
+		setOffset(getOffset() + offset);
 		return getOffset();
 	}
 }

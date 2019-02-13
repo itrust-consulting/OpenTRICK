@@ -21,5 +21,7 @@ public interface TicketingPageable<E> extends List<E> {
 		return getOffset() + getMaxSize();
 	}
 	
+	int increase(int offset);
+	
 	int moveNext();
 }

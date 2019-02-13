@@ -11,7 +11,7 @@ import lu.itrust.business.TS.model.ticketing.impl.AbstractField;
  */
 public class RedmineIssueLink extends AbstractField {
 	
-	private Integer value;
+	private String value;
 
 	/**
 	 * 
@@ -24,7 +24,7 @@ public class RedmineIssueLink extends AbstractField {
 	 * @param name
 	 * @param integer 
 	 */
-	public RedmineIssueLink(String id, String name, Integer integer) {
+	public RedmineIssueLink(String id, String name, String integer) {
 		super(id, name);
 		setValue(integer);
 	}
@@ -33,7 +33,7 @@ public class RedmineIssueLink extends AbstractField {
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingField#getValue()
 	 */
 	@Override
-	public Object getValue() {
+	public String getValue() {
 		return value;
 	}
 
@@ -42,7 +42,7 @@ public class RedmineIssueLink extends AbstractField {
 	 */
 	@Override
 	public void setValue(Object value) {
-		this.value = (Integer) value;
+		this.value = value == null? null : value.toString();
 	}
 
 }
