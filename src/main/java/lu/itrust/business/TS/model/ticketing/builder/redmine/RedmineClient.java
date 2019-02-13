@@ -417,7 +417,7 @@ public class RedmineClient implements Client {
 						st.getDescription(), String.format(ISSUE_LINK_FORMAT, url, st.getId()),
 						st.getDoneRatio() == null ? 0 : st.getDoneRatio()))
 				.collect(Collectors.toList()));
-		task.setIssueLinks(issue.getRelations().stream().map(r -> new RedmineIssueLink(r.getId().toString(),
+		task.setIssueLinks(issue.getRelations().stream().map(r -> new RedmineIssueLink(r.getIssueId().toString(),
 				loadType(r.getIssueId()), String.format(ISSUE_LINK_FORMAT, url, r.getIssueId())))
 				.collect(Collectors.toList()));
 		return task;

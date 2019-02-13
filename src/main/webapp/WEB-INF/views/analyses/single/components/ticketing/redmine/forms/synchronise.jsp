@@ -187,7 +187,7 @@
 												<div id="issue-link-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-issue-link-${task.id}">
 													<div class='panel-body'>
 														<c:forEach items="${task.issueLinks}" var="issueLink">
-															<a href="${issueLink.value}" target="_blank" class="btn btn-link"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${issueLink.name}" /></a>
+															<a href="${issueLink.value}" target="_blank" class="btn btn-link"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${issueLink.name} #${issueLink.id}" /></a>
 														</c:forEach>
 
 													</div>
