@@ -26,17 +26,6 @@
 							</c:forEach>
 						</select>
 				</div>
-			<%-- <div class="form-group">
-						<label class="control-label"> <spring:message code="label.analysis.comment" text="Comment" />
-						</label>
-						<blockquote class="form-control-static">
-							<p class="re-pre" style="height: 140px; overflow-x: auto;"><spring:message text="${analysis.lastHistory.comment}" /></p>
-							<fmt:formatDate value="${analysis.lastHistory.date}" var="dateComment" />
-							<footer>
-								<spring:message text="${analysis.lastHistory.author}, ${dateComment}" />
-							</footer>
-						</blockquote>
-					</div> --%>
 			</div>
 			<div class='clearfix'></div>
 			<div class="modal-footer">

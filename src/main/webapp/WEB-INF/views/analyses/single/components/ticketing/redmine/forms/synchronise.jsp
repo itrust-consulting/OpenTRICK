@@ -45,15 +45,19 @@
 											</c:choose>
 										</div>
 									</div>
-									<h4>
-										<spring:message code='label.to_do' text='Todo' />
-									</h4>
-									<div class="well well-sm re-pre"><spring:message text='${measure.toDo}' /></div>
-									<h4>
-										<spring:message code='label.description' text='Description' />
-									</h4>
-									<div class="well well-sm re-pre"><spring:message text="${description.description}" /></div>
+									<c:if test="${not empty description.description }">
+										<h4>
+											<spring:message code='label.description' text='Description' />
+										</h4>
+										<div class="well well-sm re-pre"><spring:message text="${description.description}" /></div>
+									</c:if>
 									
+									<c:if test="${not empty  measure.toDo}">
+										<h4>
+											<spring:message code='label.to_do' text='Todo' />
+										</h4>
+										<div class="well well-sm re-pre"><spring:message text='${measure.toDo}' /></div>
+									</c:if>
 								</div>
 							</div>
 							<div class='panel panel-info'>
@@ -99,10 +103,12 @@
 											</tr>
 										</tbody>
 									</table>
-									<h4>
-										<spring:message code="label.description" text="Description" />
-									</h4>
-									<div class="well well-sm re-pre"><spring:message text='${task.description}' /></div>
+									<c:if test="${not empty task.description }">
+										<h4>
+											<spring:message code="label.description" text="Description" />
+										</h4>
+										<div class="well well-sm re-pre"><spring:message text='${task.description}' /></div>
+									</c:if>
 									<c:forEach items="${task.customFields.values()}" var="customField">
 										<h4>
 											<spring:message text="${customField.name}" />
@@ -144,35 +150,12 @@
 													</h4>
 												</div>
 												<div id="sub-task-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-sub-task-${task.id}">
-													<div class='panel-body'>
-														<table class="table">
-															<thead>
-																<tr>
-																	<th>#</th>
-																	<th><spring:message code='label.name' text="Name" /></th>
-																	<th><spring:message code='label.status' text="Status" /></th>
-																	<th><spring:message code='label.assignee' text="Assignee" /></th>
-																	<th><spring:message code="label.progress" text="Progress" /></th>
-																</tr>
-															</thead>
-															<tbody>
-																<c:forEach items="${task.subTasks}" var="subTask">
-																	<tr>
-																		<td><a href="${subTask.url}"  target="_blank"><spring:message text="${subTask.type} #${subTask.id}" /></a></td>
-																		<td><spring:message text="${subTask.name}" /></td>
-																		<td><spring:message text="${subTask.status}" /></td>
-																		<td><spring:message text="${subTask.assignee}" /></td>
-																		<td>
-																			<div class="progress" title="${subTask.progress}%">
-																				<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${subTask.progress}" aria-valuemin="0" aria-valuemax="100"
-																					style="width: ${subTask.progress}%;"></div>
-																			</div>
-																		</td>
-																	</tr>
-																</c:forEach>
-															</tbody>
-														</table>
-													</div>
+													<ul class='list-group'>
+														<c:forEach items="${task.subTasks}" var="subTask">
+															<li class="list-group-item"><a href="${subTask.url}" target="_blank" class="btn-link"><i class="fa fa-external-link" aria-hidden="true" style="vertical-align: middle;margin-right: 5px"></i><spring:message text="${subTask.type} #${subTask.name}" /></a></li>
+														</c:forEach>
+														
+													</ul>
 												</div>
 											</div>
 										</c:if>
@@ -185,12 +168,11 @@
 													</h4>
 												</div>
 												<div id="issue-link-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-issue-link-${task.id}">
-													<div class='panel-body'>
+													<ul class='list-group'>
 														<c:forEach items="${task.issueLinks}" var="issueLink">
-															<a href="${issueLink.value}" target="_blank" class="btn btn-link"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${issueLink.name} #${issueLink.id}" /></a>
+															<li class="list-group-item"><a href="${issueLink.url}" target="_blank" class="btn-link"><i class="fa fa-external-link" aria-hidden="true" style="vertical-align: middle;margin-right: 5px"></i><spring:message text="${issueLink.value} #${issueLink.name}" /></a></li>
 														</c:forEach>
-
-													</div>
+													</ul>
 												</div>
 											</div>
 										</c:if>

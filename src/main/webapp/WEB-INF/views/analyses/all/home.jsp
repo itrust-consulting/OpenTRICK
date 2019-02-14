@@ -163,7 +163,7 @@
 											<c:when test="${not empty analysis.project}">
 												<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).ProjectLink(ticketingName.toLowerCase(),ticketingURL,analysis.project)"
 													var="projectLink" />
-												<a class="btn-link" href="${projectLink}" target="_titck_ts"><spring:message text="${analysis.project}" /> <i class="fa fa-external-link" aria-hidden="true"></i></a>
+												<a class="btn-link" href="${projectLink}" target="_titck_ts"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${analysis.project}" /></a>
 											</c:when>
 										</c:choose></th>
 								</c:if>

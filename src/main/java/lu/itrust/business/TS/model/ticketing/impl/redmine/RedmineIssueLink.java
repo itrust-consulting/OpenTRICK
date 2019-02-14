@@ -12,6 +12,8 @@ import lu.itrust.business.TS.model.ticketing.impl.AbstractField;
 public class RedmineIssueLink extends AbstractField {
 	
 	private String value;
+	
+	private String url;
 
 	/**
 	 * 
@@ -23,10 +25,12 @@ public class RedmineIssueLink extends AbstractField {
 	 * @param id
 	 * @param name
 	 * @param integer 
+	 * @param url 
 	 */
-	public RedmineIssueLink(String id, String name, String integer) {
+	public RedmineIssueLink(String id, String name, String type, String url) {
 		super(id, name);
-		setValue(integer);
+		setValue(type);
+		setUrl(url);
 	}
 
 	/* (non-Javadoc)
@@ -43,6 +47,14 @@ public class RedmineIssueLink extends AbstractField {
 	@Override
 	public void setValue(Object value) {
 		this.value = value == null? null : value.toString();
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

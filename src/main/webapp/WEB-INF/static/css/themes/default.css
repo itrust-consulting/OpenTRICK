@@ -980,6 +980,12 @@ input[type=number],input[type=date]:disabled {
   border-left: 1px solid #eee;
 }
 
+.text-middle{
+    vertical-align: middle;
+    margin-top: -5px;
+    display: inline-block;
+    margin-left: 5px;
+}
 
 @media (min-width: 768px) {
 
