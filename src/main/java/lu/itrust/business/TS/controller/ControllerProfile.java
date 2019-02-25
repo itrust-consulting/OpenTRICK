@@ -322,7 +322,7 @@ public class ControllerProfile {
 		model.addAttribute("forcedOTP", forcedOTP);
 		model.addAttribute("roles", RoleType.ROLES);
 		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
-		model.addAttribute("isTokenAuthentication", setting != null && setting.getValue().equalsIgnoreCase("redmine"));
+		model.addAttribute("isTokenAuthentication", !(setting == null || setting.getValue() == null) && setting.getValue().equalsIgnoreCase("redmine"));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
 		model.addAttribute("invitationSortNames", InvitationFilter.SORTS());
