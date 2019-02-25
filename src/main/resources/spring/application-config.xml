@@ -89,7 +89,7 @@
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
 		p:username="${jdbc.username}" p:password="${jdbc.password}" />
 
-	<bean id="flywayConfig" class="org.flywaydb.core.api.configuration.ClassicConfiguration">
+	<!-- <bean id="flywayConfig" class="org.flywaydb.core.api.configuration.ClassicConfiguration">
 		<property name="dataSource" ref="dataSource" />
 		<property name="baselineOnMigrate" value="false" />
 		<property name="table" value="SchemaVersion" />
@@ -101,7 +101,6 @@
 			</list>
 		</property>
 	</bean>
-
 	<bean id="baselineVersion" class="org.flywaydb.core.api.MigrationVersion" factory-method="fromVersion">
 		<constructor-arg value="${app.settings.database.version}" />
 	</bean>
@@ -109,8 +108,11 @@
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
 		<constructor-arg ref="flywayConfig" />
 	</bean>
+	
+	 -->
+	
 
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="flyway">
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan" value="lu.itrust.business.TS" />
 		<property name="hibernateProperties">

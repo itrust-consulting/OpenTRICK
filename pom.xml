@@ -543,7 +543,7 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
+		<!-- 	<plugin>
 				<groupId>io.leonard.maven.plugins</groupId>
 				<artifactId>jspc-maven-plugin</artifactId>
 				<version>2.4.6</version>
@@ -574,7 +574,7 @@
 						<version>4.6.1</version>
 					</dependency>
 				</dependencies>
-			</plugin>
+			</plugin> -->
 			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -592,8 +592,8 @@
 						**/WEB-INF/static/js/bootstrap/*.js,
 						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
-					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties,**/WEB-INF/views/**</packagingExcludes>
-					<webXml>${project.build.directory}/web.xml</webXml>
+					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties<!-- ,**/WEB-INF/views/** --></packagingExcludes>
+				<!-- 	<webXml>${project.build.directory}/web.xml</webXml> -->
 				</configuration>
 			</plugin>
 

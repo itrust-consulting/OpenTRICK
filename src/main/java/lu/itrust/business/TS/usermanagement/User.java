@@ -3,6 +3,7 @@ package lu.itrust.business.TS.usermanagement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,7 +19,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.MapKey;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
@@ -132,6 +135,14 @@ public class User implements Serializable, IUser {
 	@Cascade(CascadeType.ALL)
 	@CollectionTable(name = "UserSetting", joinColumns = @JoinColumn(name = "fiUser"))
 	private Map<String, String> userSettings = new HashMap<String, String>();
+	
+	@OneToMany
+	@JoinColumn(name="fiUser")
+	@MapKey(name="customer")
+	@Cascade(CascadeType.ALL)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private Map<Customer,UserCredential> credentials = new LinkedHashMap<>();
+	
 
 	/**
 	 * Constructor: <br>
@@ -672,6 +683,14 @@ public class User implements Serializable, IUser {
 
 	public void setEmailValidated(boolean emailValidated) {
 		this.emailValidated = emailValidated;
+	}
+
+	public Map<Customer,UserCredential> getCredentials() {
+		return credentials;
+	}
+
+	public void setCredentials(Map<Customer,UserCredential> credentials) {
+		this.credentials = credentials;
 	}
 
 }

@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Cache;
@@ -79,6 +80,12 @@ public class Customer {
 
 	@Column(name = "dtCanBeUsed", nullable = false)
 	private boolean canBeUsed = true;
+	
+	@ManyToOne
+	@Cascade(CascadeType.ALL)
+	@JoinColumn(name="fiTicketingSystem")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private TicketingSystem ticketingSystem;
 	
 	@OneToMany
 	@Cascade(CascadeType.ALL)
@@ -390,6 +397,4 @@ public class Customer {
 		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country + ", contactPerson="
 			+ contactPerson + ", telephoneNumber=" + phoneNumber + ", email=" + email + "]";
 	}
-
-	
 }
