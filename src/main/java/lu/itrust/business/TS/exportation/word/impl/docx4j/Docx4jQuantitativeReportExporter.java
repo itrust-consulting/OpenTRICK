@@ -445,10 +445,13 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 	@Override
 	protected void generateExtendedParameters(String type) throws Exception {
 		String parmetertype = "";
+		final DecimalFormat decimalFormat = type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME) ? (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE) : kEuroFormat;
 		if (type.equals(Constant.DEFAULT_IMPACT_NAME))
 			parmetertype = "Impact";
-		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 			parmetertype = "Proba";
+			decimalFormat.setMaximumFractionDigits(2);
+		}
 
 		P paragraph = findTableAnchor(parmetertype);
 
@@ -486,24 +489,29 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel(), alignmentCenter);
 				setCellText((Tc) row.getContent().get(1), parameter.getAcronym(), alignmentCenter);
 				setCellText((Tc) row.getContent().get(2), parameter.getDescription());
-				Double value = 0.;
-				value = parameter.getValue();
+
 				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
-					value *= 0.001;
-				addCellNumber((Tc) row.getContent().get(3), kEuroFormat.format(value));
+					addCellNumber((Tc) row.getContent().get(3), decimalFormat.format(parameter.getValue() * 0.01));
+				else
+					addCellNumber((Tc) row.getContent().get(3), parameter.getValue() >= 1 ? kEuroFormat.format(parameter.getValue()) : decimalFormat.format(parameter.getValue()));
+
 				if (countrow % 2 != 0)
 					setColor((Tc) row.getContent().get(3), SUB_HEADER_COLOR);
-				value = parameter.getBounds().getFrom();
+
 				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
-					value *= 0.001;
-				addCellNumber((Tc) row.getContent().get(4), kEuroFormat.format(value));
+					addCellNumber((Tc) row.getContent().get(4), decimalFormat.format(parameter.getBounds().getFrom() * 0.01));
+				else
+					addCellNumber((Tc) row.getContent().get(4),
+							parameter.getBounds().getFrom() >= 1 ? kEuroFormat.format(parameter.getBounds().getFrom()) : decimalFormat.format(parameter.getBounds().getFrom()));
+
 				if (parameter.getLevel() == length)
 					addCellNumber((Tc) row.getContent().get(5), "+∞");
 				else {
-					value = parameter.getBounds().getTo();
 					if (type.equals(Constant.DEFAULT_IMPACT_NAME))
-						value *= 0.001;
-					addCellNumber((Tc) row.getContent().get(5), kEuroFormat.format(value));
+						addCellNumber((Tc) row.getContent().get(5), decimalFormat.format(parameter.getBounds().getTo() * 0.001));
+					else
+						addCellNumber((Tc) row.getContent().get(5),
+								parameter.getBounds().getTo() >= 1 ? kEuroFormat.format(parameter.getBounds().getTo()) : decimalFormat.format(parameter.getBounds().getTo()));
 				}
 				for (int i = 4; i < 6; i++)
 					setColor((Tc) row.getContent().get(i), SUB_HEADER_COLOR);

@@ -663,6 +663,10 @@ public class Constant {
 	public static final String USER_TICKETING_SYSTEM_USERNAME = "user-titcketing-credential-username";
 
 	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-credential-password";
+	
+	public static final String USER_TICKETING_SYSTEM_TOKEN = "user-titcketing-credential-token";
+	
+	public static final String USER_TICKETING_SYSTEM_TOKEN_IV = "user-titcketing-credential-token-iv";
 
 	public static final String USER_TICKETING_SYSTEM_IV = "user-titcketing-credential-iv";
 
@@ -738,5 +742,6 @@ public class Constant {
 	public static volatile List<String> RISK_COLORS;
 
 	public static final long ONE_YEAR_TO_MILLISECONDS = 31556952000L;
+
 
 }

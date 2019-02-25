@@ -105,9 +105,9 @@ public class JiraClient implements Client {
 	 */
 	@Override
 	public boolean connect(Map<String, Object> settings) {
-		String url = settings.get("url").toString(), password = settings.get("password").toString(),
-				username = settings.get("username").toString();
-		return connect(url, username, password);
+		final String url = settings.getOrDefault("url", "").toString();
+		final String username = settings.getOrDefault("username", "").toString();
+		return username.isEmpty() ? connect(url, settings.getOrDefault("token", "").toString()) : connect(url, username, settings.getOrDefault("password", "").toString());
 	}
 
 	/*
@@ -451,6 +451,11 @@ public class JiraClient implements Client {
 	 */
 	protected void setObjectMapper(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
+	}
+
+	@Override
+	public boolean connect(String url, String token) {
+		return false;
 	}
 
 }

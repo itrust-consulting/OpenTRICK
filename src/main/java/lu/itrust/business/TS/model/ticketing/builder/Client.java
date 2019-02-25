@@ -19,6 +19,8 @@ import lu.itrust.business.TS.model.ticketing.TicketingTask;
  *
  */
 public interface Client extends Closeable {
+	
+	boolean connect(String url, String token);
 
 	boolean connect(Map<String, Object> settings);
 

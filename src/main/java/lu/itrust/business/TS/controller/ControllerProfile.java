@@ -315,12 +315,14 @@ public class ControllerProfile {
 		if (user == null)
 			return "redirect:/Logout";
 		user.setPassword(EMPTY_STRING);
+		TSSetting setting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
 		// add profile to model
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
 		model.addAttribute("roles", RoleType.ROLES);
 		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
+		model.addAttribute("isTokenAuthentication", setting != null && setting.getValue().equalsIgnoreCase("redmine"));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
 		model.addAttribute("invitationSortNames", InvitationFilter.SORTS());
@@ -638,8 +640,12 @@ public class ControllerProfile {
 			if (urlSetting == null || nameSetting == null)
 				throw new TrickException("error.load.setting", "Setting cannot be loaded");
 			Map<String, Object> settings = new HashMap<>(3);
-			settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
-			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+			if (nameSetting.getValue().equalsIgnoreCase("redmine"))
+				settings.put("token", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+			else {
+				settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+				settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+			}
 			settings.put("url", urlSetting.getValue());
 			return (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
 		} catch (Exception e) {

@@ -12,7 +12,7 @@
 		</Socket>
 	</Appenders>
 	<Loggers>
-		<Asynclogger name="TrickLogManager" level='Debug'>
+		<Asynclogger name="TrickLogManager" level='Info'>
 			<AppenderRef ref="RemoteLogger" />
 		</Asynclogger>
 		

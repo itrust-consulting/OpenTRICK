@@ -63,7 +63,15 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="ticketingPassword" class="col-sm-3 control-label"> <spring:message code="label.user.password" text="Password" />
+							<label for="ticketingPassword" class="col-sm-3 control-label">
+								<c:choose>
+									<c:when test="${isTokenAuthentication}">
+										<spring:message code="label.user.api.token" text="Token" />
+									</c:when>
+									<c:otherwise>
+										<spring:message code="label.user.password" text="Password" />
+									</c:otherwise>
+								</c:choose>
 							</label>
 							<div class="col-sm-9">
 								<input type="password" id="ticketingPassword" name="ticketingPassword" class="form-control" />

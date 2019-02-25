@@ -1053,12 +1053,11 @@ public class ControllerEditField {
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
 						acronyms.addAll(serviceDynamicParameter.findAcronymByAnalysisId(idAnalysis));
-						if (!(new StringExpressionParser((String) value)).isValid(acronyms))
+						if (!(new StringExpressionParser(value.toString()).isValid(acronyms)))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
 									"Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
-					}
-
-					SetFieldValue(measure, field, value);
+						measure.setImplementationRate(value);
+					}else SetFieldValue(measure, field, value);
 				}
 
 				// retrieve parameters

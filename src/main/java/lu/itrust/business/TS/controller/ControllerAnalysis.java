@@ -822,8 +822,12 @@ public class ControllerAnalysis {
 		if (urlSetting == null || nameSetting == null)
 			throw new TrickException("error.load.setting", "Setting cannot be loaded");
 		Map<String, Object> settings = new HashMap<>(3);
-		settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
-		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		if(nameSetting.getValue().equalsIgnoreCase("redmine"))
+			settings.put("token", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		else {
+			settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		}
 		settings.put("url", urlSetting.getValue());
 		Client client = null;
 		boolean isConnected = false;
