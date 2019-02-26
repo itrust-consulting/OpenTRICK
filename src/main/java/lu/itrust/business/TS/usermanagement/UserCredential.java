@@ -18,7 +18,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.general.Credential;
-import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.TicketingSystem;
 
 /**
@@ -28,12 +27,12 @@ import lu.itrust.business.TS.model.general.TicketingSystem;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiCustomer" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiTicketingSystem" }))
 @AttributeOverride(name="id",column=@Column(name="idUserCredential"))
 public class UserCredential extends Credential {
 
 	@ManyToOne
-	@JoinColumn(name = "fiCustomer")
+	@JoinColumn(name = "fiTicketingSystem")
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private TicketingSystem ticketingSystem;
 }

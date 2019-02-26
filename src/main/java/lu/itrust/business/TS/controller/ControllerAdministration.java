@@ -778,8 +778,8 @@ public class ControllerAdministration {
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			Customer customer = new Customer();
-			if (!customerManager.buildCustomer(errors, customer, value, locale))
+			Customer customer = customerManager.buildCustomer(errors, value, locale, true);
+			if (!errors.isEmpty())
 				return errors;
 			User user = serviceUser.get(principal.getName());
 

@@ -344,6 +344,20 @@ public class Customer {
 	}
 
 	/**
+	 * @return the ticketingSystem
+	 */
+	public TicketingSystem getTicketingSystem() {
+		return ticketingSystem;
+	}
+
+	/**
+	 * @param ticketingSystem the ticketingSystem to set
+	 */
+	public void setTicketingSystem(TicketingSystem ticketingSystem) {
+		this.ticketingSystem = ticketingSystem;
+	}
+
+	/**
 	 * hashCode:<br>
 	 * Used inside equals method.<br>
 	 * <br>

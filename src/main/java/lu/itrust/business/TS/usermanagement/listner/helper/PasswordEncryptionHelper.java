@@ -18,6 +18,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.util.StringUtils;
+
 /**
  * @author eomar
  *
@@ -57,6 +59,17 @@ public final class PasswordEncryptionHelper {
 		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes("UTF-8"), 65536, 256);
 		SecretKey secretKey = factory.generateSecret(spec);
 		return new SecretKeySpec(secretKey.getEncoded(), "AES");
+	}
+
+	public static boolean isEncrypted(String source, String salt, String ivKey) {
+		try {
+			if (StringUtils.isEmpty(source) || StringUtils.isEmpty(ivKey))
+				return false;
+			decrypt(source, salt, ivKey);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 }

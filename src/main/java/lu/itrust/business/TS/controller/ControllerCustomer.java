@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
@@ -129,27 +128,6 @@ public class ControllerCustomer {
 	}
 
 	/**
-	 * 
-	 * Display single customer
-	 * 
-	 */
-	// @RequestMapping("/{customerId}")
-	@Deprecated
-	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, Principal principal, HttpSession session, Map<String, Object> model,
-			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
-		Customer customer = (Customer) session.getAttribute("customer");
-		if (customer == null || customer.getId() != customerId)
-			customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
-		if (customer == null) {
-			String msg = messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/KnowLedgeBase/Customer/Display";
-		}
-		model.put("customer", customer);
-		return "knowledgebase/customer/showCustomer";
-	}
-
-	/**
 	 * save: <br>
 	 * Description
 	 * 
@@ -159,13 +137,12 @@ public class ControllerCustomer {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
-		Map<String, String> errors = new LinkedHashMap<>();
+		final Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			Customer customer = new Customer();
-			if (!customerManager.buildCustomer(errors, customer, value, locale))
+			Customer customer = customerManager.buildCustomer(errors, value, locale,false);
+			if (!errors.isEmpty())
 				return errors;
 			User user = serviceUser.get(principal.getName());
-
 			if (customer.getId() < 1) {
 				if (customer.isCanBeUsed()) {
 					user.addCustomer(customer);

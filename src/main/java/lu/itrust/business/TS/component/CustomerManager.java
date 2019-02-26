@@ -23,6 +23,7 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.validator.CustomerValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -38,10 +39,10 @@ public class CustomerManager {
 
 	@Autowired
 	private DAOAnalysis daoAnalysis;
-	
+
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-	
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -66,7 +67,7 @@ public class CustomerManager {
 		}
 
 	}
-	
+
 	/**
 	 * buildCustomer: <br>
 	 * Description
@@ -75,16 +76,22 @@ public class CustomerManager {
 	 * @param customer
 	 * @param source
 	 * @param locale
+	 * @param adminAccess
 	 * @return
 	 */
 	@Transactional
-	public boolean buildCustomer(Map<String, String> errors, Customer customer, String source, Locale locale) {
+	public Customer buildCustomer(Map<String, String> errors, String source, Locale locale, boolean adminAccess) {
+		Customer customer = null;
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			int id = jsonNode.get("id").asInt();
-			if (id > 0)
-				customer.setId(id);
+			final ObjectMapper mapper = new ObjectMapper();
+			final JsonNode jsonNode = mapper.readTree(source);
+			final int id = jsonNode.get("id").asInt(-1);
+			customer = id > 0 ? daoCustomer.get(id) : new Customer();
+
+			if (customer == null) {
+				errors.put("customer", messageSource.getMessage("error.customer.not_found", null, "Customer can not be found", locale));
+				return null;
+			}
 
 			ValidatorField validator = serviceDataValidation.findByClass(Customer.class);
 			if (validator == null)
@@ -151,17 +158,18 @@ public class CustomerManager {
 			else
 				customer.setCountry(country);
 
-			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
+			if (adminAccess) {
+				customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
+				if(customer.getTicketingSystem() == null)
+					customer.setTicketingSystem(new TicketingSystem());
+					
+			}
+
 		} catch (Exception e) {
 			errors.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
-
-		return errors.isEmpty();
-
+		return customer;
 	}
-
-	
-	
 
 }
