@@ -515,14 +515,15 @@ public class RedmineClient implements Client {
 				size = Integer.MAX_VALUE;
 			if (manager == null)
 				return new TicketingPageableImpl<>(startIndex, size, Collections.emptyList());
+			final Project project =  manager.getProjectManager().getProjectByKey(projectId);
 			if (!(excludes == null || excludes.isEmpty()))
-				return findOtherTasks(projectId, excludes, startIndex, size);
+				return findOtherTasks(project.getId()+"", excludes, startIndex, size);
 			final Params parameters = new Params();
 			parameters.add("status_id", "*");
 			parameters.add("limit", size + "");
-			parameters.add("project_key", projectId);
+			parameters.add("project_id", project.getId()+"");
 			parameters.add("offset", startIndex + "");
-			parameters.add("sort", "issue_id asc");
+			parameters.add("sort", "id desc");
 			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
 			return new TicketingPageableImpl<>(startIndex + size + 1, size, wrapper.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
 		} catch (RedmineAuthenticationException e) {
@@ -540,9 +541,9 @@ public class RedmineClient implements Client {
 		final Map<Integer, Boolean> mapperExcludes = excludes.stream().map(Integer::parseInt).collect(Collectors.toMap(Function.identity(), e -> false, (e1, e2) -> e1));
 		parameters.put("status_id", "*");
 		parameters.put("limit", size + "");
-		parameters.put("project_key", projectId);
+		parameters.put("project_id", projectId);
 		parameters.put("offset", startIndex + "");
-		parameters.put("sort", "issue_id asc");
+		parameters.put("sort", "id desc");
 		while (true) {
 			final List<Issue> issues = manager.getIssueManager().getIssues(parameters).getResults();
 			if (issues.isEmpty())
