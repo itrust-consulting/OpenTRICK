@@ -775,6 +775,8 @@ public class ExportAnalysis {
 	private void exportPhase() throws Exception {
 
 		System.out.println("Export phase");
+		
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 		// ****************************************************************
 		// * initialise variables
@@ -803,8 +805,8 @@ public class ExportAnalysis {
 			// add parameters
 			params.clear();
 			params.add(phase.getNumber());
-			params.add(phase.getBeginDate());
-			params.add(phase.getEndDate());
+			params.add(dateFormat.format(phase.getBeginDate()));
+			params.add(dateFormat.format(phase.getEndDate()));
 
 			// execute the query
 			sqlite.query(query, params);

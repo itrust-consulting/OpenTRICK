@@ -286,8 +286,8 @@ public class RedmineClient implements Client {
 		final MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(language);
 		if (measure.getToDo().length() > 255)
 			builder.add(measure.getToDo() + "\n");
-		builder.add(String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain())+"\n");
-		builder.add(descriptionText.getDescription()+"\n");
+		builder.add(String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()) + "\n");
+		builder.add(descriptionText.getDescription() + "\n");
 		builder.add(String.format("IR: %d, IW: %s, EW: %s, INV: %s, LT: %s, IM: %s, EM: %s, RM: %s, PH: %d, Resp: %s", (int) measure.getImplementationRateValue(),
 				DECIMAL_FORMAT.format(measure.getInternalWL()), DECIMAL_FORMAT.format(measure.getExternalWL()), DECIMAL_FORMAT.format(measure.getInvestment() * .001),
 				DECIMAL_FORMAT.format(measure.getLifetime()), DECIMAL_FORMAT.format(measure.getInternalMaintenance()), DECIMAL_FORMAT.format(measure.getExternalMaintenance()),
@@ -522,9 +522,9 @@ public class RedmineClient implements Client {
 			parameters.add("limit", size + "");
 			parameters.add("project_key", projectId);
 			parameters.add("offset", startIndex + "");
-			parameters.add("sort", "subject asc");
+			parameters.add("sort", "issue_id asc");
 			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
-			return new TicketingPageableImpl<>(wrapper.getResultsNumber(), size, wrapper.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
+			return new TicketingPageableImpl<>(startIndex + size + 1, size, wrapper.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotAuthorizedException e) {
@@ -542,7 +542,7 @@ public class RedmineClient implements Client {
 		parameters.put("limit", size + "");
 		parameters.put("project_key", projectId);
 		parameters.put("offset", startIndex + "");
-		parameters.put("sort", "subject asc");
+		parameters.put("sort", "issue_id asc");
 		while (true) {
 			final List<Issue> issues = manager.getIssueManager().getIssues(parameters).getResults();
 			if (issues.isEmpty())

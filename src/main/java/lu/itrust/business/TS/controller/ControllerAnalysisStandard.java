@@ -672,7 +672,7 @@ public class ControllerAnalysisStandard {
 							.collect(Collectors.toList());
 				}
 				measures.sort(new MeasureComparator());
-				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 0, 20));
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 0, 40));
 				model.addAttribute("measures", measures);
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link",
@@ -799,7 +799,7 @@ public class ControllerAnalysisStandard {
 						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket)
 						.collect(Collectors.toList());
 				model.addAttribute("tasks",
-						client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 20));
+						client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 40));
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link",
 					model.asMap().get(TICKETING_NAME).toString().toLowerCase());
