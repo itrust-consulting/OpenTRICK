@@ -10,5 +10,4 @@ import lu.itrust.business.TS.database.template.TemplateTicketingSystem;
  *
  */
 public interface ServiceTicketingSystem extends TemplateTicketingSystem {
-
 }

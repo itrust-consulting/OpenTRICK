@@ -145,4 +145,9 @@ public class ServiceTicketingSystemImpl implements ServiceTicketingSystem {
 		daoTicketingSystem.saveOrUpdate(entity);
 	}
 
+	@Override
+	public TicketingSystem findByCustomerId(Integer customerId) {
+		return daoTicketingSystem.findByCustomerId(customerId);
+	}
+
 }

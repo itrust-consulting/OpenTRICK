@@ -27,15 +27,6 @@
 						<input name="value" type="url" value="${tsSetting.value}" class="form-control" onblur="updateSetting('#${tsSetting.name}',this)" placeholder='<spring:message text="${tsSetting.value}"/>'>
 					</div>
 				</c:when>
-				<c:when test="${fn:startsWith(tsSetting.name,'TICKETING_SYSTEM_NAME')}">
-					<div class="col-sm-offset-3 col-sm-4">
-						<select name="value" class="form-control" onchange="updateSetting('#${tsSetting.name}',this)">
-							<option value='' ${empty tsSetting.value?'selected':''}><spring:message code='label.select.ticketing.system' text='Please select your ticketing system' /></option>
-							<option value='jira' ${tsSetting.value=='jira'?'selected':''}>JIRA</option>
-							<option value='redmine' ${tsSetting.value=='redmine'?'selected':''}>REDMINE</option>
-						</select>
-					</div>
-				</c:when>
 			</c:choose>
 		</div>
 	</form>

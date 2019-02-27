@@ -11,5 +11,6 @@ import lu.itrust.business.TS.model.general.TicketingSystem;
  *
  */
 public interface TemplateTicketingSystem extends TemplateDAOService<TicketingSystem, Long> {
-
+	
+	TicketingSystem findByCustomerId(Integer customerId);
 }

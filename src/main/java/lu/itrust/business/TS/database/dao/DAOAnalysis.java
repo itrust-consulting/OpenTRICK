@@ -213,4 +213,6 @@ public interface DAOAnalysis {
 
 	public String findIdentifierByCustomerAndLabel(int customerId, String label);
 
+	public Analysis findByIdAndCustomer(Integer id, Customer customer);
+
 }

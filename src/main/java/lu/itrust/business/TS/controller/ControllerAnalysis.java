@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
 import static lu.itrust.business.TS.constants.Constant.ANALYSIS_TASK_ID;
 import static lu.itrust.business.TS.constants.Constant.CURRENT_CUSTOMER;
 import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
@@ -13,32 +12,23 @@ import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
-import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
-import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -64,16 +54,13 @@ import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.MeasureManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceTSSetting;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceTicketingSystem;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
@@ -91,8 +78,6 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
-import lu.itrust.business.TS.model.general.TSSetting;
-import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.PhaseManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
@@ -104,9 +89,6 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
-import lu.itrust.business.TS.model.ticketing.TicketingProject;
-import lu.itrust.business.TS.model.ticketing.builder.Client;
-import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.HistoryValidator;
@@ -124,52 +106,34 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 @PreAuthorize(ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Analysis")
-public class ControllerAnalysis {
-
+public class ControllerAnalysis extends AbstractControllerAnalysis {
+	
 	@Autowired
-	private CustomDelete customDelete;
-
-	@Autowired
-	private CustomerManager customerManager;
-
-	@Autowired
-	private TaskExecutor executor;
-
-	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceCustomer serviceCustomer;
-
-	@Autowired
-	private ServiceDataValidation serviceDataValidation;
-
+	private ServiceUser serviceUser;
+	
 	@Autowired
 	private ServiceIDS serviceIDS;
 
 	@Autowired
+	private CustomDelete customDelete;
+	
+	@Autowired
+	private CustomerManager customerManager;
+	
+	@Autowired
+	private ServiceCustomer serviceCustomer;
+	
+	@Autowired
 	private ServiceLanguage serviceLanguage;
-
+	
 	@Autowired
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	@Autowired
-	private ServiceTSSetting serviceTSSetting;
-
-	@Autowired
-	private ServiceUser serviceUser;
+	private ServiceDataValidation serviceDataValidation;
+	
+	private ServiceTicketingSystem serviceTicketingSystem;
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private SessionFactory sessionFactory;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
+	
 
 	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
@@ -409,66 +373,7 @@ public class ControllerAnalysis {
 			return "redirect:/Analysis/All";
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
-	@RequestMapping(value = "/{idAnalysis}/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String linkToProject(@PathVariable Integer idAnalysis, @RequestBody String idProject, Principal principal, Locale locale) {
-		if (!loadUserSettings(principal, null, null))
-			throw new ResourceNotFoundException();
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		if (StringUtils.isEmpty(idProject))
-			return JsonMessage.Error(messageSource.getMessage("error.project.not_found", null, "Project cannot be found", locale));
-		String OldProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
-		if (!(OldProject == null || OldProject.equals(idProject)))
-			return JsonMessage.Error(
-					messageSource.getMessage("error.analysis.linked.to.another.project", null, "Another project is already linked to another version of this analysis", locale));
-		analysis.setProject(idProject);
-		serviceAnalysis.saveOrUpdate(analysis);
-		return JsonMessage.Success(messageSource.getMessage("success.link.analysis.project", null, "Analysis has been successfully linked to project", locale));
-
-	}
-
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
-	@RequestMapping(value = "/{idAnalysis}/Ticketing/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String loadProject(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
-		Client client = null;
-		try {
-			if (!loadUserSettings(principal, model, null))
-				throw new ResourceNotFoundException();
-			client = buildClient(principal.getName());
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			String idProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
-			List<TicketingProject> projects = null;
-			if (idProject != null) {
-				TicketingProject project = client.findProjectById(idProject);
-				if (project != null)
-					(projects = new LinkedList<>()).add(project);
-			} else {
-				Map<String, Boolean> mapper = serviceAnalysis.getAllProjectIds().stream().collect(Collectors.toMap(Function.identity(), key -> true));
-				(projects = client.findProjects()).removeIf(id -> mapper.containsKey(id.getId()));
-			}
-			model.addAttribute("projects", projects);
-			model.addAttribute("analysis", analysis);
-			return String.format("analyses/all/forms/ticketing_%s_link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
-		} catch (ResourceNotFoundException e) {
-			throw e;
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			return "redirect:/Error";
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			attributes.addAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			return "redirect:/Error";
-		} finally {
-			if (client != null) {
-				try {
-					client.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+	
 
 	// *****************************************************************
 	// * request create new analysis
@@ -723,7 +628,7 @@ public class ControllerAnalysis {
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("login", user.getLogin());
-			loadUserSettings(principal, model, user);
+			loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
 
 			/**
 			 * Log
@@ -767,26 +672,6 @@ public class ControllerAnalysis {
 		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
-	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String unlinkToProject(@RequestBody List<Integer> ids, Model model, Principal principal, Locale locale) {
-		User user = serviceUser.get(principal.getName());
-		if (!loadUserSettings(principal, model, user))
-			throw new ResourceNotFoundException();
-		String name = (String) model.asMap().get(TICKETING_NAME);
-		ids.forEach(idAnalysis -> {
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			if (analysis != null && analysis.hasProject() && analysis.isUserAuthorized(user, AnalysisRight.ALL)) {
-				analysis.setProject(null);
-				serviceAnalysis.saveOrUpdate(analysis);
-			}
-		});
-		return JsonMessage.Success(ids.size() > 1
-				? messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name }, String.format("Analyses has been successfully unlinked from %s", name),
-						locale)
-				: messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name }, String.format("Analysis has been successfully unlinked from %s", name),
-						locale));
-	}
-
 	/**
 	 * update: <br>
 	 * Description
@@ -813,41 +698,6 @@ public class ControllerAnalysis {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
 		}
-	}
-
-	private Client buildClient(String username) {
-		User user = serviceUser.get(username);
-		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
-		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
-		if (urlSetting == null || nameSetting == null)
-			throw new TrickException("error.load.setting", "Setting cannot be loaded");
-		Map<String, Object> settings = new HashMap<>(3);
-		if(nameSetting.getValue().equalsIgnoreCase("redmine"))
-			settings.put("token", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
-		else {
-			settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
-			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
-		}
-		settings.put("url", urlSetting.getValue());
-		Client client = null;
-		boolean isConnected = false;
-		try {
-			client = ClientBuilder.Build(nameSetting.getString());
-			isConnected = client.connect(settings);
-		} catch (TrickException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
-		} finally {
-			if (!(client == null || isConnected)) {
-				try {
-					client.close();
-				} catch (IOException e) {
-					TrickLogManager.Persist(e);
-				}
-			}
-		}
-		return client;
 	}
 
 	private int findId(JsonNode jsonNode, String name) {
@@ -893,8 +743,9 @@ public class ControllerAnalysis {
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 			else
 				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
+			loadUserSettings(principal, serviceTicketingSystem.findByCustomerId(customer), model, user);
 		}
-		loadUserSettings(principal, model, user);
+		
 		model.addAttribute("names", names);
 		model.addAttribute("analysisSelectedName", StringUtils.isEmpty(nameFilter) ? "ALL" : nameFilter);
 		model.addAttribute("customer", customer);
@@ -904,27 +755,7 @@ public class ControllerAnalysis {
 		return "analyses/all/home";
 	}
 
-	private boolean loadUserSettings(Principal principal, @Nullable Model model, @Nullable User user) {
-		boolean allowedTicketing = false;
-		try {
-			if (user == null)
-				user = serviceUser.get(principal.getName());
-			TSSetting name = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME), url = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
-			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
-			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
-					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing) {
-				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
-				model.addAttribute(TICKETING_URL, url.getString());
-			}
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-		} finally {
-			if (model != null)
-				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
-		}
-		return allowedTicketing;
-	}
+	
 
 	/**
 	 * mapMeasures: <br>

@@ -199,4 +199,6 @@ public interface ServiceAnalysis {
 	public Analysis findByIdAndEager(Integer analysisId);
 
 	public String findIdentifierByCustomerAndLabel(int id, String label);
+
+	public Analysis findByIdAndCustomer(Integer id, Customer customer);
 }

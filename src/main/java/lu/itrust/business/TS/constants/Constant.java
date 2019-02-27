@@ -653,6 +653,8 @@ public class Constant {
 	public static final String CURRENT_CUSTOMER = "currentCustomer";
 
 	public static final String ALLOWED_TICKETING = "allowedTicketing";
+	
+	public static final String ADMIN_ALLOWED_TICKETING = "adminaAllowedTicketing";
 
 	public static final String TICKETING_NAME = "ticketingName";
 

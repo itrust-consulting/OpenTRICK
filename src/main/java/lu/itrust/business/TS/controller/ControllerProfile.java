@@ -66,11 +66,13 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.Credential;
+import lu.itrust.business.TS.model.general.CredentialType;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.ReportType;
-import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
@@ -315,14 +317,12 @@ public class ControllerProfile {
 		if (user == null)
 			return "redirect:/Logout";
 		user.setPassword(EMPTY_STRING);
-		TSSetting setting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
 		// add profile to model
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
 		model.addAttribute("roles", RoleType.ROLES);
 		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
-		model.addAttribute("isTokenAuthentication", setting != null && setting.getValue().equalsIgnoreCase("redmine"));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
 		model.addAttribute("invitationSortNames", InvitationFilter.SORTS());
@@ -559,7 +559,7 @@ public class ControllerProfile {
 				}
 
 				if (serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK)) {
-					String ticketingUsername = readStringValue(jsonNode, "ticketingUsername"), ticketingPassword = readStringValue(jsonNode, "ticketingPassword");
+					/*String ticketingUsername = readStringValue(jsonNode, "ticketingUsername"), ticketingPassword = readStringValue(jsonNode, "ticketingPassword");
 					if (StringUtils.isEmpty(ticketingUsername)) {
 						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
 						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
@@ -573,7 +573,7 @@ public class ControllerProfile {
 							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
 							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 						}
-					}
+					}*/
 				}
 
 				if (user.getConnexionType() == User.LADP_CONNEXION && !user.getEmail().equals(email))
@@ -632,22 +632,20 @@ public class ControllerProfile {
 		}
 	}
 
-	private Boolean isConnected(User user) {
+	private Boolean isConnected(Credential credential, TicketingSystem ticketingSystem) {
 		Client client = null;
 		try {
-			TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
-			TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
-			if (urlSetting == null || nameSetting == null)
+			if (credential == null || ticketingSystem == null)
 				throw new TrickException("error.load.setting", "Setting cannot be loaded");
-			Map<String, Object> settings = new HashMap<>(3);
-			if (nameSetting.getValue().equalsIgnoreCase("redmine"))
-				settings.put("token", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+			final Map<String, Object> settings = new HashMap<>(3);
+			if (credential.getType() == CredentialType.TOKEN)
+				settings.put("token", credential.getValue());
 			else {
-				settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
-				settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+				settings.put("username", credential.getName());
+				settings.put("password", credential.getValue());
 			}
-			settings.put("url", urlSetting.getValue());
-			return (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
+			settings.put("url", ticketingSystem.getUrl());
+			return (client = ClientBuilder.Build(ticketingSystem.getType().name().toLowerCase())).connect(settings);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;

@@ -952,4 +952,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return getSession().createQuery("Select analysis.identifier From Analysis analysis where analysis.label = :label and analysis.customer.id = :customerId", String.class)
 				.setParameter("label", label).setParameter("customerId", customerId).setMaxResults(1).uniqueResult();
 	}
+
+	@Override
+	public Analysis findByIdAndCustomer(Integer id, Customer customer) {
+		return getSession().createQuery("From Analysis analysis where analysis.id = :id and analysis.customer = :customer", Analysis.class)
+				.setParameter("id", id).setParameter("customer", customer).uniqueResult();
+	}
 }

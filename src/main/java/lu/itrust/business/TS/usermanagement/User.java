@@ -31,6 +31,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 
 /**
  * User: <br>
@@ -138,10 +139,10 @@ public class User implements Serializable, IUser {
 	
 	@OneToMany
 	@JoinColumn(name="fiUser")
-	@MapKey(name="customer")
+	@MapKey(name="ticketingSystem")
 	@Cascade(CascadeType.ALL)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	private Map<Customer,UserCredential> credentials = new LinkedHashMap<>();
+	private Map<TicketingSystem,UserCredential> credentials = new LinkedHashMap<>();
 	
 
 	/**
@@ -685,11 +686,11 @@ public class User implements Serializable, IUser {
 		this.emailValidated = emailValidated;
 	}
 
-	public Map<Customer,UserCredential> getCredentials() {
+	public Map<TicketingSystem,UserCredential> getCredentials() {
 		return credentials;
 	}
 
-	public void setCredentials(Map<Customer,UserCredential> credentials) {
+	public void setCredentials(Map<TicketingSystem,UserCredential> credentials) {
 		this.credentials = credentials;
 	}
 

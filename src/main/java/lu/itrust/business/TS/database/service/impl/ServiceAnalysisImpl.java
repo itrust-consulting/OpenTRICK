@@ -771,4 +771,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public String findIdentifierByCustomerAndLabel(int customerId, String label) {
 		return daoAnalysis.findIdentifierByCustomerAndLabel(customerId, label);
 	}
+
+	@Override
+	public Analysis findByIdAndCustomer(Integer id, Customer customer) {
+		return daoAnalysis.findByIdAndCustomer(id, customer);
+	}
 }

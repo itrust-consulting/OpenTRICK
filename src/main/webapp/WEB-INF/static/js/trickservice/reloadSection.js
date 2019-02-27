@@ -47,11 +47,9 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 			else
 				reloadSection(section[i], subSection, refreshOnly, prepend);
 		}
-	} else if (section == "section_standard")
-		location.reload();
-	else if (section == "section_chart")
+	} else if (section == "section_chart")
 		reloadCharts();
-	else {
+	else if(!staticReload(section)) {
 		var sectionName = section.replace("section_admin","section"), $section = $("#" + sectionName);
 		if ($section.is(":visible")) {
 			var controller = findControllerBySection(section, subSection);
@@ -95,6 +93,17 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 		}
 	}
 	return false;
+}
+
+function staticReload(key){
+	switch (key) {
+	case "section_standard":
+	case "SETTING_ALLOWED_TICKETING_SYSTEM_LINK":
+		setTimeout(() => location.reload(), 10);
+		return true;
+	default:
+		return false;
+	}
 }
 
 function findControllerBySection(section, subSection) {

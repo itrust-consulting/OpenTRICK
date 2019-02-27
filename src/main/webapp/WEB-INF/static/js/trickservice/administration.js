@@ -435,24 +435,27 @@ function loadSystemLogScrolling() {
 }
 
 function updateSetting(idForm, sender) {
-	var $sender = $(sender), olvalue = $sender.attr("placeholder"),value = $sender.val();
+	var $form = $(idForm), $sender = $(sender), olvalue = $sender.attr("placeholder"),value = $sender.val();
 	if ($sender.attr("type") != "radio" && value!== olvalue  || $sender.is(":checked")) {
 		$.ajax({
 			url : context + "/Admin/TSSetting/Update",
 			async : false,
 			type : "post",
-			data : JSON.stringify($(idForm).serializeJSON()),
+			data : JSON.stringify($form.serializeJSON()),
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if (response !== true)
 					unknowError();
-				else if ($sender.attr("type") != "radio"){
-					$sender.parent().addClass("has-success");
-					if($sender.hasAttr("placeholder"))
-						$sender.attr("placeholder", value);
-					setTimeout(() => {
-						$sender.parent().removeClass("has-success")
-					}, 5000);
+				else {
+					if ($sender.attr("type") != "radio"){
+						$sender.parent().addClass("has-success");
+						if($sender.hasAttr("placeholder"))
+							$sender.attr("placeholder", value);
+						setTimeout(() => {
+							$sender.parent().removeClass("has-success")
+						}, 5000);
+					}
+					staticReload($form[0].id);
 				}
 				return false;
 			},

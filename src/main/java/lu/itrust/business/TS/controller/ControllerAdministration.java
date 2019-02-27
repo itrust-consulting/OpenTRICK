@@ -79,6 +79,7 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.TicketingSystemType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.helper.Notification;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
@@ -244,8 +245,6 @@ public class ControllerAdministration {
 				case SETTING_ALLOWED_SIGNUP:
 					tsSetting = new TSSetting(name, true);
 					break;
-				case TICKETING_SYSTEM_NAME:
-				case TICKETING_SYSTEM_URL:
 				case USER_GUIDE_URL_TYPE:
 					tsSetting = new TSSetting(name, null);
 					break;
@@ -267,7 +266,8 @@ public class ControllerAdministration {
 				tsSettings.add(tsSetting);
 
 		}
-
+		boolean adminAllowedTicketing  = ticketingSystems.stream().anyMatch(e -> e.getName() == TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK && e.getBoolean());
+		model.put(Constant.ADMIN_ALLOWED_TICKETING, adminAllowedTicketing);
 		model.put("ticketingSystems", ticketingSystems);
 		model.put("tsSettings", tsSettings);
 		model.put("enabledOTP", enabledOTP);
@@ -277,7 +277,10 @@ public class ControllerAdministration {
 		model.put("logTypes", serviceTrickLog.getDistinctType());
 		model.put("actions", serviceTrickLog.getDistinctAction());
 		model.put("authors", serviceTrickLog.getDistinctAuthor());
+		if(adminAllowedTicketing)
+			model.put("ticketingTypes", TicketingSystemType.values());
 		return "admin/administration";
+		
 	}
 
 	private TrickLogFilter loadLogFilter(HttpSession session, String username) throws Exception {
