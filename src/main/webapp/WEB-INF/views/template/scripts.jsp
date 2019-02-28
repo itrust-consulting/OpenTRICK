@@ -8,6 +8,7 @@
 <script src="<spring:url value="/js/jquery-2.2.4.min.js?version=${jsVersion}" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js?version=${jsVersion}" />"></script>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+	<script src="<spring:url value="/js/jquery.serializeToJson.min.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/dom-parser.js?version=${jsVersion}" />"></script>
 	<script src="<spring:url value="/js/naturalSort.js?version=${jsVersion}" />"></script>

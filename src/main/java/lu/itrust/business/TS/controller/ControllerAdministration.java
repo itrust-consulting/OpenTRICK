@@ -49,6 +49,7 @@ import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.controller.form.AnalysisRightForm;
+import lu.itrust.business.TS.controller.form.CustomerForm;
 import lu.itrust.business.TS.controller.form.NotificationForm;
 import lu.itrust.business.TS.controller.form.ReportTemplateForm;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -778,7 +779,7 @@ public class ControllerAdministration {
 	 * @return
 	 */
 	@RequestMapping(value = "Customer/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody CustomerForm value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			Customer customer = customerManager.buildCustomer(errors, value, locale, true);
@@ -794,12 +795,13 @@ public class ControllerAdministration {
 					serviceCustomer.save(customer);
 				else
 					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
-			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed()
-					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+			} else
+				if (customer.isCanBeUsed() && !serviceCustomer.isProfile(customer.getId()) || !(customer.isCanBeUsed() || serviceCustomer.isProfile(customer.getId())) || !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
 				errors.put("canBeUsed",
 						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+		
 			/**
 			 * Log
 			 */

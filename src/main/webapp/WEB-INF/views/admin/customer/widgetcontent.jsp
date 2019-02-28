@@ -22,6 +22,7 @@
 							<spring:message code='label.contact' text='Contact' />
 						</legend>
 						<input type="hidden" name="id" value="-1" id="customer_id">
+						<input type="hidden" name="canBeUsed" value="true" id="customer_canBeUsed">
 						<div class="form-group">
 							<label for="organisation" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.organisation" />'> <spring:message
 									code="label.customer.organisation" text="Company" />
@@ -68,11 +69,11 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="ZIPCode" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.zip_code" />'> <spring:message
+							<label for="zipCode" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.zip_code" />'> <spring:message
 									code="label.customer.zip_code" text="Zip code" />
 							</label>
 							<div class="col-sm-9">
-								<input name="ZIPCode" id="customer_ZIPCode" class="form-control" type="text" />
+								<input name="zipCode" id="customer_ZIPCode" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
@@ -98,49 +99,50 @@
 								<spring:message code="label.ticketing.system"/>
 							</legend>
 							<div class="form-group">
-								<label for="tickectingSystem.type" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.type" />'> <spring:message
+								<label for="ticketingSystem.enabled" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.enabled" />'> <spring:message
+										code="label.ticketing.system.enabled"/>
+								</label>
+								<div class="col-sm-9">
+									<div class="btn-group btn-group-justified" id="customer_tickecting_system_enabled"  data-toggle="buttons">
+											<label class="btn btn-default"><spring:message code="label.yes_no.yes"/> 
+												<input name="ticketingSystem.enabled" type="radio" value="true">
+											</label>
+											<label class="btn btn-default active"><spring:message code="label.yes_no.no"/> 
+												<input name="ticketingSystem.enabled" type="radio" value="false" checked="checked">
+											</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="ticketingSystem.type" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.type" />'> <spring:message
 										code="label.ticketing.system.type"/>
 								</label>
 								<div class="col-sm-9">
-									<div class="btn-group btn-group-justified" data-toggle="buttons">
+									<div class="btn-group btn-group-justified"  id="customer_tickecting_system_type" data-toggle="buttons">
 										<c:forEach items="${ticketingTypes}" var="type" varStatus="status">
 											<label class="btn btn-default ${status.index==0?'active':''}"><spring:message code="label.ticketing.system.type.${fn:toLowerCase(type)}"/> 
-												<input name="tickectingSystem.type" type="radio" value="${type}" ${status.index==0?'checked="checked"':''}>
+												<input name="ticketingSystem.type" type="radio" value="${type}" ${status.index==0?'checked="checked"':''}>
 											</label>
 										</c:forEach>
 									</div>
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="tickectingSystem.name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.name" />'> <spring:message
+								<label for="ticketingSystem.name" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.name" />'> <spring:message
 										code="label.ticketing.system.name" />
 								</label>
 								<div class="col-sm-9">
-									<input name="tickectingSystem.name" id="customer_tickecting_system_name" class="form-control" type="text" />
+									<input name="ticketingSystem.name" id="customer_tickecting_system_name" class="form-control" type="text" />
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="tickectingSystem.url" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.url" />'> <spring:message code="label.ticketing.system.url" />
+								<label for="ticketingSystem.url" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.url" />'> <spring:message code="label.ticketing.system.url" />
 								</label>
 								<div class="col-sm-9">
-									<input name="tickectingSystem.url" id="customer_tickecting_system_url" class="form-control" type="url" />
+									<input name="ticketingSystem.url" id="customer_tickecting_system_url" class="form-control" type="url" />
 								</div>
 							</div>
-							<div class="form-group">
-								<label for="tickectingSystem.enabled" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.enabled" />'> <spring:message
-										code="label.ticketing.system.enabled"/>
-								</label>
-								<div class="col-sm-9">
-									<div class="btn-group btn-group-justified" data-toggle="buttons">
-											<label class="btn btn-default"><spring:message code="label.yes_no.yes"/> 
-												<input name="tickectingSystem.enabled" type="radio" value="true">
-											</label>
-											<label class="btn btn-default active"><spring:message code="label.yes_no.no"/> 
-												<input name="tickectingSystem.enabled" type="radio" value="false" checked="checked">
-											</label>
-									</div>
-								</div>
-							</div>
+							
 						</fieldset>
 					</c:if>
 				</form>

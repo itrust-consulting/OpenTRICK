@@ -129,6 +129,7 @@ public class ControllerAnalysis extends AbstractControllerAnalysis {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 	
+	@Autowired
 	private ServiceTicketingSystem serviceTicketingSystem;
 
 	@Autowired

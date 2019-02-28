@@ -38,7 +38,7 @@ function saveCustomer(form) {
 	$.ajax({
 		url: loadTargetContext() + "/Customer/Save",
 		type: "post",
-		data: serializeForm(form),
+		data: serializeFormToJson(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			var hasError = false;
@@ -70,9 +70,6 @@ function saveCustomer(form) {
 						break;
 					case "phoneNumber":
 						$(errorElement).appendTo($("#customer_form #customer_phoneNumber").parent());
-						break;
-					case "canBeUsed":
-						$(errorElement).appendTo($("#customer_form #customer_canBeUsed").parent());
 						break;
 					default:
 						showDialog("#alert-dialog", response[error]);
@@ -142,8 +139,7 @@ function newCustomer() {
 	$("#customer_city").prop("value", "");
 	$("#customer_ZIPCode").prop("value", "");
 	$("#customer_country").prop("value", "");
-	if ($("#customer_canBeUsed").length)
-		$("#customer_canBeUsed").prop("checked", false);
+	$("#customer_canBeUsed").prop("value", true);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Add", "Add a new Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#customer_form").prop("action", loadTargetContext() + "/Customer/Save");
@@ -160,11 +156,13 @@ function editSingleCustomer(customerId) {
 	}
 	$("#addCustomerModel .label-danger").remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] td[data-trick-name]").each(function () {
-		if ($(this).attr("data-real-value") == undefined)
-			$("#customer_" + $(this).attr("data-trick-name")).prop("value", $(this).text());
-		else
-			$("#customer_" + $(this).attr("data-trick-name")).prop("checked", $(this).attr("data-real-value") == 'false');
+	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] *[data-trick-name]").each(function () {
+		var $this = $(this), $field = $("#customer_" + $(this).attr("data-trick-name")), value = $this.attr("data-real-value");
+		if (value == undefined)
+			$field.prop("value", $this.text().trim());
+		else if(!$field.hasClass("btn"))
+			$field.prop("value", value);
+		else $field.find("*input[value='"+value+"']").click();
 	});
 	$("#customer_id").prop("value", customerId);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));

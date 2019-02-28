@@ -42,6 +42,7 @@ import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.controller.form.CustomerForm;
 import lu.itrust.business.TS.controller.form.ReportTemplateForm;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
@@ -136,7 +137,7 @@ public class ControllerCustomer {
 	 * @return
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody CustomerForm value, Principal principal, Locale locale) {
 		final Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			Customer customer = customerManager.buildCustomer(errors, value, locale,false);

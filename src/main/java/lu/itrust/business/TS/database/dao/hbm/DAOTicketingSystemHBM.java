@@ -186,7 +186,7 @@ public class DAOTicketingSystemHBM extends DAOHibernate implements DAOTicketingS
 
 	@Override
 	public TicketingSystem findByCustomerId(Integer customerId) {
-		return getSession().createQuery("Select ticketingSystem From Customer where id = :customerId", TicketingSystem.class).setParameter("customerId", customerId).uniqueResult();
+		return getSession().createQuery("Select c.ticketingSystem From Customer c where c.id = :customerId", TicketingSystem.class).setParameter("customerId", customerId).uniqueResult();
 	}
 
 }

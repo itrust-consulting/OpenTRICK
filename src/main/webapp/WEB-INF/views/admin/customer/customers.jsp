@@ -22,22 +22,34 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty customers}">
+				<c:set var="colSpan" value="${adminaAllowedTicketing? '2' : '1'}"/>
 				<table class="table table-striped table-hover">
 					<thead>
 						<tr>
-							<th></th>
-							<th><spring:message code="label.customer.organisation" text="Company" /></th>
-							<th><spring:message code="label.customer.contact_person" text="Contact person" /></th>
-							<th><spring:message code="label.customer.phone_number" text="Phone number" /></th>
-							<th><spring:message code="label.customer.email" text="Email address" /></th>
-							<th><spring:message code="label.customer.address" text="Address" /></th>
-							<th><spring:message code="label.customer.city" text="City" /></th>
-							<th><spring:message code="label.customer.zip_code" text="Zip code" /></th>
-							<th><spring:message code="label.customer.country" text="Country" /></th>
+							<th rowspan="${colSpan}"></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.organisation" text="Company" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.contact_person" text="Contact person" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.phone_number" text="Phone number" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.email" text="Email address" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.address" text="Address" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.city" text="City" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.zip_code" text="Zip code" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.country" text="Country" /></th>
 							<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-								<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
+								<th rowspan="${colSpan}"><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
+								<c:if test="${adminaAllowedTicketing}">
+									<th class="text-center" colspan="4"><spring:message code="label.ticketing.system"/></th>
+								</c:if>
 							</sec:authorize>
 						</tr>
+						<c:if test="${adminaAllowedTicketing}">
+							<tr>
+								<th><spring:message code="label.ticketing.system.enabled"/></th>
+								<th><spring:message code="label.ticketing.system.name"/></th>
+								<th><spring:message code="label.ticketing.system.type"/></th>
+								<th><spring:message code="label.ticketing.system.url"/></th>
+							</tr>
+						</c:if>
 					</thead>
 					<tbody>
 						<c:forEach items="${customers}" var="customer">
@@ -52,8 +64,14 @@
 								<td data-trick-name='city'><spring:message text="${customer.city}" /></td>
 								<td data-trick-name='country'><spring:message text="${customer.country}" /></td>
 								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-									<td data-trick-name='canBeUsed' data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}"
-											text="${customer.canBeUsed?'No':'Yes'}" /></td>
+									<c:if test="${adminaAllowedTicketing}">
+										<td data-trick-name='canBeUsed' data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}"/></td>
+										<td data-trick-name='tickecting_system_enabled' data-real-value="${customer.ticketingSystem.enabled}"><spring:message code="label.yes_no.${fn:toLowerCase(customer.ticketingSystem.enabled)}" /></td>
+										<td data-trick-name='tickecting_system_name'><spring:message text="${customer.ticketingSystem.name}" /></td>
+										<td data-trick-name='tickecting_system_type' data-real-value="${customer.ticketingSystem.type}"><spring:message code="label.ticketing.type.${fn:toLowerCase(customer.ticketingSystem.type)}" text="${customer.ticketingSystem.type}"/></td>
+										<td data-trick-name='tickecting_system_url'><spring:message text="${customer.ticketingSystem.url}" /></td>
+									</c:if>
+									
 								</sec:authorize>
 							</tr>
 						</c:forEach>

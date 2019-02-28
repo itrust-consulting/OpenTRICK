@@ -862,6 +862,13 @@ function serializeForm(form) {
 	return JSON.stringify($form.serializeJSON());
 }
 
+function serializeFormToJson(form){
+	var $form = $(form);
+	if (!$form.length)
+		$form = $("#" + form);
+	return JSON.stringify($form.serializeToJSON());
+}
+
 function parseJson(data) {
 	try {
 		if (typeof data == 'object')
