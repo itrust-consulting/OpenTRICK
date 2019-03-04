@@ -171,8 +171,6 @@ public class CustomerManager {
 							ticketingSystem.setType(null);
 					} else
 						ticketingSystem.setType(systemForm.getType());
-					
-					System.out.println(systemForm.getType());
 
 					if (!StringUtils.hasText(systemForm.getName())) {
 						if (ticketingSystem.isEnabled())
@@ -194,7 +192,6 @@ public class CustomerManager {
 								messageSource.getMessage("error.ticketing.system.url.bad.protocol", null, locale));
 					else
 						ticketingSystem.setUrl(systemForm.getUrl());
-
 				}
 
 			}

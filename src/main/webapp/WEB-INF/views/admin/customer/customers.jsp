@@ -66,7 +66,7 @@
 								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 									<c:if test="${adminaAllowedTicketing}">
 										<td data-trick-name='canBeUsed' data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}"/></td>
-										<td data-trick-name='tickecting_system_enabled' data-real-value="${customer.ticketingSystem.enabled}"><spring:message code="label.yes_no.${fn:toLowerCase(customer.ticketingSystem.enabled)}" /></td>
+										<td data-trick-name='tickecting_system_enabled' data-real-value="${customer.ticketingSystem.enabled==true}"><spring:message code="label.yes_no.${fn:toLowerCase(customer.ticketingSystem.enabled==true)}" /></td>
 										<td data-trick-name='tickecting_system_name'><spring:message text="${customer.ticketingSystem.name}" /></td>
 										<td data-trick-name='tickecting_system_type' data-real-value="${customer.ticketingSystem.type}"><spring:message code="label.ticketing.type.${fn:toLowerCase(customer.ticketingSystem.type)}" text="${customer.ticketingSystem.type}"/></td>
 										<td data-trick-name='tickecting_system_url'><spring:message text="${customer.ticketingSystem.url}" /></td>

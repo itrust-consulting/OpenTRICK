@@ -766,6 +766,7 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value = "/Customer/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
+		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING, serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/customer/customers";
 	}

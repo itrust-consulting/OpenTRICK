@@ -71,6 +71,18 @@ function saveCustomer(form) {
 					case "phoneNumber":
 						$(errorElement).appendTo($("#customer_form #customer_phoneNumber").parent());
 						break;
+					case "ticketingSystem.url":
+						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_url").parent());
+						break;
+					case "ticketingSystem.name":
+						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_name").parent());
+						break;
+					case "ticketingSystem.type":
+						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_type").parent());
+						break;
+					case "ticketingSystem.enabled":
+						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_enabled").parent());
+						break;
 					default:
 						showDialog("#alert-dialog", response[error]);
 						break;
@@ -160,9 +172,9 @@ function editSingleCustomer(customerId) {
 		var $this = $(this), $field = $("#customer_" + $(this).attr("data-trick-name")), value = $this.attr("data-real-value");
 		if (value == undefined)
 			$field.prop("value", $this.text().trim());
-		else if(!$field.hasClass("btn"))
-			$field.prop("value", value);
-		else $field.find("*input[value='"+value+"']").click();
+		else if($field.hasClass("btn-group"))
+			$field.find("*input[value='"+value+"']").click();
+		else $field.prop("value", value);
 	});
 	$("#customer_id").prop("value", customerId);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));
