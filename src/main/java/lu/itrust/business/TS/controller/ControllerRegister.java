@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -114,10 +116,8 @@ public class ControllerRegister {
 	 * @return
 	 */
 	@RequestMapping("/Register")
+	@PreAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.TS.model.general.TSSettingName).SETTING_ALLOWED_SIGNUP,true)")
 	public String add(Map<String, Object> model) {
-		// create new user object and add it to model
-		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP, true))
-			throw new ResourceNotFoundException();
 		model.put("user", new User());
 		return "default/register";
 	}
@@ -134,12 +134,11 @@ public class ControllerRegister {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.TS.model.general.TSSettingName).SETTING_ALLOWED_SIGNUP,true)")
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP, true))
-				throw new ResourceNotFoundException();
 			User user = new User();
 			if (!buildUser(errors, user, source, locale))
 				return errors;

@@ -9,8 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -81,7 +81,7 @@ public class Customer {
 	@Column(name = "dtCanBeUsed", nullable = false)
 	private boolean canBeUsed = true;
 	
-	@ManyToOne
+	@OneToOne(mappedBy = "customer")
 	@Cascade(CascadeType.ALL)
 	@JoinColumn(name="fiTicketingSystem")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

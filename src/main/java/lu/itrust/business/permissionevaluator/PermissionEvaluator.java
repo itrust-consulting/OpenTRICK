@@ -5,6 +5,7 @@ import java.security.Principal;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.TSSettingName;
 
 /**
  * PermissionEvaluator.java: <br>
@@ -32,8 +33,7 @@ public interface PermissionEvaluator extends org.springframework.security.access
 	
 	boolean hasPermission(Integer analysisId, Principal principal, AnalysisRight right);
 	
+	boolean isAllowed(TSSettingName setting);
 	
-	
-	
-
+	boolean isAllowed(TSSettingName setting, boolean defaultValue);
 }

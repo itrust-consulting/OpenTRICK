@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.database.template;
 
+import java.util.List;
+
 import lu.itrust.business.TS.database.TemplateDAOService;
 import lu.itrust.business.TS.usermanagement.UserCredential;
 
@@ -11,4 +13,8 @@ import lu.itrust.business.TS.usermanagement.UserCredential;
  *
  */
 public interface TemplateUserCredential extends TemplateDAOService<UserCredential, Long> {
+	
+	UserCredential findByIdAndUsername(long id, String name);
+	
+	List<UserCredential> findByUsername(String username);
 }

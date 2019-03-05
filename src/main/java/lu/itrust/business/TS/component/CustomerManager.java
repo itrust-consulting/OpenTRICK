@@ -158,8 +158,10 @@ public class CustomerManager {
 			if (adminAccess) {
 				customer.setCanBeUsed(form.isCanBeUsed());
 				if (form.getTicketingSystem() != null) {
-					if (customer.getTicketingSystem() == null)
+					if (customer.getTicketingSystem() == null) {
 						customer.setTicketingSystem(new TicketingSystem());
+						customer.getTicketingSystem().setCustomer(customer);
+					}
 					final TicketingSystem ticketingSystem = customer.getTicketingSystem();
 					final TicketingSystemForm systemForm = form.getTicketingSystem();
 					ticketingSystem.setEnabled(form.getTicketingSystem().isEnabled());

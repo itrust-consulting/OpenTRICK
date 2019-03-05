@@ -33,10 +33,12 @@ import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.TSSettingName;
 
 /**
  * PermissionEvaluatorImpl.java: <br>
@@ -108,14 +110,18 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-	
+
 	@Autowired
 	private ServiceStandard serviceStandard;
+
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
 
 	public PermissionEvaluatorImpl() {
 	}
 
-	public PermissionEvaluatorImpl(ServiceUser serviceUser, ServiceAnalysis serviceAnalysis, ServiceUserAnalysisRight serviceUserAnalysisRight) {
+	public PermissionEvaluatorImpl(ServiceUser serviceUser, ServiceAnalysis serviceAnalysis,
+			ServiceUserAnalysisRight serviceUserAnalysisRight) {
 		this.serviceAnalysis = serviceAnalysis;
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
@@ -126,7 +132,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+			Object permission) {
 		return false;
 	}
 
@@ -153,7 +160,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right) {
+	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal,
+			AnalysisRight right) {
 		return userIsAuthorized(isAuthorised(session, principal, right), elementId, className, principal, right);
 	}
 
@@ -163,7 +171,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
+	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal,
+			AnalysisRight right) {
 		try {
 
 			if (analysisId == null || analysisId <= 0)
@@ -281,7 +290,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
-			
+
 			case "Standard": {
 				if (!serviceStandard.belongsToAnalysis(analysisId, elementId))
 					return false;
@@ -301,7 +310,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
-			if (analysisId == null || principal == null || right == null || !(analysisId > 0 || serviceAnalysis.exists(analysisId)))
+			if (analysisId == null || principal == null || right == null
+					|| !(analysisId > 0 || serviceAnalysis.exists(analysisId)))
 				return false;
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
@@ -310,7 +320,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
-  @Override
+	@Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 			if (analysisId == null || analysisId <= 0)
@@ -321,7 +331,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				return false;
 			if (right == null)
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
-			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right) || serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
+			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right)
+					|| serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;
@@ -347,7 +358,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				throw new NotFoundException("Analysis does not exist!");
 			if (principal == null)
 				return false;
-			return serviceUserAnalysisRight.hasDeletePermission(analysisId, principal.getName(),isProfile);
+			return serviceUserAnalysisRight.hasDeletePermission(analysisId, principal.getName(), isProfile);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;
@@ -368,5 +379,19 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			TrickLogManager.Persist(e);
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isAllowed(TSSettingName setting) {
+		if (!serviceTSSetting.isAllowed(setting))
+			throw new NotFoundException("Page does not exist");
+		return true;
+	}
+
+	@Override
+	public boolean isAllowed(TSSettingName setting, boolean defaultValue) {
+		if (!serviceTSSetting.isAllowed(setting, defaultValue))
+			throw new NotFoundException("Page does not exist");
+		return true;
 	}
 }

@@ -25,6 +25,10 @@
 			<div class="tab-content" id="tab-container">
 				<!-- profile -->
 				<jsp:include page="profile/section.jsp" />
+				
+				<c:if test="${adminaAllowedTicketing}">
+					<c:set var="credentials" value="${user.credentials.values()}"/>
+				</c:if>
 
 				<jsp:include page="invitation/home.jsp" />
 

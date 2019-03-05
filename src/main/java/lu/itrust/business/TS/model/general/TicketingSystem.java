@@ -5,9 +5,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
 @Cacheable
@@ -30,6 +34,12 @@ public class TicketingSystem {
 	
 	@Column(name="dtEnabled")
 	private boolean enabled;
+	
+	@OneToOne(mappedBy="ticketingSystem")
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@JoinColumn(name="fiCustomer")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private Customer customer;
 
 	public long getId() {
 		return id;
@@ -69,6 +79,14 @@ public class TicketingSystem {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 }

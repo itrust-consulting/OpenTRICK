@@ -10,15 +10,14 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_DIRCT
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_KEY;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -59,27 +58,24 @@ import lu.itrust.business.TS.database.service.ServiceEmailValidatingRequest;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.ServiceUserCredential;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.general.Credential;
-import lu.itrust.business.TS.model.general.CredentialType;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.ReportType;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.model.general.helper.InvitationFilter;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
-import lu.itrust.business.TS.model.ticketing.builder.Client;
-import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -143,6 +139,9 @@ public class ControllerProfile {
 	private ManageAnalysisRight manageAnalysisRight;
 
 	@Autowired
+	private ServiceUserCredential serviceUserCredential;
+
+	@Autowired
 	private ServiceEmailSender serviceEmailSender;
 
 	@Autowired
@@ -152,42 +151,54 @@ public class ControllerProfile {
 	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
 		if (report == null)
-			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceWordReport.delete(report);
-		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null,
+				"Resource has been successfully deleted", locale));
 	}
 
 	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteSqlite(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String deleteSqlite(@PathVariable Long id, Principal principal, Locale locale)
+			throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 		if (userSQLite == null)
-			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceUserSqLite.delete(userSQLite);
-		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null,
+				"Resource has been successfully deleted", locale));
 	}
 
 	@PostMapping(value = "/Invitation/{id}/Reject", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String rejectInvitation(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String rejectInvitation(@PathVariable Long id, Principal principal, Locale locale)
+			throws Exception {
 		String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
 		if (token == null)
-			return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null, "Invitation has already been accepted or cancelled!", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null,
+					"Invitation has already been accepted or cancelled!", locale));
 		manageAnalysisRight.cancelInvitation(principal, token);
-		return JsonMessage.Success(messageSource.getMessage("success.cancel.invitation", null, "Invitation has been successfully rejected!", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.cancel.invitation", null,
+				"Invitation has been successfully rejected!", locale));
 	}
 
 	@PostMapping(value = "/Invitation/{id}/Accept", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String acceptInvitation(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String acceptInvitation(@PathVariable Long id, Principal principal, Locale locale)
+			throws Exception {
 		try {
 			String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
 			if (token == null)
-				return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null, "Invitation has already been accepted or cancelled!", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null,
+						"Invitation has already been accepted or cancelled!", locale));
 			manageAnalysisRight.acceptInvitation(principal, token);
-			return JsonMessage.Success(messageSource.getMessage("success.accept.invitation", null, "Access has been successfully granted", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.accept.invitation", null,
+					"Access has been successfully granted", locale));
 		} catch (TrickException e) {// already logged
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -207,7 +218,8 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response,
+			Locale locale) throws Exception {
 		// get user file by given file id and username
 		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
 
@@ -215,10 +227,13 @@ public class ControllerProfile {
 		if (wordReport == null)
 			return "errors/404";
 
-		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
+		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(),
+				wordReport.getVersion());
 
-		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
-			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		if (idAnalysis < 1
+				|| !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+			throw new AccessDeniedException(
+					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
 		String extension = ReportType.getExtension(wordReport.getType(), wordReport.getFilename());
 
@@ -226,8 +241,8 @@ public class ControllerProfile {
 		response.setContentType(extension);
 
 		// set response header with location of the filename
-		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + String.format("%s_%s_v%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("%s_%s_v%s.%s",
+				wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());
@@ -239,10 +254,13 @@ public class ControllerProfile {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
-				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated(),
+		TrickLogManager.Persist(LogType.ANALYSIS,
+				"log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
+				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(),
+						wordReport.getVersion(), wordReport.getCreated(),
 						ReportType.getDisplayName(wordReport.getType())),
-				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()));
+				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(),
+				String.valueOf(wordReport.getCreated()));
 
 		// return
 		return null;
@@ -259,7 +277,8 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Sqlite/{id}/Download")
-	public String downloadSqlite(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	public String downloadSqlite(@PathVariable Long id, Principal principal, HttpServletResponse response,
+			Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
@@ -268,9 +287,12 @@ public class ControllerProfile {
 		if (userSqLite == null)
 			return "errors/404";
 
-		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(), userSqLite.getVersion());
-		if (idAnalysis < 1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
-			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(),
+				userSqLite.getVersion());
+		if (idAnalysis < 1
+				|| !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+			throw new AccessDeniedException(
+					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");
 
@@ -278,8 +300,9 @@ public class ControllerProfile {
 		String identifierName = userSqLite.getIdentifier();
 
 		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+		response.setHeader("Content-Disposition",
+				"attachment; filename=\"" + (identifierName == null || identifierName.trim().isEmpty() ? "Analysis"
+						: identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -293,8 +316,10 @@ public class ControllerProfile {
 		 * Log
 		 */
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.data.download",
-				String.format("Analysis: %s, version: %s, exported at: %s, type: data", userSqLite.getIdentifier(), userSqLite.getVersion(), userSqLite.getCreated()),
-				principal.getName(), LogAction.DOWNLOAD, userSqLite.getIdentifier(), userSqLite.getVersion(), String.valueOf(userSqLite.getCreated()));
+				String.format("Analysis: %s, version: %s, exported at: %s, type: data", userSqLite.getIdentifier(),
+						userSqLite.getVersion(), userSqLite.getCreated()),
+				principal.getName(), LogAction.DOWNLOAD, userSqLite.getIdentifier(), userSqLite.getVersion(),
+				String.valueOf(userSqLite.getCreated()));
 		// return
 		return null;
 	}
@@ -313,16 +338,25 @@ public class ControllerProfile {
 	public String home(Model model, HttpSession session, Principal principal) throws Exception {
 		if (principal == null)
 			return "redirect:/Logout";
-		User user = serviceUser.get(principal.getName());
+		final User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
+		final boolean adminAllowedTicketing = serviceTSSetting
+				.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
 		user.setPassword(EMPTY_STRING);
 		// add profile to model
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
 		model.addAttribute("roles", RoleType.ROLES);
-		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
+		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING, adminAllowedTicketing);
+		if (adminAllowedTicketing)
+			model.addAttribute("credentials",
+					user.getCredentials().values().stream().filter(e -> e.getTicketingSystem().isEnabled())
+							.sorted((e1, e2) -> NaturalOrderComparator.compareTo(
+									e1.getTicketingSystem().getCustomer().getOrganisation(),
+									e2.getTicketingSystem().getCustomer().getOrganisation()))
+							.collect(Collectors.toList()));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
 		model.addAttribute("invitationSortNames", InvitationFilter.SORTS());
@@ -385,8 +419,8 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response)
-			throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes,
+			Locale locale, Principal principal, HttpServletResponse response) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			User user = serviceUser.get(principal.getName());
@@ -401,76 +435,101 @@ public class ControllerProfile {
 		}
 	}
 
+	@RequestMapping(value = "/Section/Credential", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String sectionCredential(HttpSession session, Principal principal, Model model) {
+		final boolean adminAllowedTicketing = serviceTSSetting
+				.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
+		if (adminAllowedTicketing)
+			return null;
+		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING, adminAllowedTicketing);
+		model.addAttribute("credentials", serviceUserCredential.findByUsername(principal.getName()));
+		return "user/credential/section";
+	}
+
 	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
+	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session,
+			Principal principal, Model model) {
 		FilterControl filter = (FilterControl) session.getAttribute("reportControl");
 		if (filter == null)
 			filter = new FilterControl();
-		model.addAttribute("reports", serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
+		model.addAttribute("reports",
+				serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
 		return "user/report/section";
-
 	}
 
 	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
+	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session,
+			Principal principal, Model model) throws Exception {
 		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
 		if (filter == null)
 			filter = new FilterControl();
-		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
+		model.addAttribute("sqlites",
+				serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
 		return "user/sqlite/section";
 	}
 
 	@RequestMapping(value = "/Section/Invitation", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionInvitation(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
+	public String sectionInvitation(@RequestParam(defaultValue = "1") Integer page, HttpSession session,
+			Principal principal, Model model) throws Exception {
 		InvitationFilter filter = (InvitationFilter) session.getAttribute("invitationControl");
 		if (filter == null)
 			filter = new InvitationFilter();
-		model.addAttribute("invitations", serviceAnalysisShareInvitation.findAllByUsernameAndFilterControl(principal.getName(), page, filter));
+		model.addAttribute("invitations",
+				serviceAnalysisShareInvitation.findAllByUsernameAndFilterControl(principal.getName(), page, filter));
 		return "user/invitation/section";
 	}
 
 	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
 		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
 		session.setAttribute("reportControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null,
+				"Filter has been successfully updated", locale));
 	}
 
 	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
 		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null,
+				"Filter has been successfully updated", locale));
 	}
 
 	@RequestMapping(value = "/Control/Invitation/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateInvitationControl(@RequestBody InvitationFilter filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String updateInvitationControl(@RequestBody InvitationFilter filterControl,
+			HttpSession session, Principal principal, Locale locale) throws Exception {
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
 		updateFilterControl(user, filterControl, FILTER_CONTROL_INVITATION);
 		session.setAttribute("invitationControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null,
+				"Filter has been successfully updated", locale));
 	}
 
 	@PostMapping(value = "/Validate/Email", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String validateEmail(Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
 		final SecureRandom random = new SecureRandom();
-		final String token = Sha512DigestUtils
-				.shaHex(UUID.randomUUID().toString() + "-email-validation-" + System.nanoTime() + user.getEmail() + random.nextLong() + principal.getName());
+		final String token = Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + "-email-validation-"
+				+ System.nanoTime() + user.getEmail() + random.nextLong() + principal.getName());
 		final EmailValidatingRequest validatingRequest = new EmailValidatingRequest(user, token);
 		serviceEmailValidatingRequest.deleteByUser(user);
 		serviceEmailValidatingRequest.saveOrUpdate(validatingRequest);
@@ -480,7 +539,8 @@ public class ControllerProfile {
 	}
 
 	private TrickFilter buildFromUser(User user, String type) {
-		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
+		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)),
+				direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
 				filter = user.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
 		try {
@@ -516,8 +576,8 @@ public class ControllerProfile {
 	 */
 	private boolean buildUser(Map<String, String> errors, User user, String source, Locale locale) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
+			final ObjectMapper mapper = new ObjectMapper();
+			final JsonNode jsonNode = mapper.readTree(source);
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
@@ -528,19 +588,22 @@ public class ControllerProfile {
 			String lastname = readStringValue(jsonNode, "lastName");
 			String email = readStringValue(jsonNode, "email");
 			String userlocale = readStringValue(jsonNode, "locale");
-			String error = null;
 			String oldPassword = user.getPassword();
+			String error = null;
 			if (user.getConnexionType() != User.LADP_CONNEXION) {
 				if (StringUtils.isEmpty(currentPassword))
-					errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
+					errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null,
+							"Enter current password for changes to take effect!", locale));
 				else if (!isMatch(oldPassword, currentPassword, user.getLogin()))
-					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
+					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching",
+							null, "Current Password is not correct", locale));
 			}
 
 			if (!errors.containsKey("currentPassword")) {
 				if (!StringUtils.isEmpty(password)) {
 					if (user.getConnexionType() == User.LADP_CONNEXION)
-						errors.put("user", messageSource.getMessage("error.ldap.change.password", null, "Please contact your administrator to reset your password.", locale));
+						errors.put("user", messageSource.getMessage("error.ldap.change.password", null,
+								"Please contact your administrator to reset your password.", locale));
 					else {
 						error = validator.validate(user, "password", password);
 						if (error != null)
@@ -551,40 +614,25 @@ public class ControllerProfile {
 						error = validator.validate(user, "repeatPassword", repeatedPassword);
 						if (error != null) {
 							user.setPassword(oldPassword);
-							errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
+							errors.put("repeatPassword",
+									serviceDataValidation.ParseError(error, messageSource, locale));
 						} else {
 							user.setPassword(passwordEncoder.encode(user.getPassword()));
 						}
 					}
 				}
 
-				if (serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK)) {
-					/*String ticketingUsername = readStringValue(jsonNode, "ticketingUsername"), ticketingPassword = readStringValue(jsonNode, "ticketingPassword");
-					if (StringUtils.isEmpty(ticketingUsername)) {
-						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
-						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
-					} else {
-						user.setSetting(Constant.USER_TICKETING_SYSTEM_USERNAME, ticketingUsername);
-						if (!StringUtils.isEmpty(ticketingPassword))
-							user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, ticketingPassword);
-						if (!isConnected(user)) {
-							errors.put("ticketingUsername", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
-							errors.put("ticketingPassword", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
-							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
-							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
-						}
-					}*/
-				}
-
 				if (user.getConnexionType() == User.LADP_CONNEXION && !user.getEmail().equals(email))
-					errors.put("email", messageSource.getMessage("error.ldap.change.email", null, "Please contact your administrator to update your email.", locale));
+					errors.put("email", messageSource.getMessage("error.ldap.change.email", null,
+							"Please contact your administrator to update your email.", locale));
 				else {
 					error = validator.validate(user, "email", email);
 					if (error != null)
 						errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
 					else if (!user.getEmail().equals(email)) {
 						if (serviceUser.existByEmail(email))
-							errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
+							errors.put("email",
+									messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
 						else
 							user.setEmail(email);
 					}
@@ -618,45 +666,19 @@ public class ControllerProfile {
 	}
 
 	private boolean isMatch(String oldPassword, String currentPassword, String login) {
-		return passwordEncoder.matches(currentPassword + (oldPassword.startsWith("{SHA-256}") ? "{" + login + "}" : ""), oldPassword);
+		return passwordEncoder.matches(currentPassword + (oldPassword.startsWith("{SHA-256}") ? "{" + login + "}" : ""),
+				oldPassword);
 	}
 
 	private String generateQRCode(User user, String secret) {
 		try {
-			return Base64.encodeBase64String(
-					QRCode.from(String.format("otpauth://totp/%s-%s?secret=%s", URLEncoder.encode(appName, "UTF-8"), URLEncoder.encode(user.getEmail(), "UTF-8"), secret))
-							.withSize(131, 131).stream().toByteArray());
+			return Base64.encodeBase64String(QRCode
+					.from(String.format("otpauth://totp/%s-%s?secret=%s", URLEncoder.encode(appName, "UTF-8"),
+							URLEncoder.encode(user.getEmail(), "UTF-8"), secret))
+					.withSize(131, 131).stream().toByteArray());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return null;
-		}
-	}
-
-	private Boolean isConnected(Credential credential, TicketingSystem ticketingSystem) {
-		Client client = null;
-		try {
-			if (credential == null || ticketingSystem == null)
-				throw new TrickException("error.load.setting", "Setting cannot be loaded");
-			final Map<String, Object> settings = new HashMap<>(3);
-			if (credential.getType() == CredentialType.TOKEN)
-				settings.put("token", credential.getValue());
-			else {
-				settings.put("username", credential.getName());
-				settings.put("password", credential.getValue());
-			}
-			settings.put("url", ticketingSystem.getUrl());
-			return (client = ClientBuilder.Build(ticketingSystem.getType().name().toLowerCase())).connect(settings);
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			return false;
-		} finally {
-			if (client != null) {
-				try {
-					client.close();
-				} catch (IOException e) {
-					TrickLogManager.Persist(e);
-				}
-			}
 		}
 	}
 

@@ -35,4 +35,12 @@ public class UserCredential extends Credential {
 	@JoinColumn(name = "fiTicketingSystem")
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private TicketingSystem ticketingSystem;
+
+	public TicketingSystem getTicketingSystem() {
+		return ticketingSystem;
+	}
+
+	public void setTicketingSystem(TicketingSystem ticketingSystem) {
+		this.ticketingSystem = ticketingSystem;
+	}
 }

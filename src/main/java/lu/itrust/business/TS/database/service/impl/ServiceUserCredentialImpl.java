@@ -146,4 +146,14 @@ public class ServiceUserCredentialImpl implements ServiceUserCredential {
 		daoUserCredential.saveOrUpdate(entity);
 	}
 
+	@Override
+	public List<UserCredential> findByUsername(String username) {
+		return daoUserCredential.findByUsername(username);
+	}
+
+	@Override
+	public UserCredential findByIdAndUsername(long id, String name) {
+		return daoUserCredential.findByIdAndUsername(id, name);
+	}
+
 }
