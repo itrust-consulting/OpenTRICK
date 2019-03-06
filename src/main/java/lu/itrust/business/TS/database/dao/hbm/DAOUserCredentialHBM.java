@@ -183,7 +183,7 @@ public class DAOUserCredentialHBM extends DAOHibernate implements DAOUserCredent
 
 	@Override
 	public List<UserCredential> findByUsername(String username) {
-		return getSession().createQuery("Select credential From User user inner join user.credentials as credential where user.login = :username order by credential.customer.organisation", UserCredential.class).setParameter("username", username).list();
+		return getSession().createQuery("Select credential From User user inner join user.credentials as credential where user.login = :username order by credential.ticketingSystem.customer.organisation", UserCredential.class).setParameter("username", username).list();
 	}
 
 	@Override

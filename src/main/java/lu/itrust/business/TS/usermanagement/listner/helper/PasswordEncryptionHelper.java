@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
  */
 public final class PasswordEncryptionHelper {
 
+	private static final String DEFUALT_SALT = "-*98145RTDD£µ%§/.JHZVW+-*/+";
 	public static String password;
 
 	public void setPassword(String passwrd) {
@@ -56,7 +57,7 @@ public final class PasswordEncryptionHelper {
 
 	private static SecretKey generateKey(String salt) throws InvalidKeySpecException, NoSuchAlgorithmException, UnsupportedEncodingException, NoSuchPaddingException {
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes("UTF-8"), 65536, 256);
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), (StringUtils.hasText(salt)?  salt: DEFUALT_SALT).getBytes("UTF-8"), 65536, 256);
 		SecretKey secretKey = factory.generateSecret(spec);
 		return new SecretKeySpec(secretKey.getEncoded(), "AES");
 	}

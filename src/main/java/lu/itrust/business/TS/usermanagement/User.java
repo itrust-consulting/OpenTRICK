@@ -22,7 +22,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.MapKey;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
@@ -143,7 +142,6 @@ public class User implements Serializable, IUser {
 	@MapKey(name="ticketingSystem")
 	@Cascade(CascadeType.ALL)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	@OrderBy("ticketingSystem.customer.organisation")
 	private Map<TicketingSystem,UserCredential> credentials = new LinkedHashMap<>();
 	
 

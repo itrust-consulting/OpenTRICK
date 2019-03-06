@@ -3,6 +3,8 @@ package lu.itrust.business.TS.model.general;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -24,6 +26,7 @@ public class TicketingSystem {
 	private long id;
 
 	@Column(name="dtType")
+	@Enumerated(EnumType.STRING)
 	private TicketingSystemType type;
 
 	@Column(name="dtName")
@@ -35,7 +38,7 @@ public class TicketingSystem {
 	@Column(name="dtEnabled")
 	private boolean enabled;
 	
-	@OneToOne(mappedBy="ticketingSystem")
+	@OneToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiCustomer")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

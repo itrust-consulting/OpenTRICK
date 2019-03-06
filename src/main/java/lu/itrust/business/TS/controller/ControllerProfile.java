@@ -58,7 +58,6 @@ import lu.itrust.business.TS.database.service.ServiceEmailValidatingRequest;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.ServiceUserCredential;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
@@ -137,9 +136,6 @@ public class ControllerProfile {
 
 	@Autowired
 	private ManageAnalysisRight manageAnalysisRight;
-
-	@Autowired
-	private ServiceUserCredential serviceUserCredential;
 
 	@Autowired
 	private ServiceEmailSender serviceEmailSender;
@@ -433,17 +429,6 @@ public class ControllerProfile {
 			TrickLogManager.Persist(e);
 			return errors;
 		}
-	}
-
-	@RequestMapping(value = "/Section/Credential", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionCredential(HttpSession session, Principal principal, Model model) {
-		final boolean adminAllowedTicketing = serviceTSSetting
-				.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-		if (adminAllowedTicketing)
-			return null;
-		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING, adminAllowedTicketing);
-		model.addAttribute("credentials", serviceUserCredential.findByUsername(principal.getName()));
-		return "user/credential/section";
 	}
 
 	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

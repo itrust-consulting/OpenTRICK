@@ -15,7 +15,10 @@
 		<div class="container" data-ug-root="account">
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
 				<li class="active"><a href="#tab-profile" data-toggle="tab"><spring:message code="label.menu.profile" text="My Profile" /></a></li>
-				<li><a href="#tab-invitation" data-toggle="tab"><spring:message code="label.menu.invitation" text="My invitation" /></a></li>
+				<c:if test="${adminaAllowedTicketing}">
+					<li><a href="#tab-credential" data-toggle="tab"><spring:message code="label.menu.credential" text="My Credentials" /></a></li>
+				</c:if>
+				<li><a href="#tab-invitation" data-toggle="tab"><spring:message code="label.menu.invitation" text="My invitations" /></a></li>
 				<li><a href="#tab-sqlite" data-toggle="tab"><spring:message code="label.menu.sqlite" text="My sqlites" /></a></li>
 				<li><a href="#tab-report" data-toggle="tab"><spring:message code="label.menu.report" text="My reports" /></a></li>
 				<c:if test="${enabledOTP}">
@@ -27,7 +30,7 @@
 				<jsp:include page="profile/section.jsp" />
 				
 				<c:if test="${adminaAllowedTicketing}">
-					<c:set var="credentials" value="${user.credentials.values()}"/>
+					<jsp:include page="credential/home.jsp"/>
 				</c:if>
 
 				<jsp:include page="invitation/home.jsp" />

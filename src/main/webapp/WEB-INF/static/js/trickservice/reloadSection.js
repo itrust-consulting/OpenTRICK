@@ -130,6 +130,7 @@ function findControllerBySection(section, subSection) {
 		"section_risk-information_risk":"/Analysis/Risk-information/Section/Risk",
 		"section_risk-information_vul":"/Analysis/Risk-information/Section/Vul",
 		"section_risk-information_threat":"/Analysis/Risk-information/Section/Threat",
+		"section_credential":"/Account/Credential/Section"
 		
 	};
 
@@ -214,18 +215,19 @@ SectionSmartUpdate.prototype = {
 	Update: function () {
 		switch (this.sectionName) {
 			case "section_asset":
-			case "section_scenario":
 			case "section_phase":
+			case "section_scenario":
 				return this.__generic_update(this.data, "#" + this.sectionName, 1);
-			case "section_analysis":
+			case "section_ids":
+			case "section_soa":
 			case "section_user":
+			case "section_analysis":
 			case "section_standard":
 			case "section_language":
 			case "section_customer":
-			case "section_profile_analysis":
+			case "section_credential":
 			case "section_kb_measure":
-			case "section_ids":
-			case "section_soa":
+			case "section_profile_analysis":
 				return this.__generic_update(this.data, "#" + this.sectionName, -1);
 			default:
 				if (this.sectionName.match("^section_standard_"))

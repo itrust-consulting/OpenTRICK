@@ -3,14 +3,18 @@
  */
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_TEXT_PLAIN_CHARSET_UTF_8;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -102,7 +107,7 @@ public class ControlerUserCredential {
 		if (result.isEmpty()) {
 			credential.setType(form.getType());
 			credential.setName(form.getName());
-			credential.setValue(credential.getValue());
+			credential.setValue(form.getValue());
 			serviceUser.saveOrUpdate(user);
 			result.put("success", messageSource.getMessage("success.save.credential", null, locale));
 		}
@@ -114,38 +119,61 @@ public class ControlerUserCredential {
 		final User user = serviceUser.get(principal.getName());
 		final UserCredentialForm form = model.containsAttribute("form") ? (UserCredentialForm) model.asMap().get("form")
 				: new UserCredentialForm();
-		model.addAttribute("customer", user.getCustomers().stream()
+		model.addAttribute("customers", user.getCustomers().stream()
 				.filter(c -> c.getTicketingSystem() != null && (form.getCustomer() == c.getId()
 						|| (form.getCustomer() < 1 && !user.getCredentials().containsKey(c.getTicketingSystem())))
 						&& c.getTicketingSystem().isEnabled())
 				.sorted((c1, c2) -> NaturalOrderComparator.compareTo(c1.getOrganisation(), c2.getOrganisation()))
 				.collect(Collectors.toList()));
 		model.addAttribute("types", CredentialType.values());
+		model.addAttribute("form", form);
 		return "user/credential/form";
 	}
-	
+
 	@GetMapping(value = "/{id}/Edit", consumes = MediaType.TEXT_PLAIN_VALUE, headers = ACCEPT_TEXT_PLAIN_CHARSET_UTF_8, produces = MediaType.TEXT_HTML_VALUE)
 	public String edit(@PathVariable long id, Model model, Principal principal, Locale locale) {
 		final UserCredential credential = serviceUserCredential.findByIdAndUsername(id, principal.getName());
-		if (credential == null || credential.getTicketingSystem().isEnabled())
+		if (credential == null || !credential.getTicketingSystem().isEnabled())
 			throw new ResourceNotFoundException();
 		final UserCredentialForm form = new UserCredentialForm();
 		form.setCustomer(credential.getTicketingSystem().getCustomer().getId());
 		form.setType(credential.getType());
 		form.setName(credential.getName());
 		if (credential.getType() == CredentialType.TOKEN)
-			credential.setValue(credential.getValue());
+			form.setValue(credential.getValue());
 		model.addAttribute("form", form);
 		return add(model, principal, locale);
 	}
 
 	@DeleteMapping(value = "/{id}/Delete", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public boolean delete(@PathVariable long id, Principal principal, Locale locale) {
+	public @ResponseBody boolean delete(@PathVariable long id, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		boolean result = user.getCredentials().entrySet().removeIf(e -> e.getValue().getId() == id);
+		boolean result = user.getCredentials().entrySet()
+				.removeIf(e -> e.getKey().isEnabled() && e.getValue().getId() == id);
 		if (result)
 			serviceUser.saveOrUpdate(user);
 		return result;
+	}
+
+	@DeleteMapping(value = "/Delete", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody Map<Long, Boolean> delete(@RequestBody List<Long> ids, Principal principal, Locale locale) {
+		final User user = serviceUser.get(principal.getName());
+		final Map<Long, Boolean> results = new HashMap<Long, Boolean>();
+		user.getCredentials().entrySet().removeIf(e -> {
+			if (e.getKey().isEnabled() && !ids.contains(e.getValue().getId()))
+				return false;
+			results.put(e.getValue().getId(), true);
+			return true;
+		});
+		if (!results.isEmpty())
+			serviceUser.saveOrUpdate(user);
+		return results;
+	}
+
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String sectionCredential(HttpSession session, Principal principal, Model model) {
+		model.addAttribute("credentials", serviceUserCredential.findByUsername(principal.getName()));
+		return "user/credential/section";
 	}
 
 	private Boolean isConnected(UserCredentialForm credential, TicketingSystem ticketingSystem) {

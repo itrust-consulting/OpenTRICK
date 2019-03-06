@@ -44,7 +44,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 
 	private void encrypt2FASecrete(User user) {
 		try {
-			if (!is2FASecreteEncrypted(user))
+			if (is2FASecreteEncrypted(user))
 				return;
 			String password = user.getSecret();
 			if (StringUtils.isEmpty(password))
@@ -59,7 +59,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 
 	private void encryptTicketingSystem(User user) {
 		try {
-			if (!isTicketingSystemEncrypted(user))
+			if (isTicketingSystemEncrypted(user))
 				return;
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.removeSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			if (StringUtils.isEmpty(username))

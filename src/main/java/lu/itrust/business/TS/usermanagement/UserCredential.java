@@ -34,6 +34,7 @@ public class UserCredential extends Credential {
 	@ManyToOne
 	@JoinColumn(name = "fiTicketingSystem")
 	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private TicketingSystem ticketingSystem;
 
 	public TicketingSystem getTicketingSystem() {
@@ -43,4 +44,13 @@ public class UserCredential extends Credential {
 	public void setTicketingSystem(TicketingSystem ticketingSystem) {
 		this.ticketingSystem = ticketingSystem;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((ticketingSystem == null) ? 0 : ticketingSystem.hashCode());
+		return result;
+	}
+	
 }

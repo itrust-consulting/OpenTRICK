@@ -281,3 +281,121 @@ function updateUserOtp(){
 		}).complete(()=> $progress.hide());
 	return false;
 }
+
+function addCredential(){
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+			url: context + "/Account/Credential/Form",
+			type: "Get",
+			contentType: "text/plain;charset=UTF-8",
+			success: credentialFormProcessing,
+			error: unknowError
+		}).complete(()=> $progress.hide());
+	return false;
+}
+
+function credentialFormProcessing(response, textStatus, jqXHR){
+	var $view = $("#credential-modal-form",new DOMParser().parseFromString(response, "text/html"));
+	if($view.length){
+		$view.appendTo("#dialog-body");
+		setTimeout(() => {
+			var $btnSubmit=$view.find("input[type='submit']"), $username = $view.find("input[name='name']"), $value = $view.find("input[name='value']") ;
+			$view.find("form").on("submit", (e) => saveCredential(e, $view));
+			$view.find("button[name='save']").on("click", (e) => $btnSubmit.click());
+			$view.find("input[name='type']").on("change", (e) => {
+				if(e.currentTarget.checked){
+					$username.prop("required", e.currentTarget.value==="PASSWORD").prop("readonly", e.currentTarget.value!=="PASSWORD");
+					if(e.currentTarget.value==="PASSWORD")
+						$value.prop("type", "password");
+					else $value.prop("type", "text");
+				}
+			}).trigger("change");
+		}, 10);
+		$view.modal("show").on('hidden.bs.modal', () => $view.remove());
+	}
+	else unknowError();
+}
+
+function editCredential(id){
+	if(id == undefined || id == null){
+		var items = findSelectItemIdBySection("section_credential");
+		if(items.length!=1)
+			return false;
+		id = items[0];
+	}
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+			url: context + "/Account/Credential/"+id+"/Edit",
+			type: "Get",
+			contentType: "text/plain;charset=UTF-8",
+			success: credentialFormProcessing,
+			error: unknowError
+		}).complete(()=> $progress.hide());
+	return false;
+}
+
+function deleteCredential(){
+	var items = findSelectItemIdBySection("section_credential");
+	if(!items.length)
+		return false;
+	else {
+		var $confirmModal = showDialog("#confirm-dialog", items.length > 1 ? MessageResolver("confirm.delete.multi.credential", "Are you sure you want to delete all selected credentials") : MessageResolver(
+					"confirm.delete.single.credential", "Are you sure, you want to delete selected credentials"));
+				$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
+					$confirmModal.modal("hide");
+				var $progress = $("#loading-indicator").show();
+				$.ajax({
+					url: context + "/Account/Credential/Delete",
+					type: "Delete",
+					contentType:"application/json;charset=UTF-8",
+					data : JSON.stringify(items),
+					success: (response, textStatus, jqXHR) => {
+						$("#section_credential table>tbody>tr[data-trick-id]").filter((i,e)=>response[parseInt(e.getAttribute("data-trick-id"))]).remove();
+					},	error: unknowError
+				}).complete(()=> $progress.hide());
+		});
+	}
+	return false;
+}
+
+function saveCredential(e, $view){
+	var $form = $view.find("form"), data = serializeFormToJson($form),  $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Account/Credential/Save",
+		type: "POST",
+		contentType:"application/json;charset=UTF-8",
+		data : data,
+		success: (response, textStatus, jqXHR) => {
+			if(response.success){
+				$view.modal("hide");
+				reloadSection("section_credential");
+			}
+			else {
+				for (var error in response) {
+					var $errorElement = $("<label class='label label-danger'/>").text(response[error]);
+					switch (error) {
+						case "name":
+							$errorElement.appendTo($("input[name='name']",$form).parent());
+							break;
+						case "value":
+							$errorElement.appendTo($("input[name='value']",$form).parent());
+							break;
+						case "customer":
+							$errorElement.appendTo($("select[name='customer']",$form).parent());
+							break;
+						case "type":
+							$errorElement.appendTo($("#radio-btn-credential-type",$form));
+							break;
+						default:
+							showDialog("#alert-dialog", response[error]);
+							break;
+					}
+				}
+			}
+			
+		},
+		error: unknowError
+	}).complete(()=> $progress.hide());
+	
+	return false;
+}
