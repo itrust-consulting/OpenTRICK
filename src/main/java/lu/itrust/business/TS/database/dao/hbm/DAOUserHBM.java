@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -266,5 +267,10 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	@Override
 	public String findUsernameById(Integer id) {
 		return getSession().createQuery("Select login From User where id = :id", String.class).setParameter("id", id).uniqueResult();
+	}
+
+	@Override
+	public List<User> findByTicketingSystem(TicketingSystem ticketingSystem) {
+		return getSession().createQuery("Select user From User user inner join user.credentials credential where credential.ticketingSystem = :ticketingSystem", User.class).setParameter("ticketingSystem", ticketingSystem).getResultList();
 	}
 }

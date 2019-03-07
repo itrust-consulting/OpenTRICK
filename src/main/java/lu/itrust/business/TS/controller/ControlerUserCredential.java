@@ -90,8 +90,7 @@ public class ControlerUserCredential {
 		else {
 			if (!StringUtils.hasText(form.getValue()))
 				result.put("value",
-						messageSource.getMessage(form.getType() == CredentialType.TOKEN ? "error.credential.token.empty"
-								: "error.credential.password.empty", null, locale));
+						messageSource.getMessage(form.getType() == CredentialType.TOKEN ? "error.credential.token.empty" : "error.credential.password.empty", null, locale));
 			if (!(StringUtils.hasText(form.getName()) || form.getType() == CredentialType.TOKEN))
 				result.put("name", messageSource.getMessage("error.credential.username.empty", null, locale));
 		}
@@ -106,7 +105,7 @@ public class ControlerUserCredential {
 
 		if (result.isEmpty()) {
 			credential.setType(form.getType());
-			credential.setName(form.getName());
+			credential.setName(form.getType() == CredentialType.TOKEN ? null : form.getName());
 			credential.setValue(form.getValue());
 			serviceUser.saveOrUpdate(user);
 			result.put("success", messageSource.getMessage("success.save.credential", null, locale));
@@ -117,14 +116,13 @@ public class ControlerUserCredential {
 	@GetMapping(value = "/Form", consumes = MediaType.TEXT_PLAIN_VALUE, headers = ACCEPT_TEXT_PLAIN_CHARSET_UTF_8, produces = MediaType.TEXT_HTML_VALUE)
 	public String add(Model model, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		final UserCredentialForm form = model.containsAttribute("form") ? (UserCredentialForm) model.asMap().get("form")
-				: new UserCredentialForm();
-		model.addAttribute("customers", user.getCustomers().stream()
-				.filter(c -> c.getTicketingSystem() != null && (form.getCustomer() == c.getId()
-						|| (form.getCustomer() < 1 && !user.getCredentials().containsKey(c.getTicketingSystem())))
-						&& c.getTicketingSystem().isEnabled())
-				.sorted((c1, c2) -> NaturalOrderComparator.compareTo(c1.getOrganisation(), c2.getOrganisation()))
-				.collect(Collectors.toList()));
+		final UserCredentialForm form = model.containsAttribute("form") ? (UserCredentialForm) model.asMap().get("form") : new UserCredentialForm();
+		model.addAttribute("customers",
+				user.getCustomers().stream()
+						.filter(c -> c.getTicketingSystem() != null
+								&& (form.getCustomer() == c.getId() || (form.getCustomer() < 1 && !user.getCredentials().containsKey(c.getTicketingSystem())))
+								&& c.getTicketingSystem().isEnabled())
+						.sorted((c1, c2) -> NaturalOrderComparator.compareTo(c1.getOrganisation(), c2.getOrganisation())).collect(Collectors.toList()));
 		model.addAttribute("types", CredentialType.values());
 		model.addAttribute("form", form);
 		return "user/credential/form";
@@ -148,8 +146,7 @@ public class ControlerUserCredential {
 	@DeleteMapping(value = "/{id}/Delete", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody boolean delete(@PathVariable long id, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		boolean result = user.getCredentials().entrySet()
-				.removeIf(e -> e.getKey().isEnabled() && e.getValue().getId() == id);
+		boolean result = user.getCredentials().entrySet().removeIf(e -> e.getKey().isEnabled() && e.getValue().getId() == id);
 		if (result)
 			serviceUser.saveOrUpdate(user);
 		return result;

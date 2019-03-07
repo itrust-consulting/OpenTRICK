@@ -103,6 +103,8 @@
 	<cache alias="lu.itrust.business.TS.model.general.TrickLog" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.general.document.impl.ReportTemplate" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.TS.usermanagement.UserCredential" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.TS.model.general.TicketingSystem" uses-template="entityDefaultCache" />
 	<!-- Collections -->
 	<cache alias="lu.itrust.business.TS.model.analysis.Analysis.analysisStandards" uses-template="collectionDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.analysis.Analysis.settings" uses-template="collectionDefaultCache" />
@@ -131,4 +133,5 @@
 	<cache alias="lu.itrust.business.TS.usermanagement.User.roles" uses-template="collectionDefaultCache" />
 	<cache alias="lu.itrust.business.TS.usermanagement.User.userSettings" uses-template="collectionDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.general.Customer.templates" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.TS.usermanagement.User.credentials" uses-template="collectionDefaultCache" />
 </config>

@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 public final class PasswordEncryptionHelper {
 
 	private static final String DEFUALT_SALT = "-*98145RTDD£µ%§/.JHZVW+-*/+";
+	
 	public static String password;
 
 	public void setPassword(String passwrd) {

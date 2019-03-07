@@ -55,12 +55,9 @@ public class CustomerManager {
 		 * Log
 		 */
 		analyses.stream().filter(analysis -> analysis.getCustomer() != customer).findAny()
-				.ifPresent(analysis -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS,
-						"log.user.switch.analysis.customer",
-						String.format("Analysis: %s, old: %s, new: %s", analysis.getIdentifier(),
-								analysis.getCustomer().getOrganisation(), customer.getOrganisation()),
-						username, LogAction.SWITCH_CUSTOMER, analysis.getIdentifier(),
-						analysis.getCustomer().getOrganisation(), customer.getOrganisation()));
+				.ifPresent(analysis -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.switch.analysis.customer",
+						String.format("Analysis: %s, old: %s, new: %s", analysis.getIdentifier(), analysis.getCustomer().getOrganisation(), customer.getOrganisation()), username,
+						LogAction.SWITCH_CUSTOMER, analysis.getIdentifier(), analysis.getCustomer().getOrganisation(), customer.getOrganisation()));
 		for (Analysis analysis : analyses) {
 			analysis.setCustomer(customer);
 			analysis.getUserRights().stream().forEach(userAnalysisRight -> {
@@ -89,8 +86,7 @@ public class CustomerManager {
 		try {
 			customer = form.getId() > 0 ? daoCustomer.get(form.getId()) : new Customer();
 			if (customer == null) {
-				errors.put("customer", messageSource.getMessage("error.customer.not_found", null,
-						"Customer can not be found", locale));
+				errors.put("customer", messageSource.getMessage("error.customer.not_found", null, "Customer can not be found", locale));
 				return null;
 			}
 
@@ -105,11 +101,8 @@ public class CustomerManager {
 				errors.put("organisation", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if (form.getId() > 0 && daoCustomer.existsByIdAndOrganisation(form.getId(), form.getOrganisation())
 					|| form.getId() < 1 && daoCustomer.existsByOrganisation(form.getOrganisation()))
-				errors.put("organisation",
-						messageSource.getMessage("error.customer.name.already.exists",
-								new String[] { form.getOrganisation() },
-								String.format("A customer with this name '%s' already exists", form.getOrganisation()),
-								locale));
+				errors.put("organisation", messageSource.getMessage("error.customer.name.already.exists", new String[] { form.getOrganisation() },
+						String.format("A customer with this name '%s' already exists", form.getOrganisation()), locale));
 			else
 				customer.setOrganisation(form.getOrganisation());
 
@@ -167,8 +160,7 @@ public class CustomerManager {
 					ticketingSystem.setEnabled(form.getTicketingSystem().isEnabled());
 					if (systemForm.getType() == null) {
 						if (ticketingSystem.isEnabled())
-							errors.put("ticketingSystem.enabled",
-									messageSource.getMessage("error.ticketing.system.type.empty", null, locale));
+							errors.put("ticketingSystem.enabled", messageSource.getMessage("error.ticketing.system.type.empty", null, locale));
 						else
 							ticketingSystem.setType(null);
 					} else
@@ -176,8 +168,7 @@ public class CustomerManager {
 
 					if (!StringUtils.hasText(systemForm.getName())) {
 						if (ticketingSystem.isEnabled())
-							errors.put("ticketingSystem.name",
-									messageSource.getMessage("error.ticketing.system.name.empty", null, locale));
+							errors.put("ticketingSystem.name", messageSource.getMessage("error.ticketing.system.name.empty", null, locale));
 						else
 							ticketingSystem.setName(null);
 					} else
@@ -185,13 +176,11 @@ public class CustomerManager {
 
 					if (!StringUtils.hasText(systemForm.getUrl())) {
 						if (ticketingSystem.isEnabled())
-							errors.put("ticketingSystem.url",
-									messageSource.getMessage("error.ticketing.system.url.empty", null, locale));
+							errors.put("ticketingSystem.url", messageSource.getMessage("error.ticketing.system.url.empty", null, locale));
 						else
 							ticketingSystem.setUrl(null);
 					} else if (!isHttpsUrl(systemForm.getUrl()))
-						errors.put("ticketingSystem.url",
-								messageSource.getMessage("error.ticketing.system.url.bad.protocol", null, locale));
+						errors.put("ticketingSystem.url", messageSource.getMessage("error.ticketing.system.url.bad.protocol", null, locale));
 					else
 						ticketingSystem.setUrl(systemForm.getUrl());
 				}
@@ -199,8 +188,7 @@ public class CustomerManager {
 			}
 
 		} catch (Exception e) {
-			errors.put("customer",
-					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			errors.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return customer;

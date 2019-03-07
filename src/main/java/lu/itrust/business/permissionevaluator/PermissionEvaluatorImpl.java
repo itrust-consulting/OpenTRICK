@@ -36,6 +36,7 @@ import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.TSSettingName;
@@ -147,7 +148,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
-				throw new NotFoundException("Analysis does not exist!");
+				throw new ResourceNotFoundException("Analysis does not exist!");
 			if (principal == null)
 				return false;
 			if (right == null)
@@ -326,7 +327,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
-				throw new NotFoundException("Analysis does not exist!");
+				throw new ResourceNotFoundException("Analysis does not exist!");
 			if (principal == null)
 				return false;
 			if (right == null)
@@ -355,7 +356,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
-				throw new NotFoundException("Analysis does not exist!");
+				throw new ResourceNotFoundException("Analysis does not exist!");
 			if (principal == null)
 				return false;
 			return serviceUserAnalysisRight.hasDeletePermission(analysisId, principal.getName(), isProfile);
@@ -371,7 +372,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
-				throw new NotFoundException("Analysis does not exist!");
+				throw new ResourceNotFoundException("Analysis does not exist!");
 			if (principal == null)
 				return false;
 			return serviceUserAnalysisRight.hasManagementPermission(analysisId, principal.getName());
@@ -384,14 +385,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean isAllowed(TSSettingName setting) {
 		if (!serviceTSSetting.isAllowed(setting))
-			throw new NotFoundException("Page does not exist");
+			throw new ResourceNotFoundException("Page does not exist");
 		return true;
 	}
 
 	@Override
 	public boolean isAllowed(TSSettingName setting, boolean defaultValue) {
 		if (!serviceTSSetting.isAllowed(setting, defaultValue))
-			throw new NotFoundException("Page does not exist");
+			throw new ResourceNotFoundException("Page does not exist");
 		return true;
 	}
 }

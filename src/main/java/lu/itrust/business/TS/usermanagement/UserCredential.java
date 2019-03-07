@@ -28,7 +28,7 @@ import lu.itrust.business.TS.model.general.TicketingSystem;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiTicketingSystem" }))
-@AttributeOverride(name="id",column=@Column(name="idUserCredential"))
+@AttributeOverride(name = "id", column = @Column(name = "idUserCredential"))
 public class UserCredential extends Credential {
 
 	@ManyToOne
@@ -45,12 +45,4 @@ public class UserCredential extends Credential {
 		this.ticketingSystem = ticketingSystem;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((ticketingSystem == null) ? 0 : ticketingSystem.hashCode());
-		return result;
-	}
-	
 }

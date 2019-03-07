@@ -35,12 +35,10 @@ public class ListnerRegister {
 		
 		eventListenerRegistry.getEventListenerGroup(EventType.POST_LOAD).appendListener(userEncryptListner);
 		eventListenerRegistry.getEventListenerGroup(EventType.PRE_UPDATE).appendListener(userEncryptListner);
-		eventListenerRegistry.getEventListenerGroup(EventType.PRE_COLLECTION_UPDATE).appendListener(userEncryptListner);
 		eventListenerRegistry.getEventListenerGroup(EventType.PRE_INSERT).appendListener(userEncryptListner);
 		
 		eventListenerRegistry.getEventListenerGroup(EventType.POST_LOAD).appendListener(credentialEncryptListner);
 		eventListenerRegistry.getEventListenerGroup(EventType.PRE_UPDATE).appendListener(credentialEncryptListner);
-		eventListenerRegistry.getEventListenerGroup(EventType.PRE_COLLECTION_UPDATE).appendListener(credentialEncryptListner);
 		eventListenerRegistry.getEventListenerGroup(EventType.PRE_INSERT).appendListener(credentialEncryptListner);
 		
 	}

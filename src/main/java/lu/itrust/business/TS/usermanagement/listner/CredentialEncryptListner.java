@@ -3,8 +3,6 @@
  */
 package lu.itrust.business.TS.usermanagement.listner;
 
-import java.lang.reflect.Field;
-
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -17,8 +15,6 @@ import org.hibernate.event.spi.PreInsertEvent;
 import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEvent;
 import org.hibernate.event.spi.PreUpdateEventListener;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.model.general.Credential;
@@ -42,13 +38,14 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 	@PreUpdate
 	public void encrypt(Credential credential) {
 		try {
-			if (StringUtils.isEmpty(credential.getValue()) || PasswordEncryptionHelper
-					.isEncrypted(credential.getValue(), credential.getName(), credential.getIv()))
+			EncryptedPassword source = EncryptedPassword.fromMerge(credential.getValue());
+			if (source!=null && PasswordEncryptionHelper
+					.isEncrypted(source.getEncryption(), credential.getName(), source.getIv()))
 				return;
 			EncryptedPassword encryptedPassword = PasswordEncryptionHelper.encrypt(credential.getValue(),
 					credential.getName());
-			credential.setValue(encryptedPassword.getEncryption());
-			credential.setIv(encryptedPassword.getIv());
+			credential.setValue(encryptedPassword.toMerge());
+	
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
@@ -57,11 +54,11 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 	@PostLoad
 	public void decrypt(Credential credential) {
 		try {
-			if (StringUtils.isEmpty(credential.getIv()))
+			EncryptedPassword source = EncryptedPassword.fromMerge(credential.getValue());
+			if (source == null)
 				return;
 			credential.setValue(
-					PasswordEncryptionHelper.decrypt(credential.getValue(), credential.getName(), credential.getIv()));
-			credential.setIv(null);
+					PasswordEncryptionHelper.decrypt(source.getEncryption(), credential.getName(), source.getIv()));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
@@ -94,10 +91,12 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 		final Credential credential = (Credential) event.getEntity();
 		final String[] properties = event.getPersister().getEntityMetamodel().getPropertyNames();
 		for (int i = 0; i < properties.length; i++) {
-			Field field = ReflectionUtils.findField(Credential.class, properties[i]);
-			if (field != null) {
-				ReflectionUtils.makeAccessible(field);
-				states[i] = ReflectionUtils.getField(field, credential);
+			switch (properties[i]) {
+			case Credential.VALUE_PROPERTY_NAME:
+				states[i] = credential.getValue();
+				return;
+			default:
+				break;
 			}
 		}
 	}

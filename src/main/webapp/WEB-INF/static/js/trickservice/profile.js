@@ -339,8 +339,8 @@ function deleteCredential(){
 	if(!items.length)
 		return false;
 	else {
-		var $confirmModal = showDialog("#confirm-dialog", items.length > 1 ? MessageResolver("confirm.delete.multi.credential", "Are you sure you want to delete all selected credentials") : MessageResolver(
-					"confirm.delete.single.credential", "Are you sure, you want to delete selected credentials"));
+		var $confirmModal = showDialog("#confirm-dialog", MessageResolver(
+					"confirm.delete.credential", "Are you sure, you want to delete selected credentials"));
 				$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
 					$confirmModal.modal("hide");
 				var $progress = $("#loading-indicator").show();
@@ -351,6 +351,7 @@ function deleteCredential(){
 					data : JSON.stringify(items),
 					success: (response, textStatus, jqXHR) => {
 						$("#section_credential table>tbody>tr[data-trick-id]").filter((i,e)=>response[parseInt(e.getAttribute("data-trick-id"))]).remove();
+						updateMenu(undefined,"#section_credential", "#menu_credential");
 					},	error: unknowError
 				}).complete(()=> $progress.hide());
 		});
@@ -366,6 +367,7 @@ function saveCredential(e, $view){
 		contentType:"application/json;charset=UTF-8",
 		data : data,
 		success: (response, textStatus, jqXHR) => {
+			$form.find(".label-danger").remove();
 			if(response.success){
 				$view.modal("hide");
 				reloadSection("section_credential");

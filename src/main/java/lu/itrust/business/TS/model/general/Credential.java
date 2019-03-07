@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -24,23 +25,23 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @MappedSuperclass
 public abstract class Credential {
 	
+	@Transient
+	public final static String VALUE_PROPERTY_NAME="value";
+
 	@Id
-	@Column(name="idCredential")
-	@GeneratedValue(strategy =GenerationType.IDENTITY)
+	@Column(name = "idCredential")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	@Column(name="dtType")
+
+	@Column(name = "dtType")
 	@Enumerated(EnumType.STRING)
 	private CredentialType type;
-	
-	@Column(name="dtName")
+
+	@Column(name = "dtName")
 	private String name;
-	
-	@Column(name="dtValue")
+
+	@Column(name = "dtValue", length = 2047)
 	private String value;
-	
-	@Column(name="dtIV")
-	private String iv;
 
 	public long getId() {
 		return id;
@@ -73,25 +74,4 @@ public abstract class Credential {
 	public void setValue(String value) {
 		this.value = value;
 	}
-
-	public String getIv() {
-		return iv;
-	}
-
-	public void setIv(String iv) {
-		this.iv = iv;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((iv == null) ? 0 : iv.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
-	}
-
 }

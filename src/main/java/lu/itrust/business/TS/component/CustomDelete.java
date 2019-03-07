@@ -55,6 +55,7 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -150,12 +151,6 @@ public class CustomDelete {
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
 		for (Analysis analysis : analyses)
 			deleteAnalysisProcess(analysis, username);
-	}
-
-	@Deprecated
-	@Transactional
-	public void delete(MeasureDescription measureDescription) {
-		daoMeasureDescription.delete(measureDescription);
 	}
 
 	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription, Principal principal) throws Exception {
@@ -299,18 +294,29 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteCustomer(int idcustomer, String username) throws Exception {
-		Customer customer = daoCustomer.get(idcustomer);
+		final Customer customer = daoCustomer.get(idcustomer);
 		if (customer == null)
 			throw new TrickException("error.customer.not_found", "Customer cannot be found");
 		if (!customer.isCanBeUsed())
 			throw new TrickException("error.customer.delete.profile", "Default customer cannot be deleted");
 		if (daoCustomer.isInUsed(customer))
 			throw new TrickException("error.delete.customer.has_analyses", "Customer could not be deleted: there are still analyses of this customer!");
-		List<User> users = daoUser.getAllFromCustomer(customer);
-		for (User user : users) {
+		final TicketingSystem ticketingSystem = customer.getTicketingSystem();
+
+		daoUser.getAllFromCustomer(customer).forEach(user -> {
 			user.getCustomers().remove(customer);
+			if (ticketingSystem != null)
+				user.getCredentials().remove(ticketingSystem);
 			daoUser.saveOrUpdate(user);
+		});
+
+		if (ticketingSystem != null) {
+			daoUser.findByTicketingSystem(ticketingSystem).forEach(user -> {
+				user.getCredentials().remove(ticketingSystem);
+				daoUser.saveOrUpdate(user);
+			});
 		}
+
 		daoCustomer.delete(customer);
 		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer", String.format("Customer: %s", customer.getOrganisation()), username, LogAction.DELETE,
 				customer.getOrganisation());

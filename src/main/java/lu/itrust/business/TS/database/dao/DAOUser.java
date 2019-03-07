@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -61,4 +62,6 @@ public interface DAOUser {
 	public String findLocaleByUsername(String username);
 
 	public String findUsernameById(Integer id);
+
+	public List<User> findByTicketingSystem(TicketingSystem ticketingSystem);
 }
