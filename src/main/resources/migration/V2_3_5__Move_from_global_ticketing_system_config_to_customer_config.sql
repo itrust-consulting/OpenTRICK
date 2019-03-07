@@ -18,10 +18,18 @@ CREATE TABLE `UserCredential` (
   `fiUser` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `ScenarioAssetTypeValue` DROP INDEX `UKekkvp845qonpluat9b9k1bhre`;
+
+ALTER TABLE `ScenarioAssetTypeValue` 
+  DROP FOREIGN KEY `FKemq58j3ot9446sixrpexek8t`;
+
+ALTER TABLE `ScenarioAssetTypeValue` 
+  DROP INDEX `UKekkvp845qonpluat9b9k1bhre`;
 
 ALTER TABLE `ScenarioAssetTypeValue`
   ADD UNIQUE KEY `UK5jy84v935kn1dy53t4c5y5t4w` (`fiAssetTypeValue`,`fiScenario`);
+  
+ALTER TABLE `ScenarioAssetTypeValue`
+  ADD CONSTRAINT `FKemq58j3ot9446sixrpexek8t` FOREIGN KEY (`fiAssetTypeValue`) REFERENCES `AssetTypeValue` (`idAssetTypeValue`);
 
 ALTER TABLE `TicketingSystem`
   ADD PRIMARY KEY (`idTicketingSystem`),
