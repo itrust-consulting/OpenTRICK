@@ -85,6 +85,10 @@
 	</bean>
 
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+	
+	<bean id="passwordEncryptionHelper" class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
+		<property name="password" value="${app.settings.password.ecryption.key}" />
+	</bean>
 
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
 		p:username="${jdbc.username}" p:password="${jdbc.password}" />
@@ -105,7 +109,7 @@
 		<constructor-arg value="${app.settings.database.version}" />
 	</bean>
 
-	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate" depends-on="passwordEncryptionHelper">
 		<constructor-arg ref="flywayConfig" />
 	</bean>
 
@@ -154,10 +158,6 @@
 	<!-- File Uploader -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="maxUploadSize" value="${app.settings.upload.file.max.size}" />
-	</bean>
-
-	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
-		<property name="password" value="${app.settings.password.ecryption.key}" />
 	</bean>
 
 	<mvc:interceptors>
