@@ -193,7 +193,7 @@ public class ControllerAnalysisTicket extends AbstractControllerAnalysis {
 							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
 				}
 				measures.sort(new MeasureComparator());
-				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 0, 20));
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 0, 40));
 				model.addAttribute("measures", measures);
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
@@ -231,7 +231,7 @@ public class ControllerAnalysisTicket extends AbstractControllerAnalysis {
 				client = buildClient(principal.getName(), analysis.getCustomer().getTicketingSystem());
 				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
-				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 20));
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 40));
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
@@ -315,7 +315,7 @@ public class ControllerAnalysisTicket extends AbstractControllerAnalysis {
 		Client client = null;
 		try {
 			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-			if (!loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model,null))
+			if (!loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null))
 				throw new ResourceNotFoundException();
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName(), analysis.getCustomer().getTicketingSystem());
@@ -377,7 +377,7 @@ public class ControllerAnalysisTicket extends AbstractControllerAnalysis {
 	public @ResponseBody String unlinkTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Customer customer = serviceCustomer.findByAnalysisId(idAnalysis);
-		if (!loadUserSettings(principal, customer.getTicketingSystem(), null,null))
+		if (!loadUserSettings(principal, customer.getTicketingSystem(), null, null))
 			throw new ResourceNotFoundException();
 		serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).forEach(measure -> {
 			if (!StringUtils.isEmpty(measure.getTicket())) {
@@ -394,15 +394,15 @@ public class ControllerAnalysisTicket extends AbstractControllerAnalysis {
 	@RequestMapping(value = "/Measure/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String linkTicket(@RequestBody LinkForm form, Principal principal, HttpSession session, Locale locale) {
-		
+
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
-		
+
 		if (!loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), null, null))
 			throw new ResourceNotFoundException();
 		if (StringUtils.isEmpty(form.getIdTicket()))
 			return JsonMessage.Error(messageSource.getMessage("error.ticket.not_found", null, "Ticket cannot be found", locale));
-		
+
 		if (!analysis.hasProject())
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_project", null, "Please link your analysis to a project and try again", locale));
 		Measure measure = analysis.findMeasureById(form.getIdMeasure());
@@ -427,7 +427,7 @@ public class ControllerAnalysisTicket extends AbstractControllerAnalysis {
 		if (ticketingSystem == null || !ticketingSystem.isEnabled())
 			throw new ResourceNotFoundException();
 		final Credential credential = user.getCredentials().get(ticketingSystem);
-		if(credential == null)
+		if (credential == null)
 			throw new TrickException("error.user.no.ticketing.system.credential", "You do have ticketing system credentials for this customer");
 		final Map<String, Object> settings = new HashMap<>(3);
 		if (credential.getType() == CredentialType.TOKEN)
