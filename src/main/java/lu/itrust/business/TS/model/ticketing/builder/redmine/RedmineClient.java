@@ -332,7 +332,8 @@ public class RedmineClient implements Client {
 			if (manager == null)
 				return null;
 			final Map<String, String> parameters = new HashMap<>(3);
-			parameters.put("project_key", idProject);
+			final Project project = manager.getProjectManager().getProjectByKey(idProject);
+			parameters.put("project_id", project.getId()+"");
 			parameters.put("status_id", "*");
 			parameters.put("issue_id", idTask);
 			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e)).findAny().orElse(null);
@@ -403,11 +404,12 @@ public class RedmineClient implements Client {
 		try {
 			if (manager == null)
 				return Collections.emptyList();
-			final Map<String, String> parameters = new HashMap<>(1);
-			parameters.put("project_key", idProject);
+			final Map<String, String> parameters = new HashMap<>(4);
+			final Project project = manager.getProjectManager().getProjectByKey(idProject);
+			parameters.put("project_id", project.getId()+"");
 			parameters.put("status_id", "*");
-			parameters.put("sort", "subject asc");
-			parameters.put("limit", "-1");
+			parameters.put("sort", "id:desc");
+			parameters.put("limit", Integer.MAX_VALUE+"");
 			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList());
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
@@ -445,7 +447,7 @@ public class RedmineClient implements Client {
 
 	private TicketingField load(IssueRelation relation) {
 		try {
-			final Map<String, String> parameters = new HashMap<>(2);
+			final Map<String, String> parameters = new HashMap<>(3);
 			parameters.put("limit", "1");
 			parameters.put("status_id", "*");
 			parameters.put("issue_id", relation.getIssueId() + "");
@@ -472,7 +474,7 @@ public class RedmineClient implements Client {
 		try {
 			if (manager == null || ids == null || ids.isEmpty())
 				return Collections.emptyList();
-			Project project = manager.getProjectManager().getProjectByKey(projectid);
+			final Project project = manager.getProjectManager().getProjectByKey(projectid);
 			return ids.parallelStream().map(i -> {
 				try {
 					Issue issue = manager.getIssueManager().getIssueById(Integer.parseInt(i), Include.journals, Include.relations, Include.children);
@@ -515,14 +517,15 @@ public class RedmineClient implements Client {
 				size = Integer.MAX_VALUE;
 			if (manager == null)
 				return new TicketingPageableImpl<>(startIndex, size, Collections.emptyList());
+			final Project project =  manager.getProjectManager().getProjectByKey(projectId);
 			if (!(excludes == null || excludes.isEmpty()))
-				return findOtherTasks(projectId, excludes, startIndex, size);
+				return findOtherTasks(project.getId()+"", excludes, startIndex, size);
 			final Params parameters = new Params();
 			parameters.add("status_id", "*");
 			parameters.add("limit", size + "");
-			parameters.add("project_key", projectId);
+			parameters.add("project_id", project.getId()+"");
 			parameters.add("offset", startIndex + "");
-			parameters.add("sort", "issue_id asc");
+			parameters.add("sort", "id:desc");
 			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
 			return new TicketingPageableImpl<>(startIndex + size + 1, size, wrapper.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
 		} catch (RedmineAuthenticationException e) {
@@ -540,9 +543,9 @@ public class RedmineClient implements Client {
 		final Map<Integer, Boolean> mapperExcludes = excludes.stream().map(Integer::parseInt).collect(Collectors.toMap(Function.identity(), e -> false, (e1, e2) -> e1));
 		parameters.put("status_id", "*");
 		parameters.put("limit", size + "");
-		parameters.put("project_key", projectId);
+		parameters.put("project_id", projectId);
 		parameters.put("offset", startIndex + "");
-		parameters.put("sort", "issue_id asc");
+		parameters.put("sort", "id:desc");
 		while (true) {
 			final List<Issue> issues = manager.getIssueManager().getIssues(parameters).getResults();
 			if (issues.isEmpty())
