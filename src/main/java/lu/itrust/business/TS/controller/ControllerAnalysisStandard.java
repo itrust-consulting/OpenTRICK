@@ -495,6 +495,7 @@ public class ControllerAnalysisStandard extends AbstractControllerAnalysis {
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
+
 	@RequestMapping(value = "/Measure/{idMeasure}/Description/{langue}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String loadDescription(@PathVariable("idMeasure") int idMeasure, @PathVariable("langue") String langue, Principal principal, HttpSession session,
@@ -566,6 +567,7 @@ public class ControllerAnalysisStandard extends AbstractControllerAnalysis {
 		return "analyses/single/components/soa/home";
 	}
 
+	
 	/**
 	 * manageForm: <br>
 	 * Description
