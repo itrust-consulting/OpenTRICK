@@ -96,4 +96,5 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 		if (event.getAffectedOwnerOrNull() instanceof User)
 			encrypt((User) event.getAffectedOwnerOrNull());
 	}
+	
 }
