@@ -70,7 +70,7 @@
 									code="label.customer.zip_code" text="Zip code" />
 							</label>
 							<div class="col-sm-9">
-								<input name="ZIPCode" id="customer_ZIPCode" class="form-control" type="text" />
+								<input name="zipCode" id="customer_ZIPCode" class="form-control" type="text" />
 							</div>
 						</div>
 						<div class="form-group">
