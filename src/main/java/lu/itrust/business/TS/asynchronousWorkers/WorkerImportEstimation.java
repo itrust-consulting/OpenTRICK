@@ -366,20 +366,20 @@ public class WorkerImportEstimation extends WorkerImpl {
 		final int nameIndex = columns.indexOf("name"), odlNameIndex = columns.indexOf("old name");
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "Name column cannot be found!", "Name");
-		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(Asset::getName, Function.identity()));
-		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream().collect(Collectors.toMap(AssetType::getName, Function.identity()));
+		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
+		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String name = getString(row, nameIndex, formatter), oldName = getString(row, odlNameIndex, formatter);
 			if (isEmpty(name))
 				continue;
-			Asset asset = assets.get(name);
+			Asset asset = assets.get(name.trim());
 			if (asset == null) {
 				if (isEmpty(oldName))
 					asset = assets.get(oldName);
 				if (asset == null) {
-					analysis.getAssets().add(asset = new Asset(name));
-					assets.put(name, asset);
+					analysis.getAssets().add(asset = new Asset(name.trim()));
+					assets.put(asset.getName(), asset);
 				}
 			}
 
@@ -391,11 +391,11 @@ public class WorkerImportEstimation extends WorkerImpl {
 					AssetType assetType = asset.getAssetType();
 					String type = getString(row, j, formatter);
 					if (!isEmpty(type)) {
-						String typeName = names.get(type);
+						String typeName = names.get(type.trim());
 						if (!isEmpty(typeName))
-							assetType = assetTypes.get(typeName);
+							assetType = assetTypes.get(typeName.trim());
 						if (assetType == null)
-							assetType = assetTypes.get(type);
+							assetType = assetTypes.get(type.trim());
 					}
 
 					if (assetType == null) {
@@ -468,9 +468,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 						.collect(Collectors.groupingBy(m -> m.getMeasureDescription().getStandard().getLabel(),
 								Collectors.mapping(Function.identity(), Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()))))
 				: Collections.emptyMap();
-		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(Scenario::getName, Function.identity()));
-		final Map<String, ScaleType> scalesMapper = scaleTypes.stream().collect(Collectors.toMap(ScaleType::getDisplayName, Function.identity()));
-		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(Asset::getName, Function.identity()));
+		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
+		final Map<String, ScaleType> scalesMapper = scaleTypes.stream().collect(Collectors.toMap(e-> e.getDisplayName().trim(), Function.identity()));
+		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
 		riskProfiles.values().forEach(r -> r.setIdentifier(null));
 		daoRiskProfile.resetRiskIdByIds(riskIDs.values().stream().filter(r -> r.getId() > 0).map(RiskProfile::getId).collect(Collectors.toList()));
 		for (int i = 1; i < size; i++) {
@@ -620,13 +620,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 		for (ScenarioType scenarioType : ScenarioType.values())
 			scenarioTypes.put(scenarioType.getName(), scenarioType);
 
-		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(Scenario::getName, Function.identity()));
+		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String name = getString(row, nameIndex, formatter), oldName = getString(row, odlNameIndex, formatter);
 			if (isEmpty(name))
 				continue;
-			Scenario scenario = scenarios.get(name);
+			Scenario scenario = scenarios.get(name.trim());
 			if (scenario == null) {
 				if (isEmpty(oldName))
 					scenario = scenarios.get(oldName);
@@ -745,7 +745,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 	}
 
 	private boolean loadMeasures(RiskProfile riskProfile, String value, Map<String, Map<String, Measure>> measuresMapper) {
-		if (riskProfile == null)
+		if (riskProfile == null || value == null)
 			return true;
 		riskProfile.getMeasures().clear();
 		String[] lines = value.trim().split("\n");
