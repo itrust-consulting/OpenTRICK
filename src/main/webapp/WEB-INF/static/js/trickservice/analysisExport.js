@@ -205,8 +205,10 @@ var DataManagerExport = {
 	}, "word-report": {
 		setup: ($view, $tab) => {
 			var $currentUI = $("[data-view-content-name='word-report']",$tab);
-			if($currentUI.length)
-				DataManagerExport["report"].updateStatus($view, $(".tab-pane.active", $currentUI));
+			if($currentUI.length){
+				var $tabs = $(".tab-pane.active", $currentUI);
+				DataManagerExport["report"].updateStatus($view, $tabs.length? $tabs : $currentUI);
+			}
 			else {
 				var $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $selectedTab = $("ul.nav>li.active>a", $tab);
 				$.ajax({

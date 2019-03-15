@@ -32,8 +32,8 @@
 							<th rowspan="${colSpan}"><spring:message code="label.customer.phone_number" text="Phone number" /></th>
 							<th rowspan="${colSpan}"><spring:message code="label.customer.email" text="Email address" /></th>
 							<th rowspan="${colSpan}"><spring:message code="label.customer.address" text="Address" /></th>
-							<th rowspan="${colSpan}"><spring:message code="label.customer.city" text="City" /></th>
 							<th rowspan="${colSpan}"><spring:message code="label.customer.zip_code" text="Zip code" /></th>
+							<th rowspan="${colSpan}"><spring:message code="label.customer.city" text="City" /></th>
 							<th rowspan="${colSpan}"><spring:message code="label.customer.country" text="Country" /></th>
 							<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 								<th rowspan="${colSpan}"><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
