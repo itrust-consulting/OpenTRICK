@@ -35,8 +35,9 @@
 
 		<div class="pull-right" style="color: white; width: 25%; text-align: right; margin-top: 5px;">
 			<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+				<spring:eval expression="@propertyConfigurer.getProperty('app.settings.support.email')" var="supportEmail" />
+				<spring:message code="label.support.mail" /><a href="mailto:${supportEmail}" style="margin-right: 5px;"><spring:message text='${supportEmail}'/></a> 
 				<c:if test="${not empty userGuideURL }">
-
 					<c:choose>
 						<c:when test="${userGuideURLInternal}">
 							<spring:url value="${userGuideURL}?version=${userGuideVersion}" var="userGuideBaseURL" />
