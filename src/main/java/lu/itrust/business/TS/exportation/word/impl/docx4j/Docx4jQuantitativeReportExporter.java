@@ -491,7 +491,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 				setCellText((Tc) row.getContent().get(2), parameter.getDescription());
 
 				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
-					addCellNumber((Tc) row.getContent().get(3), decimalFormat.format(parameter.getValue() * 0.01));
+					addCellNumber((Tc) row.getContent().get(3), decimalFormat.format(parameter.getValue() * 0.001));
 				else
 					addCellNumber((Tc) row.getContent().get(3), parameter.getValue() >= 1 ? kEuroFormat.format(parameter.getValue()) : decimalFormat.format(parameter.getValue()));
 
@@ -499,7 +499,7 @@ public class Docx4jQuantitativeReportExporter extends Docx4jWordExporter {
 					setColor((Tc) row.getContent().get(3), SUB_HEADER_COLOR);
 
 				if (type.equals(Constant.DEFAULT_IMPACT_NAME))
-					addCellNumber((Tc) row.getContent().get(4), decimalFormat.format(parameter.getBounds().getFrom() * 0.01));
+					addCellNumber((Tc) row.getContent().get(4), decimalFormat.format(parameter.getBounds().getFrom() * 0.001));
 				else
 					addCellNumber((Tc) row.getContent().get(4),
 							parameter.getBounds().getFrom() >= 1 ? kEuroFormat.format(parameter.getBounds().getFrom()) : decimalFormat.format(parameter.getBounds().getFrom()));
