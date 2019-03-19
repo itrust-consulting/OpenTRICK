@@ -206,7 +206,7 @@ public class ControllerApi {
 	@PostMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object editAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, @RequestParam(name = "name") String assetName,
-			@RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+			@RequestParam(name = "type") String assetTypeName, @RequestParam(name = "selected", defaultValue="true") boolean selected, Principal principal, Locale locale) throws Exception {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
@@ -216,6 +216,8 @@ public class ControllerApi {
 			asset.setName(assetName);
 			
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+			
+			asset.setSelected(selected);
 
 			serviceAsset.saveOrUpdate(asset);
 
