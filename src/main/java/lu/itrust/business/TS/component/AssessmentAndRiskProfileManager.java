@@ -74,7 +74,7 @@ public class AssessmentAndRiskProfileManager {
 
 	@Transactional
 	public void build(Asset asset, int idAnalysis) {
-		Analysis analysis = daoAnalysis.get(idAnalysis);
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return;
 		if (asset.getId() < 1)
@@ -88,8 +88,8 @@ public class AssessmentAndRiskProfileManager {
 
 	@Transactional
 	public void build(int idScenario, int idAnalysis) {
-		Analysis analysis = daoAnalysis.get(idAnalysis);
-		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		buildOnly(scenario, analysis);
 		daoAnalysis.saveOrUpdate(analysis);
 	}
@@ -108,18 +108,16 @@ public class AssessmentAndRiskProfileManager {
 	@Transactional
 	public void selectAsset(Asset asset) {
 		asset.setSelected(true);
-		List<Assessment> assessments = daoAssessment.getAllUnSelectedFromAsset(asset);
-		for (Assessment assessment : assessments) {
-			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset)) {
-				assessment.setSelected(true);
-				daoAssessment.saveOrUpdate(assessment);
-			}
-		}
+		daoAssessment.getAllUnSelectedFromAsset(asset).stream().filter(a -> a.getScenario().isSelected() && a.getScenario().hasInfluenceOnAsset(asset)).forEach(a -> {
+			a.setSelected(true);
+			daoAssessment.saveOrUpdate(a);
+		});
+		daoAsset.saveOrUpdate(asset);
 	}
 
 	@Transactional
 	public void selectAsset(int idAsset) {
-		Asset asset = daoAsset.get(idAsset);
+		final Asset asset = daoAsset.get(idAsset);
 		if (asset == null)
 			return;
 		selectAsset(asset);
@@ -127,7 +125,7 @@ public class AssessmentAndRiskProfileManager {
 
 	@Transactional
 	public void selectScenario(int idScenario) {
-		Scenario scenario = daoScenario.get(idScenario);
+		final Scenario scenario = daoScenario.get(idScenario);
 		if (scenario == null)
 			return;
 		selectScenario(scenario);
@@ -136,13 +134,11 @@ public class AssessmentAndRiskProfileManager {
 	@Transactional
 	public void selectScenario(Scenario scenario) {
 		scenario.setSelected(true);
-		List<Assessment> assessments = daoAssessment.getAllUnselectedFromScenario(scenario);
-		for (Assessment assessment : assessments) {
-			if (assessment.getAsset().isSelected() && scenario.hasInfluenceOnAsset(assessment.getAsset())) {
-				assessment.setSelected(true);
-				daoAssessment.saveOrUpdate(assessment);
-			}
-		}
+		daoAssessment.getAllUnselectedFromScenario(scenario).stream().filter(a -> a.getAsset().isSelected() && scenario.hasInfluenceOnAsset(a.getAsset())).forEach(a -> {
+			a.setSelected(true);
+			daoAssessment.saveOrUpdate(a);
+		});
+		daoScenario.saveOrUpdate(scenario);
 	}
 
 	/**
@@ -187,7 +183,7 @@ public class AssessmentAndRiskProfileManager {
 
 	@Transactional
 	public void toggledAsset(int idAsset) {
-		Asset asset = daoAsset.get(idAsset);
+		final Asset asset = daoAsset.get(idAsset);
 		if (asset.isSelected())
 			unSelectAsset(asset);
 		else
@@ -201,7 +197,7 @@ public class AssessmentAndRiskProfileManager {
 
 	@Transactional
 	public void toggledScenario(int idScenario) {
-		Scenario scenario = daoScenario.get(idScenario);
+		final Scenario scenario = daoScenario.get(idScenario);
 		if (scenario.isSelected())
 			unSelectScenario(scenario);
 		else
@@ -216,16 +212,16 @@ public class AssessmentAndRiskProfileManager {
 	@Transactional
 	public void unSelectAsset(Asset asset) {
 		asset.setSelected(false);
-		List<Assessment> assessments = daoAssessment.getAllSelectedFromAsset(asset);
-		for (Assessment assessment : assessments) {
+		daoAssessment.getAllSelectedFromAsset(asset).forEach(assessment -> {
 			assessment.setSelected(false);
 			daoAssessment.saveOrUpdate(assessment);
-		}
+		});
+		daoAsset.saveOrUpdate(asset);
 	}
 
 	@Transactional
 	public void unSelectAsset(int idAsset) {
-		Asset asset = daoAsset.get(idAsset);
+		final Asset asset = daoAsset.get(idAsset);
 		if (asset == null)
 			return;
 		unSelectAsset(asset);
@@ -233,7 +229,7 @@ public class AssessmentAndRiskProfileManager {
 
 	@Transactional
 	public void unSelectScenario(int idScenario) {
-		Scenario scenario = daoScenario.get(idScenario);
+		final Scenario scenario = daoScenario.get(idScenario);
 		if (scenario == null)
 			return;
 		unSelectScenario(scenario);
@@ -248,11 +244,12 @@ public class AssessmentAndRiskProfileManager {
 				daoAssessment.saveOrUpdate(assessment);
 			}
 		});
+		daoScenario.saveOrUpdate(scenario);
 	}
 
 	@Transactional
 	public void updateAssessment() {
-		int size = daoAnalysis.countNotEmpty(), pageSize = 30;
+		final int size = daoAnalysis.countNotEmpty(), pageSize = 30;
 		for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++)
 			for (Analysis analysis : daoAnalysis.getAllNotEmpty(pageIndex, pageSize))
 				updateAssessment(analysis, null);
@@ -323,8 +320,9 @@ public class AssessmentAndRiskProfileManager {
 	 * @throws Exception
 	 */
 	public static void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
-		List<Asset> assets = analysis.findSelectedAsset();
-		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.getAssessments().stream().filter(a-> a.isSelected()).collect(Collectors.groupingBy(a-> a.getAsset().getId()));
+		final List<Asset> assets = analysis.findSelectedAsset();
+		final Map<Integer, List<Assessment>> assessmentsByAsset = analysis.getAssessments().stream().filter(a -> a.isSelected())
+				.collect(Collectors.groupingBy(a -> a.getAsset().getId()));
 		try {
 			if (factory == null)
 				factory = new ValueFactory(analysis.getParameters());
@@ -354,13 +352,13 @@ public class AssessmentAndRiskProfileManager {
 	public static void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
-		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
+		final Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (analysis.isQualitative()) {
-			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
+			final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
-					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
-					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
+					final Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					final RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
@@ -380,7 +378,7 @@ public class AssessmentAndRiskProfileManager {
 		} else {
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
-					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					final Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset)) {
 						if (assessment == null)
 							GenerateAssessment(analysis.getAssessments(), factory, asset, scenario);
@@ -398,9 +396,9 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static void GenerateRiskProfileIdentifer(List<RiskProfile> riskProfiles) {
-		String maxId = riskProfiles.stream().filter(risk -> !StringUtils.isEmpty(risk.getIdentifier())).map(RiskProfile::getIdentifier)
+		final String maxId = riskProfiles.stream().filter(risk -> !StringUtils.isEmpty(risk.getIdentifier())).map(RiskProfile::getIdentifier)
 				.max((i1, i2) -> NaturalOrderComparator.compareTo(i1, i2)).orElse("R0");
-		Object[] numbering = extractNumbering(maxId);
+		final Object[] numbering = extractNumbering(maxId);
 		if (numbering[1] == null)
 			return;
 		AtomicLong id = new AtomicLong((long) numbering[1]);
@@ -443,31 +441,31 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	private void createAssessment(Asset asset, Analysis analysis) {
-		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
+		final Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
 		ValueFactory valueFactory = new ValueFactory(analysis.getImpactParameters());
 		analysis.getScenarios().forEach(scenario -> createOrRemoveAssessment(scenario.getId(), asset, scenario, analysis.getAssessments(), assetAssessments, valueFactory));
 	}
 
 	private void createAssessment(Scenario scenario, Analysis analysis) {
-		Map<Integer, Assessment> sceanrioAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
+		final Map<Integer, Assessment> sceanrioAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
 		ValueFactory valueFactory = new ValueFactory(analysis.getImpactParameters());
 		analysis.getAssets().forEach(asset -> createOrRemoveAssessment(asset.getId(), asset, scenario, analysis.getAssessments(), sceanrioAssessments, valueFactory));
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
 	private void createAssessmentAndRiskProfile(Asset asset, Analysis analysis) {
-		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
-		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByAssetId(asset.getId());
-		ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
+		final Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
+		final Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByAssetId(asset.getId());
+		final ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
 		analysis.getScenarios().forEach(scenario -> createOrRemoveAssessmentAndRiskProfile(assetAssessments.get(scenario.getId()), scenario, asset,
 				riskProfiles.get(scenario.getId()), analysis, valueFactory));
 		GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
 	}
 
 	private void createAssessmentAndRiskProfile(Scenario scenario, Analysis analysis) {
-		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
-		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
-		ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
+		final Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
+		final Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
+		final ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
 		analysis.getAssets().forEach(
 				asset -> createOrRemoveAssessmentAndRiskProfile(assetAssessments.get(asset.getId()), scenario, asset, riskProfiles.get(asset.getId()), analysis, valueFactory));
 		GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
@@ -526,7 +524,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static Assessment GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
-		Assessment assessment = new Assessment(asset, scenario);
+		final Assessment assessment = new Assessment(asset, scenario);
 		factory.getImpactNames().forEach(impact -> createImpact(factory, assessment, impact));
 		assessments.add(assessment);
 		return assessment;
@@ -553,7 +551,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static void ComputeAlE(List<Assessment> assessments, List<AbstractProbability> parameters, AnalysisType type) {
-		ValueFactory factory = new ValueFactory(parameters);
+		final ValueFactory factory = new ValueFactory(parameters);
 		assessments.forEach(assessment -> ComputeAlE(assessment, factory));
 	}
 
@@ -609,8 +607,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static Map<Integer, ALE[]> ComputeAssetALE(List<Asset> assets, List<Assessment> assessments2) {
-		Map<Integer, ALE[]> ales = new LinkedHashMap<>();
-		Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByAsset(assessments2);
+		final Map<Integer, ALE[]> ales = new LinkedHashMap<>();
+		final Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByAsset(assessments2);
 		for (Asset asset : assets) {
 			ALE[] ales2 = new ALE[3];
 			for (int i = 0; i < ales2.length; i++)
@@ -623,8 +621,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static Map<Integer, ALE[]> ComputeScenarioALE(List<Scenario> scenarios, List<Assessment> assessments2) {
-		Map<Integer, ALE[]> ales = new LinkedHashMap<>();
-		Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByScenario(assessments2);
+		final Map<Integer, ALE[]> ales = new LinkedHashMap<>();
+		final Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByScenario(assessments2);
 		for (Scenario scenario : scenarios) {
 			ALE[] ales2 = new ALE[3];
 			for (int i = 0; i < ales2.length; i++)
@@ -636,7 +634,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static ALE[] ComputeTotalALE(Map<Integer, ALE[]> alesByAsset) {
-		ALE[] ales = new ALE[3];
+		final ALE[] ales = new ALE[3];
 		for (int i = 0; i < ales.length; i++)
 			ales[i] = new ALE(null, 0);
 		for (ALE[] ales2 : alesByAsset.values()) {
@@ -689,7 +687,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	private static List<Assessment> Concact(List<ALE> sortAles, Map<String, List<Assessment>> assessmentByAssets) {
-		List<Assessment> assessments = new LinkedList<>();
+		final List<Assessment> assessments = new LinkedList<>();
 		for (ALE ale : sortAles) {
 			Collections.sort(assessmentByAssets.get(ale.getAssetName()), new AssessmentComparator());
 			assessments.addAll(assessmentByAssets.get(ale.getAssetName()));
@@ -698,7 +696,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static RiskProfile GenerateRiskProfile(List<RiskProfile> riskProfiles, Asset asset, Scenario scenario) {
-		RiskProfile riskProfile = new RiskProfile(asset, scenario);
+		final RiskProfile riskProfile = new RiskProfile(asset, scenario);
 		riskProfiles.add(riskProfile);
 		return riskProfile;
 	}

@@ -94,7 +94,7 @@ import lu.itrust.business.TS.usermanagement.IDS;
 @RestController
 @RequestMapping(value = "/Api", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ControllerApi {
-	
+
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
 
@@ -155,27 +155,29 @@ public class ControllerApi {
 	@PostMapping("/data/analysis/{idAnalysis}/new-asset")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object createAnalysisAsset(@PathVariable Integer idAnalysis, @RequestParam(name = "name") String assetName,
-			@RequestParam(name = "type") String assetTypeName, Principal principal, Locale locale) throws Exception {
+			@RequestParam(name = "type") String assetTypeName, @RequestParam(name = "selected", defaultValue = "false") boolean selected, Principal principal, Locale locale)
+			throws Exception {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
-			
-			Asset asset = new Asset();
-			
-			asset.setName(assetName);
-			
+
+			final Asset asset = new Asset(assetName);
+
+			asset.setSelected(selected);
+
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
-			
-			asset.setSelected(false);
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			
+
 			analysis.add(asset);
-			
+
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			assessmentAndRiskProfileManager.unSelectAsset(asset);
-			
+			if (selected)
+				assessmentAndRiskProfileManager.selectAsset(asset);
+			else
+				assessmentAndRiskProfileManager.unSelectAsset(asset);
+
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 
 			return JsonMessage.SuccessWithId(asset.getId());
@@ -187,7 +189,7 @@ public class ControllerApi {
 			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
-	
+
 	@DeleteMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object deleteAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, Principal principal, Locale locale) throws Exception {
@@ -206,20 +208,24 @@ public class ControllerApi {
 	@PostMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object editAnalysisAsset(@PathVariable Integer idAnalysis, @PathVariable Integer idAsset, @RequestParam(name = "name") String assetName,
-			@RequestParam(name = "type") String assetTypeName, @RequestParam(name = "selected", defaultValue="true") boolean selected, Principal principal, Locale locale) throws Exception {
+			@RequestParam(name = "type") String assetTypeName, @RequestParam(name = "selected", defaultValue = "true") boolean selected, Principal principal, Locale locale)
+			throws Exception {
 		try {
 			if (serviceAnalysis.isProfile(idAnalysis))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
-			
-			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, idAsset);
-			
+
+			final Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, idAsset);
+
 			asset.setName(assetName);
-			
+
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
-			
-			asset.setSelected(selected);
 
 			serviceAsset.saveOrUpdate(asset);
+
+			if (selected)
+				assessmentAndRiskProfileManager.selectAsset(asset);
+			else
+				assessmentAndRiskProfileManager.unSelectAsset(asset);
 
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 

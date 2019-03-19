@@ -87,7 +87,7 @@ public class Asset implements Cloneable {
 	}
 
 	public Asset(String name) {
-		this.name = name;
+		setName(name);
 	}
 
 	/***********************************************************************************************
@@ -137,7 +137,7 @@ public class Asset implements Cloneable {
 	public void setName(String name) throws TrickException {
 		if (name == null || name.trim().isEmpty())
 			throw new TrickException("error.asset.label_null", "Asset name cannot be empty");
-		this.name = name;
+		this.name = name.trim();
 	}
 
 	/**
