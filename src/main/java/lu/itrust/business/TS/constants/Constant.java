@@ -716,10 +716,11 @@ public class Constant {
 	public static final String[] MATURITY_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time",
 			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "Comment", "To do" };
 
-	// public static final String [] NORMAL_MEASURE_COLUMN_MAPPER = {"REFERENCE",
-	// "STATUS", "Implement.", "IntWorkload", "ExtWorkload", "Invest", "LifeT",
-	// "IntMaintenance", "ExtMaintenance", "RecMaintenance", "Phase" , "Resp.",
-	// "ToCheck" ,"Comment", "ToDo" };
+	public static final String ANALYSIS_REPORT_DARK_COLOR = "REPORT_DARK_COLOR";
+	
+	public static final String ANALYSIS_REPORT_DELFAUT_COLOR = "REPORT_DEFAULT_COLOR";
+	
+	public static final String ANALYSIS_REPORT_LIGHT_COLOR = "REPORT_LIGHT_COLOR";
 
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
 
