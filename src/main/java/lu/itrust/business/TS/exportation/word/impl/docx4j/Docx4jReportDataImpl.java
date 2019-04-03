@@ -4,53 +4,90 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import org.docx4j.TraversalUtil;
 import org.docx4j.XmlUtils;
+import org.docx4j.dml.CTSRgbColor;
+import org.docx4j.dml.CTShapeProperties;
+import org.docx4j.dml.CTSolidColorFillProperties;
 import org.docx4j.dml.chart.CTAxDataSource;
+import org.docx4j.dml.chart.CTBarSer;
 import org.docx4j.dml.chart.CTNumData;
 import org.docx4j.dml.chart.CTNumDataSource;
 import org.docx4j.dml.chart.CTNumRef;
 import org.docx4j.dml.chart.CTRelId;
+import org.docx4j.dml.chart.CTSerTx;
+import org.docx4j.dml.chart.CTStrData;
+import org.docx4j.dml.chart.CTStrRef;
+import org.docx4j.dml.chart.CTStrVal;
+import org.docx4j.dml.chart.CTUnsignedInt;
 import org.docx4j.dml.chart.SerContent;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
+import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.finders.RangeFinder;
 import org.docx4j.jaxb.Context;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
+import org.docx4j.model.table.TblFactory;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.DocPropsCustomPart;
 import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.DrawingML.Chart;
+import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBehaviour;
 import org.docx4j.relationships.Relationship;
 import org.docx4j.relationships.Relationships;
 import org.docx4j.wml.Br;
+import org.docx4j.wml.CTBookmark;
+import org.docx4j.wml.CTMarkupRange;
+import org.docx4j.wml.CTVerticalJc;
+import org.docx4j.wml.ContentAccessor;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.Drawing;
+import org.docx4j.wml.FldChar;
+import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.P;
+import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.R;
 import org.docx4j.wml.STBrType;
+import org.docx4j.wml.STFldCharType;
+import org.docx4j.wml.STVerticalJc;
+import org.docx4j.wml.Style;
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.TblPr;
 import org.docx4j.wml.Tc;
+import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.jvnet.jaxb2_commons.ppp.Child;
 import org.springframework.context.MessageSource;
 
-import com.atlassian.util.concurrent.atomic.AtomicInteger;
-
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.Docx4jReportData;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
+import lu.itrust.business.TS.helper.Distribution;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisReportSetting;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
@@ -60,9 +97,45 @@ import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
  */
 public class Docx4jReportDataImpl implements Docx4jReportData {
 
+	private File file;
+
+	private String path;
+
+	private int progress;
+
+	private Locale locale;
+
+	private String darkColor;
+
+	private String reportName;
+
+	private String lightColor;
+
 	private Analysis analysis;
 
+	private String defaultColor;
+
+	private String zeroCostColor;
+
+	private ReportTemplate template;
+
 	private AtomicLong drawingIndex;
+
+	private ValueFactory valueFactory;
+
+	private String currentParagraphId;
+
+	private DecimalFormat numberFormat;
+
+	private MessageSource messageSource;
+
+	private AtomicInteger bookmarkMaxId;
+
+	private String defaultParagraphStyle;
+
+	private AtomicLong bookmarkCounter;
+
+	private DecimalFormat kiloNumberFormat;
 
 	private org.docx4j.wml.Document document;
 
@@ -72,9 +145,68 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	private org.docx4j.dml.chart.ObjectFactory chartFactory;
 
+	private Map<String, Style> styles = Collections.emptyMap();
+
 	private org.docx4j.dml.wordprocessingDrawing.ObjectFactory drawingFactory;
 
 	private org.docx4j.openpackaging.packages.WordprocessingMLPackage wordMLPackage;
+
+	protected void initialise() throws Docx4JException, IOException {
+
+		if (template != null) {
+			setFile(new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", getAnalysis(), System.nanoTime(), getAnalysis().getLabel().replaceAll("/|-|:|.|&", "_"),
+					getAnalysis().getVersion())));
+			if (!getFile().exists())
+				getFile().createNewFile();
+			Files.write(getFile().toPath(), getTemplate().getFile());
+		}
+
+		if (!getFile().exists())
+			throw new TrickException("error.export.report.no.template", "No template file");
+
+		setWordMLPackage(WordprocessingMLPackage.load(getFile()));
+
+		setDocument(this.wordMLPackage.getMainDocumentPart().getContents());
+
+		setFactory(Context.getWmlObjectFactory());
+
+		setChartFactory(new org.docx4j.dml.chart.ObjectFactory());
+
+		setDmlFactory(new org.docx4j.dml.ObjectFactory());
+
+		setDrawingFactory(new org.docx4j.dml.wordprocessingDrawing.ObjectFactory());
+
+		this.styles = this.wordMLPackage.getMainDocumentPart().getStyleDefinitionsPart().getContents().getStyle().parallelStream()
+				.collect(Collectors.toMap(Style::getStyleId, Function.identity()));
+
+		if (wordMLPackage.getDocPropsCustomPart() == null)
+			wordMLPackage.addDocPropsCustomPart();
+
+		final RangeFinder finder = new RangeFinder("CTBookmark", "CTMarkupRange");
+
+		new TraversalUtil(wordMLPackage.getMainDocumentPart().getContent(), finder);
+
+		if (getTemplate() == null)
+			cleanup(finder);
+
+		setBookmarkMaxId(new AtomicInteger(finder.getStarts().parallelStream().mapToInt(p -> p.getId().intValue()).max().orElse(1)));
+
+		setBookmarkCounter(new AtomicLong(System.currentTimeMillis()));
+
+		setKiloNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
+
+		setNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
+
+		setDarkColor(getAnalysis().findSetting(AnalysisReportSetting.DARK_COLOR));
+
+		setLightColor(getAnalysis().findSetting(AnalysisReportSetting.LIGHT_COLOR));
+
+		setDefaultColor(getAnalysis().findSetting(AnalysisReportSetting.DEFAULT_COLOR));
+
+		setZeroCostColor(getAnalysis().findSetting(AnalysisReportSetting.ZERO_COST_COLOR));
+
+		setLocale(getAnalysis().getLanguage().getAlpha2().equalsIgnoreCase("fr") ? Locale.FRENCH : Locale.ENGLISH);
+	}
 
 	/**
 	 * 
@@ -88,37 +220,37 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	@Override
 	public File getFile() {
-		return null;
+		return file;
 	}
 
 	@Override
 	public String getPath() {
-		return null;
+		return path;
 	}
 
 	@Override
 	public int getProgess() {
-		return 0;
+		return progress;
 	}
 
 	@Override
 	public Locale getLocale() {
-		return null;
+		return locale;
 	}
 
 	@Override
 	public String getDarkColor() {
-		return null;
+		return darkColor;
 	}
 
 	@Override
 	public String getReportName() {
-		return null;
+		return reportName;
 	}
 
 	@Override
 	public String getLightColor() {
-		return null;
+		return lightColor;
 	}
 
 	@Override
@@ -127,96 +259,294 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	@Override
+	public String getZeroCostColor() {
+		return this.zeroCostColor;
+	}
+
+	@Override
 	public String getDefaultColor() {
-		return null;
+		return defaultColor;
 	}
 
 	@Override
 	public ReportTemplate getTemplate() {
-		return null;
+		return template;
 	}
 
 	@Override
 	public String getDefaultTableStyle() {
-		return null;
+		return defaultParagraphStyle;
 	}
 
 	@Override
 	public ValueFactory getValueFactory() {
-		return null;
+		return valueFactory;
 	}
 
 	@Override
 	public DecimalFormat getNumberFormat() {
-		return null;
+		return numberFormat;
 	}
 
 	@Override
 	public MessageSource getMessageSource() {
-		return null;
+		return messageSource;
 	}
 
 	@Override
 	public AtomicInteger getBookmarkMaxId() {
-		return null;
+		return bookmarkMaxId;
 	}
 
 	@Override
 	public String getDefaultParagraphStyle() {
-		return null;
+		return defaultParagraphStyle;
 	}
 
 	@Override
-	public AtomicInteger getBookmarkCounter() {
-		return null;
+	public AtomicLong getBookmarkCounter() {
+		return bookmarkCounter;
 	}
 
 	@Override
 	public DecimalFormat getKiloNumberFormat() {
-		return null;
+		return kiloNumberFormat;
 	}
 
 	@Override
 	public Document getDocument() {
-		return null;
+		return document;
 	}
 
 	@Override
 	public org.docx4j.wml.ObjectFactory getFactory() {
-		return null;
+		return factory;
 	}
 
 	@Override
 	public org.docx4j.dml.ObjectFactory getDmlFactory() {
-		return null;
+		return dmlFactory;
 	}
 
 	@Override
 	public org.docx4j.dml.chart.ObjectFactory getChartFactory() {
-		return null;
+		return chartFactory;
 	}
 
 	@Override
 	public org.docx4j.dml.wordprocessingDrawing.ObjectFactory getDrawingFactory() {
-		return null;
+		return drawingFactory;
 	}
 
 	@Override
 	public WordprocessingMLPackage getWordMLPackage() {
-		return null;
+		return wordMLPackage;
 	}
 
 	@Override
 	public AtomicLong getDrawingIndex() {
-		// TODO Auto-generated method stub
-		return null;
+		return drawingIndex;
 	}
 
+	@Override
+	public String getCurrentParagraphId() {
+		return currentParagraphId;
+	}
+
+	/**
+	 * @return the progress
+	 */
+	public int getProgress() {
+		return progress;
+	}
+
+	/**
+	 * @param progress the progress to set
+	 */
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	/**
+	 * @param file the file to set
+	 */
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	/**
+	 * @param path the path to set
+	 */
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	/**
+	 * @param locale the locale to set
+	 */
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * @param darkColor the darkColor to set
+	 */
+	public void setDarkColor(String darkColor) {
+		this.darkColor = darkColor;
+	}
+
+	/**
+	 * @param reportName the reportName to set
+	 */
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
+	}
+
+	/**
+	 * @param lightColor the lightColor to set
+	 */
+	public void setLightColor(String lightColor) {
+		this.lightColor = lightColor;
+	}
+
+	/**
+	 * @param analysis the analysis to set
+	 */
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
 	}
 
-	private P addBreak(P paragraph, STBrType type) {
+	/**
+	 * @param defaultColor the defaultColor to set
+	 */
+	public void setDefaultColor(String defaultColor) {
+		this.defaultColor = defaultColor;
+	}
+
+	/**
+	 * @param zeroCostColor
+	 */
+	public void setZeroCostColor(String zeroCostColor) {
+		this.zeroCostColor = zeroCostColor;
+	}
+
+	/**
+	 * @param template the template to set
+	 */
+	public void setTemplate(ReportTemplate template) {
+		this.template = template;
+	}
+
+	/**
+	 * @param drawingIndex the drawingIndex to set
+	 */
+	public void setDrawingIndex(AtomicLong drawingIndex) {
+		this.drawingIndex = drawingIndex;
+	}
+
+	/**
+	 * @param valueFactory the valueFactory to set
+	 */
+	public void setValueFactory(ValueFactory valueFactory) {
+		this.valueFactory = valueFactory;
+	}
+
+	/**
+	 * @param currentParagraphId the currentParagraphId to set
+	 */
+	public void setCurrentParagraphId(String currentParagraphId) {
+		this.currentParagraphId = currentParagraphId;
+	}
+
+	/**
+	 * @param numberFormat the numberFormat to set
+	 */
+	public void setNumberFormat(DecimalFormat numberFormat) {
+		if (numberFormat != null)
+			numberFormat.setMaximumFractionDigits(0);
+		this.numberFormat = numberFormat;
+	}
+
+	/**
+	 * @param messageSource the messageSource to set
+	 */
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	/**
+	 * @param bookmarkMaxId the bookmarkMaxId to set
+	 */
+	public void setBookmarkMaxId(AtomicInteger bookmarkMaxId) {
+		this.bookmarkMaxId = bookmarkMaxId;
+	}
+
+	/**
+	 * @param defaultParagraphStyle the defaultParagraphStyle to set
+	 */
+	public void setDefaultParagraphStyle(String defaultParagraphStyle) {
+		this.defaultParagraphStyle = defaultParagraphStyle;
+	}
+
+	/**
+	 * @param bookmarkCounter the bookmarkCounter to set
+	 */
+	public void setBookmarkCounter(AtomicLong bookmarkCounter) {
+		this.bookmarkCounter = bookmarkCounter;
+	}
+
+	/**
+	 * @param kiloNumberFormat the kiloNumberFormat to set
+	 */
+	public void setKiloNumberFormat(DecimalFormat kiloNumberFormat) {
+		if (kiloNumberFormat != null)
+			kiloNumberFormat.setMaximumFractionDigits(1);
+		this.kiloNumberFormat = kiloNumberFormat;
+	}
+
+	/**
+	 * @param document the document to set
+	 */
+	public void setDocument(org.docx4j.wml.Document document) {
+		this.document = document;
+	}
+
+	/**
+	 * @param factory the factory to set
+	 */
+	public void setFactory(org.docx4j.wml.ObjectFactory factory) {
+		this.factory = factory;
+	}
+
+	/**
+	 * @param dmlFactory the dmlFactory to set
+	 */
+	public void setDmlFactory(org.docx4j.dml.ObjectFactory dmlFactory) {
+		this.dmlFactory = dmlFactory;
+	}
+
+	/**
+	 * @param chartFactory the chartFactory to set
+	 */
+	public void setChartFactory(org.docx4j.dml.chart.ObjectFactory chartFactory) {
+		this.chartFactory = chartFactory;
+	}
+
+	/**
+	 * @param drawingFactory the drawingFactory to set
+	 */
+	public void setDrawingFactory(org.docx4j.dml.wordprocessingDrawing.ObjectFactory drawingFactory) {
+		this.drawingFactory = drawingFactory;
+	}
+
+	/**
+	 * @param wordMLPackage the wordMLPackage to set
+	 */
+	public void setWordMLPackage(org.docx4j.openpackaging.packages.WordprocessingMLPackage wordMLPackage) {
+		this.wordMLPackage = wordMLPackage;
+	}
+
+	public P addBreak(P paragraph, STBrType type) {
 		R run = getFactory().createR();
 		Br br = getFactory().createBr();
 		run.getContent().add(br);
@@ -225,24 +555,20 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		return paragraph;
 	}
 
-	private P addCellParagraph(Tc cell) {
+	public P addCellParagraph(Tc cell) {
 		P p = getFactory().createP();
 		cell.getContent().add(p);
 		return p;
 	}
 
-	private PartName chartDependancyPartName(Relationship relationship) throws InvalidFormatException {
+	public PartName chartDependancyPartName(Relationship relationship) throws InvalidFormatException {
 		String name = relationship.getTarget();
 		return name.startsWith("..") ? new PartName("/word" + name.replace("..", "")) : new PartName("/word/charts/" + name);
 	}
 
-	private void cleanup(RangeFinder finder) throws Docx4JException {
+	public void cleanup(RangeFinder finder) throws Docx4JException {
 		final List<CTRelId> refs = new LinkedList<>();
 		final Map<BigInteger, BookmarkClean> bookmarks = new LinkedHashMap<>();
-
-		// if (loadTypeFromDocument() != getType())
-		// throw new TrickException("error.report.type.not.compatible", "Report and
-		// analysis are not compatible");
 
 		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr")).forEach(c -> bookmarks.put(c.getId(), new BookmarkClean(c)));
 		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId())).forEach(c -> bookmarks.get(c.getId()).update(c));
@@ -299,7 +625,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	}
 
-	private <T extends SerContent> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel, T ser) {
+	public <T extends SerContent> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel, T ser) {
 
 		setupTitle(reference, index, phaseLabel, ser);
 
@@ -314,7 +640,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		return ser;
 	}
 
-	private P createGraphic(String name, String description, String refId) throws XPathBinderAssociationIsPartialException, JAXBException {
+	public P createGraphic(String name, String description, String refId) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraph = setStyle(getFactory().createP(), "FigurewithCaption");
 		R run = getFactory().createR();
 		run.setRPr(getFactory().createRPr());
@@ -350,7 +676,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		return paragraph;
 	}
 
-	private String findChartId(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
+	public String findChartId(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraph = findTableAnchor(name);
 		if (paragraph == null)
 			return document.getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
@@ -366,7 +692,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 					.map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny().orElse(null);
 	}
 
-	private synchronized Long findDrawingId() throws XPathBinderAssociationIsPartialException, JAXBException {
+	public synchronized Long findDrawingId() throws XPathBinderAssociationIsPartialException, JAXBException {
 		if (drawingIndex == null) {
 			drawingIndex = new AtomicLong(document.getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream())
 					.filter(r -> r instanceof R).flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
@@ -376,7 +702,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		return drawingIndex.incrementAndGet();
 	}
 
-	private int findIndexLoop(Object reference) {
+	public int findIndexLoop(Object reference) {
 		Object ctp = reference;
 		while (true) {
 			int index = findIndex(ctp);
@@ -389,12 +715,423 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		}
 	}
 
-	private <T> T findLastAnignable(List<Object> elements, Class<T> assignable) {
+	public <T> T findLastAnignable(List<Object> elements, Class<T> assignable) {
 		for (int i = elements.size() - 1; i >= 0; i--) {
 			if (assignable.isAssignableFrom(elements.get(i).getClass()))
 				return assignable.cast(elements.get(i));
 		}
 		return null;
+	}
+
+	public Property createProperty(String name) throws Docx4JException {
+		org.docx4j.docProps.custom.ObjectFactory factory = new org.docx4j.docProps.custom.ObjectFactory();
+		Property property = factory.createPropertiesProperty();
+		property.setName(name);
+		wordMLPackage.getDocPropsCustomPart();
+		property.setFmtid(DocPropsCustomPart.fmtidValLpwstr);
+		property.setPid(wordMLPackage.getDocPropsCustomPart().getNextPid());
+		wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
+		return property;
+	}
+
+	public Property createProperty(String name, boolean resued) throws Docx4JException {
+		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
+		if (!(property == null || resued)) {
+			wordMLPackage.getDocPropsCustomPart().getContents().getProperty().remove(property);
+			property = createProperty(name);
+		} else if (property == null)
+			property = createProperty(name);
+		return property;
+	}
+
+	public R createSpecialRun(STFldCharType type) {
+		R run = factory.createR();
+		FldChar fldChar = factory.createFldChar();
+		fldChar.setFldCharType(type);
+		run.getContent().add(fldChar);
+		return run;
+	}
+
+	public Tbl createTable(String styleId, int rows, int cols) {
+		Tbl table = TblFactory.createTable(rows, cols, 1);
+		Style value = styles.get(styleId);
+		if (value != null)
+			table.getTblPr().getTblStyle().setVal(value.getName().getVal());
+		else
+			table.getTblPr().getTblStyle().setVal(styleId);
+		if (table.getTblPr().getJc() == null)
+			table.getTblPr().setJc(factory.createJc());
+		table.getTblPr().getJc().setVal(JcEnumeration.CENTER);
+		if (table.getTblPr().getTblW() == null)
+			table.getTblPr().setTblW(factory.createTblWidth());
+		table.getTblPr().getTblW().setType("pct");
+		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
+		return table;
+	}
+
+	public CTVerticalJc createVerticalAlignment(STVerticalJc alignment) {
+		CTVerticalJc ctVerticalJc = factory.createCTVerticalJc();
+		ctVerticalJc.setVal(alignment);
+		return ctVerticalJc;
+	}
+
+	public List<Part> duplicateChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
+		int count = 1;
+		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
+			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE).getDivisor();
+		Part part = findChart(chartName);
+		if (part == null)
+			return Collections.emptyList();
+		List<Part> parts = new ArrayList<>(count);
+		parts.add(part);
+		if (count > 1) {
+			List<Object> contents = new LinkedList<>();
+			for (int i = 1; i < count; i++) {
+				ClonePartResult result = cloneChart((Chart) part, name + i, name + i);
+				contents.add(result.getP());
+				parts.add(result.getPart());
+			}
+			insertAllAfter(findTableAnchor(chartName), contents);
+		}
+		return parts;
+	}
+
+	public ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
+		Part copy = PartClone.clone(part, null);
+		Relationship relationship = wordMLPackage.getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+		part.getRelationshipsPart().getContents().getRelationship().stream().sorted((r1, r2) -> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
+			try {
+				if (re.getTarget().startsWith(".."))
+					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
+							AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+				else
+					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word/charts/" + re.getTarget())), null), AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return new ClonePartResult(copy, relationship, createGraphic(name, description, relationship.getId()));
+	}
+
+	public Part findChart(String name) throws InvalidFormatException, XPathBinderAssociationIsPartialException, JAXBException {
+		String id = findChartId(name);
+		if (id == null)
+			return null;
+		Relationship relationship = wordMLPackage.getMainDocumentPart().getRelationshipsPart().getRelationships().getRelationship().parallelStream()
+				.filter(part -> part.getId().equals(id)).findAny().orElse(null);
+		if (relationship == null)
+			return null;
+		return wordMLPackage.getParts().get(new PartName("/word/" + relationship.getTarget()));
+	}
+
+	public int findIndex(Object reference) {
+		int index = -1;
+		if (reference != null) {
+			index = document.getContent().indexOf(reference);
+			if (index == -1 && !(reference instanceof P)) {
+				for (int i = 0; i < document.getContent().size(); i++) {
+					if (XmlUtils.unwrap(reference).equals(XmlUtils.unwrap(document.getContent().get(i))))
+						return i;
+				}
+			}
+		}
+		return index;
+	}
+
+	public Object findNext(Object reference) {
+		int index = findIndex(reference);
+		if (index < 0 || index >= (document.getContent().size() - 1))
+			return null;
+		return document.getContent().get(index + 1);
+	}
+
+	public P findNext(P p) {
+		Object reference = p;
+		while (true) {
+			Object element = findNext((Object) reference);
+			if (element == null || element instanceof P)
+				return (P) element;
+			else
+				reference = element;
+		}
+	}
+
+	public P findNextP(int index) {
+		for (int i = index + 1; i < document.getContent().size(); i++) {
+			Object object = document.getContent().get(i);
+			if (object instanceof P)
+				return (P) object;
+		}
+		return null;
+	}
+
+	public Object findPrevious(Object reference) {
+		int index = findIndex(reference);
+		if (index < 1)
+			return null;
+		return document.getContent().get(index - 1);
+	}
+
+	public P findPrevious(P p) {
+		Object reference = p;
+		while (true) {
+			Object element = findPrevious((Object) reference);
+			if (element == null || element instanceof P)
+				return (P) element;
+			else
+				reference = element;
+		}
+	}
+
+	public P findPreviousP(int index) {
+		for (int i = Math.min(index, document.getContent().size()) - 1; i >= 0; i--) {
+			Object object = document.getContent().get(i);
+			if (object instanceof P)
+				return (P) object;
+		}
+		return null;
+	}
+
+	public P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
+		return (P) document.getContent().parallelStream().filter(p -> (p instanceof P) && ((P) p).getContent().parallelStream().anyMatch(
+				b -> (b instanceof JAXBElement) && ((JAXBElement<?>) b).getValue() instanceof CTBookmark && ((CTBookmark) ((JAXBElement<?>) b).getValue()).getName().equals(name)))
+				.findAny().orElse(null);
+	}
+
+	public String formatLikelihood(String likelihood) {
+		try {
+			return getKiloNumberFormat().format(Double.parseDouble(likelihood));
+		} catch (Exception e) {
+			return likelihood;
+		}
+	}
+
+	public TblPr getTableStyle(String id) {
+		Style style = styles.get(id);
+		return style == null ? null : (TblPr) style.getTblPr();
+	}
+
+	public boolean insertAfter(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		if (reference instanceof P) {
+			P next = findNextP(index);
+			if (next != null)
+				putCustomerContentMarker((P) reference, next);
+		}
+		document.getContent().add(index + 1, element);
+		return true;
+	}
+
+	public boolean insertAllAfter(Object reference, List<Object> elements) {
+		int index = findIndex(reference);
+		if (index == -1 || elements.isEmpty())
+			return false;
+
+		if ((reference instanceof P)) {
+			ContentAccessor next = findNextP(index);
+			if (next == null && index == document.getContent().size() - 1)
+				next = findLastAnignable(elements, ContentAccessor.class);
+			if (next != null)
+				putCustomerContentMarker((P) reference, next);
+		}
+
+		document.getContent().addAll(index + 1, elements);
+		return true;
+	}
+
+	public boolean insertAllBefore(Object reference, List<Object> elements) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		if (!elements.isEmpty() && (reference instanceof P)) {
+			P previous = findPreviousP(index);
+			if (previous != null)
+				putCustomerContentMarker(previous, (P) reference);
+		}
+		document.getContent().addAll(index, elements);
+		return true;
+	}
+
+	public boolean insertBefore(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		if (reference instanceof P) {
+			P previous = findPreviousP(index);
+			if (previous != null)
+				putCustomerContentMarker(previous, (P) reference);
+		}
+		document.getContent().add(index, element);
+		return true;
+	}
+
+	public void putCustomerContentMarker(ContentAccessor begin, ContentAccessor end) {
+		BigInteger id = BigInteger.valueOf(getBookmarkMaxId().incrementAndGet());
+		CTMarkupRange markupRange = factory.createCTMarkupRange();
+		CTBookmark bookmark = factory.createCTBookmark();
+		markupRange.setId(id);
+		bookmark.setId(id);
+		bookmark.setName("_Tsr" + getBookmarkCounter().incrementAndGet());
+		JAXBElement<CTMarkupRange> bookmarkEnd = factory.createBodyBookmarkEnd(markupRange);
+		JAXBElement<CTBookmark> bookmarkStart = factory.createBodyBookmarkStart(bookmark);
+		begin.getContent().add(bookmarkStart);
+		end.getContent().add(bookmarkEnd);
+	}
+
+	public boolean replace(Object reference, Object element) {
+		int index = findIndex(reference);
+		if (index == -1)
+			return false;
+		document.getContent().set(index, element);
+		return true;
+	}
+
+	public P setAlignment(P paragraph, TextAlignment alignment) {
+		if (paragraph.getPPr() == null)
+			paragraph.setPPr(factory.createPPr());
+		if (paragraph.getParent() instanceof Tc) {
+			if (paragraph.getPPr().getJc() == null)
+				paragraph.getPPr().setJc(factory.createJc());
+			paragraph.getPPr().getJc().setVal(JcEnumeration.fromValue(alignment.getVal()));
+		} else
+			paragraph.getPPr().setTextAlignment(alignment);
+		return paragraph;
+	}
+
+	public Tc setAlignment(Tc cell, TextAlignment alignment) {
+		cell.getContent().parallelStream().filter(p -> p instanceof P).forEach(p -> setAlignment((P) p, alignment));
+		return cell;
+	}
+
+	public void setCellText(Tc tc, String text) {
+		setCellText(tc, text, null);
+	}
+
+	public void setCellText(Tc cell, String text, TextAlignment alignment) {
+		if (cell.getContent().isEmpty())
+			cell.getContent().add(new P());
+		P paragraph = (P) cell.getContent().get(0);
+		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, getCurrentParagraphId()));
+		setText(paragraph, text, alignment);
+	}
+
+	public void setColor(CTBarSer ser, String color) {
+		if (ser.getSpPr() == null) {
+			ser.setSpPr(new CTShapeProperties());
+			ser.getSpPr().setSolidFill(new CTSolidColorFillProperties());
+			ser.getSpPr().getSolidFill().setSrgbClr(getColor(color));
+		}
+	}
+
+	public CTSRgbColor getColor(String color) {
+		CTSRgbColor rgbColor = new CTSRgbColor();
+		rgbColor.setVal(color.substring(1));
+		return rgbColor;
+	}
+
+	public void setCustomProperty(String name, Object value) throws Docx4JException {
+		if (value instanceof Number) {
+			if (value instanceof Double)
+				createProperty(name, false).setR8(Double.isNaN((double) value) ? 0 : ((Number) value).doubleValue());
+			else
+				createProperty(name, false).setI4(((Number) value).intValue());
+		} else if (value instanceof Boolean)
+			createProperty(name, false).setBool((Boolean) value);
+		else
+			createProperty(name, false).setLpwstr(value.toString());
+	}
+
+	public R setInstrText(R r, String content) {
+		Text text = factory.createText();
+		JAXBElement<Text> textWrapped = factory.createRInstrText(text);
+		r.getContent().add(textWrapped);
+		text.setValue(content);
+		text.setSpace("preserve");
+		return r;
+	}
+
+	public void setRepeatHeader(Tr row) {
+		if (row.getTrPr() == null)
+			row.setTrPr(factory.createTrPr());
+		row.getTrPr().getCnfStyleOrDivIdOrGridBefore().add(factory.createCTTrPrBaseTblHeader(factory.createBooleanDefaultTrue()));
+	}
+
+	public P setStyle(P p, String styleId) {
+		if (p.getPPr() == null)
+			p.setPPr(factory.createPPr());
+		if (p.getPPr().getPStyle() == null)
+			p.getPPr().setPStyle(factory.createPPrBasePStyle());
+		p.getPPr().getPStyle().setVal(styleId);
+		return p;
+	}
+
+	public P setText(P paragraph, String content) {
+		return setText(paragraph, content, null);
+	}
+
+	public P setText(P paragraph, String content, boolean bold) {
+		R r = factory.createR();
+		Text text = factory.createText();
+		r.getContent().add(text);
+		text.setValue(content);
+		if (r.getRPr() == null)
+			r.setRPr(factory.createRPr());
+		r.getRPr().setB(factory.createBooleanDefaultTrue());
+		paragraph.getContent().add(r);
+		return paragraph;
+	}
+
+	public P setText(P paragraph, String content, TextAlignment alignment) {
+		if (alignment != null) {
+			if (paragraph.getPPr() == null)
+				setStyle(paragraph, getCurrentParagraphId());
+			if (paragraph.getParent() instanceof Tc) {
+				if (paragraph.getPPr().getJc() == null)
+					paragraph.getPPr().setJc(factory.createJc());
+				paragraph.getPPr().getJc().setVal(JcEnumeration.fromValue(alignment.getVal()));
+			} else
+				paragraph.getPPr().setTextAlignment(alignment);
+		}
+		paragraph.getContent().removeIf(r -> r instanceof R);
+		R r = factory.createR();
+		Text text = factory.createText();
+		text.setValue(content);
+		r.getContent().add(text);
+		paragraph.getContent().add(r);
+		return paragraph;
+
+	}
+
+	public R setText(R r, String value) {
+		Text text = factory.createText();
+		text.setValue(value == null ? "" : value);
+		r.getContent().add(text);
+		return r;
+	}
+
+	public <T extends SerContent> void setupTitle(String reference, long index, String title, T ser) {
+		ser.setOrder(new CTUnsignedInt());
+		ser.getOrder().setVal(index);
+		ser.setIdx(new CTUnsignedInt());
+		ser.getIdx().setVal(index);
+		ser.setTx(new CTSerTx());
+		ser.getTx().setStrRef(new CTStrRef());
+		ser.getTx().getStrRef().setStrCache(new CTStrData());
+		ser.getTx().getStrRef().setF(reference);
+		CTStrVal valTitle = new CTStrVal();
+		valTitle.setIdx(0);
+		valTitle.setV(title);
+		ser.getTx().getStrRef().getStrCache().getPt().add(valTitle);
+		ser.getTx().getStrRef().getStrCache().setPtCount(new CTUnsignedInt());
+		ser.getTx().getStrRef().getStrCache().getPtCount().setVal(ser.getTx().getStrRef().getStrCache().getPt().size());
+	}
+
+	public void setVerticalAlignment(Tc cell, CTVerticalJc alignment) {
+		if (cell.getTcPr() == null)
+			cell.setTcPr(factory.createTcPr());
+		cell.getTcPr().setVAlign(alignment);
 	}
 
 	public static void mergeCell(Tr row, int begin, int size, String color) {

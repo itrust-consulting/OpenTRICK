@@ -895,7 +895,6 @@ public class Analysis implements Cloneable {
 		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
 	}
 
-
 	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
 		return this.analysisStandards.stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
 				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
@@ -1233,7 +1232,7 @@ public class Analysis implements Cloneable {
 	 * @return The Value of the SimpleParameter if it exists, or -1 if the parameter
 	 *         was not found
 	 */
-	
+
 	public double findParameter(String name) {
 		return findParameter(name, -1D);
 	}
@@ -1379,6 +1378,10 @@ public class Analysis implements Cloneable {
 
 	public <T> T findSetting(AnalysisSetting setting) {
 		return findSetting(setting, settings.get(setting.name()));
+	}
+
+	public String findSetting(AnalysisReportSetting setting) {
+		return setting == null ? null : settings.getOrDefault(setting.name(), setting.getValue());
 	}
 
 	@OneToMany
@@ -2340,7 +2343,5 @@ public class Analysis implements Cloneable {
 			return (T) (Float) Float.parseFloat(value);
 		return (T) value;
 	}
-
-	
 
 }
