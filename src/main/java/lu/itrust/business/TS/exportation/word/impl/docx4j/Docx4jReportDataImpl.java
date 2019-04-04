@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -15,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -81,6 +85,7 @@ import org.jvnet.jaxb2_commons.ppp.Child;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.Docx4jReportData;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
@@ -90,6 +95,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisReportSetting;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 /**
  * @author eomar
@@ -139,6 +145,8 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	private org.docx4j.wml.Document document;
 
+	private Map<String, CTBookmark> bookmarks;
+
 	private org.docx4j.wml.ObjectFactory factory;
 
 	private org.docx4j.dml.ObjectFactory dmlFactory;
@@ -147,14 +155,15 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	private Map<String, Style> styles = Collections.emptyMap();
 
+	private final AtomicBoolean mutex = new AtomicBoolean(false);
+
 	private org.docx4j.dml.wordprocessingDrawing.ObjectFactory drawingFactory;
 
 	private org.docx4j.openpackaging.packages.WordprocessingMLPackage wordMLPackage;
 
-	protected void initialise() throws Docx4JException, IOException {
-
-		if (template != null) {
-			setFile(new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", getAnalysis(), System.nanoTime(), getAnalysis().getLabel().replaceAll("/|-|:|.|&", "_"),
+	protected boolean initialise() throws Docx4JException, IOException {
+		if (getTemplate() != null) {
+			setFile(new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", getPath(), System.nanoTime(), getAnalysis().getLabel().replaceAll("/|-|:|.|&", "_"),
 					getAnalysis().getVersion())));
 			if (!getFile().exists())
 				getFile().createNewFile();
@@ -164,36 +173,31 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		if (!getFile().exists())
 			throw new TrickException("error.export.report.no.template", "No template file");
 
-		setWordMLPackage(WordprocessingMLPackage.load(getFile()));
-
-		setDocument(this.wordMLPackage.getMainDocumentPart().getContents());
-
 		setFactory(Context.getWmlObjectFactory());
-
-		setChartFactory(new org.docx4j.dml.chart.ObjectFactory());
 
 		setDmlFactory(new org.docx4j.dml.ObjectFactory());
 
+		setChartFactory(new org.docx4j.dml.chart.ObjectFactory());
+
+		setWordMLPackage(WordprocessingMLPackage.load(getFile()));
+
+		setValueFactory(new ValueFactory(getAnalysis().getParameters()));
+
+		setDocument(getWordMLPackage().getMainDocumentPart().getContents());
+
 		setDrawingFactory(new org.docx4j.dml.wordprocessingDrawing.ObjectFactory());
 
-		this.styles = this.wordMLPackage.getMainDocumentPart().getStyleDefinitionsPart().getContents().getStyle().parallelStream()
-				.collect(Collectors.toMap(Style::getStyleId, Function.identity()));
-
-		if (wordMLPackage.getDocPropsCustomPart() == null)
-			wordMLPackage.addDocPropsCustomPart();
+		if (getWordMLPackage().getDocPropsCustomPart() == null)
+			getWordMLPackage().addDocPropsCustomPart();
 
 		final RangeFinder finder = new RangeFinder("CTBookmark", "CTMarkupRange");
 
-		new TraversalUtil(wordMLPackage.getMainDocumentPart().getContent(), finder);
+		new TraversalUtil(getWordMLPackage().getMainDocumentPart().getContent(), finder);
 
 		if (getTemplate() == null)
 			cleanup(finder);
 
-		setBookmarkMaxId(new AtomicInteger(finder.getStarts().parallelStream().mapToInt(p -> p.getId().intValue()).max().orElse(1)));
-
 		setBookmarkCounter(new AtomicLong(System.currentTimeMillis()));
-
-		setKiloNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
 
 		setNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
 
@@ -201,11 +205,77 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 		setLightColor(getAnalysis().findSetting(AnalysisReportSetting.LIGHT_COLOR));
 
+		setKiloNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
+
 		setDefaultColor(getAnalysis().findSetting(AnalysisReportSetting.DEFAULT_COLOR));
 
 		setZeroCostColor(getAnalysis().findSetting(AnalysisReportSetting.ZERO_COST_COLOR));
 
-		setLocale(getAnalysis().getLanguage().getAlpha2().equalsIgnoreCase("fr") ? Locale.FRENCH : Locale.ENGLISH);
+		setLocale(getAnalysis().getLanguage().getAlpha2().equalsIgnoreCase(Locale.FRENCH.getLanguage()) ? Locale.FRENCH : Locale.ENGLISH);
+
+		setBookmarkMaxId(new AtomicInteger(finder.getStarts().parallelStream().mapToInt(p -> p.getId().intValue()).max().orElse(1)));
+
+		setStyles(getWordMLPackage().getMainDocumentPart().getStyleDefinitionsPart().getContents().getStyle().parallelStream()
+				.collect(Collectors.toMap(Style::getStyleId, Function.identity())));
+
+		setBookmarks(finder.getStarts().stream().filter(c -> c.getName().toLowerCase().startsWith("ts-"))
+				.collect(Collectors.toMap(c -> c.getName().toLowerCase(), Function.identity(), (c1, c2) -> c1, LinkedHashMap::new)));
+		return false;
+	}
+
+	protected void updateProperties() throws Docx4JException {
+
+		final String currentTime = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT).replaceAll("\\.\\d*", "");
+
+		for (AnalysisStandard analysisStandard : getAnalysis().getAnalysisStandards()) {
+			final long count = analysisStandard.getMeasures().stream().filter(m -> m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE)).count();
+			if (count == 0)
+				continue;
+			if (analysisStandard.getStandard().is(Constant.STANDARD_27001))
+				setCustomProperty(NA_MEASURES_27001, count);
+			else if (analysisStandard.getStandard().is(Constant.STANDARD_27002))
+				setCustomProperty(NA_MEASURES_27002, count);
+			else
+				setCustomProperty(analysisStandard.getStandard().getLabel().toUpperCase() + NA_MEASURES, count);
+		}
+
+		setCustomProperty(MAX_IMPL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue())
+				.findAny().orElse(0D));
+
+		setCustomProperty(EXTERNAL_WL_VAL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
+				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+
+		setCustomProperty(INTERNAL_WL_VAL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
+				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+
+		setCustomProperty(NUMBER_MEASURES_ALL_PHASES,
+				getAnalysis().getAnalysisStandards().stream().flatMap(e -> e.getMeasures().stream()).filter(m -> m.getMeasureDescription().isComputable()
+						&& !(m.getImplementationRateValue(getValueFactory()) >= 100 || Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(m.getStatus()))).count());
+
+		setCustomProperty(CLIENT_NAME, getAnalysis().getCustomer().getOrganisation());
+
+		getWordMLPackage().getDocPropsCorePart().getContents().setLastPrinted(null);
+
+		getWordMLPackage().getDocPropsCorePart().getContents().getCreated().getContent().clear();
+
+		getWordMLPackage().getDocPropsCorePart().getContents().getCreator().getContent().clear();
+
+		getWordMLPackage().getDocPropsCorePart().getContents().getModified().getContent().clear();
+
+		getWordMLPackage().getDocPropsExtendedPart().getContents().setCompany(getAnalysis().getCustomer().getOrganisation());
+
+		getWordMLPackage().getDocPropsExtendedPart().getContents().setManager(getAnalysis().getCustomer().getContactPerson());
+
+		getWordMLPackage().getDocPropsCorePart().getContents().getCreator().getContent()
+				.add(String.format("%s %s", getAnalysis().getOwner().getFirstName(), getAnalysis().getOwner().getLastName()));
+
+		getWordMLPackage().getDocPropsCorePart().getContents().getCreated().getContent().add(currentTime);
+
+		getWordMLPackage().getDocPropsCorePart().getContents().getModified().getContent().add(currentTime);
+
+		getWordMLPackage().getDocPropsCorePart().getContents().setLastModifiedBy(getMessage("report.export.from.ts", "Exported from TRICK Service"));
+
+		getWordMLPackage().getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(factory.createBooleanDefaultTrue());
 	}
 
 	/**
@@ -547,8 +617,8 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public P addBreak(P paragraph, STBrType type) {
-		R run = getFactory().createR();
-		Br br = getFactory().createBr();
+		final R run = getFactory().createR();
+		final Br br = getFactory().createBr();
 		run.getContent().add(br);
 		br.setType(type);
 		paragraph.getContent().add(run);
@@ -556,13 +626,13 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public P addCellParagraph(Tc cell) {
-		P p = getFactory().createP();
+		final P p = getFactory().createP();
 		cell.getContent().add(p);
 		return p;
 	}
 
 	public PartName chartDependancyPartName(Relationship relationship) throws InvalidFormatException {
-		String name = relationship.getTarget();
+		final String name = relationship.getTarget();
 		return name.startsWith("..") ? new PartName("/word" + name.replace("..", "")) : new PartName("/word/charts/" + name);
 	}
 
@@ -579,7 +649,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 				int startIndex = findIndexLoop(c.getStart()), endIndex = findIndexLoop(c.getEnd());
 
 				if (!(startIndex == -1 || endIndex == -1)) {
-					List<Object> contents = getDocument().getContent().subList(startIndex + (c.getStartParent() instanceof P ? 1 : 0),
+					final List<Object> contents = getDocument().getContent().subList(startIndex + (c.getStartParent() instanceof P ? 1 : 0),
 							Math.min(endIndex + (c.getEndParent() instanceof P ? 0 : 1), getDocument().getContent().size()));
 
 					contents.stream().filter(i -> XmlUtils.unwrap(i) instanceof P).map(i -> (P) XmlUtils.unwrap(i)).flatMap(p -> p.getContent().stream())
@@ -603,18 +673,18 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		});
 
 		if (!refs.isEmpty()) {
-			Relationships mainRelationships = getWordMLPackage().getMainDocumentPart().getRelationshipsPart().getContents();
+			final Relationships mainRelationships = getWordMLPackage().getMainDocumentPart().getRelationshipsPart().getContents();
 			for (CTRelId ctRelId : refs) {
-				Relationship relationship = mainRelationships.getRelationship().stream().filter(p -> p.getId().equals(ctRelId.getId())).findAny().orElse(null);
+				final Relationship relationship = mainRelationships.getRelationship().stream().filter(p -> p.getId().equals(ctRelId.getId())).findAny().orElse(null);
 				if (relationship == null)
 					continue;
-				Part chart = getWordMLPackage().getParts().get(new PartName("/word/" + relationship.getTarget()));
+				final Part chart = getWordMLPackage().getParts().get(new PartName("/word/" + relationship.getTarget()));
 				if (chart == null)
 					continue;
 
-				List<Relationship> relationships = chart.getRelationshipsPart().getContents().getRelationship();
+				final List<Relationship> relationships = chart.getRelationshipsPart().getContents().getRelationship();
 				while (!relationships.isEmpty()) {
-					Part part = getWordMLPackage().getParts().get(chartDependancyPartName(relationships.remove(0)));
+					final Part part = getWordMLPackage().getParts().get(chartDependancyPartName(relationships.remove(0)));
 					if (part != null)
 						part.remove();
 				}
@@ -679,7 +749,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	public String findChartId(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraph = findTableAnchor(name);
 		if (paragraph == null)
-			return document.getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
+			return getDocument().getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
 					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
 					.filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
 					.filter(i -> (i instanceof Inline) && ((Inline) i).getDocPr() != null && name.equals(((Inline) i).getDocPr().getDescr()))
@@ -693,13 +763,13 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public synchronized Long findDrawingId() throws XPathBinderAssociationIsPartialException, JAXBException {
-		if (drawingIndex == null) {
-			drawingIndex = new AtomicLong(document.getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream())
+		if (getDrawingIndex() == null) {
+			setDrawingIndex(new AtomicLong(getDocument().getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream())
 					.filter(r -> r instanceof R).flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
 					.filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> i instanceof Inline)
-					.mapToLong(i -> ((Inline) i).getDocPr().getId()).max().orElse(0));
+					.mapToLong(i -> ((Inline) i).getDocPr().getId()).max().orElse(0)));
 		}
-		return drawingIndex.incrementAndGet();
+		return getDrawingIndex().incrementAndGet();
 	}
 
 	public int findIndexLoop(Object reference) {
@@ -727,17 +797,17 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		org.docx4j.docProps.custom.ObjectFactory factory = new org.docx4j.docProps.custom.ObjectFactory();
 		Property property = factory.createPropertiesProperty();
 		property.setName(name);
-		wordMLPackage.getDocPropsCustomPart();
+		getWordMLPackage().getDocPropsCustomPart();
 		property.setFmtid(DocPropsCustomPart.fmtidValLpwstr);
-		property.setPid(wordMLPackage.getDocPropsCustomPart().getNextPid());
-		wordMLPackage.getDocPropsCustomPart().getContents().getProperty().add(property);
+		property.setPid(getWordMLPackage().getDocPropsCustomPart().getNextPid());
+		getWordMLPackage().getDocPropsCustomPart().getContents().getProperty().add(property);
 		return property;
 	}
 
 	public Property createProperty(String name, boolean resued) throws Docx4JException {
-		Property property = wordMLPackage.getDocPropsCustomPart().getProperty(name);
+		Property property = getWordMLPackage().getDocPropsCustomPart().getProperty(name);
 		if (!(property == null || resued)) {
-			wordMLPackage.getDocPropsCustomPart().getContents().getProperty().remove(property);
+			getWordMLPackage().getDocPropsCustomPart().getContents().getProperty().remove(property);
 			property = createProperty(name);
 		} else if (property == null)
 			property = createProperty(name);
@@ -754,7 +824,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	public Tbl createTable(String styleId, int rows, int cols) {
 		Tbl table = TblFactory.createTable(rows, cols, 1);
-		Style value = styles.get(styleId);
+		Style value = getStyles().get(styleId);
 		if (value != null)
 			table.getTblPr().getTblStyle().setVal(value.getName().getVal());
 		else
@@ -798,14 +868,15 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	public ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
 		Part copy = PartClone.clone(part, null);
-		Relationship relationship = wordMLPackage.getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+		Relationship relationship = getWordMLPackage().getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
 		part.getRelationshipsPart().getContents().getRelationship().stream().sorted((r1, r2) -> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
 			try {
 				if (re.getTarget().startsWith(".."))
-					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
+					copy.addTargetPart(PartClone.clone(getWordMLPackage().getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
 							AddPartBehaviour.RENAME_IF_NAME_EXISTS);
 				else
-					copy.addTargetPart(PartClone.clone(wordMLPackage.getParts().get(new PartName("/word/charts/" + re.getTarget())), null), AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+					copy.addTargetPart(PartClone.clone(getWordMLPackage().getParts().get(new PartName("/word/charts/" + re.getTarget())), null),
+							AddPartBehaviour.RENAME_IF_NAME_EXISTS);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -817,20 +888,20 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		String id = findChartId(name);
 		if (id == null)
 			return null;
-		Relationship relationship = wordMLPackage.getMainDocumentPart().getRelationshipsPart().getRelationships().getRelationship().parallelStream()
+		Relationship relationship = getWordMLPackage().getMainDocumentPart().getRelationshipsPart().getRelationships().getRelationship().parallelStream()
 				.filter(part -> part.getId().equals(id)).findAny().orElse(null);
 		if (relationship == null)
 			return null;
-		return wordMLPackage.getParts().get(new PartName("/word/" + relationship.getTarget()));
+		return getWordMLPackage().getParts().get(new PartName("/word/" + relationship.getTarget()));
 	}
 
 	public int findIndex(Object reference) {
 		int index = -1;
 		if (reference != null) {
-			index = document.getContent().indexOf(reference);
+			index = getDocument().getContent().indexOf(reference);
 			if (index == -1 && !(reference instanceof P)) {
-				for (int i = 0; i < document.getContent().size(); i++) {
-					if (XmlUtils.unwrap(reference).equals(XmlUtils.unwrap(document.getContent().get(i))))
+				for (int i = 0; i < getDocument().getContent().size(); i++) {
+					if (XmlUtils.unwrap(reference).equals(XmlUtils.unwrap(getDocument().getContent().get(i))))
 						return i;
 				}
 			}
@@ -840,9 +911,9 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 	public Object findNext(Object reference) {
 		int index = findIndex(reference);
-		if (index < 0 || index >= (document.getContent().size() - 1))
+		if (index < 0 || index >= (getDocument().getContent().size() - 1))
 			return null;
-		return document.getContent().get(index + 1);
+		return getDocument().getContent().get(index + 1);
 	}
 
 	public P findNext(P p) {
@@ -857,8 +928,8 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public P findNextP(int index) {
-		for (int i = index + 1; i < document.getContent().size(); i++) {
-			Object object = document.getContent().get(i);
+		for (int i = index + 1; i < getDocument().getContent().size(); i++) {
+			Object object = getDocument().getContent().get(i);
 			if (object instanceof P)
 				return (P) object;
 		}
@@ -869,7 +940,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		int index = findIndex(reference);
 		if (index < 1)
 			return null;
-		return document.getContent().get(index - 1);
+		return getDocument().getContent().get(index - 1);
 	}
 
 	public P findPrevious(P p) {
@@ -884,8 +955,8 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public P findPreviousP(int index) {
-		for (int i = Math.min(index, document.getContent().size()) - 1; i >= 0; i--) {
-			Object object = document.getContent().get(i);
+		for (int i = Math.min(index, getDocument().getContent().size()) - 1; i >= 0; i--) {
+			Object object = getDocument().getContent().get(i);
 			if (object instanceof P)
 				return (P) object;
 		}
@@ -893,7 +964,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
-		return (P) document.getContent().parallelStream().filter(p -> (p instanceof P) && ((P) p).getContent().parallelStream().anyMatch(
+		return (P) getDocument().getContent().parallelStream().filter(p -> (p instanceof P) && ((P) p).getContent().parallelStream().anyMatch(
 				b -> (b instanceof JAXBElement) && ((JAXBElement<?>) b).getValue() instanceof CTBookmark && ((CTBookmark) ((JAXBElement<?>) b).getValue()).getName().equals(name)))
 				.findAny().orElse(null);
 	}
@@ -907,7 +978,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 	}
 
 	public TblPr getTableStyle(String id) {
-		Style style = styles.get(id);
+		Style style = getStyles().get(id);
 		return style == null ? null : (TblPr) style.getTblPr();
 	}
 
@@ -920,7 +991,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 			if (next != null)
 				putCustomerContentMarker((P) reference, next);
 		}
-		document.getContent().add(index + 1, element);
+		getDocument().getContent().add(index + 1, element);
 		return true;
 	}
 
@@ -931,13 +1002,13 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 
 		if ((reference instanceof P)) {
 			ContentAccessor next = findNextP(index);
-			if (next == null && index == document.getContent().size() - 1)
+			if (next == null && index == getDocument().getContent().size() - 1)
 				next = findLastAnignable(elements, ContentAccessor.class);
 			if (next != null)
 				putCustomerContentMarker((P) reference, next);
 		}
 
-		document.getContent().addAll(index + 1, elements);
+		getDocument().getContent().addAll(index + 1, elements);
 		return true;
 	}
 
@@ -950,7 +1021,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 			if (previous != null)
 				putCustomerContentMarker(previous, (P) reference);
 		}
-		document.getContent().addAll(index, elements);
+		getDocument().getContent().addAll(index, elements);
 		return true;
 	}
 
@@ -963,7 +1034,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 			if (previous != null)
 				putCustomerContentMarker(previous, (P) reference);
 		}
-		document.getContent().add(index, element);
+		getDocument().getContent().add(index, element);
 		return true;
 	}
 
@@ -984,7 +1055,7 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 		int index = findIndex(reference);
 		if (index == -1)
 			return false;
-		document.getContent().set(index, element);
+		getDocument().getContent().set(index, element);
 		return true;
 	}
 
@@ -1185,6 +1256,56 @@ public class Docx4jReportDataImpl implements Docx4jReportData {
 				}
 			}
 		}
+	}
+
+	private Map<String, Style> getStyles() {
+		return styles;
+	}
+
+	private void setStyles(Map<String, Style> styles) {
+		this.styles = styles;
+	}
+
+	protected Map<String, CTBookmark> getBookmarks() {
+		return bookmarks;
+	}
+
+	protected void setBookmarks(Map<String, CTBookmark> bookmarks) {
+		this.bookmarks = bookmarks;
+	}
+
+	@Override
+	public void export(Analysis analysis, String path, File file,  ServiceTaskFeedback serviceTaskFeedback, MessageSource messageSource ) {
+		internalReportExport(analysis, path, null, file, serviceTaskFeedback, messageSource);
+	}
+
+	@Override
+	public void export(Analysis analysis, String path, ReportTemplate template,  ServiceTaskFeedback serviceTaskFeedback, MessageSource messageSource) {
+		internalReportExport(analysis, path, template, null,serviceTaskFeedback,messageSource);
+	}
+
+	protected synchronized void internalReportExport(Analysis analysis, String path, ReportTemplate template, File file, ServiceTaskFeedback serviceTaskFeedback, MessageSource messageSource) {
+		try {
+			if (getMutex().get())
+				throw new TrickException("error.export.already.start", "Export is already started!");
+			getMutex().set(true);
+			setPath(path);
+			setFile(file);
+			setAnalysis(analysis);
+			setTemplate(template);
+			setMessageSource(messageSource);
+			initialise();
+			
+			getBookmarks().forEach((key, value)-> {
+				
+			});
+		} catch (Docx4JException | IOException e) {
+			throw new TrickException("error.export.internal", "An error occurred while exporting word report!", e);
+		}
+	}
+
+	private AtomicBoolean getMutex() {
+		return mutex;
 	}
 
 }
