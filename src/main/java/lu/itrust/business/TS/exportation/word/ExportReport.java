@@ -79,8 +79,6 @@ public interface ExportReport {
 
 	int getProgress();
 
-	String getReportName();
-
 	ServiceTaskFeedback getServiceTaskFeedback();
 
 	File getWorkFile();

@@ -102,9 +102,8 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.word.ExportReport;
-import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQualitativeReportExporter;
-import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jQuantitativeReportExporter;
+import lu.itrust.business.TS.exportation.word.ExportReportData;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CellRef;
 import lu.itrust.business.TS.helper.Column;
@@ -362,8 +361,9 @@ public class ControllerDataManager {
 				setValue(row, cellIndex++, value);
 				setValue(row, cellIndex++, profile.getActionPlan());
 			}
-			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
-			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
+			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),
+					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
+			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()), "VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
 		}
 		exportAsset(analysis, mlPackage, hiddenComment);
 		exportScenario(analysis, mlPackage);
@@ -379,7 +379,6 @@ public class ControllerDataManager {
 				analysis.getIdentifier(), analysis.getVersion());
 
 	}
-
 
 	@GetMapping("/Measure/Export-form")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session,#principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -483,15 +482,10 @@ public class ControllerDataManager {
 			if (form.isInternal()) {
 				if (!serviceReportTemplate.isUseAuthorised(form.getTemplate(), customerId))
 					throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-				form.setType(serviceReportTemplate.findTypeById(form.getTemplate()));
-			} else {
-				if (form.getType() == null)
-					form.setType(serviceAnalysis.getAnalysisTypeById(analysisId));
-				if (form.getFile() == null)
-					return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
-			}
+			} else if (form.getFile() == null)
+				return JsonMessage.Error(messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
 
-			if (form.getType() == AnalysisType.QUALITATIVE && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
+			if (AnalysisType.isQualitative(serviceAnalysis.getAnalysisTypeById(analysisId)) && !serviceRiskAcceptanceParameter.existsByAnalysisId(analysisId))
 				throw new TrickException("error.export.risk.acceptance.empty", "Please update risk acception settings: Analysis -> Parameter -> Risk acceptance");
 
 			if (!form.isInternal()) {
@@ -502,19 +496,16 @@ public class ControllerDataManager {
 					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
 
-			ExportReport exportAnalysisReport = form.getType() == AnalysisType.QUANTITATIVE
-					? new Docx4jQuantitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""))
-					: new Docx4jQualitativeReportExporter(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
-			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
+			ExportReportData exportAnalysisReport = new Docx4jReportImpl(request.getServletContext().getRealPath(""),messageSource);
+			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, workersPoolManager, exportAnalysisReport, serviceTaskFeedback);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			if (!form.isInternal()) {
-				exportAnalysisReport.setWorkFile(new File(
+				((Docx4jReportImpl) exportAnalysisReport).setFile(new File(
 						request.getServletContext().getRealPath("/WEB-INF/tmp") + "/Report-template-" + principal.getName() + "-" + UUID.randomUUID().toString() + ".docx"));
-				form.getFile().transferTo(exportAnalysisReport.getWorkFile());
-				exportAnalysisReport.getWorkFile().deleteOnExit();
+				form.getFile().transferTo(exportAnalysisReport.getFile());
+				exportAnalysisReport.getFile().deleteOnExit();
 			}
-			exportAnalysisReport.setRefurbished(!form.isInternal());
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
 		} catch (TrickException e) {

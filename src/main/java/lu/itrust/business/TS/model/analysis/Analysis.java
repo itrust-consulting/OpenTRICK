@@ -1428,16 +1428,7 @@ public class Analysis implements Cloneable {
 	 * @return The List of Summary Entries for the requested Action Plan Type
 	 */
 	public List<SummaryStage> findSummary(ActionPlanMode mode) {
-
-		List<SummaryStage> sums = new ArrayList<SummaryStage>();
-
-		for (int i = 0; i < this.summaries.size(); i++) {
-			if (this.summaries.get(i).getActionPlanType().getId() == mode.getValue()) {
-				sums.add(this.summaries.get(i));
-			}
-		}
-
-		return sums;
+		return getSummaries().stream().filter(e -> e.getActionPlanType().getActionPlanMode() == mode).collect(Collectors.toList());
 	}
 
 	/**

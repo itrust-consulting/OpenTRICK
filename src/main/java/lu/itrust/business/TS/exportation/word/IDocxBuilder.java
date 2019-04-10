@@ -11,5 +11,5 @@ public interface IDocxBuilder {
 	
 	IDocxBuilder getNext();
 	
-	boolean build(ExportReportData reportData, Object data);
+	boolean build(IBuildData data);
 }

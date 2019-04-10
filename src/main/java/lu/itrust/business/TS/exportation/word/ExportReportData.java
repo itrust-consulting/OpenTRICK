@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.helper.Task;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
@@ -32,13 +33,13 @@ public interface ExportReportData {
 
 	String TS_TAB_TEXT_3 = "TSTabText3";
 
+	String NA_MEASURES = "_NA_MEASURES";
+
 	String INTERNAL_WL_VAL = "INTERNAL_WL_VAL";
 
 	String EXTERNAL_WL_VAL = "EXTERNAL_WL_VAL";
 
 	String PROPERTY_REPORT_TYPE = "REPORT_TYPE";
-
-	String NA_MEASURES = "_NA_MEASURES";
 
 	String NA_MEASURES_27001 = "27001_NA_MEASURES";
 
@@ -52,13 +53,9 @@ public interface ExportReportData {
 
 	String getPath();
 
-	int getProgess();
-
 	Locale getLocale();
 
 	String getDarkColor();
-
-	String getReportName();
 
 	String getLightColor();
 
@@ -70,7 +67,7 @@ public interface ExportReportData {
 
 	ReportTemplate getTemplate();
 
-	String getDefaultTableStyle();
+	Object getDefaultTableStyle();
 
 	ValueFactory getValueFactory();
 
@@ -83,8 +80,6 @@ public interface ExportReportData {
 	MessageSource getMessageSource();
 
 	AtomicInteger getBookmarkMaxId();
-
-	String getDefaultParagraphStyle();
 
 	DecimalFormat getKiloNumberFormat();
 
@@ -108,8 +103,6 @@ public interface ExportReportData {
 		return getMessageSource().getMessage(code, parameters, defaultMessage, locale);
 	}
 
-	void export(Analysis analysis, String path, File file, ServiceTaskFeedback serviceTaskFeedback, MessageSource messageSource);
-
-	void export(Analysis analysis, String path, ReportTemplate template, ServiceTaskFeedback serviceTaskFeedback, MessageSource messageSource);
+	void export(ReportTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback);
 
 }
