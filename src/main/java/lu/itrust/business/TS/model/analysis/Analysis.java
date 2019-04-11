@@ -710,27 +710,19 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Assessment> findAssessmentBySelectedAsset() {
-		List<Assessment> assessments = new ArrayList<Assessment>();
-		for (Assessment assessment : this.assessments)
-			if (assessment.getAsset().isSelected())
-				assessments.add(assessment);
-		return assessments;
+		return this.assessments.stream().filter(a -> a.getAsset().isSelected()).collect(Collectors.toList());
 	}
 
 	public List<Assessment> findAssessmentBySelectedScenario() {
-		List<Assessment> assessments = new ArrayList<Assessment>();
-		for (Assessment assessment : this.assessments)
-			if (assessment.getScenario().isSelected())
-				assessments.add(assessment);
-		return assessments;
+		return this.assessments.stream().filter(a -> a.getScenario().isSelected()).collect(Collectors.toList());
 	}
-
+	
 	public Asset findAsset(int idAsset) {
 		return assets.stream().filter(asset -> asset.getId() == idAsset).findAny().orElse(null);
 	}
 
 	public List<IParameter> findByGroup(String... groups) {
-		List<IParameter> parameters = new LinkedList<>();
+		final List<IParameter> parameters = new LinkedList<>();
 		for (String group : groups) {
 			if (this.parameters.containsKey(group))
 				parameters.addAll(this.parameters.get(group));
@@ -743,11 +735,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
-		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>();
-		for (ActionPlanEntry planEntry : this.actionPlans)
-			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
-				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
-		return actionPlanMeasures;
+		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn).map(ActionPlanEntry::getMeasure)
+				.collect(Collectors.toMap(Measure::getId, e -> true, (m1, m2) -> m1));
 	}
 
 	public LikelihoodParameter findLikelihoodByTypeAndLevel(int level) {
@@ -759,27 +748,16 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<? extends Measure> findMeasureByStandard(String standard) {
-		for (AnalysisStandard analysisStandard : this.analysisStandards) {
-			if (analysisStandard.getStandard().is(standard))
-				return analysisStandard.getMeasures();
-		}
-		return null;
+		return this.analysisStandards.stream().filter(a -> a.getStandard().is(standard)).findAny().map(AnalysisStandard::getMeasures).orElse(Collections.emptyList());
 	}
 
 	public List<Measure> findMeasuresByActionPlan(ActionPlanMode appn) {
-		List<Measure> measures = new ArrayList<Measure>();
-		for (ActionPlanEntry planEntry : this.actionPlans)
-			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
-				measures.add(planEntry.getMeasure());
-		return measures;
+		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn).map(ActionPlanEntry::getMeasure).collect(Collectors.toList());
 	}
 
 	public List<Measure> findMeasuresByActionPlanAndNotToImplement(ActionPlanMode appn) {
-		List<Measure> measures = new ArrayList<Measure>();
-		for (ActionPlanEntry planEntry : this.actionPlans)
-			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() <= 0.0)
-				measures.add(planEntry.getMeasure());
-		return measures;
+		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn && a.getROI() <= 0.0).map(ActionPlanEntry::getMeasure)
+				.collect(Collectors.toList());
 	}
 
 	public List<Asset> findNoAssetSelected() {
@@ -841,16 +819,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<Asset, List<Assessment>> findSelectedAssessmentByAsset() {
-		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
-		assessments.stream().filter(Assessment::isSelected).sorted((a1, a2) -> {
-			return NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
-		}).forEach(assessment -> {
-			List<Assessment> assessments = mapping.get(assessment.getAsset());
-			if (assessments == null)
-				mapping.put(assessment.getAsset(), assessments = new LinkedList<Assessment>());
-			assessments.add(assessment);
-		});
-		return mapping;
+		return assessments.stream().filter(Assessment::isSelected).sorted((a1, a2) -> NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName()))
+				.collect(Collectors.groupingBy(Assessment::getAsset, LinkedHashMap::new, Collectors.toList()));
 	}
 
 	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {

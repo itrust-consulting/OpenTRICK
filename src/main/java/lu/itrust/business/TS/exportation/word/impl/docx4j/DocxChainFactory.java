@@ -4,10 +4,15 @@ import lu.itrust.business.TS.exportation.word.DocxFormatter;
 import lu.itrust.business.TS.exportation.word.IBuildData;
 import lu.itrust.business.TS.exportation.word.IDocxBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jALEChartBuilder;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jActionPlanBuilder;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jAssessmentBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jAssetBuilder;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jRentabilityChartBuilder;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jRiskInformationBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jScenarioBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jScopeBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jStandardBuilder;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain.Docx4jSummaryBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jActionPlanFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jAssessmentFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jAssetFormatter;
@@ -54,10 +59,16 @@ public class DocxChainFactory {
 
 	private void buildChainBuilder() {
 		IDocxBuilder builder = new Docx4jScenarioBuilder(null);
+		builder = new Docx4jRentabilityChartBuilder(builder);
 		builder = new Docx4jScopeBuilder(builder);
+		builder = new Docx4jSummaryBuilder(builder);
+		builder = new Docx4jActionPlanBuilder(builder);
+		builder = new Docx4jAssessmentBuilder(builder);
+		builder = new Docx4jRiskInformationBuilder(builder);
 		builder = new Docx4jALEChartBuilder(builder);
 		builder = new Docx4jAssetBuilder(builder);
-		builder = new Docx4jStandardBuilder(builder);  
+		builder = new Docx4jStandardBuilder(builder);
+		
 		setBuilderChain(builder);
 	}
 

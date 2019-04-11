@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
+import static lu.itrust.business.TS.exportation.word.ExportReportData.NUMBER_FORMAT;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
@@ -49,8 +50,6 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 	private static final String TS_CHARTALEBYSCENARIO = "ts_chartalebyscenario";
 	private static final String TS_CHARTALEBYASSETTYPE = "ts_chartalebyassettype";
 	private static final String TS_CHARTALEBYASSET = "ts_chartalebyasset";
-
-	private static final String NUMBER_FORMAT = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[>0.509]#\\k\\€;#,##0\\k\\€";
 
 	public Docx4jALEChartBuilder(IDocxBuilder next) {
 		super(next, TS_CHARTALEBYASSET, TS_CHARTALEBYASSETTYPE, TS_CHARTALEBYSCENARIO, TS_CHARTALEBYSCENARIOTYPE);

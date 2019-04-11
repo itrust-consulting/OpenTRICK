@@ -46,6 +46,8 @@ public interface ExportReportData {
 	String NA_MEASURES_27002 = "27002_NA_MEASURES";
 
 	String NUMBER_MEASURES_ALL_PHASES = "NUMBER_MEASURES_ALL_PHASES";
+	
+	String NUMBER_FORMAT = "[>9.99]#\\ ###\\ ###\\ ###\\ ##0\\k\\€;[>0.509]#\\k\\€;#,##0\\k\\€";
 
 	void close();
 

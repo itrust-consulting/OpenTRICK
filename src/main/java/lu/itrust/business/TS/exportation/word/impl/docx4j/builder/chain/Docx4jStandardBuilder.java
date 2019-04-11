@@ -89,17 +89,17 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		try {
 			switch (data.getAnchor()) {
 			case TS_QT_ADDITIONALCOLLECTION:
-				return buildAdditionalCollection(data, ActionPlanMode.APN);
+				return buildAdditionalCollection(data, ActionPlanMode.APPN);
 			case TS_QL_ADDITIONALCOLLECTION:
 				return buildAdditionalCollection(data, ActionPlanMode.APQ);
 			case TS_HY_ADDITIONALCOLLECTION:
-				return buildAdditionalCollection(data, ActionPlanMode.APN, ActionPlanMode.APQ);
+				return buildAdditionalCollection(data, ActionPlanMode.APPN, ActionPlanMode.APQ);
 			case TS_QT_CHARTCOMPLIANCE27001:
-				return buildCompliance(data, STANDARD_27001, ActionPlanMode.APN);
+				return buildCompliance(data, STANDARD_27001, ActionPlanMode.APPN);
 			case TS_QL_CHARTCOMPLIANCE27001:
 				return buildCompliance(data, STANDARD_27001, ActionPlanMode.APQ);
 			case TS_QT_CHARTCOMPLIANCE27002:
-				return buildCompliance(data, STANDARD_27002, ActionPlanMode.APN);
+				return buildCompliance(data, STANDARD_27002, ActionPlanMode.APPN);
 			case TS_QL_CHARTCOMPLIANCE27002:
 				return buildCompliance(data, STANDARD_27002, ActionPlanMode.APQ);
 			case TS_LISTCOLLECTION:
@@ -142,12 +142,12 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 						for (ActionPlanMode planMode : planModes) {
 
 							ClonePartResult result = exporter.cloneChart(chart2700x, analysisStandard.getStandard().getLabel(),
-									"Compliance" + (planMode == ActionPlanMode.APN ? "QT" : "QL") + analysisStandard.getStandard().getLabel());
+									"Compliance" + (planModes.length == 1 ? "" : (planMode == ActionPlanMode.APPN ? "QT" : "QL")) + analysisStandard.getStandard().getLabel());
 
 							contents.add(result.getP());
 
 							contents.add(exporter.addFigureCaption(exporter.getMessage("report.additional.collection.caption",
-									new Object[] { planMode == ActionPlanMode.APN ? 0 : 1, analysisStandard.getStandard().getLabel() },
+									new Object[] { analysisStandard.getStandard().getLabel(), (planModes.length == 1 ? 0 : (planMode == ActionPlanMode.APPN ? 1 : 2)) },
 									analysisStandard.getStandard().getLabel())));
 							charts.add(new Object[] { result.getPart(), planMode, analysisStandard.getStandard().getLabel(), });
 						}

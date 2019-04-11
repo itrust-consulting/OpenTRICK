@@ -116,7 +116,7 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
 			else if (!analysis.hasData())
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
-			
+			serviceTaskFeedback.send(id, new MessageHandler("info.export.report.prepare.document", "Please wait while preparing word document", 0));
 			final DAOReportTemplate daoReportTemplate = new DAOReportTemplateHBM(session);
 			final ReportTemplate reportTemplate = exportReport.getFile() != null ? null : daoReportTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
 			if (exportReport.getFile() == null) {
@@ -125,7 +125,7 @@ public class WorkerExportWordReport implements Worker {
 				else if (reportTemplate.getFile() == null)
 					throw new TrickException("error.report.template.no.data", "Report template has been corrupted");
 			}
-			exportReport.export(reportTemplate, new Task(getId(), 0, 98), analysis, serviceTaskFeedback);
+			exportReport.export(reportTemplate, new Task(getId(), 1, 98), analysis, serviceTaskFeedback);
 			saveWordDocument(session);
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
