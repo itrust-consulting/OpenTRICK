@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
 
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -40,7 +41,7 @@ public class Docx4jHeatMapLegendFormatter extends Docx4jFormatter {
 	 * lu.itrust.business.TS.model.analysis.AnalysisType)
 	 */
 	@Override
-	protected boolean formatMe(Tbl table, AnalysisType type) {
+	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
 		int size = table.getTblGrid().getGridCol().size();

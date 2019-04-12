@@ -93,6 +93,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.Docx4jReport;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.helper.Distribution;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.helper.Task;
@@ -129,15 +130,9 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private Locale locale;
 
-	private String darkColor;
-
-	private String lightColor;
+	private ColorSet colors;
 
 	private Analysis analysis;
-
-	private String defaultColor;
-
-	private String zeroCostColor;
 
 	private ReportTemplate template;
 
@@ -510,7 +505,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public List<Part> duplicateChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
 		return duplicateChart(size, findTableAnchor(chartName), name);
 	}
-	
+
 	public List<Part> duplicateChart(int size, P p, String name) throws JAXBException, Docx4JException {
 		final Part part = findChart(p);
 		if (part == null)
@@ -747,12 +742,12 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	@Override
 	public String getDarkColor() {
-		return darkColor;
+		return getColors().getDark();
 	}
 
 	@Override
 	public String getDefaultColor() {
-		return defaultColor;
+		return getColors().getNormal();
 	}
 
 	@Override
@@ -805,7 +800,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	@Override
 	public String getLightColor() {
-		return lightColor;
+		return getColors().getLight();
 	}
 
 	@Override
@@ -850,7 +845,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	@Override
 	public String getZeroCostColor() {
-		return this.zeroCostColor;
+		return getColors().getZeroCost();
 	}
 
 	public boolean insertAfter(Object reference, Object element) {
@@ -1015,20 +1010,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	/**
-	 * @param darkColor the darkColor to set
-	 */
-	public void setDarkColor(String darkColor) {
-		this.darkColor = darkColor;
-	}
-
-	/**
-	 * @param defaultColor the defaultColor to set
-	 */
-	public void setDefaultColor(String defaultColor) {
-		this.defaultColor = defaultColor;
-	}
-
-	/**
 	 * @param dmlFactory the dmlFactory to set
 	 */
 	public void setDmlFactory(org.docx4j.dml.ObjectFactory dmlFactory) {
@@ -1086,13 +1067,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 		if (kiloNumberFormat != null)
 			kiloNumberFormat.setMaximumFractionDigits(1);
 		this.kiloNumberFormat = kiloNumberFormat;
-	}
-
-	/**
-	 * @param lightColor the lightColor to set
-	 */
-	public void setLightColor(String lightColor) {
-		this.lightColor = lightColor;
 	}
 
 	/**
@@ -1228,13 +1202,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 		this.wordMLPackage = wordMLPackage;
 	}
 
-	/**
-	 * @param zeroCostColor
-	 */
-	public void setZeroCostColor(String zeroCostColor) {
-		this.zeroCostColor = zeroCostColor;
-	}
-
 	protected Map<String, CTBookmark> getBookmarks() {
 		return bookmarks;
 	}
@@ -1292,15 +1259,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		setNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
 
-		setDarkColor(getAnalysis().findSetting(AnalysisReportSetting.DARK_COLOR));
-
-		setLightColor(getAnalysis().findSetting(AnalysisReportSetting.LIGHT_COLOR));
-
 		setKiloNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
-
-		setDefaultColor(getAnalysis().findSetting(AnalysisReportSetting.DEFAULT_COLOR));
-
-		setZeroCostColor(getAnalysis().findSetting(AnalysisReportSetting.ZERO_COST_COLOR));
 
 		setLocale(getAnalysis().getLanguage().getAlpha2().equalsIgnoreCase(Locale.FRENCH.getLanguage()) ? Locale.FRENCH : Locale.ENGLISH);
 
@@ -1311,6 +1270,9 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		setBookmarks(finder.getStarts().stream().filter(c -> internalName(c.getName(), type).startsWith("ts_"))
 				.collect(Collectors.toMap(c -> internalName(c.getName(), type), Function.identity(), (c1, c2) -> c1, LinkedHashMap::new)));
+		setColors(new ColorSet(getAnalysis().findSetting(AnalysisReportSetting.DARK_COLOR), getAnalysis().findSetting(AnalysisReportSetting.DEFAULT_COLOR),
+				getAnalysis().findSetting(AnalysisReportSetting.LIGHT_COLOR), getAnalysis().findSetting(AnalysisReportSetting.ZERO_COST_COLOR),
+				getAnalysis().findSetting(AnalysisReportSetting.CEEL_COLOR)));
 		return false;
 	}
 
@@ -1346,7 +1308,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		final List<Double> compliances = new LinkedList<>();
 		final String currentTime = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT).replaceAll("\\.\\d*", "");
-		
+
 		for (AnalysisStandard analysisStandard : getAnalysis().getAnalysisStandards()) {
 			final long count = analysisStandard.getMeasures().stream().filter(m -> m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE)).count();
 			final String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
@@ -1357,9 +1319,9 @@ public class Docx4jReportImpl implements Docx4jReport {
 			setCustomProperty(name + CURRENT_COMPLIANCE_TEXT, Math.round(compliance));
 			compliances.add(compliance);
 		}
-		
+
 		setCustomProperty(PHASE_COUNT, analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0).count());
-		
+
 		setCustomProperty(CURRENT_COMPLIANCE, Math.round(compliances.stream().mapToDouble(c -> c).average().orElse(0)));
 
 		setCustomProperty(MAX_IMPL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue())
@@ -1536,7 +1498,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		case "chartriskbyscenario":
 		case "chartriskbyscenariotype":
 		case "currentsecuritylevel":
-		
+
 		case "listcollection":
 		case "measurescollection":
 		case "riskacceptance":
@@ -1609,6 +1571,15 @@ public class Docx4jReportImpl implements Docx4jReport {
 				}
 			}
 		}
+	}
+
+	@Override
+	public ColorSet getColors() {
+		return colors;
+	}
+
+	public void setColors(ColorSet colors) {
+		this.colors = colors;
 	}
 
 }

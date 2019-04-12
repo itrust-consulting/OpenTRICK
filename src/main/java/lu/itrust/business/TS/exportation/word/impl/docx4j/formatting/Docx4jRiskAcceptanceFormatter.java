@@ -9,6 +9,7 @@ import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -40,7 +41,7 @@ public class Docx4jRiskAcceptanceFormatter extends Docx4jFormatter {
 	 * lu.itrust.business.TS.model.analysis.AnalysisType)
 	 */
 	@Override
-	protected boolean formatMe(Tbl table, AnalysisType type) {
+	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
 		table.getTblPr().getTblW().setType("pct");

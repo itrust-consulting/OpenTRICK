@@ -15,6 +15,7 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 
 import lu.itrust.business.TS.exportation.word.DocxFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -61,13 +62,13 @@ public abstract class Docx4jFormatter implements DocxFormatter {
 	 * Object)
 	 */
 	@Override
-	public boolean format(Object table, Object style, AnalysisType type) {
+	public boolean format(Object table, Object style, AnalysisType type, ColorSet colors) {
 		if (table instanceof Tbl) {
-			if (formatMe((Tbl) table, type)) {
+			if (formatMe((Tbl) table, type, colors)) {
 				postTreatment(table, style);
 				return true;
 			} else if (getNext() != null)
-				return getNext().format(table, style, type);
+				return getNext().format(table, style, type, colors);
 		}
 		return false;
 	}
@@ -77,9 +78,10 @@ public abstract class Docx4jFormatter implements DocxFormatter {
 	 * 
 	 * @param table
 	 * @param type  TODO
+	 * @param colors TODO
 	 * @return true or false.
 	 */
-	protected abstract boolean formatMe(Tbl table, AnalysisType type);
+	protected abstract boolean formatMe(Tbl table, AnalysisType type, ColorSet colors);
 
 	protected String findId(Tbl tbl) {
 		return tbl.getTblPr().getTblStyle().getVal();

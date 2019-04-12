@@ -23,7 +23,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.word.ExportReportData;
+import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.helper.Task;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
@@ -62,7 +62,7 @@ public class WorkerExportWordReport implements Worker {
 
 	private WorkersPoolManager workersPoolManager;
 
-	private ExportReportData exportReport;
+	private ExportReport exportReport;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -82,7 +82,7 @@ public class WorkerExportWordReport implements Worker {
 	 * @param workersPoolManager
 	 */
 	public WorkerExportWordReport(int idAnalysis, Long templateId, String username, SessionFactory sessionFactory, WorkersPoolManager workersPoolManager,
-			ExportReportData exportReport, ServiceTaskFeedback serviceTaskFeedback) {
+			ExportReport exportReport, ServiceTaskFeedback serviceTaskFeedback) {
 		this.idAnalysis = idAnalysis;
 		this.idTemplate = templateId;
 		this.username = username;
@@ -328,11 +328,11 @@ public class WorkerExportWordReport implements Worker {
 		this.idTemplate = idTemplate;
 	}
 
-	public ExportReportData getExportReport() {
+	public ExportReport getExportReport() {
 		return exportReport;
 	}
 
-	public void setExportReport(ExportReportData exportReport) {
+	public void setExportReport(ExportReport exportReport) {
 		this.exportReport = exportReport;
 	}
 

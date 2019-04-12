@@ -7,6 +7,7 @@ import java.math.BigInteger;
 
 import org.docx4j.wml.Tbl;
 
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -37,7 +38,7 @@ public class Docx4jScenarioFormatter extends Docx4jFormatter {
 	 * Docx4jFormatter#formatMe(org.docx4j.wml.Tbl)
 	 */
 	@Override
-	protected boolean formatMe(Tbl table, AnalysisType type) {
+	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
 		int[] cols = { 272, 3216, 6140 };

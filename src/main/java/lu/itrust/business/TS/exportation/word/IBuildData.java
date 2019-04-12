@@ -9,7 +9,7 @@ package lu.itrust.business.TS.exportation.word;
  */
 public interface IBuildData {
 	
-	 ExportReportData getExportor();
+	 ExportReport getExportor();
 	 
 	 String getAnchor();
 

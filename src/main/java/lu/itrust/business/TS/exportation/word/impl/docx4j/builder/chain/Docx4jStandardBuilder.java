@@ -6,7 +6,7 @@ package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 import static lu.itrust.business.TS.constants.Constant.MEASURE_STATUS_NOT_APPLICABLE;
 import static lu.itrust.business.TS.constants.Constant.STANDARD_27001;
 import static lu.itrust.business.TS.constants.Constant.STANDARD_27002;
-import static lu.itrust.business.TS.exportation.word.ExportReportData.TS_TAB_TEXT_3;
+import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_3;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.setColor;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;

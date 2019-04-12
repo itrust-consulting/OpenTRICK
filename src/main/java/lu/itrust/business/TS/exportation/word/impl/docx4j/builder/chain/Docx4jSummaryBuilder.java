@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
-import static lu.itrust.business.TS.exportation.word.ExportReportData.TS_TAB_TEXT_2;
+import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_2;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 
 import java.text.DecimalFormat;

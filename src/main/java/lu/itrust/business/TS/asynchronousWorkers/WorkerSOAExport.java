@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.MergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 
@@ -285,7 +285,7 @@ public class WorkerSOAExport extends WorkerImpl {
 					setCellText((Tc) row.getContent().get(5), ((AbstractNormalMeasure) measure).getSoaReference());
 				}
 			} else
-				MergeCell(row, 1, 5, null);
+				mergeCell(row, 1, 5, null);
 			handler.setProgress((int) (progressing[0] + (++progressing[3] / (double) progressing[2]) * (progressing[1] - progressing[0])));
 		}
 		return format(table);

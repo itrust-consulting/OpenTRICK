@@ -16,7 +16,9 @@ import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 
-import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.*;
+
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -48,7 +50,7 @@ public class Docx4jRiskHeatMapFormatter extends Docx4jFormatter {
 	 * lu.itrust.business.TS.model.analysis.AnalysisType)
 	 */
 	@Override
-	protected boolean formatMe(Tbl table, AnalysisType type) {
+	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
 		table.getTblPr().getTblW().setType("pct");
@@ -73,14 +75,14 @@ public class Docx4jRiskHeatMapFormatter extends Docx4jFormatter {
 		Tr firstRow = (Tr) table.getContent().get(0);
 
 		table.getContent().parallelStream().map(t -> XmlUtils.unwrap(t)).filter(t -> t instanceof Tr).map(tr -> (Tc) ((Tr) tr).getContent().get(0)).forEach(tc -> {
-			tc.getTcPr().getTcBorders().getBottom().setColor(Docx4jWordExporter.HEADER_COLOR);
-			tc.getTcPr().getTcBorders().getRight().setColor(Docx4jWordExporter.HEADER_COLOR);
+			tc.getTcPr().getTcBorders().getBottom().setColor(colors.getDark());
+			tc.getTcPr().getTcBorders().getRight().setColor(colors.getDark());
 			tc.getTcPr().getTcW().setType("pct");
 			tc.getTcPr().getTcW().setW(BigInteger.valueOf(0));
 		});
 
-		Docx4jWordExporter.MergeCell(lastRow, 0, lastRow.getContent().size(), Docx4jWordExporter.HEADER_COLOR);
-		Docx4jWordExporter.VerticalMergeCell(table.getContent(), 0, 0, size - 1, Docx4jWordExporter.HEADER_COLOR);
+		mergeCell(lastRow, 0, lastRow.getContent().size(), colors.getDark());
+		verticalMergeCell(table.getContent(), 0, 0, size - 1, colors.getDark());
 		Tc column = (Tc) firstRow.getContent().get(0);
 		if (column.getTcPr().getTextDirection() == null)
 			column.getTcPr().setTextDirection(Context.getWmlObjectFactory().createTextDirection());
@@ -96,14 +98,14 @@ public class Docx4jRiskHeatMapFormatter extends Docx4jFormatter {
 
 		column = (Tc) lastRow.getContent().get(0);
 
-		column.getTcPr().getTcBorders().getTop().setColor(Docx4jWordExporter.HEADER_COLOR);
+		column.getTcPr().getTcBorders().getTop().setColor(colors.getDark());
 
 		column = (Tc) ((Tr) table.getContent().get(size - 2)).getContent().get(1);
 
-		column.getTcPr().getTcBorders().getBottom().setColor(Docx4jWordExporter.LIGHT_CELL_COLOR);
-		column.getTcPr().getTcBorders().getLeft().setColor(Docx4jWordExporter.LIGHT_CELL_COLOR);
+		column.getTcPr().getTcBorders().getBottom().setColor(colors.getLight());
+		column.getTcPr().getTcBorders().getLeft().setColor(colors.getLight());
 
-		Docx4jWordExporter.setColor(column, Docx4jWordExporter.LIGHT_CELL_COLOR);
+		setColor(column, colors.getLight());
 
 		return true;
 	}

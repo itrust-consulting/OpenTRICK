@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author eomar
  *
  */
-public interface Docx4jReport extends ExportReportData {
+public interface Docx4jReport extends ExportReport {
 	
 	AtomicLong getDrawingIndex();
 	

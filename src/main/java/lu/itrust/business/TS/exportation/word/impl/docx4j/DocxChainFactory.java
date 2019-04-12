@@ -97,7 +97,7 @@ public class DocxChainFactory {
 	}
 
 	public static boolean format(Object table, Object style, AnalysisType type) {
-		return getInstance().getFormatterChain().format(table, style, type);
+		return getInstance().getFormatterChain().format(table, style, type, null);
 	}
 
 	public DocxFormatter getFormatterChain() {

@@ -3,8 +3,8 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.MergeCell;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jWordExporter.VerticalMergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.verticalMergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
@@ -555,9 +555,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			setCellText((Tc) row.getContent().get(index++), impact == null ? "0" : impact.getLevel() + "", alignment);
 		}
 		setCellText((Tc) row.getContent().get(index), probaImpact.getImportance() + "", alignment);
-		VerticalMergeCell(table.getContent(), 0, 0, 2, null);
-		VerticalMergeCell(table.getContent(), index, 0, 2, null);
-		MergeCell((Tr) table.getContent().get(0), 1, index - 1, null);
+		verticalMergeCell(table.getContent(), 0, 0, 2, null);
+		verticalMergeCell(table.getContent(), index, 0, 2, null);
+		mergeCell((Tr) table.getContent().get(0), 1, index - 1, null);
 		document.getContent().add(format(table));
 	}
 

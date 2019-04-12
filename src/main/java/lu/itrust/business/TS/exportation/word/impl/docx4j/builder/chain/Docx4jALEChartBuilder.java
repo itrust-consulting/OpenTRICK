@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
-import static lu.itrust.business.TS.exportation.word.ExportReportData.NUMBER_FORMAT;
+import static lu.itrust.business.TS.exportation.word.ExportReport.NUMBER_FORMAT;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 

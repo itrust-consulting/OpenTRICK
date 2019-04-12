@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.exportation.word;
 
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -22,7 +23,8 @@ public interface DocxFormatter {
 	 * @param data
 	 * @param style 
 	 * @param type analysis type
+	 * @param colors TODO
 	 * @return true or false
 	 */
-	boolean format(Object data, Object style, AnalysisType type);
+	boolean format(Object data, Object style, AnalysisType type, ColorSet colors);
 }

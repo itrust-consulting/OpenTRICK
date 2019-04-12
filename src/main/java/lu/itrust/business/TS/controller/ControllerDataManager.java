@@ -102,7 +102,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.word.ExportReportData;
+import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CellRef;
@@ -496,7 +496,7 @@ public class ControllerDataManager {
 					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
 
-			ExportReportData exportAnalysisReport = new Docx4jReportImpl(request.getServletContext().getRealPath(""),messageSource);
+			ExportReport exportAnalysisReport = new Docx4jReportImpl(request.getServletContext().getRealPath(""),messageSource);
 			Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, workersPoolManager, exportAnalysisReport, serviceTaskFeedback);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));

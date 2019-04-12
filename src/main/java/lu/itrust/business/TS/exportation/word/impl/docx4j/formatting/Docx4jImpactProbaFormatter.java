@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import org.docx4j.wml.Tbl;
 
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -39,7 +40,7 @@ public class Docx4jImpactProbaFormatter extends Docx4jFormatter {
 	 * #formatMe(org.docx4j.wml.Tbl)
 	 */
 	@Override
-	protected boolean formatMe(Tbl table, AnalysisType type) {
+	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
 		table.getTblPr().getTblW().setType("auto");

@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import org.docx4j.jaxb.Context;
 import org.docx4j.wml.Tbl;
 
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
@@ -34,7 +35,7 @@ public class Docx4jSummaryFormatter extends Docx4jFormatter {
 	 * @see lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter#formatMe(org.docx4j.wml.Tbl, lu.itrust.business.TS.model.analysis.AnalysisType)
 	 */
 	@Override
-	protected boolean formatMe(Tbl table, AnalysisType type) {
+	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
 		table.getTblGrid().getGridCol().get(0).setW(BigInteger.valueOf(3558));
