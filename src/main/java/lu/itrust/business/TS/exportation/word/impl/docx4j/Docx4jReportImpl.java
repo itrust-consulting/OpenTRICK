@@ -86,6 +86,7 @@ import org.docx4j.wml.Tr;
 import org.jvnet.jaxb2_commons.ppp.Child;
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -115,6 +116,12 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
  *
  */
 public class Docx4jReportImpl implements Docx4jReport {
+
+	private static final String PHASE_COUNT = "PHASE_COUNT";
+
+	private static final String CURRENT_COMPLIANCE_TEXT = " current compliance";
+
+	private static final String CURRENT_COMPLIANCE = "CURRENT_COMPLIANCE";
 
 	private File file;
 
@@ -372,7 +379,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		else
 			return collectionNames.size();
 	}
-	
+
 	public List<String> getStandardNames() {
 		return analysis.findStandards().stream()
 				.map(c -> c.is(Constant.STANDARD_27001) ? Constant.STANDARD_27001 : c.is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getLabel())
@@ -501,12 +508,16 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public List<Part> duplicateChart(int size, String chartName, String name) throws JAXBException, Docx4JException {
+		return duplicateChart(size, findTableAnchor(chartName), name);
+	}
+	
+	public List<Part> duplicateChart(int size, P p, String name) throws JAXBException, Docx4JException {
+		final Part part = findChart(p);
+		if (part == null)
+			return Collections.emptyList();
 		int count = 1;
 		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
 			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE).getDivisor();
-		final Part part = findChart(chartName);
-		if (part == null)
-			return Collections.emptyList();
 		final List<Part> parts = new ArrayList<>(count);
 		parts.add(part);
 		if (count > 1) {
@@ -516,7 +527,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 				contents.add(result.getP());
 				parts.add(result.getPart());
 			}
-			insertAllAfter(findTableAnchor(chartName), contents);
+			insertAllAfter(p, contents);
 		}
 		return parts;
 	}
@@ -1333,19 +1344,23 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	protected void updateProperties() throws Docx4JException {
 
+		final List<Double> compliances = new LinkedList<>();
 		final String currentTime = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT).replaceAll("\\.\\d*", "");
-
+		
 		for (AnalysisStandard analysisStandard : getAnalysis().getAnalysisStandards()) {
 			final long count = analysisStandard.getMeasures().stream().filter(m -> m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE)).count();
-			if (count == 0)
-				continue;
-			if (analysisStandard.getStandard().is(Constant.STANDARD_27001))
-				setCustomProperty(NA_MEASURES_27001, count);
-			else if (analysisStandard.getStandard().is(Constant.STANDARD_27002))
-				setCustomProperty(NA_MEASURES_27002, count);
-			else
-				setCustomProperty(analysisStandard.getStandard().getLabel().toUpperCase() + NA_MEASURES, count);
+			final String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
+					: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getLabel();
+			final double compliance = ChartGenerator.ComputeCompliance(analysisStandard, valueFactory);
+			if (count > 0)
+				setCustomProperty(name.toUpperCase() + NA_MEASURES, count);
+			setCustomProperty(name + CURRENT_COMPLIANCE_TEXT, Math.round(compliance));
+			compliances.add(compliance);
 		}
+		
+		setCustomProperty(PHASE_COUNT, analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0).count());
+		
+		setCustomProperty(CURRENT_COMPLIANCE, Math.round(compliances.stream().mapToDouble(c -> c).average().orElse(0)));
 
 		setCustomProperty(MAX_IMPL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue())
 				.findAny().orElse(0D));
@@ -1503,11 +1518,13 @@ public class Docx4jReportImpl implements Docx4jReport {
 		case "assessment":
 		case "asset":
 		case "assetnotselected":
-		case "impact":
-		case "proba":
-		case "summary":
 		case "chartcompliance27001":
 		case "chartcompliance27002":
+		case "impact":
+		case "impactlist":
+		case "phase":
+		case "proba":
+		case "summary":
 			return prefix + tmp;
 		case "chartalebyasset":
 		case "chartalebyassettype":
@@ -1519,10 +1536,9 @@ public class Docx4jReportImpl implements Docx4jReport {
 		case "chartriskbyscenario":
 		case "chartriskbyscenariotype":
 		case "currentsecuritylevel":
-		case "impactlist":
+		
 		case "listcollection":
 		case "measurescollection":
-		case "phase":
 		case "riskacceptance":
 		case "riskheatmap":
 		case "riskheatmapsummary":

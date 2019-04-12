@@ -362,7 +362,7 @@ public class RiskInformation implements Cloneable {
 
 	public boolean isMatch(String category) {
 		return category == null || this.category == null ? this.category == category
-				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK) : this.category.equals(category);
+				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK) : this.category.equalsIgnoreCase(category);
 	}
 
 	/**

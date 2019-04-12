@@ -43,7 +43,10 @@ import org.docx4j.wml.Tr;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import com.atlassian.util.concurrent.atomic.AtomicInteger;
+
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.IDocxBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.ClonePartResult;
@@ -53,6 +56,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.DocxChainFactory;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Phase;
@@ -67,6 +71,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  */
 public class Docx4jStandardBuilder extends Docx4jBuilder {
 
+	private static final String TS_CURRENTSECURITYLEVEL = "ts_currentsecuritylevel";
 	private static final String TS_MEASURESCOLLECTION = "ts_measurescollection";
 	private static final String TS_LISTCOLLECTION = "ts_listcollection";
 	private static final String TS_QL_CHARTCOMPLIANCE27002 = "ts_ql_chartcompliance27002";
@@ -81,7 +86,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 	public Docx4jStandardBuilder(IDocxBuilder next) {
 		super(next, TS_QT_ADDITIONALCOLLECTION, TS_QL_ADDITIONALCOLLECTION, TS_HY_ADDITIONALCOLLECTION, TS_QT_CHARTCOMPLIANCE27001, TS_QT_CHARTCOMPLIANCE27002,
-				TS_QL_CHARTCOMPLIANCE27001, TS_QL_CHARTCOMPLIANCE27002, TS_LISTCOLLECTION, TS_MEASURESCOLLECTION);
+				TS_QL_CHARTCOMPLIANCE27001, TS_QL_CHARTCOMPLIANCE27002, TS_LISTCOLLECTION, TS_MEASURESCOLLECTION, TS_CURRENTSECURITYLEVEL);
 	}
 
 	@Override
@@ -106,6 +111,8 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 				return buildCollectionList(data);
 			case TS_MEASURESCOLLECTION:
 				return buildMeasures(data);
+			case TS_CURRENTSECURITYLEVEL:
+				return buildCurrentSecurityLevel(data);
 			default:
 				return false;
 			}
@@ -122,7 +129,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		if (paragraph != null) {
 			final List<AnalysisStandard> analysisStandards = exporter.getAnalysis().getAnalysisStandards().stream()
 					.filter(analysisStandard -> !(analysisStandard.getStandard().is(STANDARD_27001) || analysisStandard.getStandard().is(STANDARD_27002)))
-					.collect(Collectors.toList());
+					.sorted(standardComparator()).collect(Collectors.toList());
 			if (!analysisStandards.isEmpty()) {
 				final Chart chart2700x = find27001Part(exporter);
 				if (chart2700x != null) {
@@ -168,7 +175,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		final P paragraph = (P) exporter.findP(data.getSource());
 		if (paragraph != null) {
 			final List<Object> objects = exporter.getAnalysis().getAnalysisStandards().stream()
-					.filter(a -> !(a.getStandard().is(STANDARD_27001) || a.getStandard().is(STANDARD_27002)))
+					.filter(a -> !(a.getStandard().is(STANDARD_27001) || a.getStandard().is(STANDARD_27002))).sorted(standardComparator())
 					.map(a -> exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "ListParagraph"),
 							exporter.getMessage("report.format.bullet.list.iteam", new Object[] { a.getStandard().getLabel() }, a.getStandard().getLabel())))
 					.collect(Collectors.toList());
@@ -240,14 +247,15 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
 
 		for (String key : compliances.keySet()) {
-			Object[] compliance = compliances.get(key);
+			final CTNumVal numVal = new CTNumVal();
+			final CTStrVal catName = new CTStrVal();
+			final Object[] compliance = compliances.get(key);
 			double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
-
-			CTStrVal catName = new CTStrVal();
+			
 			catName.setV(key);
 			catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
 			ser.getCat().getStrRef().getStrCache().getPt().add(catName);
-			CTNumVal numVal = new CTNumVal();
+			
 			numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 			ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 
@@ -269,23 +277,19 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 			int columnIndex = 2;
 			for (Phase phase : phases) {
-
-				char col = (char) (((int) 'A') + columnIndex);
-
+				final char col = (char) (((int) 'A') + columnIndex);
+				
 				phaseLabel = exporter.getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber());
-
+				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, exporter.getValueFactory());
 				ser = exporter.createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
 				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
-
-				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, exporter.getValueFactory());
-
+				
 				setValue(sheet.getRow().get(rowCount = 0), columnIndex, phaseLabel);
 
 				for (String key : compliances.keySet()) {
-					Object[] compliance = compliances.get(key);
+					final CTNumVal numVal = new CTNumVal();
+					final Object[] compliance = compliances.get(key);
 					double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
-
-					CTNumVal numVal = new CTNumVal();
 					numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 					ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 					if (Double.isNaN(value))
@@ -306,11 +310,35 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 	}
 
+	private boolean buildCurrentSecurityLevel(Docx4jData data) {
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraphOriginal = (P) exporter.findP(data.getSource());
+		if (paragraphOriginal != null) {
+			final List<Object> contents = new LinkedList<>();
+			final AtomicInteger index = new AtomicInteger(0);
+			final int count = exporter.getAnalysis().getAnalysisStandards().size();
+			exporter.getAnalysis().getAnalysisStandards().stream().sorted(standardComparator()).forEach(analysisStandard -> {
+				final double complaince = ChartGenerator.ComputeCompliance(analysisStandard, exporter.getValueFactory());
+				final String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
+						: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getLabel();
+				final P paragraph = exporter.setStyle(exporter.getFactory().createP(), "BulletL1");
+				if (name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002))
+					exporter.setText(paragraph, exporter.getMessage("report.current.security.level.iso",
+							new Object[] { name, Math.round(complaince), index.incrementAndGet() == count ? 1 : 0 }, null));
+				else
+					exporter.setText(paragraph,
+							exporter.getMessage("report.current.security.level", new Object[] { name, Math.round(complaince), index.incrementAndGet() == count ? 1 : 0 }, null));
+				contents.add(paragraph);
+			});
+			exporter.insertAllBefore(paragraphOriginal, contents);
+		}
+		return true;
+	}
+
 	private boolean buildMeasures(Docx4jData data) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P reference = (P) exporter.findP(data.getSource());
 		if (reference != null) {
-			final List<AnalysisStandard> analysisStandards = exporter.getAnalysis().getAnalysisStandards();
 
 			final TextAlignment alignmentLeft = exporter.createAlignment("left");
 
@@ -320,39 +348,36 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_3);
 
-			for (AnalysisStandard analysisStandard : analysisStandards) {
-				// initialise table with 1 row and 1 column after the paragraph
-				// cursor
-				if (analysisStandard.getMeasures().isEmpty())
-					continue;
+			exporter.getAnalysis().getAnalysisStandards().stream().sorted(standardComparator()).forEach(analysisStandard -> {
 				final Tbl table = exporter.createTable("TableTSMeasure", analysisStandard.getMeasures().size() + 1, 16);
+				final Tr header = (Tr) table.getContent().get(0);
 				table.getTblPr().getTblW().setType("dxa");
 				table.getTblPr().getTblW().setW(BigInteger.valueOf(16157));
 				Collections.sort(analysisStandard.getMeasures(), comparator);
-				Tr row = (Tr) table.getContent().get(0);
-				exporter.setCellText((Tc) row.getContent().get(0), exporter.getMessage("report.measure.reference", null, "Ref."));
-				exporter.setCellText((Tc) row.getContent().get(1), exporter.getMessage("report.measure.domain", null, "Domain"));
-				exporter.setCellText((Tc) row.getContent().get(2), exporter.getMessage("report.measure.status", null, "ST"));
-				exporter.setCellText((Tc) row.getContent().get(3), exporter.getMessage("report.measure.implementation_rate", null, "IR(%)"));
-				exporter.setCellText((Tc) row.getContent().get(4), exporter.getMessage("report.measure.internal.workload", null, "IS(md)"));
-				exporter.setCellText((Tc) row.getContent().get(5), exporter.getMessage("report.measure.external.workload", null, "ES(md)"));
-				exporter.setCellText((Tc) row.getContent().get(6), exporter.getMessage("report.measure.investment", null, "INV(k€)"));
-				exporter.setCellText((Tc) row.getContent().get(7), exporter.getMessage("report.measure.life_time", null, "LT(y)"));
-				exporter.setCellText((Tc) row.getContent().get(8), exporter.getMessage("report.measure.internal.maintenance", null, "IM(md)"));
-				exporter.setCellText((Tc) row.getContent().get(9), exporter.getMessage("report.measure.external.maintenance", null, "EM(md)"));
-				exporter.setCellText((Tc) row.getContent().get(10), exporter.getMessage("report.measure.recurrent.investment", null, "RINV(k€)"));
-				exporter.setCellText((Tc) row.getContent().get(11), exporter.getMessage("report.measure.cost", null, "CS(k€)"));
-				exporter.setCellText((Tc) row.getContent().get(12), exporter.getMessage("report.measure.phase", null, "P"));
-				exporter.setCellText((Tc) row.getContent().get(13), exporter.getMessage("report.measure.responsible", null, "Resp."));
-				exporter.setCellText((Tc) row.getContent().get(14), exporter.getMessage("report.measure.to_do", null, "To Do"));
-				exporter.setCellText((Tc) row.getContent().get(15), exporter.getMessage("report.measure.comment", null, "Comment"));
-				exporter.setRepeatHeader(row);
+
+				exporter.setCellText((Tc) header.getContent().get(0), exporter.getMessage("report.measure.reference", null, "Ref."));
+				exporter.setCellText((Tc) header.getContent().get(1), exporter.getMessage("report.measure.domain", null, "Domain"));
+				exporter.setCellText((Tc) header.getContent().get(2), exporter.getMessage("report.measure.status", null, "ST"));
+				exporter.setCellText((Tc) header.getContent().get(3), exporter.getMessage("report.measure.implementation_rate", null, "IR(%)"));
+				exporter.setCellText((Tc) header.getContent().get(4), exporter.getMessage("report.measure.internal.workload", null, "IS(md)"));
+				exporter.setCellText((Tc) header.getContent().get(5), exporter.getMessage("report.measure.external.workload", null, "ES(md)"));
+				exporter.setCellText((Tc) header.getContent().get(6), exporter.getMessage("report.measure.investment", null, "INV(k€)"));
+				exporter.setCellText((Tc) header.getContent().get(7), exporter.getMessage("report.measure.life_time", null, "LT(y)"));
+				exporter.setCellText((Tc) header.getContent().get(8), exporter.getMessage("report.measure.internal.maintenance", null, "IM(md)"));
+				exporter.setCellText((Tc) header.getContent().get(9), exporter.getMessage("report.measure.external.maintenance", null, "EM(md)"));
+				exporter.setCellText((Tc) header.getContent().get(10), exporter.getMessage("report.measure.recurrent.investment", null, "RINV(k€)"));
+				exporter.setCellText((Tc) header.getContent().get(11), exporter.getMessage("report.measure.cost", null, "CS(k€)"));
+				exporter.setCellText((Tc) header.getContent().get(12), exporter.getMessage("report.measure.phase", null, "P"));
+				exporter.setCellText((Tc) header.getContent().get(13), exporter.getMessage("report.measure.responsible", null, "Resp."));
+				exporter.setCellText((Tc) header.getContent().get(14), exporter.getMessage("report.measure.to_do", null, "To Do"));
+				exporter.setCellText((Tc) header.getContent().get(15), exporter.getMessage("report.measure.comment", null, "Comment"));
+				exporter.setRepeatHeader(header);
 
 				int index = 1;
 
 				for (Measure measure : analysisStandard.getMeasures()) {
 					final MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(exporter.getAnalysis().getLanguage());
-					row = (Tr) table.getContent().get(index++);
+					final Tr row = (Tr) table.getContent().get(index++);
 					exporter.setCellText((Tc) row.getContent().get(0), measure.getMeasureDescription().getReference());
 					exporter.setCellText((Tc) row.getContent().get(1), description == null ? "" : description.getDomain(), alignmentLeft);
 					if (!measure.getMeasureDescription().isComputable()) {
@@ -389,7 +414,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 				contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSMeasureTitle"), analysisStandard.getStandard().getLabel()));
 				if (contents.add(table))
 					DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID);
-			}
+			});
 			if (!contents.isEmpty())
 				exporter.insertAllAfter(reference, contents);
 		}
@@ -404,6 +429,10 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 				return chart;
 		}
 		return null;
+	}
+
+	private Comparator<? super AnalysisStandard> standardComparator() {
+		return (a1, a2) -> NaturalOrderComparator.compareTo(a1.getStandard().getLabel(), a2.getStandard().getLabel());
 	}
 
 }

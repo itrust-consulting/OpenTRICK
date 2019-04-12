@@ -124,12 +124,12 @@ public abstract class Parameter implements IParameter {
 	}
 
 	public Boolean isMatch(String type) {
-		return this.getTypeName() == null ? type == getTypeName() : this.getTypeName().equals(type);
+		return this.getTypeName() == null ? type == getTypeName() : this.getTypeName().equalsIgnoreCase(type);
 	}
 
 	public Boolean isMatch(String typeName, String baseKey) {
-		return this.getTypeName() == null ? (typeName == null ? (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equals(baseKey)) : false)
-				: this.getTypeName().equals(typeName) && (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equals(baseKey));
+		return this.getTypeName() == null ? (typeName == null ? (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equalsIgnoreCase(baseKey)) : false)
+				: this.getTypeName().equalsIgnoreCase(typeName) && (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equalsIgnoreCase(baseKey));
 	}
 
 	public static String key(String type, String baseKey) {
