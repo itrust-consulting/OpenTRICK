@@ -32,7 +32,7 @@ import lu.itrust.business.TS.database.service.ServiceStandard;
 @PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @RequestMapping("/KnowledgeBase")
 @Controller
-public class ControllerHome {
+public class ControllerKnowledgebase {
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;

@@ -99,10 +99,11 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
  * @version
  * @since Dec 13, 2013
  */
+
 @PreAuthorize(Constant.ROLE_MIN_ADMIN)
-@Controller
 @RequestMapping("/Admin")
-public class ControllerHome {
+@Controller
+public class ControllerAdmin {
 
 	private static final String TRICK_LOG_FILTER = "trick-log-filter";
 
@@ -267,7 +268,7 @@ public class ControllerHome {
 				tsSettings.add(tsSetting);
 
 		}
-		boolean adminAllowedTicketing  = ticketingSystems.stream().anyMatch(e -> e.getName() == TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK && e.getBoolean());
+		boolean adminAllowedTicketing = ticketingSystems.stream().anyMatch(e -> e.getName() == TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK && e.getBoolean());
 		model.put(Constant.ADMIN_ALLOWED_TICKETING, adminAllowedTicketing);
 		model.put("ticketingSystems", ticketingSystems);
 		model.put("tsSettings", tsSettings);
@@ -278,10 +279,10 @@ public class ControllerHome {
 		model.put("logTypes", serviceTrickLog.getDistinctType());
 		model.put("actions", serviceTrickLog.getDistinctAction());
 		model.put("authors", serviceTrickLog.getDistinctAuthor());
-		if(adminAllowedTicketing)
+		if (adminAllowedTicketing)
 			model.put("ticketingTypes", TicketingSystemType.values());
 		return "admin/administration";
-		
+
 	}
 
 	private TrickLogFilter loadLogFilter(HttpSession session, String username) throws Exception {
@@ -796,13 +797,13 @@ public class ControllerHome {
 					serviceCustomer.save(customer);
 				else
 					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
-			} else
-				if (customer.isCanBeUsed() && !serviceCustomer.isProfile(customer.getId()) || !(customer.isCanBeUsed() || serviceCustomer.isProfile(customer.getId())) || !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+			} else if (customer.isCanBeUsed() && !serviceCustomer.isProfile(customer.getId()) || !(customer.isCanBeUsed() || serviceCustomer.isProfile(customer.getId()))
+					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
 				errors.put("canBeUsed",
 						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
-		
+
 			/**
 			 * Log
 			 */

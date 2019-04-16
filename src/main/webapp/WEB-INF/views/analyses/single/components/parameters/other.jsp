@@ -39,12 +39,14 @@
 							<c:forEach items="${mappedParameters['SINGLE']}" var="parameter">
 								<c:choose>
 									<c:when test="${parameter.description=='soaThreshold'}">
-										<td data-trick-id="${parameter.id}" data-name="soaThreshold" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
-											onclick="return editField(this);" data-trick-callback='soaThresholdUpdate()'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+										<td data-trick-id="${parameter.id}" data-name="soaThreshold" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
+											data-trick-field-type="double" onclick="return editField(this);" data-trick-callback='soaThresholdUpdate()'><fmt:formatNumber value="${parameter.value}"
+												maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description=='max_rrf'}">
-										<td data-trick-id="${parameter.id}" data-name="max_rrf" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
-											onclick="return editField(this);" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+										<td data-trick-id="${parameter.id}" data-name="max_rrf" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
+											data-trick-field-type="double" onclick="return editField(this);" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}"
+												maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description== 'lifetime_default'}">
 										<td data-trick-id="${parameter.id}" data-trick-min-value='1e-19' class="textaligncenter" data-trick-field="value" data-trick-callback='updateMeasuresCost()'
@@ -177,5 +179,29 @@
 				<jsp:include page="risk-acceptance.jsp" />
 			</div>
 		</c:if>
+		<div class='col-md-6'>
+			<fieldset>
+				<legend>
+					<spring:message code="label.title.parameter.report.setting" />
+				</legend>
+				<table class="table table-hover table-condensed" id="table_parameter_report_setting">
+					<thead>
+						<tr>
+							<th style="width: 90%"><spring:message code="label.name" /></th>
+							<th class="textaligncenter"><spring:message code="label.color" /></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach items="${reportSettings}" var="setting" varStatus="status">
+							<tr data-trick-class="ReportSetting" data-trick-id="${setting.key}">
+								<spring:message text="${setting.value}" var="color" />
+								<td><spring:message code="label.report.setting.${fn:toLowerCase(setting.key)}"/></td>
+								<td style="background-color: #${color};" data-real-value='#${color}' data-trick-field="${setting.key}" data-trick-field='value' data-trick-content='color' onclick="return editField(this);"></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</fieldset>
+		</div>
 	</div>
 </div>

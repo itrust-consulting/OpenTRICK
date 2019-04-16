@@ -92,7 +92,7 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @Controller
 @RequestMapping("/KnowledgeBase/Standard")
-public class ControllerStandard {
+public class ControllerMeasureCollection {
 
 	@Autowired
 	private ServiceStandard serviceStandard;

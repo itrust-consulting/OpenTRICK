@@ -101,7 +101,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.AnalysisReportSetting;
+import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -1270,9 +1270,9 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		setBookmarks(finder.getStarts().stream().filter(c -> internalName(c.getName(), type).startsWith("ts_"))
 				.collect(Collectors.toMap(c -> internalName(c.getName(), type), Function.identity(), (c1, c2) -> c1, LinkedHashMap::new)));
-		setColors(new ColorSet(getAnalysis().findSetting(AnalysisReportSetting.DARK_COLOR), getAnalysis().findSetting(AnalysisReportSetting.DEFAULT_COLOR),
-				getAnalysis().findSetting(AnalysisReportSetting.LIGHT_COLOR), getAnalysis().findSetting(AnalysisReportSetting.ZERO_COST_COLOR),
-				getAnalysis().findSetting(AnalysisReportSetting.CEEL_COLOR)));
+		setColors(new ColorSet(getAnalysis().findSetting(ReportSetting.DARK_COLOR), getAnalysis().findSetting(ReportSetting.DEFAULT_COLOR),
+				getAnalysis().findSetting(ReportSetting.LIGHT_COLOR), getAnalysis().findSetting(ReportSetting.ZERO_COST_COLOR),
+				getAnalysis().findSetting(ReportSetting.CEEL_COLOR)));
 		return false;
 	}
 

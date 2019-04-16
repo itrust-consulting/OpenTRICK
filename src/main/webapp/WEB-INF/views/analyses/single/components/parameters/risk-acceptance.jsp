@@ -43,13 +43,13 @@
 							data-trick-callback='reloadRiskHeatMapSection()'>
 							<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" var="value" />
 							<td class='textaligncenter' data-trick-field="value"><c:choose>
-								<c:when test="${status.index==0 }">
+									<c:when test="${status.index==0 }">
 									[ <span class='text-muted'>0</span> ; ${value} ]
 								</c:when>
-								<c:when test="${status.index < size-1}">
+									<c:when test="${status.index < size-1}">
 									] <span class='text-muted'>${prevValue}</span> ; ${value} ]
 								</c:when>
-								<c:otherwise>
+									<c:otherwise>
 									] <span class='text-muted'>${prevValue}</span> ; ${maxImportance} ]
 								</c:otherwise>
 								</c:choose></td>
@@ -58,7 +58,8 @@
 							<spring:message text="${parameter.color}" var="color" />
 							<td class='editable' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message
 									text="${parameter.description}" /></td>
-							<td style="background-color: ${color};" data-trick-field='color'></td>
+							<td style="background-color: ${color};" data-trick-field='color' data-trick-content="color" data-trick-field-type='string' data-real-value='${color}'
+								onclick="return editField(this);"></td>
 						</tr>
 					</c:forEach>
 				</c:otherwise>

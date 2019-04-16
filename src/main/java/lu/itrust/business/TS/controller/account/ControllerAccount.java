@@ -93,7 +93,7 @@ import net.glxn.qrgen.QRCode;
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Account")
 @Controller
-public class ControllerHome {
+public class ControllerAccount {
 
 	@Value("${app.settings.otp.enable}")
 	private boolean enabledOTP = true;

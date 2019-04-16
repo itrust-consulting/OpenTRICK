@@ -11,9 +11,11 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,6 +65,7 @@ import lu.itrust.business.TS.helper.chartJS.item.ColorBound;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
@@ -184,6 +188,8 @@ public class ControllerFieldEditor {
 	private Pattern riskProfileNoFieldPattern = Pattern.compile("^*\\.id$|^\\*.asset\\.*$|^*.scenario\\.*");
 
 	private Pattern assessmentEditableField = Pattern.compile("comment|hiddenComment|likelihood|uncertainty|owner");
+
+	private Pattern hexColor = Pattern.compile("^#?[A-Fa-f0-9]{6}$");
 
 	private Pattern smlPatten = Pattern.compile("^SMLLevel[0-5]{1}$");
 
@@ -722,7 +728,8 @@ public class ControllerFieldEditor {
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
 									"Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
 						measure.setImplementationRate(value);
-					}else SetFieldValue(measure, field, value);
+					} else
+						SetFieldValue(measure, field, value);
 				}
 
 				// retrieve parameters
@@ -964,6 +971,34 @@ public class ControllerFieldEditor {
 		}
 	}
 
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PostMapping(value = "/ReportSetting", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public Object reportSetting(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+		final Map<String, String> result = new LinkedHashMap<>();
+		final ReportSetting setting = ReportSetting.valueOf(fieldEditor.getFieldName());
+		if (setting == null)
+			result.put("error", messageSource.getMessage("error.report.setting.not.found", null, locale));
+		else if (setting == ReportSetting.CEEL_COLOR)
+			result.put("error", messageSource.getMessage("error.report.setting.not.allowed", null, locale));
+		else {
+			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			final String color = fieldEditor.getValue() == null ? null : fieldEditor.getValue().toString();
+			if (StringUtils.isEmpty(color))
+				analysis.setSetting(setting.name(), null);
+			else if (!hexColor.matcher(color).matches())
+				result.put("error", messageSource.getMessage("error.hex.color.excepted", null, locale));
+			else
+				analysis.setSetting(setting.name(), color.replaceFirst("#", ""));
+
+			if (result.isEmpty()) {
+				serviceAnalysis.saveOrUpdate(analysis);
+				result.put("value", analysis.findSetting(setting));
+				result.put("success", messageSource.getMessage("success.update.report.setting", null, locale));
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * parameter: <br>
 	 * Description
@@ -985,6 +1020,8 @@ public class ControllerFieldEditor {
 			// create field
 			Field field = FindField(RiskAcceptanceParameter.class, fieldEditor.getFieldName());
 			// set field data
+			if (fieldEditor.getFieldName().equals("color") && !hexColor.matcher(fieldEditor.getValue().toString()).matches())
+				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
 			if (SetFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceRiskAcceptanceParameter.saveOrUpdate(simpleParameter);
@@ -1238,7 +1275,6 @@ public class ControllerFieldEditor {
 			TrickLogManager.Persist(e);
 		}
 		return result;
-
 	}
 
 	private List<ColorBound> createColorBounds(Integer idAnalysis) {
@@ -1247,7 +1283,7 @@ public class ControllerFieldEditor {
 	}
 
 	private ValueFactory createFactoryForAssessment(Integer idAnalysis) {
-		ValueFactory factory = new ValueFactory(serviceImpactParameter.findByAnalysisId(idAnalysis));
+		final ValueFactory factory = new ValueFactory(serviceImpactParameter.findByAnalysisId(idAnalysis));
 		factory.add(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
 		factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		return factory;

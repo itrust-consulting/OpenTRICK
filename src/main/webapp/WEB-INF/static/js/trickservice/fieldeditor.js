@@ -97,9 +97,9 @@ function FieldEditor(element, validator) {
 		if (!this.LoadData())
 			return true;
 		var $fieldEditor, height = 0, width = 0, minWidth = 0, rows = 2, $td, minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value"), stepValue = $element
-				.attr("data-trick-step-value");
-		this.isText = $element.attr("data-trick-content") == "text";
-		if (!(stepValue == undefined || maxValue == undefined || minValue == undefined)) {
+				.attr("data-trick-step-value"), type=$element.attr("data-trick-content");
+		this.isText = type === "text";
+		if (!(stepValue === undefined || maxValue === undefined || minValue === undefined)) {
 			stepValue = parseInt(stepValue), maxValue = parseInt(maxValue), minValue = parseInt(minValue);
 			for (var i = minValue; i <= maxValue; i += stepValue)
 				this.choose.push(i.toString());
@@ -115,7 +115,7 @@ function FieldEditor(element, validator) {
 					rows = 2;
 			}
 			width = $td.outerWidth();
-			height = this.isText ? $td.outerHeight() - 0.5 : 0;
+			height = this.isText || type ==="color"? $td.outerHeight() - 0.5 : 0;
 			if (this.defaultValue.length > 100 || this.isText)
 				this.fieldEditor = document.createElement("textarea");
 			else {
@@ -129,6 +129,8 @@ function FieldEditor(element, validator) {
 					this.fieldEditor.setAttribute("list", dataList);
 					if (width < 80)
 						width = '80';
+				}else if(type ==="color"){
+					this.fieldEditor.setAttribute("type", type);
 				}
 			}
 			$fieldEditor = $(this.fieldEditor);
@@ -180,6 +182,15 @@ function FieldEditor(element, validator) {
 				else
 					$fieldEditor.parent().addClass("has-error").focus();
 			});
+			
+			if(type=="color"){
+				$fieldEditor.change(function() {
+					if (that.Validate())
+						return that.Save(that);
+					else
+						$fieldEditor.parent().addClass("has-error").focus();
+				});
+			}
 		}
 		return false;
 	};
@@ -274,6 +285,32 @@ function FieldEditor(element, validator) {
 				that.Save(that);
 		});
 		return this;
+	};
+	
+	FieldEditor.prototype.__save = function() {
+		var that = this;
+		$.ajax({
+			url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+			type : "post",
+			async : that.async,
+			data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+					+ '", "type": "' + that.fieldType + '"}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
+					that.UpdateUI();
+					if (that.callback != null && that.callback != undefined)
+						setTimeout(that.callback, 1);
+				} else if (response["error"] != undefined) {
+					showNotifcation("danger", response["error"]);
+				} else
+					showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+
+				return true;
+			},
+			error : (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
+		});
+		return this;
 	}
 
 	FieldEditor.prototype.Show = function() {
@@ -281,15 +318,18 @@ function FieldEditor(element, validator) {
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		var $fieldEditor = $(this.fieldEditor), $element = $(this.element);
+		var $fieldEditor = $(this.fieldEditor), $element = $(this.element), type = $element.attr("data-trick-content");
 		if (!$fieldEditor.is("select"))
 			$fieldEditor.val(this.realValue == null ? $element.text().trim() : this.realValue);
 		$element.html($fieldEditor);
 		this.backupData.parentClass = $fieldEditor.parent().attr("class")
-		if (!application.editMode || $element.attr("data-trick-content") != "text") {
+		if (!application.editMode || type!== "text") {
 			this.__supportTabNav();
 			$fieldEditor.focus();
 		}
+		
+		if(type === "color")
+			$fieldEditor.trigger("click");
 		return false;
 	};
 
@@ -337,29 +377,9 @@ function FieldEditor(element, validator) {
 		if (!that.Validate()) {
 			that.Rollback();
 		} else {
-			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-					type : "post",
-					async : that.async,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
-						if (response["success"] != undefined) {
-							that.UpdateUI();
-							if (that.callback != null && that.callback != undefined)
-								setTimeout(that.callback, 1);
-						} else if (response["error"] != undefined) {
-							showNotifcation("danger", response["error"]);
-						} else
-							showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-
-						return true;
-					},
-					error : (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
-				});
-			} else {
+			if (that.HasChanged())
+				that.__save();
+			else {
 				that.Rollback();
 				return false;
 			}
@@ -372,7 +392,7 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Restore = function(rollback) {
-		var taht = this, $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td");
+		var taht = this, $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td"), type = $element.attr("data-trick-content");
 		if (this.backupData.orginalStyle)
 			$td.attr("style", this.orginalStyle);
 		else
@@ -405,7 +425,11 @@ function FieldEditor(element, validator) {
 						}
 					}
 				}
-			} else
+			} else if(type === "color"){
+				$element.css({"background-color" : value});
+				$element.attr("data-real-value",value);
+				$element.empty();
+			}else
 				$element.text(value);
 
 			if ($td.width != this.backupData.width)
@@ -437,44 +461,36 @@ ExtendedFieldEditor.prototype = new FieldEditor();
 function ExtendedFieldEditor(section, element) {
 	FieldEditor.call(this, element);
 	this.section = section;
-	ExtendedFieldEditor.prototype.Save = function(that) {
-		if (!that.Validate()) {
-			that.Rollback();
-		} else {
-			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-					type : "post",
-					async : that.async,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
-						if (response["success"] != undefined) {
-							try {
-								that.UpdateUI();
-								if (that.callback != null && that.callback != undefined)
-									setTimeout(that.callback, 1);
-							} finally {
-								if (that.fieldName == "value") {
-									updateAssessmentAle(true);
-									$("datalist[id^='dataList-parameter-']").remove();
-									reloadSection([ that.section, "section_asset", "section_scenario" ]);
-								}
-							}
-						} else if (response["error"] != undefined)
-							showNotifcation("danger", MessageResolver("error.unknown.save.data", response["error"]));
-						else
-							showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-					},
-					error :  (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
-				});
-			} else {
-				that.Rollback();
-				return false;
-			}
-		}
-		return false;
+	ExtendedFieldEditor.prototype.__save = function() {
+		var that = this;
+		$.ajax({
+			url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+			type : "post",
+			async : that.async,
+			data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+					+ '", "type": "' + that.fieldType + '"}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
+					try {
+						that.UpdateUI();
+						if (that.callback != null && that.callback != undefined)
+							setTimeout(that.callback, 1);
+					} finally {
+						if (that.fieldName == "value") {
+							updateAssessmentAle(true);
+							$("datalist[id^='dataList-parameter-']").remove();
+							reloadSection([ that.section, "section_asset", "section_scenario" ]);
+						}
+					}
+				} else if (response["error"] != undefined)
+					showNotifcation("danger", MessageResolver("error.unknown.save.data", response["error"]));
+				else
+					showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+			},
+			error :  (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
+		});
+		return this;
 	};
 }
 
@@ -552,38 +568,30 @@ function AssessmentFieldEditor(element) {
 		return this;
 	};
 
-	AssessmentFieldEditor.prototype.Save = function(that) {
-		if (!that.Validate()) {
-			that.Rollback();
-		} else {
-			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-					type : "post",
-					async : that.async,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
-						if (response["success"] != undefined) {
-							that.UpdateUI();
-							application["estimation-helper"].tryUpdate(that.classId);
-							reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
-							reloadAssetScenarioChart();
-						} else {
-							that.Rollback();
-							application["estimation-helper"].error(response["error"]);
-						}
-						return true;
-					},
-					error :  (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
-				});
-
-			} else
-				that.Rollback();
-
-		}
-		return false;
+	AssessmentFieldEditor.prototype.__save = function() {
+		var that = this;
+		$.ajax({
+			url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+			type : "post",
+			async : that.async,
+			data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+					+ '", "type": "' + that.fieldType + '"}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
+					that.UpdateUI();
+					application["estimation-helper"].tryUpdate(that.classId);
+					reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
+					reloadAssetScenarioChart();
+				} else {
+					that.Rollback();
+					application["estimation-helper"].error(response["error"]);
+				}
+				return true;
+			},
+			error :  (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
+		});
+		return this;
 	};
 }
 
@@ -737,6 +745,37 @@ function AssessmentProbaFieldEditor(element) {
 	}
 }
 
+ReportSettingEditor.prototype = new FieldEditor();
+
+function ReportSettingEditor(element){
+	FieldEditor.call(this, element);
+	FieldEditor.prototype.__save = function(){
+		var that = this;
+		$.ajax({
+			url : context + "/Analysis/EditField/" + that.controllor ,
+			type : "post",
+			async : that.async,
+			data : '{"fieldName":"' +  that.classId+ '", "value":"' + that.GetValue()+ '", "type": "string"}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
+					that.UpdateUI();
+					if (that.callback != null && that.callback != undefined)
+						setTimeout(that.callback, 1);
+				} else if (response["error"] != undefined) {
+					showNotifcation("danger", response["error"]);
+				} else
+					showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+
+				return true;
+			},
+			error : (jqXHR, textStatus, errorThrown) =>  that.Error(jqXHR, textStatus, errorThrown)
+		});
+		return this;
+	};
+	
+}
+
 function extractPhase(self, defaultPhase) {
 	if (self.choose.length)
 		return false;
@@ -805,21 +844,23 @@ function enableEditMode() {
 function editField(element, controller, id, field, type) {
 	var fieldEditor = null;
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		if (controller == null || controller == undefined)
+		if (controller === null || controller === undefined)
 			controller = FieldEditor.prototype.__findControllor(element);
-		if (controller == "LikelihoodParameter" || controller == "ImpactParameter") {
+		if (controller === "LikelihoodParameter" || controller === "ImpactParameter") {
 			fieldEditor = new ExtendedFieldEditor("section_parameter_impact_probability", element);
 		} else if (controller == "Assessment") {
 			field = element.getAttribute("data-trick-field");
 			var fieldImpact = [ "comment", "hiddenComment", "uncertainty", "owner" ];
 			if (fieldImpact.indexOf(field) != -1)
 				fieldEditor = new AssessmentFieldEditor(element);
-			else if (field == "likelihood")
+			else if (field === "likelihood")
 				fieldEditor = new AssessmentProbaFieldEditor(element);
 			else
 				fieldEditor = new AssessmentImpactFieldEditor(element);
-		} else if (controller == "MaturityMeasure")
+		} else if (controller === "MaturityMeasure")
 			fieldEditor = new MaturityMeasureFieldEditor(element);
+		else if(controller ==="ReportSetting")
+			fieldEditor = new ReportSettingEditor(element);
 		else
 			fieldEditor = new FieldEditor(element);
 

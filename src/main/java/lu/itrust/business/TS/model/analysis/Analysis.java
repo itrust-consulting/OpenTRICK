@@ -1350,7 +1350,7 @@ public class Analysis implements Cloneable {
 		return findSetting(setting, settings.get(setting.name()));
 	}
 
-	public String findSetting(AnalysisReportSetting setting) {
+	public String findSetting(ReportSetting setting) {
 		return setting == null ? null : settings.getOrDefault(setting.name(), setting.getValue());
 	}
 

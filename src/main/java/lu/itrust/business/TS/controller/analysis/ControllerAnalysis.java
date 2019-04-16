@@ -67,12 +67,10 @@ import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.AnalysisReportSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
-import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -85,7 +83,6 @@ import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformat
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
-import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -105,9 +102,9 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
  * @since Oct 22, 2013
  */
 @PreAuthorize(ROLE_MIN_USER)
-@Controller
 @RequestMapping("/Analysis")
-public class ControllerHome extends AbstractController {
+@Controller
+public class ControllerAnalysis extends AbstractController {
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -590,11 +587,7 @@ public class ControllerHome extends AbstractController {
 			if (analysis.isQualitative()) {
 				model.addAttribute("showRawColumn", analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN));
 				model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
-				model.addAttribute("impactLabel", analysis.findImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
-						.map(ScaleType::getName).orElse(null));
-				int level = analysis.getLikelihoodParameters().size() - 1;
-				model.addAttribute("maxImportance", level * level);
-				model.addAttribute("colorManager", new ColorManager(analysis.getRiskAcceptanceParameters()));
+				setupQualitativeParameterUI(model, analysis);
 			}
 
 			if (analysis.isQuantitative())
@@ -627,7 +620,7 @@ public class ControllerHome extends AbstractController {
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("login", user.getLogin());
-			model.addAttribute("reportColors", loadReportColors(analysis));
+			model.addAttribute("reportSettings", loadReportSettings(analysis));
 			loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
 
 			/**
@@ -645,15 +638,9 @@ public class ControllerHome extends AbstractController {
 		return "analyses/single/home";
 	}
 
-	private Map<AnalysisReportSetting, String> loadReportColors(Analysis analysis) {
-		final Map<AnalysisReportSetting, String> settings = new LinkedHashMap<>();
-		for (AnalysisReportSetting setting : AnalysisReportSetting.values()) {
-			if (setting == AnalysisReportSetting.CEEL_COLOR)
-				continue;
-			settings.put(setting, analysis.findSetting(setting));
-		}
-		return settings;
-	}
+	
+
+	
 
 	// *****************************************************************
 	// * export and download

@@ -10,6 +10,8 @@ import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -22,13 +24,18 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.ReportSetting;
+import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.TicketingSystem;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -84,5 +91,23 @@ public abstract class AbstractController {
 			}
 		}
 		return allowedTicketing;
+	}
+	
+	protected Map<ReportSetting, String> loadReportSettings(Analysis analysis) {
+		final Map<ReportSetting, String> settings = new LinkedHashMap<>();
+		for (ReportSetting setting : ReportSetting.values()) {
+			if (setting == ReportSetting.CEEL_COLOR)
+				continue;
+			settings.put(setting, analysis.findSetting(setting));
+		}
+		return settings;
+	}
+	
+	protected void setupQualitativeParameterUI(Model model, Analysis analysis) {
+		model.addAttribute("impactLabel", analysis.findImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
+				.map(ScaleType::getName).orElse(null));
+		int level = analysis.getLikelihoodParameters().size() - 1;
+		model.addAttribute("maxImportance", level * level);
+		model.addAttribute("colorManager", new ColorManager(analysis.getRiskAcceptanceParameters()));
 	}
 }

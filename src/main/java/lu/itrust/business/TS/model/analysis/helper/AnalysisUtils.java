@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Transient;
 
@@ -103,16 +104,7 @@ public final class AnalysisUtils {
 	 */
 	@Transient
 	public static Map<String, List<IParameter>> SplitParameters(List<? extends IParameter> parameters) {
-		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
-		parameters.stream().forEach(parameter -> {
-			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
-			if (currentParameters == null)
-				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());
-			currentParameters.add(parameter);
-		});
-
-		return mappedParameters;
-
+		return parameters.stream().collect(Collectors.groupingBy(IParameter::getTypeName));
 	}
 
 	/**
@@ -123,16 +115,7 @@ public final class AnalysisUtils {
 	 */
 	@Transient
 	public static Map<String, List<IParameter>> SplitParameters(Map<String, List<? extends IParameter>> parameters) {
-		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
-		parameters.values().parallelStream().flatMap(list -> list.parallelStream()).forEach(parameter -> {
-			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
-			if (currentParameters == null)
-				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());
-			currentParameters.add(parameter);
-		});
-
-		return mappedParameters;
-
+		return parameters.values().stream().flatMap(a -> a.stream()).collect(Collectors.groupingBy(IParameter::getTypeName));
 	}
 
 }

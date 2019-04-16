@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.helper;
 
-import lu.itrust.business.TS.model.analysis.AnalysisReportSetting;
+import lu.itrust.business.TS.model.analysis.ReportSetting;
 
 /**
  * @author eomar
@@ -25,12 +25,12 @@ public class ColorSet {
 	 * 
 	 */
 	public ColorSet() {
-		this(AnalysisReportSetting.DARK_COLOR.getValue(), AnalysisReportSetting.DEFAULT_COLOR.getValue(), AnalysisReportSetting.LIGHT_COLOR.getValue(),
-				AnalysisReportSetting.ZERO_COST_COLOR.getValue(), AnalysisReportSetting.CEEL_COLOR.getValue());
+		this(ReportSetting.DARK_COLOR.getValue(), ReportSetting.DEFAULT_COLOR.getValue(), ReportSetting.LIGHT_COLOR.getValue(),
+				ReportSetting.ZERO_COST_COLOR.getValue(), ReportSetting.CEEL_COLOR.getValue());
 	}
 
 	public ColorSet(String dark, String normal, String light) {
-		this(dark, normal, light, AnalysisReportSetting.ZERO_COST_COLOR.getValue(), AnalysisReportSetting.CEEL_COLOR.getValue());
+		this(dark, normal, light, ReportSetting.ZERO_COST_COLOR.getValue(), ReportSetting.CEEL_COLOR.getValue());
 	}
 
 	public ColorSet(String dark, String normal, String light, String zeroCost, String cell) {

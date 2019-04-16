@@ -14,10 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,25 +28,20 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerScaleLevelMigrator;
 import lu.itrust.business.TS.component.AnalysisImpactManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisUtils;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
-import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
@@ -60,7 +52,7 @@ import lu.itrust.business.TS.model.scale.ScaleType;
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Analysis/Parameter")
-public class ControllerParameter {
+public class ControllerParameter extends AbstractController {
 
 	@Autowired
 	private ServiceSimpleParameter serviceSimpleParameter;
@@ -81,25 +73,7 @@ public class ControllerParameter {
 	private AnalysisImpactManager analysisImpactManager;
 
 	@Autowired
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	@Autowired
 	private ServiceScaleType serviceScaleType;
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
-	private SessionFactory sessionFactory;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
-	private TaskExecutor executor;
 
 	@RequestMapping(value = "/Impact-scale/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -145,7 +119,7 @@ public class ControllerParameter {
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
 				return JsonMessage.Success(messageSource.getMessage("success.analysis.scale.level.migrating.start", null, "Please wait while migrating scale level.", locale));
-			} 
+			}
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
@@ -166,24 +140,13 @@ public class ControllerParameter {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-		List<IParameter> parameters = new LinkedList<>(serviceSimpleParameter.findByAnalysisId(idAnalysis));
-		if (analysisType.isQualitative()) {
-			List<LikelihoodParameter> likelihoodParameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
-			model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
-			ScaleType scaleType = serviceScaleType.findOneQualitativeByAnalysisId(idAnalysis);
-			parameters.addAll(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
-			parameters.addAll(likelihoodParameters);
-			if (scaleType != null) {
-				parameters.addAll(serviceImpactParameter.findByTypeAndAnalysisId(scaleType, idAnalysis));
-				model.addAttribute("impactLabel", scaleType.getName());
-			}
-			int level = likelihoodParameters.size() - 1;
-			model.addAttribute("maxImportance", level * level);
-		}
-		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(parameters));
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		if (analysis.isQuantitative())
+			setupQualitativeParameterUI(model, analysis);
+		model.addAttribute("type", analysis.getType());
+		model.addAttribute("reportSettings", loadReportSettings(analysis));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
+		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters( analysis.getParameters()));
 		return "analyses/single/components/parameters/other";
 	}
 
@@ -200,17 +163,17 @@ public class ControllerParameter {
 	@RequestMapping(value = "/Impact-probability/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String impactSection(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<ImpactParameter> impactParameters = serviceImpactParameter.findByAnalysisId(idAnalysis);
-		List<IParameter> parameters = new LinkedList<>(impactParameters);
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final List<ImpactParameter> impactParameters = serviceImpactParameter.findByAnalysisId(idAnalysis);
+		final List<IParameter> parameters = new LinkedList<>(impactParameters);
+		final AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
+		final Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
 		model.addAttribute("impactTypes", impactParameters.parallelStream().map(ImpactParameter::getType).distinct().collect(Collectors.toList()));
 		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
 		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
 		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(parameters));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
-		AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
 		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
 		return "analyses/single/components/parameters/impact_probability";
 	}
