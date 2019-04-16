@@ -10,15 +10,17 @@
 		<c:when test="${not empty items}">
 			<ul class="nav nav-tabs nav-justified">
 				<c:forEach items="${items}" var="item" varStatus="status">
-					<li ${status.index == 0? "class='active'" :""}><a href="#export-word-report-${fn:toLowerCase(item.name)}" data-toggle="tab"><spring:message
-								code='label.analysis.type.${fn:toLowerCase(item.name)}' /></a></li>
+					<spring:message text="${fn:toLowerCase(item.name)}" var="itemName"/>
+					<li ${itemName=="hybrid"? "class='active'" :""}><a href="#export-word-report-${itemName}" data-toggle="tab"><spring:message
+								code='label.analysis.type.${itemName}' /></a></li>
 				</c:forEach>
 			</ul>
 			<div class="tab-content" data-view-tab='secondary'>
-				<c:forEach items="${items}" var="selectedItem" varStatus="status">
-					<c:set var="item" value="${selectedItem}" scope="request" />
+				<c:forEach items="${items}" var="currentItem" varStatus="status">
+					<c:set var="item" value="${currentItem}" scope="request" />
+					<spring:message text="${fn:toLowerCase(item.name)}" var="itemName"/>
 					<spring:message text="word-report-${fn:toLowerCase(item.name)}" var="typeName" />
-					<div class='tab-pane ${status.index == 0? "active" :""}' id="export-${typeName}" data-view-name='word-report' data-view-process-url='${item.processURL}'
+					<div class='tab-pane ${itemName=="hybrid"? "active" :""}' id="export-${typeName}" data-view-name='word-report' data-view-process-url='${item.processURL}'
 						data-view-extentions='${item.extensions}'>
 						<fieldset>
 							<legend>

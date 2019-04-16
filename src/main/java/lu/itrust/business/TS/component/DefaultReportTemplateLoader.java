@@ -41,6 +41,12 @@ import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 @Component
 @Transactional
 public class DefaultReportTemplateLoader {
+	
+	@Value("${app.settings.report.hybrid.french.template.name}")
+	private String frenchMixedReportName;
+	
+	@Value("${app.settings.report.hybrid.english.template.name}")
+	private String englishMixedReportName;
 
 	@Value("${app.settings.report.qualitative.french.template.name}")
 	private String frenchQualitativeReportName;
@@ -59,6 +65,9 @@ public class DefaultReportTemplateLoader {
 
 	@Value("#{'${app.settings.default.template.qualitative.names}'.split(',')}")
 	private String[] qualitativeTemplateNames;
+	
+	@Value("#{'${app.settings.default.template.hybrid.names}'.split(',')}")
+	private String [] mixedTemplateNames;
 
 	@Value("#{'${app.settings.default.languages}'.split(';')}")
 	private List<String> defaultLanguages;
@@ -110,6 +119,8 @@ public class DefaultReportTemplateLoader {
 		if (daoLanguage.existsByAlpha3("ENG", "FRA"))
 			loadLanguages();
 		final List<ReportTemplate> templates = new ArrayList<>(4);
+		for (String template : mixedTemplateNames)
+			loadTemplates(templates, template, AnalysisType.HYBRID, frenchMixedReportName, englishMixedReportName);
 		for (String template : qualitativeTemplateNames)
 			loadTemplates(templates, template, AnalysisType.QUALITATIVE, frenchQualitativeReportName, englishQualitativeReportName);
 		for (String template : quantitativeTemplateNames)

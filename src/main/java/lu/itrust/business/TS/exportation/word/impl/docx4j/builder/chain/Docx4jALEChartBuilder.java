@@ -27,6 +27,7 @@ import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.DrawingML.Chart;
 import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
 import org.docx4j.relationships.Relationship;
+import org.docx4j.wml.P;
 import org.xlsx4j.sml.SheetData;
 
 import lu.itrust.business.TS.constants.Constant;
@@ -79,63 +80,78 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 	}
 
 	private boolean buildAleByAssetChart(Docx4jData data) throws Exception {
-		final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-		final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getId());
-			if (ale == null)
-				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraph = exporter.findP(data.getSource());
+		if (paragraph != null) {
+			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
+			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+			for (Assessment assessment : assessments) {
+				ALE ale = ales.get(assessment.getAsset().getId());
+				if (ale == null)
+					ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			}
+			buildALEChart(exporter, paragraph, ales, data.getExportor().getMessage("report.chart.ale.title.asset", null, "ALE By Asset"),
+					data.getExportor().getMessage("report.chart.asset", null, "Asset"), "AleByAsset", "report.chart.ale.title.asset.index");
 		}
-		buildALEChart((Docx4jReportImpl) data.getExportor(), ales, "ChartALEByAsset", data.getExportor().getMessage("report.chart.ale.title.asset", null, "ALE By Asset"),
-				data.getExportor().getMessage("report.chart.asset", null, "Asset"), "AleByAsset", "report.chart.ale.title.asset.index");
 		return true;
 	}
 
 	private boolean buildAleByAssetTypeChart(Docx4jData data) throws Exception {
-		final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-		final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
-			if (ale == null)
-				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getName(), 0));
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraph = exporter.findP(data.getSource());
+		if (paragraph != null) {
+			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
+			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+			for (Assessment assessment : assessments) {
+				ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+				if (ale == null)
+					ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getName(), 0));
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			}
 
-		buildALEChart((Docx4jReportImpl) data.getExportor(), ales, "ChartALEByAssetType", data.getExportor().getMessage("report.chart.ale.title.asset.type", null, "Asset type"),
-				data.getExportor().getMessage("report.chart.asset.type", null, "Asset type"), "AleByAssetType", "report.chart.ale.title.asset.type.index");
+			buildALEChart(exporter, paragraph, ales, data.getExportor().getMessage("report.chart.ale.title.asset.type", null, "Asset type"),
+					data.getExportor().getMessage("report.chart.asset.type", null, "Asset type"), "AleByAssetType", "report.chart.ale.title.asset.type.index");
+		}
 		return true;
 	}
 
 	private boolean buildAleByScenarioChart(Docx4jData data) throws Exception {
-		final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-		final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getId());
-			if (ale == null)
-				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraph = exporter.findP(data.getSource());
+		if (paragraph != null) {
+			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
+			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+			for (Assessment assessment : assessments) {
+				ALE ale = ales.get(assessment.getScenario().getId());
+				if (ale == null)
+					ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			}
+			buildALEChart(exporter, paragraph, ales, data.getExportor().getMessage("report.chart.ale.title.scenario", null, "Scenario"),
+					data.getExportor().getMessage("report.chart.scenario", null, "Scenario"), "AleBySceanrio", "report.chart.ale.title.scenario.index");
 		}
-		buildALEChart((Docx4jReportImpl) data.getExportor(), ales, "ChartALEByScenario", data.getExportor().getMessage("report.chart.ale.title.scenario", null, "Scenario"),
-				data.getExportor().getMessage("report.chart.scenario", null, "Scenario"), "AleBySceanrio", "report.chart.ale.title.scenario.index");
 		return true;
 	}
 
 	private boolean buildAleByScenarioTypeChart(Docx4jData data) throws Exception {
-		final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-		final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		final List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getType().getValue());
-			if (ale == null) {
-				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
-				ales2.add(ale);
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraph = exporter.findP(data.getSource());
+		if (paragraph != null) {
+			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
+			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+			final List<ALE> ales2 = new LinkedList<ALE>();
+			for (Assessment assessment : assessments) {
+				ALE ale = ales.get(assessment.getScenario().getType().getValue());
+				if (ale == null) {
+					ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
+					ales2.add(ale);
+				}
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			buildALEChart(exporter, paragraph, ales, data.getExportor().getMessage("report.chart.ale.title.scenario.type", null, "Scenario type"),
+					data.getExportor().getMessage("report.chart.scenario.type", null, "Scenario type"), "AleBySceanrioType", "report.chart.ale.title.scenario.type.index");
 		}
-		buildALEChart((Docx4jReportImpl) data.getExportor(), ales, "ChartALEByScenarioType",
-				data.getExportor().getMessage("report.chart.ale.title.scenario.type", null, "Scenario type"),
-				data.getExportor().getMessage("report.chart.scenario.type", null, "Scenario type"), "AleBySceanrioType", "report.chart.ale.title.scenario.type.index");
 		return true;
 	}
 
@@ -220,13 +236,13 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 
 	}
 
-	private void buildALEChart(final Docx4jReportImpl exporter, Map<Integer, ALE> ales, String chartName, String title, String column, String name, String multiTitleCode)
+	private void buildALEChart(final Docx4jReportImpl exporter, P paragraph, Map<Integer, ALE> ales, String title, String column, String name, String multiTitleCode)
 			throws Exception {
 		final List<ALE> ales2 = ales.values().parallelStream().filter(ale -> ale.getValue() > 0).sorted(new AssetComparatorByALE()).collect(Collectors.toList());
 		if (ales2.size() <= Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
-			buildALEChart(exporter, ales2, (Chart) exporter.findChart(chartName), title, column, null);
+			buildALEChart(exporter, ales2, (Chart) exporter.findChart(paragraph), title, column, null);
 		else {
-			final List<Part> parts = exporter.duplicateChart(ales2.size(), chartName, name);
+			final List<Part> parts = exporter.duplicateChart(ales2.size(), paragraph, name);
 			final double maxValue = ales2.parallelStream().mapToDouble(e -> (Double) e.getValue()).max().orElse(-1);
 			int count = parts.size();
 			double divisor = (double) ales2.size() / (double) count;

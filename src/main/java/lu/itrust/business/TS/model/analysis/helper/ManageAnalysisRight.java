@@ -18,14 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.controller.form.AnalysisRightForm;
-import lu.itrust.business.TS.controller.form.RightForm;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisShareInvitation;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.form.AnalysisRightForm;
+import lu.itrust.business.TS.form.RightForm;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;

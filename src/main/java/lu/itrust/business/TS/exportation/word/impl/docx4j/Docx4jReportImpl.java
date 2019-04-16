@@ -1286,7 +1286,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 			initialise();
 			final int[] progressing = { 0, getBookmarks().size() };
 			getBookmarks().forEach((key, value) -> {
-				serviceTaskFeedback.send(task.getId(), new MessageHandler("info.exporting.report.task." + extractName(key), null, task.update(progressing[0]++, progressing[1])));
+				serviceTaskFeedback.send(task.getId(), new MessageHandler("info.printing.report." + extractName(key), null, task.update(progressing[0]++, progressing[1])));
 				DocxChainFactory.build(new Docx4jData(key, value, this));
 			});
 			updateProperties();
@@ -1498,7 +1498,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 		case "chartriskbyscenario":
 		case "chartriskbyscenariotype":
 		case "currentsecuritylevel":
-
 		case "listcollection":
 		case "measurescollection":
 		case "riskacceptance":

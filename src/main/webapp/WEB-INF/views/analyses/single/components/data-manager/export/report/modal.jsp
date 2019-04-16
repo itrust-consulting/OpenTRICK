@@ -21,7 +21,7 @@
 					
 					<input type="hidden" name="analysis" id="exportWord.analysis.${nameControl}" value="${analysis.id}">
 					
-					<c:if test="${not empty  types}">
+					<c:if test="${not empty types}">
 						<fieldset>
 							<legend style="font-size: 15px" data-helper-content='<spring:message code="help.export.report.type" />'>
 								<spring:message code="label.analysis.type" text="Type" />
@@ -30,8 +30,8 @@
 								<div class="btn-group" data-toggle="buttons">
 									<c:forEach items="${types}" var="type" varStatus="status">
 										<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
-										<label class="btn btn-sm btn-default ${status.index==0?'active':''}"><spring:message code="label.analysis.type.${typeValue}" text="${typeValue}" /><input
-											${status.index==0 ? 'checked' :''} name="type" type="radio" value="${type}"></label>
+										<label class="btn btn-sm btn-default ${typeValue=='hybrid'?'active':''}"><spring:message code="label.analysis.type.${typeValue}" text="${typeValue}" /><input
+											${typeValue=='hybrid'? 'checked' :''} name="type" type="radio" value="${type}"></label>
 									</c:forEach>
 								</div>
 							</div>

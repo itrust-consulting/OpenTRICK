@@ -71,8 +71,8 @@ public class ReportTemplate extends AbstractDocument {
 	}
 
 	public void setType(AnalysisType type) {
-		if (type == null || type.isHybrid())
-			throw new TrickException("error.report.template.type", "Type cannot only be quantitative or qualitative");
+		if (type == null)
+			throw new TrickException("error.report.template.type", "Type cannot empty or null");
 		this.type = type;
 	}
 
