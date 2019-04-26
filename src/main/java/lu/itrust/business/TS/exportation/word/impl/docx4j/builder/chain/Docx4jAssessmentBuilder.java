@@ -123,7 +123,7 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						String.format("Risk estimation for the asset %s", asset.getName()))));
 			});
 			if (exporter.insertAllAfter(paragraphOrigin, contents))
-				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE));
+				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors()));
 			assessementsByAsset.clear();
 		}
 		return true;
@@ -199,7 +199,7 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						String.format("Risk estimation for the asset %s", ale.getAssetName()))));
 			});
 			if (exporter.insertAllAfter(paragraphOrigin, contents))
-				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE));
+				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors()));
 			assessementsmap.clear();
 			contents.clear();
 		}

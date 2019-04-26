@@ -83,7 +83,7 @@ public class Docx4jHeatMapRiskAcceptanceBuilder extends Docx4jBuilder {
 					setColor(cell, parameter.getColor().substring(1));
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
 		}
 		return true;
 	}
@@ -150,7 +150,7 @@ public class Docx4jHeatMapRiskAcceptanceBuilder extends Docx4jBuilder {
 			contents.add(exporter.setStyle(exporter.getFactory().createP(), "Endlist"));
 			contents.add(table);
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
 		}
 		return true;
 	}

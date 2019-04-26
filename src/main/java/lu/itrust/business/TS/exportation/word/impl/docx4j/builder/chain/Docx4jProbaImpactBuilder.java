@@ -119,7 +119,7 @@ public class Docx4jProbaImpactBuilder extends Docx4jBuilder {
 				exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSEstimationTitle"), exporter.getMessage("report.parameter.title." + type.toLowerCase())));
 		contents.add(table);
 		if (exporter.insertAllBefore(paragraph, contents))
-			DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE);
+			DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
 	}
 
 	@Override
@@ -159,7 +159,7 @@ public class Docx4jProbaImpactBuilder extends Docx4jBuilder {
 				impacts.forEach((scale, parameters) -> buildQualitative(exporter, type, scale.getTranslate(language), contents, parameters));
 			}
 			if (exporter.insertAllBefore(paragraph, contents))
-				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE));
+				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors()));
 		}
 		return true;
 	}
@@ -215,7 +215,7 @@ public class Docx4jProbaImpactBuilder extends Docx4jBuilder {
 				});
 
 				if (exporter.insertAllAfter(paragraph, contents))
-					contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE));
+					contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors()));
 			}
 
 		}

@@ -413,7 +413,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 				contents.add(exporter.addBreak(exporter.getFactory().createP(), STBrType.PAGE));
 				contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSMeasureTitle"), analysisStandard.getStandard().getLabel()));
 				if (contents.add(table))
-					DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID);
+					DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID, exporter.getColors());
 			});
 			if (!contents.isEmpty())
 				exporter.insertAllAfter(reference, contents);

@@ -105,7 +105,7 @@ public class Docx4jActionPlanBuilder extends Docx4jBuilder {
 				exporter.addCellNumber((Tc) row.getContent().get(10), entry.getMeasure().getResponsible());
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
 		}
 		return true;
 	}
@@ -166,7 +166,7 @@ public class Docx4jActionPlanBuilder extends Docx4jBuilder {
 				exporter.addCellNumber((Tc) row.getContent().get(12), entry.getMeasure().getResponsible());
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
 		}
 		return true;
 	}

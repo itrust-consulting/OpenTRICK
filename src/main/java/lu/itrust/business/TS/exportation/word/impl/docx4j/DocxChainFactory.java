@@ -30,6 +30,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jRiskI
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScenarioFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jScopeFormatter;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jSummaryFormatter;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 public class DocxChainFactory {
@@ -96,8 +97,8 @@ public class DocxChainFactory {
 		return getInstance().getBuilderChain().build(data);
 	}
 
-	public static boolean format(Object table, Object style, AnalysisType type) {
-		return getInstance().getFormatterChain().format(table, style, type, null);
+	public static boolean format(Object table, Object style, AnalysisType type,ColorSet colors) {
+		return getInstance().getFormatterChain().format(table, style, type, colors);
 	}
 
 	public DocxFormatter getFormatterChain() {

@@ -53,7 +53,7 @@ public class Docx4jScenarioBuilder extends Docx4jBuilder {
 				exporter.addCellParagraph((Tc) row.getContent().get(2), scenario.getDescription());
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID, exporter.getColors());
 		}
 		return true;
 	}

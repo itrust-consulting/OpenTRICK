@@ -99,7 +99,7 @@ public class Docx4jRiskInformationBuilder extends Docx4jBuilder {
 				exporter.addCellParagraph((Tc) row.getContent().get(++index[1]), riskinfo.getComment());
 			});
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID, exporter.getColors());
 		}
 		return true;
 	}

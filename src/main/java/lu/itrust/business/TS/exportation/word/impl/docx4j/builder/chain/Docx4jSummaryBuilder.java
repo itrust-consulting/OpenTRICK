@@ -71,7 +71,7 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 			buildSummaryCosts(exporter, summary, table, buildSummaryProfitabilities(exporter, summary, table,
 					buildSummaryCompliance(exporter, summary, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summary, table, 0))));
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
 		}
 		return false;
 	}
@@ -89,7 +89,7 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 			buildSummaryResourcePlanning(exporter, summaries, table,
 					buildSummaryCompliance(exporter, summaries, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summaries, table, 0)));
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE);
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
 		}
 		return true;
 	}
