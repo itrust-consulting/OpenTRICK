@@ -701,7 +701,7 @@ function loadRiskChart(url, name, container, canvas) {
 				window[name] = [];
 				var $container = $(container).empty();
 				response.map(chart => {
-					var $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($container);
+					var $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($container);
 					window[name].push(new Chart($canvas[0].getContext("2d"), {
 						type: "bar",
 						data: chart,
@@ -711,7 +711,7 @@ function loadRiskChart(url, name, container, canvas) {
 				});
 			}
 			else {
-				$(container).html("<canvas id='" + canvas + "' style='max-width: 1000px; margin-left: auto; margin-right: auto;' />")
+				$(container).html("<canvas id='" + canvas + "' style='margin-left: auto; margin-right: auto;' />")
 				window[name] = new Chart(document.getElementById(canvas).getContext("2d"), {
 					type: "bar",
 					data: response,
@@ -832,7 +832,7 @@ function loadComplianceChart(url) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $("<div class='col-sm-6 col-md-4 col-lg-3' id= 'chart_compliance_" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							var $parent = $("<div class='col-sm-6 col-md-4 col-lg-3' id= 'chart_compliance_" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "radar",
 								data: chart,
@@ -877,7 +877,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
+							var $parent = $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "bar",
 								data: chart,
@@ -929,7 +929,7 @@ function loadChartBudget() {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
+							var $parent = $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "bar",
 								data: chart,
@@ -1098,7 +1098,7 @@ function loadChartScenario() {
 function loadChartDynamicParameterEvolution() {
 	var $section = $("#tab-chart-parameter-evolution"), name = 'chart-parameter-evolution-map';
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show();
+		var $progress = $("#loading-indicator").show(), $container = $section.find("#chart_parameterevolution_body");
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
 			type: "get",
@@ -1110,14 +1110,14 @@ function loadChartDynamicParameterEvolution() {
 				else {
 					window[name].forEach((chart, key) => {
 						chart.destroy();
-						$("[id='chart-parameter-evolution-" + key + "']", $section).remove();
+						$("[id='chart-parameter-evolution-" + key + "']", $container).remove();
 					});
 				}
 
 				charts.map(chart => {
 					if (chart.datasets && chart.datasets.length) {
 						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-						var $parent = $("<div class='col-lg-6' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						var $parent = $("<div class='col-md-offset-1 col-md-10' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
@@ -1140,7 +1140,7 @@ function loadChartDynamicAleEvolutionByAssetType() {
 	var $section = $("#tab-chart-ale-evolution-by-asset-type"), name = 'chart-ale-evolution-by-asset-type-map';
 
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show();
+		var $progress = $("#loading-indicator").show(), $container = $section.find("#chart_aleevolutionbyassettype_body");
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
 			type: "get",
@@ -1152,14 +1152,14 @@ function loadChartDynamicAleEvolutionByAssetType() {
 				else {
 					window[name].forEach((chart, key) => {
 						chart.destroy();
-						$("[id='chart-ale-evolution-by-asset-type-" + key + "']", $section).remove();
+						$("[id='chart-ale-evolution-by-asset-type-" + key + "']", $container).remove();
 					});
 				}
 
 				charts.map(chart => {
 					if (chart.datasets && chart.datasets.length) {
 						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-						var $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						var $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
@@ -1181,7 +1181,7 @@ function loadChartDynamicAleEvolutionByAssetType() {
 function loadChartDynamicAleEvolution() {
 	var $section = $("#tab-chart-ale-evolution"), name = 'chart-ale-evolution';
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show();
+		var $progress = $("#loading-indicator").show(), $container = $section.find("#chart_aleevolution_body");
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/AleEvolution",
 			type: "get",
@@ -1194,14 +1194,14 @@ function loadChartDynamicAleEvolution() {
 				else {
 					window[name].forEach((chart, key) => {
 						chart.destroy();
-						$("[id='chart-ale-evolution-" + key + "']", $section).remove();
+						$("[id='chart-ale-evolution-" + key + "']", $container).remove();
 					});
 				}
 
 				charts.map(chart => {
 					if (chart.datasets && chart.datasets.length) {
 						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-						var $parent = $("<div id='chart-ale-evolution-" + chart.trickId + "' />").appendTo($section), $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						var $parent = $("<div class='col-md-offset-1 col-md-10' id='chart-ale-evolution-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
@@ -1232,7 +1232,7 @@ function loadALEChart(url, name, container, canvas) {
 					window[name] = [];
 					var $container = $(container).empty();
 					response.map(chart => {
-						var $canvas = $("<canvas style='max-width: 1000px; margin-left: auto; margin-right: auto;' />").appendTo($container);
+						var $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($container);
 						window[name].push(new Chart($canvas[0].getContext("2d"), {
 							type: "bar",
 							data: chart,
@@ -1241,7 +1241,7 @@ function loadALEChart(url, name, container, canvas) {
 					});
 				}
 				else {
-					$(container).html("<canvas id='" + canvas + "' style='max-width: 1000px; margin-left: auto; margin-right: auto;' />")
+					$(container).html("<canvas id='" + canvas + "' style='margin-left: auto; margin-right: auto;' />")
 					window[name] = new Chart(document.getElementById(canvas).getContext("2d"), {
 						type: "bar",
 						data: response,

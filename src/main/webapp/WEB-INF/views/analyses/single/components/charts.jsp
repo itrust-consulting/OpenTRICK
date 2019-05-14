@@ -248,7 +248,7 @@
 						</div>
 					</div>
 				</div>
-				<div id="chart_aleevolutionbyscenario_body"></div>
+				<div id="chart_aleevolution_body"></div>
 			</div>
 		</div>
 		<div class="tab-pane trick-chart-tab" id="tab-chart-ale-evolution-by-asset-type" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">

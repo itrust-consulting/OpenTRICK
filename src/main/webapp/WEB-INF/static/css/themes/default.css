@@ -841,10 +841,7 @@ a#main_menu_profile {
 	margin-top: -5px;
 }
 
-.probability-dynamic + .impact-qualitaitve,
-.probability-dynamic + .impact-quantitaitve,
-.probability-likelihood + .impact-qualitaitve,
-.probability-likelihood + [data-type='HYBRID'].impact-quantitaitve{
+.probability-likelihood{
 	clear: left;
 }
 

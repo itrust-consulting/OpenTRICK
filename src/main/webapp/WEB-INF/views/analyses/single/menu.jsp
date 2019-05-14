@@ -91,6 +91,7 @@
 					<li><a href="#tab-chart-evolution" data-toggle="tab"> <spring:message code="label.chart.evolution" /></a></li>
 					<li><a href="#tab-chart-budget" data-toggle="tab"> <spring:message code="label.chart.budget" /></a></li>
 					<c:if test="${showDynamicAnalysis}">
+						<li class="dropdown-header"><spring:message code="label.menu.analysis.chart.dynamic" /></li>
 						<li><a href="#tab-chart-ale-evolution" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution" /></a></li>
 						<li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab"> <spring:message code="label.title.chart.aleevolution_by_asset_type" /></a></li>
 						<li><a href="#tab-chart-parameter-evolution" data-toggle="tab"> <spring:message code="label.title.chart.dynamic" /></a></li>
