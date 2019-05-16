@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.usermanagement.IDS;
@@ -49,4 +50,6 @@ public interface DAOIDS {
 	IDS getByToken(String token);
 
 	boolean exists(boolean state);
+
+	Stream<Integer> findSubscriberIdByUsername(String username);
 }

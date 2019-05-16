@@ -5,6 +5,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -82,8 +83,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAOIDS#save(lu.itrust.business.TS.
+	 * @see lu.itrust.business.TS.database.dao.DAOIDS#save(lu.itrust.business.TS.
 	 * usermanagement.IDS)
 	 */
 	@Override
@@ -106,8 +106,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAOIDS#delete(lu.itrust.business.TS.
+	 * @see lu.itrust.business.TS.database.dao.DAOIDS#delete(lu.itrust.business.TS.
 	 * usermanagement.IDS)
 	 */
 	@Override
@@ -166,9 +165,8 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getAllAnalysisNoSubscribe(Integer idAnalysis) {
-		return getSession()
-				.createQuery(
-						"Select ids From IDS ids where ids.enable = true and ids not in ( Select subIds From IDS subIds inner join subIds.subscribers as subscriber where subIds.enable = true and subscriber.id = :idAnalysis) order by ids.prefix")
+		return getSession().createQuery(
+				"Select ids From IDS ids where ids.enable = true and ids not in ( Select subIds From IDS subIds inner join subIds.subscribers as subscriber where subIds.enable = true and subscriber.id = :idAnalysis) order by ids.prefix")
 				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
@@ -182,6 +180,12 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	public boolean exists(boolean state) {
 		return getSession().createQuery("Select count(*)> 0 From IDS ids where ids.enable = :enabled", Boolean.class).setParameter("enabled", state).uniqueResultOptional()
 				.orElse(false);
+	}
+
+	@Override
+	public Stream<Integer> findSubscriberIdByUsername(String username) {
+		return getSession().createQuery("Select distinct (subscriber.id) From IDS ids inner join ids.subscribers as subscriber where ids.prefix = :prefix", Integer.class)
+				.setParameter("prefix", username).getResultStream();
 	}
 
 }

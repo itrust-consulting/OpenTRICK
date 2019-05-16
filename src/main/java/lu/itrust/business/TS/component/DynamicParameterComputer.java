@@ -5,6 +5,7 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -67,7 +68,12 @@ public class DynamicParameterComputer {
 	 */
 	public void computeForAllAnalysesOfUser(String userName) throws Exception {
 		// Fetch all analyses which the user can access
-		daoIDS.get(userName).getSubscribers().parallelStream().forEach(analysis -> computeForAnalysisAndSource(userName, analysis));
+		daoIDS.findSubscriberIdByUsername(userName).parallel().forEach(id -> computeForAnalysisAndSource(userName, id));
+	}
+
+	@Transactional(propagation =  Propagation.REQUIRES_NEW)
+	public void computeForAnalysisAndSource(String username, Integer idAnalysis) {
+		computeForAnalysisAndSource(username, daoAnalysis.get(idAnalysis));
 	}
 
 	/**
