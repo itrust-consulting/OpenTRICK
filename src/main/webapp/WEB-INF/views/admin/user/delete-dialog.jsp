@@ -42,7 +42,7 @@
 									<option value="" selected disabled><spring:message code="label.select.switch.owner_or_delete" text="Delete or switch owner" /></option>
 									<option value="0"><spring:message code="label.action.delete" text="Delete" /></option>
 									<c:forEach items="${users}" var="owner">
-										<c:set var="right" value="${analysis.getRightValue(owner)}" />
+										<c:set var="right" value="${analysis.findRightValue(owner)}" />
 										<option value="${owner.id}"><spring:message code="label.action.switch.owner.to" arguments="${owner.firstName},${owner.lastName},${owner.email}"
 												text="${owner.firstName} ${owner.lastName}, email: ${owner.email}" /> -
 											<c:choose>
