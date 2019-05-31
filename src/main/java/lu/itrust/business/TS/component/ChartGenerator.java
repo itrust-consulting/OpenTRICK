@@ -177,7 +177,8 @@ public class ChartGenerator {
 		Collections.sort(ales, new AssetComparatorByALE());
 		try {
 			if (ales.size() <= getAleChartSingleMaxSize())
-				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
+				return generateALEJSChart(locale,
+						messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
@@ -186,8 +187,11 @@ public class ChartGenerator {
 						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, distribution.getDivisor() },
-						String.format("ALE by Asset %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
+				charts.add(generateALEJSChart(locale,
+						messageSource.getMessage("label.title.chart.part.ale_by_asset",
+								new Integer[] { i + 1, distribution.getDivisor() },
+								String.format("ALE by Asset %d/%d", i + 1, distribution.getDivisor()), locale),
+						aleSubList));
 			}
 			return charts;
 		} finally {
@@ -218,15 +222,17 @@ public class ChartGenerator {
 				ALE ale = mappedALEs.get(assessment.getAsset().getAssetType().getId());
 				if (ale == null) {
 					mappedALEs.put(assessment.getAsset().getAssetType().getId(),
-							ale = new ALE(messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
-									assessment.getAsset().getAssetType().getName(), locale), 0));
+							ale = new ALE(messageSource.getMessage(
+									"label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(),
+									null, assessment.getAsset().getAssetType().getName(), locale), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
 			if (ales.size() <= getAleChartSingleMaxSize())
-				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
+				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null,
+						"ALE by Asset Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
@@ -235,8 +241,11 @@ public class ChartGenerator {
 						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, distribution.getDivisor() },
-						String.format("ALE by Asset Type %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
+				charts.add(generateALEJSChart(locale,
+						messageSource.getMessage("label.title.chart.part.ale_by_asset_type",
+								new Integer[] { i + 1, distribution.getDivisor() },
+								String.format("ALE by Asset Type %d/%d", i + 1, distribution.getDivisor()), locale),
+						aleSubList));
 			}
 			return charts;
 		} finally {
@@ -263,14 +272,17 @@ public class ChartGenerator {
 			for (Assessment assessment : assessments) {
 				ALE ale = mappedALEs.get(assessment.getScenario().getId());
 				if (ale == null) {
-					mappedALEs.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+					mappedALEs.put(assessment.getScenario().getId(),
+							ale = new ALE(assessment.getScenario().getName(), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
 			Collections.sort(ales, new AssetComparatorByALE());
 			if (ales.size() <= getAleChartSingleMaxSize())
-				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
+				return generateALEJSChart(locale,
+						messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale),
+						ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
@@ -279,8 +291,11 @@ public class ChartGenerator {
 						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, distribution.getDivisor() },
-						String.format("ALE by Scenario %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
+				charts.add(generateALEJSChart(locale,
+						messageSource.getMessage("label.title.chart.part.ale_by_scenario",
+								new Integer[] { i + 1, distribution.getDivisor() },
+								String.format("ALE by Scenario %d/%d", i + 1, distribution.getDivisor()), locale),
+						aleSubList));
 			}
 			return charts;
 		} finally {
@@ -308,8 +323,10 @@ public class ChartGenerator {
 				ALE ale = mappedALEs.get(assessment.getScenario().getType().getValue());
 				if (ale == null) {
 					mappedALEs.put(assessment.getScenario().getType().getValue(),
-							ale = new ALE(messageSource.getMessage("label.scenario.type." + assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(), null,
-									assessment.getScenario().getType().getName(), locale), 0));
+							ale = new ALE(messageSource.getMessage(
+									"label.scenario.type." + assessment.getScenario().getType().getName()
+											.replace("-", "_").toLowerCase(),
+									null, assessment.getScenario().getType().getName(), locale), 0));
 					ales.add(ale);
 				}
 				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
@@ -317,7 +334,8 @@ public class ChartGenerator {
 			Collections.sort(ales, new AssetComparatorByALE());
 
 			if (ales.size() <= getAleChartSingleMaxSize())
-				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
+				return generateALEJSChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type",
+						null, "ALE by Scenario Type", locale), ales);
 			Distribution distribution = Distribution.Distribut(ales.size(), getAleChartSize(), getAleChartMaxSize());
 			double multiplicator = (double) ales.size() / (double) distribution.getDivisor();
 			List<Chart> charts = new ArrayList<>(distribution.getDivisor());
@@ -326,8 +344,11 @@ public class ChartGenerator {
 						i == (distribution.getDivisor() - 1) ? ales.size() : (int) Math.round((i + 1) * multiplicator));
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				charts.add(generateALEJSChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, distribution.getDivisor() },
-						String.format("ALE by Scenario Type %d/%d", i + 1, distribution.getDivisor()), locale), aleSubList));
+				charts.add(generateALEJSChart(locale,
+						messageSource.getMessage("label.title.chart.part.ale_by_scenario_type",
+								new Integer[] { i + 1, distribution.getDivisor() },
+								String.format("ALE by Scenario Type %d/%d", i + 1, distribution.getDivisor()), locale),
+						aleSubList));
 			}
 			return charts;
 		} finally {
@@ -359,9 +380,11 @@ public class ChartGenerator {
 	 */
 	public Chart aleEvolutionofAllScenarios(int idAnalysis, String assetType, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getName().equals(assetType)).collect(Collectors.toList());
+		final List<Assessment> assessments = analysis.getAssessments().stream()
+				.filter(a -> a.getAsset().getAssetType().getName().equals(assetType)).collect(Collectors.toList());
 		return aleEvolution(analysis, assessments, locale, a -> a.getScenario(), s -> s.getName(),
-				messageSource.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType }, "ALE Evolution of '{0}' assets", locale));
+				messageSource.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType },
+						"ALE Evolution of '{0}' assets", locale));
 	}
 
 	/**
@@ -387,8 +410,9 @@ public class ChartGenerator {
 		// Create individual graphs
 		final List<Chart> graphs = new ArrayList<>();
 		for (AssetType assetType : assessmentsByAssetType.keySet())
-			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(), s -> s.getName(), messageSource
-					.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType.getName() }, "ALE Evolution of all {0}-type assets", locale)));
+			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(),
+					s -> s.getName(), messageSource.getMessage("label.title.chart.aleevolution_of_asset_type",
+							new Object[] { assetType.getName() }, "ALE Evolution of all {0}-type assets", locale)));
 		return graphs;
 	}
 
@@ -404,10 +428,14 @@ public class ChartGenerator {
 	 * @param locale
 	 * @return
 	 */
-	public Chart[] budget(List<SimpleParameter> parameters, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) {
+	public Chart[] budget(List<SimpleParameter> parameters, List<SummaryStage> summaryStages, List<Phase> phases,
+			String actionPlanType, Locale locale) {
 		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildChartData(summaryStages, phases);
-		Chart[] charts = { new Chart("chart_budget_cost_" + actionPlanType, messageSource.getMessage("label.title.chart.budget.cost", null, "Costs", locale)),
-				new Chart("chart_budget_workload_" + actionPlanType, messageSource.getMessage("label.title.chart.budget.workload", null, "Workloads", locale)) };
+		Chart[] charts = {
+				new Chart("chart_budget_cost_" + actionPlanType,
+						messageSource.getMessage("label.title.chart.budget.cost", null, "Costs", locale)),
+				new Chart("chart_budget_workload_" + actionPlanType,
+						messageSource.getMessage("label.title.chart.budget.workload", null, "Workloads", locale)) };
 		if (summaries.isEmpty())
 			return charts;
 
@@ -420,20 +448,27 @@ public class ChartGenerator {
 				internalSetup = parameter.getValue().doubleValue();
 		}
 
-		String[] workloadNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE,
-				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD },
-				costNames = { ChartGenerator.INTERNAL_WORKLOAD_COST, ChartGenerator.EXTERNAL_WORKLOAD_INVESTMENT, ChartGenerator.INTERNAL_MAINTENANCE_COST,
+		String[] workloadNames = { ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE,
+				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE,
+				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD,
+				ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD },
+				costNames = { ChartGenerator.INTERNAL_WORKLOAD_COST, ChartGenerator.EXTERNAL_WORKLOAD_INVESTMENT,
+						ChartGenerator.INTERNAL_MAINTENANCE_COST,
 						ChartGenerator.RECURRENT_INVESTMENT_EXTERNAL_MAINTENANCE };
 
-		Map<String, Dataset<String>> costDatasets = new LinkedHashMap<>(costNames.length), workloadDatasets = new LinkedHashMap<>(workloadNames.length);
+		Map<String, Dataset<String>> costDatasets = new LinkedHashMap<>(costNames.length),
+				workloadDatasets = new LinkedHashMap<>(workloadNames.length);
 
 		for (String name : costNames)
-			costDatasets.put(name, new Dataset<String>(messageSource.getMessage("label.resource.planning." + name, null, locale), null));
+			costDatasets.put(name, new Dataset<String>(
+					messageSource.getMessage("label.resource.planning." + name, null, locale), null));
 
 		for (String name : workloadNames)
-			workloadDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale), getStaticColor(workloadDatasets.size())));
+			workloadDatasets.put(name, new Dataset<String>(messageSource.getMessage(name, null, locale),
+					getStaticColor(workloadDatasets.size())));
 
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(summaryStages));
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases,
+				ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 
 		for (Phase phase : usesPhases.values()) {
 			for (Chart chart : charts)
@@ -445,12 +480,19 @@ public class ChartGenerator {
 			for (String name : workloadNames)
 				workloadDatasets.get(name).getData().add(summaries.get(name).get(i));
 
-			double externalMaintenance = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE).get(i),
-					internalMaintenance = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE).get(i),
-					internalWorkload = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD).get(i),
-					externalWorkload = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD).get(i),
-					investement = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT).get(i),
-					recurrentMaintenance = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT).get(i), kEuro = .001;
+			double externalMaintenance = (double) summaries
+					.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE).get(i),
+					internalMaintenance = (double) summaries
+							.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE).get(i),
+					internalWorkload = (double) summaries
+							.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD).get(i),
+					externalWorkload = (double) summaries
+							.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD).get(i),
+					investement = (double) summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT)
+							.get(i),
+					recurrentMaintenance = (double) summaries
+							.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT).get(i),
+					kEuro = .001;
 
 			for (String name : costNames) {
 				Dataset<String> dataset = costDatasets.get(name);
@@ -491,7 +533,8 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, ActionPlanMode actionPlanMode, Locale locale) {
+	public Chart compliance(int idAnalysis, AnalysisStandard analysisStandard, ActionPlanMode actionPlanMode,
+			Locale locale) {
 
 		AnalysisType analysisType = daoAnalysis.getAnalysisTypeById(idAnalysis);
 
@@ -500,37 +543,47 @@ public class ChartGenerator {
 		Standard standard = analysisStandard.getStandard();
 
 		List<Measure> measures = analysisStandard.getMeasures().stream()
-				.filter(measure -> measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+				.filter(measure -> measure.getMeasureDescription().isComputable()
+						&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 				.collect(Collectors.toList());
 		String title = analysisType.isHybrid()
 				? actionPlanMode == ActionPlanMode.APQ
-						? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getLabel() },
+						? messageSource.getMessage("label.title.chart.qualitative.measure.compliance",
+								new Object[] { standard.getLabel() },
 								standard.getLabel() + " measure compliance for qualitative", locale)
-						: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getLabel() },
+						: messageSource.getMessage("label.title.chart.quantitative.measure.compliance",
+								new Object[] { standard.getLabel() },
 								standard.getLabel() + " measure compliance for quantitative", locale)
-				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale);
+				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() },
+						standard.getLabel() + " measure compliance", locale);
 
 		Chart chart = new Chart(standard.getId() + "_" + actionPlanMode, title);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
 
-		chart.setLabels(analysisStandard.getMeasures().stream().map(measure -> ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference())).distinct()
-				.collect(Collectors.toList()));
+		chart.setLabels(analysisStandard.getMeasures().stream().map(
+				measure -> ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference()))
+				.distinct().collect(Collectors.toList()));
 
 		if (previouscompliances.isEmpty())
 			return chart;
 
-		Dataset<String> dataset = new Dataset<String>(messageSource.getMessage("label.chart.series.current_level", null, "Current Level", locale), getColor(0));
+		Dataset<String> dataset = new Dataset<String>(
+				messageSource.getMessage("label.chart.series.current_level", null, "Current Level", locale),
+				getColor(0));
 
 		for (String key : chart.getLabels()) {
 			Object[] compliance = previouscompliances.get(key);
-			dataset.getData().add(compliance == null ? 0 : Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
+			dataset.getData()
+					.add(compliance == null ? 0 : Math.floor(((Double) compliance[1]) / (Integer) compliance[0]));
 		}
 
 		if (!dataset.getData().isEmpty())
 			chart.getDatasets().add(dataset);
 
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), actionPlanMode);
+		List<Integer> idMeasureInActionPlans = daoMeasure
+				.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(),
+						actionPlanMode);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
@@ -545,14 +598,18 @@ public class ChartGenerator {
 			for (Phase phase : phases) {
 				if (phase.getNumber() == Constant.PHASE_NOT_USABLE)
 					continue;
-				Map<String, Object[]> compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances, factory);
+				Map<String, Object[]> compliances = ComputeCompliance(measures, phase, actionPlanMeasures,
+						previouscompliances, factory);
 				if (compliances.size() == 0)
 					continue;
-				chart.getDatasets().add(dataset = new Dataset<String>(messageSource.getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase", locale),
-						getColor(chart.getDatasets().size())));
+				chart.getDatasets()
+						.add(dataset = new Dataset<String>(messageSource.getMessage("label.chart.phase",
+								new Object[] { phase.getNumber() }, "Phase", locale),
+								getColor(chart.getDatasets().size())));
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
-					dataset.getData().add(compliance == null ? 0 : Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
+					dataset.getData().add(compliance == null ? 0
+							: Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
 				}
 				previouscompliances = compliances;
 			}
@@ -574,9 +631,11 @@ public class ChartGenerator {
 		ComplianceChartData reference = measureChartDatas[0];
 		Map<String, Object[]> compliances = ComputeComplianceBefore(reference.getMeasures(), reference.getFactory());
 		Chart chart = new Chart(reference.getStandard(),
-				messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { reference.getStandard() }, reference + " measure compliance", locale));
+				messageSource.getMessage("label.title.chart.measure.compliance",
+						new Object[] { reference.getStandard() }, reference + " measure compliance", locale));
 		if (measureChartDatas.length > 0) {
-			Dataset<String> dataset = new Dataset<String>(reference.getAnalysisKey(), getColor(chart.getDatasets().size()));
+			Dataset<String> dataset = new Dataset<String>(reference.getAnalysisKey(),
+					getColor(chart.getDatasets().size()));
 			for (String key : compliances.keySet()) {
 				Object[] compliance = compliances.get(key);
 				dataset.getData().add(Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
@@ -586,14 +645,17 @@ public class ChartGenerator {
 			if (measureChartDatas.length > 1) {
 				Collection<String> keys = compliances.keySet();
 				for (int i = 1; i < measureChartDatas.length; i++) {
-					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures(), measureChartDatas[i].getFactory());
-					dataset = new Dataset<String>(measureChartDatas[i].getAnalysisKey(), getColor(chart.getDatasets().size()));
+					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures(),
+							measureChartDatas[i].getFactory());
+					dataset = new Dataset<String>(measureChartDatas[i].getAnalysisKey(),
+							getColor(chart.getDatasets().size()));
 					for (String key : keys) {
 						Object[] compliance = compliances.get(key);
 						if (compliance == null)
 							dataset.getData().add(0);
 						else
-							dataset.getData().add((int) Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
+							dataset.getData()
+									.add((int) Math.round(((double) compliance[1]) / (double) (int) compliance[0]));
 					}
 					chart.getDatasets().add(dataset);
 				}
@@ -613,7 +675,8 @@ public class ChartGenerator {
 	 */
 	public Chart dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
 		// Find the user names of all sources involved
-		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix())
+				.collect(Collectors.toList());
 
 		/*
 		 * final Analysis analysis = daoAnalysis.get(idAnalysis); final double
@@ -627,18 +690,20 @@ public class ChartGenerator {
 		final long timeUpperBound = Instant.now().getEpochSecond();
 		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
 		long nextTimeIntervalSize = 60; // in seconds
-		Chart chart = new Chart("chart-dynamic-parameter", messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale));
+		Chart chart = new Chart("chart-dynamic-parameter",
+				messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale));
 		List<Long> xAxisValues = new ArrayList<>();
 		// For each dynamic parameter, construct a series of values
 		Map<String, Map<Long, Double>> data = new HashMap<>();
-		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
+		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd
+				- nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
 			// Add x-axis values to a list in reverse order
 			xAxisValues.add(0, timeEnd);
 			chart.getLabels().add(0, deltaTimeToString(timeUpperBound - timeEnd));
 			// Fetch data
 			for (String sourceUserName : sourceUserNames) {
-				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName,
-						minimumProbability);
+				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(
+						timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName, minimumProbability);
 				for (String parameterName : likelihoods.keySet()) {
 					// Store data
 					data.putIfAbsent(parameterName, new HashMap<Long, Double>());
@@ -647,14 +712,18 @@ public class ChartGenerator {
 			}
 			// Modify interval size
 			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
-				nextTimeIntervalSize = (int) (nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
+				nextTimeIntervalSize = (int) (nextTimeIntervalSize
+						* Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
 		}
+
+		data.values().removeIf(v -> v.values().parallelStream().allMatch(p -> p == null || p == minimumProbability));
 		for (String parameterName : data.keySet()) {
 			Dataset<String> dataset = new Dataset<String>(parameterName, getColor(chart.getDatasets().size()));
 			for (long timeEnd : xAxisValues)
 				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, minimumProbability));
 			chart.getDatasets().add(dataset);
 		}
+		chart.getDatasets().sort((d1, d2) -> NaturalOrderComparator.compareTo(d1.getLabel(), d2.getLabel()));
 		chart.setYTitle(messageSource.getMessage("label.parameter.value", null, "Value", locale));
 		return chart;
 	}
@@ -670,18 +739,19 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public Chart[] evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale)
-			throws Exception {
-		Chart[] charts = {
-				new Chart("chart_evolution_profitability_" + actionPlanType,
-						messageSource.getMessage("label.title.chart.evolution_profitability." + actionPlanType.toLowerCase(), null,
-								"Evolution of profitability for " + actionPlanType, locale)),
+	public Chart[] evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages,
+			List<Phase> phases, String actionPlanType, Locale locale) throws Exception {
+		Chart[] charts = { new Chart("chart_evolution_profitability_" + actionPlanType,
+				messageSource.getMessage("label.title.chart.evolution_profitability." + actionPlanType.toLowerCase(),
+						null, "Evolution of profitability for " + actionPlanType, locale)),
 				new Chart("chart_compliance_" + actionPlanType,
-						messageSource.getMessage("label.title.chart.compliance." + actionPlanType.toLowerCase(), null, "ISO compliance for " + actionPlanType, locale)) };
+						messageSource.getMessage("label.title.chart.compliance." + actionPlanType.toLowerCase(), null,
+								"ISO compliance for " + actionPlanType, locale)) };
 		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildChartData(summaryStages, phases);
 		if (summaries.isEmpty())
 			return charts;
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(summaryStages));
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases,
+				ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 		for (Phase phase : usesPhases.values()) {
 			for (Chart chart : charts)
 				chart.getLabels().add("P" + phase.getNumber());
@@ -694,18 +764,25 @@ public class ChartGenerator {
 		List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 		for (AnalysisStandard analysisStandard : analysisStandards) {
-			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()) != null)
+			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE
+					+ analysisStandard.getStandard().getLabel()) != null)
 				if (standardcompliances.get(analysisStandard.getStandard().getLabel()) == null)
 					standardcompliances.put(analysisStandard.getStandard().getLabel(),
-							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
+							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE
+									+ analysisStandard.getStandard().getLabel()));
 				else
 					standardcompliances.put(analysisStandard.getStandard().getLabel(),
-							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
+							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE
+									+ analysisStandard.getStandard().getLabel()));
 		}
 		String[] dataName = { "ALE", "COST", "ROSI", "LOST" };
 		Map<String, Dataset<Object>> profiltabilityDatasets = new LinkedHashMap<>(dataName.length);
 		for (String name : dataName)
-			profiltabilityDatasets.put(name, new Dataset<Object>(messageSource.getMessage("label.title.chart.evolution_profitability." + name.toLowerCase(), null, locale), null));
+			profiltabilityDatasets
+					.put(name,
+							new Dataset<Object>(messageSource.getMessage(
+									"label.title.chart.evolution_profitability." + name.toLowerCase(), null, locale),
+									null));
 		for (String name : standardcompliances.keySet())
 			complianceDatasets.put(name, new Dataset<String>(name, getColor(complianceDatasets.size()), "line"));
 
@@ -716,15 +793,18 @@ public class ChartGenerator {
 				switch (name) {
 				case "ALE":
 					dataset.setBackgroundColor(getStaticColor(1));
-					dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i));
+					dataset.getData()
+							.add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i));
 					break;
 				case "COST":
 					dataset.setBackgroundColor(getStaticColor(3));
 					if (rosi >= 0)
-						dataset.getData().add(summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i));
+						dataset.getData().add(summaries
+								.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i));
 					else {
 						List<Object> ales = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
-						dataset.getData().add(((Number) ales.get(i - 1)).doubleValue() - ((Number) ales.get(i)).doubleValue());
+						dataset.getData()
+								.add(((Number) ales.get(i - 1)).doubleValue() - ((Number) ales.get(i)).doubleValue());
 					}
 					break;
 				case "ROSI":
@@ -766,47 +846,62 @@ public class ChartGenerator {
 	}
 
 	public Object riskByAsset(Integer idAnalysis, Locale locale) {
-		Map<String, List<Assessment>> assessmentByAssets = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
-				.collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
+		Map<String, List<Assessment>> assessmentByAssets = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis)
+				.stream().collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
 		return assessmentByAssets.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByAssets);
 	}
 
 	public Object riskByAssetType(Integer idAnalysis, Locale locale) {
-		Map<String, List<Assessment>> assessmentByAssetTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
-				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
+		Map<String, List<Assessment>> assessmentByAssetTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis)
+				.stream()
+				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage(
+						"label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
 						assessment.getAsset().getAssetType().getName(), locale)));
-		return assessmentByAssetTypes.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByAssetTypes);
+		return assessmentByAssetTypes.isEmpty() ? new Chart()
+				: generateAssessmentRisk(idAnalysis, assessmentByAssetTypes);
 	}
 
 	public Object riskByScenario(Integer idAnalysis, Locale locale) {
-		Map<String, List<Assessment>> assessmentByScenarios = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
-				.collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
-		return assessmentByScenarios.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByScenarios);
+		Map<String, List<Assessment>> assessmentByScenarios = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis)
+				.stream().collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
+		return assessmentByScenarios.isEmpty() ? new Chart()
+				: generateAssessmentRisk(idAnalysis, assessmentByScenarios);
 	}
 
 	public Object riskByScenarioType(Integer idAnalysis, Locale locale) {
-		Map<String, List<Assessment>> assessmentByScenarioTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream().collect(
-				Collectors.groupingBy(assessment -> messageSource.getMessage("label.scenario.type." + assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(),
+		Map<String, List<Assessment>> assessmentByScenarioTypes = daoAssessment
+				.getAllFromAnalysisAndSelected(idAnalysis).stream()
+				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage(
+						"label.scenario.type."
+								+ assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(),
 						null, assessment.getAsset().getAssetType().getName(), locale)));
-		return assessmentByScenarioTypes.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByScenarioTypes);
+		return assessmentByScenarioTypes.isEmpty() ? new Chart()
+				: generateAssessmentRisk(idAnalysis, assessmentByScenarioTypes);
 	}
 
-	public Object rrfByMeasure(int idMeasure, Integer idAnalysis, List<Scenario> scenarios, Locale locale) throws Exception {
+	public Object rrfByMeasure(int idMeasure, Integer idAnalysis, List<Scenario> scenarios, Locale locale)
+			throws Exception {
 		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		AbstractNormalMeasure normalMeasure = (AbstractNormalMeasure) daoMeasure.getFromAnalysisById(idMeasure, idAnalysis);
+		AbstractNormalMeasure normalMeasure = (AbstractNormalMeasure) daoMeasure.getFromAnalysisById(idMeasure,
+				idAnalysis);
 		if (normalMeasure == null)
 			return new Chart();
 		return rrfByMeasure(normalMeasure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
-	public Object rrfByMeasure(Measure measure, Integer idAnalysis, List<Scenario> scenarios, Locale locale) throws Exception {
+	public Object rrfByMeasure(Measure measure, Integer idAnalysis, List<Scenario> scenarios, Locale locale)
+			throws Exception {
 		try {
-			Chart chart = new Chart("rrf-chart", messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() },
-					"RRF by measure (" + measure.getMeasureDescription().getReference() + ")", locale));
+			Chart chart = new Chart("rrf-chart",
+					messageSource.getMessage("label.title.chart.rff.measure",
+							new String[] { measure.getMeasureDescription().getReference() },
+							"RRF by measure (" + measure.getMeasureDescription().getReference() + ")", locale));
 			if (measure instanceof NormalMeasure)
-				generateNormalMeasureSeries(computeRRFByNormalMeasure((NormalMeasure) measure, daoAssetType.getAll(), scenarios, idAnalysis, locale), chart);
+				generateNormalMeasureSeries(computeRRFByNormalMeasure((NormalMeasure) measure, daoAssetType.getAll(),
+						scenarios, idAnalysis, locale), chart);
 			else if (measure instanceof AssetMeasure)
-				generateAssetMeasureSeries(computeRRFByAssetMeasure((AssetMeasure) measure, scenarios, idAnalysis), chart);
+				generateAssetMeasureSeries(computeRRFByAssetMeasure((AssetMeasure) measure, scenarios, idAnalysis),
+						chart);
 			if (scenarios.size() > 1)
 				chart.getDatasets().forEach(dataset -> dataset.setType("line"));
 			scenarios.forEach(scenario -> chart.getLabels().add(scenario.getName()));
@@ -820,17 +915,19 @@ public class ChartGenerator {
 
 	}
 
-	public Object rrfByScenario(int idScenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
+	public Object rrfByScenario(int idScenario, int idAnalysis, List<Measure> measures, Locale locale)
+			throws Exception {
 		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		if (scenario == null)
 			return null;
 		return rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
-	public Object rrfByScenario(Scenario scenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
+	public Object rrfByScenario(Scenario scenario, int idAnalysis, List<Measure> measures, Locale locale)
+			throws Exception {
 		try {
-			Chart chart = new Chart("rrf-chart",
-					messageSource.getMessage("label.title.chart.rff.scenario", new String[] { scenario.getName() }, "RRF by scenario (" + scenario.getName() + ")", locale));
+			Chart chart = new Chart("rrf-chart", messageSource.getMessage("label.title.chart.rff.scenario",
+					new String[] { scenario.getName() }, "RRF by scenario (" + scenario.getName() + ")", locale));
 			Map<String, Object> rrfs = computeRRFByScenario(scenario, measures, idAnalysis, locale);
 			for (String key : rrfs.keySet()) {
 				Dataset<String> dataset = new Dataset<String>(key, getColor(chart.getDatasets().size()));
@@ -866,27 +963,31 @@ public class ChartGenerator {
 	 * @param idAnalysis The ID of the analysis to generate the graph for.
 	 * @param assetType  The asset type to generate the graph for.
 	 */
-	private <T> Chart aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, T> aggregator, Function<T, String> axisLabelProvider,
-			String chartTitle) throws Exception {
+	private <T> Chart aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale,
+			Function<Assessment, T> aggregator, Function<T, String> axisLabelProvider, String chartTitle)
+			throws Exception {
 
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
-		final List<IParameter> allParameters = analysis.getParameters().values().stream().flatMap(list -> list.stream()).collect(Collectors.toList());
+		final List<IParameter> allParameters = analysis.getParameters().values().stream().flatMap(list -> list.stream())
+				.collect(Collectors.toList());
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved
-		List<String> sourceUserNames = daoIDS.getByAnalysis(analysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysis(analysis).stream().map(ids -> ids.getPrefix())
+				.collect(Collectors.toList());
 
 		// Fetch ALE evolution data grouped by scenario and time
 		final List<Long> xAxisValues = new ArrayList<>(); // populated within
 															// dynamicRiskComputer.generateAleEvolutionData()
 		final Map<Long, Map<Assessment, Set<String>>> involvedVariables = new HashMap<>(); // dito
 		final Map<Long, Map<String, Double>> expressionParameters = new HashMap<>(); // dito
-		final Map<T, Map<Long, Double>> data = dynamicRiskComputer.generateAleEvolutionData(assessments, standards, sourceUserNames, allParameters, aggregator, xAxisValues,
-				involvedVariables, expressionParameters);
+		final Map<T, Map<Long, Double>> data = dynamicRiskComputer.generateAleEvolutionData(assessments, standards,
+				sourceUserNames, allParameters, aggregator, xAxisValues, involvedVariables, expressionParameters);
 		// Output data
 		final Chart chart = new Chart("ale-evolution-" + chartTitle.hashCode(), chartTitle);
 		for (T key : data.keySet()) {
-			final Dataset<String> dataset = new Dataset<String>(axisLabelProvider.apply(key), getColor(chart.getDatasets().size()));
+			final Dataset<String> dataset = new Dataset<String>(axisLabelProvider.apply(key),
+					getColor(chart.getDatasets().size()));
 			// Collect data/metadata
 			Long lastTimeEnd = null;
 			for (long timeEnd : xAxisValues) {
@@ -898,8 +999,10 @@ public class ChartGenerator {
 					final Map<String, Double> currentExpressionParameters = expressionParameters.get(timeEnd);
 					final Map<String, Double> lastExpressionParameters = expressionParameters.get(lastTimeEnd);
 					final double lastAle = data.get(key).get(lastTimeEnd);
-					dataset.getMetaData().add(generateNotableEventsJson(aggregator, key, lastTimeEnd, lastAle, currentAle, involvedVariables.get(lastTimeEnd),
-							lastExpressionParameters, currentExpressionParameters));
+					dataset.getMetaData()
+							.add(generateNotableEventsJson(aggregator, key, lastTimeEnd, lastAle, currentAle,
+									involvedVariables.get(lastTimeEnd), lastExpressionParameters,
+									currentExpressionParameters));
 				}
 				// Update references
 				lastTimeEnd = timeEnd;
@@ -934,7 +1037,8 @@ public class ChartGenerator {
 			chart.getLabels().add(category);
 
 		for (int i = 1; i < aleCharts.length; i++) {
-			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
+			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream()
+					.filter(ale -> references.containsKey(ale.getAssetName()))
 					.collect(Collectors.toMap(ALE::getAssetName, Function.identity()));
 			if (!aleMapper.isEmpty()) {
 				dataset = new Dataset<String>(aleCharts[i].getName(), getColor(chart.getDatasets().size()));
@@ -955,7 +1059,9 @@ public class ChartGenerator {
 
 	public static String getColor(int i, String defaultValue) {
 		return getDefaultColors() == null || getDefaultColors().isEmpty() ? defaultValue
-				: i < 0 ? getDefaultColors().get(0) : i >= getDefaultColors().size() ? getDefaultColors().get(i % getDefaultColors().size()) : getDefaultColors().get(i);
+				: i < 0 ? getDefaultColors().get(0)
+						: i >= getDefaultColors().size() ? getDefaultColors().get(i % getDefaultColors().size())
+								: getDefaultColors().get(i);
 	}
 
 	public static String getColor(int i) {
@@ -964,7 +1070,9 @@ public class ChartGenerator {
 
 	public static String getStaticColor(int i) {
 		return getStaticColors() == null || getStaticColors().isEmpty() ? getColor(i)
-				: i < 0 ? getStaticColors().get(0) : i >= getStaticColors().size() ? getStaticColors().get(i % getStaticColors().size()) : getStaticColors().get(i);
+				: i < 0 ? getStaticColors().get(0)
+						: i >= getStaticColors().size() ? getStaticColors().get(i % getStaticColors().size())
+								: getStaticColors().get(i);
 	}
 
 	private void buildSingleALESerie(Chart chart, ALEChart data) {
@@ -976,8 +1084,8 @@ public class ChartGenerator {
 		chart.getDatasets().add(dataset);
 	}
 
-	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, Asset asset, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure, AssetMeasure measure)
-			throws TrickException, ParseException {
+	private void computeRRFAssetMeasure(Scenario scenario, IParameter parameter, Asset asset, RRFAssetType rrfAssetType,
+			RRFMeasure rrfMeasure, AssetMeasure measure) throws TrickException, ParseException {
 		rrfMeasure.setValue(RRF.calculateAssetMeasureRRF(scenario, asset, parameter, measure));
 		rrfAssetType.getRrfMeasures().add(rrfMeasure);
 	}
@@ -992,11 +1100,14 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios,
+			int idAnalysis) throws Exception {
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis,
+				Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAsset> rrfs = new LinkedHashMap<String, RRFAsset>(measure.getMeasureAssetValues().size());
 		if (measure.getMeasureAssetValues().size() == 0)
-			throw new TrickException("error.rrf.measure.no_assets", "The measure " + measure.getMeasureDescription().getReference() + " does not have any assets attributed!",
+			throw new TrickException("error.rrf.measure.no_assets", "The measure "
+					+ measure.getMeasureDescription().getReference() + " does not have any assets attributed!",
 					measure.getMeasureDescription().getReference());
 		for (MeasureAssetValue assetValue : measure.getMeasureAssetValues()) {
 			RRFAsset rrfAsset = new RRFAsset(assetValue.getAsset().getName());
@@ -1031,12 +1142,14 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis, Locale locale)
-			throws Exception {
-		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes,
+			List<Scenario> scenarios, int idAnalysis, Locale locale) throws Exception {
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis,
+				Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
-			RRFAssetType rrfAssetType = new RRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale));
+			RRFAssetType rrfAssetType = new RRFAssetType(messageSource.getMessage(
+					"label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale));
 			for (Scenario scenario : scenarios) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 
@@ -1057,37 +1170,48 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis, Locale locale) throws Exception {
-		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis,
+			Locale locale) throws Exception {
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis,
+				Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
 		List<AssetType> assetTypes = scenario.getAssetTypes();
 		if (assetTypes.isEmpty())
-			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!",
+			throw new TrickException("error.rrf.scneario.no_assettypevalues",
+					"The scenario " + scenario.getName() + " does not have any asset types attributed!",
 					scenario.getName());
 		for (Measure measure : measures) {
 			if (measure instanceof NormalMeasure) {
 				if (scenario.isAssetLinked()) {
 					for (Asset asset : scenario.getLinkedAssets())
-						computeRRFNormalMeasure(scenario, parameter, asset.getAssetType(), findRRFAssetType(asset.getName(), rrfs),
-								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (NormalMeasure) measure);
+						computeRRFNormalMeasure(scenario, parameter, asset.getAssetType(),
+								findRRFAssetType(asset.getName(), rrfs),
+								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()),
+								(NormalMeasure) measure);
 				} else {
 					for (AssetType assetType : scenario.getAssetTypes())
 						computeRRFNormalMeasure(scenario, parameter, assetType,
-								findRRFAssetType(messageSource.getMessage("label.asset_type." + assetType.getName().toLowerCase(), null, assetType.getName(), locale), rrfs),
-								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (NormalMeasure) measure);
+								findRRFAssetType(messageSource.getMessage(
+										"label.asset_type." + assetType.getName().toLowerCase(), null,
+										assetType.getName(), locale), rrfs),
+								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()),
+								(NormalMeasure) measure);
 				}
 
 			} else if (measure instanceof AssetMeasure) {
 				if (scenario.isAssetLinked()) {
 					for (Asset asset : scenario.getLinkedAssets())
 						computeRRFAssetMeasure(scenario, parameter, asset, findRRFAssetType(asset.getName(), rrfs),
-								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), (AssetMeasure) measure);
+								new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()),
+								(AssetMeasure) measure);
 				} else {
 					AssetMeasure assetMeasure = (AssetMeasure) measure;
 					for (MeasureAssetValue measureAssetValue : assetMeasure.getMeasureAssetValues()) {
 						if (scenario.hasInfluenceOnAsset(measureAssetValue.getAsset()))
-							computeRRFAssetMeasure(scenario, parameter, measureAssetValue.getAsset(), findRRFAssetType(measureAssetValue.getAsset().getName(), rrfs),
-									new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()), assetMeasure);
+							computeRRFAssetMeasure(scenario, parameter, measureAssetValue.getAsset(),
+									findRRFAssetType(measureAssetValue.getAsset().getName(), rrfs),
+									new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference()),
+									assetMeasure);
 					}
 				}
 			}
@@ -1095,8 +1219,8 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	private void computeRRFNormalMeasure(Scenario scenario, IParameter parameter, AssetType assetType, RRFAssetType rrfAssetType, RRFMeasure rrfMeasure,
-			NormalMeasure normalMeasure) throws ParseException {
+	private void computeRRFNormalMeasure(Scenario scenario, IParameter parameter, AssetType assetType,
+			RRFAssetType rrfAssetType, RRFMeasure rrfMeasure, NormalMeasure normalMeasure) throws ParseException {
 		rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, normalMeasure));
 		rrfAssetType.getRrfMeasures().add(rrfMeasure);
 	}
@@ -1113,10 +1237,12 @@ public class ChartGenerator {
 	private List<Chart> generateAssessmentRisk(Integer idAnalysis, Map<String, List<Assessment>> assessments) {
 		ValueFactory valueFactory = new ValueFactory(daoLikelihoodParameter.findByAnalysisId(idAnalysis));
 		valueFactory.add(daoImpactParameter.findByAnalysisId(idAnalysis));
-		return generateAssessmentRisk(valueFactory, assessments, daoRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
+		return generateAssessmentRisk(valueFactory, assessments,
+				daoRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
 	}
 
-	public List<Chart> generateAssessmentRisk(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<RiskAcceptanceParameter> riskAcceptanceParameters) {
+	public List<Chart> generateAssessmentRisk(ValueFactory valueFactory, Map<String, List<Assessment>> assessments,
+			List<RiskAcceptanceParameter> riskAcceptanceParameters) {
 		return generateAssessmentRiskChart(valueFactory, assessments, GenerateColorBounds(riskAcceptanceParameters));
 	}
 
@@ -1125,17 +1251,20 @@ public class ChartGenerator {
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
-			else if (riskAcceptanceParameters.size() == (i + 1))
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
-			else
 				colorBounds.add(
-						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+						new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
 		return colorBounds;
 	}
 
-	public List<Chart> generateAssessmentRiskChart(ValueFactory valueFactory, Map<String, List<Assessment>> assessments, List<ColorBound> colorBounds) {
+	public List<Chart> generateAssessmentRiskChart(ValueFactory valueFactory, Map<String, List<Assessment>> assessments,
+			List<ColorBound> colorBounds) {
 		Distribution distribution = Distribution.Distribut(assessments.size(), getAleChartSize(), getAleChartMaxSize());
 		int multiplicator = Math.floorDiv(assessments.size(), distribution.getDivisor()), index = 1;
 		List<Chart> charts = new ArrayList<>(multiplicator);
@@ -1143,7 +1272,8 @@ public class ChartGenerator {
 		for (Entry<String, List<Assessment>> entry : assessments.entrySet()) {
 			entry.getValue().forEach(assessment -> {
 				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny()
+						.ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
 			});
 			if (charts.isEmpty() || (index++ % multiplicator) == 0) {
 				charts.add(new Chart());
@@ -1155,7 +1285,8 @@ public class ChartGenerator {
 				colorBounds.forEach(colorBound -> {
 					Dataset<String> dataset = datasets.get(colorBound.getLabel());
 					if (dataset == null) {
-						datasets.put(colorBound.getLabel(), dataset = new Dataset<String>(colorBound.getLabel(), colorBound.getColor()));
+						datasets.put(colorBound.getLabel(),
+								dataset = new Dataset<String>(colorBound.getLabel(), colorBound.getColor()));
 						chart.getDatasets().add(dataset);
 					}
 					while (dataset.getData().size() < chart.getLabels().size())
@@ -1188,8 +1319,10 @@ public class ChartGenerator {
 		}
 	}
 
-	private <TAggregator> List<DynamicParameterMetadata> generateNotableEventsJson(Function<Assessment, TAggregator> aggregator, TAggregator key, long timeEnd, double currentAle,
-			double nextAle, Map<Assessment, Set<String>> involvedVariables, Map<String, Double> currentExpressionParameters, Map<String, Double> nextExpressionParameters) {
+	private <TAggregator> List<DynamicParameterMetadata> generateNotableEventsJson(
+			Function<Assessment, TAggregator> aggregator, TAggregator key, long timeEnd, double currentAle,
+			double nextAle, Map<Assessment, Set<String>> involvedVariables,
+			Map<String, Double> currentExpressionParameters, Map<String, Double> nextExpressionParameters) {
 		List<DynamicParameterMetadata> result = new ArrayList<>();
 
 		// Check if the ALE in any scenario changes by any considerable amount
@@ -1219,8 +1352,9 @@ public class ChartGenerator {
 			}
 
 			if (selectedDynamicParameterName != null)
-				result.add(new DynamicParameterMetadata(selectedDynamicParameterName, new ValueMetadata<Double>(currentAle, nextAle),
-						new ValueMetadata<Double>(selectedDynamicParameterCurrentValue, selectedDynamicParameterNextValue)));
+				result.add(new DynamicParameterMetadata(selectedDynamicParameterName,
+						new ValueMetadata<Double>(currentAle, nextAle), new ValueMetadata<Double>(
+								selectedDynamicParameterCurrentValue, selectedDynamicParameterNextValue)));
 		}
 		return result;
 	}
@@ -1235,17 +1369,20 @@ public class ChartGenerator {
 	 * @param previouscompliences
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences,
-			ValueFactory factory) {
+	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase,
+			Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences, ValueFactory factory) {
 		Map<String, Object[]> compliances = previouscompliences;
 		for (Measure measure : measures) {
 			if (measure.getPhase().getNumber() == phase.getNumber() && measure.getMeasureDescription().isComputable()) {
-				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
+				String chapter = ActionPlanComputation
+						.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
 				if (compliance == null)
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
-				if (actionPlanMeasures.containsKey(measure.getId()) && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue(factory));
+				if (actionPlanMeasures.containsKey(measure.getId())
+						&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
+							- measure.getImplementationRateValue(factory));
 			}
 		}
 		return compliances;
@@ -1258,11 +1395,13 @@ public class ChartGenerator {
 	 * @param measures
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures, ValueFactory factory) {
+	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures,
+			ValueFactory factory) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
 			if (measure.getMeasureDescription().isComputable()) {
-				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
+				String chapter = ActionPlanComputation
+						.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
 				if (compliance == null)
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
@@ -1277,7 +1416,9 @@ public class ChartGenerator {
 	}
 
 	public static double ComputeCompliance(AnalysisStandard analysisStandard, ValueFactory factory) {
-		return analysisStandard.getMeasures().stream().filter(m -> !m.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && m.getMeasureDescription().isComputable())
+		return analysisStandard.getMeasures().stream()
+				.filter(m -> !m.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+						&& m.getMeasureDescription().isComputable())
 				.mapToDouble(m -> m.getImplementationRateValue(factory)).average().orElse(0);
 	}
 
@@ -1302,7 +1443,8 @@ public class ChartGenerator {
 			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Integer> importanceByCount = new LinkedHashMap<>();
 		for (Assessment assessment : analysis.findSelectedAssessments()) {
-			Integer impact = factory.findImpactLevel(assessment.getImpacts()), probability = factory.findProbLevel(assessment.getLikelihood());
+			Integer impact = factory.findImpactLevel(assessment.getImpacts()),
+					probability = factory.findProbLevel(assessment.getLikelihood());
 			if (impact == 0 || probability == 0)
 				continue;
 			String key = String.format("%d-%d", impact, probability);
@@ -1314,7 +1456,8 @@ public class ChartGenerator {
 
 		String type = factory.getImpacts().keySet().stream().findAny().orElse(null);
 
-		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
+		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(),
+				impacts = factory.getImpacts().get(type);
 
 		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
 
@@ -1325,74 +1468,90 @@ public class ChartGenerator {
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
-			else if (riskAcceptanceParameters.size() == (i + 1))
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
-			else
 				colorBounds.add(
-						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+						new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 
 		}
 
-		probabilities.stream().filter(probability -> probability.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
-			chart.getLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
-		});
+		probabilities.stream().filter(probability -> probability.getLevel() > 0)
+				.sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
+					chart.getLabels().add(probability.getLevel()
+							+ (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
+				});
 
-		impacts.stream().filter(impact -> impact.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
-			Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>());
-			dataset.setLabel(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
-			for (int i = 1; i < probabilities.size(); i++) {
-				Integer importance = impact.getLevel() * i, count = importanceByCount.get(String.format("%d-%d", impact.getLevel(), i));
-				ColorBound colorBound = colorBounds.stream().filter(color -> color.isAccepted(importance)).findAny().orElse(null);
-				if (colorBound != null) {
-					if (count != null)
-						colorBound.setCount(colorBound.getCount() + count);
-					dataset.getBackgroundColor().add(colorBound.getColor());
-				} else
-					dataset.getBackgroundColor().add(Constant.HEAT_MAP_DEFAULT_COLOR);
-				dataset.getData().add(count == null ? "" : count);
-			}
-			chart.getDatasets().add(dataset);
-		});
+		impacts.stream().filter(impact -> impact.getLevel() > 0)
+				.sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
+					Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>());
+					dataset.setLabel(impact.getLevel()
+							+ (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
+					for (int i = 1; i < probabilities.size(); i++) {
+						Integer importance = impact.getLevel() * i,
+								count = importanceByCount.get(String.format("%d-%d", impact.getLevel(), i));
+						ColorBound colorBound = colorBounds.stream().filter(color -> color.isAccepted(importance))
+								.findAny().orElse(null);
+						if (colorBound != null) {
+							if (count != null)
+								colorBound.setCount(colorBound.getCount() + count);
+							dataset.getBackgroundColor().add(colorBound.getColor());
+						} else
+							dataset.getBackgroundColor().add(Constant.HEAT_MAP_DEFAULT_COLOR);
+						dataset.getData().add(count == null ? "" : count);
+					}
+					chart.getDatasets().add(dataset);
+				});
 
-		colorBounds.forEach(colorBound -> chart.getLegends().add(new Legend(colorBound.getCount() + " " + colorBound.getLabel(), colorBound.getColor())));
+		colorBounds.forEach(colorBound -> chart.getLegends()
+				.add(new Legend(colorBound.getCount() + " " + colorBound.getLabel(), colorBound.getColor())));
 
 		return chart;
 	}
 
-	public static Chart generateRiskEvolutionHeatMap(Analysis analysis, ValueFactory factory, MessageSource messageSource) {
+	public static Chart generateRiskEvolutionHeatMap(Analysis analysis, ValueFactory factory,
+			MessageSource messageSource) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		Chart chart = new Chart();
 		String type = factory.getImpacts().keySet().stream().findAny().orElse(null);
-		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(), impacts = factory.getImpacts().get(type);
+		List<? extends IBoundedParameter> probabilities = analysis.getLikelihoodParameters(),
+				impacts = factory.getImpacts().get(type);
 		List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters();
 		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 		Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 		String notApplicable = messageSource.getMessage("label.parameter.label.na", null, locale);
-		probabilities.stream().sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
-			if (probability.getLevel() == 0)
-				chart.getXLabels().add(probability.getLevel() + "-" + notApplicable);
-			else
-				chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
-		});
+		probabilities.stream().sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()))
+				.forEach(probability -> {
+					if (probability.getLevel() == 0)
+						chart.getXLabels().add(probability.getLevel() + "-" + notApplicable);
+					else
+						chart.getXLabels().add(probability.getLevel()
+								+ (StringUtils.isEmpty(probability.getLabel()) ? "" : "-" + probability.getLabel()));
+				});
 
 		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
 			if (impact.getLevel() == 0)
 				chart.getYLabels().add(impact.getLevel() + "-" + notApplicable);
 			else
-				chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
+				chart.getYLabels().add(
+						impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : "-" + impact.getLabel()));
 		});
 
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
-			else if (riskAcceptanceParameters.size() == (i + 1))
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
-			else
 				colorBounds.add(
-						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+						new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
 
 		int inverseImpact[] = new int[impacts.size()];
@@ -1400,17 +1559,20 @@ public class ChartGenerator {
 			inverseImpact[i] = size - i;
 		Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
 				.filter(riskProfile -> riskProfile.getAsset().isSelected() && riskProfile.getScenario().isSelected())
-				.collect(Collectors.toMap(riskProfile -> Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()), Function.identity()));
-		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected).sorted(assessmentComparator(factory, riskProfiles, -1))
-				.collect(Collectors.toList());
+				.collect(Collectors.toMap(
+						riskProfile -> Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()),
+						Function.identity()));
+		List<Assessment> assessments = analysis.getAssessments().stream().filter(Assessment::isSelected)
+				.sorted(assessmentComparator(factory, riskProfiles, -1)).collect(Collectors.toList());
 
 		populateDataset(messageSource, locale, factory, chart, assessments, riskProfiles, inverseImpact);
 		for (int i = impacts.size() - 1; i >= 0; i--) {
 			Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>(probabilities.size() - 1));
 			for (int j = 0; j < probabilities.size(); j++) {
 				int importance = i * j;
-				dataset.getBackgroundColor().add(
-						colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).map(ColorBound::getColor).findAny().orElse(Constant.HEAT_MAP_DEFAULT_COLOR));
+				dataset.getBackgroundColor()
+						.add(colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance))
+								.map(ColorBound::getColor).findAny().orElse(Constant.HEAT_MAP_DEFAULT_COLOR));
 				dataset.getData().add("");
 			}
 			dataset.setType("heatmap");
@@ -1419,7 +1581,8 @@ public class ChartGenerator {
 		return chart;
 	}
 
-	private static Comparator<? super Assessment> assessmentComparator(ValueFactory factory, Map<String, RiskProfile> risks, int order) {
+	private static Comparator<? super Assessment> assessmentComparator(ValueFactory factory,
+			Map<String, RiskProfile> risks, int order) {
 		return (a1, a2) -> {
 			int result = Integer.compare(factory.findImportance(a1), factory.findImportance(a2));
 			if (result == 0)
@@ -1444,31 +1607,36 @@ public class ChartGenerator {
 			if (result == 0)
 				result = type <= 1 ? Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance()) : 0;
 			if (result == 0)
-				result = NaturalOrderComparator.compareTo(emptyIsNull(r1.getIdentifier()), emptyIsNull(r2.getIdentifier())) * order;
+				result = NaturalOrderComparator.compareTo(emptyIsNull(r1.getIdentifier()),
+						emptyIsNull(r2.getIdentifier())) * order;
 			return result;
 		}
 	}
 
-	private static void populateDataset(MessageSource messageSource, Locale locale, ValueFactory factory, Chart chart, List<Assessment> assessments,
-			Map<String, RiskProfile> riskProfiles, int[] inverseImpacts) {
+	private static void populateDataset(MessageSource messageSource, Locale locale, ValueFactory factory, Chart chart,
+			List<Assessment> assessments, Map<String, RiskProfile> riskProfiles, int[] inverseImpacts) {
 		assessments.forEach(assessment -> {
 			Dataset<String> dataset = new Dataset<String>(getRiskColor(assessment.getScenario().getType()));
-			dataset.getData().add(new Point(factory.findProbLevel(assessment.getLikelihood()), inverseImpacts[factory.findImpactLevel(assessment.getImpacts())]));
-			dataset.setTitle(String.format("%s - %s", assessment.getAsset().getName(), assessment.getScenario().getName()));
+			dataset.getData().add(new Point(factory.findProbLevel(assessment.getLikelihood()),
+					inverseImpacts[factory.findImpactLevel(assessment.getImpacts())]));
+			dataset.setTitle(
+					String.format("%s - %s", assessment.getAsset().getName(), assessment.getScenario().getName()));
 			RiskProfile riskProfile = riskProfiles.get(assessment.getKey());
 			if (riskProfile != null) {
 				RiskProbaImpact probaImpact = riskProfile.getExpProbaImpact();
 				if (probaImpact == null)
 					dataset.getData().add(new Point(0, inverseImpacts[0], true));
 				else
-					dataset.getData().add(new Point(probaImpact.getProbabilityLevel(), inverseImpacts[probaImpact.getImpactLevel()], true));
+					dataset.getData().add(new Point(probaImpact.getProbabilityLevel(),
+							inverseImpacts[probaImpact.getImpactLevel()], true));
 				dataset.setLabel(StringUtils.isEmpty(riskProfile.getIdentifier()) ? "-" : riskProfile.getIdentifier());
 			} else {
 				dataset.setLabel("-");
 				dataset.getData().add(new Point(0, inverseImpacts[0], true));
 			}
 			dataset.setType("heatmapline");
-			dataset.setLegendText(messageSource.getMessage("label.chart.legend.text", new Object[] { dataset.getLabel(), dataset.getTitle() }, locale));
+			dataset.setLegendText(messageSource.getMessage("label.chart.legend.text",
+					new Object[] { dataset.getLabel(), dataset.getTitle() }, locale));
 			chart.getDatasets().add(dataset);
 			chart.getLegends().add(new Legend(dataset.getLabel(), dataset.getBackgroundColor()));
 
@@ -1486,32 +1654,37 @@ public class ChartGenerator {
 		Chart chart = new Chart(messageSource.getMessage("label.title.chart.total_risk", null, "Total Risk", locale));
 		if (analyses.isEmpty())
 			return chart;
-		Map<Integer, ValueFactory> valueFactories = analyses.stream().collect(Collectors.toMap(Analysis::getId, analysis -> new ValueFactory(analysis.getParameters())));
+		Map<Integer, ValueFactory> valueFactories = analyses.stream()
+				.collect(Collectors.toMap(Analysis::getId, analysis -> new ValueFactory(analysis.getParameters())));
 		List<RiskAcceptanceParameter> riskAcceptanceParameters = analyses.get(0).getRiskAcceptanceParameters();
 		List<ColorBound> colorBounds = new ArrayList<>(riskAcceptanceParameters.size());
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
 			RiskAcceptanceParameter parameter = riskAcceptanceParameters.get(i);
 			if (colorBounds.isEmpty())
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
-			else if (riskAcceptanceParameters.size() == (i + 1))
-				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
-			else
 				colorBounds.add(
-						new ColorBound(parameter.getColor(), parameter.getLabel(), riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
+						new ColorBound(parameter.getColor(), parameter.getLabel(), 0, parameter.getValue().intValue()));
+			else if (riskAcceptanceParameters.size() == (i + 1))
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), Integer.MAX_VALUE));
+			else
+				colorBounds.add(new ColorBound(parameter.getColor(), parameter.getLabel(),
+						riskAcceptanceParameters.get(i - 1).getValue().intValue(), parameter.getValue().intValue()));
 		}
 		Map<String, Dataset<String>> datasets = new LinkedHashMap<>();
 		for (Analysis analysis : analyses) {
 			ValueFactory valueFactory = valueFactories.get(analysis.getId());
 			analysis.getAssessments().stream().filter(Assessment::isSelected).forEach(assessment -> {
 				int importance = valueFactory.findImportance(assessment);
-				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny().ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
+				colorBounds.stream().filter(colorBound -> colorBound.isAccepted(importance)).findAny()
+						.ifPresent(colorBound -> colorBound.setCount(colorBound.getCount() + 1));
 			});
 			if (colorBounds.parallelStream().anyMatch(colorBound -> colorBound.getCount() > 0)) {
 				chart.getLabels().add(analysis.getLabel() + " " + analysis.getVersion());
 				colorBounds.forEach(colorBound -> {
 					Dataset<String> dataset = datasets.get(colorBound.getLabel());
 					if (dataset == null) {
-						datasets.put(colorBound.getLabel(), dataset = new Dataset<String>(colorBound.getLabel(), colorBound.getColor()));
+						datasets.put(colorBound.getLabel(),
+								dataset = new Dataset<String>(colorBound.getLabel(), colorBound.getColor()));
 						chart.getDatasets().add(dataset);
 					}
 					while (dataset.getData().size() < chart.getLabels().size())

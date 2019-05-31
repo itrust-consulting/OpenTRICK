@@ -228,12 +228,6 @@ public class RedmineClient implements Client {
 				issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
 				issue.setStartDate(measure.getPhase().getBeginDate());
 				issue.setDueDate(measure.getPhase().getEndDate());
-				/*
-				 * issue.setDoneRatio((int)
-				 * measure.getImplementationRateValue(Collections.emptyMap())); if
-				 * (!(measure.getResponsible() == null || measure.getResponsible().isEmpty()))
-				 * issue.setAssigneeName(measure.getResponsible());
-				 */
 				Issue persisted = issueManager.createIssue(issue);
 				measure.setTicket(persisted.getId().toString());
 				handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
@@ -257,12 +251,6 @@ public class RedmineClient implements Client {
 						issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
 						issue.setStartDate(measure.getPhase().getBeginDate());
 						issue.setDueDate(measure.getPhase().getEndDate());
-						/*
-						 * issue.setDoneRatio((int)
-						 * measure.getImplementationRateValue(Collections.emptyMap())); if
-						 * (!(measure.getResponsible() == null || measure.getResponsible().isEmpty()))
-						 * issue.setAssigneeName(measure.getResponsible());
-						 */
 						issueManager.update(issue);
 					}
 					handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));

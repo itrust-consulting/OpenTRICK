@@ -1019,6 +1019,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
 	@Cascade(CascadeType.ALL)
+	@OrderBy("acronym,value")
 	@SuppressWarnings("unchecked")
 	public List<DynamicParameter> getDynamicParameters() {
 		List<DynamicParameter> parameters = (List<DynamicParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC);
