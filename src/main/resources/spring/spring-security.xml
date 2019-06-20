@@ -90,7 +90,7 @@
 		<beans:property name="permissionEvaluator" ref="permissionEvaluator" />
 	</beans:bean>
 
-	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
+<!-- 	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" /> -->
 	
 	<beans:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall"/>
 	

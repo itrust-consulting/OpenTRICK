@@ -1,10 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
 	<version>2.12</version>
 	<packaging>war</packaging>
+
+
 	<properties>
 		<org.hibernate.version>5.3.7.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,99 +16,109 @@
 		<com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.springframework.security.version>5.1.1.RELEASE</org.springframework.security.version>
+		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.6.RELEASE</version>
+	</parent>
+
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>4.0.1</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
-			<version>1.6.1</version>
 		</dependency>
 
 		<!-- Spring dependencies -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-websocket</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-messaging</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 
 		<!-- Spring Security -->
@@ -113,44 +126,37 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-taglibs</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-acl</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-messaging</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<!-- For Spring security -->
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.10.1</version>
 		</dependency>
 
 		<!-- WEB SOCKET -->
@@ -179,7 +185,6 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-ldap</artifactId>
-			<version>${org.springframework.security.version}</version>
 		</dependency>
 
 		<!-- Hibernate dependencies -->
@@ -187,25 +192,21 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-java8</artifactId>
-			<version>${org.hibernate.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-jcache</artifactId>
-			<version>${org.hibernate.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${org.hibernate.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>3.6.2</version>
 		</dependency>
 
 		<dependency>
@@ -217,7 +218,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
-			<version>2.5.0</version>
 		</dependency>
 
 		<dependency>
@@ -235,7 +235,6 @@
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.25.2</version>
 		</dependency>
 
 		<dependency>
@@ -259,25 +258,21 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>${org.apache.logging.log4j.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>${org.apache.logging.log4j.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-1.2-api</artifactId>
-			<version>${org.apache.logging.log4j.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>${org.apache.logging.log4j.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.vlkan.log4j2/log4j2-logstash-layout -->
@@ -297,31 +292,26 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>${com.fasterxml.jackson.core.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${com.fasterxml.jackson.core.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-cbor</artifactId>
-			<version>${com.fasterxml.jackson.core.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-smile</artifactId>
-			<version>${com.fasterxml.jackson.core.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
-			<version>${com.fasterxml.jackson.core.version}</version>
 		</dependency>
 
 		<!-- Docx4J(Generate Office document) -->
@@ -337,7 +327,6 @@
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
-			<version>2.3.28</version>
 		</dependency>
 
 		<dependency>
@@ -373,7 +362,6 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>5.2.1</version>
 		</dependency>
 
 		<!-- JIRA -->
@@ -405,13 +393,11 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.23</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.5.5</version>
 		</dependency>
 
 		<dependency>
@@ -420,26 +406,34 @@
 			<version>2.3</version>
 		</dependency>
 
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+
 		<!-- Unit testing -->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<version>${org.springframework.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
-			<version>${org.springframework.security.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.25</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -460,42 +454,36 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>2.4.1</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
-			<version>2.4.0</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
-			<version>3.11.0</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
-			<version>1.4.01</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
-			<version>1.1.6</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -513,18 +501,27 @@
 		<name>itrust consulting S.A.R.L</name>
 		<url>www.itrust.lu</url>
 	</organization>
+	<!-- <dependencyManagement> <dependencies> <dependency> Import dependency 
+		management from Spring Boot <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-dependencies</artifactId> 
+		<version>2.1.6.RELEASE</version> <type>pom</type> <scope>import</scope> </dependency> 
+		</dependencies> </dependencyManagement> -->
 	<build>
 		<finalName>trickservice</finalName>
 		<plugins>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.1</version>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -534,7 +531,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.1</version>
 				<configuration>
 					<suiteXmlFiles>
 						<suiteXmlFile>src/test/resources/scenarios/Controller.xml</suiteXmlFile>
@@ -543,7 +539,7 @@
 				</configuration>
 			</plugin>
 
-		<!-- 	<plugin>
+			<plugin>
 				<groupId>io.leonard.maven.plugins</groupId>
 				<artifactId>jspc-maven-plugin</artifactId>
 				<version>2.4.6</version>
@@ -574,12 +570,11 @@
 						<version>4.6.1</version>
 					</dependency>
 				</dependencies>
-			</plugin> -->
-			
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.2.2</version>
 				<configuration>
 					<warSourceExcludes>
 						**/WEB-INF/static/css/*.css,
@@ -592,8 +587,11 @@
 						**/WEB-INF/static/js/bootstrap/*.js,
 						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
-					<packagingExcludes>**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties<!-- ,**/WEB-INF/views/** --></packagingExcludes>
-				<!-- 	<webXml>${project.build.directory}/web.xml</webXml> -->
+					<packagingExcludes>
+						**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties<!-- 
+							,**/WEB-INF/views/** -->
+					</packagingExcludes>
+					<!-- <webXml>${project.build.directory}/web.xml</webXml> -->
 				</configuration>
 			</plugin>
 
