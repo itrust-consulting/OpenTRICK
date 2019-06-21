@@ -46,10 +46,10 @@
 		<jsp:include page="../template/footer.jsp" />
 	</div>
 	<jsp:include page="../template/scripts.jsp" />
-	<script type="text/javascript" src="<spring:url value="js/trickservice/administration.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/user.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/ids.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/administration.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/customer.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/user.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/ids.js?version=${jsVersion}" />"></script>
 	<script type="text/javascript">
 		resolveMessage("label.notification.date.until", "<spring:message code='label.notification.date.until' htmlEscape='false'/>");
 		resolveMessage("label.notification.date.from", "<spring:message code='label.notification.date.from' />");

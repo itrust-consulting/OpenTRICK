@@ -112,7 +112,7 @@
 				<c:if test='${not (empty menu or menu == "Home")}'>
 					<c:set var="homeURL" value="${pageContext.request.contextPath}" />
 				</c:if>
-				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"></a>
+				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '/' : homeURL }"></a>
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>

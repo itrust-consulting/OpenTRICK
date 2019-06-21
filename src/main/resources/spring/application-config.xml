@@ -20,7 +20,7 @@
 	</mvc:annotation-driven>
 
 	<mvc:cors>
-		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS"/>
+		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS" />
 	</mvc:cors>
 
 	<context:component-scan base-package="lu.itrust.business" />
@@ -55,15 +55,85 @@
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
 
-	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/">
+		<mvc:cache-control cache-public="true" no-cache="false" no-store="false"/>
+		<mvc:resource-chain resource-cache="false" auto-registration="false">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+				</mvc:version-resolver>
+				<ref bean="encodedResourceResolver"/>
+				<ref bean="pathResourceResolver"/>
+				<ref bean="gzipResourceResolver"/>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
 
-	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/">
+		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000"/>
+		<mvc:resource-chain resource-cache="false" auto-registration="false">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+					<mvc:version-strategy patterns="/**" >
+					</mvc:version-strategy>
+				</mvc:version-resolver>
+				<ref bean="encodedResourceResolver"/>
+				<ref bean="pathResourceResolver"/>
+				<ref bean="gzipResourceResolver"/>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
 
-	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/">
+		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000"/>
+		<mvc:resource-chain resource-cache="false" auto-registration="false">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+				</mvc:version-resolver>
+				<ref bean="encodedResourceResolver"/>
+				<ref bean="pathResourceResolver"/>
+				<ref bean="gzipResourceResolver"/>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
 
-	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/">
+		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000"/>
+		<mvc:resource-chain resource-cache="false" auto-registration="false">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+				</mvc:version-resolver>
+				<ref bean="encodedResourceResolver"/>
+				<ref bean="pathResourceResolver"/>
+				<ref bean="gzipResourceResolver"/>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
 
-	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/" cache-period="${app.settings.static.resource.caching.age}" />
+	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/">
+		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000" />
+		<mvc:resource-chain resource-cache="false" auto-registration="false">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+				</mvc:version-resolver>
+				<ref bean="encodedResourceResolver"/>
+				<ref bean="pathResourceResolver"/>
+				<ref bean="gzipResourceResolver"/>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
+	
+	<bean id="pathResourceResolver" class="org.springframework.web.servlet.resource.PathResourceResolver"/>
+	
+	<bean id="encodedResourceResolver" class="org.springframework.web.servlet.resource.EncodedResourceResolver" />
+	
+	<bean id="gzipResourceResolver" class="org.springframework.web.servlet.resource.GzipResourceResolver" />
+	
+	
 
 	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 
@@ -85,7 +155,7 @@
 	</bean>
 
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
-	
+
 	<bean id="passwordEncryptionHelper" class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
 		<property name="password" value="${app.settings.password.ecryption.key}" />
 	</bean>

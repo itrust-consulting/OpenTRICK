@@ -16,7 +16,7 @@
 		<com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.springframework.security.version>5.1.1.RELEASE</org.springframework.security.version>
-		<slf4j.version>1.7.7</slf4j.version>
+		<!-- <slf4j.version>1.7.7</slf4j.version> -->
 	</properties>
 
 	<parent>
@@ -32,18 +32,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 			<exclusions>
 				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-logging</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-to-slf4j</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
+		
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -391,11 +385,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
@@ -588,8 +577,7 @@
 						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
 					<packagingExcludes>
-						**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties<!-- 
-							,**/WEB-INF/views/** -->
+						**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties,**/WEB-INF/views/**
 					</packagingExcludes>
 					<!-- <webXml>${project.build.directory}/web.xml</webXml> -->
 				</configuration>

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.boot;
+package lu.itrust.boot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.ImportResource;
  *
  */
 @SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
-		FreeMarkerAutoConfiguration.class , SecurityAutoConfiguration.class})
+		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class })
 @ImportResource("classpath:spring/application-config.xml")
 public class Application extends SpringBootServletInitializer {
 

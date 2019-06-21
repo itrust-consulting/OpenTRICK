@@ -40,7 +40,7 @@
 										</div>
 										<c:if test="${not item.background}">
 											<div class="hidden">
-												<a href='<spring:url value="${item.processURL}?token=${item.token}"/>' data-token='${item.token}' target="_ts_downloading" download class='btn btn-lg btn-primary'><spring:message code='label.action.download.click' />
+												<a href='<c:url value="${item.processURL}?token=${item.token}"/>' data-token='${item.token}' target="_ts_downloading" download class='btn btn-lg btn-primary'><spring:message code='label.action.download.click' />
 													<i class="glyphicon glyphicon-download"></i></a>
 											</div>
 										</c:if>

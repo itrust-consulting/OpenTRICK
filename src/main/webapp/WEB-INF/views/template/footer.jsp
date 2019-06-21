@@ -17,14 +17,14 @@
 		<div class="pull-left" style="width: 25%;">
 			<c:choose>
 				<c:when test="${locale.language=='en'}">
-					<a role="changeUILanguage" data-lang='en' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/en_disabled.png" />?version=${imageVersion}" /> English</a>&nbsp;
+					<a role="changeUILanguage" data-lang='en' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<c:url value="/images/flags/en_disabled.png" />?version=${imageVersion}" /> English</a>&nbsp;
    				<a href="${persiteParameter}lang=fr" role="changeUILanguage" style="color: #ffffff; display: inline-block; padding: 5px;"
-						onclick="return switchLangueTo('${persiteParameter}lang=fr')"><img src="<spring:url value="/images/flags/fr.png" />?version=${imageVersion}" /> Français</a>
+						onclick="return switchLangueTo('${persiteParameter}lang=fr')"><img src="<c:url value="/images/flags/fr.png" />?version=${imageVersion}" /> Français</a>
 				</c:when>
 				<c:when test="${locale.language=='fr'}">
 					<a href="${persiteParameter}lang=en" role="changeUILanguage" style="color: #ffffff; display: inline-block; padding: 5px;"
-						onclick="return switchLangueTo('${persiteParameter}lang=en')"><img src="<spring:url value="/images/flags/en.png" />?version=${imageVersion}" /> English</a>&nbsp;
-   				<a role="changeUILanguage" data-lang='fr' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/fr_disabled.png" />?version=${imageVersion}" /> Français</a>
+						onclick="return switchLangueTo('${persiteParameter}lang=en')"><img src="<c:url value="/images/flags/en.png" />?version=${imageVersion}" /> English</a>&nbsp;
+   				<a role="changeUILanguage" data-lang='fr' style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<c:url value="/images/flags/fr_disabled.png" />?version=${imageVersion}" /> Français</a>
 				</c:when>
 			</c:choose>
 		</div>
@@ -40,7 +40,7 @@
 				<c:if test="${not empty userGuideURL }">
 					<c:choose>
 						<c:when test="${userGuideURLInternal}">
-							<spring:url value="${userGuideURL}?version=${userGuideVersion}" var="userGuideBaseURL" />
+							<c:url value="${userGuideURL}?version=${userGuideVersion}" var="userGuideBaseURL" />
 							<a href='${userGuideURL}' style="color: #fff;" data-base-url='${userGuideBaseURL}' target="ts-user-guide"><i class="fa fa-book" aria-hidden="true"></i> <spring:message
 									code='label.user.manual' /></a>
 						</c:when>
@@ -52,7 +52,7 @@
 					</c:choose>
 				</c:if>
 			</sec:authorize>
-			<img alt="itrust consulting" src=<spring:url value="/images/support/itrust.png" />
+			<img alt="itrust consulting" src=<c:url value="/images/support/itrust.png" />
 				style="height: 30px; margin-top: -8px; margin-right: 10px; padding: 0px 10px; margin-bottom: -8px;"> <span title="v ${appVersion}${appVersionRevision}">v
 				${appVersion}</span>
 		</div>

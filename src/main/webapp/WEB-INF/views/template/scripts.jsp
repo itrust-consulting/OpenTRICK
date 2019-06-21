@@ -5,24 +5,24 @@
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
 </c:if>
-<script src="<spring:url value="/js/jquery-2.2.4.min.js?version=${jsVersion}" />"></script>
-<script src="<spring:url value="/js/bootstrap/bootstrap.min.js?version=${jsVersion}" />"></script>
+<script src="<c:url value="/js/jquery-2.2.4.min.js?version=${jsVersion}" />"></script>
+<script src="<c:url value="/js/bootstrap/bootstrap.min.js?version=${jsVersion}" />"></script>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
-	<script src="<spring:url value="/js/jquery.serializeToJson.min.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/bootstrap/bootstrap-notify.min.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/dom-parser.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/naturalSort.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/jquery.idle.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/main.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/trickservice/reloadSection.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/trickservice/taskmanager.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/trickservice/progressbar.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/trickservice/modal.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/web-socket/sockjs.min.js?version=${jsVersion}" />"></script>
-	<script src="<spring:url value="/js/web-socket/stomp.min.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/jquery.serializeToJson.min.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/bootstrap/bootstrap-notify.min.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/dom-parser.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/naturalSort.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/bootstrap/stickyTableHeaders.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/jquery.idle.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/main.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/trickservice/reloadSection.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/trickservice/taskmanager.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/trickservice/progressbar.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/trickservice/modal.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/web-socket/sockjs.min.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/web-socket/stomp.min.js?version=${jsVersion}" />"></script>
 	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
-		<script src="<spring:url value="/js/trickservice/patch.js?version=${jsVersion}" />"></script>
+		<script src="<c:url value="/js/trickservice/patch.js?version=${jsVersion}" />"></script>
 	</sec:authorize>
 	<script type="text/javascript">
 	<!--
@@ -62,5 +62,5 @@
 	</script>
 </sec:authorize>
 <sec:authorize access="hasRole('ROLE_PRE_AUTHEN')">
-	<script src="<spring:url value="/js/trickservice/otp.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/trickservice/otp.js?version=${jsVersion}" />"></script>
 </sec:authorize>

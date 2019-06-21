@@ -50,7 +50,7 @@
 		<c:set var="standardType" value="${selectedStandard.type}" />
 		<c:set var="standardid" value="${selectedStandard.id}" />
 		<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" />
-		<spring:url value="/Analysis/Standard/${selectedStandard.id}/Export/Measure" var="measureExportUrl" />
+		<c:url value="/Analysis/Standard/${selectedStandard.id}/Export/Measure" var="measureExportUrl" />
 		<div id="tab-standard-${standardid}" data-trick-id="${standardid}" data-trick-has-menu='${analysisOnly or isLinkedToProject}' data-targetable='true'
 			data-trick-export-url='${measureExportUrl}' style="display: ${firstStandard == selectedStandard? '' : 'none'}">
 			<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">

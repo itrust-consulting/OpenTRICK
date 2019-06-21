@@ -17,22 +17,22 @@
 <title><spring:message code="${title}" text="TRICK Service" /></title>
 <style>
 #main_menu_brand {
-	background-image: url('<spring:url value="/images/brand-grey.png?version=${cssVersion}" />');
+	background-image: url('<c:url value="/images/brand-grey.png?version=${cssVersion}" />');
 	width: 150px;
 	background-repeat: no-repeat;
 	margin: 1px 5px 0 0;
 	background-size: auto 39px;
 }
 #main_menu_brand:HOVER {
-	background-image: url('<spring:url value="/images/brand.png?version=${cssVersion}" />');
+	background-image: url('<c:url value="/images/brand.png?version=${cssVersion}" />');
 }
 </style>
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/font-awesome.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-slider.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.vertical-tabs.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" href='<spring:url value="${currentTheme}?version=${cssVersion}" />' type="text/css" />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/jquery-ui.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/font-awesome.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap-slider.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.vertical-tabs.min.css?version=${cssVersion}" />' />
+<link rel="stylesheet" href='<c:url value="${currentTheme}?version=${cssVersion}" />' type="text/css" />
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';

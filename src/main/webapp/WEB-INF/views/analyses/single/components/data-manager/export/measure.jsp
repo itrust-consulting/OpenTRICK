@@ -13,7 +13,7 @@
 		<div class='alert alert-sm alert-info' style="margin-bottom: 15px">
 			<spring:message code="info.data_manager.export.measure" />
 		</div>
-		<form action='<spring:url value="${item.processURL}?token=${item.token}" />' class="form" method="post" enctype="application/x-www-form-urlencoded">
+		<form action='<c:url value="${item.processURL}?token=${item.token}" />' class="form" method="post" enctype="application/x-www-form-urlencoded">
 			<div class="form-group">
 				<label data-helper-content='<spring:message code="help.export.measure.standard" />'>
 				<spring:message code="label.standards" /></label> <select class="form-control"

@@ -70,14 +70,15 @@ public class ControllerHome {
 	private ServiceEmailValidatingRequest serviceEmailValidatingRequest;
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
-	@RequestMapping("/Home")
+	@RequestMapping({ "", "/Home" })
 	public String home() throws Exception {
 		return "default/home";
 	}
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
-		return String.format("{\"message\":\"%s\"}", messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
+		return String.format("{\"message\":\"%s\"}",
+				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
@@ -90,7 +91,8 @@ public class ControllerHome {
 	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
 		loadSettings(model, locale);
 		if (request.getParameter("registerSuccess") != null) {
-			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
+			model.addAttribute("success", messageSource.getMessage("success.create.account", null,
+					"Account has been created successfully", locale));
 			model.addAttribute("username", request.getParameter("login") == null ? "" : request.getParameter("login"));
 		}
 		return "default/login";
@@ -98,18 +100,23 @@ public class ControllerHome {
 
 	private void loadSettings(Model model, Locale locale) {
 		try {
-			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP), resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
+			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP),
+					resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
 			model.addAttribute("allowRegister", register == null || register.getBoolean());
 			model.addAttribute("resetPassword", resetPassword == null || resetPassword.getBoolean());
 		} catch (GenericJDBCException e) {
-			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null, "No connection to the database...", locale));
+			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null,
+					"No connection to the database...", locale));
 		} catch (Exception e) {
-			model.addAttribute("error", messageSource.getMessage("error.setting.not.loaded", null, "Settings cannot be loaded", locale));
+			model.addAttribute("error",
+					messageSource.getMessage("error.setting.not.loaded", null, "Settings cannot be loaded", locale));
 		}
 	}
 
-	@RequestMapping(value = "/IsAuthenticate", method = { RequestMethod.GET, RequestMethod.POST }, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
+	@RequestMapping(value = "/IsAuthenticate", method = { RequestMethod.GET,
+			RequestMethod.POST }, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response)
+			throws Exception {
 		if (principal == null)
 			return false;
 		User user = serviceUser.get(principal.getName());

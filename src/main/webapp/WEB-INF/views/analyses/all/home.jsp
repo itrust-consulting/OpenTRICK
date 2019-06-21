@@ -191,11 +191,11 @@
 		<jsp:include page="../../template/footer.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
-	<script src="<spring:url value="/js/jquery-ui.min.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analyses.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/jquery-ui.min.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/analyses.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
 	<c:if test="${adminaAllowedTicketing}">
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/ticketing-system.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<c:url value="/js/trickservice/ticketing-system.js?version=${jsVersion}" />"></script>
 	</c:if>
 </body>
 </html>

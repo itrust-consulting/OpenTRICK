@@ -11,7 +11,7 @@
 <jsp:include page="../template/header.jsp" />
 <body>
 	<div class="container">
-		<img class="center-block"  alt=<spring:message code="label.logo" text="Logo" /> src='<spring:url value="/images/TrickService.png" />?version=${imageVersion}' style="height: 200px; margin-top: 50px;">
+		<img class="center-block"  alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/TrickService.png" />?version=${imageVersion}' style="height: 200px; margin-top: 50px;">
 		<div style="margin: 0 auto; max-width: 900px; padding: 0px 15px">
 			<h2 class="form-signin-heading col-sm-offset-4">
 				<spring:message code="label.title.user.register" text="Sign up" />
@@ -95,9 +95,9 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
-		<script src="<spring:url value="/js/jquery-2.2.4.min.js" />"></script>
-		<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
-		<script src="<spring:url value="/js/trickservice/register.js" />"></script>
+		<script src="<c:url value="/js/jquery-2.2.4.min.js" />"></script>
+		<script src="<c:url value="/js/jquery-ui.min.js" />"></script>
+		<script src="<c:url value="/js/trickservice/register.js" />"></script>
 	</div>
 	<!-- ################################################################ End Container ################################################################# -->
 </body>
