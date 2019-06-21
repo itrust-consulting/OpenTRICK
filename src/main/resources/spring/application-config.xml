@@ -75,7 +75,8 @@
 			<mvc:resolvers>
 				<mvc:version-resolver>
 					<mvc:content-version-strategy patterns="/**" />
-					<mvc:version-strategy patterns="/**" >
+					<mvc:version-strategy patterns="/**"  >
+						<ref/>
 					</mvc:version-strategy>
 				</mvc:version-resolver>
 				<ref bean="encodedResourceResolver"/>
