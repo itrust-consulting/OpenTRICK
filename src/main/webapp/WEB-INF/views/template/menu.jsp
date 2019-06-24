@@ -15,11 +15,14 @@
 <div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;">
 	<div class="container">
 		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+			<spring:message code="label.menu.home" var="menuHome"/>
 			<div class="navbar-header">
 				<c:if test='${not (empty menu or menu == "Home")}'>
 					<c:set var="homeURL" value="${pageContext.request.contextPath}/Home" />
 				</c:if>
-				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"></a>
+				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"> <img class="brand-grey" alt="${menuHome}" title="${menuHome}" src='<c:url value="/images/brand-grey.png" />'>
+					<img class="brand-white" alt="${menuHome}" title="${menuHome}" src='<c:url value="/images/brand-white.png" />'>
+				</a>
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>
@@ -96,7 +99,8 @@
 								</a></li>
 								<li><a href="#" onclick="return updateAnalysesScopes()"> <spring:message code="label.update.analyses.scopes" text="Update analyses scopes" />
 								</a></li>
-								<li><a href="#" onclick="return synchroniseAnalysesMeasureCollection()"> <spring:message code="label.synchronise.analyses.measure.collection" text="Synchronise measure collections" />
+								<li><a href="#" onclick="return synchroniseAnalysesMeasureCollection()"> <spring:message code="label.synchronise.analyses.measure.collection"
+											text="Synchronise measure collections" />
 								</a></li>
 							</ul></li>
 					</sec:authorize>

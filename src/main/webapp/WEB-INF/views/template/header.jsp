@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<spring:theme code='theme.css.location' var="currentTheme" text="/css/themes/default.css"/>
+<spring:theme code='theme.css.location' var="currentTheme" text="/css/themes/default.css" />
 <head>
 <meta charset="utf-8" />
 <meta name="_csrf" content="${_csrf.token}" />
@@ -13,31 +13,19 @@
 <meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />
 <meta content="<spring:message code="label.risk_analysis" text="Risk analysis"/>" name="description" />
 <meta content="width=device-width" name="viewport" />
-<link href=<spring:url value="/images/favicon.ico" /> rel="shortcut icon" type="image/x-icon"/>
+<link href=<spring:url value="/images/favicon.ico" /> rel="shortcut icon" type="image/x-icon" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
-<style>
-#main_menu_brand {
-	background-image: url('<c:url value="/images/brand-grey.png?version=${cssVersion}" />');
-	width: 150px;
-	background-repeat: no-repeat;
-	margin: 1px 5px 0 0;
-	background-size: auto 39px;
-}
-#main_menu_brand:HOVER {
-	background-image: url('<c:url value="/images/brand.png?version=${cssVersion}" />');
-}
-</style>
-<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<c:url value="/css/jquery-ui.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<c:url value="/css/font-awesome.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap-slider.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.vertical-tabs.min.css?version=${cssVersion}" />' />
-<link rel="stylesheet" href='<c:url value="${currentTheme}?version=${cssVersion}" />' type="text/css" />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/jquery-ui.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/font-awesome.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap-slider.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.vertical-tabs.min.css" />' />
+<link rel="stylesheet" href='<c:url value="${currentTheme}" />' type="text/css" />
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';
 	-->
 </script>
 <!-- It will be updated in menu -->
-<c:set var="isAdministration" value="${false}" scope="request"/>
+<c:set var="isAdministration" value="${false}" scope="request" />
 </head>

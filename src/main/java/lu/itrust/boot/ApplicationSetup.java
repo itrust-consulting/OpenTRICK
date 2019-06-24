@@ -23,7 +23,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
-import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
@@ -46,19 +45,14 @@ public class ApplicationSetup {
 		bean.setAsyncSupported(true);
 		bean.addInitParameter("encoding", "UTF-8");
 		bean.addInitParameter("forceEncoding", "true");
-		bean.addUrlPatterns("/*");
+		bean.addUrlPatterns("/**");
 		return bean;
 	}
 	
 	
 	@Bean
-	public FilterRegistrationBean<?> resourceUrlEncodingFilter() {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>(new ResourceUrlEncodingFilter());
-		bean.setName("resourceUrlEncodingFilter");
-		bean.setFilter(new CharacterEncodingFilter());
-		bean.setAsyncSupported(true);
-		bean.addUrlPatterns("/*");
-		return bean;
+	public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
+		return new ResourceUrlEncodingFilter();
 	}
 
 	@Bean
@@ -76,28 +70,14 @@ public class ApplicationSetup {
 		return mapping;
 	}
 
-	/*@Bean
-	public FilterRegistrationBean<?> etagFilter() {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
-		bean.setName("etagFilter");
-		bean.setFilter(new ShallowEtagHeaderFilter());
-		bean.setAsyncSupported(true);
-		bean.addUrlPatterns("/static/*");
-		bean.addUrlPatterns("/images/*");
-		bean.addUrlPatterns("/fonts/*");
-		bean.addUrlPatterns("/css/*");
-		bean.addUrlPatterns("/js/*");
-		return bean;
-	}*/
-
 	@Bean
 	public FilterRegistrationBean<?> springSecurityFilterChain() {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
+		final FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
 		bean.setName("springSecurityFilterChain");
 		bean.setFilter(new DelegatingFilterProxy());
 		bean.setAsyncSupported(true);
 		bean.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.ERROR);
-		bean.addUrlPatterns("/*");
+		bean.addUrlPatterns("/**");
 		return bean;
 	}
 

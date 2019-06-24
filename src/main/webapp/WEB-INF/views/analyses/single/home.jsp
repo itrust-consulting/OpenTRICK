@@ -75,34 +75,34 @@
 		<jsp:include page="./components/widgets.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
-	<script src="<c:url value="/js/chartjs/Chart.bundle.min.js?version=${jsVersion}" />"></script>
-	<script src="<c:url value="/js/chartjs/plugins.js?version=${jsVersion}" />"></script>
-	<script src="<c:url value="/js/chartjs/Chart.HeatMap.js?version=${jsVersion}" />"></script>
-	<script src="<c:url value="/js/bootstrap/bootstrap-slider.min.js?version=${jsVersion}" />"></script>
-	<script src="<c:url value="/js/trickservice/analysis.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="/js/trickservice/fieldeditor.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="/js/trickservice/scenario.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="/js/trickservice/phase.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="/js/trickservice/rrfManager.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/chartjs/Chart.bundle.min.js" />"></script>
+	<script src="<c:url value="/js/chartjs/plugins.js" />"></script>
+	<script src="<c:url value="/js/chartjs/Chart.HeatMap.js" />"></script>
+	<script src="<c:url value="/js/bootstrap/bootstrap-slider.min.js" />"></script>
+	<script src="<c:url value="/js/trickservice/analysis.js" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/fieldeditor.js" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/scenario.js" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/phase.js" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/rrfManager.js" />"></script>
 	
-	<script type="text/javascript" src="<c:url value="/js/trickservice/analysisStandard.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="/js/trickservice/analysis-measure.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/analysisStandard.js" />"></script>
+	<script type="text/javascript" src="<c:url value="/js/trickservice/analysis-measure.js" />"></script>
 	<c:if test="${isEditable}">
-		<script type="text/javascript" src="<c:url value="/js/trickservice/analysisImport.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<c:url value="/js/trickservice/analysisImport.js" />"></script>
 	</c:if>
 	
 	<c:if test="${!isProfile}">
 		<c:if test="${allowedTicketing}">
-			<script type="text/javascript" src="<c:url value="/js/trickservice/ticketing-system.js?version=${jsVersion}" />"></script>
+			<script type="text/javascript" src="<c:url value="/js/trickservice/ticketing-system.js" />"></script>
 		</c:if>
-		<script type="text/javascript" src="<c:url value="/js/trickservice/actionplan.js?version=${jsVersion}" />"></script>
-		<script type="text/javascript" src="<c:url value="/js/trickservice/asset.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<c:url value="/js/trickservice/actionplan.js" />"></script>
+		<script type="text/javascript" src="<c:url value="/js/trickservice/asset.js" />"></script>
 		<c:if test="${canExport}">
-			<script type="text/javascript" src="<c:url value="/js/trickservice/analysisExport.js?version=${jsVersion}" />"></script>
+			<script type="text/javascript" src="<c:url value="/js/trickservice/analysisExport.js" />"></script>
 		</c:if>
-		<script type="text/javascript" src="<c:url value="/js/trickservice/risk-estimation.js?version=${jsVersion}" />"></script>
+		<script type="text/javascript" src="<c:url value="/js/trickservice/risk-estimation.js" />"></script>
 		<c:if test="${type.qualitative}" >
-			<script type="text/javascript" src="<c:url value="/js/trickservice/riskregister.js?version=${jsVersion}" />"></script>
+			<script type="text/javascript" src="<c:url value="/js/trickservice/riskregister.js" />"></script>
 			<script type="text/javascript">
 				<!-- 
 					application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}};

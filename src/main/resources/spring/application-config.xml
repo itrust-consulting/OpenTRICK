@@ -14,18 +14,18 @@
         http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 	<context:annotation-config />
+	
+	<context:component-scan base-package="lu.itrust.business" />
 
 	<mvc:annotation-driven ignore-default-model-on-redirect="true">
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
+	
+	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment-ldap.properties,classpath:deployment.properties" />
 
 	<mvc:cors>
 		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS" />
 	</mvc:cors>
-
-	<context:component-scan base-package="lu.itrust.business" />
-
-	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment.properties,classpath:deployment-ldap.properties" />
 
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
@@ -55,87 +55,61 @@
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
 
-	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/">
-		<mvc:cache-control cache-public="true" no-cache="false" no-store="false"/>
-		<mvc:resource-chain resource-cache="false" auto-registration="false">
+	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" cache-period="${app.settings.static.resource.caching.age}">
+		<mvc:cache-control />
+		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
 					<mvc:content-version-strategy patterns="/**" />
 				</mvc:version-resolver>
-				<ref bean="encodedResourceResolver"/>
-				<ref bean="pathResourceResolver"/>
-				<ref bean="gzipResourceResolver"/>
 			</mvc:resolvers>
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/">
-		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000"/>
-		<mvc:resource-chain resource-cache="false" auto-registration="false">
-			<mvc:resolvers>
-				<mvc:version-resolver>
-					<mvc:content-version-strategy patterns="/**" />
-					<mvc:version-strategy patterns="/**"  >
-						<ref/>
-					</mvc:version-strategy>
-				</mvc:version-resolver>
-				<ref bean="encodedResourceResolver"/>
-				<ref bean="pathResourceResolver"/>
-				<ref bean="gzipResourceResolver"/>
-			</mvc:resolvers>
-		</mvc:resource-chain>
-	</mvc:resources>
-
-	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/">
-		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000"/>
-		<mvc:resource-chain resource-cache="false" auto-registration="false">
+	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" cache-period="${app.settings.static.resource.caching.age}">
+		<mvc:cache-control />
+		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
 					<mvc:content-version-strategy patterns="/**" />
 				</mvc:version-resolver>
-				<ref bean="encodedResourceResolver"/>
-				<ref bean="pathResourceResolver"/>
-				<ref bean="gzipResourceResolver"/>
 			</mvc:resolvers>
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/">
-		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000"/>
-		<mvc:resource-chain resource-cache="false" auto-registration="false">
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/"  cache-period="${app.settings.static.resource.caching.age}">
+		<mvc:cache-control />
+		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
 					<mvc:content-version-strategy patterns="/**" />
 				</mvc:version-resolver>
-				<ref bean="encodedResourceResolver"/>
-				<ref bean="pathResourceResolver"/>
-				<ref bean="gzipResourceResolver"/>
 			</mvc:resolvers>
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/">
-		<mvc:cache-control cache-public="true" no-cache="false" no-store="false" max-age="31536000" />
-		<mvc:resource-chain resource-cache="false" auto-registration="false">
+	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/" cache-period="${app.settings.static.resource.caching.age}">
+		<mvc:cache-control />
+		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
 					<mvc:content-version-strategy patterns="/**" />
 				</mvc:version-resolver>
-				<ref bean="encodedResourceResolver"/>
-				<ref bean="pathResourceResolver"/>
-				<ref bean="gzipResourceResolver"/>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
+
+	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/" cache-period="${app.settings.static.resource.caching.age}">
+		<mvc:cache-control />
+		<mvc:resource-chain resource-cache="true">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+				</mvc:version-resolver>
 			</mvc:resolvers>
 		</mvc:resource-chain>
 	</mvc:resources>
 	
-	<bean id="pathResourceResolver" class="org.springframework.web.servlet.resource.PathResourceResolver"/>
-	
-	<bean id="encodedResourceResolver" class="org.springframework.web.servlet.resource.EncodedResourceResolver" />
-	
-	<bean id="gzipResourceResolver" class="org.springframework.web.servlet.resource.GzipResourceResolver" />
-	
-	
-
 	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 
 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">

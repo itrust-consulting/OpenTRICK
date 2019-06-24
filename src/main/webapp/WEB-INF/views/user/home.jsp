@@ -50,7 +50,7 @@
 		<jsp:include page="../template/footer.jsp" />
 	</div>
 	<jsp:include page="../template/scripts.jsp" />
-	<script src="<c:url value="/js/trickservice/profile.js?version=${jsVersion}" />"></script>
+	<script src="<c:url value="/js/trickservice/profile.js" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

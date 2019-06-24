@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
@@ -16,28 +15,39 @@
 		<com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.springframework.security.version>5.1.1.RELEASE</org.springframework.security.version>
-		<!-- <slf4j.version>1.7.7</slf4j.version> -->
+		<spring-boot.version>2.1.6.RELEASE</spring-boot.version>
 	</properties>
-
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.6.RELEASE</version>
-	</parent>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter</artifactId>
 			<exclusions>
 				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-to-slf4j</artifactId>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jasper</artifactId>
+			<version>9.0.21</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -204,12 +214,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hibernate.common</groupId>
-			<artifactId>hibernate-commons-annotations</artifactId>
-			<version>5.1.0.Final</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
 		</dependency>
@@ -314,6 +318,12 @@
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j</artifactId>
 			<version>6.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Email -->
@@ -400,12 +410,6 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<optional>true</optional>
-		</dependency>
-
 		<!-- Unit testing -->
 
 		<dependency>
@@ -486,14 +490,25 @@
 	</dependencies>
 
 	<name>trickservice</name>
+
 	<organization>
 		<name>itrust consulting S.A.R.L</name>
 		<url>www.itrust.lu</url>
 	</organization>
-	<!-- <dependencyManagement> <dependencies> <dependency> Import dependency 
-		management from Spring Boot <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-dependencies</artifactId> 
-		<version>2.1.6.RELEASE</version> <type>pom</type> <scope>import</scope> </dependency> 
-		</dependencies> </dependencyManagement> -->
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
 	<build>
 		<finalName>trickservice</finalName>
 		<plugins>
@@ -501,6 +516,16 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<executable>true</executable>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -579,7 +604,7 @@
 					<packagingExcludes>
 						**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties,**/WEB-INF/views/**
 					</packagingExcludes>
-					<!-- <webXml>${project.build.directory}/web.xml</webXml> -->
+					<webXml>${project.build.directory}/web.xml</webXml>
 				</configuration>
 			</plugin>
 

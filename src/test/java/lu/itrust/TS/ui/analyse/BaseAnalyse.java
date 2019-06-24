@@ -179,7 +179,6 @@ public class BaseAnalyse extends BaseUnitTesting {
 				hiddenComment);
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<String> getData(String section) throws XPathExpressionException {
 		Document document = getDocument(System.getProperty("user.dir") + "/src/test/resources/data/input-test.xml");
 		return (List<String>) document.selectNodes("//tab[@id='" + section + "']//value/text()").stream()

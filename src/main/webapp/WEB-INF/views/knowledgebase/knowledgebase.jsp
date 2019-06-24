@@ -53,13 +53,13 @@
 		<jsp:include page="widget.jsp" />
 	</div>
 	<jsp:include page="../template/scripts.jsp" />
-	<script type="text/javascript" src="<c:url value="js/trickservice/knowledgebase.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="js/jquery.fileDownload.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="js/trickservice/measuredescription.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="js/trickservice/standard.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="js/trickservice/language.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="js/trickservice/customer.js?version=${jsVersion}" />"></script>
-	<script type="text/javascript" src="<c:url value="js/trickservice/scale.js?version=${jsVersion}" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/knowledgebase.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/jquery.fileDownload.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/measuredescription.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/standard.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/language.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/customer.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/trickservice/scale.js" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

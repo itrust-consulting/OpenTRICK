@@ -12,11 +12,13 @@
 		</Socket>
 	</Appenders>
 	<Loggers>
-		<Asynclogger name="TrickLogManager" level='Info'>
+		<Asynclogger name="TrickLogManager" level='INFO'>
 			<AppenderRef ref="RemoteLogger" />
 		</Asynclogger>
 		
 		<logger name="org.docx4j" level='ERROR' />
+		
+		<logger name="org.ehcache.jsr107.Eh107CacheManager" level="WARN" />
 		
 		<logger name="org.docx4j.jaxb.JaxbValidationEventHandler" level='ERROR' />
 		
@@ -38,7 +40,11 @@
 		
 		<logger name="stdout.org.springframework" level='WARN' />
 		
-		<Root level="WARN">
+		<logger name="lu.itrust.boot.Application"  level="INFO"/>
+		
+		<logger name="org.apache.coyote.http2.StreamProcessor" level="WARN"/>
+		
+		<Root level="INFO">
 			<AppenderRef ref="STDOUT" />
 		</Root>
 	</Loggers>

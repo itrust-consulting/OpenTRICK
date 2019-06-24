@@ -28,6 +28,27 @@ body {
 	height: 60px;
 }
 
+#main_menu_brand>img{
+	width: 150px;
+	margin: -10px 0px 0 0px;
+}
+
+#main_menu_brand>img.brand-white{
+	display: none;
+}
+
+#main_menu_brand>img.brand-grey{
+	display: block;
+}
+
+#main_menu_brand:HOVER>img.brand-white{
+	display: block;
+}
+
+#main_menu_brand:HOVER>img.brand-grey{
+	display: none;
+}
+
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
