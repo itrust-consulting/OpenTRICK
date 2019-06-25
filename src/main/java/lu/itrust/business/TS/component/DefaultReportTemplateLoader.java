@@ -3,10 +3,8 @@
  */
 package lu.itrust.business.TS.component;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +14,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +39,10 @@ import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 @Component
 @Transactional
 public class DefaultReportTemplateLoader {
-	
+
 	@Value("${app.settings.report.hybrid.french.template.name}")
 	private String frenchMixedReportName;
-	
+
 	@Value("${app.settings.report.hybrid.english.template.name}")
 	private String englishMixedReportName;
 
@@ -65,15 +63,12 @@ public class DefaultReportTemplateLoader {
 
 	@Value("#{'${app.settings.default.template.qualitative.names}'.split(',')}")
 	private String[] qualitativeTemplateNames;
-	
+
 	@Value("#{'${app.settings.default.template.hybrid.names}'.split(',')}")
-	private String [] mixedTemplateNames;
+	private String[] mixedTemplateNames;
 
 	@Value("#{'${app.settings.default.languages}'.split(';')}")
 	private List<String> defaultLanguages;
-
-	@Autowired
-	private ResourceLoader resourceLoader;
 
 	@Autowired
 	private DAOCustomer daoCustomer;
@@ -83,6 +78,9 @@ public class DefaultReportTemplateLoader {
 
 	@Autowired
 	private DAOLanguage daoLanguage;
+
+	@Autowired
+	private PathManager pathManager;
 
 	private final AtomicBoolean upToDate = new AtomicBoolean(false);
 
@@ -126,7 +124,7 @@ public class DefaultReportTemplateLoader {
 		for (String template : quantitativeTemplateNames)
 			loadTemplates(templates, template, AnalysisType.QUANTITATIVE, frenchQuantitativeReportName, englishQuantitativeReportName);
 
-		Customer customer = getDefaultCustomer();
+		final Customer customer = getDefaultCustomer();
 		if (customer == null)
 			throw new TrickException("error.default.customer.cannot.be.created", "Profile customer cannot be created");
 		if (customer.getTemplates() == null || customer.getTemplates().isEmpty())
@@ -155,14 +153,15 @@ public class DefaultReportTemplateLoader {
 			throw new TrickException("error.default.template.invalid.parameter", "Default template cannot be load, please contact your administrator or your support!");
 		final String filename = "FRA".equalsIgnoreCase(fields[1]) ? frenchReportName : englishReportName;
 		try {
-			ReportTemplate reportTemplate = new ReportTemplate();
+			final Resource file = loadResource(filename);
+			final InputStream stream = file.getInputStream();
+			final ReportTemplate reportTemplate = new ReportTemplate();
 			reportTemplate.setLabel(fields[0]);
 			reportTemplate.setLanguage(daoLanguage.getByAlpha3(fields[1]));
 			reportTemplate.setVersion(fields[2]);
-			File file = loadResource(filename);
-			reportTemplate.setSize(file.length());
-			reportTemplate.setFilename(file.getName());
-			reportTemplate.setFile(Files.readAllBytes(file.toPath()));
+			reportTemplate.setFilename(file.getFilename());
+			reportTemplate.setFile(IOUtils.toByteArray(stream));
+			reportTemplate.setSize(reportTemplate.getFile().length);
 			reportTemplate.setCreated(new Timestamp(file.lastModified()));
 			reportTemplate.setEditable(false);
 			reportTemplate.setType(type);
@@ -172,11 +171,11 @@ public class DefaultReportTemplateLoader {
 		}
 	}
 
-	private File loadResource(String name) throws IOException {
-		final Resource resource = resourceLoader.getResource(String.format("WEB-INF/data/docx/%s.docx", name));
+	private Resource loadResource(String name) throws IOException {
+		final Resource resource = pathManager.getResource(String.format("/WEB-INF/data/docx/%s.docx", name));
 		if (!resource.exists())
 			throw new TrickException("error.default.report.template.not.exist", String.format("Default report template cannot be loaded, Filename: %s.docx", name), name);
-		return resource.getFile();
+		return resource;
 	}
 
 	public void loadLanguages() {

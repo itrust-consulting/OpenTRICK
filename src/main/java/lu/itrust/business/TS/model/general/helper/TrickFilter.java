@@ -1,6 +1,13 @@
 package lu.itrust.business.TS.model.general.helper;
 
-public class TrickFilter {
+import java.io.Serializable;
+
+public class TrickFilter implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final String REG_SORT_DIRCTION = "asc|desc";
 	

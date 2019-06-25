@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.general.helper;
 
+import java.io.Serializable;
+
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
@@ -11,7 +13,12 @@ import lu.itrust.business.TS.model.general.LogType;
  * @author eomar
  *
  */
-public class TrickLogFilter extends TrickFilter {
+public class TrickLogFilter extends TrickFilter implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private LogType type;
 	

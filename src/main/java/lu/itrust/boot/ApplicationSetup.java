@@ -3,10 +3,12 @@
  */
 package lu.itrust.boot;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -15,12 +17,20 @@ import javax.servlet.ServletRegistration;
 import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.apache.tomcat.util.descriptor.web.WebXmlParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
@@ -35,7 +45,18 @@ import lu.itrust.business.TS.component.TrickLogManager;
  *
  */
 @Configuration
+@PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource("classpath:deployment-ldap.properties"),
+		@PropertySource("classpath:deployment.properties") })
 public class ApplicationSetup {
+
+	@Autowired
+	private Environment environment;
+
+	@Autowired
+	private ResourceLoader resourceLoader;
+
+	@Autowired
+	private DriverManagerDataSource dataSource;
 
 	@Bean
 	public FilterRegistrationBean<?> encodingLilter() {
@@ -48,8 +69,7 @@ public class ApplicationSetup {
 		bean.addUrlPatterns("/**");
 		return bean;
 	}
-	
-	
+
 	@Bean
 	public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
 		return new ResourceUrlEncodingFilter();
@@ -82,6 +102,28 @@ public class ApplicationSetup {
 	}
 
 	@Bean
+	@DependsOn("flyway")
+	public LocalSessionFactoryBean sessionFactory() throws IOException {
+		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type") + ".xml";
+		final Resource resource = resourceLoader.getResource(path);
+		final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+		final Properties properties = new Properties();
+		sessionFactory.setDataSource(dataSource);
+		sessionFactory.setPackagesToScan("lu.itrust.business.TS");
+		properties.put("hibernate.dialect", environment.getProperty("jdbc.dialect"));
+		properties.put("hibernate.show_sql", environment.getProperty("jdbc.show_sql"));
+		properties.put("hibernate.hbm2ddl.auto", environment.getProperty("jdbc.hbm2ddl.auto"));
+		properties.put("hibernate.javax.cache.provider", environment.getProperty("jdbc.cache.provider"));
+		properties.put("hibernate.cache.use_query_cache", environment.getProperty("jdbc.cache.use_query_cache"));
+		properties.put("hibernate.cache.region.factory_class", environment.getProperty("jdbc.cache.factory_class"));
+		properties.put("hibernate.cache.use_second_level_cache", environment.getProperty("jdbc.cache.use_second_level"));
+		if (resource.exists()) 
+			properties.put("hibernate.javax.cache.uri",  resource.getURI().toString());
+		sessionFactory.setHibernateProperties(properties);
+		return sessionFactory;
+	}
+
+	@Bean
 	public ServletContextInitializer initializer() {
 		return servletContext -> {
 			try (InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/web.xml")) {
@@ -93,8 +135,7 @@ public class ApplicationSetup {
 				if (success) {
 					webXml.getContextParams().forEach((name, value) -> servletContext.setInitParameter(name, value));
 					for (ServletDef def : webXml.getServlets().values()) {
-						ServletRegistration.Dynamic reg = servletContext.addServlet(def.getServletName(),
-								def.getServletClass());
+						ServletRegistration.Dynamic reg = servletContext.addServlet(def.getServletName(), def.getServletClass());
 						reg.setLoadOnStartup(1);
 					}
 					for (Map.Entry<String, String> mapping : webXml.getServletMappings().entrySet())

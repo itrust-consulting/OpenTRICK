@@ -9,7 +9,6 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -46,24 +45,6 @@ public class GlobalControllerAdvice {
 	@Autowired
 	private ServiceMessageNotifier serviceMessageNotifier;
 
-	@Value("${app.settings.static.image.version}")
-	private String imageVersion;
-
-	@Value("${app.settings.static.js.version}")
-	private String jsVersion;
-
-	@Value("${app.settings.static.css.version}")
-	private String cssVersion;
-
-	@Value("${app.settings.static.font.version}")
-	private String fontVersion;
-
-	@Value("${app.settings.static.version}")
-	private String staticVersion;
-
-	@Value("${app.settings.static.user.guide.version}")
-	private String userGuideVersion;
-
 	@ModelAttribute
 	public void globalAttributes(HttpServletRequest request, Model model, Principal principal) {
 		if (principal != null) {
@@ -76,14 +57,7 @@ public class GlobalControllerAdvice {
 			if (request.getParameter("lang") != null)
 				serviceTaskFeedback.update(principal.getName(), new Locale(request.getParameter("lang")));
 			model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(principal.getName()));
-			model.addAttribute("userGuideVersion", userGuideVersion);
 		}
-		model.addAttribute("jsVersion", jsVersion);
-		model.addAttribute("cssVersion", cssVersion);
-		model.addAttribute("fontVersion", fontVersion);
-		model.addAttribute("imageVersion", imageVersion);
-		model.addAttribute("staticVersion", staticVersion);
-
 	}
 
 	@ExceptionHandler(value = Exception.class)

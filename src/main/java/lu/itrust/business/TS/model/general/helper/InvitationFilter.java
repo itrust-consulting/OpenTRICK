@@ -11,6 +11,11 @@ import java.util.regex.Pattern;
  */
 public class InvitationFilter extends FilterControl {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final String REG_SORT = "analysis\\.identifier|analysis\\.label|analysis\\.version|host\\.email|host\\.firstName|host\\.lastName";
 
 	private static final Pattern PATTERN = Pattern.compile(REG_SORT);

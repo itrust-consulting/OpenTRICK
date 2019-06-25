@@ -22,8 +22,12 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-logging</artifactId>
@@ -33,14 +37,31 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-log4j2</artifactId>
+			<artifactId>spring-boot-starter-jetty</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jasper</artifactId>
-			<version>9.0.21</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>apache-jsp</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		 <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-conscrypt-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -51,7 +72,6 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -534,12 +554,9 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>9.4.8.v20171121</version>
 			</plugin>
 
 			<plugin>
@@ -553,37 +570,32 @@
 				</configuration>
 			</plugin>
 
+			<!-- <plugin> <groupId>io.leonard.maven.plugins</groupId> <artifactId>jspc-maven-plugin</artifactId> <version>2.4.6</version> <executions> <execution> <id>jspc</id> <phase>prepare-package</phase> 
+				<goals> <goal>compile</goal> </goals> </execution> </executions> <dependencies> <dependency> <groupId>org.apache.tomcat</groupId> <artifactId>tomcat-jasper</artifactId> <version>9.0.13</version> 
+				<exclusions> <exclusion> <groupId>org.eclipse.jdt.core.compiler</groupId> <artifactId>ecj</artifactId> </exclusion> </exclusions> </dependency> <dependency> <groupId>org.eclipse.jdt.core.compiler</groupId> 
+				<artifactId>ecj</artifactId> <version>4.6.1</version> </dependency> </dependencies> </plugin> -->
+
 			<plugin>
-				<groupId>io.leonard.maven.plugins</groupId>
-				<artifactId>jspc-maven-plugin</artifactId>
-				<version>2.4.6</version>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-jspc-maven-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>jspc</id>
 						<phase>prepare-package</phase>
 						<goals>
-							<goal>compile</goal>
+							<goal>jspc</goal>
 						</goals>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper</artifactId>
-						<version>9.0.13</version>
-						<exclusions>
-							<exclusion>
-								<groupId>org.eclipse.jdt.core.compiler</groupId>
-								<artifactId>ecj</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<dependency>
-						<groupId>org.eclipse.jdt.core.compiler</groupId>
-						<artifactId>ecj</artifactId>
-						<version>4.6.1</version>
-					</dependency>
-				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
 			</plugin>
 
 			<plugin>

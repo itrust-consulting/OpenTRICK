@@ -20,8 +20,6 @@
 	<mvc:annotation-driven ignore-default-model-on-redirect="true">
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
-	
-	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment-ldap.properties,classpath:deployment.properties" />
 
 	<mvc:cors>
 		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS" />
@@ -53,9 +51,18 @@
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<context:property-placeholder properties-ref="propertyConfigurer" />
+	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" >
+		<mvc:cache-control max-age="31536000" cache-public="true"/>
+		<mvc:resource-chain resource-cache="true">
+			<mvc:resolvers>
+				<mvc:version-resolver>
+					<mvc:content-version-strategy patterns="/**" />
+				</mvc:version-resolver>
+			</mvc:resolvers>
+		</mvc:resource-chain>
+	</mvc:resources>
 
-	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" cache-period="${app.settings.static.resource.caching.age}">
+	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" >
 		<mvc:cache-control />
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
@@ -66,8 +73,8 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" cache-period="${app.settings.static.resource.caching.age}">
-		<mvc:cache-control />
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/" >
+		<mvc:cache-control max-age="31536000" cache-public="true"/>
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -77,8 +84,8 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/"  cache-period="${app.settings.static.resource.caching.age}">
-		<mvc:cache-control />
+	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/" >
+		<mvc:cache-control max-age="31536000" cache-public="true"/>
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -88,19 +95,8 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/" cache-period="${app.settings.static.resource.caching.age}">
-		<mvc:cache-control />
-		<mvc:resource-chain resource-cache="true">
-			<mvc:resolvers>
-				<mvc:version-resolver>
-					<mvc:content-version-strategy patterns="/**" />
-				</mvc:version-resolver>
-			</mvc:resolvers>
-		</mvc:resource-chain>
-	</mvc:resources>
-
-	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/" cache-period="${app.settings.static.resource.caching.age}">
-		<mvc:cache-control />
+	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/" >
+		<mvc:cache-control max-age="31536000" cache-public="true"/>
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -156,23 +152,6 @@
 
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate" depends-on="passwordEncryptionHelper">
 		<constructor-arg ref="flywayConfig" />
-	</bean>
-
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="flyway">
-		<property name="dataSource" ref="dataSource" />
-		<property name="packagesToScan" value="lu.itrust.business.TS" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">${jdbc.dialect}</prop>
-				<prop key="hibernate.show_sql">${jdbc.show_sql}</prop>
-				<prop key="hibernate.hbm2ddl.auto">${jdbc.hbm2ddl.auto}</prop>
-				<prop key="hibernate.javax.cache.provider">${jdbc.cache.provider}</prop>
-				<prop key="hibernate.cache.use_query_cache">${jdbc.cache.use_query_cache}</prop>
-				<prop key="hibernate.cache.region.factory_class">${jdbc.cache.factory_class}</prop>
-				<prop key="hibernate.cache.use_second_level_cache">${jdbc.cache.use_second_level}</prop>
-				<prop key="hibernate.javax.cache.uri">classpath:persistence/ehcache-${jdbc.cache.storage.type}.xml</prop>
-			</props>
-		</property>
 	</bean>
 
 	<bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">

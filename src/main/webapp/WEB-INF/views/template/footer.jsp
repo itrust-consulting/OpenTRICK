@@ -29,13 +29,13 @@
 			</c:choose>
 		</div>
 		<div style="color: white; text-align: center; width: 50%; margin: 0 auto; margin-top: 5px; float: left;">&copy; ${fn:replace(copyRight,'{0}',year)}</div>
-		<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" var="appVersion" />
-		<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version.revision')" var="appVersionRevision" />
+		<spring:eval expression="@environment.getProperty('app.settings.version')" var="appVersion" />
+		<spring:eval expression="@environment.getProperty('app.settings.version.revision')" var="appVersionRevision" />
 
 
 		<div class="pull-right" style="color: white; width: 25%; text-align: right; margin-top: 5px;">
 			<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
-				<spring:eval expression="@propertyConfigurer.getProperty('app.settings.support.email')" var="supportEmail" />
+				<spring:eval expression="@environment.getProperty('app.settings.support.email')" var="supportEmail" />
 				<spring:message code="label.support.mail" /><a href="mailto:${supportEmail}" style="margin-right: 5px;"><spring:message text='${supportEmail}'/></a> 
 				<c:if test="${not empty userGuideURL }">
 					<c:choose>
