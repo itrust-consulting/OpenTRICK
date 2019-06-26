@@ -18,6 +18,7 @@ import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.apache.tomcat.util.descriptor.web.WebXmlParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,7 @@ import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.xml.sax.InputSource;
 
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 
 /**
  * @author eomar
@@ -57,6 +59,14 @@ public class ApplicationSetup {
 
 	@Autowired
 	private DriverManagerDataSource dataSource;
+
+	@Bean
+	public CommandLineRunner init(ServiceStorage serviceStorage) {
+		return (args) -> {
+			serviceStorage.deleteAll();
+			serviceStorage.init();
+		};
+	}
 
 	@Bean
 	public FilterRegistrationBean<?> encodingLilter() {
@@ -117,8 +127,8 @@ public class ApplicationSetup {
 		properties.put("hibernate.cache.use_query_cache", environment.getProperty("jdbc.cache.use_query_cache"));
 		properties.put("hibernate.cache.region.factory_class", environment.getProperty("jdbc.cache.factory_class"));
 		properties.put("hibernate.cache.use_second_level_cache", environment.getProperty("jdbc.cache.use_second_level"));
-		if (resource.exists()) 
-			properties.put("hibernate.javax.cache.uri",  resource.getURI().toString());
+		if (resource.exists())
+			properties.put("hibernate.javax.cache.uri", resource.getURI().toString());
 		sessionFactory.setHibernateProperties(properties);
 		return sessionFactory;
 	}
@@ -147,4 +157,5 @@ public class ApplicationSetup {
 			}
 		};
 	}
+
 }

@@ -18,7 +18,7 @@ import lu.itrust.business.TS.component.TrickLogManager;
  * @version 0.1
  * @since 2012-08-21
  */
-public class DatabaseHandler {
+public class DatabaseHandler implements AutoCloseable{
 
 	/***********************************************************************************************
 	 * Fields declaration

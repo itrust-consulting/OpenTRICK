@@ -93,6 +93,7 @@ import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -212,6 +213,8 @@ public class ControllerDataManager {
 
 	@Autowired
 	private ServiceReportTemplate serviceReportTemplate;
+	
+	private ServiceStorage serviceStorage;
 
 	@Value("${app.settings.report.refurbish.max.size}")
 	private long maxRefurbishReportSize;
@@ -819,14 +822,14 @@ public class ControllerDataManager {
 		else if (form.getFile().getSize() > maxUploadFileSize)
 			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
 		// the file to import
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".tsdb");
+		final String filename = principal.getName() + "_" + System.nanoTime() + ".tsdb";
 		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, idCustomer, principal.getName());
+		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback,serviceStorage, filename, idCustomer, principal.getName());
 		// register worker to tasklist
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		// transfer form file to java file
-		form.getFile().transferTo(importFile);
+		serviceStorage.store(form.getFile(), filename);
 		// execute task
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("sucess.analysis.importing", null, "Please wait while importing your analysis", locale));

@@ -8,7 +8,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -20,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
@@ -28,7 +26,10 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,9 +61,9 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.helper.JsonMessage;
@@ -129,6 +130,9 @@ public class ControllerMeasureCollection {
 
 	@Autowired
 	private MeasureManager measureManager;
+
+	@Autowired
+	private ServiceStorage serviceStorage;
 
 	@Value("${app.settings.standard.template.path}")
 	private String template;
@@ -214,8 +218,7 @@ public class ControllerMeasureCollection {
 						standards.remove(persited);
 						for (Standard std : standards) {
 							if (serviceStandard.existsByNameAndVersion(standard.getLabel(), std.getVersion())) {
-								errors.put("standard",
-										messageSource.getMessage("error.norm.rename.sub.version", null, locale));
+								errors.put("standard", messageSource.getMessage("error.norm.rename.sub.version", null, locale));
 								break;
 							}
 						}
@@ -225,10 +228,8 @@ public class ControllerMeasureCollection {
 								s.setLabel(standard.getLabel());
 								serviceStandard.saveOrUpdate(s);
 								TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename",
-										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", s.getLabel(), s.getVersion(), oldName,
-												s.getVersion()),
-										principal.getName(), LogAction.RENAME, s.getLabel(), String.valueOf(s.getVersion()), oldName,
-										String.valueOf(s.getVersion()));
+										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", s.getLabel(), s.getVersion(), oldName, s.getVersion()),
+										principal.getName(), LogAction.RENAME, s.getLabel(), String.valueOf(s.getVersion()), oldName, String.valueOf(s.getVersion()));
 							});
 							final int oldVersion = standard.getVersion();
 							serviceStandard.saveOrUpdate(persited.update(standard));
@@ -294,14 +295,9 @@ public class ControllerMeasureCollection {
 	}
 
 	@RequestMapping(value = "/Template", method = RequestMethod.GET)
-	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		File templateFile = new File(request.getServletContext().getRealPath(template));
-		if (!(templateFile.exists() && templateFile.isFile()))
-			throw new ResourceNotFoundException();
-		response.setContentLength((int) templateFile.length());
-		response.setContentType(FilenameUtils.getExtension(template));
-		response.setHeader("Content-Disposition", "attachment; filename=\"Template.xlsx\"");
-		Files.copy(templateFile.toPath(), response.getOutputStream());
+	public @ResponseBody ResponseEntity<Resource> downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Template.xlsx\"")
+				.header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").body(serviceStorage.loadAsResource(template));
 	}
 
 	/**

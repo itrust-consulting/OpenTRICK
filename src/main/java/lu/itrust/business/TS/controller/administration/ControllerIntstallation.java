@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +26,7 @@ import lu.itrust.business.TS.component.DefaultReportTemplateLoader;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
@@ -63,6 +62,8 @@ public class ControllerIntstallation {
 	@Autowired
 	private TaskExecutor executor;
 
+	private ServiceStorage serviceStorage;
+
 	@Autowired
 	private DefaultReportTemplateLoader defaultReportTemplateLoader;
 
@@ -87,22 +88,15 @@ public class ControllerIntstallation {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Install", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, method = RequestMethod.POST)
-	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
-
-		Map<String, String> errors = new LinkedHashMap<String, String>();
-
+	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, Locale locale) throws Exception {
+		final Map<String, String> errors = new LinkedHashMap<String, String>();
 		installProfileCustomer(errors, locale);
-
 		if (!errors.isEmpty())
 			return errors;
-
-		List<String> fileNames = new LinkedList<>();
-
-		fileNames.add(request.getServletContext().getRealPath(defaultProfileQuantitativeSqlitePath));
-		fileNames.add(request.getServletContext().getRealPath(defaultProfileQualitativeSqlitePath));
-
+		final List<String> fileNames = new LinkedList<>();
+		fileNames.add(defaultProfileQuantitativeSqlitePath);
+		fileNames.add(defaultProfileQualitativeSqlitePath);
 		installDefaultProfile(fileNames, principal, errors, locale);
-
 		return errors;
 
 	}
@@ -150,18 +144,15 @@ public class ControllerIntstallation {
 					return false;
 				}
 			}
-
 			defaultReportTemplateLoader.loadLanguages();
-
 			defaultReportTemplateLoader.load();
-
 			// owner
 			if (principal == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
 				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
-			Worker worker = new WorkerTSInstallation(version, workersPoolManager, sessionFactory, serviceTaskFeedback, fileNames, customer.getId(), principal.getName());
+			final Worker worker = new WorkerTSInstallation(version, workersPoolManager, sessionFactory, serviceTaskFeedback, serviceStorage, fileNames, customer.getId(), principal.getName());
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 				return false;

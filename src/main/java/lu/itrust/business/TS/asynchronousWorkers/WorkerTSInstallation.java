@@ -16,6 +16,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOTrickServiceHBM;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -46,8 +47,8 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 	}
 
 	public WorkerTSInstallation(String version, WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback,
-			List<String> fileNames, int customerId, String ownerUsername) throws IOException {
-		super(workersPoolManager, sessionFactory, serviceTaskFeedback, fileNames, customerId, ownerUsername);
+			ServiceStorage serviceStorage, List<String> fileNames, int customerId, String ownerUsername) throws IOException {
+		super(workersPoolManager, sessionFactory, serviceTaskFeedback, serviceStorage, fileNames, customerId, ownerUsername);
 		setCurrentVersion(version);
 		setCanDeleteFile(false);
 	}
@@ -60,8 +61,8 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			setName(TaskName.INSTALL_APPLICATION);
 			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profiles", 1));
 			session = getSessionFactory().openSession();
-			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
-			List<Analysis> analyses = daoAnalysis.getDefaultProfiles();
+			final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+			final List<Analysis> analyses = daoAnalysis.getDefaultProfiles();
 			if (!analyses.isEmpty()) {
 				session.beginTransaction();
 				analyses.forEach(analysis -> daoAnalysis.delete(analysis));
@@ -80,15 +81,14 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport#process(
+	 * @see lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport#process(
 	 * java.lang.String, org.hibernate.Session,
 	 * lu.itrust.business.TS.usermanagement.User,
 	 * lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Override
 	protected void process(int index, String fileName, Session session, User user, Customer customer) throws ClassNotFoundException, SQLException, Exception {
-		Analysis analysis = new Analysis();
+		final Analysis analysis = new Analysis();
 		analysis.setProfile(true);
 		analysis.setDefaultProfile(true);
 		getImportAnalysis().setAnalysis(analysis);
@@ -99,8 +99,8 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
-	 * , java.lang.Object)
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
+	 * java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -132,7 +132,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		try {
 			session = getSessionFactory().openSession();
 			session.beginTransaction();
-			DAOTrickService daoTrickService = new DAOTrickServiceHBM(session);
+			final DAOTrickService daoTrickService = new DAOTrickServiceHBM(session);
 			TrickService trickService = daoTrickService.getStatus();
 			if (trickService == null)
 				trickService = new TrickService(currentVersion, true);
@@ -175,8 +175,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 	}
 
 	/**
-	 * @param analysisType
-	 *            the analysisType to set
+	 * @param analysisType the analysisType to set
 	 */
 	public void setAnalysisType(AnalysisType analysisType) {
 		this.analysisType = analysisType;
