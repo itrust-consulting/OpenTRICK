@@ -39,14 +39,14 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 @Service
 public class ServiceStorageImpl implements ServiceStorage {
+	
+	private Path root;
 
 	@Value("${app.settings.data.folder}")
 	private String classPathResourceDir;
 
 	@Autowired
 	private ServletContext servletContext;
-
-	private Path storage;
 
 	@Override
 	public void delete(String filename) {
@@ -62,7 +62,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 	@PreDestroy
 	@Override
 	public void deleteAll() {
-		FileSystemUtils.deleteRecursively(storage.toFile());
+		FileSystemUtils.deleteRecursively(getRoot().toFile());
 	}
 
 	@Override
@@ -74,13 +74,13 @@ public class ServiceStorageImpl implements ServiceStorage {
 	@Override
 	public void init() {
 		try {
-			if (!Files.notExists(storage))
-				Files.createDirectories(storage);
+			if (!Files.notExists(getRoot()))
+				Files.createDirectories(getRoot());
 			final String path = servletContext.getRealPath(classPathResourceDir);
 			if (path == null)
-				copyResourceFromClassPath(classPathResourceDir, storage.toString());
+				copyResourceFromClassPath(classPathResourceDir, getRoot().toString());
 			else
-				FileSystemUtils.copyRecursively(Paths.get(path), storage);
+				FileSystemUtils.copyRecursively(Paths.get(path), getRoot());
 		} catch (IOException e) {
 			throw new TrickException("error.resource.intialise.storage.directory", "Storage directory cannot be initilised", e);
 		}
@@ -88,13 +88,13 @@ public class ServiceStorageImpl implements ServiceStorage {
 
 	@Override
 	public Path load(String filename) {
-		return storage.resolve(filename);
+		return getRoot().resolve(filename);
 	}
 
 	@Override
 	public Stream<Path> loadAll() {
 		try {
-			return Files.walk(this.storage, 1).filter(path -> !path.equals(this.storage)).map(path -> this.storage.relativize(path));
+			return Files.walk(getRoot(), 1).filter(path -> !path.equals(getRoot())).map(path -> getRoot().relativize(path));
 		} catch (IOException e) {
 			throw new TrickException("error.read.storage.file", "Storage directory cannot be load", e);
 		}
@@ -102,12 +102,9 @@ public class ServiceStorageImpl implements ServiceStorage {
 
 	@Override
 	public File loadAsFile(String filename) {
-		final Path path = load(filename);
-		if (path != null) {
-			final File file = path.toFile();
-			if (file.exists())
-				return file;
-		}
+		final File file = load(filename).toFile();
+		if (file.exists())
+			return file;
 		throw new TrickException("error.resource.not.found", "Resource cannot be found!");
 	}
 
@@ -126,13 +123,13 @@ public class ServiceStorageImpl implements ServiceStorage {
 
 	@Value("${app.setting.storage.upload.folder:ts-upload}")
 	public void setStorage(String storage) {
-		this.storage = Paths.get(storage);
+		this.root = Paths.get(storage);
 	}
 
 	@Override
 	public void store(byte[] bytes, String filename) {
 		try {
-			final Path path = storage.resolve(filename);
+			final Path path = load(filename);
 			Files.write(path, bytes, StandardOpenOption.CREATE);
 		} catch (IOException e) {
 			throw new TrickException("error.store.file.failed", "An unknown error occurred while storing file", e);
@@ -147,7 +144,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 	@Override
 	public void store(Resource file) {
 		try {
-			copyResourceToFilePath(file, storage.resolve(file.getFilename()).toString());
+			copyResourceToFilePath(file, load(file.getFilename()).toString());
 		} catch (IOException e) {
 			throw new TrickException("error.store.file.failed", "An unknown error occurred while storing file", e);
 		}
@@ -186,11 +183,30 @@ public class ServiceStorageImpl implements ServiceStorage {
 		try {
 			if (file.isEmpty())
 				throw new TrickException("error.store.file.empty", "Empty file cannot be stored");
-			Files.copy(file.getInputStream(), this.storage.resolve(filename));
+			Files.copy(file.getInputStream(), load(filename));
 		} catch (IOException e) {
 			throw new TrickException("error.store.file.failed", "An unknown error occurred while storing file", e);
 		}
 
+	}
+
+	@Override
+	public Path copy(String source, String dest) {
+		try {
+			return Files.copy(load(source), load(dest));
+		} catch (IOException e) {
+			throw new TrickException("error.copy.file.failed", "An unknown error occurred while copying file", e);
+		}
+	}
+
+	@Override
+	public Path getRoot() {
+		return root;
+	}
+
+	@Override
+	public File createTmpFile() {
+		return load(ServiceStorage.randoomFilename()).toFile();
 	}
 
 }

@@ -22,7 +22,6 @@ import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -63,7 +62,6 @@ import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.helper.JsonMessage;
@@ -111,16 +109,10 @@ public class ControllerMeasureCollection {
 	private TaskExecutor executor;
 
 	@Autowired
-	private SessionFactory sessionFactory;
-
-	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -325,13 +317,13 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes,
+	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, RedirectAttributes attributes,
 			Locale locale) throws Exception {
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
-		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
+		final String filename =  ServiceStorage.randoomFilename();
+		final Worker worker = new WorkerImportStandard(filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		file.transferTo(importFile);
+		serviceStorage.store(file, filename);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
 	}

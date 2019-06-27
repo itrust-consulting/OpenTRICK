@@ -42,8 +42,8 @@ import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOScaleTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -179,8 +179,6 @@ public class ImportAnalysis {
 	/** Map of Scenarios */
 	private Map<Integer, Scenario> scenarios = null;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
-
 	private Session session;
 
 	/** The SQLite Database Handler */
@@ -219,9 +217,8 @@ public class ImportAnalysis {
 		this.sqlite = sqlite;
 	}
 
-	public ImportAnalysis(Analysis analysis, ServiceTaskFeedback serviceTaskFeedback) {
+	public ImportAnalysis(Analysis analysis) {
 		setAnalysis(analysis);
-		setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
 	/**
@@ -259,13 +256,6 @@ public class ImportAnalysis {
 		return idTask;
 	}
 
-	/**
-	 * @param serviceTaskFeedback
-	 *            the serviceTaskFeedback to set
-	 */
-	public ServiceTaskFeedback getServiceTaskFeedback() {
-		return this.serviceTaskFeedback;
-	}
 
 	public Session getSession() {
 		return session;
@@ -284,7 +274,7 @@ public class ImportAnalysis {
 
 	protected void notifyUpdate(MessageHandler handler, String code, String message, int progress) {
 		handler.update(code, message, progress);
-		serviceTaskFeedback.send(idTask, handler);
+		InstanceManager.getServiceTaskFeedback().send(idTask, handler);
 	}
 
 	public boolean ImportAnAnalysis(Session hbernateSession) throws Exception {
@@ -586,14 +576,6 @@ public class ImportAnalysis {
 	 */
 	public void setIdTask(String idTask) {
 		this.idTask = idTask;
-	}
-
-	/**
-	 * @param serviceTaskFeedback
-	 *            the serviceTaskFeedback to set
-	 */
-	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	public void setSession(Session session) {

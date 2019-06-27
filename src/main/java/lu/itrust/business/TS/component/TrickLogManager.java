@@ -16,12 +16,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.database.dao.hbm.DAOTrickLogHBM;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
@@ -32,9 +32,7 @@ import lu.itrust.business.TS.model.general.TrickLog;
  *
  */
 public class TrickLogManager {
-
-	private SessionFactory sessionFactory;
-
+	
 	private static volatile TrickLogManager instance;
 
 	private Queue<TrickLog> trickLogs = new LinkedList<TrickLog>();
@@ -51,14 +49,6 @@ public class TrickLogManager {
 		} catch (UnknownHostException e) {
 			return TrickLogManager.class.getName();
 		}
-	}
-
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
 	}
 
 	public static TrickLogManager getInstance() {
@@ -187,7 +177,7 @@ public class TrickLogManager {
 			try {
 				if (trickLogs.isEmpty())
 					return;
-				session = sessionFactory.openSession();
+				session = InstanceManager.getSessionFactory().openSession();
 				DAOTrickLog daoTrickLog = new DAOTrickLogHBM(session);
 				session.beginTransaction();
 				while (!trickLogs.isEmpty())

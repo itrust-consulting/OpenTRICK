@@ -48,7 +48,6 @@ import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -106,9 +105,6 @@ public class ControllerApi {
 
 	@Autowired
 	private ThreadPoolTaskScheduler scheduler;
-
-	@Autowired
-	private WorkersPoolManager poolManager;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -387,7 +383,7 @@ public class ControllerApi {
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been
 		// scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler, poolManager);
+		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, scheduler);
 
 		serviceIDS.saveOrUpdate(ids);
 

@@ -8,9 +8,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
-import java.io.File;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +21,6 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
@@ -47,8 +44,6 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -64,29 +59,11 @@ import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
-public class WorkerImportStandard implements Worker {
-
-	private String id = String.valueOf(System.nanoTime());
-
-	private Date started = null;
-
-	private Date finished = null;
-
-	private Exception error;
-
-	private boolean working = false;
-
-	private boolean canceled = false;
+public class WorkerImportStandard extends WorkerImpl {
 
 	private boolean updated = false;
 
 	private Pattern pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
-
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	private SessionFactory sessionFactory;
-
-	private WorkersPoolManager poolManager;
 
 	private DAOStandard daoStandard;
 
@@ -102,19 +79,14 @@ public class WorkerImportStandard implements Worker {
 
 	private DAOLanguage daoLanguage;
 
-	private File importFile;
+	private String  filename;
 
 	private Standard newstandard;
 
 	private MessageHandler messageHandler;
 
-	private Thread current;
-
-	public WorkerImportStandard(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
-		this.sessionFactory = sessionFactory;
-		this.poolManager = poolManager;
-		this.importFile = importFile;
+	public WorkerImportStandard(String filename) {
+		setFilename(filename);
 	}
 
 	public void initialiseDAO(Session session) {
@@ -133,17 +105,17 @@ public class WorkerImportStandard implements Worker {
 		Transaction transaction = null;
 		try {
 			synchronized (this) {
-				if (poolManager != null && !poolManager.exist(getId()))
-					if (!poolManager.add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
-				if (canceled || working)
+				if (isCanceled() || isWorking())
 					return;
-				working = true;
-				started = new Timestamp(System.currentTimeMillis());
+				setWorking(true);
+				setStarted(new Timestamp(System.currentTimeMillis()));
 				setCurrent(Thread.currentThread());
 			}
 
-			session = sessionFactory.openSession();
+			session = getSessionFactory().openSession();
 
 			initialiseDAO(session);
 
@@ -151,28 +123,28 @@ public class WorkerImportStandard implements Worker {
 
 			importNewStandard();
 
-			serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 
 			transaction.commit();
 
 			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
 
 			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_kb_standard"));
-			serviceTaskFeedback.send(id, messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			/**
 			 * Log
 			 */
-			String username = serviceTaskFeedback.findUsernameById(this.getId());
+			String username = getServiceTaskFeedback().findUsernameById(this.getId());
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()), username,
 					LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
 		} catch (TrickException e) {
-			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
-			TrickLogManager.Persist(e);
+			setError(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			if (transaction != null && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), this.error = e));
-			TrickLogManager.Persist(e);
+			setError(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), e));
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
 		} finally {
@@ -185,13 +157,12 @@ public class WorkerImportStandard implements Worker {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
-			if (importFile != null && importFile.exists() && !importFile.delete())
-				importFile.deleteOnExit();
+			getServiceStorage().delete(getFilename());
 
 		}
 
@@ -233,20 +204,20 @@ public class WorkerImportStandard implements Worker {
 	 */
 	public void importNewStandard() throws Exception {
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
-
-		final WorkbookPart workbookPart = SpreadsheetMLPackage.load(importFile).getWorkbookPart();
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
 
 		final DataFormatter formatter = new DataFormatter();
+		
+		final WorkbookPart workbookPart = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename())).getWorkbookPart();
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.information", "Import standard information", 5));
 
 		getStandard(workbookPart, formatter);
 
 		if (newstandard != null) {
-			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.measure", "Import measures", 10));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.measure", "Import measures", 10));
 			getMeasures(workbookPart, formatter);
-			serviceTaskFeedback.send(id, new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
 		} else
 			throw new TrickException("error.import.norm.malformedExcelFile", "The Excel file containing Standard to import is malformed. Please check its content!");
 	}
@@ -293,14 +264,14 @@ public class WorkerImportStandard implements Worker {
 		if (standard.getId() > 0) {
 			setUpdated(true);
 			daoStandard.saveOrUpdate(standard);
-			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getLabel(), standard.getVersion() },
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getLabel(), standard.getVersion() },
 					String.format("Updating of standard %s, version %d. No measure shall be waived.", standard.getLabel(), standard.getVersion()), 10));
 		} else {
 			if (Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
 				standard.setType(StandardType.MATURITY);
 			else
 				standard.setType(StandardType.NORMAL);
-			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm", new Object[] { standard.getLabel(), standard.getVersion() },
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm", new Object[] { standard.getLabel(), standard.getVersion() },
 					String.format("Import standard %s, version %d.", standard.getLabel(), standard.getVersion()), 10));
 			daoStandard.save(standard);
 			setUpdated(false);
@@ -321,21 +292,21 @@ public class WorkerImportStandard implements Worker {
 	public void getMeasures(WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, "NormData");
 		if (sheet == null)
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 		TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
 		if (tablePart == null)
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 		loadMeasureDescription(sheet, AddressRef.parse(tablePart.getContents().getRef()), formatter);
 	}
 
 	private void loadMeasureDescription(SheetData sheet, AddressRef address, DataFormatter formatter) {
 		Map<Integer, Language> languages = loadLanguages(sheet, address, formatter);
 		if (languages.isEmpty())
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 
 		final int begin = address.getBegin().getRow() + 1, end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size()),
 				startIndex = getStartIndex(sheet, begin, formatter);
-		
+
 		final List<MeasureDescription> measureDescriptions = new LinkedList<>();
 
 		for (int i = begin; i < end; i++) {
@@ -369,7 +340,8 @@ public class WorkerImportStandard implements Worker {
 		}
 
 		if (!measureDescriptions.isEmpty()) {
-			serviceTaskFeedback.send(id, new MessageHandler("info.synchronise.analyses.measure.collection", "Synchronising measure collection of knowledge base to analyses", 50));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.synchronise.analyses.measure.collection", "Synchronising measure collection of knowledge base to analyses", 50));
 			final int total = (int) daoAnalysisStandard.countByStandard(newstandard), size = 40, count = (total / size) + 1;
 			for (int page = 1; page <= count; page++) {
 				daoAnalysisStandard.findByStandard(page, size, newstandard).forEach(a -> {
@@ -384,8 +356,6 @@ public class WorkerImportStandard implements Worker {
 		}
 
 	}
-
-	
 
 	private int getStartIndex(final SheetData sheet, final int begin, final DataFormatter formatter) {
 		if (sheet.getRow().size() < begin || begin < 0)
@@ -422,37 +392,6 @@ public class WorkerImportStandard implements Worker {
 	}
 
 	@Override
-	public boolean isWorking() {
-		return working;
-	}
-
-	@Override
-	public boolean isCanceled() {
-		return canceled;
-	}
-
-	@Override
-	public Exception getError() {
-		return error;
-	}
-
-	@Override
-	public void setId(String id) {
-		this.id = id;
-
-	}
-
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-		this.poolManager = poolManager;
-	}
-
-	@Override
-	public String getId() {
-		return id;
-	}
-
-	@Override
 	public synchronized void start() {
 		run();
 	}
@@ -468,51 +407,29 @@ public class WorkerImportStandard implements Worker {
 						else
 							getCurrent().interrupt();
 
-						canceled = true;
+						setCanceled(true);
 					}
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(error = e);
+			setError(e);
+			TrickLogManager.Persist(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
-			if (importFile != null && importFile.exists()) {
-				if (!importFile.delete())
-					importFile.deleteOnExit();
-			}
-
+			getServiceStorage().delete(getFilename());
 		}
-	}
-
-	@Override
-	public Date getStarted() {
-		return started;
-	}
-
-	@Override
-	public Date getFinished() {
-		return finished;
 	}
 
 	@Override
 	public TaskName getName() {
 		return TaskName.IMPORT_MEASURE_COLLECTION;
-	}
-
-	@Override
-	public Thread getCurrent() {
-		return current;
-	}
-
-	protected void setCurrent(Thread current) {
-		this.current = current;
 	}
 
 	public boolean isUpdated() {
@@ -521,6 +438,16 @@ public class WorkerImportStandard implements Worker {
 
 	public void setUpdated(boolean updated) {
 		this.updated = updated;
+	}
+
+
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
 }

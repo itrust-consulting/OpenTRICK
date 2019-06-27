@@ -24,8 +24,6 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
@@ -36,9 +34,8 @@ import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -62,8 +59,6 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 	private String username;
 
-	private String rootPath;
-
 	private Integer idAnalysis;
 
 	private DAOUser daoUser;
@@ -71,10 +66,6 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 	private DAOAnalysis daoAnalysis;
 
 	private DAOWordReport daoWordReport;
-
-	private MessageSource messageSource;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
 
 	/**
 	 * @param idAnalysis
@@ -85,14 +76,9 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 	 * @param serviceTaskFeedback
 	 * @param messageSource
 	 */
-	public WorkerExportRiskRegister(Integer idAnalysis, String username, String rootPath, SessionFactory sessionFactory, WorkersPoolManager poolManager,
-			ServiceTaskFeedback serviceTaskFeedback, MessageSource messageSource) {
-		super(poolManager, sessionFactory);
+	public WorkerExportRiskRegister(Integer idAnalysis, String username) {
 		this.idAnalysis = idAnalysis;
 		this.username = username;
-		this.rootPath = rootPath;
-		this.messageSource = messageSource;
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	/*
@@ -116,9 +102,10 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						if(getCurrent() == null)
+						if (getCurrent() == null)
 							Thread.currentThread().interrupt();
-						else getCurrent().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -148,8 +135,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -166,8 +153,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			long reportId = processing();
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.export.risk_register", "Risk register has been successfully exported", 100);
-			messageHandler.setAsyncCallbacks(new AsyncCallback("download","Report", reportId), new AsyncCallback("reloadSection", "section_riskregister"));
-			serviceTaskFeedback.send(getId(), messageHandler);
+			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId), new AsyncCallback("reloadSection", "section_riskregister"));
+			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
 				try {
@@ -181,7 +168,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			TrickLogManager.Persist(e);
 		} finally {
 			if (session != null) {
@@ -198,7 +185,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 					}
 				}
 			}
-			getPoolManager().remove(this);
+			getWorkersPoolManager().remove(this);
 		}
 	}
 
@@ -211,27 +198,23 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 90, size, index = 0;
 		MessageHandler messageHandler = null;
-		File workFile = null;
+		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
 		try {
+			final String filename = String.format("RISK_REGISTER_%s_v%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
+			final boolean showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+			final Locale locale = new Locale(analysis.getLanguage().getAlpha2());
+			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
+			final String template = String.format("docx/%s.docx", locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.risk_register.template", "Loading risk register template", progress += 5));
+			InstanceManager.getServiceStorage().copy(template, workFile.getName());
+			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
+			final Document document = wordMLPackage.getMainDocumentPart().getContents();
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
 
-			boolean showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
-			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.backup", "Backup of user changes", progress));
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
-			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_register.template", "Loading risk register template", progress += 5));
-			workFile = new File(
-					String.format("%s/tmp/RISK_REGISTER_%d_%s_v%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
-			WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doctemplate);
-			wordMLPackage.save(workFile);
-			wordMLPackage = WordprocessingMLPackage.load(workFile);
-			Document document = wordMLPackage.getMainDocumentPart().getContents();
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
-
-			Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb)).filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
+			final Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb)).filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
 			if (table == null)
-				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
+				throw new IllegalArgumentException(String.format("Please check risk register template: %s", template));
 			if (!showRawColumn) {
 				table.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof Tr).map(tr -> (Tr) tr).forEach(tr -> {
 					tr.getContent().remove(5);
@@ -243,7 +226,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				});
 			}
 
-			List<Tr> trs = new ArrayList<>(size = estimations.size());
+			final List<Tr> trs = new ArrayList<>(size = estimations.size());
 
 			trs.add(table.getContent().stream().map(tr -> XmlUtils.unwrap(tr)).filter(tr -> tr instanceof Tr).map(tr -> (Tr) tr).reduce((f, l) -> l).get());// it will be removed
 																																							// laster
@@ -251,7 +234,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				trs.add(XmlUtils.deepCopy(trs.get(0)));
 			int rawIndex = 5, nextIndex = showRawColumn ? rawIndex + 3 : rawIndex, expIndex = nextIndex + 3;
 			for (Estimation estimation : estimations) {
-				Tr row = trs.get(index);
+				final Tr row = trs.get(index);
 				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);
 				addString(estimation.getIdentifier(), row, 1);
@@ -275,16 +258,15 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 			table.getContent().addAll(trs);
 
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
 			wordMLPackage.save(workFile);
-			WordReport report = WordReport.BuildRiskRegister(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
+			final WordReport report = WordReport.BuildRiskRegister(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, filename, workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
 			return report.getId();
 		} finally {
-			if (workFile != null && workFile.exists() && !workFile.delete())
-				workFile.deleteOnExit();
+			InstanceManager.getServiceStorage().delete(workFile.getName());
 		}
 	}
 
@@ -357,7 +339,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 	}
 
 	private String getMessage(String code, String defaultMessage, Locale locale) {
-		return messageSource.getMessage(code, null, defaultMessage, locale);
+		return getMessageSource().getMessage(code, null, defaultMessage, locale);
 	}
 
 }

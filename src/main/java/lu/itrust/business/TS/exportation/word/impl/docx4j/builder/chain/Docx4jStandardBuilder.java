@@ -201,7 +201,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		final Part excel = exporter.getWordMLPackage().getParts().get(new PartName("/word" + path.replace("..", "")));
 		if (excel == null)
 			return;
-		final Docx4jExcelSheet reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", exporter.getPath()));
+		final Docx4jExcelSheet reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel);
 		final Chart chart = (Chart) part;
 		final CTRadarChart radarChart = (CTRadarChart) chart.getContents().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
 				.filter(web -> web instanceof CTRadarChart).findAny().orElse(null);

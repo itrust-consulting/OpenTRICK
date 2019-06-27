@@ -182,7 +182,7 @@ public class Docx4jRiskChartBuilder extends Docx4jBuilder {
 
 		final org.docx4j.openpackaging.parts.DrawingML.Chart chart = (org.docx4j.openpackaging.parts.DrawingML.Chart) part;
 
-		final Docx4jExcelSheet reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", exporter.getPath()));
+		final Docx4jExcelSheet reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel);
 
 		final CTBarChart barChart = (CTBarChart) chart.getContents().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
 				.filter(c -> c instanceof CTBarChart).findAny().orElse(null);

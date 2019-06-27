@@ -214,18 +214,18 @@ public class ControllerAnalysis extends AbstractController {
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
 			throws Exception {
 
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		final Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
 
 			// retrieve analysis object
-			Analysis analysis = serviceAnalysis.get(analysisId);
+			final Analysis analysis = serviceAnalysis.get(analysisId);
 
 			// check if object is not null
 			if (analysis == null)
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
-			String lastVersion = serviceAnalysis.getAllVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
+			final String lastVersion = serviceAnalysis.getAllVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
 				return NaturalOrderComparator.compareTo(v1, v0);
 			}).findFirst().get();
 
@@ -234,13 +234,17 @@ public class ControllerAnalysis extends AbstractController {
 			if (validator == null)
 				serviceDataValidation.register(validator = new HistoryValidator());
 
-			History history = new History();
+			final History history = new History();
 
-			JsonNode jsonNode = new ObjectMapper().readTree(value);
-			String author = jsonNode.get("author").asText();
-			Date date = new Date(System.currentTimeMillis());
-			String version = jsonNode.get("version").asText();
-			String comment = jsonNode.get("comment").asText();
+			final JsonNode jsonNode = new ObjectMapper().readTree(value);
+			
+			final String author = jsonNode.get("author").asText();
+			
+			final Date date = new Date(System.currentTimeMillis());
+			
+			final String version = jsonNode.get("version").asText();
+			
+			final String comment = jsonNode.get("comment").asText();
 
 			String error = validator.validate(history, "author", author);
 			if (error != null)
@@ -272,7 +276,7 @@ public class ControllerAnalysis extends AbstractController {
 				// return error on failure
 				return errors;
 
-			Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName(), serviceTaskFeedback, sessionFactory, workersPoolManager);
+			final Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName());
 			// register worker to tasklist
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);

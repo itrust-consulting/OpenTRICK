@@ -5,9 +5,11 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.verticalMergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.updateRow;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getAddress;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -45,8 +47,6 @@ import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.docx4j.wml.TrPr;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.sml.CTMergeCell;
@@ -63,10 +63,9 @@ import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.form.CSSFExportForm;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -116,27 +115,16 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private Locale locale;
 
-	private MessageSource messageSource;
-
 	private String pStyleId = P_STYLE;
-
-	private String rootPath;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
 
 	private boolean showRawColumn = true;
 
 	private String username;
 
-	public WorkerExportRiskSheet(CSSFExportForm cssfExportForm, WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback,
-			String rootPath, Integer analysisId, String username, MessageSource messageSource) {
-		super(poolManager, sessionFactory);
+	public WorkerExportRiskSheet(CSSFExportForm cssfExportForm, Integer analysisId, String username) {
 		setCssfExportForm(cssfExportForm);
 		setUsername(username);
 		setIdAnalysis(analysisId);
-		setRootPath(rootPath);
-		setServiceTaskFeedback(serviceTaskFeedback);
-		setMessageSource(messageSource);
 	}
 
 	@Override
@@ -145,9 +133,10 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						if(getCurrent() == null)
+						if (getCurrent() == null)
 							Thread.currentThread().interrupt();
-						else getCurrent().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -181,20 +170,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return locale;
 	}
 
-	/**
-	 * @return the messageSource
-	 */
-	public MessageSource getMessageSource() {
-		return messageSource;
-	}
-
 	@Override
 	public void run() {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -215,7 +197,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId));
 			else
 				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId), new AsyncCallback("reloadSection", "section_riskregister"));
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
 				try {
@@ -229,7 +211,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			TrickLogManager.Persist(e);
 		} finally {
 			if (session != null) {
@@ -246,24 +228,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					}
 				}
 			}
-			getPoolManager().remove(this);
+			getWorkersPoolManager().remove(this);
 		}
 	}
 
 	/**
-	 * @param locale
-	 *            the locale to set
+	 * @param locale the locale to set
 	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
-	}
-
-	/**
-	 * @param messageSource
-	 *            the messageSource to set
-	 */
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
 	}
 
 	@Override
@@ -279,20 +252,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	/**
-	 * @return the rootPath
-	 */
-	protected String getRootPath() {
-		return rootPath;
-	}
-
-	/**
-	 * @return the serviceTaskFeedback
-	 */
-	protected ServiceTaskFeedback getServiceTaskFeedback() {
-		return serviceTaskFeedback;
-	}
-
-	/**
 	 * @return the username
 	 */
 	protected String getUsername() {
@@ -300,48 +259,28 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	/**
-	 * @param cssfExportForm
-	 *            the cssfExportForm to set
+	 * @param cssfExportForm the cssfExportForm to set
 	 */
 	protected void setCssfExportForm(CSSFExportForm cssfExportForm) {
 		this.cssfExportForm = cssfExportForm;
 	}
 
 	/**
-	 * @param idAnalysis
-	 *            the idAnalysis to set
+	 * @param idAnalysis the idAnalysis to set
 	 */
 	protected void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
 
 	/**
-	 * @param pStyleId
-	 *            the pStyleId to set
+	 * @param pStyleId the pStyleId to set
 	 */
 	protected void setpStyleId(String pStyleId) {
 		this.pStyleId = pStyleId;
 	}
 
 	/**
-	 * @param rootPath
-	 *            the rootPath to set
-	 */
-	protected void setRootPath(String rootPath) {
-		this.rootPath = rootPath;
-	}
-
-	/**
-	 * @param serviceTaskFeedback
-	 *            the serviceTaskFeedback to set
-	 */
-	protected void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
-	}
-
-	/**
-	 * @param username
-	 *            the username to set
+	 * @param username the username to set
 	 */
 	protected void setUsername(String username) {
 		this.username = username;
@@ -378,7 +317,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			List<String> actionPlan = new LinkedList<>();
 			for (Measure measure : estimation.getRiskProfile().getMeasures()) {
 				MeasureDescription description = measure.getMeasureDescription();
-				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
 				String date = dateFormat.format(measure.getPhase().getEndDate());
 				actionPlan.add(getMessage("report.risk_profile.action_plan.measure",
 						new Object[] { description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain(), date },
@@ -584,7 +523,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			for (Measure measure : riskProfile.getMeasures()) {
 				row = (Tr) table.getContent().get(index++);
 				MeasureDescription description = measure.getMeasureDescription();
-				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
 				addFieldContent((Tc) row.getContent().get(0), description.getStandard().getLabel());
 				addFieldContent((Tc) row.getContent().get(1), description.getReference());
 				addFieldContent((Tc) row.getContent().get(2), descriptionText.getDomain());
@@ -600,12 +539,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private void addTitle(Document document, String title) {
 		document.getContent().add(setStyle(setText(new P(), title), "TSTitle"));
-	}
-
-	private WordprocessingMLPackage createDocument(File doctemplate, File workFile) throws Exception {
-		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doctemplate);
-		wordMLPackage.save(workFile);
-		return WordprocessingMLPackage.load(workFile);
 	}
 
 	private P createP(Tc cell) {
@@ -629,56 +562,55 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	private long exportData() throws Exception {
-		File workFile = null;
+		final File file = InstanceManager.getServiceStorage().createTmpFile();
 		try {
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
-			ObjectFactory factory = org.xlsx4j.jaxb.Context.getsmlObjectFactory();
-			SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
-			WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
-					messageSource.getMessage("label.raw.risk_sheet", null, "Raw risk sheet", locale), 1);
-			Analysis analysis = daoAnalysis.get(idAnalysis);
-			locale = new Locale(analysis.getLanguage().getAlpha2());
-			if (locale.getLanguage().equals("fr"))
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
+			final ObjectFactory factory = org.xlsx4j.jaxb.Context.getsmlObjectFactory();
+			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+			final Analysis analysis = daoAnalysis.get(idAnalysis);
+			final List<ScaleType> scaleTypes = analysis.findImpacts();
+			final CSSFFilter cssfFilter = cssfExportForm.getFilter();
+			final ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
+			final List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
+			setLocale(new Locale(analysis.getLanguage().getAlpha2()));
+			if (getLocale().getLanguage().equals("fr"))
 				dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			else
 				dateFormat = new SimpleDateFormat("MM-dd-yyyy");
 
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
-
-			List<ScaleType> scaleTypes = analysis.findImpacts();
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
-			CSSFFilter cssfFilter = cssfExportForm.getFilter();
-			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
-			List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
-			workFile = new File(
-					String.format("%s/tmp/RISK_SHEET_%d_%s_v%s.xlsx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			final String internalName = String.format("RISK_SHEET_%s_v%s.xlsx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
+					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()), 1);
+
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
 			addHeader(worksheetPart.getContents(), factory, scaleTypes);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
 			addEstimation(worksheetPart.getContents(), factory, directs, scaleTypes);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
 			if (!indirects.isEmpty())
 				addEstimation(worksheetPart.getContents(), factory, indirects, scaleTypes);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
 			if (!cias.isEmpty())
 				addEstimation(worksheetPart.getContents(), factory, cias, scaleTypes);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
-			spreadsheetMLPackage.save(workFile);
-			WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), daoUser.get(username), workFile.getName(),
-					workFile.length(), FileCopyUtils.copyToByteArray(workFile));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
+			spreadsheetMLPackage.save(file);
+			WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), daoUser.get(username), internalName,
+					file.length(), FileCopyUtils.copyToByteArray(file));
 			daoWordReport.saveOrUpdate(report);
 			return report.getId();
 		} finally {
-			if (workFile != null && !workFile.delete())
-				workFile.deleteOnExit();
+			if (file != null)
+				InstanceManager.getServiceStorage().delete(file.getName());
 		}
 
 	}
 
 	private long exportReport() throws Exception {
-		User user = daoUser.get(username);
-		Analysis analysis = daoAnalysis.get(idAnalysis);
+		final User user = daoUser.get(username);
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (user == null)
@@ -686,22 +618,22 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		int progress = 2, max = 60, index = 0;
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
 		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		File workFile = null;
+		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
 		Document document = null;
 		MessageHandler messageHandler = null;
 		boolean isFirst = true;
 		try {
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
-			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
+			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
 					Estimation.IdComparator());
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
-			workFile = new File(
-					String.format("%s/tmp/RISK_SHEET_%d_%s_v%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
-			WordprocessingMLPackage wordprocessingMLPackage = createDocument(doctemplate, workFile);
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
+			final String filename = String.format("RISK_SHEET_%s_v%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final String templatePath = String.format("docx/%s.docx", analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+			InstanceManager.getServiceStorage().copy(templatePath, workFile.getName());
+			WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(workFile);
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
 			if (cssfExportForm.hasOwner())
 				estimations.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
 			document = wordprocessingMLPackage.getMainDocumentPart().getContents();
@@ -732,18 +664,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				}
 				messageHandler.setProgress((int) (progress + (++index / (double) estimations.size()) * (max - progress)));
 			}
-
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
 			wordprocessingMLPackage.save(workFile);
-			WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
+			WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, filename, workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
 			return report.getId();
-
 		} finally {
-			if (workFile != null && workFile.exists() && !workFile.delete())
-				workFile.deleteOnExit();
+			InstanceManager.getServiceStorage().delete(workFile.getName());
 		}
 	}
 
@@ -798,11 +727,11 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	private String getMessage(String code, Object[] parameters, String defaultMeassge) {
-		return messageSource.getMessage(code, parameters, defaultMeassge, locale);
+		return getMessageSource().getMessage(code, parameters, defaultMeassge, getLocale());
 	}
 
 	private String getMessage(String code, String defaultMeassge) {
-		return messageSource.getMessage(code, null, defaultMeassge, locale);
+		return getMessageSource().getMessage(code, null, defaultMeassge, getLocale());
 	}
 
 	/**

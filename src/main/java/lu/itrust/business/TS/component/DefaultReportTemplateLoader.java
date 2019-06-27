@@ -26,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOReportTemplate;
-import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -80,7 +80,6 @@ public class DefaultReportTemplateLoader {
 	@Autowired
 	private DAOLanguage daoLanguage;
 
-	private ServiceStorage serviceStorage;
 
 	private final AtomicBoolean upToDate = new AtomicBoolean(false);
 
@@ -172,7 +171,7 @@ public class DefaultReportTemplateLoader {
 	}
 
 	private Resource loadResource(String name) throws IOException {
-		final Resource resource = serviceStorage.loadAsResource(String.format("docx/%s.docx", name));
+		final Resource resource = InstanceManager.getServiceStorage().loadAsResource(String.format("docx/%s.docx", name));
 		if (!resource.exists())
 			throw new TrickException("error.default.report.template.not.exist", String.format("Default report template cannot be loaded, Filename: %s.docx", name), name);
 		return resource;

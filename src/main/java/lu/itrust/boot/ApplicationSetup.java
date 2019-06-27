@@ -41,6 +41,7 @@ import org.xml.sax.InputSource;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceStorage;
+import lu.itrust.business.TS.helper.InstanceManager;
 
 /**
  * @author eomar
@@ -78,6 +79,16 @@ public class ApplicationSetup {
 		bean.addInitParameter("forceEncoding", "true");
 		bean.addUrlPatterns("/**");
 		return bean;
+	}
+
+	@Bean
+	public InstanceManager instanceManager() {
+		return InstanceManager.getInstance();
+	}
+
+	@Bean
+	public TrickLogManager trickLogManager() {
+		return TrickLogManager.getInstance();
 	}
 
 	@Bean

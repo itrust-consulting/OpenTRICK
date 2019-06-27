@@ -159,7 +159,7 @@ public class ControllerTicket extends AbstractController {
 		final Customer customer = serviceCustomer.findByAnalysisId(analysisId);
 		if (!loadUserSettings(principal, customer.getTicketingSystem(), null, null))
 			throw new ResourceNotFoundException();
-		final Worker worker = new WorkerGenerateTickets(analysisId, null, form, serviceTaskFeedback, workersPoolManager, sessionFactory);
+		final Worker worker = new WorkerGenerateTickets(analysisId, null, form);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 			worker.cancel();
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));

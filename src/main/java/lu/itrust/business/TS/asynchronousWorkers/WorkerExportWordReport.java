@@ -5,11 +5,10 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.Date;
 
+import org.apache.commons.io.FilenameUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
@@ -20,8 +19,6 @@ import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOReportTemplateHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.helper.Task;
@@ -38,13 +35,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author eomar
  *
  */
-public class WorkerExportWordReport implements Worker {
-
-	private String id = String.valueOf(System.nanoTime());
-
-	private Date started = null;
-
-	private Date finished = null;
+public class WorkerExportWordReport extends WorkerImpl {
 
 	private int idAnalysis;
 
@@ -52,21 +43,7 @@ public class WorkerExportWordReport implements Worker {
 
 	private String username;
 
-	private Exception error;
-
-	private boolean canceled;
-
-	private boolean working;
-
-	private SessionFactory sessionFactory;
-
-	private WorkersPoolManager workersPoolManager;
-
 	private ExportReport exportReport;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	private Thread current;
 
 	/**
 	 * @param idAnalysis
@@ -81,15 +58,11 @@ public class WorkerExportWordReport implements Worker {
 	 * @param wordExporter
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, Long templateId, String username, SessionFactory sessionFactory, WorkersPoolManager workersPoolManager,
-			ExportReport exportReport, ServiceTaskFeedback serviceTaskFeedback) {
+	public WorkerExportWordReport(int idAnalysis, Long templateId, String username, ExportReport exportReport) {
+		this.username = username;
 		this.idAnalysis = idAnalysis;
 		this.idTemplate = templateId;
-		this.username = username;
-		this.sessionFactory = sessionFactory;
-		this.workersPoolManager = workersPoolManager;
 		this.exportReport = exportReport;
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	@Override
@@ -97,17 +70,17 @@ public class WorkerExportWordReport implements Worker {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (workersPoolManager != null && !workersPoolManager.exist(getId()))
-					if (!workersPoolManager.add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
-				if (canceled || working)
+				if (isCanceled() || isWorking())
 					return;
-				working = true;
-				started = new Timestamp(System.currentTimeMillis());
+				setWorking(true);
+				setStarted(new Timestamp(System.currentTimeMillis()));
 				setCurrent(Thread.currentThread());
 			}
 
-			session = sessionFactory.openSession();
+			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis == null)
@@ -116,23 +89,24 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
 			else if (!analysis.hasData())
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
-			serviceTaskFeedback.send(id, new MessageHandler("info.export.report.prepare.document", "Please wait while preparing word document", 0));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.export.report.prepare.document", "Please wait while preparing word document", 0));
 			final DAOReportTemplate daoReportTemplate = new DAOReportTemplateHBM(session);
-			final ReportTemplate reportTemplate = exportReport.getFile() != null ? null : daoReportTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
+			final ReportTemplate reportTemplate = exportReport.getFile() != null ? null
+					: daoReportTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
 			if (exportReport.getFile() == null) {
 				if (reportTemplate == null)
 					throw new TrickException("error.report.template.not.found", "Report template cannot be found");
 				else if (reportTemplate.getFile() == null)
 					throw new TrickException("error.report.template.no.data", "Report template has been corrupted");
 			}
-			exportReport.export(reportTemplate, new Task(getId(), 1, 98), analysis, serviceTaskFeedback);
+			exportReport.export(reportTemplate, new Task(getId(), 1, 98), analysis, getServiceTaskFeedback());
 			saveWordDocument(session);
 		} catch (TrickException e) {
-			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
-			TrickLogManager.Persist(e);
+			setError(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 		} catch (Exception e) {
-			serviceTaskFeedback.send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
-			TrickLogManager.Persist(e);
+			setError(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", e));
 		} finally {
 			try {
 				if (session != null && session.isOpen())
@@ -149,17 +123,12 @@ public class WorkerExportWordReport implements Worker {
 		if (isWorking()) {
 			synchronized (this) {
 				if (isWorking()) {
-					working = false;
-					finished = new Timestamp(System.currentTimeMillis());
+					setWorking(false);
+					setFinished(new Timestamp(System.currentTimeMillis()));
 				}
 			}
 		}
 		exportReport.close();
-		File workFile = exportReport.getFile();
-		if (workFile != null && workFile.exists()) {
-			if (!workFile.delete())
-				workFile.deleteOnExit();
-		}
 	}
 
 	private void saveWordDocument(Session session) throws Exception {
@@ -167,15 +136,15 @@ public class WorkerExportWordReport implements Worker {
 			final User user = new DAOUserHBM(session).get(username);
 			final Analysis analysis = exportReport.getAnalysis();
 			final File file = exportReport.getFile();
-			WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
-					FileCopyUtils.copyToByteArray(file));
-			serviceTaskFeedback.send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));
+			WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user,
+					FilenameUtils.removeExtension(file.getName()) + ".docx", file.length(), FileCopyUtils.copyToByteArray(file));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", report.getId()));
-			serviceTaskFeedback.send(id, messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			/**
 			 * Log
 			 */
@@ -194,36 +163,6 @@ public class WorkerExportWordReport implements Worker {
 	}
 
 	@Override
-	public boolean isWorking() {
-		return working;
-	}
-
-	@Override
-	public boolean isCanceled() {
-		return canceled;
-	}
-
-	@Override
-	public Exception getError() {
-		return error;
-	}
-
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-		this.workersPoolManager = poolManager;
-	}
-
-	@Override
-	public String getId() {
-		return id;
-	}
-
-	@Override
 	public synchronized void start() {
 		run();
 	}
@@ -238,12 +177,12 @@ public class WorkerExportWordReport implements Worker {
 							Thread.currentThread().interrupt();
 						else
 							getCurrent().interrupt();
-						canceled = true;
+						setCanceled(true);
 					}
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(error = e);
+			setError(e);
 		} finally {
 			cleanUp();
 		}
@@ -297,27 +236,8 @@ public class WorkerExportWordReport implements Worker {
 	}
 
 	@Override
-	public Date getStarted() {
-		return started;
-	}
-
-	@Override
-	public Date getFinished() {
-		return finished;
-	}
-
-	@Override
 	public TaskName getName() {
 		return TaskName.EXPORT_ANALYSIS_REPORT;
-	}
-
-	@Override
-	public Thread getCurrent() {
-		return current;
-	}
-
-	private void setCurrent(Thread current) {
-		this.current = current;
 	}
 
 	public long getIdTemplate() {
@@ -335,5 +255,4 @@ public class WorkerExportWordReport implements Worker {
 	public void setExportReport(ExportReport exportReport) {
 		this.exportReport = exportReport;
 	}
-
 }

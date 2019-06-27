@@ -251,9 +251,17 @@ public class ExportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", e));
 			System.out.println("Error while exporting!");
-			TrickLogManager.Persist(e);
 			return new MessageHandler(e);
 			// set return value exception
+		} finally {
+			if (getSqlite() != null) {
+				try {
+					getSqlite().close();
+				} catch (SQLException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+
 		}
 	}
 
@@ -775,7 +783,7 @@ public class ExportAnalysis {
 	private void exportPhase() throws Exception {
 
 		System.out.println("Export phase");
-		
+
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 		// ****************************************************************
@@ -857,7 +865,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		
+
 		String query = "";
 		List<Object> params = new ArrayList<Object>();
 		// add date of the comment

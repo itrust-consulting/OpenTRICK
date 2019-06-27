@@ -6,7 +6,6 @@ package lu.itrust.business.TS.exportation.word.impl.docx4j;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -84,7 +83,6 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.jvnet.jaxb2_commons.ppp.Child;
-import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
@@ -95,14 +93,15 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.helper.Distribution;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.helper.Task;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -126,8 +125,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private File file;
 
-	private String path;
-
 	private Locale locale;
 
 	private ColorSet colors;
@@ -145,8 +142,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 	private String currentParagraphId;
 
 	private DecimalFormat numberFormat;
-
-	private MessageSource messageSource;
 
 	private AtomicInteger bookmarkMaxId;
 
@@ -176,11 +171,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 	 * 
 	 */
 	public Docx4jReportImpl() {
-	}
-
-	public Docx4jReportImpl(String path, MessageSource messageSource) {
-		setPath(path);
-		setMessageSource(messageSource);
 	}
 
 	public P addBreak(P paragraph, STBrType type) {
@@ -809,18 +799,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	@Override
-	public MessageSource getMessageSource() {
-		return messageSource;
-	}
-
-	@Override
 	public DecimalFormat getNumberFormat() {
 		return numberFormat;
-	}
-
-	@Override
-	public String getPath() {
-		return path;
 	}
 
 	public TblPr getTableStyle(String id) {
@@ -1077,26 +1057,12 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	/**
-	 * @param messageSource the messageSource to set
-	 */
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
-	}
-
-	/**
 	 * @param numberFormat the numberFormat to set
 	 */
 	public void setNumberFormat(DecimalFormat numberFormat) {
 		if (numberFormat != null)
 			numberFormat.setMaximumFractionDigits(0);
 		this.numberFormat = numberFormat;
-	}
-
-	/**
-	 * @param path the path to set
-	 */
-	public void setPath(String path) {
-		this.path = path;
 	}
 
 	public void setRepeatHeader(Tr row) {
@@ -1217,11 +1183,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	protected boolean initialise() throws Docx4JException, IOException {
 		if (getTemplate() != null) {
-			setFile(new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_v%s.docx", getPath(), System.nanoTime(), getAnalysis().getLabel().replaceAll("/|-|:|.|&", "_"),
-					getAnalysis().getVersion())));
-			if (!getFile().exists())
-				getFile().createNewFile();
-			Files.write(getFile().toPath(), getTemplate().getFile());
+			setFile(InstanceManager.getServiceStorage().createTmpFile());
+			InstanceManager.getServiceStorage().store(getTemplate().getFile(), getFile().getName());
 		}
 
 		if (!getFile().exists())

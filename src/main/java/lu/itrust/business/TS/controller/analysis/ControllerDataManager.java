@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -42,7 +40,6 @@ import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -96,7 +93,6 @@ import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
@@ -155,40 +151,40 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 public class ControllerDataManager {
 
 	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
+
+	@Value("${app.settings.risk.information.template.path}")
+	private String brainstormingTemplate;
+
+	@Autowired
+	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+
+	@Autowired
+	private TaskExecutor executor;
+
+	@Value("${app.settings.report.refurbish.max.size}")
+	private long maxRefurbishReportSize;
+
+	@Value("${app.settings.upload.file.max.size}")
+	private Long maxUploadFileSize;
+
+	@Autowired
+	private MeasureManager measureManager;
+
+	@Autowired
 	private MessageSource messageSource;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
+	private ServiceAssessment serviceAssessment;
+
+	@Autowired
 	private ServiceAssetType serviceAssetType;
 
 	@Autowired
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	@Autowired
-	private SessionFactory sessionFactory;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
-	private MeasureManager measureManager;
-
-	@Autowired
-	private ServiceStandard serviceStandard;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private TaskExecutor executor;
-
-	@Autowired
-	private ServiceSimpleParameter serviceSimpleParameter;
+	private ServiceCustomer serviceCustomer;
 
 	@Autowired
 	private ServiceImpactParameter serviceImpactParameter;
@@ -197,33 +193,28 @@ public class ControllerDataManager {
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
-	private ServiceAssessment serviceAssessment;
-
-	@Autowired
-	private ServiceScaleType serviceScaleType;
+	private ServiceReportTemplate serviceReportTemplate;
 
 	@Autowired
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
 
 	@Autowired
-	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+	private ServiceScaleType serviceScaleType;
 
 	@Autowired
-	private ServiceCustomer serviceCustomer;
+	private ServiceSimpleParameter serviceSimpleParameter;
 
 	@Autowired
-	private ServiceReportTemplate serviceReportTemplate;
-	
+	private ServiceStandard serviceStandard;
+
+	@Autowired
 	private ServiceStorage serviceStorage;
 
-	@Value("${app.settings.report.refurbish.max.size}")
-	private long maxRefurbishReportSize;
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
 
-	@Value("${app.settings.upload.file.max.size}")
-	private Long maxUploadFileSize;
-
-	@Value("${app.settings.risk.information.template.path}")
-	private String brainstormingTemplate;
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@RequestMapping(value = "/Action-plan-raw/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -501,15 +492,13 @@ public class ControllerDataManager {
 					return JsonMessage.Error(messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
 
-			final ExportReport exportAnalysisReport = new Docx4jReportImpl(request.getServletContext().getRealPath(""), messageSource);
-			final Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), sessionFactory, workersPoolManager, exportAnalysisReport,
-					serviceTaskFeedback);
+			final ExportReport exportAnalysisReport = new Docx4jReportImpl();
+			final Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(), exportAnalysisReport);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			if (!form.isInternal()) {
-				((Docx4jReportImpl) exportAnalysisReport).setFile(new File(
-						request.getServletContext().getRealPath("/WEB-INF/tmp") + "/Report-template-" + principal.getName() + "-" + UUID.randomUUID().toString() + ".docx"));
-				form.getFile().transferTo(exportAnalysisReport.getFile());
+				((Docx4jReportImpl) exportAnalysisReport).setFile(serviceStorage.createTmpFile());
+				serviceStorage.store(form.getFile(), exportAnalysisReport.getFile().getName());
 				exportAnalysisReport.getFile().deleteOnExit();
 			}
 			executor.execute(worker);
@@ -552,10 +541,9 @@ public class ControllerDataManager {
 		}).sorted(new RiskInformationComparator())
 				.collect(Collectors.groupingBy(riskInformation -> riskInformation.getCategory().startsWith("Risk_TB") ? "Risk" : riskInformation.getCategory()));
 
-		final File workFile = new File(request.getServletContext().getRealPath(String.format("/WEB-INF/tmp/TMP_Risk-information_%d_%d.xlsx", analysis.getId(), System.nanoTime())));
-
+		final File workFile = serviceStorage.createTmpFile();
 		try {
-			FileUtils.copyFile(new File(request.getServletContext().getRealPath(brainstormingTemplate)), workFile);
+			serviceStorage.copy(brainstormingTemplate, workFile.getName());
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
 			final WorkbookPart workbook = mlPackage.getWorkbookPart();
 			for (Object[] mapper : RI_SHEET_MAPPERS) {
@@ -614,18 +602,16 @@ public class ControllerDataManager {
 
 			return null;
 		} finally {
-			if (workFile.exists() && !workFile.delete())
-				workFile.deleteOnExit();
+			serviceStorage.delete(workFile.getName());
 		}
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/Risk-register/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object exportRiskRegisterProcess(HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
-		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskRegister(analysisId, principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), sessionFactory, workersPoolManager,
-				serviceTaskFeedback, messageSource);
+	public @ResponseBody Object exportRiskRegisterProcess(HttpSession session, Principal principal, Locale locale) {
+		final Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
+		final Worker worker = new WorkerExportRiskRegister(analysisId, principal.getName());
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task
@@ -678,8 +664,7 @@ public class ControllerDataManager {
 
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskSheet(cssfExportForm, workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"),
-				analysisId, principal.getName(), messageSource);
+		Worker worker = new WorkerExportRiskSheet(cssfExportForm, analysisId, principal.getName());
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task
@@ -743,8 +728,7 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody String exportSOAProcess(HttpSession session, Principal principal, HttpServletRequest request, Model model, Locale locale) throws Exception {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		final Worker worker = new WorkerSOAExport(principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), idAnalysis, messageSource, serviceTaskFeedback,
-				workersPoolManager, sessionFactory);
+		final Worker worker = new WorkerSOAExport(principal.getName(), idAnalysis);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		// execute task
@@ -768,7 +752,7 @@ public class ControllerDataManager {
 	public @ResponseBody String exportSqliteProcess(@RequestParam(name = "idAnalysis") int analysisId, Principal principal, HttpServletRequest request, Locale locale)
 			throws Exception {
 		// create worker
-		Worker worker = new WorkerExportAnalysis(serviceTaskFeedback, sessionFactory, principal, request.getServletContext(), workersPoolManager, analysisId);
+		final Worker worker = new WorkerExportAnalysis(principal.getName(), analysisId);
 		// register worker
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 			executor.execute(worker);
@@ -824,7 +808,7 @@ public class ControllerDataManager {
 		// the file to import
 		final String filename = principal.getName() + "_" + System.nanoTime() + ".tsdb";
 		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback,serviceStorage, filename, idCustomer, principal.getName());
+		Worker worker = new WorkerAnalysisImport(filename, idCustomer, principal.getName());
 		// register worker to tasklist
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
@@ -885,12 +869,12 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object importMeasureProcess(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpSession session, Principal principal, Locale locale)
 			throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
-		Worker worker = new WorkerImportMeasureData(principal.getName(), idAnalysis, workFile, serviceTaskFeedback, workersPoolManager, sessionFactory);
+		final String filename = ServiceStorage.randoomFilename();
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Worker worker = new WorkerImportMeasureData(principal.getName(), idAnalysis, filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		file.transferTo(workFile);
+		serviceStorage.store(file, filename);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.measure.data", null, "Importing of security measures data", locale));
 	}
@@ -899,12 +883,12 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request,
 			Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
-		Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), workFile, messageSource, workersPoolManager, sessionFactory, serviceTaskFeedback);
+		final String filename = ServiceStorage.randoomFilename();
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		file.transferTo(workFile);
+		serviceStorage.store(file, filename);
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.risk.information", null, "Importing of risk information", locale));
 	}
@@ -1235,12 +1219,12 @@ public class ControllerDataManager {
 			return JsonMessage.Error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
 		if (file.getSize() > maxUploadFileSize)
 			return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxUploadFileSize }, "File is to large", locale));
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		File workFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + ".xslx");
-		Worker worker = new WorkerImportEstimation(idAnalysis, principal.getName(), workFile, serviceTaskFeedback, workersPoolManager, sessionFactory, asset, scenario);
+		final String filename = ServiceStorage.randoomFilename();
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Worker worker = new WorkerImportEstimation(idAnalysis, principal.getName(), filename, asset, scenario);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-		file.transferTo(workFile);
+		serviceStorage.store(file, filename);
 		executor.execute(worker);
 		return asset ? JsonMessage.Success(messageSource.getMessage("success.start.import.asset", null, "Importing of assets data", locale))
 				: scenario ? JsonMessage.Success(messageSource.getMessage("success.start.import.risk.scenario", null, "Importing of risk scenarios data", locale))

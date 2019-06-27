@@ -16,10 +16,6 @@ public interface IExcelSheet {
 
 	boolean save() throws Exception;
 
-	String getTempPath();
-
-	void setTempPath(String tempPath);
-
 	File getFile();
 
 	void setFile(File file);

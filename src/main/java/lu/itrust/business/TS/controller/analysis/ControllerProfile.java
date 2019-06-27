@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
@@ -39,7 +38,6 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -70,12 +68,6 @@ public class ControllerProfile {
 	private TaskExecutor executor;
 
 	@Autowired
-	private SessionFactory sessionFactory;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 	
 	@Autowired
@@ -97,11 +89,11 @@ public class ControllerProfile {
 	@RequestMapping(value = "/Analysis/{idAnalysis}/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> saveProfile(@PathVariable int idAnalysis, @RequestBody Map<Object, Object> data, Principal principal, Locale locale) throws Exception {
 
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		final Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
-			String name = (String) data.get("description");
-			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
-			List<Integer> standards = analysisStandards.stream().map(AnalysisStandard::getStandard).map(Standard::getId).filter(idStandard -> data.containsKey(idStandard+""))
+			final String name = (String) data.get("description");
+			final List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
+			final List<Integer> standards = analysisStandards.stream().map(AnalysisStandard::getStandard).map(Standard::getId).filter(idStandard -> data.containsKey(idStandard+""))
 					.collect(Collectors.toList());
 			if (StringUtils.isEmpty(name))
 				errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
@@ -116,7 +108,7 @@ public class ControllerProfile {
 			if(!errors.isEmpty())
 				return errors;
 			
-			Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, idAnalysis, name, standards, principal.getName());
+			final Worker worker = new WorkerCreateAnalysisProfile( idAnalysis, name, standards, principal.getName());
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
 				errors.put("taskid", String.valueOf(worker.getId()));

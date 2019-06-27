@@ -4,22 +4,17 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.hbm.DAOIDSHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -32,35 +27,15 @@ import lu.itrust.business.TS.model.history.History;
  * @author eomar
  *
  */
-public class WorkerCreateAnalysisVersion implements Worker {
-
-	private String id = String.valueOf(System.nanoTime());
-
-	private Date started = null;
-
-	private Date finished = null;
-
-	private Exception error;
-
-	private boolean working = false;
-
-	private boolean canceled = false;
-
-	private WorkersPoolManager poolManager;
-
-	private SessionFactory sessionFactory;
+public class WorkerCreateAnalysisVersion extends WorkerImpl{
 
 	private DAOIDS daoIDS;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
 
 	private int idAnalysis;
 
 	private History history;
 
 	private String userName;
-	
-	private Thread current;
 
 	/**
 	 * @param idAnalysis
@@ -70,14 +45,10 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	 * @param sessionFactory
 	 * @param poolManager
 	 */
-	public WorkerCreateAnalysisVersion(int idAnalysis, History history, String userName, ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory,
-			WorkersPoolManager poolManager) {
+	public WorkerCreateAnalysisVersion(int idAnalysis, History history, String userName) {
 		this.idAnalysis = idAnalysis;
 		this.history = history;
 		this.userName = userName;
-		this.serviceTaskFeedback = serviceTaskFeedback;
-		this.sessionFactory = sessionFactory;
-		this.poolManager = poolManager;
 	}
 
 	/*
@@ -122,17 +93,17 @@ public class WorkerCreateAnalysisVersion implements Worker {
 		try {
 
 			synchronized (this) {
-				if (poolManager != null && !poolManager.exist(getId()))
-					if (!poolManager.add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
-				if (canceled || working)
+				if (isCanceled() || isWorking())
 					return;
-				working = true;
-				started = new Timestamp(System.currentTimeMillis());
+				setWorking(true);
+				setStarted(new Timestamp(System.currentTimeMillis()));
 				setCurrent(Thread.currentThread());
 			}
 
-			session = sessionFactory.openSession();
+			session = getSessionFactory().openSession();
 
 			daoIDS = new DAOIDSHBM(session);
 
@@ -143,12 +114,12 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			Analysis analysis = duplicator.getDaoAnalysis().get(idAnalysis);
 
 			if (analysis == null)
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", 0));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.not_exist", "Analysis not found", 0));
 			else {
 
-				Analysis copy = duplicator.duplicateAnalysis(analysis, null, serviceTaskFeedback, id, 5, 95);
+				Analysis copy = duplicator.duplicateAnalysis(analysis, null, getServiceTaskFeedback(), getId(), 5, 95);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", 95));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.update.setting", "Update analysis settings", 95));
 
 				copy.setBasedOnAnalysis(analysis);
 
@@ -172,11 +143,11 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				userAnalysisRight.setRight(AnalysisRight.ALL);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.saving.analysis", "Saving analysis", 96));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.analysis", "Saving analysis", 96));
 
 				duplicator.getDaoAnalysis().saveOrUpdate(copy);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 98));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 98));
 
 				daoIDS.getByAnalysis(analysis).forEach(ids -> {
 					ids.getSubscribers().add(copy);
@@ -189,7 +160,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				
 				handler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_analysis","",false,true));//addTop
 				
-				serviceTaskFeedback.send(id, handler);
+				getServiceTaskFeedback().send(getId(), handler);
 				/**
 				 * Log
 				 */
@@ -199,16 +170,16 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			}
 
 		} catch (InterruptedException e) {
-			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", 0));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.task.interrupted", "Task has been interrupted", 0));
 			rollback(session);
 		} catch (TrickException e) {
-			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
+			setError(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			rollback(session);
-			TrickLogManager.Persist(e);
 		} catch (Exception e) {
+			setError(e);
 			rollback(session);
-			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", 0));
-			TrickLogManager.Persist(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", 0));
 		} finally {
 			try {
 				if (session != null && session.isOpen())
@@ -219,8 +190,8 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
@@ -236,69 +207,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isWorking()
-	 */
-	@Override
-	public boolean isWorking() {
-		return working;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isCanceled()
-	 */
-	@Override
-	public boolean isCanceled() {
-		return canceled;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getError()
-	 */
-	@Override
-	public Exception getError() {
-		return error;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setId(java.lang.Long)
-	 */
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setPoolManager(lu.itrust
-	 * .business.TS.database.service.WorkersPoolManager)
-	 */
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-		this.poolManager = poolManager;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getId()
-	 */
-	@Override
-	public String getId() {
-		return id;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -323,45 +232,23 @@ public class WorkerCreateAnalysisVersion implements Worker {
 						if(getCurrent() == null)
 							Thread.currentThread().interrupt();
 						else getCurrent().interrupt();
-						canceled = true;
+						setCanceled(true);
 					}
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(error = e);
+			setError(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
 		}
 	}
 
-	@Override
-	public Date getStarted() {
-		return started;
-	}
-
-	@Override
-	public Date getFinished() {
-		return finished;
-	}
-
-	@Override
-	public TaskName getName() {
-		return TaskName.CREATE_ANALYSIS_VERSION;
-	}
-
-	public Thread getCurrent() {
-		return current;
-	}
-
-	protected void setCurrent(Thread current) {
-		this.current = current;
-	}
 
 }

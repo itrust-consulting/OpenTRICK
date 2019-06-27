@@ -12,14 +12,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.form.TicketingForm;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -41,8 +38,6 @@ public class WorkerGenerateTickets extends WorkerImpl {
 
 	private TicketingForm ticketingForm;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
-
 	/**
 	 * @param idAnalysis
 	 * @param client
@@ -51,13 +46,10 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	 * @param poolManager
 	 * @param sessionFactory
 	 */
-	public WorkerGenerateTickets(Integer idAnalysis, Client client, TicketingForm ticketingForm, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
-			SessionFactory sessionFactory) {
-		super(poolManager, sessionFactory);
+	public WorkerGenerateTickets(Integer idAnalysis, Client client, TicketingForm ticketingForm) {
 		this.idAnalysis = idAnalysis;
 		this.client = client;
 		this.ticketingForm = ticketingForm;
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	/*
@@ -70,8 +62,8 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -86,7 +78,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis.hasProject()) {
 				MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
-				serviceTaskFeedback.send(getId(), handler);
+				getServiceTaskFeedback().send(getId(), handler);
 				Map<Integer, Integer> contains = ticketingForm.getNews().stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
 				ticketingForm.getUpdates().forEach(idMeasure -> contains.put(idMeasure, idMeasure));
 				Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
@@ -123,15 +115,15 @@ public class WorkerGenerateTickets extends WorkerImpl {
 						handler.update("success.ticketing.updated", "Tasks are successfully updated", 100);
 
 				}
-				serviceTaskFeedback.send(getId(), handler);
+				getServiceTaskFeedback().send(getId(), handler);
 			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			if (e instanceof TrickException) {
 				TrickException e1 = (TrickException) e;
-				serviceTaskFeedback.send(getId(), new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
 			} else
-				serviceTaskFeedback.send(getId(), new MessageHandler("error.500.message", null, "Internal error", e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.500.message", null, "Internal error", e));
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {

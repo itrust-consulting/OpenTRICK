@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
@@ -21,8 +20,6 @@ import lu.itrust.business.TS.database.dao.DAOLikelihoodParameter;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOImpactParameterHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOLikelihoodParameterHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
@@ -48,8 +45,6 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 
 	private int idAnalysis;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
-
 	private DAOAnalysis daoAnalysis;
 
 	private DAOImpactParameter daoImpactParameter;
@@ -62,12 +57,9 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 	 * @param poolManager
 	 * @param sessionFactory
 	 */
-	public WorkerScaleLevelMigrator(int idAnalysis, Map<Integer, List<Integer>> levelMappers, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
-			SessionFactory sessionFactory) {
-		super(poolManager, sessionFactory);
+	public WorkerScaleLevelMigrator(int idAnalysis, Map<Integer, List<Integer>> levelMappers) {
 		setIdAnalysis(idAnalysis);
 		setLevelMappers(levelMappers);
-		setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
 	/*
@@ -122,8 +114,8 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -132,19 +124,19 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 				setName(TaskName.SCALE_LEVEL_MIGRATE);
 				setCurrent(Thread.currentThread());
 			}
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.scale.level.migrate.initialise.data", "Initialising data", 1));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.scale.level.migrate.initialise.data", "Initialising data", 1));
 			setUpDOA(session = getSessionFactory().openSession());
 			session.beginTransaction();
 			processing();
 			session.getTransaction().commit();
 			MessageHandler handler = new MessageHandler("success.scale.level.migrate", "Scale level has been successfully migrated", 100);
 			handler.setAsyncCallbacks(new AsyncCallback("reload"));
-			serviceTaskFeedback.send(getId(), handler);
+			getServiceTaskFeedback().send(getId(), handler);
 		} catch (TrickException e) {
-			serviceTaskFeedback.send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			cancelProcessing(session, e);
 		} catch (Exception e) {
-			serviceTaskFeedback.send(getId(), new MessageHandler("error.scale.level.migrate", "An unknown error occurred while migrating scales level", 0));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.scale.level.migrate", "An unknown error occurred while migrating scales level", 0));
 			cancelProcessing(session, e);
 		} finally {
 			try {
@@ -167,12 +159,12 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 
 	private void processing() {
 		MessageHandler handler = new MessageHandler("info.scale.level.migrate.parameters", "Migrating parameters", 2);
-		serviceTaskFeedback.send(getId(), handler);
-		Analysis analysis = daoAnalysis.get(idAnalysis);
-		ScaleLevelConvertor convertor = new ScaleLevelConvertor(levelMappers, analysis.getImpactParameters(), analysis.getLikelihoodParameters());
-		ValueFactory factory = new ValueFactory(convertor.getParameters()),
+		getServiceTaskFeedback().send(getId(), handler);
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final ScaleLevelConvertor convertor = new ScaleLevelConvertor(levelMappers, analysis.getImpactParameters(), analysis.getLikelihoodParameters());
+		final ValueFactory factory = new ValueFactory(convertor.getParameters()),
 				oldConvertor = analysis.isQuantitative() || analysis.isHybrid() ? null : new ValueFactory(analysis.getExpressionParameters());
-		int progress[] = { 0, analysis.getAssessments().size() * 2, 5, 90 };// current, size , min, max
+		final int progress[] = { 0, analysis.getAssessments().size() * 2, 5, 90 };// current, size , min, max
 		handler.update("info.scale.level.migrate.assessment", "Migrating estimations", progress[2]);
 		analysis.getAssessments().forEach(assessment -> {
 			assessment.getImpacts().forEach(value -> {
@@ -188,7 +180,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 					((LevelValue) value).setLevel(boundedParameter.getLevel());
 				}
 			});
-			IBoundedParameter parameter = convertor.find(assessment.getLikelihood());
+			final IBoundedParameter parameter = convertor.find(assessment.getLikelihood());
 			if (parameter != null)
 				assessment.setLikelihood(parameter.getAcronym());
 			else if (oldConvertor == null) {
@@ -283,14 +275,6 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
-	}
-
-	public ServiceTaskFeedback getServiceTaskFeedback() {
-		return serviceTaskFeedback;
-	}
-
-	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	public DAOAnalysis getDaoAnalysis() {

@@ -48,7 +48,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 
 	public WorkerTSInstallation(String version, WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback,
 			ServiceStorage serviceStorage, List<String> fileNames, int customerId, String ownerUsername) throws IOException {
-		super(workersPoolManager, sessionFactory, serviceTaskFeedback, serviceStorage, fileNames, customerId, ownerUsername);
+		super(fileNames, customerId, ownerUsername);
 		setCurrentVersion(version);
 		setCanDeleteFile(false);
 	}
@@ -59,7 +59,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		try {
 			super.OnStarted();
 			setName(TaskName.INSTALL_APPLICATION);
-			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profiles", 1));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profiles", 1));
 			session = getSessionFactory().openSession();
 			final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			final List<Analysis> analyses = daoAnalysis.getDefaultProfiles();
@@ -140,8 +140,8 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 				trickService.setVersion(currentVersion);
 			daoTrickService.saveOrUpdate(trickService);
 			session.getTransaction().commit();
-			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.install.update.version", "Update install version", 98));
-			String username = getImportAnalysis().getServiceTaskFeedback().findUsernameById(this.getId());
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.install.update.version", "Update install version", 98));
+			String username = getServiceTaskFeedback().findUsernameById(this.getId());
 			/**
 			 * Log
 			 */

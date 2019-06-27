@@ -8,22 +8,11 @@ import java.util.Map;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import lu.itrust.business.TS.component.DynamicParameterComputer;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.TaskName;
 
-public class WorkerComputeDynamicParameters implements Worker {
+public class WorkerComputeDynamicParameters extends WorkerImpl {
 	
-	private String id = String.valueOf(System.nanoTime());
-
-	private Exception error;
-
-	private boolean working = false;
-
-	private boolean canceled = false;
-
 	private DynamicParameterComputer dynamicParameterComputer;
-
-	private WorkersPoolManager poolManager;
 
 	/** The name of the user for whom the dynamic parameters are computed. */
 	private String userName;
@@ -32,10 +21,6 @@ public class WorkerComputeDynamicParameters implements Worker {
 	 * Map (userName => computer) of all computers that are awaiting execution.
 	 */
 	private static Map<String, WorkerComputeDynamicParameters> workers = new HashMap<>();
-
-	private Date dateStarted, dateFinished;
-	
-	private Thread current;
 
 	/**
 	 * Constructur.
@@ -67,17 +52,14 @@ public class WorkerComputeDynamicParameters implements Worker {
 	 * @param poolManager
 	 *            A pool manager for workers.
 	 */
-	public static void trigger(String userName, int computationDelayInSeconds, DynamicParameterComputer dynamicParameterComputer, ThreadPoolTaskScheduler scheduler,
-			WorkersPoolManager poolManager) {
+	public static void trigger(String userName, int computationDelayInSeconds, DynamicParameterComputer dynamicParameterComputer, ThreadPoolTaskScheduler scheduler) {
 		WorkerComputeDynamicParameters worker;
 		synchronized (workers) {
 			// Ignore call if a computation has already been scheduled
 			if (workers.containsKey(userName))
 				return;
-
 			// Instantiate new worker and put it into the map
 			worker = new WorkerComputeDynamicParameters(userName, dynamicParameterComputer);
-			worker.setPoolManager(poolManager);
 			workers.put(userName, worker);
 		}
 
@@ -90,76 +72,36 @@ public class WorkerComputeDynamicParameters implements Worker {
 	public void run() {
 		try {
 			synchronized (this) {
-				this.current = Thread.currentThread();
-				if (poolManager != null && !poolManager.exist(getId()))
-					if (!poolManager.add(this))
+				setCurrent(Thread.currentThread());
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
-				if (canceled || working)
+				if (isCanceled() || isWorking())
 					return;
-				working = true;
-				dateStarted = Date.from(Instant.now());
+				setWorking(true);
+				setStarted(Date.from(Instant.now()));
 			}
-
 			dynamicParameterComputer.computeForAllAnalysesOfUser(userName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			synchronized (this) {
-				working = false;
-				dateFinished = Date.from(Instant.now());
+				setWorking(false);
+				setFinished(Date.from(Instant.now()));
 			}
+			
 			synchronized (workers) {
 				workers.remove(userName);
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+			if (getWorkersPoolManager() != null)
+				getWorkersPoolManager().remove(getId());
 		}
 	}
 
 	/*
 	 * ****************************** Worker-specific methods
 	 ******************************/
-
-	@Override
-	public boolean isWorking() {
-		return working;
-	}
-
-	@Override
-	public boolean isCanceled() {
-		return canceled;
-	}
-
-	@Override
-	public Date getStarted() {
-		return dateStarted;
-	}
-
-	@Override
-	public Date getFinished() {
-		return dateFinished;
-	}
-
-	@Override
-	public Exception getError() {
-		return error;
-	}
-
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-		this.poolManager = poolManager;
-	}
-
-	@Override
-	public String getId() {
-		return this.id;
-	}
-
+	
 	@Override
 	public void start() {
 		run();
@@ -173,21 +115,21 @@ public class WorkerComputeDynamicParameters implements Worker {
 					if(getCurrent() == null)
 						Thread.currentThread().interrupt();
 					else getCurrent().interrupt();
-					canceled = true;
+					setCanceled(true);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			error = e;
+			setError(e);
 		} finally {
 			synchronized (this) {
-				working = false;
+				setWorking(false);
 			}
 			synchronized (workers) {
 				workers.remove(userName);
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+			if (getWorkersPoolManager() != null)
+				getWorkersPoolManager().remove(getId());
 		}
 	}
 
@@ -195,10 +137,5 @@ public class WorkerComputeDynamicParameters implements Worker {
 	public TaskName getName() {
 		return TaskName.COMPUTE_DYNAMIC_PARAMETER;
 	}
-
-	@Override
-	public Thread getCurrent() {
-		return current;
-	}
-
+	
 }

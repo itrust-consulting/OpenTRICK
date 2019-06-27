@@ -15,7 +15,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.numToColString;
 import static lu.itrust.business.TS.helper.NaturalOrderComparator.compareTo;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Locale;
@@ -29,9 +28,7 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
@@ -43,8 +40,6 @@ import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAORiskInformation;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAORiskInformationHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -59,30 +54,23 @@ import lu.itrust.business.TS.model.riskinformation.RiskInformation;
  *
  */
 public class WorkerImportRiskInformation extends WorkerImpl {
+	
+	private int analysisId;
+	
+	private String username;
 
-	private File workFile;
+	private String filename;
 
 	private DAOAnalysis daoAnalysis;
 
 	private DAORiskInformation daoRiskInformation;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	private MessageSource messageSource;
-
-	private String username;
-
-	private int analysisId;
-
-	public WorkerImportRiskInformation(int analysisId, String username, File workFile, MessageSource messageSource, WorkersPoolManager poolManager, SessionFactory sessionFactory,
-			ServiceTaskFeedback serviceTaskFeedback) {
-		super(poolManager, sessionFactory);
-		setServiceTaskFeedback(serviceTaskFeedback);
+	public WorkerImportRiskInformation( int analysisId,
+			String username, String filename) {
 		setName(TaskName.IMPORT_RISK_INFORMATION);
-		setMessageSource(messageSource);
 		setAnalysisId(analysisId);
 		setUsername(username);
-		setWorkFile(workFile);
+		setFilename(filename);
 	}
 
 	/*
@@ -126,10 +114,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 					}
 				}
 			}
-			if (workFile != null && workFile.exists()) {
-				if (!workFile.delete())
-					workFile.deleteOnExit();
-			}
+			getServiceStorage().delete(getFilename());
 
 		}
 	}
@@ -145,8 +130,8 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		Transaction transaction = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -155,7 +140,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				setCurrent(Thread.currentThread());
 			}
 
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk.information.initialise", "Initialise data", 2));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.risk.information.initialise", "Initialise data", 2));
 
 			session = getSessionFactory().openSession();
 
@@ -167,7 +152,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 			importRiskInformation(analysis);
 
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 
 			transaction.commit();
 
@@ -175,23 +160,23 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_risk-information_risk"),
 					new AsyncCallback("reloadSection", "section_risk-information_vul"), new AsyncCallback("reloadSection", "section_risk-information_threat"));
 
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			/**
 			 * Log
 			 */
-			String username = serviceTaskFeedback.findUsernameById(this.getId());
+			String username = getServiceTaskFeedback().findUsernameById(this.getId());
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.risk.information",
 					String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
 					LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
 		} catch (TrickException e) {
 			setError(e);
-			serviceTaskFeedback.send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			TrickLogManager.Persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			setError(e);
-			serviceTaskFeedback.send(getId(), new MessageHandler("error.import.risk.information", "Import of risk information failed!", e));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.risk.information", "Import of risk information failed!", e));
 			TrickLogManager.Persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
@@ -210,10 +195,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 					}
 				}
 			}
-			if (workFile != null && workFile.exists()) {
-				if (!workFile.delete())
-					workFile.deleteOnExit();
-			}
+			getServiceStorage().delete(getFilename());
 
 		}
 
@@ -221,7 +203,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 	private void importRiskInformation(Analysis analysis) throws Exception {
 		final Map<String, RiskInformation> riskInformations = analysis.getRiskInformations().stream().collect(Collectors.toMap(RiskInformation::getKey, Function.identity()));
-		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final DataFormatter formatter = new DataFormatter();
 		final Locale locale = new Locale(analysis.getLanguage().getAlpha2());
@@ -235,7 +217,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category, String.format("Processing of %s in progress", category),
 					progress);
 
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 
 			SheetData sheet = findSheet(workbook, mapper[1].toString());
 			if (sheet == null)
@@ -313,11 +295,11 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 		}
 
-		serviceTaskFeedback.send(getId(), new MessageHandler("info.save.analysis", "Saving analysis", max));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.save.analysis", "Saving analysis", max));
 		analysis.getRiskInformations().removeAll(riskInformations.values());
 		daoRiskInformation.delete(riskInformations.values());
 		daoAnalysis.saveOrUpdate(analysis);
-		serviceTaskFeedback.send(getId(), new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
 	}
 
 	private void duplicateCellError(String sheet, int i, int colIndex) {
@@ -340,11 +322,11 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 	private String getOrignalLabel(final Locale locale, String chapter, String category, String label) {
 		switch (category) {
 		case RI_TYPE_RISK_TBA:
-			return messageSource.getMessage(String.format("label.risk_information.risk_tba.", chapter.replace(".", "_")), null, label, locale);
+			return getMessageSource().getMessage(String.format("label.risk_information.risk_tba.", chapter.replace(".", "_")), null, label, locale);
 		case RI_TYPE_RISK_TBS:
-			return messageSource.getMessage(String.format("label.risk_information.risk_tbs.", chapter.replace(".", "_")), null, label, locale);
+			return getMessageSource().getMessage(String.format("label.risk_information.risk_tbs.", chapter.replace(".", "_")), null, label, locale);
 		default:
-			return messageSource.getMessage(String.format("label.risk_information.%s.", category.toLowerCase(), chapter.replace(".", "_")), null, label, locale);
+			return getMessageSource().getMessage(String.format("label.risk_information.%s.", category.toLowerCase(), chapter.replace(".", "_")), null, label, locale);
 		}
 	}
 
@@ -367,14 +349,6 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		setDaoRiskInformation(new DAORiskInformationHBM(session));
 	}
 
-	public File getWorkFile() {
-		return workFile;
-	}
-
-	public void setWorkFile(File workFile) {
-		this.workFile = workFile;
-	}
-
 	public DAOAnalysis getDaoAnalysis() {
 		return daoAnalysis;
 	}
@@ -389,14 +363,6 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 	public void setDaoRiskInformation(DAORiskInformation daoRiskInformation) {
 		this.daoRiskInformation = daoRiskInformation;
-	}
-
-	public ServiceTaskFeedback getServiceTaskFeedback() {
-		return serviceTaskFeedback;
-	}
-
-	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	public String getUsername() {
@@ -415,12 +381,13 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		this.analysisId = analysisId;
 	}
 
-	public MessageSource getMessageSource() {
-		return messageSource;
+	public String getFilename() {
+		return filename;
 	}
 
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
+
 
 }

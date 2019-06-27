@@ -114,8 +114,8 @@ public class ControllerParameter extends AbstractController {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String manageScaleLevelSave(@RequestBody Map<Integer, List<Integer>> levels, HttpSession session, Principal principal, Locale locale) {
 		try {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			Worker worker = new WorkerScaleLevelMigrator(idAnalysis, levels, serviceTaskFeedback, workersPoolManager, sessionFactory);
+			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			final Worker worker = new WorkerScaleLevelMigrator(idAnalysis, levels);
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
 				return JsonMessage.Success(messageSource.getMessage("success.analysis.scale.level.migrating.start", null, "Please wait while migrating scale level.", locale));

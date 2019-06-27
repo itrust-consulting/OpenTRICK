@@ -32,8 +32,6 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
@@ -44,9 +42,8 @@ import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -70,8 +67,6 @@ public class WorkerSOAExport extends WorkerImpl {
 
 	private String username;
 
-	private String rootPath;
-
 	private Integer idAnalysis;
 
 	private DAOUser daoUser;
@@ -84,18 +79,9 @@ public class WorkerSOAExport extends WorkerImpl {
 
 	private DAOWordReport daoWordReport;
 
-	private MessageSource messageSource;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	public WorkerSOAExport(String username, String rootPath, Integer idAnalysis, MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback,
-			WorkersPoolManager poolManager, SessionFactory sessionFactory) {
-		super(poolManager, sessionFactory);
+	public WorkerSOAExport(String username, Integer idAnalysis) {
 		this.username = username;
-		this.rootPath = rootPath;
 		this.idAnalysis = idAnalysis;
-		this.messageSource = messageSource;
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	/*
@@ -158,8 +144,8 @@ public class WorkerSOAExport extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -171,11 +157,11 @@ public class WorkerSOAExport extends WorkerImpl {
 			session = getSessionFactory().openSession();
 			initialiseDAO(session);
 			session.beginTransaction();
-			long reportId = processing();
+			final long reportId = processing();
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.export.soa", "SOA has been successfully exported", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId));
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
 				try {
@@ -189,7 +175,7 @@ public class WorkerSOAExport extends WorkerImpl {
 				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			TrickLogManager.Persist(e);
 		} finally {
 			if (session != null) {
@@ -206,7 +192,7 @@ public class WorkerSOAExport extends WorkerImpl {
 					}
 				}
 			}
-			getPoolManager().remove(this);
+			getWorkersPoolManager().remove(this);
 		}
 
 	}
@@ -222,23 +208,22 @@ public class WorkerSOAExport extends WorkerImpl {
 	}
 
 	protected long proccessing(User user, Analysis analysis) throws Exception {
-		File workFile = null;
-		WordprocessingMLPackage wordMLPackage = null;
-		Document document = null;
+		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
 		try {
 			// progress, max, size, index
 			int[] progressing = { 2, 95, 0, 0 };
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/docx/%s.docx", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
-			wordMLPackage = createDocument(doctemplate, workFile);
-			document = wordMLPackage.getMainDocumentPart().getContents();
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
+			final String filename = String.format("SOA_%s_V%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final String doctemplate = String.format("docx/%s.docx", locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+			InstanceManager.getServiceStorage().copy(doctemplate, workFile.getName());
+			final WordprocessingMLPackage wordMLPackage =  WordprocessingMLPackage.load(workFile);
+			final Document document  = wordMLPackage.getMainDocumentPart().getContents();
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
 			List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
 			MessageHandler handler = new MessageHandler("info.printing.soa.data", "Printing soa data", progressing[0] += 1);
-			serviceTaskFeedback.send(getId(), handler);
+			getServiceTaskFeedback().send(getId(), handler);
 			progressing[2] = analysisStandards.stream().mapToInt(analysisStandard -> analysisStandard.getMeasures().size()).sum();
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 				P p = null;
@@ -250,16 +235,15 @@ public class WorkerSOAExport extends WorkerImpl {
 				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, progressing);
 				document.getContent().add(tbl);
 			}
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));
 			wordMLPackage.save(workFile);
-			WordReport report = WordReport.BuildSOA(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
+			WordReport report = WordReport.BuildSOA(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, filename, workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
 			return report.getId();
 		} finally {
-			if (workFile != null && workFile.exists() && !workFile.delete())
-				workFile.deleteOnExit();
+			InstanceManager.getServiceStorage().delete(workFile.getName());
 		}
 	}
 
@@ -267,18 +251,19 @@ public class WorkerSOAExport extends WorkerImpl {
 		int rowIndex = 0;
 		Tbl table = createTable("TSSOA", measures.size() + 1, 6);
 		Tr row = (Tr) table.getContent().get(rowIndex++);
-		setCellText((Tc) row.getContent().get(0), messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
-		setCellText((Tc) row.getContent().get(1), messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		setCellText((Tc) row.getContent().get(2), messageSource.getMessage("report.measure.status", null, "Status", locale));
-		setCellText((Tc) row.getContent().get(3), messageSource.getMessage("report.measure.due.date", null, "Due date", locale));
-		setCellText((Tc) row.getContent().get(4), messageSource.getMessage("report.soa.justification", null, "Justification", locale));
-		setCellText((Tc) row.getContent().get(5), messageSource.getMessage("report.soa.reference", null, "Reference", locale));
+		setCellText((Tc) row.getContent().get(0), getMessageSource().getMessage("report.measure.reference", null, "Ref.", locale));
+		setCellText((Tc) row.getContent().get(1), getMessageSource().getMessage("report.measure.domain", null, "Domain", locale));
+		setCellText((Tc) row.getContent().get(2), getMessageSource().getMessage("report.measure.status", null, "Status", locale));
+		setCellText((Tc) row.getContent().get(3), getMessageSource().getMessage("report.measure.due.date", null, "Due date", locale));
+		setCellText((Tc) row.getContent().get(4), getMessageSource().getMessage("report.soa.justification", null, "Justification", locale));
+		setCellText((Tc) row.getContent().get(5), getMessageSource().getMessage("report.soa.reference", null, "Reference", locale));
 		for (Measure measure : measures) {
 			row = (Tr) table.getContent().get(rowIndex++);
 			setCellText((Tc) row.getContent().get(0), measure.getMeasureDescription().getReference());
 			setCellText((Tc) row.getContent().get(1), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
 			if (measure.getMeasureDescription().isComputable()) {
-				setCellText((Tc) row.getContent().get(2), messageSource.getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
+				setCellText((Tc) row.getContent().get(2),
+						getMessageSource().getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 				setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
 				if (measure instanceof AbstractNormalMeasure) {
 					setCellText((Tc) row.getContent().get(4), ((AbstractNormalMeasure) measure).getSoaComment());
@@ -361,11 +346,4 @@ public class WorkerSOAExport extends WorkerImpl {
 		return paragraph;
 
 	}
-
-	private WordprocessingMLPackage createDocument(File doctemplate, File workFile) throws Exception {
-		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(doctemplate);
-		wordMLPackage.save(workFile);
-		return WordprocessingMLPackage.load(workFile);
-	}
-
 }

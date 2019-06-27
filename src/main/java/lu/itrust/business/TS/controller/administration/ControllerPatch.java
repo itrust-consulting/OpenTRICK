@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
@@ -31,7 +30,6 @@ import lu.itrust.business.TS.database.service.ServiceParameterType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -83,9 +81,6 @@ public class ControllerPatch {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
-	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
 	private ServiceParameterType serviceParameterType;
 
 	@Autowired
@@ -93,9 +88,6 @@ public class ControllerPatch {
 
 	@Autowired
 	private TaskExecutor executor;
-
-	@Autowired
-	private SessionFactory sessionFactory;
 
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateAllScenario(Principal principal, Locale locale) {
@@ -158,8 +150,7 @@ public class ControllerPatch {
 	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String RestoreAnalysisRights(Principal principal, Locale locale) {
 		try {
-			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(), workersPoolManager, sessionFactory, serviceTaskFeedback);
-			worker.setPoolManager(workersPoolManager);
+			final Worker worker = new WorkerRestoreAnalyisRight(principal.getName());
 			// register worker to tasklist
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
@@ -182,8 +173,7 @@ public class ControllerPatch {
 	@RequestMapping(value = "/Synchronise/Analyses/Measure-collection", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String synchroniseAnalysesMeasureCollection(Principal principal, Locale locale) {
 		try {
-			Worker worker = new WorkerSynchroniseMeasureCollectionAndAnalysis(principal.getName(),serviceTaskFeedback, workersPoolManager, sessionFactory);
-			worker.setPoolManager(workersPoolManager);
+			final Worker worker = new WorkerSynchroniseMeasureCollectionAndAnalysis(principal.getName());
 			// register worker to tasklist
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));

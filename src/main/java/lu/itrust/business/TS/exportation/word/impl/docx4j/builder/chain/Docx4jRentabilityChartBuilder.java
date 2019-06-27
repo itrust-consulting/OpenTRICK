@@ -74,7 +74,7 @@ public class Docx4jRentabilityChartBuilder extends Docx4jBuilder {
 								.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
 						if (barChart != null) {
 
-							final Docx4jExcelSheet docx4jExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", exporter.getPath()));
+							final Docx4jExcelSheet docx4jExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel);
 
 							final String[] dataName = { "ALE", "COST", "ROSI", "LOST" };
 

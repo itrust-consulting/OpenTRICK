@@ -12,9 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
-import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
@@ -25,8 +23,6 @@ import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisStandardHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
@@ -50,16 +46,12 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 
 	private DAOAssetType daoAssetType;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
-
 	private DAOAnalysisStandard daoAnalysisStandard;
 
 	private DAOMeasureDescription daoMeasureDescription;
 
-	public WorkerSynchroniseMeasureCollectionAndAnalysis(String username, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager, SessionFactory sessionFactory) {
-		super(poolManager, sessionFactory);
+	public WorkerSynchroniseMeasureCollectionAndAnalysis(String username) {
 		setUsername(username);
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	/*
@@ -72,8 +64,8 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -82,21 +74,21 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 				setName(TaskName.SYNCHRONIZE_ANALYSES_MEASURE_COLLECION);
 				setCurrent(Thread.currentThread());
 			}
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.synchronise.analyses.measure.collection.initialise", "Initialising data", null));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.synchronise.analyses.measure.collection.initialise", "Initialising data", null));
 			initialiseDAO(session = getSessionFactory().openSession());
 			session.beginTransaction();
 			synchroniseMeasure();
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 			session.getTransaction().commit();
-			serviceTaskFeedback.send(getId(),
+			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("success.synchronise.analyses.measure.collection", "Analyses were been successfully synchronize with knowledge", 100));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			setError(e);
 			if (e instanceof TrickException) {
 				TrickException e1 = (TrickException) e;
-				serviceTaskFeedback.send(getId(), new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
 			} else
-				serviceTaskFeedback.send(getId(), new MessageHandler("error.500.message", null, "Internal error", e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.500.message", null, "Internal error", e));
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {
@@ -116,7 +108,7 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 		final MessageHandler handler = new MessageHandler("info.synchronise.analyses.measure.collection", null, "Synchronising measure collection of knowledge base to analyses",
 				min);
 		int current = 0;
-		serviceTaskFeedback.send(getId(), handler);
+		getServiceTaskFeedback().send(getId(), handler);
 		for (Standard standard : standards) {
 			final int total = (int) daoAnalysisStandard.countByStandard(standard), size = 40, count = (total / size) + 1;
 			final List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByStandard(standard);
@@ -137,7 +129,7 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 				});
 			}
 			handler.setProgress((int) (min + (current++ / (double) countStd) * max));
-			serviceTaskFeedback.send(getId(), handler);
+			getServiceTaskFeedback().send(getId(), handler);
 		}
 
 	}
@@ -163,7 +155,6 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
 		} finally {
 			cleanUp();
 		}

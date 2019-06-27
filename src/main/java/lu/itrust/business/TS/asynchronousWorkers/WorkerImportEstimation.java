@@ -10,7 +10,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.Sheet;
@@ -57,8 +55,6 @@ import lu.itrust.business.TS.database.dao.hbm.DAORiskProfileHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CellRef;
@@ -92,18 +88,20 @@ import lu.itrust.business.TS.usermanagement.User;
  *
  */
 public class WorkerImportEstimation extends WorkerImpl {
-
-	private File workFile;
-
+	
 	private int idAnalysis;
 
 	private String username;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
+	
+	private String filename;
 
 	private DAOUser daoUser;
+	
+	private boolean assetOnly;
 
 	private DAOAsset daoAsset;
+	
+	private boolean scenarioOnly;
 
 	private DAOAnalysis daoAnalysis;
 
@@ -121,19 +119,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	private final Pattern impactPattern = Pattern.compile("^i\\d+$");
 
-	private boolean assetOnly;
-
-	private boolean scenarioOnly;
-
-	public WorkerImportEstimation(int idAnalysis, String username, File workFile, ServiceTaskFeedback feedback, WorkersPoolManager poolManager, SessionFactory sessionFactory,
+	public WorkerImportEstimation(int idAnalysis, String username, String filename,
 			boolean assetOnly, boolean scenarioOnly) {
-		super(poolManager, sessionFactory);
-		setIdAnalysis(idAnalysis);
 		setUsername(username);
-		setWorkFile(workFile);
+		setFilename(filename);
 		setAssetOnly(assetOnly);
+		setIdAnalysis(idAnalysis);
 		setScenarioOnly(scenarioOnly);
-		setServiceTaskFeedback(feedback);
 	}
 
 	/*
@@ -195,18 +187,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return idAnalysis;
 	}
 
-	public ServiceTaskFeedback getServiceTaskFeedback() {
-		return serviceTaskFeedback;
-	}
-
 	public String getUsername() {
 		return username;
 	}
-
-	public File getWorkFile() {
-		return workFile;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -217,8 +201,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -232,7 +216,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 					setName(TaskName.IMPORT_RISK_ESTIMATION);
 				setCurrent(Thread.currentThread());
 			}
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
 			session = getSessionFactory().openSession();
 			initialiseDAO(session);
 			session.beginTransaction();
@@ -243,7 +227,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 							: new MessageHandler("success.import.risk.estimation", "Risk estimations had been successfully imported", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadAssetScenario"), new AsyncCallback("reloadAssetScenarioChart"),
 					new AsyncCallback("reloadSection", "section_riskregister"), new AsyncCallback("riskEstimationUpdate", true));
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
 				try {
@@ -259,7 +243,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
-			serviceTaskFeedback.send(getId(), messageHandler);
+			getServiceTaskFeedback().send(getId(), messageHandler);
 			TrickLogManager.Persist(e);
 		} finally {
 			if (session != null) {
@@ -303,17 +287,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
-
-	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
-	}
-
+	
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public void setWorkFile(File workFile) {
-		this.workFile = workFile;
 	}
 
 	/*
@@ -335,12 +311,11 @@ public class WorkerImportEstimation extends WorkerImpl {
 				}
 			}
 		}
-		if (workFile != null && workFile.exists()) {
-			if (!workFile.delete())
-				workFile.deleteOnExit();
-		}
-		if (getPoolManager() != null)
-			getPoolManager().remove(this);
+		
+		getServiceStorage().delete(getFilename());
+		
+		if (getWorkersPoolManager() != null)
+			getWorkersPoolManager().remove(this);
 	}
 
 	private void importAsset(Analysis analysis, WorkbookPart workbook, Map<String, Sheet> sheets, DataFormatter formatter, int min, int max) throws Exception {
@@ -355,7 +330,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			throw new TrickException("error.import.data.table.not.found", "Table named `Assets` cannot be found!", "Assets");
 
 		final MessageHandler handler = new MessageHandler("info.updating.asset", null, "Updating assets", min);
-		serviceTaskFeedback.send(getId(), handler);
+		getServiceTaskFeedback().send(getId(), handler);
 
 		final Map<String, String> names = loadTypeNames(workbook, sheets, formatter, "AssetTypes");
 		final AddressRef address = AddressRef.parse(table.getContents().getRef());
@@ -420,7 +395,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 				}
 			}
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
-			serviceTaskFeedback.send(getId(), handler);
+			getServiceTaskFeedback().send(getId(), handler);
 		}
 		
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
@@ -452,7 +427,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			throw new TrickException("error.import.data.no.column", "Scenario column cannot be found!", "Scenario");
 
 		MessageHandler handler = new MessageHandler("info.updating.risk.estimation", null, "Update risks estimation", min);
-		serviceTaskFeedback.send(getId(), handler);
+		getServiceTaskFeedback().send(getId(), handler);
 		riskProfileManager.updateAssessment(analysis, factory);
 		final boolean qualitative = analysis.isQualitative();
 		final List<IValue> valuesToDelete = new LinkedList<>();
@@ -563,7 +538,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 					}
 				}
 				handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
-				serviceTaskFeedback.send(getId(), handler);
+				getServiceTaskFeedback().send(getId(), handler);
 			}
 		}
 
@@ -604,7 +579,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Scenarios` cannot be found!", "Scenarios");
 		final MessageHandler handler = new MessageHandler("info.updating.scenario", null, "Updating scenarios", min);
-		serviceTaskFeedback.send(getId(), handler);
+		getServiceTaskFeedback().send(getId(), handler);
 		final AddressRef address = AddressRef.parse(table.getContents().getRef());
 		final int size = (int) Math.min(address.getEnd().getRow() + 1, sheetData.getRow().size()), maxProgress = max - min;
 		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
@@ -686,7 +661,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 				}
 			}
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
-			serviceTaskFeedback.send(getId(), handler);
+			getServiceTaskFeedback().send(getId(), handler);
 
 		}
 		
@@ -822,7 +797,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		final DataFormatter formatter = new DataFormatter();
-		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream().collect(Collectors.toMap(Sheet::getName, Function.identity()));
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
@@ -837,11 +812,11 @@ public class WorkerImportEstimation extends WorkerImpl {
 			importScenario(analysis, workbook, sheets, formatter, 35, 60);
 			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 60, 90);
 		}
-		serviceTaskFeedback.send(getId(), new MessageHandler("info.compute.risk.esitmation", null, "Computing risk estimation", 91));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.compute.risk.esitmation", null, "Computing risk estimation", 91));
 		riskProfileManager.updateAssessment(analysis, factory);
-		serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 93));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 93));
 		daoAnalysis.saveOrUpdate(analysis);
-		serviceTaskFeedback.send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 96));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 96));
 	}
 
 	public final static List<Column> generateColumns(List<ScaleType> scales, boolean qualitative, boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
@@ -901,4 +876,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 	public void setScenarioOnly(boolean scenarioOnly) {
 		this.scenarioOnly = scenarioOnly;
 	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+	
 }

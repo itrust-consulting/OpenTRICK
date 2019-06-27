@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -16,9 +15,8 @@ import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.service.ServiceStorage;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
@@ -50,29 +48,19 @@ public class WorkerAnalysisImport extends WorkerImpl {
 
 	private MessageHandler messageHandler;
 
-	public WorkerAnalysisImport(WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, ServiceStorage serviceStorage,
-			List<String> filenames, int customerId, String userName) throws IOException {
-		super(workersPoolManager, sessionFactory);
+	public WorkerAnalysisImport(List<String> filenames, int customerId, String userName) throws IOException {
 		setUsername(userName);
 		setCustomerId(customerId);
 		setFileNames(filenames);
 		setImportAnalysis(new ImportAnalysis());
-		setSessionFactory(sessionFactory);
-		setServiceStorage(serviceStorage);
-		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
-	public WorkerAnalysisImport(WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, ServiceStorage serviceStorage,
-			String importFile, int customerId, String userName) throws IOException {
-		super(workersPoolManager, sessionFactory);
+	public WorkerAnalysisImport(String filename, int customerId, String userName) throws IOException {
 		setUsername(userName);
 		setCustomerId(customerId);
 		setFileNames(new LinkedList<>());
-		getFileNames().add(importFile);
+		getFileNames().add(filename);
 		setImportAnalysis(new ImportAnalysis());
-		setSessionFactory(sessionFactory);
-		setServiceStorage(serviceStorage);
-		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
 	/*
@@ -118,7 +106,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				}
 			}
 			if (canDeleteFile)
-				fileNames.forEach(fileName -> serviceStorage.delete(fileName));
+				fileNames.forEach(fileName -> getServiceStorage().delete(fileName));
 		}
 	}
 
@@ -173,9 +161,9 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		if (getAsyncCallback() == null)
 			setAsyncCallback(new AsyncCallback("updateAnalysisFilter", customerId, "ALL"));
 		getMessageHandler().setAsyncCallbacks(getAsyncCallback());
-		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
+		InstanceManager.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();
-		String username = importAnalysis.getServiceTaskFeedback().findUsernameById(this.getId());
+		String username = InstanceManager.getServiceTaskFeedback().findUsernameById(this.getId());
 		/**
 		 * Log
 		 */
@@ -188,8 +176,8 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -215,7 +203,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} finally {
-				importAnalysis.getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 				setError(e);
 			}
 		} catch (Exception e) {
@@ -226,7 +214,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} finally {
-				importAnalysis.getServiceTaskFeedback().send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", e));
 				setError(e);
 			}
 		} finally {
@@ -251,7 +239,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	}
 
 	protected void process(int index, String fileName, Session session, User user, Customer customer) throws ClassNotFoundException, SQLException, Exception {
-		final Path path = serviceStorage.load(fileName);
+		final Path path = getServiceStorage().load(fileName);
 		try (DatabaseHandler databaseHandler = new DatabaseHandler(path.toUri().toString())) {
 			importAnalysis.setProgress(0);
 			importAnalysis.setMaxProgress((int) (((double) index / (double) fileNames.size()) * 97));
@@ -263,7 +251,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				OnSuccess();
 		} finally {
 			if (canDeleteFile)
-				serviceStorage.delete(fileName);
+				getServiceStorage().delete(fileName);
 		}
 	}
 

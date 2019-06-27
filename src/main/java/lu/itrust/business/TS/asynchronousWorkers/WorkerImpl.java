@@ -2,9 +2,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.util.Date;
 
-import org.hibernate.SessionFactory;
-
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.messagehandler.TaskName;
 
 public abstract class WorkerImpl implements Worker {
@@ -23,20 +21,7 @@ public abstract class WorkerImpl implements Worker {
 
 	private boolean canceled = false;
 
-	private WorkersPoolManager poolManager;
-
-	private SessionFactory sessionFactory;
-
 	private Thread current;
-
-	/**
-	 * @param poolManager
-	 * @param sessionFactory
-	 */
-	public WorkerImpl(WorkersPoolManager poolManager, SessionFactory sessionFactory) {
-		this.poolManager = poolManager;
-		this.sessionFactory = sessionFactory;
-	}
 
 	/**
 	 * @return the id
@@ -99,8 +84,9 @@ public abstract class WorkerImpl implements Worker {
 	 * @param error
 	 *            the error to set
 	 */
-	protected void setError(Exception error) {
-		this.error = error;
+	protected void setError(Exception e) {
+		this.error = e;
+		TrickLogManager.Persist(e);
 	}
 
 	/**
@@ -135,36 +121,6 @@ public abstract class WorkerImpl implements Worker {
 		this.canceled = canceled;
 	}
 
-	/**
-	 * @return the poolManager
-	 */
-	protected WorkersPoolManager getPoolManager() {
-		return poolManager;
-	}
-
-	/**
-	 * @param poolManager
-	 *            the poolManager to set
-	 */
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-		this.poolManager = poolManager;
-	}
-
-	/**
-	 * @return the sessionFactory
-	 */
-	protected SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
-	/**
-	 * @param sessionFactory
-	 *            the sessionFactory to set
-	 */
-	protected void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
 
 	/**
 	 * @return the name

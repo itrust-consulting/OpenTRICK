@@ -154,9 +154,9 @@
 		<constructor-arg ref="flywayConfig" />
 	</bean>
 
-	<bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">
+	<!-- <bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">
 		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>
+	</bean> -->
 
 	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />

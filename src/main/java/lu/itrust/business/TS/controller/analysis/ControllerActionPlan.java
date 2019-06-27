@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
@@ -36,7 +35,6 @@ import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -81,12 +79,6 @@ public class ControllerActionPlan extends AbstractController {
 
 	@Autowired
 	private TaskExecutor executor;
-
-	@Autowired
-	private SessionFactory sessionFactory;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
@@ -183,20 +175,21 @@ public class ControllerActionPlan extends AbstractController {
 	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
-		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
+		final PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(value);
+		final ObjectMapper mapper = new ObjectMapper();
+		
+		final JsonNode jsonNode = mapper.readTree(value);
 
 		// retrieve analysis id to compute
-		int analysisId = jsonNode.get("id").asInt();
+		final int analysisId = jsonNode.get("id").asInt();
 
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
 
 			// retrieve options selected by the user
 
-			boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
+			final boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
 
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 
@@ -208,8 +201,10 @@ public class ControllerActionPlan extends AbstractController {
 						standards.add(analysisStandard.getId());
 			}
 
-			boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
-			Worker worker = new WorkerComputeActionPlan(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
+			final boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
+			
+			final Worker worker = new WorkerComputeActionPlan( analysisId, standards, uncertainty, reloadSection);
+			
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(),locale))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			// execute task

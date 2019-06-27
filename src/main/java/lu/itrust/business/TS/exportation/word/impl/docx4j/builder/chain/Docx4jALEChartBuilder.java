@@ -165,7 +165,7 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 		Part excel = exporter.getWordMLPackage().getParts().get(new PartName("/word" + path.replace("..", "")));
 		if (excel == null)
 			return;
-		Docx4jExcelSheet reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel, String.format("%s/WEB-INF/tmp/", exporter.getPath()));
+		Docx4jExcelSheet reportExcelSheet = new Docx4jExcelSheet((EmbeddedPackagePart) excel);
 		final CTBarChart barChart = (CTBarChart) chart.getContents().getChart().getPlotArea().getAreaChartOrArea3DChartOrLineChart().parallelStream()
 				.filter(c -> c instanceof CTBarChart).findAny().orElse(null);
 		if (barChart == null)

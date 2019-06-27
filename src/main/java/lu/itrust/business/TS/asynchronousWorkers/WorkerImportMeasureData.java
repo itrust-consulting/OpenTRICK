@@ -10,7 +10,6 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -24,7 +23,6 @@ import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.STSheetState;
@@ -36,8 +34,6 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -59,23 +55,18 @@ import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
  *
  */
 public class WorkerImportMeasureData extends WorkerImpl {
+	
+	private String username;
 
-	private File workFile;
+	private String filename;
 
 	private Integer idAnalysis;
 
-	private String username;
-
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	public WorkerImportMeasureData(String username, Integer idAnalysis, File file, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
-			SessionFactory sessionFactory) {
-		super(poolManager, sessionFactory);
-		setWorkFile(file);
+	public WorkerImportMeasureData(String username, Integer idAnalysis, String filename) {
 		setUsername(username);
+		setFilename(filename);
 		setIdAnalysis(idAnalysis);
 		setName(TaskName.IMPORT_MEASURE_DATA);
-		setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
 	/*
@@ -117,9 +108,8 @@ public class WorkerImportMeasureData extends WorkerImpl {
 	}
 
 	private void cleanUp() {
-		if (workFile != null && workFile.exists() && !workFile.delete())
-			workFile.deleteOnExit();
 		setWorking(false);
+		getServiceStorage().delete(getFilename());
 	}
 
 	/*
@@ -132,8 +122,8 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getPoolManager() != null && !getPoolManager().exist(getId()))
-					if (!getPoolManager().add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
 				if (isCanceled() || isWorking())
 					return;
@@ -141,22 +131,22 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setCurrent(Thread.currentThread());
 			}
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
 			session = getSessionFactory().openSession();
 			session.beginTransaction();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			loadMeasures(analysis);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 90));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 90));
 			daoAnalysis.saveOrUpdate(analysis);
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 			session.getTransaction().commit();
 
 			MessageHandler handler = new MessageHandler("success.import.measure.data", "Measures data has been successfully imported", 100);
 
 			handler.setAsyncCallbacks(new AsyncCallback("reload"));
 
-			serviceTaskFeedback.send(getId(), handler);
+			getServiceTaskFeedback().send(getId(), handler);
 
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.import.measure.data",
 					String.format("Analysis: %s, version: %s, Type: Measure data", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
@@ -172,10 +162,10 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				}
 			}
 			if (e instanceof TrickException) {
-				serviceTaskFeedback.send(getId(), new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e));
 			} else {
 				TrickLogManager.Persist(e);
-				serviceTaskFeedback.send(getId(), new MessageHandler("error.500.message", "Internal error occurred", e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.500.message", "Internal error occurred", e));
 			}
 		} finally {
 			try {
@@ -190,7 +180,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 	}
 
 	private void loadMeasures(Analysis analysis) throws Exception {
-		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final DataFormatter formatter = new DataFormatter();
 		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream().filter(s -> s.getState() == STSheetState.VISIBLE)
@@ -230,7 +220,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		if (refIndex == -1)
 			throw new TrickException("error.import.measure.data.no.reference", "Reference column cannot be found!");
 		MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", minProgress);
-		serviceTaskFeedback.send(getId(), handler);
+		getServiceTaskFeedback().send(getId(), handler);
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String reference = getString(row, refIndex, formatter);
@@ -310,7 +300,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 					Measure.ComputeCost(measure, analysis);
 
 				handler.setProgress((int) (minProgress + (i / (double) size) * maxProgress));
-				serviceTaskFeedback.send(getId(), handler);
+				getServiceTaskFeedback().send(getId(), handler);
 			}
 
 		}
@@ -336,14 +326,6 @@ public class WorkerImportMeasureData extends WorkerImpl {
 			return findParameter(value, parameters.subList(0, mid));
 	}
 
-	public File getWorkFile() {
-		return workFile;
-	}
-
-	public void setWorkFile(File workFile) {
-		this.workFile = workFile;
-	}
-
 	public Integer getIdAnalysis() {
 		return idAnalysis;
 	}
@@ -360,11 +342,11 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		this.username = username;
 	}
 
-	public ServiceTaskFeedback getServiceTaskFeedback() {
-		return serviceTaskFeedback;
+	public String getFilename() {
+		return filename;
 	}
 
-	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
-		this.serviceTaskFeedback = serviceTaskFeedback;
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 }

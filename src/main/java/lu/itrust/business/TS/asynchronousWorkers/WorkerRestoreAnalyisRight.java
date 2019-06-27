@@ -6,20 +6,16 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -34,23 +30,9 @@ import lu.itrust.business.TS.model.general.LogType;
  * @author eomar
  *
  */
-public class WorkerRestoreAnalyisRight implements Worker {
-
-	private String id = String.valueOf(System.nanoTime());
-
-	private Date started = null;
-
-	private Date finished = null;
-
-	private Exception error;
-
-	private boolean working = false;
-
-	private boolean canceled = false;
-
-	private WorkersPoolManager poolManager;
-
-	private SessionFactory sessionFactory;
+public class WorkerRestoreAnalyisRight extends WorkerImpl {
+	
+	private String username;
 
 	private DAOAnalysis daoAnalysis;
 
@@ -58,23 +40,14 @@ public class WorkerRestoreAnalyisRight implements Worker {
 
 	private Comparator<Analysis> comparator = new AnalysisComparator();
 
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	private String username;
-
-	private Thread current;
-
 	/**
 	 * @param username
 	 * @param poolManager
 	 * @param sessionFactory
 	 * @param serviceTaskFeedback
 	 */
-	public WorkerRestoreAnalyisRight(String username, WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback) {
+	public WorkerRestoreAnalyisRight(String username) {
 		this.username = username;
-		this.poolManager = poolManager;
-		this.sessionFactory = sessionFactory;
-		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	/*
@@ -87,19 +60,19 @@ public class WorkerRestoreAnalyisRight implements Worker {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (poolManager != null && !poolManager.exist(getId()))
-					if (!poolManager.add(this))
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
+					if (!getWorkersPoolManager().add(this))
 						return;
-				if (canceled || working)
+				if (isCanceled() || isWorking())
 					return;
-				working = true;
-				started = new Timestamp(System.currentTimeMillis());
+				setWorking(true);
+				setStarted(new Timestamp(System.currentTimeMillis()));
 				setCurrent(Thread.currentThread());
 			}
 
 			MessageHandler messageHandler = new MessageHandler("info.initiliase.dao", "Intialise database connectors", 0);
-			serviceTaskFeedback.send(getId(), messageHandler);
-			initialiseDAO(session = sessionFactory.openSession());
+			getServiceTaskFeedback().send(getId(), messageHandler);
+			initialiseDAO(session = getSessionFactory().openSession());
 			session.beginTransaction();
 			Long totalAnalysis = daoAnalysis.countNotProfileDistinctIdentifier();
 			int size = 30, totalPage = (int) Math.ceil(totalAnalysis / 30.0);
@@ -113,8 +86,8 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			session.getTransaction().commit();
 			messageHandler.update("sucess.restore.analysis.right", "Analysis rights", 100);
 		} catch (Exception e) {
-			serviceTaskFeedback.send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
-			TrickLogManager.Persist(e);
+			setError(e);
+			getServiceTaskFeedback().send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", e));
 			if (session != null && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {
@@ -127,11 +100,12 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
+			getWorkersPoolManager().remove(this);
 		}
 
 	}
@@ -206,68 +180,6 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isWorking()
-	 */
-	@Override
-	public boolean isWorking() {
-		return working;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isCanceled()
-	 */
-	@Override
-	public boolean isCanceled() {
-		return canceled;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getError()
-	 */
-	@Override
-	public Exception getError() {
-		return error;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#setId(java.lang.String)
-	 */
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setPoolManager(lu.itrust
-	 * .business.TS.database.service.WorkersPoolManager)
-	 */
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getId()
-	 */
-	@Override
-	public String getId() {
-		return id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#start()
 	 */
 	@Override
@@ -290,18 +202,18 @@ public class WorkerRestoreAnalyisRight implements Worker {
 							Thread.currentThread().interrupt();
 						else
 							getCurrent().interrupt();
-						canceled = true;
+						setCanceled(true);
 					}
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(error = e);
+			setError(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
@@ -316,8 +228,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	}
 
 	/**
-	 * @param daoAnalysis
-	 *            the daoAnalysis to set
+	 * @param daoAnalysis the daoAnalysis to set
 	 */
 	protected void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
@@ -331,34 +242,15 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	}
 
 	/**
-	 * @param daoUserAnalysisRight
-	 *            the daoUserAnalysisRight to set
+	 * @param daoUserAnalysisRight the daoUserAnalysisRight to set
 	 */
 	protected void setDaoUserAnalysisRight(DAOUserAnalysisRight daoUserAnalysisRight) {
 		this.daoUserAnalysisRight = daoUserAnalysisRight;
 	}
 
 	@Override
-	public Date getStarted() {
-		return started;
-	}
-
-	@Override
-	public Date getFinished() {
-		return finished;
-	}
-
-	@Override
 	public TaskName getName() {
 		return TaskName.RESET_ANALYSIS_RIGHT;
-	}
-
-	public Thread getCurrent() {
-		return current;
-	}
-
-	protected void setCurrent(Thread current) {
-		this.current = current;
 	}
 
 }
