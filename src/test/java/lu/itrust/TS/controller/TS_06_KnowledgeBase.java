@@ -121,7 +121,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-	@Value("${app.settings.standard.template.path}")
+	@Value("${app.settings.test.standard.template.path}")
 	private String template;
 
 	@Value("${app.settings.test.knownledge.base.standard.import}")
@@ -413,7 +413,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.andExpect(status().isOk()).andReturn();
 		assertEquals("attachment; filename=\"Template.xlsx\"", result.getResponse().getHeaderValue("Content-Disposition"));
 		assertEquals(templateResource.contentLength(), result.getResponse().getContentLengthLong());
-		assertEquals(FilenameUtils.getExtension(template), result.getResponse().getContentType());
+		assertEquals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.getResponse().getContentType());
 	}
 
 	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage", timeOut = 120000)

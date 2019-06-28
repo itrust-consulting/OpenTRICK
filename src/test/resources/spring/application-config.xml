@@ -29,8 +29,6 @@
 
 	<context:component-scan base-package="lu.itrust.business" />
 
-	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment.properties,classpath:deployment-ldap.properties" />
-
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
@@ -54,8 +52,6 @@
 	</task:scheduled-tasks>
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
-
-	<context:property-placeholder properties-ref="propertyConfigurer" />
 
 	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" />
 
@@ -113,10 +109,6 @@
 				<!-- <prop key="net.sf.ehcache.configurationResourceName">/persistence/ehcache-${jdbc.cache.storage.type}.xml</prop> -->
 			</props>
 		</property>
-	</bean>
-
-	<bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">
-		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
 	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">

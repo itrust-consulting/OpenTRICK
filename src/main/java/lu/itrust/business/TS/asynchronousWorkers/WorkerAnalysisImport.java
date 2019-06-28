@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -14,7 +13,6 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
-import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.importation.ImportAnalysis;
@@ -35,8 +33,6 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	private boolean canDeleteFile = true;
 
 	private ImportAnalysis importAnalysis;
-
-	private ServiceStorage serviceStorage;
 
 	private int customerId;
 
@@ -239,8 +235,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	}
 
 	protected void process(int index, String fileName, Session session, User user, Customer customer) throws ClassNotFoundException, SQLException, Exception {
-		final Path path = getServiceStorage().load(fileName);
-		try (DatabaseHandler databaseHandler = new DatabaseHandler(path.toUri().toString())) {
+		try (DatabaseHandler databaseHandler = new DatabaseHandler(getServiceStorage().load(fileName).toString())) {
 			importAnalysis.setProgress(0);
 			importAnalysis.setMaxProgress((int) (((double) index / (double) fileNames.size()) * 97));
 			importAnalysis.setGlobalProgress((int) (((double) (index - 1) / (double) fileNames.size()) * 95) + 2);
@@ -314,14 +309,6 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	 */
 	public void setFileNames(List<String> fileNames) {
 		this.fileNames = fileNames;
-	}
-
-	public ServiceStorage getServiceStorage() {
-		return serviceStorage;
-	}
-
-	public void setServiceStorage(ServiceStorage serviceStorage) {
-		this.serviceStorage = serviceStorage;
 	}
 
 }

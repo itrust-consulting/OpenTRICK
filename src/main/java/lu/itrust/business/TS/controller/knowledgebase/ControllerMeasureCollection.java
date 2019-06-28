@@ -18,7 +18,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
@@ -317,9 +316,9 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, RedirectAttributes attributes,
-			Locale locale) throws Exception {
-		final String filename =  ServiceStorage.randoomFilename();
+	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, RedirectAttributes attributes, Locale locale)
+			throws Exception {
+		final String filename = ServiceStorage.randoomFilename();
 		final Worker worker = new WorkerImportStandard(filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
@@ -344,18 +343,19 @@ public class ControllerMeasureCollection {
 	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response)
 			throws Exception {
 
-		Standard standard = serviceStandard.get(idStandard);
+		final Standard standard = serviceStandard.get(idStandard);
 
 		if (standard == null)
 			return "404";
-
-		File workFile = new File(request.getServletContext().getRealPath(String.format("/WEB-INF/tmp/TMP_Standard_%d_%d.xlsx", idStandard, System.nanoTime())));
-
+		final File workFile = serviceStorage.createTmpFile();
 		try {
 
-			FileUtils.copyFile(new File(request.getServletContext().getRealPath(template)), workFile);
+			serviceStorage.copy(template, workFile.getName());
+
 			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+
 			WorkbookPart workbook = mlPackage.getWorkbookPart();
+
 			SheetData sheet = findSheet(workbook, "NormInfo");
 
 			TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormInfo");
@@ -454,8 +454,7 @@ public class ControllerMeasureCollection {
 			// return
 			return null;
 		} finally {
-			if (workFile.exists() && !workFile.delete())
-				workFile.deleteOnExit();
+			serviceStorage.delete(workFile.getName());
 		}
 
 	}

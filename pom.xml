@@ -51,17 +51,17 @@
 			<scope>provided</scope>
 		</dependency>
 
-		 <dependency>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-server</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-alpn-conscrypt-server</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.http2</groupId>
+			<artifactId>http2-server</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-alpn-conscrypt-server</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -433,6 +433,11 @@
 		<!-- Unit testing -->
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<scope>test</scope>
@@ -627,7 +632,7 @@
 				<executions>
 					<execution>
 						<id>minify-default</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>
@@ -660,7 +665,7 @@
 
 					<execution>
 						<id>minify-css-themes</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>
@@ -680,7 +685,7 @@
 
 					<execution>
 						<id>minify-js-trickservie</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>
@@ -704,7 +709,7 @@
 
 					<execution>
 						<id>minify-js-bootstrap</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>
@@ -729,7 +734,7 @@
 
 					<execution>
 						<id>minify-js-chartjs</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>
@@ -754,7 +759,7 @@
 
 					<execution>
 						<id>minify-js-bootstrap-locales</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>
@@ -781,7 +786,7 @@
 
 					<execution>
 						<id>minify-user-guide-css-js</id>
-						<phase>process-resources</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>minify</goal>
 						</goals>

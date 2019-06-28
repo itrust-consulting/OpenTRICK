@@ -80,7 +80,6 @@ public class DefaultReportTemplateLoader {
 	@Autowired
 	private DAOLanguage daoLanguage;
 
-
 	private final AtomicBoolean upToDate = new AtomicBoolean(false);
 
 	public List<ReportTemplate> findAll() {
@@ -171,10 +170,7 @@ public class DefaultReportTemplateLoader {
 	}
 
 	private Resource loadResource(String name) throws IOException {
-		final Resource resource = InstanceManager.getServiceStorage().loadAsResource(String.format("docx/%s.docx", name));
-		if (!resource.exists())
-			throw new TrickException("error.default.report.template.not.exist", String.format("Default report template cannot be loaded, Filename: %s.docx", name), name);
-		return resource;
+		return InstanceManager.getServiceStorage().loadAsResource(String.format("docx/%s.docx", name));
 	}
 
 	public void loadLanguages() {

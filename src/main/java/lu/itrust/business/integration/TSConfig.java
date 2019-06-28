@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.boot;
+package lu.itrust.business.integration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +50,7 @@ import lu.itrust.business.TS.helper.InstanceManager;
 @Configuration
 @PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource("classpath:deployment-ldap.properties"),
 		@PropertySource("classpath:deployment.properties") })
-public class ApplicationSetup {
+public class TSConfig {
 
 	@Autowired
 	private Environment environment;
@@ -83,6 +83,7 @@ public class ApplicationSetup {
 
 	@Bean
 	public InstanceManager instanceManager() {
+		System.out.println();
 		return InstanceManager.getInstance();
 	}
 

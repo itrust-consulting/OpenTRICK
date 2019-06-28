@@ -1118,7 +1118,8 @@ public class ControllerDataManager {
 			final String name = messageSource.getMessage("label.title.plan_type." + type.getName().toLowerCase(), null, type.getName(), locale);
 			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + (i + 1) + ".xml"), name, i + 1);
 			final SheetData sheet = worksheetPart.getContents().getSheetData();
-			createHeader(worksheetPart, name, generateActionPlanColumns(colCount - 1, type, locale), actionPlanEntries.size());
+			final String title = messageSource.getMessage("label.title.export.plan_type." + type.getName().toLowerCase(), null, type.getName(), locale);
+			createHeader(worksheetPart, title, generateActionPlanColumns(colCount - 1, type, locale), actionPlanEntries.size());
 			for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
 				sheet.getRow().add(writeActionPLanData(factory.createRow(), colCount, actionPlanEntry, expressionParameters, locale));
 		}

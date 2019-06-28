@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +41,7 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 @Service
 public class ServiceStorageImpl implements ServiceStorage {
-	
+
 	private Path root;
 
 	@Value("${app.settings.data.folder}")
@@ -111,8 +113,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 	@Override
 	public Resource loadAsResource(String filename) {
 		try {
-			final Path path = load(filename);
-			final Resource resource = new UrlResource(path.toUri());
+			final Resource resource = new UrlResource(load(filename).toUri());
 			if (resource.exists() || resource.isReadable())
 				return resource;
 			throw new TrickException("error.resource.not.found", "Resource cannot be found!");
@@ -156,7 +157,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 			final Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resourceFolder + "/**");
 			final String baseJarPath = new DefaultResourceLoader().getResource(resourceFolder).getURI().getRawSchemeSpecificPart();
 			for (Resource resource : resources) {
-				String relativePath = resource.getURI().getRawSchemeSpecificPart().replace(baseJarPath, "");
+				final String relativePath = URLDecoder.decode(resource.getURI().getRawSchemeSpecificPart().replace(baseJarPath, ""), StandardCharsets.UTF_8.name());
 				if (relativePath.isEmpty())
 					continue;
 				if (relativePath.endsWith("/") || relativePath.endsWith("\\")) {
