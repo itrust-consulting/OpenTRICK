@@ -60,9 +60,11 @@ import org.docx4j.openpackaging.parts.DrawingML.Chart;
 import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBehaviour;
 import org.docx4j.relationships.Relationship;
 import org.docx4j.relationships.Relationships;
+import org.docx4j.sharedtypes.STOnOff;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
 import org.docx4j.wml.CTMarkupRange;
+import org.docx4j.wml.CTTblLook;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.ContentAccessor;
 import org.docx4j.wml.Document;
@@ -483,6 +485,11 @@ public class Docx4jReportImpl implements Docx4jReport {
 			table.getTblPr().setTblW(getFactory().createTblWidth());
 		table.getTblPr().getTblW().setType("pct");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
+		if (table.getTblPr().getTblLook() == null)
+			table.getTblPr().setTblLook(new CTTblLook());
+		table.getTblPr().getTblLook().setNoHBand(STOnOff.ONE);
+		table.getTblPr().getTblLook().setLastRow(STOnOff.ONE);
+		table.getTblPr().getTblLook().setLastColumn(STOnOff.ONE);
 		return table;
 	}
 
