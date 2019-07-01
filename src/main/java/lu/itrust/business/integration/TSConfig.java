@@ -83,7 +83,6 @@ public class TSConfig {
 
 	@Bean
 	public InstanceManager instanceManager() {
-		System.out.println();
 		return InstanceManager.getInstance();
 	}
 
@@ -151,9 +150,10 @@ public class TSConfig {
 			try (InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/web.xml")) {
 				if (inputStream == null)
 					throw new RuntimeException("Web XML cannot be load");
-				WebXmlParser parser = new WebXmlParser(false, false, true);
-				WebXml webXml = new WebXml();
-				boolean success = parser.parseWebXml(new InputSource(inputStream), webXml, false);
+				
+				final WebXml webXml = new WebXml();
+				final WebXmlParser parser = new WebXmlParser(false, false, true);
+				final boolean success = parser.parseWebXml(new InputSource(inputStream), webXml, false);
 				if (success) {
 					webXml.getContextParams().forEach((name, value) -> servletContext.setInitParameter(name, value));
 					for (ServletDef def : webXml.getServlets().values()) {
