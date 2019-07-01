@@ -24,8 +24,6 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -48,8 +46,6 @@ import lu.itrust.business.TS.helper.InstanceManager;
  *
  */
 @Configuration
-@PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource("classpath:deployment-ldap.properties"),
-		@PropertySource("classpath:deployment.properties") })
 public class TSConfig {
 
 	@Autowired

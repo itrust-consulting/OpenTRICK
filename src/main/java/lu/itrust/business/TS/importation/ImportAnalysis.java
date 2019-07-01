@@ -207,10 +207,8 @@ public class ImportAnalysis {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 * @param sqlite
-	 *            The SQLite Object (DatabaseHandler)
+	 * @param analysis The Analysis Object
+	 * @param sqlite   The SQLite Object (DatabaseHandler)
 	 */
 	public ImportAnalysis(Analysis analysis, DatabaseHandler sqlite) {
 		this.analysis = analysis;
@@ -256,7 +254,10 @@ public class ImportAnalysis {
 		return idTask;
 	}
 
-
+	/**
+	 * 
+	 * @return the session
+	 */
 	public Session getSession() {
 		return session;
 	}
@@ -467,16 +468,14 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param compability1x
-	 *            the compability1X to set
+	 * @param compability1x the compability1X to set
 	 */
 	public void setCompability1X(boolean compability1x) {
 		compability1X = compability1x;
 	}
 
 	/**
-	 * @param currentSqliteTable
-	 *            the currentSqliteTable to set
+	 * @param currentSqliteTable the currentSqliteTable to set
 	 */
 	public void setCurrentSqliteTable(String currentSqliteTable) {
 		this.currentSqliteTable = currentSqliteTable;
@@ -490,72 +489,63 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param version
-	 *            the version to set
+	 * @param version the version to set
 	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 
 	/**
-	 * @param daoAnalysis
-	 *            the daoAnalysis to set
+	 * @param daoAnalysis the daoAnalysis to set
 	 */
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 	}
 
 	/**
-	 * @param daoAssetType
-	 *            the daoAssetType to set
+	 * @param daoAssetType the daoAssetType to set
 	 */
 	public void setDaoAssetType(DAOAssetType daoAssetType) {
 		this.daoAssetType = daoAssetType;
 	}
 
 	/**
-	 * @param daoLanguage
-	 *            the daoLanguage to set
+	 * @param daoLanguage the daoLanguage to set
 	 */
 	public void setDaoLanguage(DAOLanguage daoLanguage) {
 		this.daoLanguage = daoLanguage;
 	}
 
 	/**
-	 * @param daoMeasureDescription
-	 *            the daoMeasureDescription to set
+	 * @param daoMeasureDescription the daoMeasureDescription to set
 	 */
 	public void setDaoMeasureDescription(DAOMeasureDescription daoMeasureDescription) {
 		this.daoMeasureDescription = daoMeasureDescription;
 	}
 
 	/**
-	 * @param daoMeasureDescriptionText
-	 *            the daoMeasureDescriptionText to set
+	 * @param daoMeasureDescriptionText the daoMeasureDescriptionText to set
 	 */
 	public void setDaoMeasureDescriptionText(DAOMeasureDescriptionText daoMeasureDescriptionText) {
 		this.daoMeasureDescriptionText = daoMeasureDescriptionText;
 	}
 
 	/**
-	 * @param daoParameterType
-	 *            the daoParameterType to set
+	 * @param daoParameterType the daoParameterType to set
 	 */
 	public void setDaoParameterType(DAOParameterType daoParameterType) {
 		this.daoParameterType = daoParameterType;
 	}
 
 	/**
-	 * @param daoScaleType
-	 *            the daoScaleType to set
+	 * @param daoScaleType the daoScaleType to set
 	 */
 	public void setDaoScaleType(DAOScaleType daoScaleType) {
 		this.daoScaleType = daoScaleType;
 	}
 
 	/**
-	 * @param daoStandard
-	 *            the daoStandard to set
+	 * @param daoStandard the daoStandard to set
 	 */
 	public void setDaoStandard(DAOStandard daoStandard) {
 		this.daoStandard = daoStandard;
@@ -571,8 +561,7 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param idTask
-	 *            the idTask to set
+	 * @param idTask the idTask to set
 	 */
 	public void setIdTask(String idTask) {
 		this.idTask = idTask;
@@ -2253,9 +2242,10 @@ public class ImportAnalysis {
 				measure.getMeasureDescription().setComputable(measurecomputable);
 
 				// calculate cost
-				cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-						this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT), measure.getInternalMaintenance(), measure.getExternalMaintenance(),
-						measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+				cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
+						this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
+						measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
+						measure.getInvestment(), measure.getLifetime());
 
 				measure.setCost(cost);
 
@@ -2698,7 +2688,8 @@ public class ImportAnalysis {
 				return;
 			scenarioAssets = new LinkedHashMap<>();
 			while (resultSet.next()) {
-				Integer idScenario = resultSet.getInt("id_threat"), idAsset = resultSet.getInt("id_asset");
+				final Integer idScenario = resultSet.getInt("id_threat");
+				final Integer idAsset = resultSet.getInt("id_asset");
 				List<Integer> assetIds = scenarioAssets.get(idScenario);
 				if (assetIds == null)
 					scenarioAssets.put(idScenario, assetIds = new LinkedList<>());
@@ -2813,7 +2804,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				this.analysis.add(tempScenario);
 				if (tempScenario.isAssetLinked()) {
-					for (Integer idAsset : scenarioAssets.get(id))
+					for (Integer idAsset : scenarioAssets.getOrDefault(id, Collections.emptyList()))
 						tempScenario.addApplicable(assets.get(idAsset));
 				} else
 					setScenarioAssetValues(tempScenario, rs);
@@ -3198,10 +3189,9 @@ public class ImportAnalysis {
 	 * i10</li>
 	 * </ul>
 	 * 
-	 * @param criteria
-	 *            The scenario or measure object to set the categories with values
-	 * @param resultSet
-	 *            The ResultSet from where the categorie values come from
+	 * @param criteria  The scenario or measure object to set the categories with
+	 *                  values
+	 * @param resultSet The ResultSet from where the categorie values come from
 	 * 
 	 * @throws Exception
 	 */
@@ -3239,10 +3229,8 @@ public class ImportAnalysis {
 	 * setScenarioAssetValues: <br>
 	 * Sets all Asset Type Values for a given Scenario using a SQL Result.
 	 * 
-	 * @param scenario
-	 *            The Scenario Object to set the Asset Type Values
-	 * @param rs
-	 *            The SQL Result to take values from
+	 * @param scenario The Scenario Object to set the Asset Type Values
+	 * @param rs       The SQL Result to take values from
 	 * 
 	 * @throws Exception
 	 */
@@ -3339,8 +3327,7 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param maxProgress
-	 *            the maxProgress to set
+	 * @param maxProgress the maxProgress to set
 	 */
 	public void setMaxProgress(int maxProgress) {
 		this.maxProgress = maxProgress;
@@ -3354,8 +3341,7 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param progress
-	 *            the progress to set
+	 * @param progress the progress to set
 	 */
 	public void setProgress(int progress) {
 		this.progress = progress;
@@ -3369,8 +3355,7 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param globalProgress
-	 *            the globalProgress to set
+	 * @param globalProgress the globalProgress to set
 	 */
 	public void setGlobalProgress(int globalProgress) {
 		this.globalProgress = globalProgress;
