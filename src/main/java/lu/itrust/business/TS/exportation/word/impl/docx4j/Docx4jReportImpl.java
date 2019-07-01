@@ -488,8 +488,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 		if (table.getTblPr().getTblLook() == null)
 			table.getTblPr().setTblLook(new CTTblLook());
 		table.getTblPr().getTblLook().setNoHBand(STOnOff.ONE);
-		table.getTblPr().getTblLook().setLastRow(STOnOff.ONE);
-		table.getTblPr().getTblLook().setLastColumn(STOnOff.ONE);
+		table.getTblPr().getTblLook().setLastRow(STOnOff.ZERO);
+		table.getTblPr().getTblLook().setLastColumn(STOnOff.ZERO);
 		return table;
 	}
 
