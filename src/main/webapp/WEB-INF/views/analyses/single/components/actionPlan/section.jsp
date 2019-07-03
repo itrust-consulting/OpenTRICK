@@ -83,7 +83,7 @@
 						<table class="table table-hover table-condensed table-fixed-header-analysis" id="actionplantable_${apt}">
 							<thead>
 								<tr>
-									<c:if test="${isLinkedToProject && apt=='APPN'}">
+									<c:if test="${isLinkedToProject}">
 										<th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'actionplans')"></th>
 									</c:if>
 									<th style="width: 1%;"><spring:message code="label.table.index" /></th>
@@ -111,7 +111,7 @@
 							<tbody>
 								<c:if test="${apt!='APQ' and actionplansplitted.get(apt).size()>0}">
 									<tr>
-										<td colspan="${isLinkedToProject && apt=='APPN'?'2':'1'}">&nbsp;</td>
+										<td colspan="${isLinkedToProject?'2':'1'}">&nbsp;</td>
 										<td colspan="3"><spring:message code="label.action_plan.current_ale" /></td>
 										<c:set var="totalALE">
 											${fct:round(actionplansplitted.get(apt).get(0).totalALE,2)+ fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
@@ -126,7 +126,7 @@
 									<tr data-trick-class="ActionPlanEntry" onclick="selectElement(this)" data-trick-id="${ape.id}" data-measure-id='${ape.measure.id}'
 										data-is-linked='${isLinkedToProject and not empty ape.measure.ticket}'
 										data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
-										<c:if test="${isLinkedToProject && apt=='APPN'}">
+										<c:if test="${isLinkedToProject}">
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_actionplans','#menu_actionplans');"></td>
 										</c:if>
 										<td><spring:message text="${ape.order}" /></td>

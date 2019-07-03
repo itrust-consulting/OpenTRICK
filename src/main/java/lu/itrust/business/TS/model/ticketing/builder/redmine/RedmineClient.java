@@ -40,8 +40,10 @@ import com.taskadapter.redmineapi.internal.ResultsWrapper;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
@@ -50,6 +52,7 @@ import lu.itrust.business.TS.model.ticketing.TicketingPageable;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.model.ticketing.impl.Comment;
 import lu.itrust.business.TS.model.ticketing.impl.TicketingPageableImpl;
 import lu.itrust.business.TS.model.ticketing.impl.redmine.RedmineCustomField;
@@ -67,7 +70,7 @@ public class RedmineClient implements Client {
 	private static final String ERROR_TASK_EXTERNAL = "error.task.external";
 	private static final String SELECTED_PROJECT_CANNOT_BE_FOUND = "Selected project cannot be found!";
 	private static final String ERROR_PROJECT_NOT_FOUND = "error.project.not.found";
-	private static final String PLEASE_CHECK_YOUR_HAVE_PROPER_PERSMISSIONS = "Please check your have proper persmissions";
+	private static final String PLEASE_CHECK_YOUR_HAVE_PROPER_PERSMISSIONS = "Please check your have proper permissions";
 	private static final String ERROR_TASK_AUTHORISATION = "error.task.authorisation";
 	private static final String PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS = "Please check your ticketing system credentials";
 	private static final String ERROR_TASK_AUTHENTICATION = "error.task.authentication";
@@ -129,7 +132,7 @@ public class RedmineClient implements Client {
 			if (client == null)
 				client = HttpClientBuilder.create().build();
 			setUrl(url);
-			this.manager = RedmineManagerFactory.createWithUserAuth(url, username, password, client);
+			this.manager = RedmineManagerFactory.createWithUserAuth(getUrl(), username, password, client);
 			return this.manager.getUserManager().getCurrentUser() != null;
 		} catch (RedmineException e) {
 			TrickLogManager.Persist(e);
@@ -210,10 +213,12 @@ public class RedmineClient implements Client {
 	 * lu.itrust.business.TS.messagehandler.MessageHandler, int)
 	 */
 	@Override
-	public boolean createIssues(String projectId, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, MessageHandler handler, int maxProgess) {
+	public boolean createIssues(String projectId, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, ValueFactory factory, MessageHandler handler,
+			int maxProgess) {
 		if (manager == null)
 			throw new TrickException("error.500.message", "Internal error");
 		try {
+			Boolean error = false;
 			final ProjectManager projectManager = manager.getProjectManager();
 			final IssueManager issueManager = manager.getIssueManager();
 			final Project project = projectManager.getProjectByKey(projectId);
@@ -222,15 +227,23 @@ public class RedmineClient implements Client {
 				tracker = project.getTrackers().stream().findFirst().orElse(null);
 			int min = handler.getProgress(), size = measures.size() + updateMeasures.size(), current = 0;
 			for (Measure measure : measures) {
-				final Issue issue = IssueFactory.create(project.getId(), StringUtils.abbreviate(measure.getToDo(), 255));
-				issue.setTracker(tracker);
-				issue.setDescription(generateDescription(measure, language));
-				issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
-				issue.setStartDate(measure.getPhase().getBeginDate());
-				issue.setDueDate(measure.getPhase().getEndDate());
-				Issue persisted = issueManager.createIssue(issue);
-				measure.setTicket(persisted.getId().toString());
+				if (StringUtils.isEmpty(measure.getToDo()) || StringUtils.isBlank(measure.getToDo())) {
+					final MeasureDescription description = measure.getMeasureDescription();
+					handler.update("error.ticket.measure.no.todo", String.format("Task for (%s - %s) cannot be created, please add a todo and try again!",
+							description.getStandard().getLabel(), description.getReference()), 0, description.getStandard().getLabel(), description.getReference());
+					error = true;
+				} else {
+					final Issue issue = IssueFactory.create(project.getId(), StringUtils.abbreviate(measure.getToDo(), 255));
+					issue.setTracker(tracker);
+					issue.setDescription(generateDescription(measure, language, factory));
+					issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
+					issue.setStartDate(measure.getPhase().getBeginDate());
+					issue.setDueDate(measure.getPhase().getEndDate());
+					Issue persisted = issueManager.createIssue(issue);
+					measure.setTicket(persisted.getId().toString());
+				}
 				handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
+				InstanceManager.getServiceTaskFeedback().send(handler);
 			}
 
 			if (!updateMeasures.isEmpty()) {
@@ -241,22 +254,24 @@ public class RedmineClient implements Client {
 					final MeasureDescription description = measure.getMeasureDescription();
 					parameters.put("issue_id", measure.getTicket());
 					final Issue issue = issueManager.getIssues(parameters).getResults().stream().findFirst().orElse(null);
-					if (issue == null)
+					if (issue == null) {
 						handler.update("error.ticket.not_found",
 								String.format("Task for (%s - %s) cannot be found", description.getStandard().getLabel(), description.getReference()), 0,
 								description.getStandard().getLabel(), description.getReference());
-					else {
+						error = true;
+					} else {
 						issue.setSubject(StringUtils.abbreviate(measure.getToDo(), 255));
-						issue.setDescription(generateDescription(measure, language));
+						issue.setDescription(generateDescription(measure, language, factory));
 						issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
 						issue.setStartDate(measure.getPhase().getBeginDate());
 						issue.setDueDate(measure.getPhase().getEndDate());
 						issueManager.update(issue);
 					}
 					handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
+					InstanceManager.getServiceTaskFeedback().send(handler);
 				}
 			}
-			return true;
+			return error;
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotFoundException e) {
@@ -268,7 +283,7 @@ public class RedmineClient implements Client {
 		}
 	}
 
-	private String generateDescription(Measure measure, String language) {
+	private String generateDescription(Measure measure, String language, ValueFactory factory) {
 		final List<String> builder = new LinkedList<>();
 		final MeasureDescription description = measure.getMeasureDescription();
 		final MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(language);
@@ -276,7 +291,7 @@ public class RedmineClient implements Client {
 			builder.add(measure.getToDo() + "\n");
 		builder.add(String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()) + "\n");
 		builder.add(descriptionText.getDescription() + "\n");
-		builder.add(String.format("IR: %d, IW: %s, EW: %s, INV: %s, LT: %s, IM: %s, EM: %s, RM: %s, PH: %d, Resp: %s", (int) measure.getImplementationRateValue(),
+		builder.add(String.format("IR: %d, IW: %s, EW: %s, INV: %s, LT: %s, IM: %s, EM: %s, RM: %s, PH: %d, Resp: %s", (int) measure.getImplementationRateValue(factory),
 				DECIMAL_FORMAT.format(measure.getInternalWL()), DECIMAL_FORMAT.format(measure.getExternalWL()), DECIMAL_FORMAT.format(measure.getInvestment() * .001),
 				DECIMAL_FORMAT.format(measure.getLifetime()), DECIMAL_FORMAT.format(measure.getInternalMaintenance()), DECIMAL_FORMAT.format(measure.getExternalMaintenance()),
 				DECIMAL_FORMAT.format(measure.getRecurrentInvestment() * .001), measure.getPhase().getNumber(), measure.getResponsible()));
@@ -321,7 +336,7 @@ public class RedmineClient implements Client {
 				return null;
 			final Map<String, String> parameters = new HashMap<>(3);
 			final Project project = manager.getProjectManager().getProjectByKey(idProject);
-			parameters.put("project_id", project.getId()+"");
+			parameters.put("project_id", project.getId() + "");
 			parameters.put("status_id", "*");
 			parameters.put("issue_id", idTask);
 			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e)).findAny().orElse(null);
@@ -370,7 +385,9 @@ public class RedmineClient implements Client {
 	@Override
 	public List<TicketingProject> findProjects() {
 		try {
-			return manager == null ? Collections.emptyList() : manager.getProjectManager().getProjects().stream().map(RedmineClient::buildProject).collect(Collectors.toList());
+			return manager == null ? Collections.emptyList()
+					: manager.getProjectManager().getProjects().stream().map(RedmineClient::buildProject)
+							.sorted((p0, p1) -> NaturalOrderComparator.compareTo(p0.getName(), p1.getName())).collect(Collectors.toList());
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotAuthorizedException e) {
@@ -394,10 +411,10 @@ public class RedmineClient implements Client {
 				return Collections.emptyList();
 			final Map<String, String> parameters = new HashMap<>(4);
 			final Project project = manager.getProjectManager().getProjectByKey(idProject);
-			parameters.put("project_id", project.getId()+"");
+			parameters.put("project_id", project.getId() + "");
 			parameters.put("status_id", "*");
 			parameters.put("sort", "id:desc");
-			parameters.put("limit", Integer.MAX_VALUE+"");
+			parameters.put("limit", Integer.MAX_VALUE + "");
 			return manager.getIssueManager().getIssues(parameters).getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList());
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
@@ -505,13 +522,13 @@ public class RedmineClient implements Client {
 				size = Integer.MAX_VALUE;
 			if (manager == null)
 				return new TicketingPageableImpl<>(startIndex, size, Collections.emptyList());
-			final Project project =  manager.getProjectManager().getProjectByKey(projectId);
+			final Project project = manager.getProjectManager().getProjectByKey(projectId);
 			if (!(excludes == null || excludes.isEmpty()))
-				return findOtherTasks(project.getId()+"", excludes, startIndex, size);
+				return findOtherTasks(project.getId() + "", excludes, startIndex, size);
 			final Params parameters = new Params();
 			parameters.add("status_id", "*");
 			parameters.add("limit", size + "");
-			parameters.add("project_id", project.getId()+"");
+			parameters.add("project_id", project.getId() + "");
 			parameters.add("offset", startIndex + "");
 			parameters.add("sort", "id:desc");
 			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
@@ -559,7 +576,7 @@ public class RedmineClient implements Client {
 	}
 
 	public void setUrl(String url) {
-		this.url = url;
+		this.url = ClientBuilder.getURL(url);
 	}
 
 	@Override
@@ -568,7 +585,7 @@ public class RedmineClient implements Client {
 			if (client == null)
 				client = HttpClientBuilder.create().build();
 			setUrl(url);
-			this.manager = RedmineManagerFactory.createWithApiKey(url, token, client);
+			this.manager = RedmineManagerFactory.createWithApiKey(getUrl(), token, client);
 			return this.manager.getUserManager().getCurrentUser() != null;
 		} catch (RedmineException e) {
 			TrickLogManager.Persist(e);

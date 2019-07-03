@@ -22,6 +22,7 @@ import lu.itrust.business.TS.form.TicketingForm;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
@@ -73,33 +74,43 @@ public class WorkerGenerateTickets extends WorkerImpl {
 				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
-			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+			final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			session.beginTransaction();
-			Analysis analysis = daoAnalysis.get(idAnalysis);
+			final Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis.hasProject()) {
-				MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
+				final MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
 				getServiceTaskFeedback().send(getId(), handler);
-				Map<Integer, Integer> contains = ticketingForm.getNews().stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+				final Map<Integer, Integer> contains = ticketingForm.getNews().stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
 				ticketingForm.getUpdates().forEach(idMeasure -> contains.put(idMeasure, idMeasure));
-				Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+				final Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> contains.containsKey(measure.getId())).collect(Collectors.toMap(Measure::getId, Function.identity()));
 				if (!mapMeasures.isEmpty()) {
-					List<Measure> newMeasures = new LinkedList<>(), updateMeasures = new LinkedList<>();
+					final List<Measure> newMeasures = new LinkedList<>(), updateMeasures = new LinkedList<>();
+					final ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 					ticketingForm.getNews().stream().filter(key -> mapMeasures.containsKey(key)).forEach(key -> newMeasures.add(mapMeasures.get(key)));
 					ticketingForm.getUpdates().stream().filter(key -> mapMeasures.containsKey(key)).forEach(key -> updateMeasures.add(mapMeasures.get(key)));
 					handler.update("info.creating.tickets", "Creating tickets", 3);
-					client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), newMeasures, updateMeasures, handler, 95);
-					handler.update("info.update.analysis", "Updating analysis", 95);
+					final boolean result = client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), newMeasures, updateMeasures, valueFactory, handler, 95)
+							|| handler.getCode().startsWith("error.");
+					if (!result)
+						handler.update("info.update.analysis", "Updating analysis", 95);
 					daoAnalysis.saveOrUpdate(analysis);
-					handler.update("info.commit.transcation", "Commit transaction", 98);
+					if (!result)
+						handler.update("info.commit.transcation", "Commit transaction", 98);
 					session.getTransaction().commit();
 					if (!newMeasures.isEmpty()) {
-						handler.update("success.ticketing.created", "Tasks are successfully created", 100);
-						Standard standard = newMeasures.get(0).getAnalysisStandard().getStandard();
-						boolean isSame = !newMeasures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
+						if (handler.getCode().startsWith("error."))
+							handler.setProgress(100);
+						else if (result)
+							handler.update("error.ticketing.created", "Some tasks are not created!", 100);
+						else
+							handler.update("success.ticketing.created", "Tasks are successfully created", 100);
+
+						final Standard standard = newMeasures.get(0).getAnalysisStandard().getStandard();
+						final boolean isSame = !newMeasures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
 						if (newMeasures.size() < 10) {
 							int count = 0;
-							AsyncCallback[] callbacks = new AsyncCallback[newMeasures.size() + 1];
+							final AsyncCallback[] callbacks = new AsyncCallback[newMeasures.size() + 1];
 							callbacks[count++] = new AsyncCallback("reloadSection", "section_actionplans");
 							for (Measure measure : newMeasures)
 								callbacks[count++] = new AsyncCallback("reloadMeasureRow", measure.getId(), measure.getAnalysisStandard().getStandard().getId());
@@ -111,6 +122,8 @@ public class WorkerGenerateTickets extends WorkerImpl {
 							handler.setAsyncCallbacks(new AsyncCallback("reload"));
 					} else if (handler.getCode().startsWith("error."))
 						handler.setProgress(100);
+					else if (result)
+						handler.update("error.ticketing.updated", "Some tasks are not updated!", 100);
 					else
 						handler.update("success.ticketing.updated", "Tasks are successfully updated", 100);
 
@@ -208,8 +221,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	}
 
 	/**
-	 * @param idAnalysis
-	 *            the idAnalysis to set
+	 * @param idAnalysis the idAnalysis to set
 	 */
 	public void setIdAnalysis(Integer idAnalysis) {
 		this.idAnalysis = idAnalysis;
@@ -223,8 +235,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	}
 
 	/**
-	 * @param client
-	 *            the client to set
+	 * @param client the client to set
 	 */
 	public void setClient(Client client) {
 		this.client = client;

@@ -105,10 +105,8 @@ public class ControllerTicket extends AbstractController {
 				TicketingProject project = client.findProjectById(idProject);
 				if (project != null)
 					(projects = new LinkedList<>()).add(project);
-			} else {
-				Map<String, Boolean> mapper = serviceAnalysis.getAllProjectIds().stream().collect(Collectors.toMap(Function.identity(), key -> true));
-				(projects = client.findProjects()).removeIf(id -> mapper.containsKey(id.getId()));
-			}
+			} else 
+				projects = client.findProjects();
 			model.addAttribute("projects", projects);
 			model.addAttribute("analysis", analysis);
 			return String.format("analyses/all/forms/ticketing_%s_link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());

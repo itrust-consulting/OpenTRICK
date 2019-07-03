@@ -23,26 +23,31 @@ public class ClientBuilder {
 		}
 	}
 
-	public static String TicketLink(String name, String baseUser, String ticketId) {
+	public static String TicketLink(String name, String baseURL, String ticketId) {
 		switch (name) {
 		case "jira":
-			return String.format("%s/browse/%s", baseUser, ticketId);
+			return String.format("%sbrowse/%s", getURL(baseURL), ticketId);
 		case "redmine":
-			return String.format("%s/issues/%s", baseUser, ticketId);
+			return String.format("%sissues/%s", getURL(baseURL), ticketId);
 		default:
 			return null;
 		}
 	}
-	
-	public static String ProjectLink(String name, String baseUser, String projectId) {
+
+	public static String ProjectLink(String name, String baseURL, String projectId) {
 		switch (name) {
 		case "jira":
-			return String.format("%s/browse/%s", baseUser, projectId);
+			return String.format("%sbrowse/%s", getURL(baseURL), projectId);
 		case "redmine":
-			return String.format("%s/projects/%s", baseUser, projectId);
+			return String.format("%sprojects/%s", getURL(baseURL), projectId);
 		default:
 			return null;
 		}
 	}
-	
+
+	public static final String getURL(String url) {
+		final String tmp = url == null ? "" : url.trim();
+		return tmp + (tmp.endsWith("/") ? "" : "/");
+	}
+
 }

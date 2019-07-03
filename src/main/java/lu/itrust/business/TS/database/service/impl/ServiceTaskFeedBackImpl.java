@@ -211,7 +211,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	public void send(String id, MessageHandler handler) {
 		if (id == null || handler == null)
 			return;
-		if (handler.getIdTask() == null)
+		if (handler.getIdTask() == null || handler.getIdTask().isEmpty())
 			handler.setIdTask(id);
 		sendMessage(handler);
 	}

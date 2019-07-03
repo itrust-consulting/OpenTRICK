@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.ticketing.TicketingPageable;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
@@ -30,7 +31,7 @@ public interface Client extends Closeable {
 
 	boolean createIssue(String idProject, TicketingTask task);
 
-	boolean createIssues(String project, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, MessageHandler handler, int maxProgess);
+	boolean createIssues(String project, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, ValueFactory factory, MessageHandler handler, int maxProgess);
 
 	TicketingTask findTaskById(String idTask);
 
