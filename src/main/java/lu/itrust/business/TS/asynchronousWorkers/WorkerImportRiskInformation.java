@@ -54,9 +54,9 @@ import lu.itrust.business.TS.model.riskinformation.RiskInformation;
  *
  */
 public class WorkerImportRiskInformation extends WorkerImpl {
-	
+
 	private int analysisId;
-	
+
 	private String username;
 
 	private String filename;
@@ -65,8 +65,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 	private DAORiskInformation daoRiskInformation;
 
-	public WorkerImportRiskInformation( int analysisId,
-			String username, String filename) {
+	public WorkerImportRiskInformation(int analysisId, String username, String filename) {
 		setName(TaskName.IMPORT_RISK_INFORMATION);
 		setAnalysisId(analysisId);
 		setUsername(username);
@@ -148,7 +147,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 			transaction = session.beginTransaction();
 
-			Analysis analysis = daoAnalysis.get(analysisId);
+			final Analysis analysis = daoAnalysis.get(analysisId);
 
 			importRiskInformation(analysis);
 
@@ -156,7 +155,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 			transaction.commit();
 
-			MessageHandler messageHandler = new MessageHandler("success.import.risk.information", "Brainstorming was successfully imported", 100);
+			final MessageHandler messageHandler = new MessageHandler("success.import.risk.information", "Brainstorming was successfully imported", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_risk-information_risk"),
 					new AsyncCallback("reloadSection", "section_risk-information_vul"), new AsyncCallback("reloadSection", "section_risk-information_threat"));
 
@@ -164,7 +163,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			/**
 			 * Log
 			 */
-			String username = getServiceTaskFeedback().findUsernameById(this.getId());
+			final String username = getServiceTaskFeedback().findUsernameById(this.getId());
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.risk.information",
 					String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
 					LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
@@ -212,33 +211,32 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		int multi = (max - min) / 3, progress = min, indexProgress = 1;
 		for (Object[] mapper : RI_SHEET_MAPPERS) {
 
-			String category = mapper[0].toString().toLowerCase();
+			final String category = mapper[0].toString().toLowerCase();
 
-			MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category, String.format("Processing of %s in progress", category),
+			final MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category, String.format("Processing of %s in progress", category),
 					progress);
 
 			getServiceTaskFeedback().send(getId(), messageHandler);
 
-			SheetData sheet = findSheet(workbook, mapper[1].toString());
+			final SheetData sheet = findSheet(workbook, mapper[1].toString());
 			if (sheet == null)
 				throw new TrickException("error.risk.information.sheet.not.found", String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1].toString()),
 						mapper[1].toString());
-			TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
+			final TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
 			if (tablePart == null)
 				throw new TrickException("error.risk.information.table.not.found",
 						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),
 						mapper[0] + "Table");
-			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-
+			final AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
 			final int maxProgress = progress + (multi * indexProgress), minProgress = progress, size = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size());
 			final Map<String, Boolean> chapterIndexer = new HashMap<>(size);
 
 			for (int i = address.getBegin().getRow() + 1; i < size; i++) {
 				int colIndex = 0;
 
-				Row row = sheet.getRow().get(i);
+				final Row row = sheet.getRow().get(i);
 
-				String chapter = getString(row, colIndex++, formatter);
+				final String chapter = getString(row, colIndex++, formatter);
 
 				if (StringUtils.isEmpty(chapter))
 					emptyCellError(mapper[1].toString(), i, colIndex);
@@ -259,13 +257,13 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				} else if (riskInformation.getId() < 1)
 					riskInformation.setCategory(mapper[0].toString());
 
-				String name = getString(row, colIndex++, formatter);
+				final String name = getString(row, colIndex++, formatter);
 
 				if (StringUtils.isEmpty(name))
 					emptyCellError(mapper[1].toString(), i, colIndex);
 
 				if (!riskInformation.isCustom() && riskInformation.getId() > 0) {
-					String label = getOrignalLabel(locale, riskInformation);
+					final String label = getOrignalLabel(locale, riskInformation);
 					if (!label.trim().equals(name.trim())) {
 						riskInformation.setLabel(name);
 						riskInformation.setCustom(true);
@@ -278,7 +276,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				if (mapper[0].equals(RI_TYPE_THREAT))
 					riskInformation.setAcronym(getString(row, colIndex++, formatter));
 
-				String exposed = getString(row, colIndex++, formatter);
+				final String exposed = getString(row, colIndex++, formatter);
 				if (StringUtils.isEmpty(exposed) || exposurePattern.matcher(exposed.trim()).matches())
 					riskInformation.setExposed(exposed);
 				else
@@ -303,14 +301,14 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 	}
 
 	private void duplicateCellError(String sheet, int i, int colIndex) {
-		String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
+		final String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
 		throw new TrickException("error.import.risk.information.duplicate", String.format("An entry is duplicated in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue),
 				sheet, rowValue, colValue);
 
 	}
 
 	private void errorInvalidValue(String sheet, int i, int colIndex) {
-		String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
+		final String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
 		throw new TrickException("error.import.risk.information.cell", String.format("Invalid value in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue), sheet, rowValue,
 				colValue);
 	}
@@ -388,6 +386,5 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
-
 
 }
