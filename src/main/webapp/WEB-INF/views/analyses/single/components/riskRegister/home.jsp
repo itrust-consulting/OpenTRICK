@@ -30,7 +30,7 @@
 								code="label.risk_register.id" /></a></th>
 					<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><a href="#" onclick="return sortTable('category',this)" data-order='1'><spring:message
 								code="label.risk_register.category" /></a></th>
-					<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><a href="#" onclick="return sortTable('scenario',this,true)" data-order='1'><spring:message
+					<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><a href="#" onclick="return sortTable('scenario',this)" data-order='1'><spring:message
 								code="label.risk_register.risk_title" /></a></th>
 					<th style="width: 8%" rowspan="2" title='<spring:message code="label.risk_register.asset" />'><a href="#" onclick="return sortTable('asset',this)" data-order='1'><spring:message
 								code="label.risk_register.asset" /></a></th>

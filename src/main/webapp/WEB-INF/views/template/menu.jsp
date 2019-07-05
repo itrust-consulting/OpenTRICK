@@ -11,17 +11,17 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-
+<c:if test='${not (empty menu or menu == "Home")}'>
+	<c:set var="homeURL" value="${pageContext.request.contextPath}/Home" />
+</c:if>
+<spring:message code="label.menu.home" var="menuHome" />
 <div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;">
 	<div class="container">
 		<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
-			<spring:message code="label.menu.home" var="menuHome"/>
+			
 			<div class="navbar-header">
-				<c:if test='${not (empty menu or menu == "Home")}'>
-					<c:set var="homeURL" value="${pageContext.request.contextPath}/Home" />
-				</c:if>
-				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"> <img class="brand-grey" alt="${menuHome}" title="${menuHome}" src='<c:url value="/images/brand-grey.png" />'>
-					<img class="brand-white" alt="${menuHome}" title="${menuHome}" src='<c:url value="/images/brand-white.png" />'>
+				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"> <img class="brand-grey" alt="${menuHome}" title="${menuHome}"
+					src='<c:url value="/images/brand-grey.png" />'> <img class="brand-white" alt="${menuHome}" title="${menuHome}" src='<c:url value="/images/brand-white.png" />'>
 				</a>
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
@@ -113,10 +113,9 @@
 		</sec:authorize>
 		<sec:authorize access="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_PRE_AUTHEN')">
 			<div class="navbar-header">
-				<c:if test='${not (empty menu or menu == "Home")}'>
-					<c:set var="homeURL" value="${pageContext.request.contextPath}" />
-				</c:if>
-				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '/' : homeURL }"></a>
+				<a class="navbar-brand" id='main_menu_brand' href="${empty homeURL? '#' : homeURL }"> <img class="brand-grey" alt="${menuHome}" title="${menuHome}"
+					src='<c:url value="/images/brand-grey.png" />'> <img class="brand-white" alt="${menuHome}" title="${menuHome}" src='<c:url value="/images/brand-white.png" />'>
+				</a>
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>

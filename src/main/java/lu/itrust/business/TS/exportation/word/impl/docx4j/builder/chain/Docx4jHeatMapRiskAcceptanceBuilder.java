@@ -92,28 +92,28 @@ public class Docx4jHeatMapRiskAcceptanceBuilder extends Docx4jBuilder {
 	private boolean builHeatMap(Docx4jData docx4jData) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) docx4jData.getExportor();
 		final P paragraph = exporter.findP(docx4jData.getSource());
-		if(paragraph !=null) {
+		if (paragraph != null) {
 			final int index[] = { 0 };
 			final List<Object> contents = new LinkedList<>();
 			final TextAlignment alignmentCenter = exporter.createAlignment("center");
 			final CTVerticalJc verticalJc = exporter.createVerticalAlignment(STVerticalJc.CENTER);
-			final Chart chart = ChartGenerator.generateRiskHeatMap(exporter.getAnalysis(), exporter.getValueFactory());
+			final Chart chart = ChartGenerator.generateRiskHeatMap(exporter.getAnalysis(), exporter.getValueFactory(), exporter.getMessageSource(), exporter.getLocale());
 			final Tbl table = exporter.createTable("TableTSRiskHeatMap", chart.getLabels().size() + 2, chart.getLabels().size() + 2);
 			final Tbl legends = exporter.createTable("TableTSHeatMapLegend", 1, chart.getLegends().size());
 			final Tr legendRow = (Tr) legends.getContent().get(0);
-			
+
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
-	
+
 			chart.getLegends().forEach(legend -> {
 				final Tc column = (Tc) legendRow.getContent().get(index[0]++);
 				exporter.setCellText(column, legend.getLabel(), alignmentCenter);
 				setColor(column, legend.getColor().substring(1));
 			});
-			
+
 			int rowIndex = 1;
 			Tr row = (Tr) table.getContent().get(0);
 			exporter.setCellText((Tc) row.getContent().get(0), exporter.getMessage("report.risk_heat_map.title.impact", null, "Impact"));
-			
+
 			for (int i = 0; i < chart.getDatasets().size(); i++) {
 				final Dataset<List<String>> dataset = (Dataset<List<String>>) chart.getDatasets().get(i);
 				if (i > 0)
@@ -133,18 +133,18 @@ public class Docx4jHeatMapRiskAcceptanceBuilder extends Docx4jBuilder {
 					setColor(cell, dataset.getBackgroundColor().get(j).substring(1));
 				}
 			}
-			
+
 			row = (Tr) table.getContent().get(rowIndex++);
-			
+
 			for (int i = 0; i < chart.getLabels().size(); i++) {
 				final Tc cell = (Tc) row.getContent().get(i + 2);
 				exporter.setVerticalAlignment(cell, verticalJc);
 				exporter.setAlignment(exporter.addCellParagraph(cell, chart.getLabels().get(i)), alignmentCenter);
 				setColor(cell, exporter.getLightColor());
 			}
-			
+
 			row = (Tr) table.getContent().get(rowIndex);
-			
+
 			exporter.setCellText((Tc) row.getContent().get(0), exporter.getMessage("report.risk_heat_map.title.probability", null, "Probability"), alignmentCenter);
 			contents.add(legends);
 			contents.add(exporter.setStyle(exporter.getFactory().createP(), "Endlist"));

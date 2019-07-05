@@ -468,11 +468,14 @@ function hasScrollBar(element) {
 }
 
 function sortTable(type, element, number){
-	var $table = $(element).closest("table"), $tbody = $("tbody", $table),  $trs =  $("tr",$tbody), order = element == undefined?  undefined :  element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='"+type+"']";
+	var previousIndexes = [],$table = $(element).closest("table"), $tbody = $("tbody", $table),  $trs =  $("tr",$tbody), order = element == undefined?  undefined :  element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='"+type+"']";
 	if($trs.length && order !== undefined){
+		$trs.each((i,e)=> previousIndexes[e] = i);
 		$trs.sort( (a, b)  => {
+			var oldA = previousIndexes[a], oldB = previousIndexes[b];
 			var value1 = $(selector,a).text() , value2 = $(selector,b).text();
-			return  (number? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, ""))  : naturalSort(value1, value2) ) * order;
+			var result =   (number? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, ""))  : naturalSort(value1, value2) ) * order;
+			return !result? oldA > oldB? 1: -1 : result;
 		}).detach().appendTo($tbody);
 		var $tr = $(element).closest("tr"), $thead = $tr.closest("thead");
 		if($thead.length)
@@ -624,7 +627,7 @@ function generateMessageUniqueCode(code, params) {
 }
 
 function resolveMessage(code, text, params) {
-	application.localesMessages[generateMessageUniqueCode(code, params)] = text;
+	application.localesMessages[generateMessageUniqueCode(code, params)] = he.decode(text);
 }
 
 /**

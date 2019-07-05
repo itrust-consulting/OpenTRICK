@@ -8,6 +8,7 @@
 <script src="<c:url value="/js/jquery-2.2.4.min.js" />"></script>
 <script src="<c:url value="/js/bootstrap/bootstrap.min.js" />"></script>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+	<script src="<c:url value="/js/he.js" />"></script>
 	<script src="<c:url value="/js/jquery.serializeToJson.min.js" />"></script>
 	<script src="<c:url value="/js/bootstrap/bootstrap-notify.min.js" />"></script>
 	<script src="<c:url value="/js/dom-parser.js" />"></script>

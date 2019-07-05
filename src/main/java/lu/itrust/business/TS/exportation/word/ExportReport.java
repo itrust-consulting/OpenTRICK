@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.context.MessageSource;
+
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.helper.InstanceManager;
@@ -82,6 +84,10 @@ public interface ExportReport {
 	AtomicInteger getBookmarkMaxId();
 
 	DecimalFormat getKiloNumberFormat();
+	
+	default MessageSource getMessageSource() {
+		return InstanceManager.getMessageSource();
+	}
 
 	default String getMessage(String code) {
 		return getMessage(code, null, null, getLocale());
@@ -100,7 +106,7 @@ public interface ExportReport {
 	}
 
 	default String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
-		return InstanceManager.getMessageSource().getMessage(code, parameters, defaultMessage, locale);
+		return getMessageSource().getMessage(code, parameters, defaultMessage, locale);
 	}
 
 	void export(ReportTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback);
