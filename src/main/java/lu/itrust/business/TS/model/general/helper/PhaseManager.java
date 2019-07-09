@@ -19,7 +19,7 @@ public final class PhaseManager {
 	public static void updateStatistics(Analysis analysis) {
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
 		final double soaThreshold = analysis.findParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0);
-		updateStatistics(analysis.getAnalysisStandards().stream().map(AnalysisStandard::getMeasures).collect(Collectors.toList()), factory, soaThreshold);
+		updateStatistics(analysis.getAnalysisStandards().values().stream().map(AnalysisStandard::getMeasures).collect(Collectors.toList()), factory, soaThreshold);
 	}
 
 	public static void updateStatistics(Collection<List<Measure>> measures, ValueFactory valueFactory, final double soaThreshold) {

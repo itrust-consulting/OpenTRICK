@@ -124,15 +124,17 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * setStandard: <br>
 	 * Description
 	 * 
-	 * @param name
+	 * @param standard
 	 * @throws TrickException
 	 */
-	public void setStandard(Standard name) throws TrickException {
-		if (name == null)
+	public void setStandard(Standard standard) throws TrickException {
+		if (standard == null)
 			throw new TrickException("error.norm.null", "Standard cannot be empty");
-		else if (name.getLabel() == null)
+		else if (standard.getLabel() == null)
 			throw new TrickException("error.norm.label_null", "Standard name cannot be empty");
-		this.standard = name;
+		else if(standard.getName() == null)
+			throw new TrickException("error.norm.name_null", "Standard display name cannot be empty");
+		this.standard = standard;
 	}
 
 	/**

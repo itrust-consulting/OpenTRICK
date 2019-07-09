@@ -309,7 +309,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
-		analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).forEach(measure -> {
+		analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).forEach(measure -> {
 			if (measure instanceof AbstractNormalMeasure)
 				((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("");
 		});
@@ -324,7 +324,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 */
 	private void initAnalysis(Analysis analysis, List<AnalysisStandard> analysisStandards) {
 		for (Integer id : this.standards) {
-			for (AnalysisStandard aStandard : analysis.getAnalysisStandards()) {
+			for (AnalysisStandard aStandard : analysis.getAnalysisStandards().values()) {
 				if (aStandard.getId() == id)
 					analysisStandards.add(aStandard);
 			}

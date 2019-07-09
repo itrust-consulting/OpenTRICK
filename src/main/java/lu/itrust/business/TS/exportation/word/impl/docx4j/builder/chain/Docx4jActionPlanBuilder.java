@@ -82,7 +82,7 @@ public class Docx4jActionPlanBuilder extends Docx4jBuilder {
 			for (ActionPlanEntry entry : actionplan) {
 				final Tr row = (Tr) table.getContent().get(nr);
 				exporter.setCellText((Tc) row.getContent().get(0), "" + (nr++), alignmentCenter);
-				exporter.setCellText((Tc) row.getContent().get(1), entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
+				exporter.setCellText((Tc) row.getContent().get(1), entry.getMeasure().getAnalysisStandard().getStandard().getName());
 				exporter.setCellText((Tc) row.getContent().get(2), entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(exporter.getAnalysis().getLanguage());
 				exporter.addCellParagraph((Tc) row.getContent().get(3),
@@ -141,7 +141,7 @@ public class Docx4jActionPlanBuilder extends Docx4jBuilder {
 			for (ActionPlanEntry entry : actionplan) {
 				final Tr row = (Tr) table.getContent().get(nr);
 				exporter.setCellText((Tc) row.getContent().get(0), "" + (nr++), alignmentCenter);
-				exporter.setCellText((Tc) row.getContent().get(1), entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
+				exporter.setCellText((Tc) row.getContent().get(1), entry.getMeasure().getAnalysisStandard().getStandard().getName());
 				exporter.setCellText((Tc) row.getContent().get(2), entry.getMeasure().getMeasureDescription().getReference());
 				final MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(exporter.getAnalysis().getLanguage());
 				exporter.addCellParagraph((Tc) row.getContent().get(3),

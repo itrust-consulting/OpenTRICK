@@ -16,7 +16,7 @@
 						<c:when test="${isLinkedToProject and not empty selectedMeasure.ticket}">
 							<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,selectedMeasure.ticket)"
 								var="ticketLink" />
-							<a href="${ticketLink}" target="_titck_ts" class='btn-link'><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' /> <i
+							<a href="${ticketLink}" target="_ticket_ts" class='btn-link'><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' /> <i
 								class="fa fa-external-link" aria-hidden="true"></i></a>
 						</c:when>
 						<c:otherwise>

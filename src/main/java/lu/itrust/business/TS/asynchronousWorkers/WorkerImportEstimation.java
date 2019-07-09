@@ -439,8 +439,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 				: Collections.emptyMap();
 		final Map<String, RiskProfile> riskIDs = riskProfiles.values().stream().collect(Collectors.toMap(RiskProfile::getIdentifier, Function.identity()));
 		final Map<String, Map<String, Measure>> measuresMapper = qualitative || !riskProfiles.isEmpty()
-				? analysis.getAnalysisStandards().stream().flatMap(m -> m.getMeasures().stream())
-						.collect(Collectors.groupingBy(m -> m.getMeasureDescription().getStandard().getLabel(),
+				? analysis.getAnalysisStandards().values().stream().flatMap(m -> m.getMeasures().stream())
+						.collect(Collectors.groupingBy(m -> m.getMeasureDescription().getStandard().getName(),
 								Collectors.mapping(Function.identity(), Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()))))
 				: Collections.emptyMap();
 		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));

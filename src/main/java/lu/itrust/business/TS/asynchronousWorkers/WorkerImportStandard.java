@@ -79,7 +79,7 @@ public class WorkerImportStandard extends WorkerImpl {
 
 	private DAOLanguage daoLanguage;
 
-	private String  filename;
+	private String filename;
 
 	private Standard newstandard;
 
@@ -135,8 +135,8 @@ public class WorkerImportStandard extends WorkerImpl {
 			 * Log
 			 */
 			String username = getServiceTaskFeedback().findUsernameById(this.getId());
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()), username,
-					LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getName(), newstandard.getVersion()), username,
+					LogAction.IMPORT, newstandard.getName(), String.valueOf(newstandard.getVersion()));
 		} catch (TrickException e) {
 			setError(e);
 			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
@@ -207,7 +207,7 @@ public class WorkerImportStandard extends WorkerImpl {
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
 
 		final DataFormatter formatter = new DataFormatter();
-		
+
 		final WorkbookPart workbookPart = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename())).getWorkbookPart();
 
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.information", "Import standard information", 5));
@@ -240,21 +240,25 @@ public class WorkerImportStandard extends WorkerImpl {
 	}
 
 	private Standard loadStandard(SheetData infoSheet, DataFormatter formatter) throws Exception {
-		TablePart tablePart = findTable(infoSheet.getWorksheetPart(), "TableNormInfo");
+		final TablePart tablePart = findTable(infoSheet.getWorksheetPart(), "TableNormInfo");
 		if (tablePart == null)
 			return null;
-		AddressRef addressRef = AddressRef.parse(tablePart.getContents().getRef());
-		Row data = infoSheet.getRow().get(addressRef.getEnd().getRow());
-		String name = getString(data.getC().get(addressRef.getBegin().getCol()), formatter);
-		int version = getInt(data.getC().get(addressRef.getBegin().getCol() + 1), formatter);
+		final AddressRef addressRef = AddressRef.parse(tablePart.getContents().getRef());
+		final Row data = infoSheet.getRow().get(addressRef.getEnd().getRow());
+		final int labelIndex = data.getC().size() == 4 ? addressRef.getBegin().getCol() : addressRef.getBegin().getCol() + 1;
+		final String label = getString(data.getC().get(labelIndex), formatter);
+		final int version = getInt(data.getC().get(labelIndex + 1), formatter);
+		final String name = data.getC().size() == 4 ? label : getString(data.getC().get(addressRef.getBegin().getCol()), formatter);
+		if (isEmpty(label))
+			throw new TrickException("error.standard.label.empty", "Standard name cannot be empty");
 		if (isEmpty(name))
-			throw new TrickException("error.standard.name.empty", "Standard name cannot be empty");
+			throw new TrickException("error.standard.name.empty", "Standard display name cannot be empty");
 		if (version == 0)
 			throw new TrickException("error.standard.version.zero", "Standard version must be greather than 0");
-		Standard standard = daoStandard.getStandardByNameAndVersion(name, version);
+		Standard standard = daoStandard.getStandardByNameAndVersion(label, version);
 		if (standard == null)
-			standard = new Standard(name.trim(), version);
-		return loadStandardData(standard, data, addressRef.getBegin().getCol(), formatter);
+			standard = new Standard(name.trim(), label.trim(), version);
+		return loadStandardData(standard, data, labelIndex, formatter);
 	}
 
 	private Standard loadStandardData(Standard standard, Row data, int startCol, DataFormatter formatter) {
@@ -264,15 +268,15 @@ public class WorkerImportStandard extends WorkerImpl {
 		if (standard.getId() > 0) {
 			setUpdated(true);
 			daoStandard.saveOrUpdate(standard);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getLabel(), standard.getVersion() },
-					String.format("Updating of standard %s, version %d. No measure shall be waived.", standard.getLabel(), standard.getVersion()), 10));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm.safe.update", new Object[] { standard.getName(), standard.getVersion() },
+					String.format("Updating of standard %s, version %d. No measure shall be waived.", standard.getName(), standard.getVersion()), 10));
 		} else {
-			if (Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
+			if (Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getName()))
 				standard.setType(StandardType.MATURITY);
 			else
 				standard.setType(StandardType.NORMAL);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm", new Object[] { standard.getLabel(), standard.getVersion() },
-					String.format("Import standard %s, version %d.", standard.getLabel(), standard.getVersion()), 10));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.import.norm", new Object[] { standard.getName(), standard.getVersion() },
+					String.format("Import standard %s, version %d.", standard.getName(), standard.getVersion()), 10));
 			daoStandard.save(standard);
 			setUpdated(false);
 		}
@@ -292,17 +296,20 @@ public class WorkerImportStandard extends WorkerImpl {
 	public void getMeasures(WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, "NormData");
 		if (sheet == null)
-			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 		TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
 		if (tablePart == null)
-			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 		loadMeasureDescription(sheet, AddressRef.parse(tablePart.getContents().getRef()), formatter);
 	}
 
 	private void loadMeasureDescription(SheetData sheet, AddressRef address, DataFormatter formatter) {
 		Map<Integer, Language> languages = loadLanguages(sheet, address, formatter);
 		if (languages.isEmpty())
-			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
 
 		final int begin = address.getBegin().getRow() + 1, end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size()),
 				startIndex = getStartIndex(sheet, begin, formatter);
@@ -439,8 +446,6 @@ public class WorkerImportStandard extends WorkerImpl {
 	public void setUpdated(boolean updated) {
 		this.updated = updated;
 	}
-
-
 
 	public String getFilename() {
 		return filename;

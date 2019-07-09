@@ -155,10 +155,10 @@ public class CustomDelete {
 
 	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription, Principal principal) throws Exception {
 		for (Analysis analysis : analyses) {
-			AnalysisStandard analysisStandard = analysis.getAnalysisStandards().stream().filter(a -> a.getStandard().equals(measureDescription.getStandard())).findAny()
+			final AnalysisStandard analysisStandard = analysis.getAnalysisStandards().values().stream().filter(a -> a.getStandard().equals(measureDescription.getStandard())).findAny()
 					.orElse(null);
 			if (analysisStandard != null) {
-				analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().is(Constant.STANDARD_27002)).map(standard -> standard.getMeasures()).findFirst()
+				analysis.getAnalysisStandards().values().stream().filter(standard -> standard.getStandard().is(Constant.STANDARD_27002)).map(standard -> standard.getMeasures()).findFirst()
 						.ifPresent(measures -> measures.forEach(measure -> ((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
 				removeMeasureDependencies(measureDescription, analysis);
 				Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
@@ -172,9 +172,9 @@ public class CustomDelete {
 						 */
 						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure",
 								String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(),
-										measureDescription.getReference(), measureDescription.getStandard().getLabel()),
+										measureDescription.getReference(), measureDescription.getStandard().getName()),
 								principal.getName(), LogAction.DELETE, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
-								measureDescription.getStandard().getLabel());
+								measureDescription.getStandard().getName());
 						break;
 					}
 				}

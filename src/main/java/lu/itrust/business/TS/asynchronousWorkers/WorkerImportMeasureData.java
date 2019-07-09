@@ -188,23 +188,23 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		final Map<Integer, Phase> phases = analysis.getPhases().stream().collect(Collectors.toMap(Phase::getNumber, Function.identity()));
 		final int maxProgress = 90 / Math.max(analysis.getAnalysisStandards().size(), 1);
 		int index = 1, minProgress = 6;
-		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values())
 			minProgress = loadData(analysis, workbook, formatter, sheets, phases, analysisStandard, minProgress, maxProgress * index++);
 	}
 
 	private int loadData(Analysis analysis, final WorkbookPart workbook, final DataFormatter formatter, final Map<String, Sheet> sheets, final Map<Integer, Phase> phases,
 			AnalysisStandard analysisStandard, final int minProgress, final int maxProgress) throws Exception, Docx4JException {
-		Sheet sheet = sheets.get(analysisStandard.getStandard().getLabel());
+		final Sheet sheet = sheets.get(analysisStandard.getStandard().getName());
 		if (sheet == null)
 			return minProgress;
-		SheetData sheetData = findSheet(workbook, sheet);
+		final SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
 			return minProgress;
-		TablePart table = findTableNameStartWith(sheetData.getWorksheetPart(), "Measures");
+		final TablePart table = findTableNameStartWith(sheetData.getWorksheetPart(), "Measures");
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!", "Measures");
 
-		AddressRef address = AddressRef.parse(table.getContents().getRef());
+		final AddressRef address = AddressRef.parse(table.getContents().getRef());
 
 		int size = (int) Math.min(address.getEnd().getRow() + 1, sheetData.getRow().size());
 
@@ -219,19 +219,19 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		final int refIndex = columns.indexOf("reference");
 		if (refIndex == -1)
 			throw new TrickException("error.import.measure.data.no.reference", "Reference column cannot be found!");
-		MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", minProgress);
+		final MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", minProgress);
 		getServiceTaskFeedback().send(getId(), handler);
 		for (int i = 1; i < size; i++) {
-			Row row = sheetData.getRow().get(i);
-			String reference = getString(row, refIndex, formatter);
+			final Row row = sheetData.getRow().get(i);
+			final String reference = getString(row, refIndex, formatter);
 			if (isEmpty(reference))
 				continue;
-			Measure measure = measures.get(reference);
+			final Measure measure = measures.get(reference);
 			if (measure == null)
 				continue;
 			boolean updateCost = false;
 			for (int j = 0; j < columns.size(); j++) {
-				String name = columnsMapper.get(columns.get(j));
+				final String name = columnsMapper.get(columns.get(j));
 				if (name == null || j == refIndex)
 					continue;
 				switch (name) {

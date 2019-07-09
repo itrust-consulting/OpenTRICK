@@ -16,6 +16,12 @@
 		</div>
 	</div>
 	<div class="form-group">
+		<label for="name" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.norm.name" />' ><spring:message code="label.norm.name" /> </label>
+		<div class="col-sm-10">
+			<input name="name" id="standard_name" class="form-control" type="text" />
+		</div>
+	</div>
+	<div class="form-group">
 		<label for="label" class="col-sm-2 control-label" data-helper-content='<spring:message code="help.norm.label" />' ><spring:message code="label.norm.label" /> </label>
 		<div class="col-sm-10">
 			<input name="label" id="standard_label" class="form-control" type="text" />

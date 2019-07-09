@@ -128,10 +128,10 @@ public class MeasureManager {
 		Collections.sort(measures, new MeasureComparator());
 		for (Measure measure : measures) {
 			Standard standard = measure.getAnalysisStandard().getStandard();
-			List<Measure> measures2 = mappingMeasures.get(standard.getLabel());
+			List<Measure> measures2 = mappingMeasures.get(standard.getName());
 			if (measures2 == null) {
 				measures2 = new LinkedList<>();
-				mappingMeasures.put(standard.getLabel(), measures2);
+				mappingMeasures.put(standard.getName(), measures2);
 			}
 			measures2.add(measure);
 		}
@@ -190,9 +190,9 @@ public class MeasureManager {
 		for (Measure measure : allmeasures) {
 			String reference = extractMainChapter(measure.getMeasureDescription().getReference());
 			Standard standard = measure.getMeasureDescription().getStandard();
-			Chapter chapter = chapterMapping.get(standard.getLabel() + "|-|" + reference);
+			Chapter chapter = chapterMapping.get(standard.getName() + "|-|" + reference);
 			if (chapter == null)
-				chapterMapping.put(standard.getLabel() + "|-|" + reference, chapter = new Chapter(standard, reference));
+				chapterMapping.put(standard.getName() + "|-|" + reference, chapter = new Chapter(standard, reference));
 			List<Measure> measures2 = chapters.get(chapter);
 			if (measures2 == null)
 				chapters.put(chapter, measures2 = new ArrayList<Measure>());
@@ -215,9 +215,9 @@ public class MeasureManager {
 	 */
 	@Transactional
 	public void createNewMeasureForAllAnalyses(MeasureDescription measureDescription) throws Exception {
-		List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
+		final List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
 		for (AnalysisStandard analysisStandard : analysisStandards) {
-			Analysis analysis = daoAnalysis.getByAnalysisStandardId(analysisStandard.getId());
+			final Analysis analysis = daoAnalysis.getByAnalysisStandardId(analysisStandard.getId());
 			Measure measure = null;
 			Object implementationRate = null;
 			if (analysisStandard instanceof NormalStandard) {
@@ -253,8 +253,8 @@ public class MeasureManager {
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
-							measureDescription.getStandard().getLabel()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getLabel());
+							measureDescription.getStandard().getName()),
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 
 		if (measureDescription.getId() < 1)
@@ -481,8 +481,8 @@ public class MeasureManager {
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
-							measureDescription.getStandard().getLabel()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getLabel());
+							measureDescription.getStandard().getName()),
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 		daoAnalysisStandard.saveOrUpdate(normalStandard);
 
@@ -506,8 +506,8 @@ public class MeasureManager {
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
-							measureDescription.getStandard().getLabel()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getLabel());
+							measureDescription.getStandard().getName()),
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 		daoAnalysisStandard.saveOrUpdate(assetStandard);
 	}
@@ -534,8 +534,8 @@ public class MeasureManager {
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
-							measureDescription.getStandard().getLabel()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getLabel());
+							measureDescription.getStandard().getName()),
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 		daoAnalysisStandard.saveOrUpdate(maturityStandard);
 	}

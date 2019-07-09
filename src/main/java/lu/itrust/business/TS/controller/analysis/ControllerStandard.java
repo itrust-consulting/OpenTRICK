@@ -182,16 +182,17 @@ public class ControllerStandard extends AbstractController {
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			Standard standard = serviceStandard.get(idStandard);
+			final Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			if (analysis.getAnalysisStandards().stream().anyMatch(a -> a.getStandard().getLabel().equalsIgnoreCase(standard.getLabel())))
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if (analysis.getAnalysisStandards().values().stream()
+					.anyMatch(a -> a.getStandard().getName().equalsIgnoreCase(standard.getName()) || a.getStandard().getLabel().equalsIgnoreCase(standard.getLabel())))
 				return JsonMessage
 						.Error(messageSource.getMessage("error.analysis.add.standard.duplicate", null, "Your analysis already has another version of the standard!", locale));
 			Measure measure = null;
 			AnalysisStandard analysisStandard = null;
-			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
+			final List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 			Object implementationRate = null;
 			if (standard.getType() == StandardType.MATURITY && analysis.isQuantitative()) {
 				analysisStandard = new MaturityStandard();
@@ -306,14 +307,11 @@ public class ControllerStandard extends AbstractController {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			Standard standard = buildStandard(errors, value, locale, analysis);
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
+			final Standard standard = buildStandard(errors, value, locale, analysis);
 			if (!errors.isEmpty())
 				return errors;
 			if (standard.getId() < 1) {
-				if (analysis.getAnalysisStandards().stream().anyMatch(analysisStandard -> analysisStandard.getStandard().hasSameName(standard)))
-					return JsonMessage.Field("label",
-							messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
 				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 				switch (standard.getType()) {
 				case ASSET:
@@ -485,7 +483,7 @@ public class ControllerStandard extends AbstractController {
 		loadEfficience(model, idAnalysis, measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
-		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
+		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getName());
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
@@ -494,7 +492,6 @@ public class ControllerStandard extends AbstractController {
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
-
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Description/{langue}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
@@ -559,7 +556,7 @@ public class ControllerStandard extends AbstractController {
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 
 		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream()
-				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getLabel(), e2.getStandard().getLabel())).map(analysisStandard -> {
+				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getName(), e2.getStandard().getName())).map(analysisStandard -> {
 					analysisStandard.getMeasures().sort(comparator);
 					return analysisStandard;
 				}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures, (e1, e2) -> e1, LinkedHashMap::new)));
@@ -567,7 +564,6 @@ public class ControllerStandard extends AbstractController {
 		return "analyses/single/components/soa/home";
 	}
 
-	
 	/**
 	 * manageForm: <br>
 	 * Description
@@ -887,7 +883,7 @@ public class ControllerStandard extends AbstractController {
 
 		analysisStandards.forEach(analysisStandard -> {
 			standards.add(analysisStandard.getStandard());
-			measuresByStandard.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
+			measuresByStandard.put(analysisStandard.getStandard().getName(), analysisStandard.getMeasures());
 		});
 
 		if (hasMaturity)
@@ -952,7 +948,7 @@ public class ControllerStandard extends AbstractController {
 
 		standards.add(analysisStandard.getStandard());
 
-		measuresByStandard.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
+		measuresByStandard.put(analysisStandard.getStandard().getName(), analysisStandard.getMeasures());
 
 		model.addAttribute("standards", standards);
 
@@ -1018,21 +1014,18 @@ public class ControllerStandard extends AbstractController {
 	 * @return
 	 */
 	private Standard buildStandard(Map<String, String> errors, String source, Locale locale, Analysis analysis) {
-
 		try {
-
 			Standard standard = null;
-
 			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
+			final ObjectMapper mapper = new ObjectMapper();
+			final JsonNode jsonNode = mapper.readTree(source);
 
 			ValidatorField validator = serviceDataValidation.findByClass(Standard.class);
 
 			if (validator == null)
 				serviceDataValidation.register(validator = new StandardValidator());
 
-			Integer id = jsonNode.get("id").asInt();
+			final Integer id = jsonNode.get("id").asInt();
 
 			if (id > 0) {
 				standard = analysis.findStandardByAndAnalysisOnly(id);
@@ -1045,18 +1038,32 @@ public class ControllerStandard extends AbstractController {
 				standard.setAnalysisOnly(true);
 			}
 
-			String prevlabel = standard.getLabel();
+			final String prevName = standard.getName();
 
-			String label = jsonNode.get("label").asText();
+			final String prevLabel = standard.getLabel();
 
-			String description = jsonNode.get("description").asText();
+			final String name = jsonNode.get("name").asText();
+
+			final String label = jsonNode.get("label").asText();
+
+			final String description = jsonNode.get("description").asText();
 
 			// set data
 			String error = validator.validate(standard, "label", label);
 			if (error != null)
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
+			else if (standard.getId() < 1 || prevLabel.equalsIgnoreCase(label) || analysis.findStandardByLabel(label) == null)
 				standard.setLabel(label);
+			else
+				errors.put("label", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+
+			error = validator.validate(standard, "name", label);
+			if (error != null)
+				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if (standard.getId() < 1 || prevName.equalsIgnoreCase(name) || analysis.findStandardByName(name) == null)
+				standard.setName(name);
+			else
+				errors.put("name", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
 
 			error = validator.validate(standard, "description", description);
 
@@ -1067,7 +1074,7 @@ public class ControllerStandard extends AbstractController {
 
 			if (standard.getId() < 1) {
 
-				StandardType type = StandardType.getByName(jsonNode.get("type").asText());
+				final StandardType type = StandardType.getByName(jsonNode.get("type").asText());
 
 				error = validator.validate(standard, "type", type);
 				if (error != null)
@@ -1079,7 +1086,7 @@ public class ControllerStandard extends AbstractController {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			if (!label.equals(prevlabel) || standard.getId() < 1)
+			if (!label.equals(prevLabel) || standard.getId() < 1)
 				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, standard.getType()));
 			// return success
 			return standard;
@@ -1148,8 +1155,8 @@ public class ControllerStandard extends AbstractController {
 		if (description == null) {
 			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {
 				errors.put("reference",
-						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getLabel() },
-								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getLabel()), locale));
+						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getName() },
+								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getName()), locale));
 				return errors;
 			}
 			description = serviceMeasureDescription.getByReferenceAndStandard(measureForm.getReference(), measure.getAnalysisStandard().getStandard());
@@ -1161,12 +1168,11 @@ public class ControllerStandard extends AbstractController {
 		} else if (!description.getReference().equals(measureForm.getReference())) {
 			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {
 				errors.put("reference",
-						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getLabel() },
-								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getLabel()), locale));
+						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getName() },
+								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getName()), locale));
 				return errors;
 			}
 			description.setReference(measureForm.getReference());
-			// description.setLevel(measureForm.getLevel());
 		}
 		if (description.getId() > 0) {
 			MeasureDescriptionText descriptionText = description.findByLanguage(language);
@@ -1252,7 +1258,7 @@ public class ControllerStandard extends AbstractController {
 	}
 
 	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault, Analysis analysis) {
-		analysis.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
+		analysis.getAnalysisStandards().values().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
 			double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 					measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 			measure.setCost(cost >= 0D ? cost : 0D);

@@ -345,7 +345,7 @@ public class JiraClient implements Client {
 			MeasureDescription description = measure.getMeasureDescription();
 			MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(language);
 			IssueInputBuilder builder = new IssueInputBuilder(project, issueType,
-					String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()));
+					String.format("%s - %s: %s", description.getStandard().getName(), description.getReference(), descriptionText.getDomain()));
 			builder.setDescription(measure.getToDo());
 			estimations.put("originalEstimate", (measure.getInternalWL() + measure.getExternalWL()) + "d");
 			builder.setFieldInput(new FieldInput(IssueFieldId.TIMETRACKING_FIELD, new ComplexIssueInputFieldValue(estimations)));
@@ -364,12 +364,12 @@ public class JiraClient implements Client {
 							.iterator().next();
 					if (issue == null) {
 						handler.update("error.ticket.not_found",
-								String.format("Task for (%s - %s) cannot be found", description.getStandard().getLabel(), description.getReference()), 0,
-								description.getStandard().getLabel(), description.getReference());
+								String.format("Task for (%s - %s) cannot be found", description.getStandard().getName(), description.getReference()), 0,
+								description.getStandard().getName(), description.getReference());
 					} else {
 						MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(language);
 						IssueInputBuilder builder = new IssueInputBuilder(project, issue.getIssueType(),
-								String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()));
+								String.format("%s - %s: %s", description.getStandard().getName(), description.getReference(), descriptionText.getDomain()));
 						builder.setDescription(measure.getToDo());
 						estimations.put("originalEstimate", (measure.getInternalWL() + measure.getExternalWL()) + "d");
 						builder.setFieldInput(new FieldInput(IssueFieldId.TIMETRACKING_FIELD, new ComplexIssueInputFieldValue(estimations)));
@@ -380,8 +380,8 @@ public class JiraClient implements Client {
 					TrickLogManager.Persist(e);
 					if (!handler.getCode().startsWith("error."))
 						handler.update("error.update.ticket",
-								String.format("An unknown error occurred while update task for %s - %s", description.getStandard().getLabel(), description.getReference()), 0,
-								description.getStandard().getLabel(), description.getReference());
+								String.format("An unknown error occurred while update task for %s - %s", description.getStandard().getName(), description.getReference()), 0,
+								description.getStandard().getName(), description.getReference());
 				} finally {
 					handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
 				}

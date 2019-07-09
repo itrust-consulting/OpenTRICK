@@ -320,8 +320,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
 				String date = dateFormat.format(measure.getPhase().getEndDate());
 				actionPlan.add(getMessage("report.risk_profile.action_plan.measure",
-						new Object[] { description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain(), date },
-						String.format("%s: %s, %s; %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain(), date)));
+						new Object[] { description.getStandard().getName(), description.getReference(), descriptionText.getDomain(), date },
+						String.format("%s: %s, %s; %s", description.getStandard().getName(), description.getReference(), descriptionText.getDomain(), date)));
 			}
 
 			if (actionPlan.isEmpty())
@@ -524,7 +524,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				row = (Tr) table.getContent().get(index++);
 				MeasureDescription description = measure.getMeasureDescription();
 				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
-				addFieldContent((Tc) row.getContent().get(0), description.getStandard().getLabel());
+				addFieldContent((Tc) row.getContent().get(0), description.getStandard().getName());
 				addFieldContent((Tc) row.getContent().get(1), description.getReference());
 				addFieldContent((Tc) row.getContent().get(2), descriptionText.getDomain());
 				addFieldContent((Tc) row.getContent().get(3), dateFormat.format(measure.getPhase().getEndDate()));

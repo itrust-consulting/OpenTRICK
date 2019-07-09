@@ -504,11 +504,11 @@ public class ChartGenerator {
 				.collect(Collectors.toList());
 		String title = analysisType.isHybrid()
 				? actionPlanMode == ActionPlanMode.APQ
-						? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getLabel() },
-								standard.getLabel() + " measure compliance for qualitative", locale)
-						: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getLabel() },
-								standard.getLabel() + " measure compliance for quantitative", locale)
-				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getLabel() }, standard.getLabel() + " measure compliance", locale);
+						? messageSource.getMessage("label.title.chart.qualitative.measure.compliance", new Object[] { standard.getName() },
+								standard.getName() + " measure compliance for qualitative", locale)
+						: messageSource.getMessage("label.title.chart.quantitative.measure.compliance", new Object[] { standard.getName() },
+								standard.getName() + " measure compliance for quantitative", locale)
+				: messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard.getName() }, standard.getName() + " measure compliance", locale);
 
 		Chart chart = new Chart(standard.getId() + "_" + actionPlanMode, title);
 
@@ -530,7 +530,7 @@ public class ChartGenerator {
 		if (!dataset.getData().isEmpty())
 			chart.getDatasets().add(dataset);
 
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), actionPlanMode);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getName(), actionPlanMode);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
@@ -697,13 +697,13 @@ public class ChartGenerator {
 		List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 		for (AnalysisStandard analysisStandard : analysisStandards) {
-			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()) != null)
-				if (standardcompliances.get(analysisStandard.getStandard().getLabel()) == null)
-					standardcompliances.put(analysisStandard.getStandard().getLabel(),
-							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
+			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getName()) != null)
+				if (standardcompliances.get(analysisStandard.getStandard().getName()) == null)
+					standardcompliances.put(analysisStandard.getStandard().getName(),
+							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getName()));
 				else
-					standardcompliances.put(analysisStandard.getStandard().getLabel(),
-							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
+					standardcompliances.put(analysisStandard.getStandard().getName(),
+							summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getName()));
 		}
 		String[] dataName = { "ALE", "COST", "ROSI", "LOST" };
 		Map<String, Dataset<Object>> profiltabilityDatasets = new LinkedHashMap<>(dataName.length);
@@ -872,7 +872,7 @@ public class ChartGenerator {
 	private <T> Chart aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, T> aggregator, Function<T, String> axisLabelProvider,
 			String chartTitle) throws Exception {
 
-		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
+		final Collection<AnalysisStandard> standards = analysis.getAnalysisStandards().values();
 		final List<IParameter> allParameters = analysis.getParameters().values().stream().flatMap(list -> list.stream()).collect(Collectors.toList());
 		final long now = Instant.now().getEpochSecond();
 

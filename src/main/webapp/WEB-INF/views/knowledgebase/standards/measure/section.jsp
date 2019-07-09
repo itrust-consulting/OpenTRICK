@@ -10,7 +10,7 @@
 			<div class="row-fluid">
 				<h3 id="section_title_measure">
 					<c:if test="${not empty standard}">
-						<spring:message text="${standard.label} - ${standard.version}. ${standard.description}" />
+						<spring:message text="${standard.name}: ${standard.label} - ${standard.version}. ${standard.description}" />
 					</c:if>
 				</h3>
 			</div>
@@ -38,7 +38,6 @@
 		<thead>
 			<tr role="row">
 				<th width="1%"></th>
-				<%-- <th><spring:message code="label.measure.level" text="Level" /></th> --%>
 				<th><spring:message code="label.reference" text="Reference" /></th>
 				<th width="25%"><spring:message code="label.measure.domain" text="Domain" /></th>
 				<th width="70%"><spring:message code="label.measure.description" text="Description" /></th>
@@ -50,7 +49,6 @@
 				<c:set var="measureDescriptionText" value="${measureDescription.findByLanguage(selectedLanguage)}" />
 				<tr data-trick-id="${measureDescription.id}" onclick="selectElement(this)" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_measure','#menu_measure_description');"></td>
-					<%-- <td>${measureDescription.level}</td> --%>
 					<td data-trick-field='reference'><spring:message text='${measureDescription.reference}' /></td>
 					<c:choose>
 						<c:when test="${empty measureDescriptionText}">

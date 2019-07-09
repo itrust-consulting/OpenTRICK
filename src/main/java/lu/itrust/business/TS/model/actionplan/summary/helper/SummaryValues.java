@@ -104,7 +104,7 @@ public class SummaryValues {
 	public SummaryValues(List<AnalysisStandard> standards) {
 		conformanceHelper.clear();
 		for(AnalysisStandard an : standards)
-			conformanceHelper.put(an.getStandard().getLabel(), new SummaryStandardHelper(an));
+			conformanceHelper.put(an.getStandard().getName(), new SummaryStandardHelper(an));
 	}
 	
 }

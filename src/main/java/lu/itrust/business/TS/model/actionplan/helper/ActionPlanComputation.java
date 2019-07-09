@@ -169,13 +169,13 @@ public class ActionPlanComputation {
 		if (analysis.isQuantitative()) {
 
 			if (standards == null || standards.isEmpty())
-				this.standards = this.analysis.getAnalysisStandards();
+				this.standards = this.analysis.findAllAnalysisStandard();
 			else
 				this.standards = standards;
 
 			if (this.standards.stream().anyMatch(analysisStandard -> analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable())) {
 				if (!this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002))) {
-					AnalysisStandard analysisStandard = analysis.findAnalysisStandardByLabel(Constant.STANDARD_27002);
+					AnalysisStandard analysisStandard = analysis.getAnalysisStandards().get(Constant.STANDARD_27002);
 					if (analysisStandard != null)
 						this.standards.add(analysisStandard);
 				}
@@ -319,8 +319,8 @@ public class ActionPlanComputation {
 			if (comp == 0) {
 				comp = Integer.compare(a2.getRiskCount(), a1.getRiskCount());
 				if (comp == 0) {
-					comp = NaturalOrderComparator.compareTo(a1.getMeasure().getMeasureDescription().getStandard().getLabel(),
-							a2.getMeasure().getMeasureDescription().getStandard().getLabel());
+					comp = NaturalOrderComparator.compareTo(a1.getMeasure().getMeasureDescription().getStandard().getName(),
+							a2.getMeasure().getMeasureDescription().getStandard().getName());
 					if (comp == 0)
 						comp = NaturalOrderComparator.compareTo(a1.getMeasure().getMeasureDescription().getReference(), a2.getMeasure().getMeasureDescription().getReference());
 
@@ -1808,7 +1808,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		// parse all standards
-		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 
 			if (!standards.contains(analysisStandard))
 				continue;
@@ -2065,7 +2065,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 
 						// parse all standards
-						for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+						for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 
 							// check if standard is maturity -> YES
 							if (analysisStandard instanceof MaturityStandard) {
@@ -2215,7 +2215,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		// parse standards
-		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 
 			if (!standards.contains(analysisStandard))
 				continue;
@@ -2339,7 +2339,7 @@ public class ActionPlanComputation {
 	 */
 	private static boolean hasUsable27002MeasuresInMaturityChapter(Analysis analysis, String chapter) {
 		// initialise variables
-		NormalStandard normalStandard = (NormalStandard) analysis.getAnalysisStandards().stream()
+		final NormalStandard normalStandard = (NormalStandard) analysis.getAnalysisStandards().values().stream()
 				.filter(analysisStandard -> (analysisStandard instanceof NormalStandard) && analysisStandard.getStandard().is(Constant.STANDARD_27002)).findAny().orElse(null);
 		return normalStandard != null && normalStandard.getMeasures().stream().anyMatch(measure -> (measure.getMeasureDescription().getReference().startsWith(chapter + "."))
 				&& (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (measure.getMeasureDescription().isComputable())));

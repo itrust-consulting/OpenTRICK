@@ -112,6 +112,7 @@ import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.Standard;
 
 /**
  * @author eomar
@@ -368,9 +369,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public List<String> getStandardNames() {
-		return analysis.findStandards().stream()
-				.map(c -> c.is(Constant.STANDARD_27001) ? Constant.STANDARD_27001 : c.is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : c.getLabel())
-				.sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
+		return analysis.findStandards().stream().map(Standard::getName).sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
 	}
 
 	public TextAlignment createAlignment(String value) {
@@ -1279,10 +1278,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 		final List<Double> compliances = new LinkedList<>();
 		final String currentTime = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT).replaceAll("\\.\\d*", "");
 
-		for (AnalysisStandard analysisStandard : getAnalysis().getAnalysisStandards()) {
+		for (AnalysisStandard analysisStandard : getAnalysis().getAnalysisStandards().values()) {
 			final long count = analysisStandard.getMeasures().stream().filter(m -> m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE)).count();
 			final String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
-					: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getLabel();
+					: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getName();
 			final double compliance = ChartGenerator.ComputeCompliance(analysisStandard, valueFactory);
 			if (count > 0)
 				setCustomProperty(name.toUpperCase() + NA_MEASURES, count);
@@ -1304,7 +1303,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 
 		setCustomProperty(NUMBER_MEASURES_ALL_PHASES,
-				getAnalysis().getAnalysisStandards().stream().flatMap(e -> e.getMeasures().stream()).filter(m -> m.getMeasureDescription().isComputable()
+				getAnalysis().getAnalysisStandards().values().stream().flatMap(e -> e.getMeasures().stream()).filter(m -> m.getMeasureDescription().isComputable()
 						&& !(m.getImplementationRateValue(getValueFactory()) >= 100 || Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(m.getStatus()))).count());
 
 		setCustomProperty(CLIENT_NAME, getAnalysis().getCustomer().getOrganisation());

@@ -230,7 +230,7 @@ public class RedmineClient implements Client {
 				if (StringUtils.isEmpty(measure.getToDo()) || StringUtils.isBlank(measure.getToDo())) {
 					final MeasureDescription description = measure.getMeasureDescription();
 					handler.update("error.ticket.measure.no.todo", String.format("Task for (%s - %s) cannot be created, please add a todo and try again!",
-							description.getStandard().getLabel(), description.getReference()), 0, description.getStandard().getLabel(), description.getReference());
+							description.getStandard().getName(), description.getReference()), 0, description.getStandard().getName(), description.getReference());
 					error = true;
 				} else {
 					final Issue issue = IssueFactory.create(project.getId(), StringUtils.abbreviate(measure.getToDo(), 255));
@@ -256,8 +256,8 @@ public class RedmineClient implements Client {
 					final Issue issue = issueManager.getIssues(parameters).getResults().stream().findFirst().orElse(null);
 					if (issue == null) {
 						handler.update("error.ticket.not_found",
-								String.format("Task for (%s - %s) cannot be found", description.getStandard().getLabel(), description.getReference()), 0,
-								description.getStandard().getLabel(), description.getReference());
+								String.format("Task for (%s - %s) cannot be found", description.getStandard().getName(), description.getReference()), 0,
+								description.getStandard().getName(), description.getReference());
 						error = true;
 					} else {
 						issue.setSubject(StringUtils.abbreviate(measure.getToDo(), 255));
@@ -289,7 +289,7 @@ public class RedmineClient implements Client {
 		final MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(language);
 		if (measure.getToDo().length() > 255)
 			builder.add(measure.getToDo() + "\n");
-		builder.add(String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()) + "\n");
+		builder.add(String.format("%s - %s: %s", description.getStandard().getName(), description.getReference(), descriptionText.getDomain()) + "\n");
 		builder.add(descriptionText.getDescription() + "\n");
 		builder.add(String.format("IR: %d, IW: %s, EW: %s, INV: %s, LT: %s, IM: %s, EM: %s, RM: %s, PH: %d, Resp: %s", (int) measure.getImplementationRateValue(factory),
 				DECIMAL_FORMAT.format(measure.getInternalWL()), DECIMAL_FORMAT.format(measure.getExternalWL()), DECIMAL_FORMAT.format(measure.getInvestment() * .001),

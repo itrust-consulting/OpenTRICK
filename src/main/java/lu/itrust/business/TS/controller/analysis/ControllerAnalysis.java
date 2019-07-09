@@ -14,6 +14,7 @@ import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAG
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -237,13 +238,13 @@ public class ControllerAnalysis extends AbstractController {
 			final History history = new History();
 
 			final JsonNode jsonNode = new ObjectMapper().readTree(value);
-			
+
 			final String author = jsonNode.get("author").asText();
-			
+
 			final Date date = new Date(System.currentTimeMillis());
-			
+
 			final String version = jsonNode.get("version").asText();
-			
+
 			final String comment = jsonNode.get("comment").asText();
 
 			String error = validator.validate(history, "author", author);
@@ -574,14 +575,14 @@ public class ControllerAnalysis extends AbstractController {
 		if (hasPermission) {
 			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-			analysis.getAnalysisStandards().sort((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getLabel(), e2.getStandard().getLabel()));
 			final List<Standard> standards = analysis.findStandards();
-			final Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards());
+			final Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards().values());
 			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 			model.addAttribute("soaThreshold", analysis.findParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
 			model.addAttribute("soas",
-					analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard(),
-							analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getLabel()), (e1, e2) -> e1, LinkedHashMap::new)));
+					analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled)
+							.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard(),
+									analysisStandard -> measuresByStandard.get(analysisStandard.getStandard().getName()), (e1, e2) -> e1, LinkedHashMap::new)));
 			model.addAttribute("measuresByStandard", measuresByStandard);
 			model.addAttribute("show_uncertainty", analysis.isUncertainty());
 			model.addAttribute("type", analysis.getType());
@@ -641,10 +642,6 @@ public class ControllerAnalysis extends AbstractController {
 		}
 		return "analyses/single/home";
 	}
-
-	
-
-	
 
 	// *****************************************************************
 	// * export and download
@@ -763,12 +760,12 @@ public class ControllerAnalysis extends AbstractController {
 	 * @param standards
 	 * @return
 	 */
-	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
+	private Map<String, List<Measure>> mapMeasures(Collection<AnalysisStandard> standards) {
 		final Comparator<Measure> comparator = new MeasureComparator();
-		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
+		final Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
 		for (AnalysisStandard standard : standards) {
 			Collections.sort(standard.getMeasures(), comparator);
-			measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
+			measuresmap.put(standard.getStandard().getName(), standard.getMeasures());
 		}
 		return measuresmap;
 	}

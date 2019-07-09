@@ -25,6 +25,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -114,12 +115,13 @@ public class Analysis implements Cloneable {
 
 	/** List of Standards */
 	@OneToMany
+	@MapKey(name = "standard.name")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@OrderBy("standard")
+	@OrderBy("standard.name")
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
+	private Map<String, AnalysisStandard> analysisStandards = new LinkedHashMap<>();
 
 	/** List of Assessment */
 	@OneToMany
@@ -326,7 +328,7 @@ public class Analysis implements Cloneable {
 	 * @param analysisStandard
 	 */
 	public void add(AnalysisStandard analysisStandard) {
-		this.analysisStandards.add(analysisStandard);
+		this.analysisStandards.put(analysisStandard.getStandard().getName(), analysisStandard);
 	}
 
 	/**
@@ -633,11 +635,7 @@ public class Analysis implements Cloneable {
 	 **********************************************************************************************/
 
 	public List<NormalStandard> findAllNormalStandards() {
-		List<NormalStandard> normalStandards = new ArrayList<NormalStandard>();
-		for (AnalysisStandard standard : analysisStandards)
-			if (standard instanceof NormalStandard)
-				normalStandards.add((NormalStandard) standard);
-		return normalStandards;
+		return analysisStandards.values().stream().filter(a -> a instanceof NormalStandard).map(a -> (NormalStandard) a).collect(Collectors.toList());
 	}
 
 	/**
@@ -647,35 +645,16 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<AnalysisStandard> findAnalysisOnlyStandards() {
-		return analysisStandards.stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
+		return analysisStandards.values().stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
 
-	}
-
-	/**
-	 * getAnalysisStandardByLabel: <br>
-	 * Description
-	 * 
-	 * @param label
-	 * @return
-	 */
-	public AnalysisStandard findAnalysisStandardByLabel(String label) {
-		for (AnalysisStandard analysisStandard : this.analysisStandards) {
-			if (analysisStandard.getStandard().is(label)) {
-				return analysisStandard;
-			}
-		}
-		return null;
 	}
 
 	public AnalysisStandard findAnalysisStandardByStandardId(Integer standardID) {
-		for (AnalysisStandard standard : analysisStandards)
-			if (standard.getStandard().getId() == standardID)
-				return standard;
-		return null;
+		return standardID == null ? null : analysisStandards.values().stream().filter(standard -> standard.getStandard().getId() == standardID).findAny().orElse(null);
 	}
 
 	public Map<Asset, List<Assessment>> findAssessmentByAsset() {
-		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
+		final Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
 		assessments.forEach(assessment -> {
 			List<Assessment> assessments = mapping.get(assessment.getAsset());
 			if (assessments == null)
@@ -690,7 +669,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<Integer, Assessment> findAssessmentByAssetId(int id) {
-		Map<Integer, Assessment> assessmentMap = new LinkedHashMap<>();
+		final Map<Integer, Assessment> assessmentMap = new LinkedHashMap<>();
 		if (assessments == null || assessments.isEmpty())
 			return assessmentMap;
 		for (Assessment assessment : assessments)
@@ -700,7 +679,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<Integer, Assessment> findAssessmentByScenarioId(int id) {
-		Map<Integer, Assessment> assessmentMap = new LinkedHashMap<>();
+		final Map<Integer, Assessment> assessmentMap = new LinkedHashMap<>();
 		if (assessments == null || assessments.isEmpty())
 			return assessmentMap;
 		for (Assessment assessment : assessments)
@@ -716,7 +695,7 @@ public class Analysis implements Cloneable {
 	public List<Assessment> findAssessmentBySelectedScenario() {
 		return this.assessments.stream().filter(a -> a.getScenario().isSelected()).collect(Collectors.toList());
 	}
-	
+
 	public Asset findAsset(int idAsset) {
 		return assets.stream().filter(asset -> asset.getId() == idAsset).findAny().orElse(null);
 	}
@@ -744,11 +723,11 @@ public class Analysis implements Cloneable {
 	}
 
 	public Measure findMeasureById(int idMeasure) {
-		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
+		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
 	}
 
 	public List<? extends Measure> findMeasureByStandard(String standard) {
-		return this.analysisStandards.stream().filter(a -> a.getStandard().is(standard)).findAny().map(AnalysisStandard::getMeasures).orElse(Collections.emptyList());
+		return this.analysisStandards.values().stream().filter(a -> a.getStandard().is(standard)).findAny().map(AnalysisStandard::getMeasures).orElse(Collections.emptyList());
 	}
 
 	public List<Measure> findMeasuresByActionPlan(ActionPlanMode appn) {
@@ -866,7 +845,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
-		return this.analysisStandards.stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
+		return this.analysisStandards.values().stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
 				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
 	}
 
@@ -944,7 +923,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return
 	 */
-	public List<AnalysisStandard> getAnalysisStandards() {
+	public Map<String, AnalysisStandard> getAnalysisStandards() {
 		return analysisStandards;
 	}
 
@@ -1182,7 +1161,7 @@ public class Analysis implements Cloneable {
 
 	@Transient
 	public MaturityStandard getMaturityStandard() {
-		return (MaturityStandard) analysisStandards.stream().filter(analysisStandard -> analysisStandard instanceof MaturityStandard).findAny().orElse(null);
+		return (MaturityStandard) analysisStandards.values().stream().filter(analysisStandard -> analysisStandard instanceof MaturityStandard).findAny().orElse(null);
 	}
 
 	/**
@@ -1374,7 +1353,8 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<Standard> findStandards() {
-		return analysisStandards.stream().map(AnalysisStandard::getStandard).collect(Collectors.toList());
+		return analysisStandards.values().stream().map(AnalysisStandard::getStandard).sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getName(), e2.getName()))
+				.collect(Collectors.toList());
 
 	}
 
@@ -1509,7 +1489,7 @@ public class Analysis implements Cloneable {
 	public boolean hasTicket(String idTicket) {
 		if (idTicket == null)
 			return false;
-		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
+		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
 	}
 
 	/**
@@ -1719,17 +1699,17 @@ public class Analysis implements Cloneable {
 	 * @param analysisStandard
 	 */
 	public void removeAnalysisStandard(AnalysisStandard analysisStandard) {
-		this.analysisStandards.remove(analysisStandard);
+		this.analysisStandards.remove(analysisStandard.getStandard().getName());
 	}
 
 	public List<Assessment> removeAssessment(Asset asset) {
-		List<Assessment> assessments = new LinkedList<Assessment>();
+		final List<Assessment> assessments = new LinkedList<Assessment>();
 		this.assessments.removeIf(assessment -> assessment.getAsset().equals(asset) && assessments.add(assessment));
 		return assessments;
 	}
 
 	public List<Assessment> removeAssessment(Scenario scenario) {
-		List<Assessment> assessments = new LinkedList<Assessment>();
+		final List<Assessment> assessments = new LinkedList<Assessment>();
 		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
 		return assessments;
 	}
@@ -1746,18 +1726,18 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight removeRights(User user) {
-		UserAnalysisRight userRight = findRightsforUser(user);
+		final UserAnalysisRight userRight = findRightsforUser(user);
 		return userRight == null ? null : userRights.remove(userRight) ? userRight : null;
 	}
 
 	public List<RiskProfile> removeRiskProfile(Asset asset) {
-		List<RiskProfile> profiles = new LinkedList<RiskProfile>();
+		final List<RiskProfile> profiles = new LinkedList<RiskProfile>();
 		riskProfiles.removeIf(riskProfile -> riskProfile.getAsset().equals(asset) && profiles.add(riskProfile));
 		return profiles;
 	}
 
 	public List<RiskProfile> removeRiskProfile(Scenario scenario) {
-		List<RiskProfile> profiles = new LinkedList<RiskProfile>();
+		final List<RiskProfile> profiles = new LinkedList<RiskProfile>();
 		riskProfiles.removeIf(riskProfile -> riskProfile.getScenario().equals(scenario) && profiles.add(riskProfile));
 		return profiles;
 	}
@@ -1780,6 +1760,16 @@ public class Analysis implements Cloneable {
 	 * @param analysisStandards
 	 */
 	public void setAnalysisStandards(List<AnalysisStandard> analysisStandards) {
+		setAnalysisStandards(analysisStandards.stream().collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
+	}
+
+	/**
+	 * setAnalysisStandards: <br>
+	 * Description
+	 * 
+	 * @param analysisStandards
+	 */
+	public void setAnalysisStandards(Map<String, AnalysisStandard> analysisStandards) {
 		this.analysisStandards = analysisStandards;
 	}
 
@@ -2304,6 +2294,18 @@ public class Analysis implements Cloneable {
 		else if (Float.class.equals(type))
 			return (T) (Float) Float.parseFloat(value);
 		return (T) value;
+	}
+
+	public Standard findStandardByLabel(String label) {
+		return analysisStandards.values().stream().map(AnalysisStandard::getStandard).filter(a -> a.getLabel().equalsIgnoreCase(label)).findAny().orElse(null);
+	}
+
+	public Standard findStandardByName(String name) {
+		return analysisStandards.values().stream().map(AnalysisStandard::getStandard).filter(a -> a.getName().equalsIgnoreCase(name)).findAny().orElse(null);
+	}
+
+	public List<AnalysisStandard> findAllAnalysisStandard() {
+		return getAnalysisStandards().values().stream().collect(Collectors.toList());
 	}
 
 }

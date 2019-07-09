@@ -30,6 +30,7 @@
 					<thead>
 						<tr>
 							<th width="1%"></th>
+							<th><spring:message code="label.norm.name" text="Display name" /></th>
 							<th><spring:message code="label.norm.label" text="Name" /></th>
 							<th><spring:message code="label.norm.version" text="Version" /></th>
 							<th width="50%"><spring:message code="label.norm.description" text="Description" /></th>
@@ -41,6 +42,7 @@
 						<c:forEach items="${standards}" var="standard">
 							<tr data-trick-id="${standard.id}" onclick="selectElement(this)" ondblclick="return editSingleStandard('${standard.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_standard','#menu_standard',null,'showTabMeasure(${standard.id})');"></td>
+								<td><spring:message text="${standard.name}" /></td>
 								<td><spring:message text="${standard.label}" /></td>
 								<td><spring:message text="${standard.version}" /></td>
 								<td class='pre'><spring:message text="${standard.description}" /></td>

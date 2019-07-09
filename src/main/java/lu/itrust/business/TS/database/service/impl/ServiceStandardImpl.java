@@ -235,8 +235,13 @@ public class ServiceStandardImpl implements ServiceStandard {
 	}
 
 	@Override
-	public boolean isConflicted(String newName, String oldName) {
-		return daoStandard.isConflicted(newName, oldName);
+	public boolean isLabelConflicted(String newName, String oldName) {
+		return daoStandard.isLabelConflicted(newName, oldName);
+	}
+
+	@Override
+	public boolean isNameConflicted(String newName, String oldName) {
+		return daoStandard.isNameConflicted(newName,oldName);
 	}
 
 }

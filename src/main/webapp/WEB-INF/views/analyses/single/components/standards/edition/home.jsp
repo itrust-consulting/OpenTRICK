@@ -20,15 +20,15 @@
 			<div class="form-group">
 				<select name="standard" class="form-control">
 					<c:forEach items="${standards}" var="standard">
-						<option value="${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message code='label.index.standard' arguments="${standard.label}" /></option>
+						<option value="${standard.id}" data-trick-name="<spring:message text='${standard.name}'/>"><spring:message code='label.index.standard' arguments="${standard.name}" /></option>
 					</c:forEach>
 				</select>
 			</div>
 			<c:forEach items="${standards}" var="standard" varStatus="status">
-				<div ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />' data-trick-id='${standard.id}' data-trick-content='chapter'>
+				<div ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.name}" />' data-trick-id='${standard.id}' data-trick-content='chapter'>
 					<div class='form-group'>
 						<select name="chapter" class="form-control">
-							<c:forEach items="${standardChapters[standard.label].keySet()}" var="chapter">
+							<c:forEach items="${standardChapters[standard.name].keySet()}" var="chapter">
 								<spring:message text="${chapter}" var="chapterText" />
 								<option value="${chapterText}"><spring:message code="label.index.chapter" arguments="${chapterText}" /></option>
 							</c:forEach>
@@ -37,7 +37,7 @@
 				</div>
 			</c:forEach>
 			<c:forEach items="${standards}" var="standard" varStatus="status">
-				<div class="form-group nav-chapter" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
+				<div class="form-group nav-chapter" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.name}" />'
 					data-trick-id='${standard.id}' data-trick-content='measure'>
 					<c:set var="measureChapters" value="${standardChapters[standard.label]}" />
 					<c:forEach items="${measureChapters.keySet()}" var="chapter" varStatus="chapterStatus">

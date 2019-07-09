@@ -477,9 +477,9 @@ public class ControllerCreation {
 
 			if (!(mappingScenarios == null || mappingAssets == null)) {
 				if (analysisForm.isRiskProfile()) {
-					Map<String, Measure> measures = analysis.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+					final Map<String, Measure> measures = analysis.getAnalysisStandards().values().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
 							.collect(Collectors.toMap(Measure::getKeyName, Function.identity()));
-					List<RiskProfile> riskProfiles = serviceRiskProfile.getAllFromAnalysis(analysisForm.getScenario());
+					final List<RiskProfile> riskProfiles = serviceRiskProfile.getAllFromAnalysis(analysisForm.getScenario());
 					for (RiskProfile riskProfile : riskProfiles)
 						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters, measures));
 				}

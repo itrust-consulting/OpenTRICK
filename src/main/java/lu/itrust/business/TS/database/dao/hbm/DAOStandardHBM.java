@@ -269,9 +269,16 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	}
 
 	@Override
-	public boolean isConflicted(String newName, String oldName) {
+	public boolean isLabelConflicted(String newName, String oldName) {
 		return getSession().createQuery(
 				"SELECT count(*)> 0 FROM Analysis als1 INNER JOIN als1.analysisStandards as alsStd1 where alsStd1.standard.label = :newName and (Select count(*)> 0 from Analysis als2 inner join als2.analysisStandards as alsStd2 where als1 = als2 and alsStd2.standard.label = :oldName) = true",
+				Boolean.class).setParameter("newName", newName).setParameter("oldName", oldName).uniqueResult();
+	}
+
+	@Override
+	public boolean isNameConflicted(String newName, String oldName) {
+		return getSession().createQuery(
+				"SELECT count(*)> 0 FROM Analysis als1 INNER JOIN als1.analysisStandards as alsStd1 where alsStd1.standard.name = :newName and (Select count(*)> 0 from Analysis als2 inner join als2.analysisStandards as alsStd2 where als1 = als2 and alsStd2.standard.name = :oldName) = true",
 				Boolean.class).setParameter("newName", newName).setParameter("oldName", oldName).uniqueResult();
 	}
 

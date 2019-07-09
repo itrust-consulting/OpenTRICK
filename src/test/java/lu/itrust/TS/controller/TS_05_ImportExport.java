@@ -237,7 +237,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(measure, "Action plan measure should not be null");
 		MeasureDescription measureDescription = measure.getMeasureDescription();
 		notNull(measureDescription, "Action plan measure description should not be null");
-		assertEquals("Bad action plan standard", objects[0], measureDescription.getStandard().getLabel());
+		assertEquals("Bad action plan standard", objects[0], measureDescription.getStandard().getName());
 		assertEquals("Bad action plan reference", objects[1], measureDescription.getReference());
 		MeasureDescriptionText measureDescriptionText = measureDescription.getMeasureDescriptionText(language);
 		notNull(measureDescriptionText, "Action plan measure description text should not be null");

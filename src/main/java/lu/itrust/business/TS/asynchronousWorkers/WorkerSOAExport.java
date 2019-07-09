@@ -221,7 +221,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			final WordprocessingMLPackage wordMLPackage =  WordprocessingMLPackage.load(workFile);
 			final Document document  = wordMLPackage.getMainDocumentPart().getContents();
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
-			List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
+			final List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
 			MessageHandler handler = new MessageHandler("info.printing.soa.data", "Printing soa data", progressing[0] += 1);
 			getServiceTaskFeedback().send(getId(), handler);
 			progressing[2] = analysisStandards.stream().mapToInt(analysisStandard -> analysisStandard.getMeasures().size()).sum();
@@ -231,7 +231,7 @@ public class WorkerSOAExport extends WorkerImpl {
 					p = (P) document.getContent().parallelStream().filter(p1 -> p1 instanceof P).findAny().orElse(null);
 				if (p == null)
 					document.getContent().add(p = new P());
-				setText(setStyle(p, "Heading1"), analysisStandard.getStandard().getLabel());
+				setText(setStyle(p, "Heading1"), analysisStandard.getStandard().getName());
 				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, progressing);
 				document.getContent().add(tbl);
 			}

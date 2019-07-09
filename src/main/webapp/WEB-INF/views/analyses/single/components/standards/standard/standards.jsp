@@ -25,7 +25,6 @@
 		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
 	</c:choose>
 </c:set>
-<%-- <c:if test="${empty isLinkedToProject}"><c:set var="isLinkedToProject" value="${not empty isLinkedToProject}"/></c:if> --%>
 <div class="tab-pane" id="tab-standards" data-callback='checkForCollectionUpdate'>
 	<div class="page-header tab-content-header">
 		<div class="container">
@@ -34,7 +33,7 @@
 					<span class="col-sm-4" style="display: block; padding: 5px;"><spring:message code="label.title.analysis.measures_by_collection" /></span> <span
 						class="col-sm-offset-1 col-sm-7"> <select id='measure-collection-selector' class="form-control" style="max-width: 280px;">
 							<c:forEach items="${standards}" var="standard" varStatus="varStatus">
-								<option value="tab-standard-${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message text="${standard.label}" /></option>
+								<option value="tab-standard-${standard.id}" data-trick-name="<spring:message text='${standard.name}'/>"><spring:message text="${standard.name}" /></option>
 								<c:if test="${varStatus.index==0}">
 									<c:set var="firstStandard" value="${standard}" />
 								</c:if>
@@ -172,7 +171,7 @@
 										<td><c:choose>
 												<c:when test="${hasTicket}">
 													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
-													<a href="${ticketLink}" target="_titck_ts"><spring:message text="${measure.measureDescription.reference}" /></a>
+													<a href="${ticketLink}" target="_ticket_ts"><spring:message text="${measure.measureDescription.reference}" /></a>
 												</c:when>
 												<c:otherwise>
 													<spring:message text="${measure.measureDescription.reference}" />
@@ -211,7 +210,7 @@
 										<td ${not analysisOnly ?dblclickaction:''}><c:choose>
 												<c:when test="${hasTicket}">
 													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
-													<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+													<a href="${ticketLink}" target="_ticket_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
 												</c:when>
 												<c:otherwise>
 													<spring:message text="${measure.measureDescription.reference}" />

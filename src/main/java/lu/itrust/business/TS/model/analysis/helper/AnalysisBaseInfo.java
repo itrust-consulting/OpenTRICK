@@ -53,7 +53,7 @@ public class AnalysisBaseInfo {
 		setEmpty(!analysis.hasData());
 		setType(analysis.getType().name());
 		setAnalysisStandardBaseInfo(new LinkedList<AnalysisStandardBaseInfo>());
-		analysis.getAnalysisStandards().forEach(analysisStandard -> analysisStandardBaseInfo.add(new AnalysisStandardBaseInfo(analysis.getId(), analysisStandard)));
+		analysis.getAnalysisStandards().values().forEach(analysisStandard -> analysisStandardBaseInfo.add(new AnalysisStandardBaseInfo(analysis.getId(), analysisStandard)));
 
 	}
 
@@ -130,8 +130,7 @@ public class AnalysisBaseInfo {
 	}
 
 	/**
-	 * @param analysisStandardBaseInfo
-	 *            the analysisStandardBaseInfo to set
+	 * @param analysisStandardBaseInfo the analysisStandardBaseInfo to set
 	 */
 	public void setAnalysisStandardBaseInfo(List<AnalysisStandardBaseInfo> analysisStandardBaseInfo) {
 		this.analysisStandardBaseInfo = analysisStandardBaseInfo;
@@ -145,8 +144,7 @@ public class AnalysisBaseInfo {
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;

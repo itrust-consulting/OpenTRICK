@@ -57,7 +57,7 @@
 			<td><c:choose>
 					<c:when test="${hasTicket}">
 						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
-						<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+						<a href="${ticketLink}" target="_ticket_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
 					</c:when>
 					<c:otherwise>
 						<spring:message text="${measure.measureDescription.reference}" />

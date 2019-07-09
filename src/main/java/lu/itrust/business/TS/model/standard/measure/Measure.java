@@ -705,6 +705,6 @@ public abstract class Measure implements Cloneable {
 	}
 
 	public static String keyName(Standard standard, String reference) {
-		return standard.getLabel() + "^NAME-'MEASURE'-NAME^" + reference;
+		return standard.getName() + "^NAME-'MEASURE'-NAME^" + reference;
 	}
 }

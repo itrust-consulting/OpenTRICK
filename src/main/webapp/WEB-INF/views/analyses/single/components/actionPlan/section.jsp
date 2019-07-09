@@ -130,11 +130,11 @@
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_actionplans','#menu_actionplans');"></td>
 										</c:if>
 										<td><spring:message text="${ape.order}" /></td>
-										<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
+										<td><spring:message text="${ape.measure.analysisStandard.standard.name}" /></td>
 										<td><c:choose>
 												<c:when test="${isLinkedToProject and not empty ape.measure.ticket}">
 													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
-													<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${ape.measure.measureDescription.reference}" /></a>
+													<a href="${ticketLink}" target="_ticket_ts" class="btn btn-default btn-xs"><spring:message text="${ape.measure.measureDescription.reference}" /></a>
 												</c:when>
 												<c:otherwise>
 													<spring:message text="${ape.measure.measureDescription.reference}" />

@@ -57,7 +57,9 @@ public interface ServiceStandard {
 
 	public boolean existsByName(String name);
 
-	public boolean isConflicted(String newName, String oldName);
+	public boolean isLabelConflicted(String newName, String oldName);
+
+	public boolean isNameConflicted(String name, String name2);
 
 	
 

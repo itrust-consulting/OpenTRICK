@@ -216,7 +216,7 @@ public class Duplicator {
 
 				int copycounter = 0;
 
-				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 					copycounter++;
 					serviceTaskFeedback.send(idTask,
 							new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * (42 + (percentageperstandard * copycounter)))));
@@ -229,7 +229,7 @@ public class Duplicator {
 			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
 
 			if (!analysis.getRiskProfiles().isEmpty()) {
-				Map<String, Measure> measures = copy.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+				Map<String, Measure> measures = copy.getAnalysisStandards().values().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
 						.collect(Collectors.toMap(Measure::getKeyName, Function.identity()));
 				for (RiskProfile riskProfile : analysis.getRiskProfiles())
 					copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters, measures));
@@ -279,17 +279,17 @@ public class Duplicator {
 			astandard.setMeasures(measures);
 			return astandard;
 		} else {
-			Standard standard = analysisStandard.getStandard().duplicate();
+			final Standard standard = analysisStandard.getStandard().duplicate();
 
-			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
+			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getName(), standard.getType()));
 
-			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
+			final List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
 
-			Map<String, MeasureDescription> newMesDescs = new LinkedHashMap<String, MeasureDescription>();
+			final Map<String, MeasureDescription> newMesDescs = new LinkedHashMap<String, MeasureDescription>();
 
 			for (MeasureDescription mesDesc : mesDescs) {
 
-				MeasureDescription desc = mesDesc.duplicate(standard);
+				final MeasureDescription desc = mesDesc.duplicate(standard);
 
 				newMesDescs.put(desc.getReference(), desc);
 
@@ -304,7 +304,7 @@ public class Duplicator {
 			else if (analysisStandard instanceof AssetStandard)
 				tmpAnalysisStandard = new AssetStandard(standard);
 
-			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
+			final List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
 			for (Measure measure : analysisStandard.getMeasures()) {
 
 				Measure tmpmeasure = null;
@@ -312,7 +312,7 @@ public class Duplicator {
 				tmpmeasure = duplicateMeasure(measure, anonymize ? phases.get(Constant.PHASE_DEFAULT) : phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, assets,
 						parameters, anonymize);
 
-				MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
+				final MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
 
 				tmpmeasure.setMeasureDescription(mesDesc);
 
@@ -360,7 +360,7 @@ public class Duplicator {
 		}
 
 		if (copy instanceof MaturityMeasure) {
-			MaturityMeasure matmeasure = (MaturityMeasure) copy;
+			final MaturityMeasure matmeasure = (MaturityMeasure) copy;
 			IParameter parameter = parameters.get(anonymize ? SimpleParameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, Constant.IS_NOT_ACHIEVED)
 					: ((MaturityMeasure) measure).getImplementationRate().getKey());
 			if (parameter == null)
@@ -378,7 +378,7 @@ public class Duplicator {
 				matmeasure.setSML5Cost(0);
 			}
 		} else if (copy instanceof NormalMeasure) {
-			NormalMeasure normalMeasure = (NormalMeasure) copy;
+			final NormalMeasure normalMeasure = (NormalMeasure) copy;
 			if (anonymize) {
 				normalMeasure.setToCheck(Constant.EMPTY_STRING);
 				normalMeasure.setImplementationRate(0.0);
@@ -389,7 +389,7 @@ public class Duplicator {
 					assetTypeValue.setValue(0);
 			}
 		} else if (copy instanceof AssetMeasure) {
-			AssetMeasure assetMeasure = (AssetMeasure) copy;
+			final AssetMeasure assetMeasure = (AssetMeasure) copy;
 			if (assets == null || assets.isEmpty())
 				assetMeasure.getMeasureAssetValues().clear();
 			else {
@@ -432,16 +432,16 @@ public class Duplicator {
 
 		try {
 
-			Map<String, IParameter> parameters = new LinkedHashMap<>();
+			final Map<String, IParameter> parameters = new LinkedHashMap<>();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", 2));
 
 			// duplicate the analysis
-			Analysis copy = analysis.duplicate();
+			final Analysis copy = analysis.duplicate();
 
-			Timestamp ts = new Timestamp(System.currentTimeMillis());
+			final Timestamp ts = new Timestamp(System.currentTimeMillis());
 
-			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			final SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 			String tsstring = outDateFormat.format(ts);
 

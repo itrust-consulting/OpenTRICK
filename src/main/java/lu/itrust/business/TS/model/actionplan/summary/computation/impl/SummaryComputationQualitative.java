@@ -43,8 +43,8 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		setMaintenances(new HashMap<>());
 		setCurrentValues(new SummaryValues(analysisStandards));
 		setPreMaintenance(new MaintenanceRecurrentInvestment());
-		this.setAnalysisStandards(analysisStandards.stream().map(analysisStandard -> analysis.findAnalysisStandardByLabel(analysisStandard.getStandard().getLabel()))
-				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getLabel(), Function.identity())));
+		setAnalysisStandards(analysisStandards.stream().map(analysisStandard -> analysis.getAnalysisStandards().get(analysisStandard.getStandard().getName()))
+				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getName(), Function.identity())));
 		generatePreMaintenance(analysisStandards);
 
 		setInternalSetupRate(analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE));
@@ -59,7 +59,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 	}
 
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
-		Map<String, Boolean> selectedMeasures = analysisStandards.stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+		final Map<String, Boolean> selectedMeasures = analysisStandards.stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
 				.collect(Collectors.toMap(Measure::getKey, measure -> true));
 		getAnalysisStandards().values().stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
@@ -105,7 +105,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		generateStage("Phase " + phase, false, phase);
 
 		getSummaryStages().forEach(summary -> {
-			summary.getConformances().forEach(conformity -> conformity.setAnalysisStandard(getAnalysisStandards().get(conformity.getAnalysisStandard().getStandard().getLabel())));
+			summary.getConformances().forEach(conformity -> conformity.setAnalysisStandard(getAnalysisStandards().get(conformity.getAnalysisStandard().getStandard().getName())));
 			getAnalysis().getSummaries().add(summary);
 		});
 
@@ -125,7 +125,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 	private void nextActionEntry(ActionPlanEntry actionPlanEntry) {
 		Measure measure = actionPlanEntry.getMeasure();
-		SummaryStandardHelper helper = getCurrentValues().conformanceHelper.get(measure.getAnalysisStandard().getStandard().getLabel());
+		SummaryStandardHelper helper = getCurrentValues().conformanceHelper.get(measure.getAnalysisStandard().getStandard().getName());
 		helper.measures.add(measure);
 		getCurrentValues().measureCount++;
 		getCurrentValues().implementedCount++;
@@ -154,8 +154,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		boolean isFirstValidPhase = false;
 
 		if (number > 0)
-			phaseTime = getPhases().stream().filter(phase -> phase.getNumber() == number)
-					.map(phase -> phase.getTime()).findAny().orElse(0d);
+			phaseTime = getPhases().stream().filter(phase -> phase.getNumber() == number).map(phase -> phase.getTime()).findAny().orElse(0d);
 		if (isFirst)
 			getCurrentValues().implementedCount = 0;
 		if (getCurrentValues().previousStage == null)
@@ -172,7 +171,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			helper.conformance = 0;
 			int denominator = 0;
 			double numerator = 0;
-			AnalysisStandard analysisStandard = getAnalysisStandards().get(helper.standard.getStandard().getLabel());
+			final AnalysisStandard analysisStandard = getAnalysisStandards().get(helper.standard.getStandard().getName());
 			for (Measure measure : analysisStandard.getMeasures()) {
 				double imprate = measure.getImplementationRateValue((ValueFactory) null);
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
@@ -284,8 +283,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 	}
 
 	/**
-	 * @param analysisStandards
-	 *            the analysisStandards to set
+	 * @param analysisStandards the analysisStandards to set
 	 */
 	public void setAnalysisStandards(Map<String, AnalysisStandard> analysisStandards) {
 		this.analysisStandards = analysisStandards;

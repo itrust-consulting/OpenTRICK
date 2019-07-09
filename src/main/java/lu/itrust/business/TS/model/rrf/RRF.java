@@ -143,8 +143,8 @@ public class RRF {
 		if (Double.isNaN(type))
 			throw new TrickException("error.analysis.rrf.type.nan",
 					String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(),
-							measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()),
-					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel());
+							measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getName()),
+					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getName());
 
 		NumberFormat nf = new DecimalFormat();
 		nf.setMaximumFractionDigits(2);
@@ -206,8 +206,8 @@ public class RRF {
 		if (Double.isNaN(type))
 			throw new TrickException("error.analysis.rrf.type.nan",
 					String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(),
-							measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()),
-					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel());
+							measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getName()),
+					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getName());
 
 		NumberFormat nf = new DecimalFormat();
 		nf.setMaximumFractionDigits(2);

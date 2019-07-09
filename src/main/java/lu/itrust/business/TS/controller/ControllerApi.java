@@ -301,7 +301,7 @@ public class ControllerApi {
 	@GetMapping("/data/analysis/{idAnalysis}/standards")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
-		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
+		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getName())).collect(Collectors.toList());
 	}
 
 	/**
@@ -328,8 +328,8 @@ public class ControllerApi {
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (!analysis.isUserAuthorized(principal.getName(), AnalysisRight.EXPORT))
 			throw new TrickException("error.403.message", "You do not have the necessary permissions to perform this action");
-		Map<String, AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream()
-				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getLabel(), Function.identity()));
+		Map<String, AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().values().stream()
+				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getName(), Function.identity()));
 		Assessment assessment = analysis.getAssessments().stream()
 				.filter(assessment1 -> assessment1.getAsset().getId() == idAsset && assessment1.getScenario().getId() == idScenario).findAny()
 				.orElseThrow(() -> new TrickException("error.assessment.not_found", "Assessment cannot be found"));
@@ -344,7 +344,7 @@ public class ControllerApi {
 			AnalysisStandard analysisStandard = analysisStandards.get(name);
 			if (analysisStandard == null)
 				throw new TrickException("error.standard.not_found", "Standard cannot be found");
-			ApiStandard apiStandard = new ApiStandard(analysisStandard.getStandard().getId(), analysisStandard.getStandard().getLabel());
+			ApiStandard apiStandard = new ApiStandard(analysisStandard.getStandard().getId(), analysisStandard.getStandard().getName());
 			analysisStandard.getMeasures().stream().filter(measure -> measure.getMeasureDescription().isComputable()).forEach(measure -> {
 				apiStandard.getMeasures().add(new ApiMeasure(measure.getId(), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain(),
 						(int) measure.getImplementationRateValue(factory), measure.getCost(), RRF.calculateRRF(assessment, rrfTuning, measure)));

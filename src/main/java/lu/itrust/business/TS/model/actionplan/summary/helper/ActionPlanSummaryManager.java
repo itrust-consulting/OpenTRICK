@@ -135,7 +135,7 @@ public class ActionPlanSummaryManager {
 			}
 
 			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
-				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getName());
 				summary.add(index, (int) (conformance.getConformance() * 100) + "");
 			}
 
@@ -247,7 +247,7 @@ public class ActionPlanSummaryManager {
 			}
 
 			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
-				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getName());
 				summary.add(index,  conformance.getConformance());
 			}
 
@@ -358,7 +358,7 @@ public class ActionPlanSummaryManager {
 			}
 
 			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
-				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getName());
 				summary.add(index, (int) (conformance.getConformance() * 100));
 			}
 
@@ -465,7 +465,7 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_PHASE_BEGIN_DATE);
 		rows.add(LABEL_PHASE_END_DATE);
 		for (SummaryStandardConformance conformance : conformances)
-			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getName());
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001);
@@ -516,7 +516,7 @@ public class ActionPlanSummaryManager {
 		if (data.startsWith(LABEL_CHARACTERISTIC_COMPLIANCE)) {
 
 			for (SummaryStandardConformance conformance : stage.getConformances())
-				if (data.equals(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel()))
+				if (data.equals(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getName()))
 					value.put(colnumber, conformance.getConformance());
 			return;
 		}

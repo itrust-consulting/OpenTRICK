@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -102,7 +103,7 @@ public class RRFExportImport {
 		SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
 		List<AssetType> assetTypes = serviceAssetType.getAll();
 		writeScenario(analysis.getScenarios(), mlPackage, locale);
-		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values())
 			writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, mlPackage, locale);
 		callback.accept(mlPackage);
 	}
@@ -113,7 +114,7 @@ public class RRFExportImport {
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
 			final DataFormatter formatter = new DataFormatter();
 			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
-			loadStandards(analysis.getAnalysisStandards(), mlPackage.getWorkbookPart(), formatter);
+			loadStandards(analysis.getAnalysisStandards().values(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
@@ -300,11 +301,11 @@ public class RRFExportImport {
 		}
 	}
 
-	private void loadStandards(List<AnalysisStandard> analysisStandards, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
+	private void loadStandards(Collection<AnalysisStandard> analysisStandards, WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		for (AnalysisStandard analysisStandard : analysisStandards) {
 			if (analysisStandard instanceof MaturityStandard)
 				continue;
-			SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getLabel());
+			SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getName());
 			if (sheet == null)
 				continue;
 			if (analysisStandard instanceof AssetStandard)
@@ -371,7 +372,7 @@ public class RRFExportImport {
 
 	@SuppressWarnings("unchecked")
 	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
-		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
+		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getName());
 		SheetData sheetData = worksheetPart.getContents().getSheetData();
 		List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
 		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream()).map(assetValue -> assetValue.getAsset())
@@ -408,13 +409,14 @@ public class RRFExportImport {
 
 	@SuppressWarnings("unchecked")
 	private void writeNormalMeasure(boolean cssf, AnalysisStandard analysisStandard, List<AssetType> assetTypes, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
-		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
-		SheetData sheetData = worksheetPart.getContents().getSheetData();
-		List<NormalMeasure> measures = (List<NormalMeasure>) analysisStandard.getExendedMeasures();
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getName());
+		final SheetData sheetData = worksheetPart.getContents().getSheetData();
+		final List<NormalMeasure> measures = (List<NormalMeasure>) analysisStandard.getExendedMeasures();
+		final Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
+		final String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
+		final int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length;
+		
 		Row row = createRow(sheetData);
-		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
-		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
-		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length;
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (AssetType assetType : assetTypes)
 			setValue(row.getC().get(++colIndex), assetType.getName());
@@ -432,9 +434,9 @@ public class RRFExportImport {
 	private void writeScenario(List<Scenario> scenarios, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
 		if (scenarios.isEmpty())
 			return;
-		ObjectFactory factory = Context.getsmlObjectFactory();
-		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, RAW_SCENARIOS);
-		SheetData scenarioSheet = worksheetPart.getContents().getSheetData();
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, RAW_SCENARIOS);
+		final SheetData scenarioSheet = worksheetPart.getContents().getSheetData();
 		int colIndex = 0;
 		Row row = factory.createRow();
 		for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++)

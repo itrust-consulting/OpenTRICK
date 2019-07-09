@@ -190,7 +190,6 @@ public class ControllerMeasureCollection {
 			TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.add", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
 					principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
 		} else {
-
 			Standard persited = serviceStandard.get(standard.getId());
 			if (persited == null)
 				errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
@@ -201,9 +200,12 @@ public class ControllerMeasureCollection {
 				errors.put("type", messageSource.getMessage("error.norm.type.update", null, "Standard is in use, type cannot be updated!", locale));
 			else {
 
+				if (!persited.getName().equalsIgnoreCase(standard.getName()) && serviceStandard.isNameConflicted(standard.getName(), persited.getName()))
+					errors.put("name", messageSource.getMessage("error.norm.rename.name.conflict", null, locale));
+				
 				if (!persited.getLabel().equalsIgnoreCase(standard.getLabel())) {
-					if (serviceStandard.isConflicted(standard.getLabel(), persited.getLabel()))
-						errors.put("label", messageSource.getMessage("error.norm.rename.conflict", null, locale));
+					if (serviceStandard.isLabelConflicted(standard.getLabel(), persited.getLabel()))
+						errors.put("label", messageSource.getMessage("error.norm.rename.label.conflict", null, locale));
 					else {
 						final List<Standard> standards = serviceStandard.findByLabelAndAnalysisOnlyFalse(persited.getLabel());
 						standards.remove(persited);
@@ -218,17 +220,16 @@ public class ControllerMeasureCollection {
 							standards.forEach(s -> {
 								s.setLabel(standard.getLabel());
 								serviceStandard.saveOrUpdate(s);
-								TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename",
+								TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
 										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", s.getLabel(), s.getVersion(), oldName, s.getVersion()),
 										principal.getName(), LogAction.RENAME, s.getLabel(), String.valueOf(s.getVersion()), oldName, String.valueOf(s.getVersion()));
 							});
 							final int oldVersion = standard.getVersion();
 							serviceStandard.saveOrUpdate(persited.update(standard));
-							TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename",
+							TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
 									String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", persited.getLabel(), persited.getVersion(), oldName,
 											oldVersion),
 									principal.getName(), LogAction.RENAME, persited.getLabel(), String.valueOf(persited.getVersion()), oldName, String.valueOf(oldVersion));
-
 						}
 					}
 				} else {
@@ -268,7 +269,7 @@ public class ControllerMeasureCollection {
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.standard.delete",
-					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()), principal.getName(), LogAction.DELETE, standard.getLabel(),
+					String.format("Standard: %s, version: %d", standard.getName(), standard.getVersion()), principal.getName(), LogAction.DELETE, standard.getName(),
 					String.valueOf(standard.getVersion()), principal.getName());
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
@@ -361,9 +362,12 @@ public class ControllerMeasureCollection {
 			TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormInfo");
 			tablePart.getContents().getRef();
 			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), versionCol = nameCol + 1, descCol = versionCol + 1;
+			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), labelCol = nameCol + 1, versionCol = labelCol + 1, descCol = versionCol + 1;
 			// standard name
 			Cell cell = sheet.getRow().get(row).getC().get(nameCol);
+			setValue(cell, standard.getName());
+			// standard label
+			cell = sheet.getRow().get(row).getC().get(labelCol);
 			setValue(cell, standard.getLabel());
 			// standard version
 			cell = sheet.getRow().get(row).getC().get(versionCol);
@@ -867,8 +871,8 @@ public class ControllerMeasureCollection {
 		try {
 
 			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
+			final ObjectMapper mapper = new ObjectMapper();
+			final JsonNode jsonNode = mapper.readTree(source);
 
 			ValidatorField validator = serviceDataValidation.findByClass(Standard.class);
 
@@ -876,11 +880,13 @@ public class ControllerMeasureCollection {
 				serviceDataValidation.register(validator = new StandardValidator());
 
 			// load standard id
-			int id = jsonNode.get("id").asInt();
+			final int id = jsonNode.get("id").asInt();
 
-			String label = jsonNode.get("label").asText();
+			final String label = jsonNode.get("label").asText();
 
-			String description = jsonNode.get("description").asText();
+			final String name = jsonNode.get("name").asText();
+
+			final String description = jsonNode.get("description").asText();
 
 			StandardType type = StandardType.getByName(jsonNode.get("type").asText());
 
@@ -903,6 +909,13 @@ public class ControllerMeasureCollection {
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				standard.setLabel(label);
+
+			error = validator.validate(standard, "name", name);
+
+			if (error != null)
+				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				standard.setName(name);
 
 			error = validator.validate(standard, "version", version);
 

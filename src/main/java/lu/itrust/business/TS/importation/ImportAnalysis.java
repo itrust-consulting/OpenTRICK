@@ -411,7 +411,7 @@ public class ImportAnalysis {
 			importMaturityMeasures();
 
 			if (measures != null)
-				analysis.getAnalysisStandards().addAll(analysisStandards.values());
+				analysis.setAnalysisStandards(analysisStandards.values().stream().collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
 
 			// System.out.println("Saving Data to Database...");
 
@@ -1147,7 +1147,11 @@ public class ImportAnalysis {
 	 */
 	private void importAssetTypeValues() throws Exception {
 
+		currentSqliteTable = "spec_type_asset_measure";
+
 		System.out.println("Import Asset Type Values ");
+
+		String query = "SELECT id_type_asset, value_spec FROM spec_type_asset_measure where id_norme=? and version_norme=? and ref_measure=?";
 
 		// ****************************************************************
 		// * initialise variables
@@ -1174,7 +1178,7 @@ public class ImportAnalysis {
 				normalMeasure = (NormalMeasure) measure;
 
 				ResultSet rs = null;
-				String query = "";
+
 				AssetTypeValue assetTypeValue = null;
 				AssetType assetType = null;
 
@@ -1182,12 +1186,7 @@ public class ImportAnalysis {
 				// * retrieve asset type values for measures
 				// ****************************************************************
 
-				currentSqliteTable = "spec_type_asset_measure";
-
-				// build query
-				query = "SELECT id_type_asset, value_spec FROM spec_type_asset_measure where id_norme=? and version_norme=? and ref_measure=?";
-
-				List<Object> params = new ArrayList<Object>();
+				final List<Object> params = new ArrayList<Object>();
 
 				params.add(normalMeasure.getAnalysisStandard().getStandard().getLabel());
 
@@ -1239,6 +1238,10 @@ public class ImportAnalysis {
 
 		System.out.println("Import Asset Values ");
 
+		currentSqliteTable = "spec_asset_measure";
+
+		final String query = "SELECT id_asset, value_spec FROM spec_asset_measure where id_norme = ? and version_norme = ? and ref_measure = ?";
+
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
@@ -1264,7 +1267,7 @@ public class ImportAnalysis {
 				assetMeasure = (AssetMeasure) measure;
 
 				ResultSet rs = null;
-				String query = "";
+
 				MeasureAssetValue assetValue = null;
 				Asset asset = null;
 
@@ -1272,12 +1275,7 @@ public class ImportAnalysis {
 				// * retrieve asset type values for measures
 				// ****************************************************************
 
-				currentSqliteTable = "spec_asset_measure";
-
-				// build query
-				query = "SELECT id_asset, value_spec FROM spec_asset_measure where id_norme = ? and version_norme = ? and ref_measure = ?";
-
-				List<Object> params = new ArrayList<Object>();
+				final List<Object> params = new ArrayList<Object>();
 
 				params.add(assetMeasure.getMeasureDescription().getStandard().getLabel());
 				params.add(assetMeasure.getMeasureDescription().getStandard().getVersion());
@@ -1601,6 +1599,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		int numPhase = 0;
 		String chapter = "";
+
 		double cost = 0;
 		AnalysisStandard analysisStandard = null;
 		Phase tempPhase = null;
@@ -1653,7 +1652,8 @@ public class ImportAnalysis {
 						// save
 						// in into
 						// database for future
-						standard = new Standard(Constant.STANDARD_MATURITY, StandardType.MATURITY, standardVersion, description, standardComputable);
+						standard = new Standard(getString(rs, Constant.MEASURE_NAME_NORM, Constant.STANDARD_MATURITY), Constant.STANDARD_MATURITY, StandardType.MATURITY,
+								standardVersion, description, standardComputable);
 						daoStandard.save(standard);
 						// add standard to map
 					}
@@ -2093,7 +2093,8 @@ public class ImportAnalysis {
 					// into
 					// database for future
 					if (standard == null) {
-						standard = new Standard(standardName, StandardType.getByName(rs.getString("norme_type")), standardVersion, description, standardComputable);
+						standard = new Standard(getString(rs, Constant.MEASURE_NAME_NORM, standardName), standardName, StandardType.getByName(rs.getString("norme_type")),
+								standardVersion, description, standardComputable);
 						standard.setAnalysisOnly(rs.getBoolean("norme_analysisOnly"));
 						daoStandard.save(standard);
 						// add standard to map
@@ -3265,7 +3266,7 @@ public class ImportAnalysis {
 
 	public static boolean getBoolean(ResultSet rs, String name) {
 		try {
-			return rs.getBoolean(name);
+			return columnExists(rs, name) ? rs.getBoolean(name) : false;
 		} catch (SQLException e) {
 			return false;
 		}
@@ -3273,7 +3274,7 @@ public class ImportAnalysis {
 
 	public static double getDouble(ResultSet rs, String name) {
 		try {
-			return rs.getDouble(name);
+			return columnExists(rs, name) ? rs.getDouble(name) : 0;
 		} catch (SQLException e) {
 			return 0;
 		}
@@ -3281,7 +3282,7 @@ public class ImportAnalysis {
 
 	public static int getInt(ResultSet rs, String name) {
 		try {
-			return rs.getInt(name);
+			return columnExists(rs, name) ? rs.getInt(name) : 0;
 		} catch (SQLException e) {
 			return 0;
 		}
@@ -3293,7 +3294,7 @@ public class ImportAnalysis {
 
 	public static String getString(ResultSet rs, String name, String defaultValue) {
 		try {
-			return rs.getString(name);
+			return columnExists(rs, name) ? rs.getString(name) : defaultValue;
 		} catch (SQLException e) {
 			return defaultValue;
 		}

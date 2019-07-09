@@ -67,7 +67,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 
 		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
 
-		for (AnalysisStandard standard : analysis.getAnalysisStandards()) {
+		for (AnalysisStandard standard : analysis.getAnalysisStandards().values()) {
 
 			getSession().delete(standard);
 
@@ -310,4 +310,6 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		return getSession().createQuery("From AnalysisStandard where standard = :standard", AnalysisStandard.class).setParameter("standard", standard).setMaxResults(size)
 				.setFirstResult((page - 1) * size).list();
 	}
+	
+	
 }

@@ -16,13 +16,17 @@ import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
  */
 public class StandardValidator extends ValidatorFieldImpl {
 
+	private static final String NAME = "name";
 	private static final String LABEL = "label";
 	private static final String VERSION = "version";
 	private static final String DESCRIPTION = "description";
 	private static final String TYPE = "type";
-	private static final String ERROR_UNSUPPORTED_DATA_LABEL_NAME_VALUE_IS_NOT_SUPPORTED = "error.norm.unsupported.label::Name value is not supported";
+	
+	private static final String ERROR_STANDARD_NAME_EMPTY_NAME_CANNOT_BE_EMPTY = "error.norm.name.empty::Display name cannot be empty";
 	private static final String ERROR_STANDARD_LABEL_EMPTY_NAME_CANNOT_BE_EMPTY = "error.norm.label.empty::Name cannot be empty";
 	private static final String ERROR_STANDARD_VERSION_VERSION_CANNOT_BE_EMPTY = "error.norm.version::Version cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_NAME_VALUE_IS_NOT_SUPPORTED = "error.norm.unsupported.name::Display name value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_LABEL_NAME_VALUE_IS_NOT_SUPPORTED = "error.norm.unsupported.label::Name value is not supported";
 	private static final String ERROR_UNSUPPORTED_DATA_VERSION_VERSION_VALUE_SHOULD_BE_A_POSITIVE_INTEGER = "error.norm.unsupported.version::Version value should be a positive integer";
 	private static final String VERSION_SHOULD_BE_A_POSITIVE_INTEGER = "error.norm.version.zero_or_negative::Version should be a positive integer";
 	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.norm.unsupported.description::Description value is not supported";
@@ -49,6 +53,13 @@ public class StandardValidator extends ValidatorFieldImpl {
 			String label = (String) candidate;
 			if (label == null || label.trim().isEmpty())
 				return ERROR_STANDARD_LABEL_EMPTY_NAME_CANNOT_BE_EMPTY;
+			break;
+		case NAME:
+			if (!(candidate instanceof String))
+				return ERROR_UNSUPPORTED_DATA_NAME_VALUE_IS_NOT_SUPPORTED;
+			String name = (String) candidate;
+			if (name == null || name.trim().isEmpty())
+				return ERROR_STANDARD_NAME_EMPTY_NAME_CANNOT_BE_EMPTY;
 			break;
 		case VERSION:
 			if (candidate == null)

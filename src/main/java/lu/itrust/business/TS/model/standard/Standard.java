@@ -45,7 +45,11 @@ public class Standard implements Cloneable {
 	@Column(name = "idStandard")
 	private int id = -1;
 
-	/** Standard Name */
+	/** Standard internal name */
+	@Column(name = "dtName", nullable = false)
+	private String name="";
+
+	/** Standard internal name */
 	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
@@ -85,7 +89,8 @@ public class Standard implements Cloneable {
 	 * 
 	 * @param version
 	 */
-	public Standard(String label, int version) {
+	public Standard(String name, String label, int version) {
+		setName(name);
 		setLabel(label);
 		setVersion(version);
 	}
@@ -100,8 +105,8 @@ public class Standard implements Cloneable {
 	 * @param computable
 	 * @throws TrickException
 	 */
-	public Standard(String label, StandardType type, int version, String description, boolean computable) throws TrickException {
-		this(label, version);
+	public Standard(String name, String label, StandardType type, int version, String description, boolean computable) throws TrickException {
+		this(name, label, version);
 		this.setType(type);
 		this.setDescription(description);
 		this.setComputable(computable);
@@ -125,8 +130,7 @@ public class Standard implements Cloneable {
 	 * setId: <br>
 	 * Sets the Field "id" with a value.
 	 * 
-	 * @param id
-	 *            The Value to set the id field
+	 * @param id The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -146,8 +150,7 @@ public class Standard implements Cloneable {
 	 * setLabel: <br>
 	 * Sets the Field "label" with a value.
 	 * 
-	 * @param label
-	 *            The Value to set the label field
+	 * @param label The Value to set the label field
 	 * @throws TrickException
 	 */
 	public void setLabel(String label) throws TrickException {
@@ -170,8 +173,7 @@ public class Standard implements Cloneable {
 	 * setType: <br>
 	 * Sets the Field "type" with a value.
 	 * 
-	 * @param type
-	 *            The Value to set the type field
+	 * @param type The Value to set the type field
 	 */
 	public void setType(StandardType type) {
 		this.type = type;
@@ -191,8 +193,7 @@ public class Standard implements Cloneable {
 	 * setName: <br>
 	 * Sets the Field "name" with a value.
 	 * 
-	 * @param name
-	 *            The Value to set the name field
+	 * @param name The Value to set the name field
 	 */
 	public void setType(String name) {
 		this.type = StandardType.getByName(name.trim());
@@ -301,8 +302,7 @@ public class Standard implements Cloneable {
 	 * setVersion: <br>
 	 * Sets the Field "version" with a value.
 	 * 
-	 * @param version
-	 *            The Value to set the version field
+	 * @param version The Value to set the version field
 	 */
 	public void setVersion(int version) {
 		this.version = version;
@@ -322,8 +322,7 @@ public class Standard implements Cloneable {
 	 * setComputable: <br>
 	 * Sets the Field "computable" with a value.
 	 * 
-	 * @param computable
-	 *            The Value to set the computable field
+	 * @param computable The Value to set the computable field
 	 */
 	public void setComputable(boolean computable) {
 		this.computable = computable;
@@ -343,8 +342,7 @@ public class Standard implements Cloneable {
 	 * setDescription: <br>
 	 * Sets the Field "description" with a value.
 	 * 
-	 * @param description
-	 *            The Value to set the description field
+	 * @param description The Value to set the description field
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -391,6 +389,14 @@ public class Standard implements Cloneable {
 	public Boolean is(String label) {
 		return (analysisOnly || !(label.equals(Constant.STANDARD_27001) || label.equals(Constant.STANDARD_27002))) ? this.label.equalsIgnoreCase(label)
 				: this.label.startsWith(label);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

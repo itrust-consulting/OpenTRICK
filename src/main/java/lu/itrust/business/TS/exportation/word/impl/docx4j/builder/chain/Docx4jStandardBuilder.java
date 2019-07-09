@@ -127,7 +127,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraph = (P) exporter.findP(data.getSource());
 		if (paragraph != null) {
-			final List<AnalysisStandard> analysisStandards = exporter.getAnalysis().getAnalysisStandards().stream()
+			final List<AnalysisStandard> analysisStandards = exporter.getAnalysis().getAnalysisStandards().values().stream()
 					.filter(analysisStandard -> !(analysisStandard.getStandard().is(STANDARD_27001) || analysisStandard.getStandard().is(STANDARD_27002)))
 					.sorted(standardComparator()).collect(Collectors.toList());
 			if (!analysisStandards.isEmpty()) {
@@ -141,22 +141,21 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 					for (AnalysisStandard analysisStandard : analysisStandards) {
 
 						contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "Heading3"), exporter.getMessage("report.additional.collection.title",
-								new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel())));
+								new Object[] { analysisStandard.getStandard().getName() }, analysisStandard.getStandard().getName())));
 
-						contents.add(
-								exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "BodyOfText"), exporter.getMessage("report.additional.collection.description",
-										new Object[] { analysisStandard.getStandard().getLabel() }, analysisStandard.getStandard().getLabel())));
+						contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "BodyOfText"), exporter.getMessage(
+								"report.additional.collection.description", new Object[] { analysisStandard.getStandard().getName() }, analysisStandard.getStandard().getName())));
 						for (ActionPlanMode planMode : planModes) {
 
-							ClonePartResult result = exporter.cloneChart(chart2700x, analysisStandard.getStandard().getLabel(),
-									"Compliance" + (planModes.length == 1 ? "" : (planMode == ActionPlanMode.APPN ? "QT" : "QL")) + analysisStandard.getStandard().getLabel());
+							ClonePartResult result = exporter.cloneChart(chart2700x, analysisStandard.getStandard().getName(),
+									"Compliance" + (planModes.length == 1 ? "" : (planMode == ActionPlanMode.APPN ? "QT" : "QL")) + analysisStandard.getStandard().getName());
 
 							contents.add(result.getP());
 
 							contents.add(exporter.addFigureCaption(exporter.getMessage("report.additional.collection.caption",
-									new Object[] { analysisStandard.getStandard().getLabel(), (planModes.length == 1 ? 0 : (planMode == ActionPlanMode.APPN ? 1 : 2)) },
-									analysisStandard.getStandard().getLabel())));
-							charts.add(new Object[] { result.getPart(), planMode, analysisStandard.getStandard().getLabel(), });
+									new Object[] { analysisStandard.getStandard().getName(), (planModes.length == 1 ? 0 : (planMode == ActionPlanMode.APPN ? 1 : 2)) },
+									analysisStandard.getStandard().getName())));
+							charts.add(new Object[] { result.getPart(), planMode, analysisStandard.getStandard().getName(), });
 						}
 
 					}
@@ -174,10 +173,10 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraph = (P) exporter.findP(data.getSource());
 		if (paragraph != null) {
-			final List<Object> objects = exporter.getAnalysis().getAnalysisStandards().stream()
+			final List<Object> objects = exporter.getAnalysis().getAnalysisStandards().values().stream()
 					.filter(a -> !(a.getStandard().is(STANDARD_27001) || a.getStandard().is(STANDARD_27002))).sorted(standardComparator())
 					.map(a -> exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "ListParagraph"),
-							exporter.getMessage("report.format.bullet.list.iteam", new Object[] { a.getStandard().getLabel() }, a.getStandard().getLabel())))
+							exporter.getMessage("report.format.bullet.list.iteam", new Object[] { a.getStandard().getName() }, a.getStandard().getName())))
 					.collect(Collectors.toList());
 			objects.parallelStream().forEach(p -> ((P) p).setPPr(paragraph.getPPr()));
 			exporter.insertAllAfter(paragraph, objects);
@@ -225,7 +224,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 					valAx.getNumFmt().setFormatCode("0%");
 				});
 
-		final List<Measure> measures = exporter.getAnalysis().getAnalysisStandards().stream().filter(analysisStandard -> analysisStandard.getStandard().is(standard))
+		final List<Measure> measures = exporter.getAnalysis().getAnalysisStandards().values().stream().filter(analysisStandard -> analysisStandard.getStandard().is(standard))
 				.map(AnalysisStandard::getMeasures).findAny().orElse(Collections.emptyList());
 
 		final SheetData sheet = reportExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
@@ -251,11 +250,11 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 			final CTStrVal catName = new CTStrVal();
 			final Object[] compliance = compliances.get(key);
 			double value = (((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01;
-			
+
 			catName.setV(key);
 			catName.setIdx(ser.getCat().getStrRef().getStrCache().getPt().size());
 			ser.getCat().getStrRef().getStrCache().getPt().add(catName);
-			
+
 			numVal.setIdx(ser.getVal().getNumRef().getNumCache().getPt().size());
 			ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 
@@ -278,12 +277,12 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 			int columnIndex = 2;
 			for (Phase phase : phases) {
 				final char col = (char) (((int) 'A') + columnIndex);
-				
+
 				phaseLabel = exporter.getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber());
 				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, exporter.getValueFactory());
 				ser = exporter.createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
 				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
-				
+
 				setValue(sheet.getRow().get(rowCount = 0), columnIndex, phaseLabel);
 
 				for (String key : compliances.keySet()) {
@@ -317,10 +316,10 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 			final List<Object> contents = new LinkedList<>();
 			final AtomicInteger index = new AtomicInteger(0);
 			final int count = exporter.getAnalysis().getAnalysisStandards().size();
-			exporter.getAnalysis().getAnalysisStandards().stream().sorted(standardComparator()).forEach(analysisStandard -> {
+			exporter.getAnalysis().getAnalysisStandards().values().stream().sorted(standardComparator()).forEach(analysisStandard -> {
 				final double complaince = ChartGenerator.ComputeCompliance(analysisStandard, exporter.getValueFactory());
 				final String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
-						: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getLabel();
+						: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getName();
 				final P paragraph = exporter.setStyle(exporter.getFactory().createP(), "BulletL1");
 				if (name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002))
 					exporter.setText(paragraph, exporter.getMessage("report.current.security.level.iso",
@@ -348,7 +347,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_3);
 
-			exporter.getAnalysis().getAnalysisStandards().stream().sorted(standardComparator()).forEach(analysisStandard -> {
+			exporter.getAnalysis().getAnalysisStandards().values().stream().sorted(standardComparator()).forEach(analysisStandard -> {
 				final Tbl table = exporter.createTable("TableTSMeasure", analysisStandard.getMeasures().size() + 1, 16);
 				final Tr header = (Tr) table.getContent().get(0);
 				table.getTblPr().getTblW().setType("dxa");
@@ -411,7 +410,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 					exporter.addCellParagraph((Tc) row.getContent().get(15), measure.getComment());
 				}
 				contents.add(exporter.addBreak(exporter.getFactory().createP(), STBrType.PAGE));
-				contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSMeasureTitle"), analysisStandard.getStandard().getLabel()));
+				contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSMeasureTitle"), analysisStandard.getStandard().getName()));
 				if (contents.add(table))
 					DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.HYBRID, exporter.getColors());
 			});
@@ -432,7 +431,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 	}
 
 	private Comparator<? super AnalysisStandard> standardComparator() {
-		return (a1, a2) -> NaturalOrderComparator.compareTo(a1.getStandard().getLabel(), a2.getStandard().getLabel());
+		return (a1, a2) -> NaturalOrderComparator.compareTo(a1.getStandard().getName(), a2.getStandard().getName());
 	}
 
 }

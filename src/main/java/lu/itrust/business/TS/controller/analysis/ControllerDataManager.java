@@ -276,7 +276,7 @@ public class ControllerDataManager {
 			items.add(new DataManagerItem("rrf-raw", "/Analysis/Data-manager/RRF-Raw/Export-process"));
 		items.add(new DataManagerItem("scenario", "/Analysis/Data-manager/Scenario/Export-process"));
 
-		if (analysis.getAnalysisStandards().stream().anyMatch(AnalysisStandard::isSoaEnabled))
+		if (analysis.getAnalysisStandards().values().stream().anyMatch(AnalysisStandard::isSoaEnabled))
 			items.add(new DataManagerItem("soa", "/Analysis/Data-manager/SOA/Export-process", true));
 		items.sort((i1, i2) -> NaturalOrderComparator.compareTo(messageSource.getMessage("label.menu.data_manager.export." + i1.getName().replaceAll("-", "_"), null, locale),
 				messageSource.getMessage("label.menu.data_manager.export." + i2.getName().replaceAll("-", "_"), null, locale)));
@@ -349,7 +349,7 @@ public class ControllerDataManager {
 				setValue(row, cellIndex++, profile.getRiskTreatment());
 				Map<String, String> measures = profile.getMeasures().stream().map(Measure::getMeasureDescription)
 						.sorted((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()))
-						.collect(Collectors.groupingBy(m -> m.getStandard().getLabel(), Collectors.mapping(MeasureDescription::getReference, Collectors.joining(";"))));
+						.collect(Collectors.groupingBy(m -> m.getStandard().getName(), Collectors.mapping(MeasureDescription::getReference, Collectors.joining(";"))));
 				String value = measures.entrySet().stream().sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getKey(), e2.getKey()))
 						.map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("\n"));
 				setValue(row, cellIndex++, value);
@@ -390,9 +390,9 @@ public class ControllerDataManager {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
-		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 			if (standards.contains(analysisStandard.getStandard().getId())) {
-				WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getLabel());
+				final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getName());
 				exportMeasureStandard(factory, analysisStandard, mlPackage, worksheetPart);
 			}
 		}
@@ -908,7 +908,7 @@ public class ControllerDataManager {
 	public String importRRFForm(HttpSession session, Principal principal, Model model) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
-		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()));
+		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getName()));
 		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards, AnalysisType.QUANTITATIVE, AnalysisType.HYBRID);
 		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards,
 				AnalysisType.QUANTITATIVE, AnalysisType.HYBRID));
@@ -1254,7 +1254,7 @@ public class ControllerDataManager {
 		int colIndex = 0;
 		Measure measure = actionPlanEntry.getMeasure();
 		MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(locale.getISO3Language());
-		setValue(row.getC().get(colIndex), measure.getAnalysisStandard().getStandard().getLabel());
+		setValue(row.getC().get(colIndex), measure.getAnalysisStandard().getStandard().getName());
 		setValue(row.getC().get(++colIndex), measure.getMeasureDescription().getReference());
 		setValue(row.getC().get(++colIndex), descriptionText.getDomain());
 		setValue(row.getC().get(++colIndex), measure.getStatus());

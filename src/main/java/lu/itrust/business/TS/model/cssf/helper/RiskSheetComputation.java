@@ -29,6 +29,7 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
@@ -59,8 +60,7 @@ public class RiskSheetComputation {
 	 * Constructor: <br>
 	 * Creates the object with analysis and databasehander as parameter.
 	 * 
-	 * @param analysis
-	 *            The Analysis Object
+	 * @param analysis   The Analysis Object
 	 * @param cssfFilter
 	 */
 	public RiskSheetComputation(Analysis analysis) {
@@ -69,11 +69,11 @@ public class RiskSheetComputation {
 
 	/**
 	 * computeRiskRegister: <br>
-	 * Calculates the Risk Register and stores it inside the Analysis Object
-	 * field "riskRegister". This field is of the Type List of RiskRegisterItem.
+	 * Calculates the Risk Register and stores it inside the Analysis Object field
+	 * "riskRegister". This field is of the Type List of RiskRegisterItem.
 	 * 
-	 * @return An object of MessageHandler which is null when no errors where
-	 *         made, or it contains an exception
+	 * @return An object of MessageHandler which is null when no errors where made,
+	 *         or it contains an exception
 	 */
 	public MessageHandler computeRiskRegister() {
 
@@ -159,17 +159,19 @@ public class RiskSheetComputation {
 	 **********************************************************************************************/
 
 	public List<TMA> generateTMAs(Analysis analysis, ValueFactory factory, int mandatoryPhase) throws TrickException {
-		List<TMA> tmas = new ArrayList<TMA>();
+		final List<TMA> tmas = new ArrayList<TMA>();
 
-		List<Phase> usePhases = analysis.getPhases();
+		final List<Phase> usePhases = analysis.getPhases();
 
-		List<Measure> useMeasures = new ArrayList<Measure>();
+		final List<Measure> useMeasures = new ArrayList<Measure>();
+
+		final List<AnalysisStandard> analysisStandards = analysis.findAllAnalysisStandard();
 
 		for (int i = 0; i < usePhases.size(); i++) {
 			if (usePhases.get(i).getNumber() == 0)
 				continue;
-			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true,
-					analysis.getAnalysisStandards()));
+			tmas.addAll(
+					ActionPlanComputation.generateTMAList(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysisStandards));
 			if (mandatoryPhase == usePhases.get(i).getNumber())
 				break;
 		}
@@ -193,8 +195,7 @@ public class RiskSheetComputation {
 	 **********************************************************************************************/
 
 	/**
-	 * @param factory
-	 *            the factory to set
+	 * @param factory the factory to set
 	 */
 	public void setFactory(ValueFactory factory) {
 		this.factory = factory;
@@ -215,10 +216,8 @@ public class RiskSheetComputation {
 	 * <li>Ia = Ra / Pa</li>
 	 * </ul>
 	 *
-	 * @param riskRegisters
-	 *            the Risk Register Item
-	 * @param probabilityRelativeImpacts
-	 *            the list of probability relative impacts
+	 * @param riskRegisters              the Risk Register Item
+	 * @param probabilityRelativeImpacts the list of probability relative impacts
 	 * @throws TrickException
 	 */
 	public static EvaluationResult computeImpactAndProbability(final double x, final double currentImpact, final double currentProbability, final double importance)
@@ -273,19 +272,15 @@ public class RiskSheetComputation {
 	 * After these calculations, the Risk Register will be sorted by category in
 	 * order to identify the following:
 	 * <ul>
-	 * <li>20 most important direct risk(referring to the net importance value)
-	 * </li>
+	 * <li>20 most important direct risk(referring to the net importance value)</li>
 	 * <li>5 most important indirect risk(referring to the net importance value)
 	 * </li>
 	 * <li>Risks that have a net impact >=6 and net impact probability >= 5</li>
 	 * </ul>
 	 * 
-	 * @param assessments
-	 *            The List of Assessments
-	 * @param tmas
-	 *            The List of TMA Entries
-	 * @param helper
-	 *            The List of Parameters
+	 * @param assessments The List of Assessments
+	 * @param tmas        The List of TMA Entries
+	 * @param helper      The List of Parameters
 	 * @param cssfFilter
 	 * @return The Risk Register as a List of RiskRegisterItems
 	 * @throws TrickException
@@ -329,18 +324,12 @@ public class RiskSheetComputation {
 	 * <li>{@link #computeExpectedImportance(Map, Map) Merge All}</li>
 	 * </ul>
 	 * 
-	 * @param riskRegisters
-	 *            The Risk Register Item
-	 * @param netImpact
-	 *            The netImpact value
-	 * @param netProbability
-	 *            The netProbability value
-	 * @param deltaALE
-	 *            The delta ALE List
-	 * @param netALE
-	 *            The net ALE List
-	 * @param probabilityRelativeImpact
-	 *            The probability relative impact list
+	 * @param riskRegisters             The Risk Register Item
+	 * @param netImpact                 The netImpact value
+	 * @param netProbability            The netProbability value
+	 * @param deltaALE                  The delta ALE List
+	 * @param netALE                    The net ALE List
+	 * @param probabilityRelativeImpact The probability relative impact list
 	 * @throws TrickException
 	 */
 	public static void expectedImportanceComputation(RiskRegisterItem riskRegisters, final Double deltaALE, final double netALE, final double[] probabilityRelativeImpact)
@@ -401,8 +390,7 @@ public class RiskSheetComputation {
 	 * printRegister: <br>
 	 * Prints the Risk Register Items into the console.
 	 * 
-	 * @param registers
-	 *            The Risk Register to print on console
+	 * @param registers The Risk Register to print on console
 	 */
 	public static void printRegister(List<RiskRegisterItem> registers) {
 
@@ -440,14 +428,10 @@ public class RiskSheetComputation {
 	 * rawEvaluationComputation: <br>
 	 * Compute Raw evaluation. for a given risk register.
 	 * 
-	 * @param riskRegisters
-	 *            The Risk Register
-	 * @param netALEs
-	 *            The calculated Net ALE list
-	 * @param rawALEs
-	 *            The calculated Raw ALE list
-	 * @param probabilityRelativeImpacts
-	 *            the calculated relativeimpact list
+	 * @param riskRegisters              The Risk Register
+	 * @param netALEs                    The calculated Net ALE list
+	 * @param rawALEs                    The calculated Raw ALE list
+	 * @param probabilityRelativeImpacts the calculated relativeimpact list
 	 * @throws TrickException
 	 * @see #computeRawALE(Map, Map, List, List)
 	 */
@@ -497,12 +481,10 @@ public class RiskSheetComputation {
 	 * computeDeltaALEs: <br>
 	 * Sum deltaALE for a given TMA and store inside deltaALEs parameter.
 	 * 
-	 * @param deltaALEs
-	 *            The given List to store the Sum of DeltaALE of given TMA entry
-	 * @param tma
-	 *            The TMA entry to retrieve delta ALE from
-	 * @param parameters
-	 *            The List of Parameters
+	 * @param deltaALEs  The given List to store the Sum of DeltaALE of given TMA
+	 *                   entry
+	 * @param tma        The TMA entry to retrieve delta ALE from
+	 * @param parameters The List of Parameters
 	 * @throws TrickException
 	 */
 	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, String key, ValueFactory valueFactory) throws TrickException {
@@ -525,18 +507,14 @@ public class RiskSheetComputation {
 
 	/**
 	 * computeNetALE: <br>
-	 * Calculate the ALE (Pnet*Inet) of each Scenario and Sum them together to
-	 * build the nominator of the Formula "Pgen=(sum(P*I))/(sum(Imax)))"
-	 * Reference in the CSSF document section 3.1.1.
+	 * Calculate the ALE (Pnet*Inet) of each Scenario and Sum them together to build
+	 * the nominator of the Formula "Pgen=(sum(P*I))/(sum(Imax)))" Reference in the
+	 * CSSF document section 3.1.1.
 	 * 
-	 * @param netALEs
-	 *            The List of netALE's for each Scenario (numerator)
-	 * @param impacts
-	 *            The List of Impacts for each Scenario (Impact List)
-	 * @param assessments
-	 *            The Assessments List
-	 * @param parameters
-	 *            The parameters List
+	 * @param netALEs     The List of netALE's for each Scenario (numerator)
+	 * @param impacts     The List of Impacts for each Scenario (Impact List)
+	 * @param assessments The Assessments List
+	 * @param parameters  The parameters List
 	 * 
 	 * @return The initialised list of the risk register
 	 * @throws TrickException
@@ -553,7 +531,7 @@ public class RiskSheetComputation {
 				riskRegisterItem.getNetEvaluation().setImpact(helper.getFactory().findRealValue(assessment.getImpacts()));
 				riskRegisterItem.getNetEvaluation().setProbability(helper.getFactory().findExpValue(assessment.getLikelihood()));
 				helper.getNetALEs().put(key, riskRegisterItem.getNetEvaluation().getImportance());
-				helper.getRiskRegisters().put(key, riskRegisterItem );
+				helper.getRiskRegisters().put(key, riskRegisterItem);
 			}
 		}
 	}
@@ -569,8 +547,8 @@ public class RiskSheetComputation {
 	 * <li>Denominator = value[1]</li>
 	 * </ul>
 	 * 
-	 * @return Map(String,double[2]) where key = scenario name, value[0] =
-	 *         Numerator and value[1] = Denominator
+	 * @return Map(String,double[2]) where key = scenario name, value[0] = Numerator
+	 *         and value[1] = Denominator
 	 */
 	private static void computeProbabilityRelativeImpact(Map<String, double[]> probabilityRelativeImpacts, String key, SecurityCriteria criteria) {
 
@@ -591,14 +569,10 @@ public class RiskSheetComputation {
 	 * computeRawALE: <br>
 	 * Compute the Raw ALE and store the value inside the given rawALEs list.
 	 * 
-	 * @param rawALEs
-	 *            The List of raw ALEs
-	 * @param netALEs
-	 *            The List of net ALEs
-	 * @param tma
-	 *            The TMA Entry
-	 * @param parameters
-	 *            The SimpleParameter List
+	 * @param rawALEs    The List of raw ALEs
+	 * @param netALEs    The List of net ALEs
+	 * @param tma        The TMA Entry
+	 * @param parameters The SimpleParameter List
 	 */
 	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, String key, ValueFactory valueFactory) {
 
@@ -613,9 +587,8 @@ public class RiskSheetComputation {
 		// calculate new RAW ALE using formula
 		rawALE /= (1.0 - tma.getRRF() * ImplementationRate);
 		/*
-		 * System.out.println(tma.getAssessment().getScenario().getName() +
-		 * ", RRF: " + tma.getRRF() + ", ImplementationRate: " +
-		 * ImplementationRate);
+		 * System.out.println(tma.getAssessment().getScenario().getName() + ", RRF: " +
+		 * tma.getRRF() + ", ImplementationRate: " + ImplementationRate);
 		 */
 		// update rawALE
 		rawALEs.put(key, rawALE);
@@ -624,8 +597,7 @@ public class RiskSheetComputation {
 	/**
 	 * computeRawALEAndDeltaALEAndProbabilityRelativeImpacts:<br>
 	 * <ul>
-	 * <li>pre-computation for Raw Evaluation and Expected Importance
-	 * Evaluation:
+	 * <li>pre-computation for Raw Evaluation and Expected Importance Evaluation:
 	 * <ul>
 	 * <li>Common : compute of probabilityRelativeImpacts</li>
 	 * <li>Raw Evaluation : rawALEs computation</li>
@@ -634,22 +606,17 @@ public class RiskSheetComputation {
 	 * </li>
 	 * </ul>
 	 * 
-	 * @param tmas
-	 *            List of TMA entries generated from the Analysis
-	 * @param probabilityRelativeImpacts
-	 *            output
+	 * @param tmas                       List of TMA entries generated from the
+	 *                                   Analysis
+	 * @param probabilityRelativeImpacts output
 	 * @param impacts
-	 * @param rawALEs
-	 *            List to store and calculate RAW ALE's for a affecting scenario
-	 *            category
-	 * @param deltaALEs
-	 *            List to store and calculate delta ALE's for a affecting
-	 *            scenario category
-	 * @param netALEs
-	 *            List of calculated netALE nominators (calculated inside
-	 *            netEvaluation)
-	 * @param parameters
-	 *            List of Parameters of Analysis
+	 * @param rawALEs                    List to store and calculate RAW ALE's for a
+	 *                                   affecting scenario category
+	 * @param deltaALEs                  List to store and calculate delta ALE's for
+	 *                                   a affecting scenario category
+	 * @param netALEs                    List of calculated netALE nominators
+	 *                                   (calculated inside netEvaluation)
+	 * @param parameters                 List of Parameters of Analysis
 	 * 
 	 * @throws TrickException
 	 * 
@@ -672,7 +639,7 @@ public class RiskSheetComputation {
 
 			if (tma.getMeasure() instanceof AbstractNormalMeasure)
 				hasinfluence = ((AbstractNormalMeasure) tma.getMeasure()).getMeasurePropertyList().hasInfluenceOnCategory(category);
-			
+
 			// check if measure influences this scenario category -> YES
 			if (hasinfluence) {
 				// Integer: The Scenario ID, Integer : Code that defines the
@@ -697,20 +664,13 @@ public class RiskSheetComputation {
 	 * cssfFinalComputation: <br>
 	 * Computes last nessesary computations on raw and excepted evaluation.
 	 * 
-	 * @param riskRegisters
-	 *            The Risk Register to compute
-	 * @param netALEs
-	 *            The netALE List
-	 * @param impacts
-	 *            The Impacts List
-	 * @param probabilityRelativeImpacts
-	 *            The probability relative impacts
-	 * @param rawALEs
-	 *            The raw ALE List
-	 * @param deltaALEs
-	 *            The delta ALE List
-	 * @param parameters
-	 *            The Parameters List
+	 * @param riskRegisters              The Risk Register to compute
+	 * @param netALEs                    The netALE List
+	 * @param impacts                    The Impacts List
+	 * @param probabilityRelativeImpacts The probability relative impacts
+	 * @param rawALEs                    The raw ALE List
+	 * @param deltaALEs                  The delta ALE List
+	 * @param parameters                 The Parameters List
 	 * @throws TrickException
 	 */
 	private static void cssfFinalComputation(ComputationHelper helper) {

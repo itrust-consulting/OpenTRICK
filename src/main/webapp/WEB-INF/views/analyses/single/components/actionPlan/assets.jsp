@@ -74,7 +74,7 @@
 									<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}"
 										data-trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisStandard.standard.label}" />')">
 										<td><spring:message text="${ape.order}" /></td>
-										<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
+										<td><spring:message text="${ape.measure.analysisStandard.standard.name}" /></td>
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
 										<td ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>

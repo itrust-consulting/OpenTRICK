@@ -868,7 +868,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
 
-		for (AnalysisStandard standard : analysis.getAnalysisStandards()) {
+		for (AnalysisStandard standard : analysis.getAnalysisStandards().values()) {
 
 			getSession().delete(standard);
 

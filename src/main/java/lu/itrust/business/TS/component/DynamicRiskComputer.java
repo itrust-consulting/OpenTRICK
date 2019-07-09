@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.component;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,7 +115,7 @@ public class DynamicRiskComputer {
 	 * @throws Exception
 	 * @throws IllegalArgumentException
 	 */
-	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd,
+	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, Collection<AnalysisStandard> standards, long timestampBegin, long timestampEnd,
 			List<String> cache_sourceUserNames, List<IParameter> allParameters, double minimumProbability, final Map<Assessment, Set<String>> out_involvedVariables,
 			final Map<String, Double> out_expressionParameters) throws Exception {
 		// Find all measures
@@ -246,7 +247,7 @@ public class DynamicRiskComputer {
 	 * @return Returns the ALE by aggregation key and by time.
 	 * @throws Exception
 	 */
-	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, List<AnalysisStandard> standards, List<String> sourceUserNames,
+	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, Collection<AnalysisStandard> standards, List<String> sourceUserNames,
 			List<IParameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints,
 			final Map<Long, Map<Assessment, Set<String>>> out_involvedVariables_or_null, final Map<Long, Map<String, Double>> out_expressionParameters_or_null) throws Exception {
 		// Determine time-related stuff

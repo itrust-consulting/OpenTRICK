@@ -292,7 +292,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 
 	private void nextActionEntry(ActionPlanEntry actionPlanEntry) {
 		Measure measure = actionPlanEntry.getMeasure();
-		SummaryStandardHelper helper = getCurrentValues().conformanceHelper.get(measure.getAnalysisStandard().getStandard().getLabel());
+		SummaryStandardHelper helper = getCurrentValues().conformanceHelper.get(measure.getAnalysisStandard().getStandard().getName());
 		helper.measures.add(measure);
 		getCurrentValues().measureCount++;
 		getCurrentValues().implementedCount++;

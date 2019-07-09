@@ -21,7 +21,7 @@ public class AnalysisStandardBaseInfo {
 	public AnalysisStandardBaseInfo(int idAnalysis, AnalysisStandard analysisStandard) {
 		setIdAnalysis(idAnalysis);
 		setIdAnalysisStandard(analysisStandard.getId());
-		setName(analysisStandard.getStandard().getLabel());
+		setName(analysisStandard.getStandard().getName());
 		setVersion(analysisStandard.getStandard().getVersion());
 		setType(analysisStandard.getStandard().getType());
 	}

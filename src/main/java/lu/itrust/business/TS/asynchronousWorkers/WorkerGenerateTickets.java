@@ -82,7 +82,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 				getServiceTaskFeedback().send(getId(), handler);
 				final Map<Integer, Integer> contains = ticketingForm.getNews().stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
 				ticketingForm.getUpdates().forEach(idMeasure -> contains.put(idMeasure, idMeasure));
-				final Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+				final Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> contains.containsKey(measure.getId())).collect(Collectors.toMap(Measure::getId, Function.identity()));
 				if (!mapMeasures.isEmpty()) {
 					final List<Measure> newMeasures = new LinkedList<>(), updateMeasures = new LinkedList<>();

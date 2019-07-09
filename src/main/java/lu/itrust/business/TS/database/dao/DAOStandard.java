@@ -59,5 +59,7 @@ public interface DAOStandard {
 
 	public boolean existsByName(String name);
 
-	public boolean isConflicted(String newName, String oldName);
+	public boolean isLabelConflicted(String newName, String oldName);
+
+	public boolean isNameConflicted(String newName, String oldName);
 }

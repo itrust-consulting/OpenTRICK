@@ -398,7 +398,7 @@ public class TMA {
 		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO=" + assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
 				+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id="
 				+ assessment.getAsset().getId() + ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name="
-				+ assessment.getScenario().getName() + "]], " + "Measure[id=" + measure.getId() + ", Standard [ id=" + standard.getId() + ", name=" + standard.getLabel()
+				+ assessment.getScenario().getName() + "]], " + "Measure[id=" + measure.getId() + ", Standard [ id=" + standard.getId() + ", name=" + standard.getName()
 				+ ", version=" + standard.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], " + "RRF=" + RRF + ", ALE=" + ALE + ", deltaALE="
 				+ deltaALE + ", current SML Max Eff= " + cMaxEff + ", next SML Max Eff=" + nMaxEff + ", deltaALE Maturtity=" + deltaALEMat + "]";
 	}

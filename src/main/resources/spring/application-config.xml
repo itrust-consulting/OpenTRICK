@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 	<context:annotation-config />
-	
+
 	<context:component-scan base-package="lu.itrust.business" />
 
 	<mvc:annotation-driven ignore-default-model-on-redirect="true">
@@ -51,8 +51,8 @@
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/" >
-		<mvc:cache-control max-age="31536000" cache-public="true"/>
+	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/">
+		<mvc:cache-control max-age="31536000" cache-public="true" />
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -62,7 +62,7 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/" >
+	<mvc:resources mapping="/images/**" location="/WEB-INF/static/images/">
 		<mvc:cache-control />
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
@@ -73,8 +73,8 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/" >
-		<mvc:cache-control max-age="31536000" cache-public="true"/>
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/static/fonts/">
+		<mvc:cache-control max-age="31536000" cache-public="true" />
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -84,8 +84,8 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/" >
-		<mvc:cache-control max-age="31536000" cache-public="true"/>
+	<mvc:resources mapping="/css/**" location="/WEB-INF/static/css/">
+		<mvc:cache-control max-age="31536000" cache-public="true" />
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -95,8 +95,8 @@
 		</mvc:resource-chain>
 	</mvc:resources>
 
-	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/" >
-		<mvc:cache-control max-age="31536000" cache-public="true"/>
+	<mvc:resources mapping="/js/**" location="/WEB-INF/static/js/">
+		<mvc:cache-control max-age="31536000" cache-public="true" />
 		<mvc:resource-chain resource-cache="true">
 			<mvc:resolvers>
 				<mvc:version-resolver>
@@ -105,7 +105,7 @@
 			</mvc:resolvers>
 		</mvc:resource-chain>
 	</mvc:resources>
-	
+
 	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 
 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
@@ -154,9 +154,7 @@
 		<constructor-arg ref="flywayConfig" />
 	</bean>
 
-	<!-- <bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance">
-		<property name="sessionFactory" ref="sessionFactory" />
-	</bean> -->
+	<!-- <bean id="trickLogManager" class="lu.itrust.business.TS.component.TrickLogManager" factory-method="getInstance"> <property name="sessionFactory" ref="sessionFactory" /> </bean> -->
 
 	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />

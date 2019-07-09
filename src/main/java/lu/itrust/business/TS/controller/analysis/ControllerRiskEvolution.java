@@ -112,20 +112,20 @@ public class ControllerRiskEvolution {
 		else {
 			Map<String, List<ComplianceChartData>> complianceCharts = new LinkedHashMap<>(analyses.get(0).getAnalysisStandards().size());
 			String analysisName = analyses.get(0).getLabel() + " " + analyses.get(0).getVersion();
-			analyses.get(0).getAnalysisStandards().forEach(analysisStandard -> {
+			analyses.get(0).getAnalysisStandards().values().forEach(analysisStandard -> {
 				List<ComplianceChartData> data = new LinkedList<>();
-				data.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(), analysisName, analysisStandard.getMeasures(),
+				data.add(new ComplianceChartData(analysisStandard.getStandard().getName(), analysisName, analysisStandard.getMeasures(),
 						analyses.get(0).getExpressionParameters()));
-				complianceCharts.put(analysisStandard.getStandard().getLabel(), data);
+				complianceCharts.put(analysisStandard.getStandard().getName(), data);
 			});
 
 			for (int i = 1; i < analyses.size(); i++) {
 				Analysis analysis = analyses.get(i);
 				String name = analysis.getLabel() + " " + analysis.getVersion();
-				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-					List<ComplianceChartData> data = complianceCharts.get(analysisStandard.getStandard().getLabel());
+				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
+					List<ComplianceChartData> data = complianceCharts.get(analysisStandard.getStandard().getName());
 					if (data != null)
-						data.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(), name, analysisStandard.getMeasures(), analysis.getExpressionParameters()));
+						data.add(new ComplianceChartData(analysisStandard.getStandard().getName(), name, analysisStandard.getMeasures(), analysis.getExpressionParameters()));
 				}
 			}
 
