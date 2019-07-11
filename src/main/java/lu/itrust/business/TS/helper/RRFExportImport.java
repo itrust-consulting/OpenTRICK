@@ -108,11 +108,11 @@ public class RRFExportImport {
 		callback.accept(mlPackage);
 	}
 
-	public Object importRawRRF(String tempPath, int idAnalysis, MultipartFile file, String username, Locale locale) throws Exception {
+	public Object importRawRRF(final int idAnalysis, final MultipartFile file, final String username, final Locale locale) throws Exception {
 		try {
+			final DataFormatter formatter = new DataFormatter();
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
-			final DataFormatter formatter = new DataFormatter();
 			loadScenarios(analysis.getScenarios(), mlPackage.getWorkbookPart(), formatter);
 			loadStandards(analysis.getAnalysisStandards().values(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
@@ -282,19 +282,19 @@ public class RRFExportImport {
 	private void loadStandard(NormalStandard analysisStandard, SheetData sheet, DataFormatter formatter) {
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
-		Map<Integer, String> columnMapper = new LinkedHashMap<Integer, String>();
-		Row header = sheet.getRow().get(0);
-		Integer index = mappingColumns(header, REFERENCE, columnMapper, formatter);
+		final Map<Integer, String> columnMapper = new LinkedHashMap<Integer, String>();
+		final Row header = sheet.getRow().get(0);
+		final Integer index = mappingColumns(header, REFERENCE, columnMapper, formatter);
 		if (index == null)
 			throw new TrickException("error.import.raw.rrf.standard.reference", "Standard reference column cannot be found");
-		Map<String, NormalMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
+		final Map<String, NormalMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(), measure -> (NormalMeasure) measure));
 		for (int i = 0; i < sheet.getRow().size(); i++) {
-			Row row = sheet.getRow().get(i);
-			String value = getString(row.getC().get(index), formatter);
+			final Row row = sheet.getRow().get(i);
+			final String value = getString(row.getC().get(index), formatter);
 			if (isEmpty(value))
 				continue;
-			NormalMeasure measure = mappingMeasures.get(value);
+			final NormalMeasure measure = mappingMeasures.get(value);
 			if (measure == null)
 				continue;
 			loadMeasureData(measure, row, index, columnMapper, formatter);
@@ -305,7 +305,7 @@ public class RRFExportImport {
 		for (AnalysisStandard analysisStandard : analysisStandards) {
 			if (analysisStandard instanceof MaturityStandard)
 				continue;
-			SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getName());
+			final SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getName());
 			if (sheet == null)
 				continue;
 			if (analysisStandard instanceof AssetStandard)

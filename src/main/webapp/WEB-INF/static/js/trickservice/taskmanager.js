@@ -243,13 +243,13 @@ function TaskManager(title) {
 							}, 600);
 							break;
 						case "reload":
-							setTimeout(() => { location.reload(); }, 1500);
+							setTimeout(() => { location.reload(); }, 1600);
 							break;
 						case "gotToPage":
 							setTimeout(() => {
 								if (window[callback.action])
 									window[callback.action].apply(null, callback.args);
-							}, 1000);
+							}, 1500);
 							break;
 						default:
 							if (window[callback.action])

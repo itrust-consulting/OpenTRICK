@@ -375,6 +375,7 @@ public class Standard implements Cloneable {
 		this.version = standard.version;
 		this.label = standard.label;
 		this.type = standard.type;
+		this.name = standard.name;
 		return this;
 	}
 

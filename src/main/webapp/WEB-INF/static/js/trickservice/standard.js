@@ -13,6 +13,9 @@ function saveStandard(form) {
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				switch (error) {
+					case "name":
+						$(errorElement).appendTo($("#standard_form #standard_name").parent());
+						break;
 					case "label":
 						$(errorElement).appendTo($("#standard_form #standard_label").parent());
 						break;
@@ -137,6 +140,7 @@ function newStandard() {
 	$("#addStandardModel .label-danger").remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	$("#standard_id").prop("value", "-1");
+	$("#standard_name").prop("value", "");
 	$("#standard_label").prop("value", "");
 	$("#standard_version").prop("value", "");
 	$("#standard_description").prop("value", "");
@@ -160,10 +164,11 @@ function editSingleStandard(idStandard) {
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	var rows = $("#section_kb_standard").find("tr[data-trick-id='" + idStandard + "'] td:not(:first-child)");
 	$("#standard_id").prop("value", idStandard);
-	$("#standard_label").prop("value", $(rows[0]).text());
-	$("#standard_version").prop("value", $(rows[1]).text());
-	$("#standard_description").prop("value", $(rows[2]).text());
-	var standardtype = $($(rows[3])[0]).attr("data-trick-type"), computable = $(rows[4]).attr("data-trick-computable") == 'Yes';
+	$("#standard_name").prop("value", $(rows[0]).text());
+	$("#standard_label").prop("value", $(rows[1]).text());
+	$("#standard_version").prop("value", $(rows[2]).text());
+	$("#standard_description").prop("value", $(rows[3]).text());
+	var standardtype = $($(rows[4])[0]).attr("data-trick-type"), computable = $(rows[5]).attr("data-trick-computable") == 'Yes';
 	$("#addStandardModel input[name='type'][value='" + standardtype + "']").parent().button("toggle");
 	$("#standard_computable input[value='"+computable+"']").parent().button("toggle");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Standard"));

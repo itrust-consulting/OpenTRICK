@@ -53,7 +53,7 @@
 									<div class="panel-body">
 										<select name="chapterselection" class="form-control" style="width: 50%; margin-left: auto; margin-right: auto; margin-bottom: 10px;">
 											<c:forEach items="${measures.keySet()}" var="chapter" varStatus="status">
-												<option value="${status.index}"><spring:message text="${chapter.standard.label}" /> -
+												<option value="${status.index}"><spring:message text="${chapter.standard.name}" /> -
 													<spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" /></option>
 											</c:forEach>
 										</select>
@@ -63,7 +63,7 @@
 													<h4 class="list-group-item-heading">
 														<a href="#" onclick="return false;" class="list-group-item ${status.index==0?'active':''}" data-trick-class="Standard"
 															title='<spring:message text="${chapter.reference}"/>' data-trick-id="${chapter.standard.id}" data-trick-value=<spring:message text="${chapter.reference}"/>> <spring:message
-																text="${chapter.standard.label}" /> - <spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
+																text="${chapter.standard.name}" /> - <spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
 														</a>
 													</h4>
 													<div class="list-group" data-trick-id="${chapter.standard.id}" data-trick-value=<spring:message text="${chapter.reference}"/>>

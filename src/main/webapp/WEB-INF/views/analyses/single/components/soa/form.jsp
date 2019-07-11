@@ -34,8 +34,7 @@
 					<c:forEach items="${analysisStandards}" var="analysisStandard">
 						<div class="form-group" data-default-value='${analysisStandard.soaEnabled}' data-trick-id="${analysisStandard.id}">
 							<div class="col-xs-3">
-								<strong style="vertical-align: middle; text-transform: capitalize;"><spring:message text="${analysisStandard.standard.label}" /> <spring:message
-										text="${analysisStandard.standard.version}" /></strong>
+								<strong style="vertical-align: middle; text-transform: capitalize;"><spring:message text="${analysisStandard.standard.name}" /></strong>
 							</div>
 							<div class="col-xs-6">
 								<p style="padding-left: 0; font-size: 12px;text-transform: capitalize;">

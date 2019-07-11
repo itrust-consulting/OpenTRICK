@@ -19,7 +19,7 @@
 				<spring:message code="label.standards" /></label> <select class="form-control"
 					name="standards" multiple="multiple" required="required">
 					<c:forEach items="${standards}" var="standard">
-						<option title='<spring:message text="${standard.label} - v.${standard.version}" />' value="${standard.id}"><spring:message text="${standard.label}" /></option>
+						<option title='<spring:message text="${standard.name}: ${standard.label} - v.${standard.version}" />' value="${standard.id}"><spring:message text="${standard.name}" /></option>
 					</c:forEach>
 				</select>
 			</div>

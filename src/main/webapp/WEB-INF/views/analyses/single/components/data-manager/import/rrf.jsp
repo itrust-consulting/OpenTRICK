@@ -59,11 +59,11 @@
 						<label data-helper-content='<spring:message code="help.rrf.standard" />'><spring:message code="label.standards" /></label> <select class="form-control" name="standards"
 							multiple="multiple">
 							<c:forEach items="${analyses}" var="analysis">
-								<c:forEach items="${analysis.analysisStandards}" var="analysisStandard">
+								<c:forEach items="${analysis.analysisStandards.values()}" var="analysisStandard">
 									<c:if test="${standards.contains(analysisStandard.standard)}">
 										<option title="<spring:message
-												text='${analysisStandard.standard.label} - v.${analysisStandard.standard.version}' />" value="${analysisStandard.standard.id}"
-											data-trick-id="${analysis.id}"><spring:message text="${analysisStandard.standard.label}" /></option>
+												text='${analysisStandard.standard.name} : ${analysisStandard.standard.label} - v.${analysisStandard.standard.version}' />" value="${analysisStandard.standard.id}"
+											data-trick-id="${analysis.id}"><spring:message text="${analysisStandard.standard.name}" /></option>
 									</c:if>
 								</c:forEach>
 							</c:forEach>

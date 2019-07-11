@@ -115,10 +115,10 @@ public class Analysis implements Cloneable {
 
 	/** List of Standards */
 	@OneToMany
-	@MapKey(name = "standard.name")
+	@MapKey(name = "name")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@OrderBy("standard.name")
+	@OrderBy("name")
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private Map<String, AnalysisStandard> analysisStandards = new LinkedHashMap<>();

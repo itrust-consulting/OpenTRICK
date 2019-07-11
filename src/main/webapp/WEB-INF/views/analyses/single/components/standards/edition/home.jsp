@@ -39,7 +39,7 @@
 			<c:forEach items="${standards}" var="standard" varStatus="status">
 				<div class="form-group nav-chapter" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.name}" />'
 					data-trick-id='${standard.id}' data-trick-content='measure'>
-					<c:set var="measureChapters" value="${standardChapters[standard.label]}" />
+					<c:set var="measureChapters" value="${standardChapters[standard.name]}" />
 					<c:forEach items="${measureChapters.keySet()}" var="chapter" varStatus="chapterStatus">
 						<spring:message text="${chapter}" var="chapterText" />
 						<div ${chapterStatus.index==0?'':'hidden="hidden"'} class='list-group' data-trick-chapter-name='${chapterText}'>

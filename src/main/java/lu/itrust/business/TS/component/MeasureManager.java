@@ -318,9 +318,9 @@ public class MeasureManager {
 
 	@Transactional
 	public void removeStandardFromAnalysis(Integer idAnalysis, int idStandard) throws Exception {
-		Analysis analysis = daoAnalysis.findByIdAndEager(idAnalysis);
+		final Analysis analysis = daoAnalysis.findByIdAndEager(idAnalysis);
 
-		AnalysisStandard analysisStandard = analysis.findAnalysisStandardByStandardId(idStandard);
+		final AnalysisStandard analysisStandard = analysis.findAnalysisStandardByStandardId(idStandard);
 
 		analysis.removeAnalysisStandard(analysisStandard);
 
@@ -328,13 +328,13 @@ public class MeasureManager {
 
 		analysis.getRiskProfiles().forEach(riskProfile -> riskProfile.getMeasures().removeIf(measure -> measure.getAnalysisStandard().equals(analysisStandard)));
 
-		Standard standard = analysisStandard.getStandard();
+		final Standard standard = analysisStandard.getStandard();
 
 		daoAnalysisStandard.delete(analysisStandard);
 
 		daoAnalysis.saveOrUpdate(analysis);
 
-		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(standard);
+		final List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(standard);
 
 		if (standard.isAnalysisOnly() && (astandards == null || astandards.isEmpty()))
 			customDelete.deleteStandard(standard);

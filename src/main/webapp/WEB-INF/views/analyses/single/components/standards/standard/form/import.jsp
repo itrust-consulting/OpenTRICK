@@ -11,7 +11,7 @@
 			<th><spring:message code="label.norm.name" /></th>
 			<th><spring:message code="label.norm.label" /></th>
 			<th><spring:message code="label.norm.version" /></th>
-			<th width="50%"><spring:message code="label.norm.description" /></th>
+			<th width="40%"><spring:message code="label.norm.description" /></th>
 			<th class="text-center"><spring:message code="label.norm.computable" /></th>
 			<th class="text-center"><spring:message code="label.norm.type" /></th>
 			<th class="text-center"><spring:message code="label.actions" /></th>
@@ -23,12 +23,12 @@
 			<tr ondblclick="return editStandard(this);" data-trick-name='${label}' data-trick-id="${standard.id}" data-trick-analysisOnly="${standard.analysisOnly}"
 				data-trick-type="${standard.type}" data-trick-computable="${standard.computable}">
 				<td hidden="hidden"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_standards','#menu_manage_standards');"></td>
-				<td><spring:message text="${standard.name}" /></td>
-				<td>${label}</td>
-				<td><spring:message text="${standard.version}" /></td>
-				<td><spring:message text="${standard.description}" /></td>
-				<td class="text-center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
-				<td class="text-center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
+				<td data-name='name'><spring:message text="${standard.name}" /></td>
+				<td data-name='label'>${label}</td>
+				<td data-name='version'><spring:message text="${standard.version}" /></td>
+				<td data-name='description'><spring:message text="${standard.description}" /></td>
+				<td data-name='computable' data-real-value='${standard.computable}' class="text-center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
+				<td data-name='type' data-real-value='${standard.type}' class="text-center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
 				<td hidden="hidden" class="text-center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>
 				<td class="text-center"><button class="btn btn-xs btn-primary">
 						<i class="fa fa-plus-circle"></i>

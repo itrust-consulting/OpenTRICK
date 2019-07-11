@@ -607,7 +607,7 @@
 						<td><input type="checkbox" class="checkbox" data-menu-controller='menu_estimation_action_plan'
 							onchange="return updateMenu(this,'#section_estimation_action_plan','#menu_estimation_action_plan');"></td>
 					</c:if>
-					<td><spring:message text='${ measure.measureDescription.standard.label}' /></td>
+					<td><spring:message text='${ measure.measureDescription.standard.name}' /></td>
 					<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 					<c:choose>
 						<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">

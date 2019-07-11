@@ -152,7 +152,10 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) {
-		String query = "Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId) order by standard.label";
+		final String query = "Select std From Standard as std where std.analysisOnly=false and std.id not in "
+				+ "(Select std1.id From Standard as std1 join Analysis as analysis on analysis.id = :analysisId "
+				+ "inner join analysis.analysisStandards as analysisStandard left join analysisStandard.standard as std2 "
+				+ "where std1.name = std2.name or std1.label = std2.label ) order by std.name, std.label";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).getResultList();
 	}
 
@@ -202,19 +205,17 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getAllNotBoundToAnalysis()
-	 */
-	@SuppressWarnings("unchecked")
+	 **/
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis() {
-		return getSession().createQuery("SELECT standard From Standard standard where standard.analysisOnly=false order by standard.label").getResultList();
+		return getSession().createQuery("SELECT standard From Standard standard where standard.analysisOnly=false order by standard.label", Standard.class).getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) {
-		return (List<Standard>) getSession().createQuery(
-				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true order by analysisStandard.standard.label")
-				.setParameter("analysisId", analsisID).getResultList();
+		return getSession().createQuery(
+				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true order by analysisStandard.standard.label",
+				Standard.class).setParameter("analysisId", analsisID).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -258,9 +259,11 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 
 	@Override
 	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis) {
-		return getSession().createQuery(
-				"Select standard From Standard standard where standard.type<> :type and standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId) order by standard.label",
-				Standard.class).setParameter("type", StandardType.MATURITY).setParameter("analysisId", idAnalysis).getResultList();
+		final String query = "Select std From Standard as std where std.type <> :type and std.analysisOnly=false and std.id not in "
+				+ "(Select std1.id From Standard as std1 join Analysis as analysis on analysis.id = :analysisId "
+				+ "inner join analysis.analysisStandards as analysisStandard left join analysisStandard.standard as std2 "
+				+ "where std1.name = std2.name or std1.label = std2.label ) order by std.name, std.label";
+		return getSession().createQuery(query, Standard.class).setParameter("type", StandardType.MATURITY).setParameter("analysisId", idAnalysis).getResultList();
 	}
 
 	@Override

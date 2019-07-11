@@ -41,7 +41,7 @@
 									<select name="standard" id="riskProfileStandardSelector" class="form-control">
 										<option disabled="disabled" value="-1" selected="selected" data-trick-custom='false'><spring:message code="label.action.choose" /></option>
 										<c:forEach items="${standards}" var="standard">
-											<option value="${standard.id}" data-trick-custom='${standard.analysisOnly}'><spring:message text="${standard.label}" /></option>
+											<option value="${standard.id}" data-trick-custom='${standard.analysisOnly}'><spring:message text="${standard.name}" /></option>
 										</c:forEach>
 									</select>
 								</div>
@@ -89,7 +89,7 @@
 									<td><button class="btn btn-xs btn-danger" title="${titleRemove}">
 											<i class="fa fa-times" aria-hidden="true"></i>
 										</button></td>
-									<td data-real-value='${measure.measureDescription.standard.id}'><spring:message text='${ measure.measureDescription.standard.label}' /></td>
+									<td data-real-value='${measure.measureDescription.standard.id}'><spring:message text='${ measure.measureDescription.standard.name}' /></td>
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 									<c:choose>
 										<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">

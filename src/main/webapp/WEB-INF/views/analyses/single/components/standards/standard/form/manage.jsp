@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div id="section_manage_standards" class="tab-pane active" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+<div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
 	<ul id="menu_manage_standards" class="nav nav-pills bordered-bottom">
 		<li><a href="#available_standards" data-toggle="tab" role='import'><span class="glyphicon glyphicon-import"></span> <spring:message code="label.action.import" /></a></li>
 		<li><a href="#standard_form_container" data-toggle="tab" role='add'><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
@@ -21,7 +21,7 @@
 				<th><spring:message code="label.norm.name" /></th>
 				<th><spring:message code="label.norm.label" /></th>
 				<th><spring:message code="label.norm.version" /></th>
-				<th width="50%"><spring:message code="label.norm.description" /></th>
+				<th width="40%"><spring:message code="label.norm.description" /></th>
 				<th class="text-center"><spring:message code="label.norm.computable" /></th>
 				<th class="text-center"><spring:message code="label.norm.type" /></th>
 				<th class="text-center"><spring:message code="label.norm.analysisOnly" /></th>
@@ -32,12 +32,12 @@
 				<tr ondblclick="return editStandard(this);" onclick="selectElement(this)" data-trick-id="${standard.id}" data-trick-analysisOnly="${standard.analysisOnly}" data-trick-type="${standard.type}"
 					data-trick-computable="${standard.computable}">
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_standards','#menu_manage_standards');"></td>
-					<td><spring:message text="${standard.name}" /></td>
-					<td><spring:message text="${standard.label}" /></td>
-					<td><spring:message text="${standard.version}" /></td>
-					<td><spring:message text="${standard.description}" /></td>
-					<td class="text-center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
-					<td class="text-center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
+					<td data-name='name'><spring:message text="${standard.name}" /></td>
+					<td data-name='label'><spring:message text="${standard.label}" /></td>
+					<td data-name='version'><spring:message text="${standard.version}" /></td>
+					<td data-name='description'><spring:message text="${standard.description}" /></td>
+					<td data-name='computable' data-real-value='${standard.computable}' class="text-center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
+					<td data-name='type' data-real-value='${standard.type}' class="text-center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
 					<td class="text-center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>
 				</tr>
 			</c:forEach>

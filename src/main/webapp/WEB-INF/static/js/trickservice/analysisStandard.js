@@ -185,9 +185,11 @@ function reloadStandardTable() {
 function editStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
-	var $tr = $("#section_manage_standards tbody>tr[data-trick-analysisOnly='true'] :checked").closest("tr"), $form = $("#standard_form"), id = $tr.attr("data-trick-id"), label = $tr
-		.find("td:nth-child(2)").text(), description = $tr.find("td:nth-child(4)").text(), type = $tr.attr("data-trick-type"), computable = $tr.attr("data-trick-computable");
+	var $tr = $("#section_manage_standards tbody>tr[data-trick-analysisOnly='true'] :checked").closest("tr"), $form = $("#standard_form"), id = $tr.attr("data-trick-id");
+	var label = $tr.find("td[data-name='label']").text(), description = $tr.find("td[data-name='description']").text(), type = $tr.attr("data-trick-type");
+	var name = $tr.find("td[data-name='name']").text(), computable = $tr.attr("data-trick-computable");
 	$("#id", $form).val(id);
+	$("#standard_name", $form).val(name);
 	$("#standard_label", $form).val(label);
 	$("#standard_description", $form).val(description);
 	$("input[name='type']", $form).removeProp("checked").prop("disabled", true);
@@ -205,6 +207,7 @@ function addStandard(e) {
 		return false;
 	var $form = $("#standard_form")
 	$("#id", $form).prop("value", "-1");
+	$("#standard_name", $form).prop("value", "");
 	$("#standard_label", $form).prop("value", "");
 	$("#standard_version", $form).prop("value", "");
 	$("#standard_description", $form).prop("value", "");

@@ -24,6 +24,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Formula;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -55,6 +56,13 @@ public abstract class AnalysisStandard implements Cloneable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAnalysisStandard")
 	private int id = -1;
+	
+	/**
+	 * Only for hibernate mapping, 
+	 * see analysisStandard mapping from Analysis.
+	 */
+	@Formula("(Select STD.dtName From Standard STD where STD.idStandard = fiStandard)")
+	private String name;
 
 	/** AnalysisStandard Standard Object */
 	@ManyToOne

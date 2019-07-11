@@ -30,7 +30,7 @@
 			<ul class="nav nav-pills bordered-bottom" id="menu_section_soa">
 				<c:forEach items="${soas.keySet()}" var="standard" varStatus="status">
 					<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${standard.id}"><a href="#"
-						onclick="return navToogled('#section_soa','#menu_section_soa,#tabOption','${standard.id}',true);"> <spring:message text="${standard.label}" />
+						onclick="return navToogled('#section_soa','#menu_section_soa,#tabOption','${standard.id}',true);"> <spring:message text="${standard.name}" />
 					</a></li>
 				</c:forEach>
 			</ul>

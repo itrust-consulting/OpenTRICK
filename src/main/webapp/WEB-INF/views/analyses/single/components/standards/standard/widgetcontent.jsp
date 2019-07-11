@@ -18,11 +18,11 @@
 				</div>
 			</div>
 			<div class="modal-body tab-content">
-				<div id="section_manage_standards" class="tab-pane active" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px"></div>
-				<div id="available_standards" class="tab-pane" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+				<div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px"></div>
+				<div id="available_standards" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
 					<jsp:include page="form/import.jsp" />
 				</div>
-				<div id="standard_form_container" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 490px;">
+				<div id="standard_form_container" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 500px;">
 					<jsp:include page="form/add.jsp" />
 				</div>
 			</div>

@@ -962,8 +962,7 @@ public class ControllerDataManager {
 	public @ResponseBody Object importRRFRawProcess(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request,
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).importRawRRF(request.getServletContext().getRealPath("/WEB-INF/tmp/"), idAnalysis, file,
-				principal.getName(), locale);
+		return new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).importRawRRF(idAnalysis, file, principal.getName(), locale);
 	}
 
 	///

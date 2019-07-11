@@ -23,7 +23,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -119,7 +118,7 @@ public class TSConfig {
 	}
 
 	@Bean
-	@DependsOn("flyway")
+	//@DependsOn("flyway")
 	public LocalSessionFactoryBean sessionFactory() throws IOException {
 		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type") + ".xml";
 		final Resource resource = resourceLoader.getResource(path);

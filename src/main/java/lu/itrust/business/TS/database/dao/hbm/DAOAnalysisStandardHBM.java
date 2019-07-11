@@ -62,10 +62,10 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllFromAnalysis(Integer analysisId) {
-		Analysis analysis = (Analysis) getSession().createQuery("select analysis from Analysis analysis where analysis.id = :analysis").setParameter("analysis", analysisId)
+		final Analysis analysis = (Analysis) getSession().createQuery("select analysis from Analysis analysis where analysis.id = :analysis").setParameter("analysis", analysisId)
 				.uniqueResultOptional().orElse(null);
 
-		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
+		final List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
 
 		for (AnalysisStandard standard : analysis.getAnalysisStandards().values()) {
 
@@ -82,7 +82,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 
 		for (AnalysisStandard standard : standards) {
 
-			Standard tmpstandard = standard.getStandard();
+			final Standard tmpstandard = standard.getStandard();
 
 			List<MeasureDescription> mesDescs = (List<MeasureDescription>) getSession()
 					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).getResultList();
@@ -158,7 +158,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) {
 		return (List<AnalysisStandard>) getSession().createQuery(
-				"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
+				"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label ASC")
 				.setParameter("analysis", analysisID).getResultList();
 	}
 

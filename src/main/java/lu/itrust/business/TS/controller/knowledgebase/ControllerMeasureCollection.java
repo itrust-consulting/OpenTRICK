@@ -172,7 +172,7 @@ public class ControllerMeasureCollection {
 		final Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		// create new empty object
-		Standard standard = new Standard();
+		final Standard standard = new Standard();
 
 		// build standard object
 		if (!buildStandard(errors, standard, value, locale))
@@ -645,11 +645,11 @@ public class ControllerMeasureCollection {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
+			final ObjectMapper mapper = new ObjectMapper();
+			final JsonNode jsonNode = mapper.readTree(value);
 
 			// retrieve measure id
-			int id = jsonNode.get("id").asInt();
+			final int id = jsonNode.get("id").asInt();
 			boolean isNew = false;
 			// create new empty measuredescription object
 			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
@@ -702,7 +702,7 @@ public class ControllerMeasureCollection {
 	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
 		try {
 			// try to delete measure
-			MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
+			final MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
 			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			else if (serviceMeasureDescription.isUsed(measureDescription))
@@ -782,15 +782,7 @@ public class ControllerMeasureCollection {
 
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
-			/*
-			 * else if (!errors.containsKey("measuredescription.reference")) { if
-			 * (reference.split(Constant.REGEX_SPLIT_REFERENCE).length != level)
-			 * errors.put("measuredescription.level", messageSource.getMessage(
-			 * "error.measure_description.level.not.match.reference", null,
-			 * "The level and the reference do not match.", locale)); else
-			 * measuredescription.setLevel(level); }
-			 */
-
+			
 			error = serviceDataValidation.validate(measuredescription, "computable", computable);
 
 			if (error != null)
