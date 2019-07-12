@@ -202,7 +202,7 @@ public class ControllerMeasureCollection {
 
 				if (!persited.getName().equalsIgnoreCase(standard.getName()) && serviceStandard.isNameConflicted(standard.getName(), persited.getName()))
 					errors.put("name", messageSource.getMessage("error.norm.rename.name.conflict", null, locale));
-				
+
 				if (!persited.getLabel().equalsIgnoreCase(standard.getLabel())) {
 					if (serviceStandard.isLabelConflicted(standard.getLabel(), persited.getLabel()))
 						errors.put("label", messageSource.getMessage("error.norm.rename.label.conflict", null, locale));
@@ -232,7 +232,7 @@ public class ControllerMeasureCollection {
 									principal.getName(), LogAction.RENAME, persited.getLabel(), String.valueOf(persited.getVersion()), oldName, String.valueOf(oldVersion));
 						}
 					}
-				} else {
+				} else if (errors.isEmpty()) {
 					serviceStandard.saveOrUpdate(persited.update(standard));
 					/**
 					 * Log
@@ -782,7 +782,7 @@ public class ControllerMeasureCollection {
 
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
-			
+
 			error = serviceDataValidation.validate(measuredescription, "computable", computable);
 
 			if (error != null)

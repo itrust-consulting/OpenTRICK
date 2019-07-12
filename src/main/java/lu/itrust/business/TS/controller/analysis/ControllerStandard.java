@@ -1042,28 +1042,29 @@ public class ControllerStandard extends AbstractController {
 
 			final String prevLabel = standard.getLabel();
 
-			final String name = jsonNode.get("name").asText();
+			final String name = jsonNode.get("name").asText("").trim();
 
-			final String label = jsonNode.get("label").asText();
+			final String label = jsonNode.get("label").asText("").trim();
 
 			final String description = jsonNode.get("description").asText();
 
 			// set data
 			String error = validator.validate(standard, "label", label);
+			
 			if (error != null)
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if (standard.getId() < 1 || prevLabel.equalsIgnoreCase(label) || analysis.findStandardByLabel(label) == null)
-				standard.setLabel(label);
-			else
+			else if ((standard.getId() < 1 || !prevLabel.equalsIgnoreCase(label)) && analysis.findStandardByLabel(label) != null)
 				errors.put("label", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+			else
+				standard.setLabel(label);
 
 			error = validator.validate(standard, "name", label);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if (standard.getId() < 1 || prevName.equalsIgnoreCase(name) || analysis.findStandardByName(name) == null)
-				standard.setName(name);
-			else
+			else if ((standard.getId() < 1 || !prevName.equalsIgnoreCase(name)) && analysis.findStandardByName(name) != null)
 				errors.put("name", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+			else
+				standard.setName(name);
 
 			error = validator.validate(standard, "description", description);
 

@@ -233,6 +233,9 @@ function saveStandard(e) {
 					case "label":
 						$errorElement.appendTo($form.find("#standard_label").parent());
 						break;
+					case "name":
+						$errorElement.appendTo($form.find("#standard_name").parent());
+						break;
 					case "description":
 					case "standard":
 						$errorElement.appendTo($form.find("#standard_description").parent());
