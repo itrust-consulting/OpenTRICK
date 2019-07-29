@@ -93,8 +93,8 @@
 	<beans profile="p-auth-all,p-auth-std-ad,p-auth-ad">
 		<!-- LDAP Active Directory Authentication, it can be commented if not used. -->
 		<bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-			<constructor-arg value="itrust.lu" name="domain" />
-			<constructor-arg value="ldaps://ad.itrust.lu" name="url" />
+			<constructor-arg name="domain" value="${app.settings.ldap.server.manager_dn}" />
+			<constructor-arg name="url" value="${app.settings.ldap.server.url}" />
 			<property name="userDetailsContextMapper">
 				<bean class="lu.itrust.business.TS.usermanagement.helper.TRICKLdapUserDetailsMapper">
 					<property name="allowedAuthentication" value="${app.settings.ldap.allowed.authentication}" />
@@ -108,7 +108,7 @@
 					<property name="consultantRoles" value="${app.settings.ldap.role.consultant}" />
 					<property name="userRoles" value="${app.settings.ldap.role.user}" />
 					<property name="defaultRole" value="${app.settings.ldap.default.role}" />
-					<property name="rolePrefix" value="" />
+					<property name="rolePrefix" value="${app.settings.ldap.role.prefix}" />
 				</bean>
 			</property>
 		</bean>
