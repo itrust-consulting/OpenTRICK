@@ -1,0 +1,24 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Debug (Launch) - Current File",
+			"request": "launch",
+			"mainClass": "${file}",
+			"args": [
+				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties"
+			]
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-Application<trickservice>",
+			"request": "launch",
+			"mainClass": "lu.itrust.boot.Application",
+			"projectName": "trickservice",
+			"args": [
+				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties"
+			]
+		}
+	]
+}
