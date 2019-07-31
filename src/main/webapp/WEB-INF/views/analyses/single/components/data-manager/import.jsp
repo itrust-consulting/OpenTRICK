@@ -59,10 +59,10 @@
 											<div class="row">
 												<c:if test="${item.name == 'risk-information' }">
 													<label class="col-lg-12"><spring:message code='label.import.${viewName}.option' /></label>
-													<div class="col-lg-12 text-center" style="margin-bottom: 10px;">
-														<div class="btn-group" data-toggle="buttons">
-															<label class="btn btn-sm btn-danger active"><spring:message code='label.action.overwrite' /><input checked name="overwrite" type="radio" value="true"></label>
-															<label class="btn btn-sm btn-warning"><spring:message code='label.action.update' /><input name="overwrite" type="radio" value="false"></label>
+													<div class="col-lg-12 text-right" style="margin-bottom: 15px;">
+														<div class="btn-group btn-group-justified" data-toggle="buttons">
+															<label class="btn btn-sm btn-danger active text-center"><spring:message code='label.action.overwrite' /><input checked name="overwrite" type="radio" value="true"></label>
+															<label class="btn btn-sm btn-warning text-center"><spring:message code='label.action.update' /><input name="overwrite" type="radio" value="false"></label>
 														</div>
 													</div>
 												</c:if>
