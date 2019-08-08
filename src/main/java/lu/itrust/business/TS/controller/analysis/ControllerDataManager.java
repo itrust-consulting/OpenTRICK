@@ -881,11 +881,11 @@ public class ControllerDataManager {
 
 	@PostMapping(value = "/Risk-information/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file, HttpSession session, Principal principal, HttpServletRequest request,
+	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file, @RequestParam(value="overwrite",defaultValue = "true") boolean overwrite, HttpSession session, Principal principal, HttpServletRequest request,
 			Locale locale) throws Exception {
 		final String filename = ServiceStorage.randoomFilename();
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename);
+		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename,overwrite);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
@@ -987,17 +987,17 @@ public class ControllerDataManager {
 	}
 
 	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception, JAXBException {
-		final boolean hidenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
-		exportAsset(analysis, spreadsheetMLPackage, hidenComment);
+		final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
+		exportAsset(analysis, spreadsheetMLPackage, hiddenComment);
 	}
 
-	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, final boolean hidenComment)
+	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, final boolean hiddenComment)
 			throws InvalidFormatException, JAXBException, Docx4JException, Exception {
 		final String name = "Assets";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
 		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		final String[] columns = hidenComment ? new String[] { "Name", "Type", "Selected", "Value", "Comment", "Hidden comment" }
+		final String[] columns = hiddenComment ? new String[] { "Name", "Type", "Selected", "Value", "Comment", "Hidden comment" }
 				: new String[] { "Name", "Type", "Selected", "Value", "Comment" };
 		createHeader(worksheetPart, name, columns, analysis.getAssets().size());
 		final Map<String, String> assetTypes = exportAssetType(spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()), factory);
@@ -1012,7 +1012,7 @@ public class ControllerDataManager {
 			setValue(row.getC().get(2), asset.isSelected());
 			setValue(row.getC().get(3), asset.getValue() * 0.001);
 			setValue(row.getC().get(4), asset.getComment());
-			if (hidenComment)
+			if (hiddenComment)
 				setValue(row.getC().get(5), asset.getHiddenComment());
 			sheet.getRow().add(row);
 		}

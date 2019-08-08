@@ -61,15 +61,18 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 	private String filename;
 
+	private boolean overwrite;
+
 	private DAOAnalysis daoAnalysis;
 
 	private DAORiskInformation daoRiskInformation;
 
-	public WorkerImportRiskInformation(int analysisId, String username, String filename) {
+	public WorkerImportRiskInformation(int analysisId, String username, String filename, boolean overwrite) {
 		setName(TaskName.IMPORT_RISK_INFORMATION);
 		setAnalysisId(analysisId);
 		setUsername(username);
 		setFilename(filename);
+		setOverwrite(overwrite);
 	}
 
 	/*
@@ -294,8 +297,12 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		}
 
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.save.analysis", "Saving analysis", max));
-		analysis.getRiskInformations().removeAll(riskInformations.values());
-		daoRiskInformation.delete(riskInformations.values());
+		
+		if(isOverwrite()){
+			analysis.getRiskInformations().removeAll(riskInformations.values());
+			daoRiskInformation.delete(riskInformations.values());
+		}else riskInformations.clear();
+
 		daoAnalysis.saveOrUpdate(analysis);
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
 	}
@@ -385,6 +392,14 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 	public void setFilename(String filename) {
 		this.filename = filename;
+	}
+
+	public boolean isOverwrite() {
+		return overwrite;
+	}
+
+	public void setOverwrite(boolean overwrite) {
+		this.overwrite = overwrite;
 	}
 
 }

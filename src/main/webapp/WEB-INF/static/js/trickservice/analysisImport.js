@@ -40,7 +40,24 @@ var DataManagerImport = {
 		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
 	"risk-information": {
-		setup: ($view, $tab) => DataManagerImport["default"].setup($view, $tab),
+		setup: ($view, $tab) => {
+			if($tab.attr("data-option-init")!=="true"){
+				var $btns = $("input[type='radio'][name='overwrite']",$tab),$alerts = $("div[data-alert].alert",$tab);
+				$btns.on("change", (e)=> {
+					if(e.currentTarget.checked){
+						if(e.currentTarget.value==="true"){
+							$alerts.filter("div[data-alert='warning']").hide();
+							$alerts.filter("div[data-alert='danger']").show();
+						}else {
+							$alerts.filter("div[data-alert='danger']").hide();
+							$alerts.filter("div[data-alert='warning']").show();
+						}
+					}
+				}).trigger("change");
+				$tab.attr("data-option-init",true);
+			}
+			DataManagerImport["default"].setup($view, $tab);
+		},
 		process: ($view, $from, $tab) => DataManagerImport["default"].process($view, $from, $tab)
 	},
 	"risk-estimation": {
