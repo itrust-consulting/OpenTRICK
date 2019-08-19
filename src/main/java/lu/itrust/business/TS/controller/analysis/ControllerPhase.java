@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.TS.controller.analysis;
 
@@ -10,8 +10,8 @@ import static lu.itrust.business.TS.model.analysis.helper.AnalysisDataManagement
 import static lu.itrust.business.TS.model.analysis.helper.AnalysisDataManagement.findPreviousPhase;
 
 import java.security.Principal;
-import java.sql.Date;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,7 +49,7 @@ import lu.itrust.business.TS.model.general.helper.PhaseManager;
 
 /**
  * @author eomar
- * 
+ *
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Analysis/Phase")
@@ -68,7 +68,7 @@ public class ControllerPhase {
 	/**
 	 * section: <br>
 	 * Description
-	 * 
+	 *
 	 * @param model
 	 * @param session
 	 * @param principal
@@ -79,22 +79,22 @@ public class ControllerPhase {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis id
-		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && analysis.isUserAuthorized(principal.getName(), AnalysisRight.MODIFY));
+		final Analysis analysis = serviceAnalysis.get(idAnalysis);
 		PhaseManager.updateStatistics(analysis);
 		model.addAttribute("phases", analysis.getPhases());
 		model.addAttribute("totalPhase", PhaseManager.computeTotal(analysis.getPhases()));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && analysis.isUserAuthorized(principal.getName(), AnalysisRight.MODIFY));
 		return "analyses/single/components/phase/home";
 	}
 
 	/**
 	 * delete: <br>
 	 * Description
-	 * 
+	 *
 	 * @param idPhase
 	 * @param session
 	 * @param principal
@@ -107,15 +107,15 @@ public class ControllerPhase {
 	public @ResponseBody String delete(@PathVariable Integer id, HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
 			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// check if phase can be deleted
 			if (!servicePhase.canBeDeleted(id))
 				return JsonMessage.Error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", locale));
 
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 			// retrieve phases of analysis
-			List<Phase> phases = analysis.getPhases();
+			final List<Phase> phases = analysis.getPhases();
 
 			phases.sort((p1, p2) -> Integer.compare(p1.getNumber(), p2.getNumber()));
 
@@ -124,9 +124,9 @@ public class ControllerPhase {
 				return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
 
 			// iterate through phases
-			Iterator<Phase> iterator = phases.iterator();
+			final Iterator<Phase> iterator = phases.iterator();
 			while (iterator.hasNext()) {
-				Phase current = iterator.next();
+				final Phase current = iterator.next();
 				if (current.getId() != id)
 					continue;
 				iterator.remove();
@@ -159,9 +159,9 @@ public class ControllerPhase {
 	@GetMapping(value = "/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String add(Model model, HttpSession session, Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Phase last = servicePhase.findAllByIdAnalysis(idAnalysis);
-		PhaseForm form = new PhaseForm();
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Phase last = servicePhase.findAllByIdAnalysis(idAnalysis);
+		final PhaseForm form = new PhaseForm();
 		if (last != null) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(last.getEndDate());
@@ -180,10 +180,10 @@ public class ControllerPhase {
 	@GetMapping(value = "/{id}/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #id, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String edit(@PathVariable Integer id, Model model, HttpSession session, Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Phase phase = servicePhase.getFromAnalysisById(idAnalysis, id);
-		Phase previous = phase.getNumber() <= 1 ? null : servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, phase.getNumber() - 1);
-		PhaseForm form = new PhaseForm();
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Phase phase = servicePhase.getFromAnalysisById(idAnalysis, id);
+		final Phase previous = phase.getNumber() <= 1 ? null : servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, phase.getNumber() - 1);
+		final PhaseForm form = new PhaseForm();
 		form.setEnd(phase.getEndDate());
 		if (previous == null) {
 			form.setBegin(phase.getBeginDate());
@@ -192,9 +192,9 @@ public class ControllerPhase {
 			form.setBegin(previous.getEndDate());
 			form.setBeginEnabled(false);
 		}
-		form.setNumber(phase.getNumber());
 		form.setEndEnabled(true);
 		form.setId(phase.getId());
+		form.setNumber(phase.getNumber());
 		model.addAttribute("form", form);
 		return "analyses/single/components/phase/form";
 	}
@@ -202,7 +202,7 @@ public class ControllerPhase {
 	/**
 	 * save: <br>
 	 * Description
-	 * 
+	 *
 	 * @param source
 	 * @param session
 	 * @param principal
@@ -215,15 +215,15 @@ public class ControllerPhase {
 	public @ResponseBody Object save(@ModelAttribute PhaseForm form, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create result array
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		final Map<String, String> errors = new LinkedHashMap<String, String>();
 		// check if analysis exists
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			Phase phase = form.getId() > 0 ? findPhaseById(form.getId(), analysis) : new Phase();
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
+			final Phase phase = form.getId() > 0 ? findPhaseById(form.getId(), analysis) : new Phase();
 			if (phase == null)
 				throw new AccessDeniedException(messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", locale));
-			Phase previous = phase.getId() > 1 ? findPreviousPhase(phase, analysis) : findLastPhase(analysis);
+			final Phase previous = phase.getId() > 1 ? findPreviousPhase(phase, analysis) : findLastPhase(analysis);
 
 			if (!isValid(form, phase, previous, errors, locale))
 				return errors;

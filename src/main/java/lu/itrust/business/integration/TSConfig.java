@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.integration;
 
@@ -129,6 +129,7 @@ public class TSConfig {
 		sessionFactory.setPackagesToScan("lu.itrust.business.TS");
 		properties.put("hibernate.dialect", environment.getProperty("jdbc.dialect"));
 		properties.put("hibernate.show_sql", environment.getProperty("jdbc.show_sql"));
+		properties.put("hibernate.jdbc.time_zone", environment.getProperty("jdbc.time_zone"));
 		properties.put("hibernate.hbm2ddl.auto", environment.getProperty("jdbc.hbm2ddl.auto"));
 		properties.put("hibernate.javax.cache.provider", environment.getProperty("jdbc.cache.provider"));
 		properties.put("hibernate.cache.use_query_cache", environment.getProperty("jdbc.cache.use_query_cache"));
@@ -146,7 +147,7 @@ public class TSConfig {
 			try (InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/web.xml")) {
 				if (inputStream == null)
 					throw new RuntimeException("Web XML cannot be load");
-				
+
 				final WebXml webXml = new WebXml();
 				final WebXmlParser parser = new WebXmlParser(false, false, true);
 				final boolean success = parser.parseWebXml(new InputSource(inputStream), webXml, false);

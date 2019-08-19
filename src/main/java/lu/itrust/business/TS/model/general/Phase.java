@@ -1,9 +1,10 @@
 package lu.itrust.business.TS.model.general;
 
-import java.sql.Date;
 import java.time.Duration;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -29,7 +30,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 /**
  * SimpleParameter: <br>
  * This class represents a SimpleParameter and its data.
- * 
+ *
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
  * @since 2012-08-21
@@ -55,10 +56,12 @@ public class Phase implements Cloneable {
 	private int number;
 
 	/** The Begin Date of the Phase */
+	//@Temporal(TemporalType.DATE)
 	@Column(name = "dtBeginDate")
 	private Date beginDate;
 
 	/** The End Date of the Phase */
+	//@Temporal(TemporalType.DATE)
 	@Column(name = "dtEndDate")
 	private Date endDate;
 
@@ -106,9 +109,8 @@ public class Phase implements Cloneable {
 
 	/**
 	 * Constructor:<br>
-	 * 
-	 * @param number
-	 *            The Phase Number
+	 *
+	 * @param number The Phase Number
 	 */
 	public Phase(int number) {
 		this.id = -1;
@@ -122,7 +124,7 @@ public class Phase implements Cloneable {
 	/**
 	 * getNumber: <br>
 	 * Returns the "number" field value
-	 * 
+	 *
 	 * @return The Phase Number
 	 */
 	public int getNumber() {
@@ -132,9 +134,8 @@ public class Phase implements Cloneable {
 	/**
 	 * setNumber: <br>
 	 * Sets the "number" field with a value
-	 * 
-	 * @param number
-	 *            The value to set the Phase Number
+	 *
+	 * @param number The value to set the Phase Number
 	 */
 	public void setNumber(int number) {
 		this.number = number;
@@ -143,7 +144,7 @@ public class Phase implements Cloneable {
 	/**
 	 * getBegindate: <br>
 	 * Returns the "beginDate" field value
-	 * 
+	 *
 	 * @return The Begin Date of the Phase
 	 */
 	public Date getBeginDate() {
@@ -153,9 +154,8 @@ public class Phase implements Cloneable {
 	/**
 	 * setBegindate: <br>
 	 * Sets the "beginDate" field with a value
-	 * 
-	 * @param beginDate
-	 *            The value to set the Begin Date of the Phase
+	 *
+	 * @param beginDate The value to set the Begin Date of the Phase
 	 * @throws TrickException
 	 */
 	public void setBeginDate(Date beginDate) {
@@ -165,7 +165,7 @@ public class Phase implements Cloneable {
 	/**
 	 * getEnddate: <br>
 	 * Returns the "endDate" field value
-	 * 
+	 *
 	 * @return The End Date of the Phase
 	 */
 	public Date getEndDate() {
@@ -175,9 +175,8 @@ public class Phase implements Cloneable {
 	/**
 	 * setEnddate: <br>
 	 * Sets the "endDate" field with a value
-	 * 
-	 * @param endDate
-	 *            The value to set the End Date of the Phase
+	 *
+	 * @param endDate The value to set the End Date of the Phase
 	 * @throws TrickException
 	 */
 	public void setEndDate(Date endDate) {
@@ -187,7 +186,7 @@ public class Phase implements Cloneable {
 	/**
 	 * setDates: <br>
 	 * Description
-	 * 
+	 *
 	 * @param beginDate
 	 * @param endDate
 	 * @throws TrickException
@@ -206,7 +205,7 @@ public class Phase implements Cloneable {
 	/**
 	 * getAnalysis: <br>
 	 * Returns the analysis field value.
-	 * 
+	 *
 	 * @return The value of the analysis field
 	 */
 	public Analysis getAnalysis() {
@@ -216,9 +215,8 @@ public class Phase implements Cloneable {
 	/**
 	 * setAnalysis: <br>
 	 * Sets the Field "analysis" with a value.
-	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
+	 *
+	 * @param analysis The Value to set the analysis field
 	 */
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
@@ -267,7 +265,7 @@ public class Phase implements Cloneable {
 	/**
 	 * getId: <br>
 	 * Returns the id field value.
-	 * 
+	 *
 	 * @return The value of the id field
 	 */
 	public int getId() {
@@ -277,9 +275,8 @@ public class Phase implements Cloneable {
 	/**
 	 * setId: <br>
 	 * Sets the Field "id" with a value.
-	 * 
-	 * @param id
-	 *            The Value to set the id field
+	 *
+	 * @param id The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -301,7 +298,7 @@ public class Phase implements Cloneable {
 	/**
 	 * duplicate: <br>
 	 * Description
-	 * 
+	 *
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
@@ -320,11 +317,9 @@ public class Phase implements Cloneable {
 	 * ComputeDiff : <br>
 	 * This method Calculates an Double Value that Indicates the Difference between
 	 * two Dates. It is used to Calculate the Size of the Phase in Years.
-	 * 
-	 * @param beginDate
-	 *            begin date (should be smallest date)
-	 * @param endDate
-	 *            end date (should be biggest date)
+	 *
+	 * @param beginDate begin date (should be smallest date)
+	 * @param endDate   end date (should be biggest date)
 	 * @return
 	 */
 	public static double ComputeDiff(java.util.Date beginDate, java.util.Date endDate) {
@@ -416,11 +411,11 @@ public class Phase implements Cloneable {
 	}
 
 	public Period getPeriod() {
-		return Period.between(beginDate.toLocalDate(), endDate.toLocalDate()).normalized();
+		return Period.between(beginDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).normalized();
 	}
 
 	public int getFormatCode() {
-		Period period = getPeriod();
+		final Period period = getPeriod();
 		if (period.isZero())
 			return 123;
 		else if (period.getDays() == 0)
