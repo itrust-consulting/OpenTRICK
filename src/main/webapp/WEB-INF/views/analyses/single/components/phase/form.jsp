@@ -25,10 +25,10 @@
 						<label for="date" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.period" />'> <spring:message code="label.phase_period" />
 						</label>
 						<div class="col-sm-9 phase-date-range" align="center">
-							<input name="begin" type="date" class="form-control" style="width: 45%;display: inline-block;"
+							<input name="begin" type="date" class="form-control" style="width: 45%;display: inline-block; vertical-align: middle;"
 								value="<fmt:formatDate value="${form.begin}" pattern="yyyy-MM-dd"/>" placeholder='<spring:message code="label.phase.date.pattern"/>'
 								${form.beginEnabled? 'required' : 'disabled readonly' } /> <span class="add-on" style="height: 31px; width: 10%"> <spring:message code="label.date.to" />
-							</span> <input name="end" type="date" class="form-control" style="width: 45%; display: inline-block;"
+							</span> <input name="end" type="date" class="form-control" style="width: 45%; display: inline-block;vertical-align: middle;"
 								value="<fmt:formatDate value="${form.end}" pattern="yyyy-MM-dd"/>" placeholder='<spring:message code="label.phase.date.pattern"/>'
 								${form.endEnabled? 'required' : 'disabled readonly'} />
 						</div>

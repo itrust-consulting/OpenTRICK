@@ -6,10 +6,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/aop
         http://www.springframework.org/schema/aop/spring-aop.xsd
         http://www.springframework.org/schema/websocket
         http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd">
@@ -19,7 +19,7 @@
 	<mvc:annotation-driven ignore-default-model-on-redirect="true">
 		<mvc:async-support default-timeout="900000"/>
 	</mvc:annotation-driven>
-	
+
 	<websocket:message-broker  application-destination-prefix="/Application" user-destination-prefix="/User/">
 		<websocket:stomp-endpoint path="/Messaging">
 			<websocket:sockjs />
@@ -34,7 +34,7 @@
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
-	
+
 	<bean id="emailTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="5" />
 		<property name="maxPoolSize" value="10" />
@@ -44,9 +44,9 @@
 	<task:scheduler id="scheduler" pool-size="${app.settings.scheduler.pool.size}" />
 
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
-	
+
 	<bean id="dataCleaner" class="lu.itrust.business.TS.component.DataCleaner" />
-	
+
 	<task:scheduled-tasks scheduler="scheduler">
 		<task:scheduled ref="dataCleaner" method="cleanUp" cron="${app.settings.cleaner.cron.setup}"/>
 	</task:scheduled-tasks>
@@ -68,9 +68,9 @@
 		<property name="fallbackToSystemLocale" value="false" />
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
-	
+
 	<bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
-        <property name="basenamePrefix" value="themes."/> 
+        <property name="basenamePrefix" value="themes."/>
         <property name="defaultEncoding" value="UTF-8"/>
     </bean>
 
@@ -102,11 +102,11 @@
 				<prop key="hibernate.dialect">${jdbc.dialect}</prop>
 				<prop key="hibernate.show_sql">${jdbc.show_sql}</prop>
 				<prop key="hibernate.hbm2ddl.auto">${jdbc.hbm2ddl.auto}</prop>
+				<prop key="hibernate.jdbc.time_zone">${jdbc.time_zone}</prop>
 				<prop key="hibernate.javax.cache.provider">${jdbc.cache.provider}</prop>
 				<prop key="hibernate.cache.use_query_cache">${jdbc.cache.use_query_cache}</prop>
 				<prop key="hibernate.cache.region.factory_class">${jdbc.cache.factory_class}</prop>
 				<prop key="hibernate.cache.use_second_level_cache">${jdbc.cache.use_second_level}</prop>
-				<!-- <prop key="net.sf.ehcache.configurationResourceName">/persistence/ehcache-${jdbc.cache.storage.type}.xml</prop> -->
 			</props>
 		</property>
 	</bean>
@@ -118,7 +118,7 @@
 	<bean id="freemarkerConfiguration" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
 		<property name="templateLoaderPath" value="${app.settings.email.template}" />
 	</bean>
-	
+
 	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="${app.settings.smtp.host}" />
 		<property name="port" value="${app.settings.smtp.port}" />

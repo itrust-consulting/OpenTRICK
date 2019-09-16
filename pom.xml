@@ -6,14 +6,9 @@
 	<version>2.14</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.hibernate.version>5.3.7.Final</org.hibernate.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>5.1.2.RELEASE</org.springframework.version>
-		<org.apache.logging.log4j.version>2.11.1</org.apache.logging.log4j.version>
-		<com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<org.springframework.security.version>5.1.1.RELEASE</org.springframework.security.version>
-		<spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+		<spring-boot.version>2.1.7.RELEASE</spring-boot.version>
 	</properties>
 
 	<dependencies>

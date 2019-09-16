@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
 import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_2;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.*;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -28,7 +28,7 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 
 /**
  * o
- * 
+ *
  * @author eomar
  *
  */
@@ -58,51 +58,51 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 
 	}
 
-	private boolean buildQualitative(Docx4jData data) {
-		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
-		final P paragraph = exporter.findP(data.getSource());
-		if (paragraph != null) {
-			final Analysis analysis = exporter.getAnalysis();
-			final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-			final List<SummaryStage> summary = analysis.findSummary(ActionPlanMode.APQ);
-			final List<String> collectionNames = exporter.getStandardNames();
-			final Tbl table = exporter.createTable("TableTSSummary", 26 + exporter.computeSommuryLength(collectionNames), summary.size() + 1);
-			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
-			buildSummaryCosts(exporter, summary, table, buildSummaryProfitabilities(exporter, summary, table,
-					buildSummaryCompliance(exporter, summary, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summary, table, 0))));
-			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
-		}
-		return false;
-	}
-
 	private boolean buildQuantitative(Docx4jData data) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraph = exporter.findP(data.getSource());
 		if (paragraph != null) {
+			final Analysis analysis = exporter.getAnalysis();
+			final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+			final List<SummaryStage> summary = analysis.findSummary(ActionPlanMode.APPN);
+			final List<String> collectionNames = exporter.getStandardNames();
+			final Tbl table = exporter.createTable("TableTSSummary", 23 + exporter.computeSommuryLength(collectionNames), summary.size() + 1);
+			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
+			buildSummaryCosts(exporter, summary, table, "5", buildSummaryProfitabilities(exporter, summary, table,
+					buildSummaryCompliance(exporter, summary, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summary, table, 0))));
+			if (exporter.insertBefore(paragraph, table))
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
+		}
+		return false;
+	}
+
+	private boolean buildQualitative(Docx4jData data) {
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraph = exporter.findP(data.getSource());
+		if (paragraph != null) {
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
 			final Analysis analysis = exporter.getAnalysis();
 			final List<String> collectionNames = exporter.getStandardNames();
 			final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-			final List<SummaryStage> summaries = analysis.findSummary(ActionPlanMode.APPN);
-			final Tbl table = exporter.createTable("TableTSSummary", 20 + exporter.computeSommuryLength(collectionNames), summaries.size() + 1);
-			buildSummaryResourcePlanning(exporter, summaries, table,
+			final List<SummaryStage> summaries = analysis.findSummary(ActionPlanMode.APQ);
+			final Tbl table = exporter.createTable("TableTSSummary", 17 + exporter.computeSommuryLength(collectionNames), summaries.size() + 1);
+			buildSummaryCosts(exporter, summaries, table, "4",
 					buildSummaryCompliance(exporter, summaries, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summaries, table, 0)));
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
 		}
 		return true;
 	}
 
 	private int buildSummaryCompliance(final Docx4jReportImpl exporter, final List<SummaryStage> summary, final List<String> collectionNames, final Tbl table, int rownumber) {
 		Tr row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
+		mergeCell(row, 0, summary.size() + 1, exporter.getColors().getDark());
 		exporter.setCellText((Tc) row.getContent().get(0), "2	" + exporter.getMessage("report.summary_stage.compliance", null, "Compliance"));
 		int complianceIndex = 1;
 		for (String standard : collectionNames) {
 			int cellnumber = 0;
 			row = (Tr) table.getContent().get(rownumber++);
-			exporter.setCellText((Tc) row.getContent().get(cellnumber), "2." + (complianceIndex++) + "	"
+			exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()), "2." + (complianceIndex++) + "	"
 					+ exporter.getMessage("report.summary_stage.compliance.level", new Object[] { standard }, "Compliance level " + standard + " (%)..."));
 			for (SummaryStage stage : summary)
 				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber),
@@ -112,7 +112,7 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 		if (collectionNames.contains(Constant.STANDARD_27001)) {
 			int cellnumber = 0;
 			row = (Tr) table.getContent().get(rownumber++);
-			exporter.setCellText((Tc) row.getContent().get(cellnumber), "2." + (complianceIndex++) + "	"
+			exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()), "2." + (complianceIndex++) + "	"
 					+ exporter.getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27001" }, "Non-compliant measures of the 27001"));
 			for (SummaryStage stage : summary)
 				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getNotCompliantMeasure27001Count() + "");
@@ -121,120 +121,31 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 		if (collectionNames.contains(Constant.STANDARD_27002)) {
 			int cellnumber = 0;
 			row = (Tr) table.getContent().get(rownumber++);
-			exporter.setCellText((Tc) row.getContent().get(cellnumber), "2." + (complianceIndex++) + "	"
+			exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()), "2." + (complianceIndex++) + "	"
 					+ exporter.getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27002" }, "Non-compliant measures of the 27002"));
 			for (SummaryStage stage : summary)
 				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getNotCompliantMeasure27002Count() + "");
 		}
 
 		row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
+		mergeCell(row, 0, summary.size() + 1, exporter.getColors().getDark());
 		exporter.setCellText((Tc) row.getContent().get(0),
 				"3	" + exporter.getMessage("report.summary_stage.evolution_of_implemented_measure", null, "Evolution of implemented measures"));
 
 		int cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
 				"3.1	" + exporter.getMessage("report.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), "" + stage.getMeasureCount());
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
 				"3.2	" + exporter.getMessage("report.summary_stage.implementted_measures", null, "Implemented measures (number)..."));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), "" + stage.getImplementedMeasuresCount());
 		return rownumber;
-	}
-
-	private void buildSummaryCosts(final Docx4jReportImpl exporter, final List<SummaryStage> summary, final Tbl table, int rownumber) {
-		Tr row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
-		exporter.setCellText((Tc) row.getContent().get(0), "5	" + exporter.getMessage("report.summary_stage.resource.planning", null, "Resource planning"));
-
-		row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
-		exporter.setCellText((Tc) row.getContent().get(0), "5.1	" + exporter.getMessage("report.summary_stage.implementation.cost", null, "Implementation costs"));
-
-		int cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "5.1.1	" + exporter.getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getInternalWorkload()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "5.1.2	" + exporter.getMessage("report.summary_stage.workload.external", null, "External workload (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getExternalWorkload()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "5.1.3	" + exporter.getMessage("report.summary_stage.investment", null, "Investment (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(Math.floor(stage.getInvestment() * 0.001)));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
-				"5.1.4	" + exporter.getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getImplementCostOfPhase() * 0.001), true);
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-
-		row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
-		exporter.setCellText((Tc) row.getContent().get(0), "5.2	" + exporter.getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs"));
-
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
-				"5.2.1	" + exporter.getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getInternalMaintenance()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
-				"5.2.2	" + exporter.getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getExternalMaintenance()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
-				"5.2.3	" + exporter.getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentInvestment() * 0.001));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		cellnumber = 0;
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
-				"5.2.4	" + exporter.getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentCost() * 0.001), true);
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "5.3	" + exporter.getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getTotalCostofStage() * 0.001), true);
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
 	}
 
 	private int buildSummaryHeaders(final Docx4jReportImpl exporter, final SimpleDateFormat dateFormat, final List<SummaryStage> summary, final Tbl table, int rownumber) {
@@ -248,14 +159,16 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 		}
 		exporter.setRepeatHeader(row);
 		row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
+		mergeCell(row, 0, summary.size() + 1, exporter.getColors().getDark());
 		exporter.setCellText((Tc) row.getContent().get(0), "1	" + exporter.getMessage("report.summary_stage.phase_duration", null, "Phase duration"));
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(0), "1.1	" + exporter.getMessage("report.summary_stage.date.beginning", null, "Beginning date"));
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				"1.1	" + exporter.getMessage("report.summary_stage.date.beginning", null, "Beginning date"));
 		for (int i = 1; i < summary.size(); i++)
 			exporter.addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(exporter.getAnalysis().findPhaseByNumber(i).getBeginDate()));
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(0), "1.2	" + exporter.getMessage("report.summary_stage.date.end", null, "End date"));
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				"1.2	" + exporter.getMessage("report.summary_stage.date.end", null, "End date"));
 		for (int i = 1; i < summary.size(); i++)
 			exporter.addCellParagraph((Tc) row.getContent().get(i + 1), dateFormat.format(exporter.getAnalysis().findPhaseByNumber(i).getEndDate()));
 		return rownumber;
@@ -263,37 +176,41 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 
 	private int buildSummaryProfitabilities(final Docx4jReportImpl exporter, final List<SummaryStage> summary, final Tbl table, int rownumber) {
 		Tr row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
+		mergeCell(row, 0, summary.size() + 1, exporter.getColors().getDark());
 		exporter.setCellText((Tc) row.getContent().get(0), "4	" + exporter.getMessage("report.summary_stage.profitability", null, "Profitability"));
 
 		int cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "4.1	" + exporter.getMessage("report.summary_stage.ale_at_end", null, "ALE (k€/y)... at end"));
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				"4.1	" + exporter.getMessage("report.summary_stage.ale_at_end", null, "ALE (k€/y)... at end"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getTotalALE() * 0.001));
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "4.2	" + exporter.getMessage("report.summary_stage.risk_reduction", null, "Risk reduction (k€/y)"));
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				"4.2	" + exporter.getMessage("report.summary_stage.risk_reduction", null, "Risk reduction (k€/y)"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getDeltaALE() * 0.001));
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber),
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
 				"4.3	" + exporter.getMessage("report.summary_stage.average_yearly_cost_of_phase", null, "Average yearly cost of phase (k€/y)"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getCostOfMeasures() * 0.001));
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "4.3	" + exporter.getMessage("report.summary_stage.rosi", null, "ROSI (k€/y)"));
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				"4.3	" + exporter.getMessage("report.summary_stage.rosi", null, "ROSI (k€/y)"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getROSI() * 0.001));
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(cellnumber), "4.4	" + exporter.getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI"));
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				"4.4	" + exporter.getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI"));
 		DecimalFormat format = (DecimalFormat) exporter.getNumberFormat().clone();
 		format.setMaximumFractionDigits(2);
 		for (SummaryStage stage : summary)
@@ -301,80 +218,75 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 		return rownumber;
 	}
 
-	private void buildSummaryResourcePlanning(final Docx4jReportImpl exporter, final List<SummaryStage> summary, final Tbl table, int rownumber) {
-		Tr row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
-		exporter.setCellText((Tc) row.getContent().get(0), "4	" + exporter.getMessage("report.summary_stage.resource.planning", null, "Resource planning"));
-		row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
-		exporter.setCellText((Tc) row.getContent().get(0), "4.1	" + exporter.getMessage("report.summary_stage.implementation.cost", null, "Implementation costs"));
-		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText((Tc) row.getContent().get(0), "4.1.1	" + exporter.getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)"));
+	private void buildSummaryCosts(final Docx4jReportImpl exporter, final List<SummaryStage> summary, final Tbl table, final String numbering, int rownumber) {
+		exporter.getNumberFormat().setMaximumFractionDigits(1);// modify decimal
+
 		int cellnumber = 0;
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getInternalWorkload()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.1.2	" + exporter.getMessage("report.summary_stage.workload.external", null, "External workload (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getExternalWorkload()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.1.3	" + exporter.getMessage("report.summary_stage.investment", null, "Investment (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(Math.floor(stage.getInvestment() * 0.001)));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
+		Tr row = (Tr) table.getContent().get(rownumber++);
 		exporter.setCellText((Tc) row.getContent().get(0),
-				"4.1.4	" + exporter.getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getImplementCostOfPhase() * 0.001), true);
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		mergeCell(row, 0, summary.size() + 1, null);
-		exporter.setCellText((Tc) row.getContent().get(0), "4.2	" + exporter.getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs"));
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.2.1	" + exporter.getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getInternalMaintenance()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.2.2	" + exporter.getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getExternalMaintenance()));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.2.3	" + exporter.getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentInvestment() * 0.001));
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.2.4	" + exporter.getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
-		for (SummaryStage stage : summary)
-			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentCost() * 0.001), true);
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
-		row = (Tr) table.getContent().get(rownumber++);
-		cellnumber = 0;
-		exporter.setCellText((Tc) row.getContent().get(0), "4.3	" + exporter.getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)"));
-		exporter.getNumberFormat().setMaximumFractionDigits(1);
+				numbering + "	" + exporter.getMessage("report.summary_stage.resource.planning", null, "Resource planning	Total cost of phase (k€)"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getTotalCostofStage() * 0.001), true);
-		exporter.getNumberFormat().setMaximumFractionDigits(0);
+
+		setColor(row, exporter.getColors().getDark());
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".1	" + exporter.getMessage("report.summary_stage.implementation.cost", null, "Implementation costs"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getImplementCostOfPhase() * 0.001), true);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".1.1	" + exporter.getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getInternalWorkload()));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".1.2	" + exporter.getMessage("report.summary_stage.workload.external", null, "External workload (md)"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getExternalWorkload()));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".1.3	" + exporter.getMessage("report.summary_stage.investment", null, "Investment (k€)"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(Math.floor(stage.getInvestment() * 0.001)));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".2	" + exporter.getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentCost() * 0.001), true);
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".2.1	" + exporter.getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getInternalMaintenance()));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".2.2	" + exporter.getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getExternalMaintenance()));
+
+		cellnumber = 0;
+		row = (Tr) table.getContent().get(rownumber++);
+		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
+				numbering + ".2.3	" + exporter.getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)"));
+		for (SummaryStage stage : summary)
+			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentInvestment() * 0.001));
+
+		exporter.getNumberFormat().setMaximumFractionDigits(0);// restore decimal
 	}
 
 }

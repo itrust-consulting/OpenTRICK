@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j;
 
@@ -171,7 +171,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	private org.docx4j.openpackaging.packages.WordprocessingMLPackage wordMLPackage;
 
 	/**
-	 * 
+	 *
 	 */
 	public Docx4jReportImpl() {
 	}
@@ -1517,6 +1517,12 @@ public class Docx4jReportImpl implements Docx4jReport {
 			tc.getTcPr().setShd(Context.getWmlObjectFactory().createCTShd());
 		tc.getTcPr().getShd().setFill(color);
 		return tc;
+	}
+
+	public static Tr setColor(Tr tr, String color) {
+		for (Object  tc: tr.getContent())
+			setColor((Tc)tc, color);
+		return tr;
 	}
 
 	public static void verticalMergeCell(List<?> rows, int col, int begin, int size, String color) {
