@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.TS.model.actionplan.summary.computation.impl;
 
@@ -33,7 +33,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 	private Map<String, AnalysisStandard> analysisStandards;
 
 	/**
-	 * 
+	 *
 	 */
 	public SummaryComputationQualitative(Analysis analysis, List<AnalysisStandard> analysisStandards) {
 		setAnalysis(analysis);
@@ -74,7 +74,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see lu.itrust.business.TS.model.actionplan.summary.computation.
 	 * ISummaryComputation#compute(lu.itrust.business.TS.model.actionplan.
 	 * ActionPlanMode)
@@ -164,16 +164,14 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			isFirstValidPhase = START_P0.equals(getCurrentValues().previousStage.getStage());
 		}
 
-		getCurrentValues().notCompliantMeasure27001Count = 0;
-		getCurrentValues().notCompliantMeasure27002Count = 0;
-
 		for (SummaryStandardHelper helper : getCurrentValues().conformanceHelper.values()) {
-			helper.conformance = 0;
 			int denominator = 0;
 			double numerator = 0;
+			helper.conformance = 0;
+			helper.notCompliantMeasureCount = 0;
 			final AnalysisStandard analysisStandard = getAnalysisStandards().get(helper.standard.getStandard().getName());
 			for (Measure measure : analysisStandard.getMeasures()) {
-				double imprate = measure.getImplementationRateValue((ValueFactory) null);
+				final double imprate = measure.getImplementationRateValue((ValueFactory) null);
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
@@ -185,13 +183,9 @@ public class SummaryComputationQualitative extends SummaryComputation {
 							numerator += (1.0 - imprate * 0.01);
 							getCurrentValues().measureCount++;
 						}
-						if (imprate < getSoa() && measure instanceof NormalMeasure) {
-							if (!isSelected || measure.getPhase().getNumber() > number)
-								if (helper.standard.getStandard().is(Constant.STANDARD_27001))
-									getCurrentValues().notCompliantMeasure27001Count++;
-								else if (helper.standard.getStandard().is(Constant.STANDARD_27002))
-									getCurrentValues().notCompliantMeasure27002Count++;
-						}
+
+						if (imprate < getSoa() && measure instanceof NormalMeasure && (!isSelected || measure.getPhase().getNumber() > number))
+							helper.notCompliantMeasureCount++;
 					}
 
 				}
@@ -227,8 +221,10 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		summaryStage.setStage(name);
 		summaryStage.setActionPlanType(getActionPlanType());
 
-		for (String key : getCurrentValues().conformanceHelper.keySet())
-			summaryStage.addConformance(getCurrentValues().conformanceHelper.get(key).standard, getCurrentValues().conformanceHelper.get(key).conformance);
+		for (String key : getCurrentValues().conformanceHelper.keySet()) {
+			final SummaryStandardHelper standardHelper = getCurrentValues().conformanceHelper.get(key);
+			summaryStage.addConformance(standardHelper.standard, standardHelper.conformance, standardHelper.notCompliantMeasureCount);
+		}
 
 		if (getCurrentValues().previousStage != null)
 			summaryStage.setMeasureCount(getCurrentValues().implementedCount - getCurrentValues().previousStage.getImplementedMeasuresCount());
@@ -239,8 +235,6 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		summaryStage.setInternalWorkload(getCurrentValues().internalWorkload);
 		summaryStage.setExternalWorkload(getCurrentValues().externalWorkload);
 		summaryStage.setInvestment(getCurrentValues().investment);
-		summaryStage.setNotCompliantMeasure27001Count(getCurrentValues().notCompliantMeasure27001Count);
-		summaryStage.setNotCompliantMeasure27002Count(getCurrentValues().notCompliantMeasure27002Count);
 
 		if (isFirstValidPhase) {
 			summaryStage.setInternalMaintenance((getPreMaintenance().getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phaseTime);

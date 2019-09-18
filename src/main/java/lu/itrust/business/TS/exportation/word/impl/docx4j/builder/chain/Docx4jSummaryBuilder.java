@@ -4,7 +4,8 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
 import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_2;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.*;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.setColor;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -15,7 +16,6 @@ import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exportation.word.IDocxBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.DocxChainFactory;
@@ -66,7 +66,7 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 			final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 			final List<SummaryStage> summary = analysis.findSummary(ActionPlanMode.APPN);
 			final List<String> collectionNames = exporter.getStandardNames();
-			final Tbl table = exporter.createTable("TableTSSummary", 23 + exporter.computeSommuryLength(collectionNames), summary.size() + 1);
+			final Tbl table = exporter.createTable("TableTSSummary", 23 + collectionNames.size() * 2, summary.size() + 1);
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
 			buildSummaryCosts(exporter, summary, table, "5", buildSummaryProfitabilities(exporter, summary, table,
 					buildSummaryCompliance(exporter, summary, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summary, table, 0))));
@@ -85,7 +85,7 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 			final List<String> collectionNames = exporter.getStandardNames();
 			final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 			final List<SummaryStage> summaries = analysis.findSummary(ActionPlanMode.APQ);
-			final Tbl table = exporter.createTable("TableTSSummary", 17 + exporter.computeSommuryLength(collectionNames), summaries.size() + 1);
+			final Tbl table = exporter.createTable("TableTSSummary", 17 + collectionNames.size() * 2, summaries.size() + 1);
 			buildSummaryCosts(exporter, summaries, table, "4",
 					buildSummaryCompliance(exporter, summaries, collectionNames, table, buildSummaryHeaders(exporter, dateFormat, summaries, table, 0)));
 			if (exporter.insertBefore(paragraph, table))
@@ -105,26 +105,16 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 			exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()), "2." + (complianceIndex++) + "	"
 					+ exporter.getMessage("report.summary_stage.compliance.level", new Object[] { standard }, "Compliance level " + standard + " (%)..."));
 			for (SummaryStage stage : summary)
-				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber),
-						exporter.getNumberFormat().format(stage.getSingleConformance(standard) == null ? 0 : stage.getSingleConformance(standard) * 100));
+				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getConformanceValue(standard) * 100));
 		}
 
-		if (collectionNames.contains(Constant.STANDARD_27001)) {
+		for (String standard : collectionNames) {
 			int cellnumber = 0;
 			row = (Tr) table.getContent().get(rownumber++);
 			exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()), "2." + (complianceIndex++) + "	"
-					+ exporter.getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27001" }, "Non-compliant measures of the 27001"));
+					+ exporter.getMessage("report.characteristic.count.not_compliant_measure", new Object[] { standard }, "Non-compliant measures of " + standard));
 			for (SummaryStage stage : summary)
-				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getNotCompliantMeasure27001Count() + "");
-		}
-
-		if (collectionNames.contains(Constant.STANDARD_27002)) {
-			int cellnumber = 0;
-			row = (Tr) table.getContent().get(rownumber++);
-			exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()), "2." + (complianceIndex++) + "	"
-					+ exporter.getMessage("report.characteristic.count.not_compliant_measure", new Object[] { "27002" }, "Non-compliant measures of the 27002"));
-			for (SummaryStage stage : summary)
-				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getNotCompliantMeasure27002Count() + "");
+				exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), stage.getConformanceNotCompliantMeasureCount(standard) + "");
 		}
 
 		row = (Tr) table.getContent().get(rownumber++);

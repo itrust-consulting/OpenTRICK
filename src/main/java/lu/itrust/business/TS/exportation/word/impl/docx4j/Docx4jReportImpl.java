@@ -357,17 +357,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public void close() {
 	}
 
-	public int computeSommuryLength(final List<String> collectionNames) {
-		if (collectionNames.contains(Constant.STANDARD_27001)) {
-			if (collectionNames.contains(Constant.STANDARD_27002))
-				return 4 + collectionNames.size() - 2;
-			return 2 + (collectionNames.size() - 1);
-		} else if (collectionNames.contains(Constant.STANDARD_27002))
-			return 2 + (collectionNames.size() - 1);
-		else
-			return collectionNames.size();
-	}
-
 	public List<String> getStandardNames() {
 		return analysis.findStandards().stream().map(Standard::getName).sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
 	}
@@ -1520,8 +1509,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public static Tr setColor(Tr tr, String color) {
-		for (Object  tc: tr.getContent())
-			setColor((Tc)tc, color);
+		for (Object tc : tr.getContent())
+			setColor((Tc) tc, color);
 		return tr;
 	}
 

@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.14</version>
+	<version>2.13</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<spring-boot.version>2.1.7.RELEASE</spring-boot.version>
+		<spring-boot.version>2.1.8.RELEASE</spring-boot.version>
 	</properties>
 
 	<dependencies>
@@ -330,7 +330,7 @@
 		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j</artifactId>
-			<version>6.0.1</version>
+			<version>6.1.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

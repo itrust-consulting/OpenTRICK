@@ -30,7 +30,7 @@
 								<thead>
 									<tr>
 										<c:forEach items="${standards}" var="analysisStandard">
-											<td><b><spring:message text="${analysisStandard.standard.label}" /></b></td>
+											<td><b><spring:message text="${analysisStandard.standard.name}" /></b></td>
 										</c:forEach>
 									</tr>
 								</thead>

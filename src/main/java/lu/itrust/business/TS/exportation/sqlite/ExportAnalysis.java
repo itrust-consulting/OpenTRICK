@@ -66,7 +66,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * ExportAnalysis: <br>
  * This class is used to export a specific Analysis into a SQLite file to be
  * used inside TRICK Light.
- * 
+ *
  * @author itrust consulting s.à r.l. - SME,BJA,EOM,SMU
  * @version 0.1
  * @since 2012-12-17
@@ -124,7 +124,7 @@ public class ExportAnalysis {
 	/**
 	 * exportAnAnalysis: <br>
 	 * Description
-	 * 
+	 *
 	 * @return
 	 */
 	public MessageHandler exportAnAnalysis() {
@@ -408,7 +408,7 @@ public class ExportAnalysis {
 	 * exportRiskInformation: <br>
 	 * Exports the Risk Information to an Sqlite File using an Sqlite Database
 	 * Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportRiskInformation() throws Exception {
@@ -666,7 +666,7 @@ public class ExportAnalysis {
 	 * exportItemInformation: <br>
 	 * Exports the Item Information to an Sqlite File using an Sqlite Database
 	 * Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportItemInformation() throws Exception {
@@ -777,7 +777,7 @@ public class ExportAnalysis {
 	/**
 	 * exportPhase: <br>
 	 * Exports the Phases to an Sqlite File using an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportPhase() throws Exception {
@@ -824,7 +824,7 @@ public class ExportAnalysis {
 	/**
 	 * exportIdentifier: <br>
 	 * Exports the identifier to an sqlite file using an sqlite database handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportIdentifier() throws Exception {
@@ -855,7 +855,7 @@ public class ExportAnalysis {
 	/**
 	 * exportHistory: <br>
 	 * Exports the History to an Sqlite File using an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportHistory() throws Exception {
@@ -897,7 +897,7 @@ public class ExportAnalysis {
 	/**
 	 * exportSimpleParameters: <br>
 	 * Export Simple Parameters to an Sqlite File usaing a Sqlite Database Hanlder.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportSimpleParameters() throws Exception {
@@ -997,7 +997,7 @@ public class ExportAnalysis {
 	/**
 	 * exportExtendedParameters: <br>
 	 * Export Extended Parameters to an Sqlite File using a Sqlite Database Handler.
-	 * 
+	 *
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 */
 	private void exportProbabilityAndImpactParameter() throws Exception {
@@ -1030,7 +1030,7 @@ public class ExportAnalysis {
 	/**
 	 * exportDynamicParameters: <br>
 	 * Export Dynamic Parameters to an Sqlite File using a Sqlite Database Handler.
-	 * 
+	 *
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 */
 	private void exportDynamicParameters() throws Exception {
@@ -1053,7 +1053,7 @@ public class ExportAnalysis {
 	/**
 	 * exportMaturityParameters: <br>
 	 * Export Maturity Parameters to an Sqlite File using a Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportMaturityParameters() throws Exception {
@@ -1170,7 +1170,7 @@ public class ExportAnalysis {
 	 * exportParameters: <br>
 	 * Exports the Simple, Extended and Maturity Parameters to an Sqlite File using
 	 * an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportParameters() throws Exception {
@@ -1260,7 +1260,7 @@ public class ExportAnalysis {
 	/**
 	 * exportAssets: <br>
 	 * Exports the Assets to an Sqlite File using an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportAssets() throws Exception {
@@ -1335,7 +1335,7 @@ public class ExportAnalysis {
 	/**
 	 * exportScenarios: <br>
 	 * Exports the Scenarios to an Sqlite File using an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportScenarios() throws Exception {
@@ -1438,7 +1438,7 @@ public class ExportAnalysis {
 	/**
 	 * exportAssessments: <br>
 	 * Exports the Assessments to an Sqlite File using an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportAssessments() throws Exception {
@@ -1531,7 +1531,7 @@ public class ExportAnalysis {
 	/**
 	 * exportMeasuresAndMaturity: <br>
 	 * Exports the Measures to an Sqlite File using an Sqlite Database Handlerl.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportMeasuresAndMaturity() throws Exception {
@@ -2141,7 +2141,7 @@ public class ExportAnalysis {
 	/**
 	 * exportActionPlans: <br>
 	 * Exports the Action Plans to an Sqlite File using an Sqlite Database Handler.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportActionPlans() throws Exception {
@@ -2164,10 +2164,10 @@ public class ExportAnalysis {
 	/**
 	 * exportActionPlanAssets: <br>
 	 * Exports for a given Action Plan Entry all Assets with the Current ALE.
-	 * 
+	 *
 	 * @param type            The Action Plan Type ID
 	 * @param actionPlanEntry The Action Plan Entry
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportActionPlanAssets(ActionPlanEntry actionPlanEntry) throws Exception {
@@ -2251,9 +2251,9 @@ public class ExportAnalysis {
 	/**
 	 * exportActionPlanSummaries: <br>
 	 * This method exports an Action Plan Summary to an Sqlite File.
-	 * 
+	 *
 	 * @param summaryStages The List of Summary Stages
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportActionPlanSummaries(List<SummaryStage> summaryStages) throws Exception {
@@ -2280,8 +2280,8 @@ public class ExportAnalysis {
 			params.add(summaryStages.get(index).getId());
 			params.add(summaryStages.get(index).getActionPlanType().getId());
 			params.add(summaryStages.get(index).getStage());
-			params.add(summaryStages.get(index).getSingleConformance("27001"));
-			params.add(summaryStages.get(index).getSingleConformance("27002"));
+			params.add(summaryStages.get(index).getConformanceValue("27001"));
+			params.add(summaryStages.get(index).getConformanceValue("27002"));
 			params.add(summaryStages.get(index).getMeasureCount());
 			params.add(summaryStages.get(index).getImplementedMeasuresCount());
 			params.add(summaryStages.get(index).getTotalALE());
@@ -2306,10 +2306,10 @@ public class ExportAnalysis {
 	/**
 	 * exportActionPlan: <br>
 	 * This method export a given Action Plan to an Sqlite File.
-	 * 
+	 *
 	 * @param type              The Type of Action Plan
 	 * @param actionPlanEntries The List of Action Plan Entries
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportActionPlan(List<ActionPlanEntry> actionPlanEntries) throws Exception {
@@ -2410,7 +2410,7 @@ public class ExportAnalysis {
 	/**
 	 * exportRiskRegister: <br>
 	 * Exports the Risk Register.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void exportRiskRegister() throws Exception {
@@ -2454,7 +2454,7 @@ public class ExportAnalysis {
 	/**
 	 * insertCategories: <br>
 	 * Adds Risk Categories to the SQL parameter List.
-	 * 
+	 *
 	 * @param params   The SQL SimpleParameter List
 	 * @param criteria The Object containing the Data to add
 	 * @throws TrickException
@@ -2470,7 +2470,7 @@ public class ExportAnalysis {
 	 * getLinefromMaturityCategory: <br>
 	 * Get the Line corresponding to the maturity category. If label belongs to
 	 * nothing, return -1.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private int getLinefromMaturityCategory(String label) throws Exception {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.TS.model.actionplan.summary.computation.impl;
 
@@ -32,7 +32,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 
 	/**
 	 * @param factory
-	 * 
+	 *
 	 */
 	public SummaryComputationQuantitative(Analysis analysis, ValueFactory factory, List<AnalysisStandard> analysisStandards) {
 		setFactory(factory);
@@ -48,7 +48,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see lu.itrust.business.TS.model.actionplan.summary.computation.
 	 * ISummaryComputation#compute(lu.itrust.business.TS.model.actionplan.
 	 * ActionPlanMode)
@@ -129,7 +129,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 			// ****************************************************************
 			generateStage("All Measures", false, phase);
 		}
-		
+
 		getAnalysis().addSummaryEntries(getSummaryStages());
 	}
 
@@ -141,8 +141,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 	}
 
 	/**
-	 * @param factory
-	 *            the factory to set
+	 * @param factory the factory to set
 	 */
 	public void setFactory(ValueFactory factory) {
 		this.factory = factory;
@@ -165,8 +164,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		boolean isFirstValidPhase = false;
 
 		if (number > 0)
-			phaseTime = getPhases().stream().filter(phase -> phase.getNumber() == number)
-					.map(phase -> phase.getTime()).findAny().orElse(0d);
+			phaseTime = getPhases().stream().filter(phase -> phase.getNumber() == number).map(phase -> phase.getTime()).findAny().orElse(0d);
 		if (isFirst)
 			getCurrentValues().implementedCount = 0;
 		if (getCurrentValues().previousStage == null)
@@ -176,32 +174,26 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 			isFirstValidPhase = START_P0.equals(getCurrentValues().previousStage.getStage());
 		}
 
-		getCurrentValues().notCompliantMeasure27001Count = 0;
-		getCurrentValues().notCompliantMeasure27002Count = 0;
-
 		for (SummaryStandardHelper helper : getCurrentValues().conformanceHelper.values()) {
-			helper.conformance = 0;
 			int denominator = 0;
 			double numerator = 0;
+			helper.conformance = 0;
+			helper.notCompliantMeasureCount = 0;
 			for (Measure measure : helper.standard.getMeasures()) {
-				double imprate = measure.getImplementationRateValue(getFactory());
+				final double imprate = measure.getImplementationRateValue(getFactory());
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
 					if (isFirst && imprate >= Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
 						getCurrentValues().implementedCount++;
 					else {
-						boolean isSelected = helper.measures.contains(measure);
+						final boolean isSelected = helper.measures.contains(measure);
 						if (isSelected) {
 							numerator += (1.0 - imprate * 0.01);
 							getCurrentValues().measureCount++;
 						}
-						if (imprate < getSoa() && measure instanceof NormalMeasure) {
-							if (!isSelected || measure.getPhase().getNumber() > number)
-								if (helper.standard.getStandard().is(Constant.STANDARD_27001))
-									getCurrentValues().notCompliantMeasure27001Count++;
-								else if (helper.standard.getStandard().is(Constant.STANDARD_27002))
-									getCurrentValues().notCompliantMeasure27002Count++;
+						if (imprate < getSoa() && measure instanceof NormalMeasure && (!isSelected || measure.getPhase().getNumber() > number)) {
+							helper.notCompliantMeasureCount++;
 						}
 					}
 
@@ -238,8 +230,10 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		summaryStage.setStage(name);
 		summaryStage.setActionPlanType(getActionPlanType());
 
-		for (String key : getCurrentValues().conformanceHelper.keySet())
-			summaryStage.addConformance(getCurrentValues().conformanceHelper.get(key).standard, getCurrentValues().conformanceHelper.get(key).conformance);
+		for (String key : getCurrentValues().conformanceHelper.keySet()) {
+			final SummaryStandardHelper standardHelper = getCurrentValues().conformanceHelper.get(key);
+			summaryStage.addConformance(standardHelper.standard, standardHelper.conformance, standardHelper.notCompliantMeasureCount);
+		}
 
 		if (getCurrentValues().previousStage != null)
 			summaryStage.setMeasureCount(getCurrentValues().implementedCount - getCurrentValues().previousStage.getImplementedMeasuresCount());
@@ -254,8 +248,6 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		summaryStage.setInternalWorkload(getCurrentValues().internalWorkload);
 		summaryStage.setExternalWorkload(getCurrentValues().externalWorkload);
 		summaryStage.setInvestment(getCurrentValues().investment);
-		summaryStage.setNotCompliantMeasure27001Count(getCurrentValues().notCompliantMeasure27001Count);
-		summaryStage.setNotCompliantMeasure27002Count(getCurrentValues().notCompliantMeasure27002Count);
 
 		if (isFirstValidPhase) {
 			summaryStage.setInternalMaintenance((getPreMaintenance().getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phaseTime);

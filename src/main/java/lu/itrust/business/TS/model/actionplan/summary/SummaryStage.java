@@ -28,7 +28,7 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 /**
  * SummaryStage: <br>
  * Has all data for a single stage (phase of summary)
- * 
+ *
  * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-10-09
@@ -48,7 +48,7 @@ public class SummaryStage {
 
 	/** ID of Stage */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idActionPlanSummary")
 	private int id = -1;
 
@@ -76,24 +76,21 @@ public class SummaryStage {
 	/** Number of Implemented Measures in this Stage */
 	@Column(name = "dtImplementedMeasureCount", nullable = false)
 	private int implementedMeasuresCount = 0;
-	
-	/** Number of no compliant measure 27001 */
-	@Column(name = "dtNotCompliantMeasure27001Count", nullable = false)
-	private int notCompliantMeasure27001Count = 0;
-	
-	/** Number of no compliant measure 27002 */
-	@Column(name = "dtNotCompliantMeasure27002Count", nullable = false)
-	private int notCompliantMeasure27002Count = 0;
-	
+
 	/** Total ALE for this Stage */
 	@Column(name = "dtCurrentTotalALE", nullable = false)
 	private double totalALE = 0;
 
-	/** Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries) */
+	/**
+	 * Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries)
+	 */
 	@Column(name = "dtCurrentDeltaALE", nullable = false)
 	private double deltaALE = 0;
 
-	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
+	/**
+	 * Cost of Measures for this Stage (calculate sum of cost from measures in
+	 * actionplan)
+	 */
 	@Column(name = "dtCurrentCostMeasures", nullable = false)
 	private double costOfMeasures = 0;
 
@@ -117,11 +114,17 @@ public class SummaryStage {
 	@Column(name = "dtInvestment", nullable = false)
 	private double investment = 0;
 
-	/** Sum of ((InternalWorkload * MaintenanceRecurrentInvestment) / 100) taken from Action Plan Entries */
+	/**
+	 * Sum of ((InternalWorkload * MaintenanceRecurrentInvestment) / 100) taken from
+	 * Action Plan Entries
+	 */
 	@Column(name = "dtTotalInternalMaintenance", nullable = false)
 	private double internalMaintenance = 0;
 
-	/** Sum of ((ExternalWorkload * MaintenanceRecurrentInvestment) / 100) taken from Action Plan Entries */
+	/**
+	 * Sum of ((ExternalWorkload * MaintenanceRecurrentInvestment) / 100) taken from
+	 * Action Plan Entries
+	 */
 	@Column(name = "dtTotalExternalMaintenance", nullable = false)
 	private double externalMaintenance = 0;
 
@@ -129,21 +132,26 @@ public class SummaryStage {
 	@Column(name = "dtRecurrentInvestment", nullable = false)
 	private double recurrentInvestment = 0;
 
-	/** Sum of ((Investments * MaintenanceRecurrentInvestment) / 100) taken from Action Plan Entries */
+	/**
+	 * Sum of ((Investments * MaintenanceRecurrentInvestment) / 100) taken from
+	 * Action Plan Entries
+	 */
 	@Column(name = "dtRecurrentCost", nullable = false)
 	private double recurrentCost = 0;
 
 	/**
-	 * Sum of (InternalWorkload * InternalSetupRate) + (InternalWorkload * InternalSetupRate) +
-	 * (Investment) + (((InternalWorkload * MaintenanceRecurrentInvestment) / 100) * InternalSetupRate ) +
-	 * (((ExternalWorkload * MaintenanceRecurrentInvestment) / 100) * ExternalSetupRate) + ((Investments * MaintenanceRecurrentInvestment)
-	 * / 100)
+	 * Sum of (InternalWorkload * InternalSetupRate) + (InternalWorkload *
+	 * InternalSetupRate) + (Investment) + (((InternalWorkload *
+	 * MaintenanceRecurrentInvestment) / 100) * InternalSetupRate ) +
+	 * (((ExternalWorkload * MaintenanceRecurrentInvestment) / 100) *
+	 * ExternalSetupRate) + ((Investments * MaintenanceRecurrentInvestment) / 100)
 	 **/
 	@Column(name = "dtTotalCost", nullable = false)
 	private double totalCostofStage;
-	
+
 	/**
-	 * internalWorkload * parameterInternalSetupRate + externalWorkload * parameterExternalSetupRate + investment
+	 * internalWorkload * parameterInternalSetupRate + externalWorkload *
+	 * parameterExternalSetupRate + investment
 	 */
 	@Column(name = "dtImplementCost", nullable = false)
 	private double implementCostOfPhase = 0;
@@ -165,7 +173,7 @@ public class SummaryStage {
 	/**
 	 * getId: <br>
 	 * Returns the "id" field value
-	 * 
+	 *
 	 * @return The Summary Stage ID
 	 */
 	public int getId() {
@@ -175,9 +183,8 @@ public class SummaryStage {
 	/**
 	 * setId: <br>
 	 * Sets the "id" field with a value
-	 * 
-	 * @param id
-	 *            The value to set the Summary Stage ID
+	 *
+	 * @param id The value to set the Summary Stage ID
 	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
@@ -189,7 +196,7 @@ public class SummaryStage {
 	/**
 	 * getStage: <br>
 	 * Returns the "stage" field value
-	 * 
+	 *
 	 * @return The Stage Title
 	 */
 	public String getStage() {
@@ -199,9 +206,8 @@ public class SummaryStage {
 	/**
 	 * setStage: <br>
 	 * Sets the "stage" field with a value
-	 * 
-	 * @param stage
-	 *            The value to set the Stage Title
+	 *
+	 * @param stage The value to set the Stage Title
 	 * @throws TrickException
 	 */
 	public void setStage(String stage) throws TrickException {
@@ -210,17 +216,32 @@ public class SummaryStage {
 		this.stage = stage;
 	}
 
-	public Double getSingleConformance(String label) {
+	public SummaryStandardConformance getConformance(String label) {
+		for (SummaryStandardConformance conformance : this.conformances)
+			if (conformance.getAnalysisStandard().getStandard().is(label))
+				return conformance;
+		return null;
+	}
+
+	public double getConformanceValue(String label) {
 		for (SummaryStandardConformance conformance : this.conformances)
 			if (conformance.getAnalysisStandard().getStandard().is(label))
 				return conformance.getConformance();
 		return 0.0;
 	}
 
+
+	public int getConformanceNotCompliantMeasureCount(String label) {
+		for (SummaryStandardConformance conformance : this.conformances)
+			if (conformance.getAnalysisStandard().getStandard().is(label))
+				return conformance.getNotCompliantMeasureCount();
+		return 0;
+	}
+
 	/**
 	 * getConformances: <br>
 	 * Description
-	 * 
+	 *
 	 * @return
 	 */
 	public List<SummaryStandardConformance> getConformances() {
@@ -230,7 +251,7 @@ public class SummaryStage {
 	/**
 	 * setConformances: <br>
 	 * Description
-	 * 
+	 *
 	 * @param conformances
 	 */
 	public void setConformances(List<SummaryStandardConformance> conformances) {
@@ -240,18 +261,18 @@ public class SummaryStage {
 	/**
 	 * addConformance: <br>
 	 * Description
-	 * 
+	 *
 	 * @param analysisStandard
 	 * @param conformance
 	 */
-	public void addConformance(AnalysisStandard analysisStandard, double conformance) {
-		this.conformances.add(new SummaryStandardConformance(analysisStandard, conformance));
+	public void addConformance(AnalysisStandard analysisStandard, double conformance, int notCompliantMeasureCount) {
+		this.conformances.add(new SummaryStandardConformance(analysisStandard, conformance, notCompliantMeasureCount));
 	}
 
 	/**
 	 * getMeasureCount: <br>
 	 * Returns the "measureCount" field value
-	 * 
+	 *
 	 * @return The Number of Measures of this Stage
 	 */
 	public int getMeasureCount() {
@@ -261,9 +282,8 @@ public class SummaryStage {
 	/**
 	 * setMeasureCount: <br>
 	 * Sets the "measureCount" field with a value
-	 * 
-	 * @param measureCount
-	 *            The value to set the Number of Measures of this Stage
+	 *
+	 * @param measureCount The value to set the Number of Measures of this Stage
 	 * @throws TrickException
 	 */
 	public void setMeasureCount(int measureCount) throws TrickException {
@@ -275,7 +295,7 @@ public class SummaryStage {
 	/**
 	 * getImplementedMeasuresCount: <br>
 	 * Returns the "implementedMeasuresCount" field value
-	 * 
+	 *
 	 * @return The Number of Implemented Measures in this Stage
 	 */
 	public int getImplementedMeasuresCount() {
@@ -285,9 +305,9 @@ public class SummaryStage {
 	/**
 	 * setImplementedMeasuresCount: <br>
 	 * Sets the "implementedMeasuresCount" field with a value
-	 * 
-	 * @param implementedMeasuresCount
-	 *            The value to set the Number of Implemented Measures in this Stage
+	 *
+	 * @param implementedMeasuresCount The value to set the Number of Implemented
+	 *                                 Measures in this Stage
 	 * @throws TrickException
 	 */
 	public void setImplementedMeasuresCount(int implementedMeasuresCount) throws TrickException {
@@ -299,7 +319,7 @@ public class SummaryStage {
 	/**
 	 * getTotalALE: <br>
 	 * Returns the "totalALE" field value
-	 * 
+	 *
 	 * @return The Total ALE at the End of the Stage
 	 */
 	public double getTotalALE() {
@@ -309,9 +329,8 @@ public class SummaryStage {
 	/**
 	 * setTotalALE: <br>
 	 * Sets the "totalALE" field with a value
-	 * 
-	 * @param totalALE
-	 *            The value to set the Total ALE at the End of the Stage
+	 *
+	 * @param totalALE The value to set the Total ALE at the End of the Stage
 	 * @throws TrickException
 	 */
 	public void setTotalALE(double totalALE) throws TrickException {
@@ -323,7 +342,7 @@ public class SummaryStage {
 	/**
 	 * getDeltaALE: <br>
 	 * Returns the "deltaALE" field value
-	 * 
+	 *
 	 * @return The Risk Reduction ALE (Delta ALE)
 	 */
 	public double getDeltaALE() {
@@ -333,9 +352,8 @@ public class SummaryStage {
 	/**
 	 * setDeltaALE: <br>
 	 * Sets the "deltaALE" field with a value
-	 * 
-	 * @param deltaALE
-	 *            The value to set the Delta ALE
+	 *
+	 * @param deltaALE The value to set the Delta ALE
 	 * @throws TrickException
 	 */
 	public void setDeltaALE(double deltaALE) throws TrickException {
@@ -347,7 +365,7 @@ public class SummaryStage {
 	/**
 	 * getCostOfMeasures: <br>
 	 * Returns the "costOfMeasures" field value
-	 * 
+	 *
 	 * @return The Cost of all Measures in this Stage
 	 */
 	public double getCostOfMeasures() {
@@ -357,9 +375,8 @@ public class SummaryStage {
 	/**
 	 * setCostOfMeasures: <br>
 	 * Sets the "costOfMeasures" field with a value
-	 * 
-	 * @param costOfMeasures
-	 *            The value to set the Cost of all Measures in this Stage
+	 *
+	 * @param costOfMeasures The value to set the Cost of all Measures in this Stage
 	 * @throws TrickException
 	 */
 	public void setCostOfMeasures(double costOfMeasures) throws TrickException {
@@ -373,7 +390,7 @@ public class SummaryStage {
 	/**
 	 * getROSI: <br>
 	 * Returns the "ROSI" field value
-	 * 
+	 *
 	 * @return The ROSI or ROSMI of the last Entry of the Stage
 	 */
 	public double getROSI() {
@@ -383,9 +400,8 @@ public class SummaryStage {
 	/**
 	 * setROSI: <br>
 	 * Sets the "ROSI" field with a value
-	 * 
-	 * @param ROSI
-	 *            The value to set the ROSI or ROSMI of the last Entry of the Stage
+	 *
+	 * @param ROSI The value to set the ROSI or ROSMI of the last Entry of the Stage
 	 * @throws TrickException
 	 */
 	public void setROSI(double ROSI) throws TrickException {
@@ -397,7 +413,7 @@ public class SummaryStage {
 	/**
 	 * getRelativeROSI: <br>
 	 * Returns the "relativeROSI" field value
-	 * 
+	 *
 	 * @return The Relative ROSI
 	 */
 	public double getRelativeROSI() {
@@ -407,9 +423,8 @@ public class SummaryStage {
 	/**
 	 * setRelativeROSI: <br>
 	 * Sets the "relativeROSI" field with a value
-	 * 
-	 * @param relativeROSI
-	 *            The value to set the Relative ROSI
+	 *
+	 * @param relativeROSI The value to set the Relative ROSI
 	 * @throws TrickException
 	 */
 	public void setRelativeROSI(double relativeROSI) throws TrickException {
@@ -421,7 +436,7 @@ public class SummaryStage {
 	/**
 	 * getInternalWorkload: <br>
 	 * Returns the "internalWorkload" field value
-	 * 
+	 *
 	 * @return The Internal Workload
 	 */
 	public double getInternalWorkload() {
@@ -431,9 +446,8 @@ public class SummaryStage {
 	/**
 	 * setInternalWorkload: <br>
 	 * Sets the "internalWorkload" field with a value
-	 * 
-	 * @param internalWorkload
-	 *            The value to set the Internal Workload
+	 *
+	 * @param internalWorkload The value to set the Internal Workload
 	 * @throws TrickException
 	 */
 	public void setInternalWorkload(double internalWorkload) throws TrickException {
@@ -447,7 +461,7 @@ public class SummaryStage {
 	/**
 	 * getExternalWorkload: <br>
 	 * Returns the "externalWorkload" field value
-	 * 
+	 *
 	 * @return The External Workload
 	 */
 	public double getExternalWorkload() {
@@ -457,9 +471,8 @@ public class SummaryStage {
 	/**
 	 * setExternalWorkload: <br>
 	 * Sets the "externalWorkload" field with a value
-	 * 
-	 * @param externalWorkload
-	 *            The value to set the External Workload
+	 *
+	 * @param externalWorkload The value to set the External Workload
 	 * @throws TrickException
 	 */
 	public void setExternalWorkload(double externalWorkload) throws TrickException {
@@ -473,7 +486,7 @@ public class SummaryStage {
 	/**
 	 * getInvestment: <br>
 	 * Returns the "investment" field value
-	 * 
+	 *
 	 * @return The Investment
 	 */
 	public double getInvestment() {
@@ -483,9 +496,8 @@ public class SummaryStage {
 	/**
 	 * setInvestment: <br>
 	 * Sets the "investment" field with a value
-	 * 
-	 * @param investment
-	 *            The value to set the Investment
+	 *
+	 * @param investment The value to set the Investment
 	 * @throws TrickException
 	 */
 	public void setInvestment(double investment) throws TrickException {
@@ -499,7 +511,7 @@ public class SummaryStage {
 	/**
 	 * getInternalMaintenance: <br>
 	 * Returns the "internalMaintenance" field value
-	 * 
+	 *
 	 * @return The Internal MaintenanceRecurrentInvestment
 	 */
 	public double getInternalMaintenance() {
@@ -509,9 +521,9 @@ public class SummaryStage {
 	/**
 	 * setInternalMaintenance: <br>
 	 * Sets the "internalMaintenance" field with a value
-	 * 
-	 * @param internalMaintenance
-	 *            The value to set the Internal MaintenanceRecurrentInvestment
+	 *
+	 * @param internalMaintenance The value to set the Internal
+	 *                            MaintenanceRecurrentInvestment
 	 * @throws TrickException
 	 */
 	public void setInternalMaintenance(double internalMaintenance) throws TrickException {
@@ -525,7 +537,7 @@ public class SummaryStage {
 	/**
 	 * getExternalMaintenance: <br>
 	 * Returns the "externalMaintenance" field value
-	 * 
+	 *
 	 * @return The External MaintenanceRecurrentInvestment
 	 */
 	public double getExternalMaintenance() {
@@ -535,9 +547,9 @@ public class SummaryStage {
 	/**
 	 * setExternalMaintenance: <br>
 	 * Sets the "externalMaintenance" field with a value
-	 * 
-	 * @param externalMaintenance
-	 *            The value to set the External MaintenanceRecurrentInvestment
+	 *
+	 * @param externalMaintenance The value to set the External
+	 *                            MaintenanceRecurrentInvestment
 	 * @throws TrickException
 	 */
 	public void setExternalMaintenance(double externalMaintenance) throws TrickException {
@@ -551,7 +563,7 @@ public class SummaryStage {
 	/**
 	 * getRecurrentCost: <br>
 	 * Returns the "recurrentCost" field value
-	 * 
+	 *
 	 * @return The Recurrent Cost
 	 */
 	public double getRecurrentCost() {
@@ -561,9 +573,8 @@ public class SummaryStage {
 	/**
 	 * setRecurrentCost: <br>
 	 * Sets the "recurrentCost" field with a value
-	 * 
-	 * @param recurrentCost
-	 *            The value to set the Recurrent Cost
+	 *
+	 * @param recurrentCost The value to set the Recurrent Cost
 	 * @throws TrickException
 	 */
 	public void setRecurrentCost(double recurrentCost) throws TrickException {
@@ -577,7 +588,7 @@ public class SummaryStage {
 	/**
 	 * getTotalCostofStage: <br>
 	 * Returns the "totalCostofStage" field value
-	 * 
+	 *
 	 * @return The Total Cost of this Stage
 	 */
 	public double getTotalCostofStage() {
@@ -587,9 +598,8 @@ public class SummaryStage {
 	/**
 	 * setTotalCostofStage: <br>
 	 * Sets the "totalCostofStage" field with a value
-	 * 
-	 * @param totalCostofStage
-	 *            The value to set the Total Cost of this Stage
+	 *
+	 * @param totalCostofStage The value to set the Total Cost of this Stage
 	 * @throws TrickException
 	 */
 	public void setTotalCostofStage(double totalCostofStage) throws TrickException {
@@ -603,7 +613,7 @@ public class SummaryStage {
 	/**
 	 * getActionPlanType: <br>
 	 * Returns the actionPlanType field value.
-	 * 
+	 *
 	 * @return The value of the actionPlanType field
 	 */
 	public ActionPlanType getActionPlanType() {
@@ -613,9 +623,8 @@ public class SummaryStage {
 	/**
 	 * setActionPlanType: <br>
 	 * Sets the Field "actionPlanType" with a value.
-	 * 
-	 * @param actionPlanType
-	 *            The Value to set the actionPlanType field
+	 *
+	 * @param actionPlanType The Value to set the actionPlanType field
 	 */
 	public void setActionPlanType(ActionPlanType actionPlanType) {
 		this.actionPlanType = actionPlanType;
@@ -624,7 +633,7 @@ public class SummaryStage {
 	/**
 	 * getRecurrentInvestment: <br>
 	 * Returns the recurrentInvestment field value.
-	 * 
+	 *
 	 * @return The value of the recurrentInvestment field
 	 */
 	public double getRecurrentInvestment() {
@@ -634,9 +643,8 @@ public class SummaryStage {
 	/**
 	 * setRecurrentInvestment: <br>
 	 * Sets the Field "recurrentInvestment" with a value.
-	 * 
-	 * @param recurrentInvestment
-	 *            The Value to set the recurrentInvestment field
+	 *
+	 * @param recurrentInvestment The Value to set the recurrentInvestment field
 	 * @throws TrickException
 	 */
 	public void setRecurrentInvestment(double recurrentInvestment) throws TrickException {
@@ -653,31 +661,4 @@ public class SummaryStage {
 		this.implementCostOfPhase = implementCostOfPhase;
 	}
 
-	/**
-	 * @return the notCompliantMeasure27002Count
-	 */
-	public int getNotCompliantMeasure27002Count() {
-		return notCompliantMeasure27002Count;
-	}
-
-	/**
-	 * @param notCompliantMeasure27002Count the notCompliantMeasure27002Count to set
-	 */
-	public void setNotCompliantMeasure27002Count(int notCompliantMeasure27002Count) {
-		this.notCompliantMeasure27002Count = notCompliantMeasure27002Count;
-	}
-
-	/**
-	 * @return the notCompliantMeasure27001Count
-	 */
-	public int getNotCompliantMeasure27001Count() {
-		return notCompliantMeasure27001Count;
-	}
-
-	/**
-	 * @param notCompliantMeasure27001Count the notCompliantMeasure27001Count to set
-	 */
-	public void setNotCompliantMeasure27001Count(int notCompliantMeasure27001Count) {
-		this.notCompliantMeasure27001Count = notCompliantMeasure27001Count;
-	}
 }

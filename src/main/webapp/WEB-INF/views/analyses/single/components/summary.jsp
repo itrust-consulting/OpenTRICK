@@ -80,22 +80,25 @@
 						<tr>
 							<td><spring:message code="label.phase.begin.date" /></td>
 							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<td class="text-right"><spring:message text="${begindates.get(i)}" /></td>
+								<td class="text-right"><fmt:formatDate value="${begindates.get(i)}" pattern="yyyy-MM-dd"/></td>
 							</c:forEach>
 						</tr>
 						<tr>
 							<td><spring:message code="label.phase.end.date" /></td>
 							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<td class="text-right"><spring:message text="${enddates.get(i)}" /></td>
+								<td class="text-right"><fmt:formatDate value="${enddates.get(i)}" pattern="yyyy-MM-dd" /></td>
 							</c:forEach>
 						</tr>
+
+
+
 						<c:forEach var="key" items="${summaryStages.keySet()}">
 							<c:if test="${fn:startsWith(key, 'label.characteristic.compliance')}">
 								<c:set var="standardLabel" value="${fn:substring(key, 31, key.length())}" />
 								<tr>
 									<td><spring:message code="label.characteristic.compliance" /> <spring:message text="${standardLabel}" /> (%)</td>
-									<c:set var="data" value="label.characteristic.compliance${standardLabel}" />
-									<c:set value="${summaryStages.get(data)}" var="compliances" />
+									<%-- <c:set var="data" value="label.characteristic.compliance${standardLabel}" /> --%>
+									<c:set value="${summaryStages.get(key)}" var="compliances" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${compliances.get(i)*100}" maxFractionDigits="0" var="val" />
 										<td class="text-right"><spring:message text="${val}" /></td>
@@ -104,22 +107,20 @@
 							</c:if>
 						</c:forEach>
 
-						<tr>
-							<td><spring:message code="label.characteristic.count.not_compliant_measure_27001" /></td>
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${nonCompliantMeasure27001[i]}" maxFractionDigits="0" var="value" />
-								<td class="text-right"><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
-
-
-						<tr>
-							<td><spring:message code="label.characteristic.count.not_compliant_measure_27002" /></td>
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${nonCompliantMeasure27002[i]}" maxFractionDigits="0" var="value" />
-								<td class="text-right"><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
+						<c:set value="${fn:length('label.characteristic.count.not_compliant_measure_') }" var="notCompliantLength"/>
+						<c:forEach var="key" items="${summaryStages.keySet()}">
+							<c:if test="${fn:startsWith(key, 'label.characteristic.count.not_compliant_measure')}">
+								<c:set var="standardLabel" value="${fn:substring(key, notCompliantLength, key.length())}" />
+								<tr>
+									<td><spring:message code="label.characteristic.count.not_compliant_measure" arguments="${standardLabel}" /></td>
+									<c:set value="${summaryStages.get(key)}" var="compliances" />
+									<c:forEach var="i" begin="0" end="${columncount-1}">
+										<fmt:formatNumber value="${compliances.get(i)}" maxFractionDigits="0" var="val" />
+										<td class="text-right"><spring:message text="${val}" /></td>
+									</c:forEach>
+								</tr>
+							</c:if>
+						</c:forEach>
 
 						<tr>
 							<td><spring:message code="label.characteristic.count.measure.phase" /></td>
