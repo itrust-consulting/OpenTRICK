@@ -214,7 +214,7 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 		int cellnumber = 0;
 		Tr row = (Tr) table.getContent().get(rownumber++);
 		exporter.setCellText((Tc) row.getContent().get(0),
-				numbering + "	" + exporter.getMessage("report.summary_stage.resource.planning", null, "Resource planning	Total cost of phase (k€)"));
+				numbering + "	" + exporter.getMessage("report.summary_stage.resource.planning", null, "Resource planning: total cost of phase (k€)"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getTotalCostofStage() * 0.001), true);
 
@@ -222,10 +222,11 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
-				numbering + ".1	" + exporter.getMessage("report.summary_stage.implementation.cost", null, "Implementation costs"));
+		exporter.setCellText((Tc) row.getContent().get(0), numbering + ".1	" + exporter.getMessage("report.summary_stage.implementation.cost", null, "Implementation costs"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getImplementCostOfPhase() * 0.001), true);
+
+		setColor(row, exporter.getColors().getNormal());
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
@@ -250,10 +251,11 @@ public class Docx4jSummaryBuilder extends Docx4jBuilder {
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
-		exporter.setCellText(setColor((Tc) row.getContent().get(0), exporter.getColors().getNormal()),
-				numbering + ".2	" + exporter.getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs"));
+		exporter.setCellText((Tc) row.getContent().get(0), numbering + ".2	" + exporter.getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs"));
 		for (SummaryStage stage : summary)
 			exporter.addCellNumber((Tc) row.getContent().get(++cellnumber), exporter.getNumberFormat().format(stage.getRecurrentCost() * 0.001), true);
+
+		setColor(row, exporter.getColors().getNormal());
 
 		cellnumber = 0;
 		row = (Tr) table.getContent().get(rownumber++);
