@@ -140,7 +140,7 @@ public class ControllerCustomer {
 	public @ResponseBody Map<String, String> save(@RequestBody CustomerForm value, Principal principal, Locale locale) {
 		final Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			Customer customer = customerManager.buildCustomer(errors, value, locale,false);
+			Customer customer = customerManager.buildCustomer(errors, value, locale, false);
 			if (!errors.isEmpty())
 				return errors;
 			User user = serviceUser.get(principal.getName());
@@ -276,10 +276,10 @@ public class ControllerCustomer {
 			}
 		}
 
-		if (templateForm.getType() == AnalysisType.QUALITATIVE || templateForm.getType() == AnalysisType.QUANTITATIVE)
+		if (templateForm.getType() != null)
 			template.setType(templateForm.getType());
 		else
-			result.put("type", messageSource.getMessage("error.report.template.type", null, "Type cannot only be quantitative or qualitative", locale));
+			result.put("type", messageSource.getMessage("error.report.template.type", null, "Type cannot be empty", locale));
 
 		template.setLanguage(serviceLanguage.get(templateForm.getLanguage()));
 
