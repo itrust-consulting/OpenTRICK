@@ -863,8 +863,7 @@ public class ControllerMeasureCollection {
 		try {
 
 			// create json parser
-			final ObjectMapper mapper = new ObjectMapper();
-			final JsonNode jsonNode = mapper.readTree(source);
+			final JsonNode jsonNode = new ObjectMapper().readTree(source);
 
 			ValidatorField validator = serviceDataValidation.findByClass(Standard.class);
 

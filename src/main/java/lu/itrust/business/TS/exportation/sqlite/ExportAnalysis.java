@@ -1593,7 +1593,7 @@ public class ExportAnalysis {
 					if (measurequery.isEmpty()) {
 
 						// build query
-						measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'norme_name', ? as 'version_norme', ? as 'norme_description', ? as 'norme_type',"
+						measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'name_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norme_type',"
 								+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
 								+ "? as 'question_measure',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
 								+ "? as 'integrity',? as 'availability',? as `exploitability`, ? as `reliability`,? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
@@ -1624,7 +1624,7 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery = "INSERT INTO measures SELECT ? as 'id_norme', ? as 'norme_name',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
+							measurequery = "INSERT INTO measures SELECT ? as 'id_norme', ? as 'name_norme',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
 									+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
 									+ "? as 'question_measure',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',"
 									+ "? as 'integrity',? as 'availability', ? as `exploitability`, ? as `reliability`, ? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',"
@@ -1819,7 +1819,7 @@ public class ExportAnalysis {
 					if (measurequery.isEmpty()) {
 
 						// build query
-						measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'norme_name',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
+						measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'name_norme',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
 								+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
 								+ "? as 'question_measure',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',? as 'integrity',"
 								+ "? as 'availability' , ? as `exploitability`, ? as `reliability` ,? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',"
@@ -1848,7 +1848,7 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'norme_name',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
+							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'name_norme',? as 'version_norme',? as 'norme_description',? as 'norme_type',"
 									+ "? as 'norme_computable',? as 'norme_analysisOnly',? as 'ref_measure',? as 'measure_computable',? as 'domain_measure',"
 									+ "? as 'question_measure',? as 'strength_measure',? as 'strength_sectoral',? as 'confidentiality',? as 'integrity',"
 									+ "? as 'availability', ? as `exploitability`, ? as `reliability`,? as 'd1',? as 'd2',? as 'd3',? as 'd4',? as 'd5',"
@@ -2050,7 +2050,7 @@ public class ExportAnalysis {
 					if (measurequery.isEmpty()) {
 
 						// set query
-						measurequery = "INSERT INTO maturities SELECT ? as 'norme_name', ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
+						measurequery = "INSERT INTO maturities SELECT ? as 'name_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
 						measurequery += " 'domain',? as 'phase',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
 						measurequery += "'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo', ? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 						measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
@@ -2073,7 +2073,7 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery = "INSERT INTO maturities SELECT ? as 'norme_name', ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
+							measurequery = "INSERT INTO maturities SELECT ? as 'name_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
 							measurequery += " 'domain',? as 'phase',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
 							measurequery += "? as 'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 							measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";

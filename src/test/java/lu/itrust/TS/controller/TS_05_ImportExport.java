@@ -374,6 +374,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		try {
 			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
+			if(worker.getError()!=null)
+				worker.getError().printStackTrace();
 			isNull(worker.getError(), "An error occured while export analysis");
 			notNull(messageHandler, "Last message cannot be found");
 			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))

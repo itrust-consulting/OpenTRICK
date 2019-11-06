@@ -2072,6 +2072,7 @@ public class ImportAnalysis {
 				// initialise standard variable
 
 				standardName = rs.getString(Constant.MEASURE_ID_NORM);
+				
 
 				if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 					standardVersion = rs.getInt(Constant.MEASURE_VERSION_NORM);

@@ -293,8 +293,8 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	@Test
 	public void test_06_CreateStandard() throws Exception {
 		this.mockMvc.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-				.content(String.format("{\"id\":\"-1\", \"label\":\"%s\",\"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}", TEST_STANDARD,
-						"test standard description", "NORMAL", 2015, "on")))
+				.content(String.format("{\"id\":\"-1\", \"label\":\"%s\",\"name\": \"%s\",\"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+						TEST_STANDARD, TEST_STANDARD, "test standard description", "NORMAL", 2015, "on")))
 				.andExpect(status().isOk()).andExpect(content().string("{}"));
 		Session session = null;
 		try {
@@ -359,20 +359,23 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_09_EditStandard() throws Exception {
 		this.mockMvc
 				.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-								getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "ASSET", 2016, "on")))
+						.content(String.format(
+								"{\"id\":%d, \"label\":\"%s\",\"name\": \"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+								getInteger(TEST_STANDARD_ID), TEST_STANDARD, TEST_STANDARD, "test standard description", "ASSET", 2016, "on")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.type").exists());
 
 		this.mockMvc
 				.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-								getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on")))
+						.content(String.format(
+								"{\"id\":%d, \"label\":\"%s\",\"name\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+								getInteger(TEST_STANDARD_ID), TEST_STANDARD, TEST_STANDARD, "test standard description", "MATURITY", 2016, "on")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.type").exists());
 
 		this.mockMvc
 				.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-								getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "NORMAL", 2016, "on")))
+						.content(String.format(
+								"{\"id\":%d, \"label\":\"%s\",\"name\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+								getInteger(TEST_STANDARD_ID), TEST_STANDARD, TEST_STANDARD, "test standard description", "NORMAL", 2016, "on")))
 				.andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 

@@ -475,7 +475,7 @@ public class Constant {
 	public static final String MEASURE_LEVEL = "level";
 	public static final String MEASURE_REF_MEASURE = "ref_measure";
 	public static final String MEASURE_ID_NORM = "id_norme";
-	public static final String MEASURE_NAME_NORM = "norme_name";
+	public static final String MEASURE_NAME_NORM = "name_norme";
 	public static final String MEASURE_VERSION_NORM = "version_norme";
 	public static final String MEASURE_RESPONSIBLE = "responsible";
 	public static final String MEASURE_STANDARD_COMPUTABLE = "norme_computable";
