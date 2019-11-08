@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<spring:eval expression="T(lu.itrust.business.TS.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
 <div class="modal fade" id="user-modal-form" tabindex="-1" role="dialog" data-aria-labelledby="user-modal-form" data-aria-hidden="true">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
@@ -34,7 +35,7 @@
 									text="Username" />
 							</label>
 							<div class="col-sm-8">
-								<input id="user_login" name="login" class="form-control" type="text" value="${user.login}" required="required" ${user.id>0? 'readonly':''} />
+								<input id="user_login" name="login" class="form-control" type="text" value="${user.login}" pattern="${usernameRegex}" required="required" ${user.id>0? 'readonly':''} />
 							</div>
 						</div>
 						<div class="form-group">

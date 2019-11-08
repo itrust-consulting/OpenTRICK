@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!-- ###################################################################### HTML #################################################################### -->
+<spring:eval expression="T(lu.itrust.business.TS.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
@@ -43,7 +44,7 @@
 					<div class="form-group">
 						<input id="username" name="username" autofocus="autofocus" value="${(!empty (username))? username : ''}"
 							placeholder="<spring:message code='label.signin.login' text='Username'/>" required="required" class="form-control"
-							pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}" />
+							pattern="${usernameRegex}" />
 					</div>
 					<div class="form-group">
 						<input name="password" value="${(!empty (password))? password : ''}" type="password" class="form-control"

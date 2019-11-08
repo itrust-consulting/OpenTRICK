@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<spring:eval expression="T(lu.itrust.business.TS.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
 <c:set scope="request" var="title">label.title.register</c:set>
 <!DOCTYPE html>
 <html>
@@ -23,7 +24,7 @@
 						<spring:message code="label.user.login" text="Username" />
 					</label>
 					<div class="col-sm-8">
-						<input type="text" id="login" name="login" class="form-control" required pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}"/>
+						<input type="text" id="login" name="login" class="form-control" required pattern="${usernameRegex}"/>
 					</div>
 				</div>
 				<div class="form-group">
