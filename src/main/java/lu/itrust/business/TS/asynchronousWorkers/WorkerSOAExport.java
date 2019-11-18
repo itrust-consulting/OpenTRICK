@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import static lu.itrust.business.TS.constants.Constant.CLEAN_UP_FILE_NAME;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
@@ -58,6 +59,8 @@ import lu.itrust.business.TS.usermanagement.User;
  *
  */
 public class WorkerSOAExport extends WorkerImpl {
+
+	
 
 	public static final String DEFAULT_PARAGRAHP_STYLE = "TabText1";
 
@@ -215,7 +218,8 @@ public class WorkerSOAExport extends WorkerImpl {
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			final String filename = String.format("SOA_%s_%d_v%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), System.nanoTime(), analysis.getVersion());
+			final String filename = String.format("SOA_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""),
+					System.nanoTime(), analysis.getVersion());
 			final String doctemplate = String.format("docx/%s.docx", locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
 			InstanceManager.getServiceStorage().copy(doctemplate, workFile.getName());
 			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);

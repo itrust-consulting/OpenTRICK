@@ -666,6 +666,8 @@ public class Constant {
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
 	public static final String USER_IV_2_FACTOR_SECRET = "user-iv-2-factor-secret";
+	
+	public static final String CLEAN_UP_FILE_NAME = "\\.|/|-|:|\\\\|&|,|\\$|\\+|\\||£|&|\\[|\\]|\\(|\\)|\\{|\\}|\\'|\"";
 
 	/*
 	 * *************************************************************************
