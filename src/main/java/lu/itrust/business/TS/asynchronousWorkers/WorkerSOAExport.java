@@ -215,11 +215,11 @@ public class WorkerSOAExport extends WorkerImpl {
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			final String filename = String.format("SOA_%s_V%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final String filename = String.format("SOA_%s_%d_v%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), System.nanoTime(), analysis.getVersion());
 			final String doctemplate = String.format("docx/%s.docx", locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
 			InstanceManager.getServiceStorage().copy(doctemplate, workFile.getName());
-			final WordprocessingMLPackage wordMLPackage =  WordprocessingMLPackage.load(workFile);
-			final Document document  = wordMLPackage.getMainDocumentPart().getContents();
+			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
+			final Document document = wordMLPackage.getMainDocumentPart().getContents();
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
 			final List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
 			MessageHandler handler = new MessageHandler("info.printing.soa.data", "Printing soa data", progressing[0] += 1);
