@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1044,43 +1043,19 @@ public class ActionPlanComputation {
 	}
 
 	private void setSOARisk(ActionPlanEntry entry, List<TMA> TMAList) throws TrickException {
-
-		double report = -1;
-
-		double tmpreport = 0;
-
-		Assessment asm = null;
-
+		
 		if (!entry.getMeasure().getAnalysisStandard().isSoaEnabled() || entry.getMeasure() instanceof MaturityMeasure)
 			return;
 
-		Measure measure = entry.getMeasure();
+		final TMA tma = TMAList.parallelStream().filter(e -> e.getMeasure().equals(entry.getMeasure())).max((e1, e2) -> Double.compare(e1.getDeltaALE(), e2.getDeltaALE()))
+				.orElse(null);
+		if (tma != null) {
+			String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + tma.getAssessment().getAsset().getName() + "\n"
+					+ messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + tma.getAssessment().getScenario().getName() + "\n"
+					+ messageSource.getMessage("label.delta.ale", null, "Delta ALE:", locale) + " " + numberFormat.format(tma.getDeltaALE()*.001) + " k€";
 
-		for (TMA tma : TMAList) {
-
-			if (!measure.equals(tma.getMeasure()))
-				continue;
-
-			Optional<Assessment> optional = this.analysis.getAssessments().stream().filter(assessment -> assessment.equals(tma.getAssessment())).findFirst();
-
-			if (optional.isPresent()) {
-
-				tmpreport = (tma.getDeltaALE() / optional.get().getALE()) * 100.0;
-
-				if (tmpreport > report) {
-					report = tmpreport;
-					asm = optional.get();
-				}
-			}
-		}
-
-		if (asm != null) {
-			String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + "\n"
-					+ messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + "\n"
-					+ messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + numberFormat.format(report);
-
-			MeasureProperties measureProperties = measure instanceof AbstractNormalMeasure ? ((AbstractNormalMeasure) measure).getMeasurePropertyList() : null;
-
+			final MeasureProperties measureProperties = entry.getMeasure() instanceof AbstractNormalMeasure ? ((AbstractNormalMeasure) entry.getMeasure()).getMeasurePropertyList()
+					: null;
 			if (measureProperties != null) {
 				measureProperties.setSoaRisk(soarisk);
 				if (StringUtils.isEmpty(measureProperties.getSoaComment()))
