@@ -137,7 +137,7 @@ public class ControllerTicket extends AbstractController {
 		final Customer customer = serviceCustomer.findByAnalysisId(ids.size() > 1 ? ids.get(0) : -1);
 		if (customer == null || !(user.containsCustomer(customer) && loadUserSettings(principal, customer.getTicketingSystem(), model, user)))
 			throw new ResourceNotFoundException();
-		String name = (String) model.asMap().get(TICKETING_NAME);
+		final String name = (String) model.asMap().get(TICKETING_NAME);
 		ids.stream().map(id -> serviceAnalysis.findByIdAndCustomer(id, customer)).filter(a -> a != null && a.hasProject() && a.isUserAuthorized(user, AnalysisRight.ALL))
 				.forEach(analysis -> {
 					analysis.setProject(null);
@@ -178,12 +178,12 @@ public class ControllerTicket extends AbstractController {
 				throw new ResourceNotFoundException();
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName(), analysis.getCustomer().getTicketingSystem());
-				List<Measure> measures;
-				List<String> excludes = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+				final List<Measure> measures;
+				final List<String> excludes = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
 
 				if (measureIds.size() > 5) {
-					final Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity(), (e1, e2)-> e1));
+					final Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity(), (e1, e2) -> e1));
 					measures = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
 				} else {
@@ -227,7 +227,7 @@ public class ControllerTicket extends AbstractController {
 				throw new ResourceNotFoundException();
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName(), analysis.getCustomer().getTicketingSystem());
-				List<String> excludes = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+				final List<String> excludes = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
 				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 40));
 			}
@@ -263,19 +263,19 @@ public class ControllerTicket extends AbstractController {
 				throw new ResourceNotFoundException();
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName(), analysis.getCustomer().getTicketingSystem());
-				Map<Integer, String> keyIssues;
+				final Map<Integer, String> keyIssues;
 				if (measures.size() > 5) {
 					Map<Integer, Integer> contains = measures.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
 					keyIssues = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket()))
-							.collect(Collectors.toMap(Measure::getId, Measure::getTicket));
+							.collect(Collectors.toMap(Measure::getId, Measure::getTicket, (e1, e2)-> e1));
 				} else {
 					keyIssues = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && measures.contains(measure.getId()))
-							.collect(Collectors.toMap(Measure::getId, Measure::getTicket));
+							.collect(Collectors.toMap(Measure::getId, Measure::getTicket, (e1, e2)-> e1));
 				}
-				Map<String, TicketingTask> taskMap = client.findByIdsAndProjectId(analysis.getProject(), keyIssues.values()).stream()
-						.collect(Collectors.toMap(TicketingTask::getId, Function.identity()));
+				final Map<String, TicketingTask> taskMap = client.findByIdsAndProjectId(analysis.getProject(), keyIssues.values()).stream()
+						.collect(Collectors.toMap(TicketingTask::getId, Function.identity(), (e1, e2)-> e1));
 				if (!taskMap.isEmpty()) {
 					final List<TicketingTask> tasks = new LinkedList<>();
 					measures.stream().filter(id -> taskMap.containsKey(keyIssues.get(id))).forEach(id -> tasks.add(taskMap.get(keyIssues.get(id))));
@@ -319,19 +319,20 @@ public class ControllerTicket extends AbstractController {
 				client = buildClient(principal.getName(), analysis.getCustomer().getTicketingSystem());
 				Map<Integer, Measure> measuresMap;
 				if (ids.size() > 5) {
-					Map<Integer, Integer> contains = ids.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					final Map<Integer, Integer> contains = ids.stream().filter(e -> e != null && e > 0)
+							.collect(Collectors.toMap(Function.identity(), Function.identity(), (e1, e2) -> e1));
 					measuresMap = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket()))
-							.collect(Collectors.toMap(Measure::getId, Function.identity()));
+							.collect(Collectors.toMap(Measure::getId, Function.identity(), (e1, e2) -> e1));
 				} else {
 					measuresMap = analysis.getAnalysisStandards().values().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && ids.contains(measure.getId()))
-							.collect(Collectors.toMap(Measure::getId, Function.identity()));
+							.collect(Collectors.toMap(Measure::getId, Function.identity(), (e1, e2) -> e1));
 				}
 
-				List<Measure> measures = new LinkedList<>();
+				final List<Measure> measures = new LinkedList<>();
 
-				List<String> keyIssues = new LinkedList<>();
+				final List<String> keyIssues = new LinkedList<>();
 
 				ids.stream().filter(id -> measuresMap.containsKey(id)).forEach(id -> {
 					Measure measure = measuresMap.get(id);
@@ -339,9 +340,9 @@ public class ControllerTicket extends AbstractController {
 					keyIssues.add(measure.getTicket());
 				});
 
-				Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
-						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
-				List<? extends IParameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				final Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
+						.collect(Collectors.toMap(task -> task.getId(), Function.identity(), (e1, e2) -> e1));
+				final List<? extends IParameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 				measures.sort(new MeasureComparator());
 				model.addAttribute("measures", measures);
 				model.addAttribute("parameters", parameters);
