@@ -35,6 +35,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jExcelSheet;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CTBarSerProxy;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.helper.chartJS.item.ColorBound;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -206,7 +207,8 @@ public class Docx4jRiskChartBuilder extends Docx4jBuilder {
 		chart.getContents().getChart().getDispBlanksAs().setVal(STDispBlanksAs.GAP);
 
 		for (int i = 0; i < colorBounds.size(); i++) {
-			final CTBarSer ser = exporter.createChart(String.format("%s!$%s$1", reportExcelSheet.getName(), (char) ('B' + i)), i, colorBounds.get(i).getLabel(), new CTBarSer());
+			final CTBarSer ser = exporter
+					.createChart(String.format("%s!$%s$1", reportExcelSheet.getName(), (char) ('B' + i)), i, colorBounds.get(i).getLabel(), new CTBarSerProxy()).getProxy();
 			exporter.setColor(ser, colorBounds.get(i).getColor());
 			barChart.getSer().add(ser);
 			setValue(row, i + 1, colorBounds.get(i).getLabel());

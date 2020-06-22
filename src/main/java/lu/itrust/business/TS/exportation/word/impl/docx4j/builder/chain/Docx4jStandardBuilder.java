@@ -55,6 +55,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.DocxChainFactory;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CTRadarSerProxy;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
@@ -233,7 +234,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 		String phaseLabel = exporter.getMessage("label.chart.series.current_level", null, "Current Level");
 
-		CTRadarSer ser = exporter.createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, phaseLabel, new CTRadarSer());
+		CTRadarSer ser = exporter.createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, phaseLabel, new CTRadarSerProxy()).getProxy();
 
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, exporter.getValueFactory());
 
@@ -280,7 +281,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 				phaseLabel = exporter.getMessage("label.chart.phase", new Object[] { phase.getNumber() }, "Phase " + phase.getNumber());
 				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, exporter.getValueFactory());
-				ser = exporter.createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel, new CTRadarSer());
+				ser = exporter.createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col), columnIndex - 1, phaseLabel,  new CTRadarSerProxy()).getProxy();
 				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
 
 				setValue(sheet.getRow().get(rowCount = 0), columnIndex, phaseLabel);

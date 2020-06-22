@@ -271,6 +271,22 @@ public final class ExcelHelper {
 		return row;
 	}
 
+	public static WorksheetPart getWorksheetPart(Worksheet worksheet) {
+		return (WorksheetPart) worksheet.getParent();
+	}
+
+	public static WorksheetPart getWorksheetPart(final SheetData sheetData) {
+		return getWorksheetPart((Worksheet) sheetData.getParent());
+	}
+
+	public static WorksheetPart getWorksheetPart(final Row row) {
+		return getWorksheetPart((SheetData) row.getParent());
+	}
+
+	public static WorksheetPart getWorksheetPart(final Cell cell) {
+		return getWorksheetPart((Row) cell.getParent());
+	}
+
 	public static String getString(Cell cell, DataFormatter formatter) {
 		if (cell == null)
 			return "";
@@ -285,7 +301,7 @@ public final class ExcelHelper {
 				return null;
 			break;
 		case N:
-			if (cell.getWorksheetPart().getWorkbookPart().getStylesPart() != null)
+			if (getWorksheetPart(cell).getWorkbookPart().getStylesPart() != null)
 				break;
 		case B:
 			return cell.getV();
@@ -414,6 +430,18 @@ public final class ExcelHelper {
 			if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name))
 				return table;
 		}
+		return null;
+	}
+
+	public static TablePart findTable(SheetData sheetData, String name) throws Exception {
+		final Worksheet worksheet = (Worksheet) sheetData.getParent();
+		final WorksheetPart worksheetPart = (WorksheetPart) worksheet.getParent();
+		for (CTTablePart ctTablePart : worksheet.getTableParts().getTablePart()) {
+			TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
+			if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name))
+				return table;
+		}
+
 		return null;
 	}
 

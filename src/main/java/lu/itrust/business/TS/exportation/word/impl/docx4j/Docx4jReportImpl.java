@@ -43,7 +43,6 @@ import org.docx4j.dml.chart.CTStrData;
 import org.docx4j.dml.chart.CTStrRef;
 import org.docx4j.dml.chart.CTStrVal;
 import org.docx4j.dml.chart.CTUnsignedInt;
-import org.docx4j.dml.chart.SerContent;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.finders.RangeFinder;
@@ -93,6 +92,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.Docx4jReport;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.BookmarkClean;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CTChartSer;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.TS.helper.Distribution;
 import lu.itrust.business.TS.helper.InstanceManager;
@@ -367,7 +367,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return alignment;
 	}
 
-	public <T extends SerContent> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel, T ser) {
+	public <T extends CTChartSer> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel, T ser) {
 
 		setupTitle(reference, index, phaseLabel, ser);
 
@@ -382,7 +382,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return ser;
 	}
 
-	public <T extends SerContent> T createChart(String reference, long index, String title, T ser) {
+	public <T extends CTChartSer> T createChart(String reference, long index, String title, T ser) {
 
 		CTAxDataSource ctAxDataSource = new CTAxDataSource();
 
@@ -1126,7 +1126,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return r;
 	}
 
-	public <T extends SerContent> void setupTitle(String reference, long index, String title, T ser) {
+	public <T extends CTChartSer> void setupTitle(String reference, long index, String title, T ser) {
 		ser.setOrder(new CTUnsignedInt());
 		ser.getOrder().setVal(index);
 		ser.setIdx(new CTUnsignedInt());

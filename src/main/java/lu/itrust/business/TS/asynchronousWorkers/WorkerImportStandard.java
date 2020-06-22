@@ -240,7 +240,7 @@ public class WorkerImportStandard extends WorkerImpl {
 	}
 
 	private Standard loadStandard(SheetData infoSheet, DataFormatter formatter) throws Exception {
-		final TablePart tablePart = findTable(infoSheet.getWorksheetPart(), "TableNormInfo");
+		final TablePart tablePart = findTable(infoSheet, "TableNormInfo");
 		if (tablePart == null)
 			return null;
 		final AddressRef addressRef = AddressRef.parse(tablePart.getContents().getRef());
@@ -298,7 +298,7 @@ public class WorkerImportStandard extends WorkerImpl {
 		if (sheet == null)
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));
-		TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
+		TablePart tablePart = findTable(sheet, "TableNormData");
 		if (tablePart == null)
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!"));

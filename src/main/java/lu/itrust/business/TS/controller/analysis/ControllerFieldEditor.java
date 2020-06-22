@@ -209,7 +209,7 @@ public class ControllerFieldEditor {
 	public String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
-
+			
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get acion plan entry

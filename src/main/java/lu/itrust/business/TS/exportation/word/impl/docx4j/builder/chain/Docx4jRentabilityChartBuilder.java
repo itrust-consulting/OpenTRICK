@@ -34,6 +34,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jExcelSheet;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CTBarSerProxy;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
@@ -108,7 +109,7 @@ public class Docx4jRentabilityChartBuilder extends Docx4jBuilder {
 
 							for (int i = 0; i < dataName.length; i++) {
 								CTBarSer ser = exporter.createChart(String.format("%s!$A$%s", docx4jExcelSheet.getName(), i + 2), i,
-										exporter.getMessage("label.title.chart.evolution_profitability." + dataName[i].toLowerCase()), new CTBarSer());
+										exporter.getMessage("label.title.chart.evolution_profitability." + dataName[i].toLowerCase()), new CTBarSerProxy()).getProxy();
 								profiltabilityDatasets.put(dataName[i], ser);
 								ser.getVal().getNumRef().getNumCache().setFormatCode(NUMBER_FORMAT);
 								barChart.getSer().add(ser);
@@ -134,8 +135,7 @@ public class Docx4jRentabilityChartBuilder extends Docx4jBuilder {
 								for (int j = 0; j < dataName.length; j++) {
 									final CTNumVal numVal = new CTNumVal();
 									final CTBarSer ser = profiltabilityDatasets.get(dataName[j]);
-									final Double rosi = (double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i);
-
+									final Double rosi = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i);
 									double value = 0d;
 									switch (dataName[j]) {
 									case "ALE":

@@ -225,7 +225,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			if (sheet == null)
 				throw new TrickException("error.risk.information.sheet.not.found", String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1].toString()),
 						mapper[1].toString());
-			final TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
+			final TablePart tablePart = findTable(sheet, mapper[0] + "Table");
 			if (tablePart == null)
 				throw new TrickException("error.risk.information.table.not.found",
 						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),

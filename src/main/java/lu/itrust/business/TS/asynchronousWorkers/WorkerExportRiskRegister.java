@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import static lu.itrust.business.TS.constants.Constant.CLEAN_UP_FILE_NAME;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -200,7 +202,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		MessageHandler messageHandler = null;
 		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
 		try {
-			final String filename = String.format("RISK_REGISTER_%s_v%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final String filename = String.format("RISK_REGISTER_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(), analysis.getVersion());
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
 			final boolean showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			final Locale locale = new Locale(analysis.getLanguage().getAlpha2());

@@ -325,7 +325,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		final SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
 			return;
-		final TablePart table = findTable(sheetData.getWorksheetPart(), "Assets");
+		final TablePart table = findTable(sheetData, "Assets");
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Assets` cannot be found!", "Assets");
 
@@ -404,6 +404,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	}
 
+	
+
 	private void importRiskEstimation(final Analysis analysis, ValueFactory factory, AssessmentAndRiskProfileManager riskProfileManager, final WorkbookPart workbook,
 			final Map<String, Sheet> sheets, DataFormatter formatter, final int min, final int max) throws Exception, Docx4JException {
 		final Sheet sheet = sheets.get("Risk estimation");
@@ -412,7 +414,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
 			return;
-		TablePart table = findTable(sheetData.getWorksheetPart(), "Risk_estimation");
+		TablePart table = findTable(sheetData, "Risk_estimation");
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Risk_estimation` cannot be found!", "Risk_estimation");
 		final AddressRef address = AddressRef.parse(table.getContents().getRef());
@@ -575,7 +577,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
 			return;
-		TablePart table = findTable(sheetData.getWorksheetPart(), "Scenarios");
+		TablePart table = findTable(sheetData, "Scenarios");
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Scenarios` cannot be found!", "Scenarios");
 		final MessageHandler handler = new MessageHandler("info.updating.scenario", null, "Updating scenarios", min);
@@ -750,7 +752,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
 			throw new TrickException("error.import.data.sheet.no.data", "No data for worksheet named `" + value + "`", value);
-		TablePart table = findTable(sheetData.getWorksheetPart(), value);
+		TablePart table = findTable(sheetData, value);
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `" + value + "` cannot be found!", value);
 		final AddressRef address = AddressRef.parse(table.getContents().getRef());

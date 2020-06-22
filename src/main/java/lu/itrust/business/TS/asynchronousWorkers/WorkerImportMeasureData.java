@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
 import java.sql.Timestamp;
@@ -55,7 +56,7 @@ import lu.itrust.business.TS.model.standard.measure.impl.MaturityMeasure;
  *
  */
 public class WorkerImportMeasureData extends WorkerImpl {
-	
+
 	private String username;
 
 	private String filename;
@@ -200,7 +201,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		final SheetData sheetData = findSheet(workbook, sheet);
 		if (sheetData == null)
 			return minProgress;
-		final TablePart table = findTableNameStartWith(sheetData.getWorksheetPart(), "Measures");
+		final TablePart table = findTableNameStartWith(getWorksheetPart(sheetData), "Measures");
 		if (table == null)
 			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!", "Measures");
 

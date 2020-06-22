@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import static lu.itrust.business.TS.constants.Constant.CLEAN_UP_FILE_NAME;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.verticalMergeCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
@@ -580,7 +581,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
-			final String internalName = String.format("RISK_SHEET_%s_v%s.xlsx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final String internalName = String.format("RISK_SHEET_%s_%d_v%s.xlsx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(), analysis.getVersion());
 			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
 					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()), 1);
 
@@ -628,7 +629,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
 					Estimation.IdComparator());
 			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
-			final String filename = String.format("RISK_SHEET_%s_v%s.docx", analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion());
+			final String filename = String.format("RISK_SHEET_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(), analysis.getVersion());
 			final String templatePath = String.format("docx/%s.docx", analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
 			InstanceManager.getServiceStorage().copy(templatePath, workFile.getName());
 			WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(workFile);

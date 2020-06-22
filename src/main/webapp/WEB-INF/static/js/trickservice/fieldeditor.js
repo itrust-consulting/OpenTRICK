@@ -176,13 +176,6 @@ function FieldEditor(element, validator) {
 
 		if (!application.editMode || !this.isText) {
 			var that = this, $fieldEditor = $(this.fieldEditor);
-			$fieldEditor.blur(function() {
-				if (that.Validate())
-					return that.Save(that);
-				else
-					$fieldEditor.parent().addClass("has-error").focus();
-			});
-			
 			if(type=="color"){
 				$fieldEditor.change(function() {
 					if (that.Validate())
@@ -191,6 +184,15 @@ function FieldEditor(element, validator) {
 						$fieldEditor.parent().addClass("has-error").focus();
 				});
 			}
+			//fix issue the color dialog. delay 100ms
+			setTimeout(() => {
+				$fieldEditor.blur(function() {
+					if (that.Validate())
+						return that.Save(that);
+					else
+						$fieldEditor.parent().addClass("has-error").focus();
+				});
+			}, 100);
 		}
 		return false;
 	};

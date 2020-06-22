@@ -4,6 +4,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -359,7 +361,7 @@ public class ControllerMeasureCollection {
 
 			SheetData sheet = findSheet(workbook, "NormInfo");
 
-			TablePart tablePart = findTable(sheet.getWorksheetPart(), "TableNormInfo");
+			TablePart tablePart = findTable(sheet, "TableNormInfo");
 			tablePart.getContents().getRef();
 			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
 			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), labelCol = nameCol + 1, versionCol = labelCol + 1, descCol = versionCol + 1;
@@ -394,7 +396,7 @@ public class ControllerMeasureCollection {
 			Row sheetRow = getRow(sheet, 0, colSize);
 			setValue(sheetRow.getC().get(index++), "Reference");
 			setValue(sheetRow.getC().get(index++), "Computable");
-			tablePart = findTable(sheet.getWorksheetPart(), "TableNormData");
+			tablePart = findTable(sheet, "TableNormData");
 			address = AddressRef.parse(tablePart.getContents().getRef());
 			CTTable table = tablePart.getContents();
 			while (table.getTableColumns().getTableColumn().size() > index)
@@ -420,9 +422,11 @@ public class ControllerMeasureCollection {
 
 			if (table.getAutoFilter() != null)
 				table.getAutoFilter().setRef(table.getRef());
-
-			if (sheet.getWorksheetPart().getContents().getDimension() != null)
-				sheet.getWorksheetPart().getContents().getDimension().setRef(table.getRef());
+			
+			final WorksheetPart worksheetPart = getWorksheetPart(sheet);
+			
+			if (worksheetPart.getContents().getDimension() != null)
+				worksheetPart.getContents().getDimension().setRef(table.getRef());
 
 			row = 1;
 

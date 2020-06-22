@@ -4,7 +4,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.constants.Constant.APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.RI_SHEET_MAPPERS;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
@@ -550,11 +550,12 @@ public class ControllerDataManager {
 				List<RiskInformation> riskInformations = riskInformationMap.get(mapper[0]);
 				if (riskInformations == null)
 					continue;
-				SheetData sheet = findSheet(workbook, mapper[1].toString());
+				final SheetData sheet = findSheet(workbook, mapper[1].toString());
 				if (sheet == null)
 					throw new TrickException("error.risk.information.template.sheet.not.found",
 							String.format("Something wrong with template: Sheet `%s` cannot be found", mapper[1].toString()), mapper[1].toString());
-				TablePart tablePart = findTable(sheet.getWorksheetPart(), mapper[0] + "Table");
+				final WorksheetPart worksheetPart = getWorksheetPart(sheet);
+				final TablePart tablePart = findTable(worksheetPart, mapper[0] + "Table");
 				if (tablePart == null)
 					throw new TrickException("error.risk.information.template.table.not.found",
 							String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),
@@ -571,8 +572,8 @@ public class ControllerDataManager {
 				if (table.getAutoFilter() != null)
 					table.getAutoFilter().setRef(table.getRef());
 
-				if (sheet.getWorksheetPart().getContents().getDimension() != null)
-					sheet.getWorksheetPart().getContents().getDimension().setRef(table.getRef());
+				if (worksheetPart.getContents().getDimension() != null)
+					worksheetPart.getContents().getDimension().setRef(table.getRef());
 				int rowIndex = 1, colSize = address.getEnd().getCol();
 				for (RiskInformation riskInformation : riskInformations) {
 					int colIndex = 0;

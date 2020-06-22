@@ -37,6 +37,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jExcelSheet;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CTBarSerProxy;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
@@ -173,7 +174,7 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 
 		final SheetData sheet = reportExcelSheet.getWorkbook().getWorksheet(0).getContents().getSheetData();
 
-		final CTBarSer ser = exporter.createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, name, new CTBarSer());
+		final CTBarSer ser = exporter.createChart(String.format("%s!$B$1", reportExcelSheet.getName()), 0, name, new CTBarSerProxy()).getProxy();
 
 		final CTRegularTextRun r = (CTRegularTextRun) chart.getContents().getChart().getTitle().getTx().getRich().getP().get(0).getEGTextRun().get(0);
 
