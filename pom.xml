@@ -8,7 +8,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<spring-boot.version>2.1.8.RELEASE</spring-boot.version>
+		<spring-boot.version>2.3.1.RELEASE</spring-boot.version>
 	</properties>
 
 	<dependencies>
@@ -70,6 +70,7 @@
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
 		</dependency>
 
 		<!-- Spring dependencies -->
@@ -174,6 +175,7 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
+			<version>2.10.6</version>
 		</dependency>
 
 		<!-- WEB SOCKET -->
@@ -327,19 +329,6 @@
 
 		<!-- Docx4J(Generate Office document) -->
 
-		<!-- <dependency>
-			<groupId>org.docx4j</groupId>
-			<artifactId>docx4j</artifactId>
-			<version>6.1.2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency> -->
-
-
 		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
@@ -386,6 +375,7 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+			<version>5.2.4</version>
 		</dependency>
 
 		<!-- JIRA -->
@@ -502,6 +492,7 @@
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
+			<version>2.0.2</version>
 			<scope>test</scope>
 		</dependency>
 
