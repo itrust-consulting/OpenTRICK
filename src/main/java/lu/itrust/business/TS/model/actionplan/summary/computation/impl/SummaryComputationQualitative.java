@@ -60,7 +60,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
 		final Map<String, Boolean> selectedMeasures = analysisStandards.stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
-				.collect(Collectors.toMap(Measure::getKey, measure -> true));
+				.collect(Collectors.toMap(Measure::getKey, measure -> true, (e1, e2) -> e1));
 		getAnalysisStandards().values().stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 				if (measure.getImplementationRateValue((ValueFactory) null) >= 100)

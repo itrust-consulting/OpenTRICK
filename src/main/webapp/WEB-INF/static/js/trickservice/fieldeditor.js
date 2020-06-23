@@ -183,16 +183,24 @@ function FieldEditor(element, validator) {
 					else
 						$fieldEditor.parent().addClass("has-error").focus();
 				});
-			}
-			//fix issue the color dialog. delay 100ms
-			setTimeout(() => {
+				//fix issue the color dialog. delay 100ms
+				setTimeout(() => {
+					$fieldEditor.blur(function() {
+						if (that.Validate())
+							return that.Save(that);
+						else
+							$fieldEditor.parent().addClass("has-error").focus();
+					});
+				}, 300);
+			}else {
 				$fieldEditor.blur(function() {
 					if (that.Validate())
 						return that.Save(that);
 					else
 						$fieldEditor.parent().addClass("has-error").focus();
 				});
-			}, 100);
+			}
+			
 		}
 		return false;
 	};
