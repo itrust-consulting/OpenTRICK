@@ -48,6 +48,7 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.impl.MeasureProperties;
@@ -372,16 +373,17 @@ public class RRFExportImport {
 
 	@SuppressWarnings("unchecked")
 	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
-		WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getName());
-		SheetData sheetData = worksheetPart.getContents().getSheetData();
-		List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
-		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream()).map(assetValue -> assetValue.getAsset())
-				.distinct().collect(Collectors.toList());
-		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
-		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
-		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length;
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getName());
+		final SheetData sheetData = worksheetPart.getContents().getSheetData();
+		final List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
+		final List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream())
+				.map(assetValue -> assetValue.getAsset()).distinct().sorted((a1, a2) -> NaturalOrderComparator.compareTo(a1.getName(), a2.getName())).collect(Collectors.toList());
+		final Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
+		final String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
+		final int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length;
 		Row row = createRow(sheetData);
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
+		measures.sort(new MeasureComparator());
 		for (Asset asset : assets)
 			setValue(row.getC().get(++colIndex), asset.getName());
 		measures.stream().forEach(
@@ -415,7 +417,9 @@ public class RRFExportImport {
 		final Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
 		final String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
 		final int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length;
-		
+
+		measures.sort(new MeasureComparator());
+
 		Row row = createRow(sheetData);
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (AssetType assetType : assetTypes)
