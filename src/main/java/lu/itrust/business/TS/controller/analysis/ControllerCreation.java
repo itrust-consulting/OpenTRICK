@@ -195,7 +195,7 @@ public class ControllerCreation {
 
 	}
 
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded;charset=UTF-8", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded;charset=UTF-8", produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object buildCustomSave(@ModelAttribute AnalysisForm analysisForm, Principal principal, Locale locale) throws Exception {
 		try {
 			if (!serviceDataValidation.isRegistred(AnalysisForm.class))
@@ -386,7 +386,7 @@ public class ControllerCreation {
 						.ifPresent(impact -> generateImpactParameters(analysis, mappingParameters, new Scale(scaleType, impact.getLevel() + 1, impact.getValue() * 0.001))
 								.accept(scaleType.getId()));
 			}
-			
+
 			analysis.updateType();
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
@@ -425,16 +425,15 @@ public class ControllerCreation {
 					}
 
 					if (analysis.isQuantitative() && !analysis.getAssessments().isEmpty()) {
-						analysis.getImpactParameters().parallelStream().filter(impact -> impact.isMatch(Constant.DEFAULT_IMPACT_NAME) && impact.getLevel() == 0).findAny()
-								.ifPresent(impact -> {
-									ValueFactory factory = new ValueFactory(analysis.getParameters());
-									analysis.getAssessments().parallelStream().forEach(assessment -> {
-										if (!assessment.getImpacts().parallelStream().anyMatch(value -> value.getParameter().isMatch(Constant.DEFAULT_IMPACT_NAME))) {
-											assessment.getImpacts().add(new RealValue(0d, impact));
-											AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
-										}
-									});
-								});
+						analysis.getImpactParameters().stream().filter(p -> p.isMatch(Constant.DEFAULT_IMPACT_NAME) && p.getLevel() == 0).findAny().ifPresent(p -> {
+							final ValueFactory factory = new ValueFactory(analysis.getParameters());
+							analysis.getAssessments().parallelStream().forEach(assessment -> {
+								if (!assessment.getImpacts().stream().anyMatch(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME))) {
+									assessment.getImpacts().add(new RealValue(0d, p));
+									AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
+								}
+							});
+						});
 					}
 				}
 

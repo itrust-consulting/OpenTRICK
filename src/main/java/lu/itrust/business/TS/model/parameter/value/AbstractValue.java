@@ -20,7 +20,7 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
 @MappedSuperclass
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class AbstractValue implements IValue {
+public abstract class AbstractValue implements IParameterValue {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,7 +55,8 @@ public abstract class AbstractValue implements IValue {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
+	
 	@Override
 	public ILevelParameter getParameter() {
 		return parameter;

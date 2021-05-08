@@ -267,9 +267,9 @@ public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 	}
 
 	private void saveImpactValue(JdbcTemplate template, int idAssessment, IValue value) {
+		String type = null;
 		SimpleJdbcInsert simpleJdbcInsert = null;
 		Map<String, Object> parameters = new HashMap<>();
-		String type = null;
 		if (value instanceof LevelValue) {
 			simpleJdbcInsert = new SimpleJdbcInsert(template.getDataSource()).withTableName("LevelValue").usingGeneratedKeyColumns("idLevelValue");
 			parameters.put("dtLevel", value.getLevel());
@@ -283,7 +283,7 @@ public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 			type = "VALUE";
 		}
 		parameters.put("dtParameterType", Constant.PARAMETER_CATEGORY_IMPACT);
-		parameters.put("fiParameter", value.getParameter().getId());
+		parameters.put("fiParameter", ((AbstractValue) value).getParameter().getId());
 		((AbstractValue) value).setId(simpleJdbcInsert.executeAndReturnKey(parameters).intValue());
 		template.update("INSERT INTO `AssessmentImpacts`(`fiAssessment`, `dtValueType`, `fiValue`) VALUES (?, ? ,?)", idAssessment, type, ((AbstractValue) value).getId());
 	}

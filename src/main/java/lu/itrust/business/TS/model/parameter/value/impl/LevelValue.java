@@ -68,7 +68,7 @@ public class LevelValue extends NumericValue {
 		if (value == null || !(value instanceof LevelValue))
 			return false;
 		setLevel(value.getLevel());
-		setParameter(value.getParameter());
+		setParameter(((LevelValue) value).getParameter());
 		return true;
 	}
 

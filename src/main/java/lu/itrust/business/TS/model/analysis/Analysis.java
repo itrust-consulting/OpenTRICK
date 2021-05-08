@@ -1001,9 +1001,9 @@ public class Analysis implements Cloneable {
 	@OrderBy("acronym,value")
 	@SuppressWarnings("unchecked")
 	public List<DynamicParameter> getDynamicParameters() {
-		List<DynamicParameter> parameters = (List<DynamicParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC);
+		List<DynamicParameter> parameters = (List<DynamicParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_DYNAMIC);
 		if (parameters == null)
-			this.parameters.put(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC, parameters = new ArrayList<>());
+			this.parameters.put(Constant.PARAMETER_CATEGORY_DYNAMIC, parameters = new ArrayList<>());
 		return parameters;
 	}
 
@@ -1027,7 +1027,7 @@ public class Analysis implements Cloneable {
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
 		return this.parameters.entrySet().stream()
 				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD)
-						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC))
+						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC))
 				.flatMap(entry -> entry.getValue().stream()).map(parameter -> (IProbabilityParameter) parameter).collect(Collectors.toList());
 	}
 
@@ -1851,7 +1851,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public void setDynamicParameters(List<DynamicParameter> parameters) {
-		this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC, parameters);
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_DYNAMIC, parameters);
 	}
 
 	/**

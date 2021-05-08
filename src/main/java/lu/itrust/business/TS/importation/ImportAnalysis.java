@@ -80,7 +80,9 @@ import lu.itrust.business.TS.model.parameter.impl.Parameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
+import lu.itrust.business.TS.model.parameter.value.IParameterValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -2072,7 +2074,6 @@ public class ImportAnalysis {
 				// initialise standard variable
 
 				standardName = rs.getString(Constant.MEASURE_ID_NORM);
-				
 
 				if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 					standardVersion = rs.getInt(Constant.MEASURE_VERSION_NORM);
@@ -3223,7 +3224,19 @@ public class ImportAnalysis {
 
 	private IValue findValue(Object content, String type) {
 		IValue value = factory.findValue(content, type);
-		return Constant.DEFAULT_IMPACT_NAME.equals(type) || value instanceof Value ? value : new Value(value.getParameter());
+		if (Constant.DEFAULT_IMPACT_NAME.equals(type)) {
+			if (value != null)
+				return value;
+			else if(content instanceof String){
+				return new FormulaValue((String) content, 0D);
+			}
+		} else if (value != null) {
+			if (value instanceof Value)
+				return value;
+			else if (value instanceof IParameterValue)
+				return new Value(((IParameterValue) value).getParameter());
+		}
+		return null;
 
 	}
 

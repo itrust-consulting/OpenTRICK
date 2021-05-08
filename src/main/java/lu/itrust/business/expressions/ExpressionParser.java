@@ -34,9 +34,17 @@ public interface ExpressionParser {
 	 * @throws IllegalArgumentException
 	 *             Throws an exception if a variable has no assigned value.
 	 */
-	public double evaluate(ValueFactory factory) throws InvalidExpressionException, IllegalArgumentException;
+	default Double evaluate(ValueFactory factory) throws InvalidExpressionException, IllegalArgumentException {
+		return evaluate(factory, 0d);
+	}
 	
-	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException, IllegalArgumentException;
+	default Double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException, IllegalArgumentException{
+		return evaluate(variableValueMap, 0d);
+	}
+	
+	public Double evaluate(ValueFactory factory, Double defaultValue) throws InvalidExpressionException, IllegalArgumentException;
+	
+	public Double evaluate(Map<String, Double> variableValueMap, Double defaultValue) throws InvalidExpressionException, IllegalArgumentException;
 
 	/**
 	 * Checks the given expression for syntax errors.

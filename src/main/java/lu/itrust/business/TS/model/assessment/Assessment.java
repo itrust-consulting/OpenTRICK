@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import org.hibernate.annotations.ManyToAny;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.value.IParameterValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -293,6 +295,12 @@ public class Assessment implements Cloneable {
 	public IValue getImpact(String name) {
 		return getImpactMapper().get(name);
 	}
+	
+	
+	public Optional<IValue> findImpact(String name) {
+		final IValue value  = getImpactMapper().get(name);
+		return value == null? Optional.empty() : Optional.of(value);
+	}
 
 	public String getImpactAcronym(String name) {
 		IValue value = getImpact(name);
@@ -306,7 +314,7 @@ public class Assessment implements Cloneable {
 
 	public IAcronymParameter getImpactParameter(String name) {
 		IValue value = getImpact(name);
-		return value == null ? null : value.getParameter();
+		return value == null ||  !(value instanceof IParameterValue)? null : ((IParameterValue) value).getParameter();
 	}
 
 	public double getImpactReal() {

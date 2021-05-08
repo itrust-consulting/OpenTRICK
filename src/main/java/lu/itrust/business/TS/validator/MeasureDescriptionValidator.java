@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.validator;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.exception.TrickException;
@@ -91,7 +92,7 @@ public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 	 * @see lu.itrust.business.validator.field.ValidatorField#validate(java.lang.Object, java.lang.String, java.lang.Object, java.util.List)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 

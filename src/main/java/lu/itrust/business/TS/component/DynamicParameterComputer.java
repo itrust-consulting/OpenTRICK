@@ -8,20 +8,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOAssessmentHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOAssetHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOIDSHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAORiskProfileHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 
 /**
  * Component which allows to compute the values of dynamic parameters.
@@ -40,9 +40,6 @@ public class DynamicParameterComputer {
 	private ServiceExternalNotification serviceExternalNotification;
 
 	@Autowired
-	private AssessmentAndRiskProfileManager assessmentManager;
-
-	@Autowired
 	private DAOIDS daoIDS;
 
 	public DynamicParameterComputer() {
@@ -53,8 +50,6 @@ public class DynamicParameterComputer {
 	}
 
 	public DynamicParameterComputer(Session session, DAOAnalysis daoAnalysis, AssessmentAndRiskProfileManager assessmentAndRiskProfileManager) {
-		this.assessmentManager = assessmentAndRiskProfileManager.initialise(daoAnalysis, new DAOAssetHBM(session), new DAOAssessmentHBM(session), new DAORiskProfileHBM(session),
-				new DAOScenarioHBM(session));
 		this.daoAnalysis = daoAnalysis;
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
 		this.daoIDS = new DAOIDSHBM(session);
@@ -63,15 +58,14 @@ public class DynamicParameterComputer {
 	/**
 	 * Computes all dynamic parameters for all analyses for the given user.
 	 * 
-	 * @param userName
-	 *            The name of the user to compute the dynamic parameters for.
+	 * @param userName The name of the user to compute the dynamic parameters for.
 	 */
 	public void computeForAllAnalysesOfUser(String userName) throws Exception {
 		// Fetch all analyses which the user can access
 		daoIDS.findSubscriberIdByUsername(userName).parallel().forEach(id -> computeForAnalysisAndSource(userName, id));
 	}
 
-	@Transactional(propagation =  Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void computeForAnalysisAndSource(String username, Integer idAnalysis) {
 		computeForAnalysisAndSource(username, daoAnalysis.get(idAnalysis));
 	}
@@ -79,8 +73,7 @@ public class DynamicParameterComputer {
 	/**
 	 * Computes all dynamic parameters for the given analysis.
 	 * 
-	 * @param analysis
-	 *            The analysis for which parameters shall be recomputed.
+	 * @param analysis The analysis for which parameters shall be recomputed.
 	 */
 	public void computeForAnalysis(Analysis analysis) throws Exception {
 		// Find all external sources (i.e. users) which provide dynamic
@@ -91,13 +84,10 @@ public class DynamicParameterComputer {
 	}
 
 	/**
-	 * Computes all dynamic parameters for the given analysis and the given
-	 * user.
+	 * Computes all dynamic parameters for the given analysis and the given user.
 	 * 
-	 * @param userName
-	 *            The name of the user to compute the dynamic parameters for.
-	 * @param analysis
-	 *            The analysis for which parameters shall be recomputed.
+	 * @param userName The name of the user to compute the dynamic parameters for.
+	 * @param analysis The analysis for which parameters shall be recomputed.
 	 */
 	private void computeForAnalysisAndSource(String userName, Analysis analysis) {
 		if (analysis.isArchived())
@@ -109,22 +99,23 @@ public class DynamicParameterComputer {
 
 		// Get parameters
 		/*
-		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
-		*/
+		 * final double minimumProbability = Math.max(0.0,
+		 * analysis.findParameterValueByTypeAndAcronym(Constant.
+		 * PARAMETERTYPE_TYPE_PROPABILITY_NAME, "p0"));
+		 */
 		final double minimumProbability = 0.0;
 
 		/**
-		 * The maximum timestamp for all notifications to consider. Points to
-		 * NOW.
+		 * The maximum timestamp for all notifications to consider. Points to NOW.
 		 */
 		final long now = java.time.Instant.now().getEpochSecond();
 
 		// Compute likelihoods
-		Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesAtTime(now, userName, minimumProbability);
+		final Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesAtTime(now, userName, minimumProbability);
 
 		// Fetch instances of all (existing) dynamic parameters
 		// and map them by their acronym
-		Map<String, DynamicParameter> dynamicParameters = analysis.findDynamicParametersByAnalysisAsMap();
+		final Map<String, DynamicParameter> dynamicParameters = analysis.findDynamicParametersByAnalysisAsMap();
 
 		// Now every parameter has an associated likelihood value.
 		// For each computed frequency:
@@ -140,11 +131,9 @@ public class DynamicParameterComputer {
 				// database maintainer. :-)
 				analysis.add(parameter = new DynamicParameter(parameterName, String.format("dynamic:%s", parameterName)));
 			}
-
 			// Remove entry from parameter map so that we know it has been
 			// handled
 			dynamicParameters.remove(parameterName);
-
 			// Set new parameter value to computed likelihood.
 			// If the latter is not set, it exactly means that the likelihood is
 			// zero.
@@ -153,9 +142,23 @@ public class DynamicParameterComputer {
 			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
 		}
 
-		// Update assessment to reflect the new values of the dynamic parameters
-		assessmentManager.updateAssessment(analysis, null);
+		// Update Dynamics impact.
+		final ValueFactory factory = new ValueFactory(analysis.getParameters());
+		analysis.getAssessments().stream().filter(a -> {
+			final IValue value = a.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			return (value != null && value instanceof FormulaValue);
+		}).map(a -> (FormulaValue) a.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)).forEach(v -> {
+			IValue value = factory.findDynValue(v.getVariable(), Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			if (value != null)
+				v.merge(value);
+			else {
+				v.setLevel(0);
+				v.setReal(0d);
+			}
+		});
 
+		// Update assessment to reflect the new values of the dynamic parameters
+		AssessmentAndRiskProfileManager.UpdateAssetALE(analysis, factory);
 		// Save everything
 		daoAnalysis.saveOrUpdate(analysis);
 	}

@@ -3,22 +3,14 @@
  */
 package lu.itrust.business.TS.model.parameter.value;
 
-import lu.itrust.business.TS.model.parameter.ILevelParameter;
-
 /**
  * @author eomar
  *
  */
 public interface IValue extends Cloneable {
 
-	/**
-	 * 
-	 * @return {@link #ILevelParameter}.getTypeName()
-	 */
-	default String getName() {
-		return getParameter().getTypeName();
-	}
-
+	String getName();
+	
 	Integer getLevel();
 
 	String getVariable();
@@ -27,7 +19,7 @@ public interface IValue extends Cloneable {
 	
 	Object getRaw();
 
-	ILevelParameter getParameter();
+	
 	
 	boolean merge(IValue value);
 

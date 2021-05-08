@@ -51,7 +51,7 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 	 * @return Returns true iff the expression has no syntax errors and no unknown variables.
 	 */
 	protected static boolean IsValidExpression(String expression, List<String> variables) {
-		ExpressionParser exprParser = new StringExpressionParser(expression);
+		ExpressionParser exprParser = new StringExpressionParser(expression, StringExpressionParser.PROBABILITY);
 		return exprParser.isValid(variables);
 	}
 

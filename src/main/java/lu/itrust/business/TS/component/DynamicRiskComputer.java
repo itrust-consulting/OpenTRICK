@@ -17,9 +17,12 @@ import org.springframework.stereotype.Component;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -41,33 +44,26 @@ public class DynamicRiskComputer {
 	private ServiceExternalNotification serviceExternalNotification;
 
 	/**
-	 * Computes the real-time ALE of all given assessments at the given
-	 * timestamp. The value is recomputed from scratch, not relying on any
-	 * cached ALE values. The computed value is NOT cached within the analysis.
+	 * Computes the real-time ALE of all given assessments at the given timestamp.
+	 * The value is recomputed from scratch, not relying on any cached ALE values.
+	 * The computed value is NOT cached within the analysis.
 	 * 
-	 * @param assessments
-	 *            The list of assessments that are taken into consideration when
-	 *            computing ALE.
-	 * @param standards
-	 *            The collection of all standards containing the security
-	 *            measures taken into consideration.
-	 * @param timestampBegin
-	 *            The beginning of the time interval over which the ALE shall be
-	 *            computed.
-	 * @param timestampEnd
-	 *            The end of the time interval over which the ALE shall be
-	 *            computed.
-	 * @param cache_sourceUserNames
-	 *            A collection of all user names of external utilities reporting
-	 *            the dynamic parameters that are evaluated in the given time
-	 *            interval.
-	 * @param allParameters
-	 *            A collection of (at least) all static parameters.
-	 * @param minimumProbability
-	 *            The minimum probability level throughout time.
-	 * @param out_involvedVariables
-	 *            An empty set per assessment, to which this method will add all
-	 *            involved variables.
+	 * @param assessments           The list of assessments that are taken into
+	 *                              consideration when computing ALE.
+	 * @param standards             The collection of all standards containing the
+	 *                              security measures taken into consideration.
+	 * @param timestampBegin        The beginning of the time interval over which
+	 *                              the ALE shall be computed.
+	 * @param timestampEnd          The end of the time interval over which the ALE
+	 *                              shall be computed.
+	 * @param cache_sourceUserNames A collection of all user names of external
+	 *                              utilities reporting the dynamic parameters that
+	 *                              are evaluated in the given time interval.
+	 * @param allParameters         A collection of (at least) all static
+	 *                              parameters.
+	 * @param minimumProbability    The minimum probability level throughout time.
+	 * @param out_involvedVariables An empty set per assessment, to which this
+	 *                              method will add all involved variables.
 	 * @return Returns the computed value for each assessment in the given list.
 	 * @throws Exception
 	 * @throws IllegalArgumentException
@@ -81,36 +77,32 @@ public class DynamicRiskComputer {
 	}
 
 	/**
-	 * Computes the real-time ALE of all given assessments at the given
-	 * timestamp. The value is recomputed from scratch, not relying on any
-	 * cached ALE values. The computed value is NOT cached within the analysis.
+	 * Computes the real-time ALE of all given assessments at the given timestamp.
+	 * The value is recomputed from scratch, not relying on any cached ALE values.
+	 * The computed value is NOT cached within the analysis.
 	 * 
-	 * @param assessments
-	 *            The list of assessments that are taken into consideration when
-	 *            computing ALE.
-	 * @param standards
-	 *            The collection of all standards containing the security
-	 *            measures taken into consideration.
-	 * @param timestampBegin
-	 *            The beginning of the time interval over which the ALE shall be
-	 *            computed.
-	 * @param timestampEnd
-	 *            The end of the time interval over which the ALE shall be
-	 *            computed.
-	 * @param cache_sourceUserNames
-	 *            A collection of all user names of external utilities reporting
-	 *            the dynamic parameters that are evaluated in the given time
-	 *            interval.
-	 * @param allParameters
-	 *            A collection of (at least) all static parameters.
-	 * @param minimumProbability
-	 *            The minimum probability level throughout time.
-	 * @param out_involvedVariables
-	 *            An empty set per assessment, to which this method will add all
-	 *            involved variables.
-	 * @param out_expressionParameters
-	 *            An empty map, to which this method will add all used dynamic
-	 *            parameters and their values in the time interval.
+	 * @param assessments              The list of assessments that are taken into
+	 *                                 consideration when computing ALE.
+	 * @param standards                The collection of all standards containing
+	 *                                 the security measures taken into
+	 *                                 consideration.
+	 * @param timestampBegin           The beginning of the time interval over which
+	 *                                 the ALE shall be computed.
+	 * @param timestampEnd             The end of the time interval over which the
+	 *                                 ALE shall be computed.
+	 * @param cache_sourceUserNames    A collection of all user names of external
+	 *                                 utilities reporting the dynamic parameters
+	 *                                 that are evaluated in the given time
+	 *                                 interval.
+	 * @param allParameters            A collection of (at least) all static
+	 *                                 parameters.
+	 * @param minimumProbability       The minimum probability level throughout
+	 *                                 time.
+	 * @param out_involvedVariables    An empty set per assessment, to which this
+	 *                                 method will add all involved variables.
+	 * @param out_expressionParameters An empty map, to which this method will add
+	 *                                 all used dynamic parameters and their values
+	 *                                 in the time interval.
 	 * @return Returns the computed value for each assessment in the given list.
 	 * @throws Exception
 	 * @throws IllegalArgumentException
@@ -124,30 +116,40 @@ public class DynamicRiskComputer {
 			measures.addAll(standard.getMeasures());
 
 		// Find all static expression parameters ("p0" etc.)
+		final Map<String,Double> parameters = new HashMap<>();
 		IParameter tuningParameter = null;
 		for (IParameter p : allParameters) {
-			if (p instanceof LikelihoodParameter)
+			if (p instanceof LikelihoodParameter) {
 				out_expressionParameters.put(((LikelihoodParameter) p).getAcronym(), p.getValue().doubleValue());
+				parameters.put(((LikelihoodParameter) p).getAcronym(), p.getValue().doubleValue());
+			} else if ((p instanceof IImpactParameter) && p.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				parameters.put(((IImpactParameter) p).getAcronym(), p.getValue().doubleValue());
 			else if ((p instanceof SimpleParameter) && p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
 		}
-
+		
+	
 		// Find all dynamic parameters and the respective values back then
 		for (String sourceUserName : cache_sourceUserNames)
 			// expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp,
 			// sourceUserName, minimumProbability));
 			out_expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability));
 
-		Map<Assessment, Double> totalAleGrouped = new HashMap<>();
+		final Map<Assessment, Double> totalAleGrouped = new HashMap<>();
 		for (Assessment assessment : assessments) {
+			final IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			final double realImact;
+			if (impact == null)
+				continue;
+			else if (impact instanceof FormulaValue) {
+				realImact = new StringExpressionParser(impact.getVariable(), StringExpressionParser.IMPACT).evaluate(parameters);
+			}else realImact = impact.getReal();
+			// Determine the likelihood and ALE of the current risk assessment
+			final StringExpressionParser likelihoodExprParser = new StringExpressionParser(assessment.getLikelihood(), StringExpressionParser.PROBABILITY);
+			final double likelihood = likelihoodExprParser.evaluate(out_expressionParameters);
+			final double ale = realImact * likelihood;
 			if (!assessment.isSelected())
 				continue;
-
-			// Determine the likelihood and ALE of the current risk assessment
-			final StringExpressionParser likelihoodExprParser = new StringExpressionParser(assessment.getLikelihood());
-			final double likelihood = likelihoodExprParser.evaluate(out_expressionParameters);
-			final double ale = assessment.getImpactReal() * likelihood;
-
 			// out_involvedVariables =
 			// likelihoodExprParser.getInvolvedVariables().collect(Collectors.toList());
 			out_involvedVariables.putIfAbsent(assessment, new HashSet<>());
@@ -189,24 +191,18 @@ public class DynamicRiskComputer {
 	/**
 	 * Generates the ALE evolution data for the given assessments.
 	 * 
-	 * @param assessments
-	 *            The list of assessments that are taken into consideration when
-	 *            computing ALE.
-	 * @param standards
-	 *            The collection of all standards containing the security
-	 *            measures taken into consideration.
-	 * @param sourceUserNames
-	 *            A collection of all user names of external utilities reporting
-	 *            the dynamic parameters that are evaluated in the given time
-	 *            interval.
-	 * @param allParameters
-	 *            A collection of (at least) all static parameters.
-	 * @param aggregator
-	 *            A function which selects the key by which the data shall be
-	 *            aggregated.
-	 * @param out_timePoints
-	 *            An empty list, to which this method will add all used time
-	 *            points.
+	 * @param assessments     The list of assessments that are taken into
+	 *                        consideration when computing ALE.
+	 * @param standards       The collection of all standards containing the
+	 *                        security measures taken into consideration.
+	 * @param sourceUserNames A collection of all user names of external utilities
+	 *                        reporting the dynamic parameters that are evaluated in
+	 *                        the given time interval.
+	 * @param allParameters   A collection of (at least) all static parameters.
+	 * @param aggregator      A function which selects the key by which the data
+	 *                        shall be aggregated.
+	 * @param out_timePoints  An empty list, to which this method will add all used
+	 *                        time points.
 	 * @return Returns the ALE by aggregation key and by time.
 	 * @throws Exception
 	 */
@@ -218,37 +214,36 @@ public class DynamicRiskComputer {
 	/**
 	 * Generates the ALE evolution data for the given assessments.
 	 * 
-	 * @param assessments
-	 *            The list of assessments that are taken into consideration when
-	 *            computing ALE.
-	 * @param standards
-	 *            The collection of all standards containing the security
-	 *            measures taken into consideration.
-	 * @param sourceUserNames
-	 *            A collection of all user names of external utilities reporting
-	 *            the dynamic parameters that are evaluated in the given time
-	 *            interval.
-	 * @param allParameters
-	 *            A collection of (at least) all static parameters.
-	 * @param aggregator
-	 *            A function which selects the key by which the data shall be
-	 *            aggregated.
-	 * @param out_timePoints
-	 *            An empty list, to which this method will add all used time
-	 *            points.
-	 * @param out_involvedVariables_or_null
-	 *            An empty set per assessment per time point, to which this
-	 *            method will add all involved variables. Or null, in which case
-	 *            no data is output.
-	 * @param out_expressionParameters_or_null
-	 *            An empty map per time point, to which this method will add all
-	 *            used dynamic parameters and their values in the time interval.
-	 *            Or null, in which case no data is output.
+	 * @param assessments                      The list of assessments that are
+	 *                                         taken into consideration when
+	 *                                         computing ALE.
+	 * @param standards                        The collection of all standards
+	 *                                         containing the security measures
+	 *                                         taken into consideration.
+	 * @param sourceUserNames                  A collection of all user names of
+	 *                                         external utilities reporting the
+	 *                                         dynamic parameters that are evaluated
+	 *                                         in the given time interval.
+	 * @param allParameters                    A collection of (at least) all static
+	 *                                         parameters.
+	 * @param aggregator                       A function which selects the key by
+	 *                                         which the data shall be aggregated.
+	 * @param out_timePoints                   An empty list, to which this method
+	 *                                         will add all used time points.
+	 * @param out_involvedVariables_or_null    An empty set per assessment per time
+	 *                                         point, to which this method will add
+	 *                                         all involved variables. Or null, in
+	 *                                         which case no data is output.
+	 * @param out_expressionParameters_or_null An empty map per time point, to which
+	 *                                         this method will add all used dynamic
+	 *                                         parameters and their values in the
+	 *                                         time interval. Or null, in which case
+	 *                                         no data is output.
 	 * @return Returns the ALE by aggregation key and by time.
 	 * @throws Exception
 	 */
-	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, Collection<AnalysisStandard> standards, List<String> sourceUserNames,
-			List<IParameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints,
+	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, Collection<AnalysisStandard> standards,
+			List<String> sourceUserNames, List<IParameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints,
 			final Map<Long, Map<Assessment, Set<String>>> out_involvedVariables_or_null, final Map<Long, Map<String, Double>> out_expressionParameters_or_null) throws Exception {
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();

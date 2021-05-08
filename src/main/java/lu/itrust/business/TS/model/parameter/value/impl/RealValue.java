@@ -68,7 +68,7 @@ public class RealValue extends NumericValue {
 		if (value == null || !(value instanceof RealValue))
 			return false;
 		setReal(value.getReal());
-		setParameter(value.getParameter());
+		setParameter(((RealValue) value).getParameter());
 		return true;
 	}
 

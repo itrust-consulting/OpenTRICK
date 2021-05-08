@@ -96,7 +96,7 @@ public class ControllerIDS {
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/Admin/IDS/Save", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/Admin/IDS/Save", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object save(@ModelAttribute @Validated IDS ids, BindingResult result, Principal principal, Model model, Locale locale) {
 		try {
 			ValidatorField validator = serviceDataValidation.findByClass(IDS.class);
@@ -146,7 +146,7 @@ public class ControllerIDS {
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/Admin/IDS/Delete", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/Admin/IDS/Delete", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object delete(@RequestBody List<Integer> IDs, Principal principal, Locale locale) {
 		try {
 			IDs.forEach(id -> {
@@ -169,7 +169,7 @@ public class ControllerIDS {
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/Admin/IDS/Renew/Token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/Admin/IDS/Renew/Token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object renewToken(@RequestBody List<Integer> IDs, Principal principal, Locale locale) {
 		try {
 
@@ -203,7 +203,7 @@ public class ControllerIDS {
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/Admin/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/Admin/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String adminSaveManagement(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
 		return saveManagement(id, subscriptions, principal, locale);
 	}
@@ -226,7 +226,7 @@ public class ControllerIDS {
 		return "analyses/all/forms/ids";
 	}
 
-	@RequestMapping(value = "/Analysis/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/Analysis/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#id, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public @ResponseBody String saveManagement(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
 		Analysis analysis = serviceAnalysis.get(id);

@@ -110,7 +110,7 @@
 					<fmt:setLocale value="fr" scope="session" />
 					<c:forEach items="${mappedParameters['DYNAMIC']}" var="parameter" varStatus="status">
 						<tr data-trick-class="DynamicParameter" data-trick-id="${parameter.id}">
-							<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+							<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" />${parameter.acronym}aaa</td>
 							<td data-trick-field="value" class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
 						</tr>
 					</c:forEach>

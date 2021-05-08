@@ -543,7 +543,7 @@ public class AssessmentAndRiskProfileManager {
 			assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
 		else
 			assessment.setImpactReal(value.getReal());
-		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
+		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood(),StringExpressionParser.PROBABILITY).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
 		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
 		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());

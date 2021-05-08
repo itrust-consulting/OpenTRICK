@@ -12,7 +12,7 @@ public class StringExpressionParserTest extends TestCase {
 		Map<String, Double> variableValueMap = new HashMap<>();
 		variableValueMap.put("a", 1.5);
 		
-		StringExpressionParser p = new StringExpressionParser("-a");
+		StringExpressionParser p = new StringExpressionParser("-a",StringExpressionParser.PROBABILITY );
 		assertEquals(-1.5, p.evaluate(variableValueMap));		
 	}
 	
@@ -20,7 +20,7 @@ public class StringExpressionParserTest extends TestCase {
 		Map<String, Double> variableValueMap = new HashMap<>();
 		variableValueMap.put("a", 1.5);
 		
-		StringExpressionParser p = new StringExpressionParser("1+1+1-2*(a-5.5)/1000");
+		StringExpressionParser p = new StringExpressionParser("1+1+1-2*(a-5.5)/1000",StringExpressionParser.PROBABILITY );
 		assertEquals(3.008, p.evaluate(variableValueMap));
 	}
 	
@@ -28,12 +28,12 @@ public class StringExpressionParserTest extends TestCase {
 		Map<String, Double> variableValueMap = new HashMap<>();
 		variableValueMap.put("a", 1.5);
 		
-		StringExpressionParser p = new StringExpressionParser("4+min(a,3.4,.125)");
+		StringExpressionParser p = new StringExpressionParser("4+min(a,3.4,.125)",StringExpressionParser.PROBABILITY );
 		assertEquals(4.125, p.evaluate(variableValueMap));
 	}
 
 	public void testExtract() throws IllegalArgumentException, InvalidExpressionException {
-		StringExpressionParser p = new StringExpressionParser("abc+a*(a-z)");
+		StringExpressionParser p = new StringExpressionParser("abc+a*(a-z)",StringExpressionParser.PROBABILITY );
 		String[] vars = p.getInvolvedVariables().toArray(new String[0]);
 		assertEquals(3, vars.length);
 		// the order of the variables is the order of detection in the algorithm

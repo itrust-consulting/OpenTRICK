@@ -16,16 +16,18 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
-import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.value.IParameterValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
@@ -41,6 +43,8 @@ public class ValueFactory {
 
 	private Map<String, List<IProbabilityParameter>> probabilities;
 
+	private Map<String, List<IAcronymParameter>> dynamiques;
+
 	private Map<String, Map<String, IProbabilityParameter>> probabilityMapper;
 
 	private Map<String, Map<String, IImpactParameter>> impactMapper;
@@ -54,7 +58,7 @@ public class ValueFactory {
 
 	public ValueFactory(Map<String, List<? extends IParameter>> parameters) {
 		parameters.entrySet().stream()
-				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT) || entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC)
+				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT) || entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD))
 				.flatMap(entry -> entry.getValue().stream()).forEach(parameter -> add(parameter));
 	}
@@ -62,58 +66,41 @@ public class ValueFactory {
 	private void add(IParameter parameter) {
 		if (parameter instanceof IProbabilityParameter)
 			add((IProbabilityParameter) parameter);
-		else if (parameter instanceof ImpactParameter)
+		else if (parameter instanceof IImpactParameter)
 			add((IImpactParameter) parameter);
+		else if (parameter instanceof IAcronymParameter) {
+			add((IAcronymParameter) parameter);
+		}
 	}
 
-	public IValue findDyn(Object value) {
-		if (value == null || probabilities == null)
-			return null;
-		List<IProbabilityParameter> dynamicParameters = probabilities.get(PARAMETERTYPE_TYPE_DYNAMIC_NAME);
-		if (dynamicParameters == null)
-			return null;
-		if (value instanceof Integer) {
-			int index = (int) value, last = dynamicParameters.size() - 1;
-			return new Value(dynamicParameters.get(index < 0 ? 0 : index > last ? last : index));
-		}
-
+	public double findDyn(Object value) {
+		if (value == null || dynamiques == null)
+			return 0.0;
 		if (value instanceof String) {
-			IProbabilityParameter parameter = (IProbabilityParameter) getParameterMapper(PARAMETERTYPE_TYPE_DYNAMIC_NAME).get(value.toString());
-			if (parameter != null)
-				return new Value(parameter);
+			final List<IAcronymParameter> dynamicParameters = dynamiques.get(PARAMETERTYPE_TYPE_DYNAMIC_NAME);
+			if (dynamicParameters != null) {
+				final IAcronymParameter parameter = (IAcronymParameter) getParameterMapper(PARAMETERTYPE_TYPE_DYNAMIC_NAME).get(value.toString());
+				if (parameter != null)
+					return parameter.getValue();
+			}
 		}
-		Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
-		if (doubleValue == null)
-			return null;
-		return findDynamicByValue(doubleValue, dynamicParameters);
+		return (value instanceof Double) ? (Double) value : ToDouble(value.toString(), 0.0);
 	}
 
-	public Integer findDynLevel(Object value) {
-		IValue iValue = findDyn(value);
-		return iValue == null ? 0 : iValue.getLevel();
-	}
-
-	public Double findDynValue(Object value) {
-		IValue iValue = findDyn(value);
-		return iValue == null ? 0D : iValue.getReal();
-	}
-
-	public IValue findExp(Object value) {
+	public IValue findProbaExp(Object value) {
 		IValue iValue = findProb(value);
 		if (iValue == null)
-			iValue = findDyn(value);
-		if (iValue == null)
-			iValue = findProb(new StringExpressionParser(value.toString()).evaluate(this));
+			iValue = findProb(new StringExpressionParser(value.toString(), StringExpressionParser.PROBABILITY).evaluate(this));
 		return iValue;
 	}
 
-	public Integer findExpLevel(Object value) {
-		IValue iValue = findExp(value);
+	public Integer findProbaExpLevel(Object value) {
+		IValue iValue = findProbaExp(value);
 		return iValue == null ? 0 : iValue.getLevel();
 	}
 
-	public Double findExpValue(Object value) {
-		IValue iValue = findExp(value);
+	public Double findProbaExpValue(Object value) {
+		IValue iValue = findProbaExp(value);
 		return iValue == null ? 0D : iValue.getReal();
 	}
 
@@ -128,7 +115,7 @@ public class ValueFactory {
 
 	public IProbabilityParameter findProbParameter(Object value) {
 		IValue impact = findProb(value);
-		return impact == null ? null : (IProbabilityParameter) impact.getParameter();
+		return impact == null || !(impact instanceof IParameterValue) ? null : (IProbabilityParameter) ((IParameterValue) impact).getParameter();
 	}
 
 	public Double findProbValue(Object value) {
@@ -152,6 +139,15 @@ public class ValueFactory {
 		List<IImpactParameter> parameters = impacts.get(parameter.getTypeName());
 		if (parameters == null)
 			impacts.put(parameter.getTypeName(), parameters = new ArrayList<>());
+		parameters.add(parameter);
+	}
+
+	private void add(IAcronymParameter parameter) {
+		if (dynamiques == null)
+			dynamiques = new LinkedHashMap<>();
+		List<IAcronymParameter> parameters = dynamiques.get(parameter.getTypeName());
+		if (parameters == null)
+			dynamiques.put(parameter.getTypeName(), parameters = new ArrayList<>());
 		parameters.add(parameter);
 	}
 
@@ -181,42 +177,62 @@ public class ValueFactory {
 			return findByValue(value, parameters.subList(mid, parameters.size()));
 	}
 
-	private IValue findDynamicByValue(Double doubleValue, List<? extends IProbabilityParameter> dynamicParameters) {
-		DynamicParameter minParameter = (DynamicParameter) dynamicParameters.get(0), midParameter = (DynamicParameter) dynamicParameters.get(dynamicParameters.size() / 2),
-				maxParameter = (DynamicParameter) dynamicParameters.get(dynamicParameters.size() - 1);
-		if (minParameter.getValue() == doubleValue)
-			return new Value(minParameter);
-		else if (midParameter.getValue() == doubleValue)
-			return new Value(midParameter);
-		else if (maxParameter.getValue() == doubleValue)
-			return new Value(maxParameter);
-		else if (doubleValue < minParameter.getValue())
-			return new RealValue(doubleValue, minParameter);
-		else if (doubleValue > maxParameter.getValue() || dynamicParameters.size() < 2)
-			return new RealValue(doubleValue, maxParameter);
-		else if (doubleValue > midParameter.getValue())
-			return findDynamicByValue(doubleValue, dynamicParameters.subList(dynamicParameters.size() / 2, dynamicParameters.size()));
-		else
-			return findDynamicByValue(doubleValue, dynamicParameters.subList(0, dynamicParameters.size() / 2));
+	public IValue findValue(Object value, String type) {
+		return findValue(value, type, true);
 	}
 
-	public IValue findValue(Object value, String type) {
-		if (value == null)
+	public IValue findValue(Object value, String type, boolean includExpression) {
+		try {
+			if (value == null)
+				return null;
+			final List<? extends ILevelParameter> parameters = getParameters(type);
+			if (parameters == null)
+				return null;
+			if (value instanceof Integer)
+				return findByLevel((Integer) value, parameters);
+			if (value instanceof String) {
+				final ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
+				if (parameter != null)
+					return new Value(parameter);
+			}
+
+			final Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
+			if (doubleValue == null) {
+				if (includExpression && value instanceof String) {
+					final IValue aux = findDynValue((String) value, type, parameters);
+					if (aux != null)
+						return aux;
+				}
+				return null;
+			}
+			return findByValue(doubleValue, parameters);
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
 			return null;
-		List<? extends ILevelParameter> parameters = getParameters(type);
-		if (parameters == null)
-			return null;
-		if (value instanceof Integer)
-			return findByLevel((Integer) value, parameters);
-		if (value instanceof String) {
-			ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
-			if (parameter != null)
-				return new Value(parameter);
 		}
-		Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
-		if (doubleValue == null)
-			return null;
-		return findByValue(doubleValue, parameters);
+	}
+
+	public IValue findDynValue(String value, String type) {
+		return findDynValue(value, type, Collections.emptyList());
+	}
+
+	private IValue findDynValue(String value, String type, final List<? extends ILevelParameter> parameters) {
+		final int family = Constant.DEFAULT_IMPACT_NAME.equals(type) ? StringExpressionParser.IMPACT
+				: Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME.equals(type) ? StringExpressionParser.PROBABILITY : -1;
+		if (family != -1) {
+			final List<? extends ILevelParameter> myParameters = parameters == null || parameters.isEmpty() ? getParameters(type) : parameters;
+			final Double result = new StringExpressionParser(value, family).evaluate(this, null);
+			if (result != null) {
+				final FormulaValue formulaValue = new FormulaValue(value, result);
+				if (!(parameters == null || parameters.isEmpty())) {
+					IValue aux = findByValue(result, myParameters);
+					if (aux != null)
+						formulaValue.setLevel(aux.getLevel());
+				}
+				return formulaValue;
+			}
+		}
+		return null;
 	}
 
 	public boolean hasAcronym(String value, String type) {
@@ -227,7 +243,6 @@ public class ValueFactory {
 
 	private List<? extends ILevelParameter> getParameters(String type) {
 		switch (type) {
-		case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
 		case PARAMETERTYPE_TYPE_PROPABILITY_NAME:
 			return probabilities == null ? null : probabilities.get(type);
 		default:
@@ -297,13 +312,23 @@ public class ValueFactory {
 	 * @see IValue#maxByLevel(IValue, IValue)
 	 */
 	public int findImportance(String proba, List<? extends IValue> impacts) {
-		return findImpactLevel(impacts) * findExpLevel(proba);
+		return findImpactLevel(impacts) * findProbaExpLevel(proba);
 	}
 
 	public int findImpactLevel(List<? extends IValue> impacts) {
 		return impacts == null ? 0
 				: impacts.stream().filter(value -> !value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel)
 						.orElse(0);
+	}
+
+	/**
+	 * Gets quantitative impact value
+	 * 
+	 * @param valuye
+	 * @return
+	 */
+	public IValue findImpact(Object value) {
+		return findValue(value, Constant.DEFAULT_IMPACT_NAME);
 	}
 
 	public int findImpactLevel(IValue... impacts) {
@@ -366,8 +391,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * @param probabilityMapper
-	 *            the probabilityMapper to set
+	 * @param probabilityMapper the probabilityMapper to set
 	 */
 	public void setProbabilityMapper(Map<String, Map<String, IProbabilityParameter>> probabilityMapper) {
 		this.probabilityMapper = probabilityMapper;
@@ -385,8 +409,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * @param impactMapper
-	 *            the impactMapper to set
+	 * @param impactMapper the impactMapper to set
 	 */
 	public void setImpactMapper(Map<String, Map<String, IImpactParameter>> impactMapper) {
 		this.impactMapper = impactMapper;
@@ -394,12 +417,12 @@ public class ValueFactory {
 
 	public Double computeALE(Assessment assessment) {
 		IValue value = findMaxImpactByReal(assessment.getImpacts());
-		return value == null ? 0 : value.getReal() * findExpValue(assessment.getLikelihood());
+		return value == null ? 0 : value.getReal() * findProbaExpValue(assessment.getLikelihood());
 	}
 
 	public IProbabilityParameter findExpParameter(String likelihood) {
-		IValue value = findExp(likelihood);
-		return value == null ? null : (IProbabilityParameter) value.getParameter();
+		IValue value = findProbaExp(likelihood);
+		return value == null || !(value instanceof IParameterValue) ? null : (IProbabilityParameter) ((IParameterValue) value).getParameter();
 	}
 
 	public void add(Collection<? extends IParameter> parameters) {
@@ -418,8 +441,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * @param impacts
-	 *            the impacts to set
+	 * @param impacts the impacts to set
 	 */
 	public void setImpacts(Map<String, List<IImpactParameter>> impacts) {
 		this.impacts = impacts;
@@ -433,8 +455,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * @param probabilities
-	 *            the probabilities to set
+	 * @param probabilities the probabilities to set
 	 */
 	public void setProbabilities(Map<String, List<IProbabilityParameter>> probabilities) {
 		this.probabilities = probabilities;
@@ -453,16 +474,16 @@ public class ValueFactory {
 
 	public ILevelParameter findParameter(Integer value, String type) {
 		IValue result = findValue(value, type);
-		return result == null ? null : result.getParameter();
+		return result == null || !(result instanceof IParameterValue) ? null : ((IParameterValue) result).getParameter();
 	}
 
 	public ILevelParameter findParameter(Double value, String type) {
 		IValue result = findValue(value, type);
-		return result == null ? null : result.getParameter();
+		return result == null || !(result instanceof IParameterValue) ? null : ((IParameterValue) result).getParameter();
 	}
 
 	public ILevelParameter findParameter(Object value, String type) {
 		IValue result = findValue(value, type);
-		return result == null ? null : result.getParameter();
+		return result == null || !(result instanceof IParameterValue) ? null : ((IParameterValue) result).getParameter();
 	}
 }

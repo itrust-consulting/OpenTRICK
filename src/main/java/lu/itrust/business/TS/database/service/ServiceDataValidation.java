@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.database.service;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public interface ServiceDataValidation {
 
 	public String validate(Object o, String fieldName, Object candidate, Object[] choose);
 
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose);
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose);
 
 	public String ParseError(String message, MessageSource messageSource, Locale locale);
 

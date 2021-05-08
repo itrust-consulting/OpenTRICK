@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.validator;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -84,7 +84,7 @@ public class CustomerValidator extends ValidatorFieldImpl implements Validator {
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 

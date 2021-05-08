@@ -1,8 +1,8 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -203,10 +203,10 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 * @throws TrickException
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceDataValidation#validate(java.lang.Object,
-	 *      java.lang.String, java.lang.Object, java.util.List)
+	 *      java.lang.String, java.lang.Object, Collection)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;

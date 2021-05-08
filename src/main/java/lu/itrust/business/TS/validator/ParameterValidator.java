@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.validator;
 
-import java.util.List;
+import java.util.Collection;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
@@ -74,7 +74,7 @@ public class ParameterValidator extends ValidatorFieldImpl {
 
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
-			List<Object> choose) throws TrickException {
+			Collection<Object> choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 

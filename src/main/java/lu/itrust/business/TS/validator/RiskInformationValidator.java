@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.validator;
 
-import java.util.List;
+import java.util.Collection;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -92,7 +92,7 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 

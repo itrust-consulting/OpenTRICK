@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.validator;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
@@ -69,7 +69,7 @@ public class IDSValidator extends ValidatorFieldImpl implements Validator {
 	 * Object, java.lang.String, java.lang.Object, java.util.List)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return super.validate(o, fieldName, candidate);
 	}
 

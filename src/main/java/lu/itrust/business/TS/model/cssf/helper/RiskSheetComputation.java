@@ -529,7 +529,7 @@ public class RiskSheetComputation {
 				// update ALE numerator
 				RiskRegisterItem riskRegisterItem = new RiskRegisterItem(assessment.getScenario(), assessment.getAsset());
 				riskRegisterItem.getNetEvaluation().setImpact(helper.getFactory().findRealValue(assessment.getImpacts()));
-				riskRegisterItem.getNetEvaluation().setProbability(helper.getFactory().findExpValue(assessment.getLikelihood()));
+				riskRegisterItem.getNetEvaluation().setProbability(helper.getFactory().findProbaExpValue(assessment.getLikelihood()));
 				helper.getNetALEs().put(key, riskRegisterItem.getNetEvaluation().getImportance());
 				helper.getRiskRegisters().put(key, riskRegisterItem);
 			}

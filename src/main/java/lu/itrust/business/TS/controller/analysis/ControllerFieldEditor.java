@@ -10,12 +10,11 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
@@ -85,7 +84,9 @@ import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.AbstractValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -207,7 +208,6 @@ public class ControllerFieldEditor {
 	@PostMapping(value = "/ActionPlanEntry/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
-
 		try {
 			
 			// retrieve analysis
@@ -221,7 +221,7 @@ public class ControllerFieldEditor {
 			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 			if (phase == null)
 				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
-
+			
 			// set new phase value of measure
 			ape.getMeasure().setPhase(phase);
 
@@ -677,18 +677,13 @@ public class ControllerFieldEditor {
 	public String measure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
-
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 			// retrieve measure
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-
 			// set field
 			Field field = FindField(Measure.class, fieldEditor.getFieldName());
-
 			// means that field belongs to the Measure class
-
 			if (field != null) {
 				// check if field is a phase
 
@@ -724,7 +719,7 @@ public class ControllerFieldEditor {
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
 						acronyms.addAll(serviceDynamicParameter.findAcronymByAnalysisId(idAnalysis));
-						if (!(new StringExpressionParser(value.toString()).isValid(acronyms)))
+						if (!(new StringExpressionParser(value.toString(), StringExpressionParser.IMPLEMENTATION).isValid(acronyms)))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
 									"Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
 						measure.setImplementationRate(value);
@@ -1312,17 +1307,22 @@ public class ControllerFieldEditor {
 			IValue impactToDelete = null;
 			// retrieve all acronyms of impact and likelihood
 			if (assessment.hasImpact(fieldEditor.getFieldName())) {
-				try {
-					Number value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString());
-					if (value == null)
-						value = 0.0;
-					else if (value.doubleValue() < 0)
-						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
-					fieldEditor.setValue((value.doubleValue() * 1000) + "");
-				} catch (ParseException e) {
-				}
+				final Optional<Double> optional = ParseFrNumber(fieldEditor.getValue().toString());
 				factory = createFactoryForAssessment(idAnalysis);
-				IValue oldValue = assessment.getImpact(fieldEditor.getFieldName()), newValue = factory.findValue(fieldEditor.getValue(), fieldEditor.getFieldName());
+				if (optional.isPresent()) {
+					final double value = optional.get();
+					if (value < 0)
+						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
+					fieldEditor.setValue(value * 1000);
+				} else if (!factory.hasAcronym(fieldEditor.getValue().toString(), fieldEditor.getFieldName())) {
+					if (!fieldEditor.getFieldName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
+				}
+
+				final IValue oldValue = assessment.getImpact(fieldEditor.getFieldName());
+
+				final IValue newValue = factory.findValue(fieldEditor.getValue(), fieldEditor.getFieldName());
+
 				if (newValue == null)
 					return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
 				if (!oldValue.merge(newValue)) {
@@ -1331,40 +1331,29 @@ public class ControllerFieldEditor {
 				}
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
 				factory = createFactoryForAssessment(idAnalysis);
-				List<Object> acronyms = Collections.emptyList();
 				if (fieldEditor.getValue().toString().equalsIgnoreCase("na"))
 					assessment.setLikelihood("0");
 				else {
-					acronyms = new LinkedList<>(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
-					acronyms.addAll(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME));
-					if (!acronyms.contains(fieldEditor.getValue())) {
-						ParsePosition parsePosition = new ParsePosition(0);
-						String fieldEditorString = fieldEditor.getValue().toString();
-						Number value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditorString, parsePosition);
-						if (parsePosition.getIndex() >= fieldEditorString.length()) {
-							if (value == null)
-								value = 0.0;
-							else if (value.doubleValue() < 0)
-								return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
-							fieldEditor.setValue(value.doubleValue() + "");
-						}
-						String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), fieldEditor.getValue(), acronyms);
-						if (error != null)
-							// return error message
-							return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-					}
+					final Optional<Double> optional = ParseFrNumber(fieldEditor.getValue().toString());
+					if (optional.isPresent()) {
+						final double value = optional.get();
+						if (value < 0)
+							return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
+						fieldEditor.setValue(value);
+					} else if (!new StringExpressionParser(fieldEditor.getValue().toString(), StringExpressionParser.PROBABILITY).isValid(factory))
+						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
 					assessment.setLikelihood(fieldEditor.getValue().toString());
 				}
 			} else {
 				// get value
-				Object value = FieldValue(fieldEditor);
+				final Object value = FieldValue(fieldEditor);
 				// validate new value
-				String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value);
+				final String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value);
 				if (error != null)
 					// return error message
 					return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 				// init field
-				Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
+				final Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
 				// set data to field
 				if (!SetFieldData(field, assessment, fieldEditor))
 					// return error message
@@ -1392,7 +1381,6 @@ public class ControllerFieldEditor {
 						RiskRegisterItem registerItem = serviceRiskRegister.getByAssetIdAndScenarioId(assessment.getAsset().getId(), assessment.getScenario().getId());
 						if (registerItem != null) {
 							double uncertainty = assessment.getUncertainty(), qUncertainty = 1.0 / uncertainty;
-
 							result.add(new FieldValue("ALE-RAW", format(registerItem.getRawEvaluation().getImportance() * .001, numberFormat, 2),
 									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
 							result.add(new FieldValue("ALEO-RAW", format(registerItem.getRawEvaluation().getImportance() * qUncertainty * .001, numberFormat, 2),
@@ -1445,18 +1433,25 @@ public class ControllerFieldEditor {
 	}
 
 	private void UpdateAssessment(Integer idAnalysis, ScaleType type, List<ImpactParameter> parameters) {
-		List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(idAnalysis);
+		final List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(idAnalysis);
 		if (!assessments.isEmpty()) {
-			ValueFactory factory = new ValueFactory(parameters);
+			final ValueFactory factory = new ValueFactory(parameters);
 			factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 			factory.add(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
 			assessments.forEach(assessment -> {
-				assessment.getImpacts().stream().filter(value -> (value instanceof RealValue) && value.getName().equals(type.getName())).findAny().ifPresent(value -> {
-					IValue impact = factory.findValue(value.getReal(), type.getName());
-					((RealValue) value).setParameter(impact.getParameter());
-					AssessmentAndRiskProfileManager.ComputeAlE(assessment, value, factory);
-					serviceAssessment.saveOrUpdate(assessment);
-				});
+				assessment.getImpacts().stream().filter(value -> (value instanceof RealValue || value instanceof FormulaValue) && value.getName().equals(type.getName())).findAny()
+						.ifPresent(value -> {
+							final IValue impact = value instanceof AbstractValue ? factory.findValue(value.getReal(), type.getName())
+									: factory.findValue(value.getVariable(), type.getName());
+							if (impact != null) {
+								if (value instanceof AbstractValue)
+									((RealValue) value).setParameter(((AbstractValue) impact).getParameter());
+								else
+									value.merge(factory.findValue(value.getVariable(), type.getName()));
+							}
+							AssessmentAndRiskProfileManager.ComputeAlE(assessment, value, factory);
+							serviceAssessment.saveOrUpdate(assessment);
+						});
 			});
 		}
 		serviceImpactParameter.saveOrUpdate(parameters);
@@ -1650,5 +1645,13 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	private static Optional<Double> ParseFrNumber(String raw) {
+		final ParsePosition position = new ParsePosition(0);
+		final Number value = NumberFormat.getInstance(Locale.FRANCE).parse(raw, position);
+		if (position.getIndex() >= raw.length())
+			return Optional.of(value == null ? 0d : value.doubleValue());
+		return Optional.empty();
 	}
 }

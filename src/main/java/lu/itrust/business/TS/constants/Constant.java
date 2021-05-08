@@ -369,7 +369,7 @@ public class Constant {
 
 	public final static String PARAMETER_CATEGORY_PROBABILITY = "PROBABILITY";
 
-	public final static String PARAMETER_CATEGORY_PROBABILITY_DYNAMIC = "DYNAMIC";
+	public final static String PARAMETER_CATEGORY_DYNAMIC = "DYNAMIC";
 
 	public final static String PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD = "LIKELIHOOD";
 

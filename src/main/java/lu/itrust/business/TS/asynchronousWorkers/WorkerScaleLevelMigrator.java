@@ -30,7 +30,9 @@ import lu.itrust.business.TS.model.parameter.helper.ScaleLevelConvertor;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.model.parameter.value.AbstractValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
@@ -83,9 +85,10 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
-						if(getCurrent() == null)
+						if (getCurrent() == null)
 							Thread.currentThread().interrupt();
-						else getCurrent().interrupt();
+						else
+							getCurrent().interrupt();
 						setCanceled(true);
 					}
 				}
@@ -162,29 +165,40 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		getServiceTaskFeedback().send(getId(), handler);
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final ScaleLevelConvertor convertor = new ScaleLevelConvertor(levelMappers, analysis.getImpactParameters(), analysis.getLikelihoodParameters());
-		final ValueFactory factory = new ValueFactory(convertor.getParameters()),
-				oldConvertor = analysis.isQuantitative() || analysis.isHybrid() ? null : new ValueFactory(analysis.getExpressionParameters());
+		final ValueFactory factory = new ValueFactory(convertor.getParameters()), oldConvertor = analysis.isQuantitative() ? null : new ValueFactory(analysis.getParameters());
 		final int progress[] = { 0, analysis.getAssessments().size() * 2, 5, 90 };// current, size , min, max
 		handler.update("info.scale.level.migrate.assessment", "Migrating estimations", progress[2]);
 		analysis.getAssessments().forEach(assessment -> {
 			assessment.getImpacts().forEach(value -> {
 				if (value instanceof Value)
-					((Value) value).setParameter(convertor.find((IBoundedParameter) value.getParameter()));
+					((Value) value).setParameter(convertor.find((IBoundedParameter) ((AbstractValue) value).getParameter()));
 				else if (value instanceof RealValue)
-					((RealValue) value).setParameter(factory.findParameter(value.getReal(), value.getParameter().getTypeName()));
+					((RealValue) value).setParameter(factory.findParameter(value.getReal(), value.getName()));
 				else if (value instanceof LevelValue) {
-					IBoundedParameter boundedParameter = convertor.find(value.getLevel(), value.getParameter().getTypeName());
+					IBoundedParameter boundedParameter = convertor.find(value.getLevel(), value.getName());
 					if (boundedParameter == null)
-						boundedParameter = convertor.find((IBoundedParameter) value.getParameter());
+						boundedParameter = convertor.find((IBoundedParameter) ((AbstractValue) value).getParameter());
 					((LevelValue) value).setParameter(boundedParameter);
 					((LevelValue) value).setLevel(boundedParameter.getLevel());
+				} else if (value instanceof FormulaValue) {
+					final TokenizerToString tokenizer = new TokenizerToString(value.getVariable());
+					tokenizer.getTokens().parallelStream().filter(token -> token.getType() == TokenType.Variable).forEach(token -> {
+						IBoundedParameter variable = convertor.find(token.getParameter().toString());
+						if (variable != null)
+							token.setParameter(variable.getAcronym());
+					});
+					final IValue aux = factory.findDynValue(tokenizer.toString(), value.getName());
+					if (aux != null)
+						value.merge(aux);
+					else
+						((FormulaValue) value).setVariable(tokenizer.toString());
 				}
 			});
 			final IBoundedParameter parameter = convertor.find(assessment.getLikelihood());
 			if (parameter != null)
 				assessment.setLikelihood(parameter.getAcronym());
 			else if (oldConvertor == null) {
-				TokenizerToString tokenizer = new TokenizerToString(assessment.getLikelihood());
+				final TokenizerToString tokenizer = new TokenizerToString(assessment.getLikelihood());
 				tokenizer.getTokens().parallelStream().filter(token -> token.getType() == TokenType.Variable).forEach(token -> {
 					IBoundedParameter variable = convertor.find(token.getParameter().toString());
 					if (variable != null)
@@ -192,7 +206,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 				});
 				assessment.setLikelihood(tokenizer.toString());
 			} else {// convert to level
-				IValue value = oldConvertor.findExp(assessment.getLikelihood());
+				IValue value = oldConvertor.findProbaExp(assessment.getLikelihood());
 				if (value != null)
 					assessment.setLikelihood(convertor.find(value.getVariable()).getAcronym());
 			}

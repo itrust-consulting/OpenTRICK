@@ -72,7 +72,7 @@ public class ControlerCredential {
 	@Autowired
 	private ServiceUserCredential serviceUserCredential;
 
-	@PostMapping(value = "/Save", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(value = "/Save", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object save(@RequestBody UserCredentialForm form, Principal principal, Locale locale) {
 		final Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), form.getCustomer());
 		if (customer == null || customer.getTicketingSystem() == null || !customer.getTicketingSystem().isEnabled())
@@ -143,7 +143,7 @@ public class ControlerCredential {
 		return add(model, principal, locale);
 	}
 
-	@DeleteMapping(value = "/{id}/Delete", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@DeleteMapping(value = "/{id}/Delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody boolean delete(@PathVariable long id, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
 		boolean result = user.getCredentials().entrySet().removeIf(e -> e.getKey().isEnabled() && e.getValue().getId() == id);
@@ -152,7 +152,7 @@ public class ControlerCredential {
 		return result;
 	}
 
-	@DeleteMapping(value = "/Delete", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@DeleteMapping(value = "/Delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Map<Long, Boolean> delete(@RequestBody List<Long> ids, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
 		final Map<Long, Boolean> results = new HashMap<Long, Boolean>();

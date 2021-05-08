@@ -43,7 +43,7 @@ public class Value extends AbstractValue {
 	public boolean merge(IValue value) {
 		if (value == null || !(value instanceof Value))
 			return false;
-		setParameter(value.getParameter());
+		setParameter(((Value) value).getParameter());
 		return true;
 	}
 

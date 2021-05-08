@@ -706,7 +706,7 @@ function AssessmentImpactFieldEditor(element) {
 	};
 
 	AssessmentExtendedParameterEditor.prototype.__quantitativeDataLoader = function(name) {
-		var id = "#Scale_Impact", $acronyms = $("td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
+		var id = "#Scale_Impact,#DynamicParameters", $acronyms = $("td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
 		this.dataListName = "dataList-parameter-impact";
 		for (var i = 0; i < $values.length; i++) {
 			this.acromyms[i] = $acronyms[i].innerText.trim();

@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.model.parameter.value.IParameterValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -64,7 +65,7 @@ public class Estimation {
 		setArgumentation(assessment.getComment());
 		setAssessmentId(assessment.getId());
 		setNetEvaluation(new RiskProbaImpact((LikelihoodParameter) convertor.findProbParameter(assessment.getLikelihood()),
-				assessment.getImpacts().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
+				assessment.getImpacts().stream().filter(i -> (i instanceof IParameterValue)).map(impact -> (ImpactParameter) ((IParameterValue) impact).getParameter()).collect(Collectors.toList())));
 	}
 
 	/**

@@ -87,7 +87,7 @@ public class ControllerIntstallation {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Install", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, method = RequestMethod.POST)
+	@RequestMapping(value = "/Install", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, Locale locale) throws Exception {
 		final Map<String, String> errors = new LinkedHashMap<String, String>();
 		installProfileCustomer(errors, locale);

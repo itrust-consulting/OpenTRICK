@@ -4,12 +4,12 @@ import javax.persistence.AttributeOverride;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 
 /**
  * Represents a parameter whose value is assigned dynamically by external
@@ -22,11 +22,10 @@ import lu.itrust.business.TS.constants.Constant;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name="id", column=@Column(name="idDynamicParameter"))
-public class DynamicParameter extends AbstractProbability {
+public class DynamicParameter extends Parameter implements IAcronymParameter {
 
-	@Transient
-	private int level;
-
+	private String acronym;
+	
 	/**
 	 * 
 	 */
@@ -38,14 +37,6 @@ public class DynamicParameter extends AbstractProbability {
 		setDescription(description);
 	}
 
-	@Override
-	public Integer getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
 
 	@Override
 	public String getTypeName() {
@@ -57,9 +48,16 @@ public class DynamicParameter extends AbstractProbability {
 	 */
 	@Override
 	public String getGroup() {
-		return Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC;
+		return Constant.PARAMETER_CATEGORY_DYNAMIC;
 	}
 	
-	
+	public void setAcronym(String acronym) {
+		this.acronym = acronym;
+	}
+
+	@Override
+	public String getAcronym() {
+		return acronym;
+	}
 
 }
