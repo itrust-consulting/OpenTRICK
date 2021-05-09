@@ -44,6 +44,7 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.AbstractValue;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -190,8 +191,9 @@ public class Duplicator {
 				clone.setAsset(assets.get(assessment.getAsset().getId()));
 				clone.setImpacts(new LinkedList<>());
 				assessment.getImpacts().forEach(impact -> {
-					AbstractValue value = (AbstractValue) impact.duplicate();
-					value.setParameter((ILevelParameter) parameters.get(value.getParameter().getKey()));
+					IValue value = impact.duplicate();
+					if(value instanceof AbstractValue)
+						((AbstractValue) value).setParameter((ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
 					clone.setImpact(value);
 				});
 				copy.getAssessments().add(clone);

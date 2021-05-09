@@ -23,6 +23,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Any;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -107,8 +108,10 @@ public class Assessment implements Cloneable {
 	private List<IValue> impacts = new LinkedList<>();
 
 	/** The likelihood value of this assessment */
-	@Column(name = "dtLikelihood", nullable = false)
-	private String likelihood = "0";
+	@Any(metaDef = "VALUE_META_DEF", metaColumn = @Column(name = "dtLikelihoodType"))
+	@Cascade(CascadeType.ALL)
+	@JoinColumn(name = "fiLikelihood", unique = true)
+	private IValue likelihood = null;
 
 	/** The likelihood value of this assessment */
 	@Column(name = "dtLikelihoodReal", nullable = false)
@@ -295,11 +298,10 @@ public class Assessment implements Cloneable {
 	public IValue getImpact(String name) {
 		return getImpactMapper().get(name);
 	}
-	
-	
+
 	public Optional<IValue> findImpact(String name) {
-		final IValue value  = getImpactMapper().get(name);
-		return value == null? Optional.empty() : Optional.of(value);
+		final IValue value = getImpactMapper().get(name);
+		return value == null ? Optional.empty() : Optional.of(value);
 	}
 
 	public String getImpactAcronym(String name) {
@@ -314,7 +316,7 @@ public class Assessment implements Cloneable {
 
 	public IAcronymParameter getImpactParameter(String name) {
 		IValue value = getImpact(name);
-		return value == null ||  !(value instanceof IParameterValue)? null : ((IParameterValue) value).getParameter();
+		return value == null || !(value instanceof IParameterValue) ? null : ((IParameterValue) value).getParameter();
 	}
 
 	public double getImpactReal() {
@@ -349,7 +351,7 @@ public class Assessment implements Cloneable {
 	 * 
 	 * @return The Likelihood value
 	 */
-	public String getLikelihood() {
+	public IValue getLikelihood() {
 		return likelihood;
 	}
 
@@ -451,8 +453,7 @@ public class Assessment implements Cloneable {
 	 * setALE: <br>
 	 * Sets the field "ALE" with a value
 	 * 
-	 * @param ALE
-	 *            The value to set "ALE"
+	 * @param ALE The value to set "ALE"
 	 * @throws TrickException
 	 */
 	public void setALE(double ALE) throws TrickException {
@@ -465,8 +466,7 @@ public class Assessment implements Cloneable {
 	 * setALEO: <br>
 	 * Sets the field "ALEO" with a value
 	 * 
-	 * @param ALEO
-	 *            The value to set "ALEO"
+	 * @param ALEO The value to set "ALEO"
 	 * @throws TrickException
 	 */
 	public void setALEO(double ALEO) throws TrickException {
@@ -479,8 +479,7 @@ public class Assessment implements Cloneable {
 	 * setALEP: <br>
 	 * Sets the field "ALEP" with a value
 	 * 
-	 * @param ALEP
-	 *            The value to set "ALEP"
+	 * @param ALEP The value to set "ALEP"
 	 * @throws TrickException
 	 */
 	public void setALEP(double ALEP) throws TrickException {
@@ -493,8 +492,7 @@ public class Assessment implements Cloneable {
 	 * setAsset: <br>
 	 * Sets the field "asset" with a value
 	 * 
-	 * @param asset
-	 *            The Asset object to set
+	 * @param asset The Asset object to set
 	 * @throws TrickException
 	 */
 	public void setAsset(Asset asset) throws TrickException {
@@ -507,8 +505,7 @@ public class Assessment implements Cloneable {
 	 * setComment: <br>
 	 * Sets the field "comment" with a value
 	 * 
-	 * @param comment
-	 *            The value to set "comment"
+	 * @param comment The value to set "comment"
 	 */
 	public void setComment(String comment) {
 		if (comment == null)
@@ -521,8 +518,7 @@ public class Assessment implements Cloneable {
 	 * setHiddenComment: <br>
 	 * Sets the Field "hiddenComment" with a value.
 	 * 
-	 * @param hideComment
-	 *            The Value to set the hiddenComment field
+	 * @param hideComment The Value to set the hiddenComment field
 	 */
 	public void setHiddenComment(String hiddenComment) {
 		if (hiddenComment == null)
@@ -535,8 +531,7 @@ public class Assessment implements Cloneable {
 	 * setId: <br>
 	 * Sets the field "id" with a value
 	 * 
-	 * @param id
-	 *            The value to set "id"
+	 * @param id The value to set "id"
 	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
@@ -566,8 +561,7 @@ public class Assessment implements Cloneable {
 	}
 
 	/**
-	 * @param impacts
-	 *            the impacts to set
+	 * @param impacts the impacts to set
 	 */
 	public void setImpacts(List<IValue> impacts) {
 		if (impactMapper != null)
@@ -579,22 +573,17 @@ public class Assessment implements Cloneable {
 	 * setLikelihood: <br>
 	 * Sets the field "likelihood" with a value
 	 * 
-	 * @param likelihood
-	 *            The value to set "likelihood"
+	 * @param likelihood The value to set "likelihood"
 	 */
-	public void setLikelihood(String likelihood) {
-		if (likelihood == null || likelihood.isEmpty())
-			this.likelihood = "0";
-		else
-			this.likelihood = likelihood;
+	public void setLikelihood(IValue likelihood) {
+		this.likelihood = likelihood;
 	}
 
 	/**
 	 * setLikelihoodReal: <br>
 	 * Sets the field "likelihood" with a value
 	 * 
-	 * @param likelihood
-	 *            The value to set "likelihood"
+	 * @param likelihood The value to set "likelihood"
 	 * @throws TrickException
 	 */
 	public void setLikelihoodReal(double likelihood) throws TrickException {
@@ -604,8 +593,7 @@ public class Assessment implements Cloneable {
 	}
 
 	/**
-	 * @param owner
-	 *            the owner to set
+	 * @param owner the owner to set
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
@@ -615,8 +603,7 @@ public class Assessment implements Cloneable {
 	 * setScenario: <br>
 	 * Sets the field "scenario" with a value
 	 * 
-	 * @param scenario
-	 *            The Scenario object to set
+	 * @param scenario The Scenario object to set
 	 * @throws TrickException
 	 */
 	public void setScenario(Scenario scenario) throws TrickException {
@@ -629,8 +616,7 @@ public class Assessment implements Cloneable {
 	 * setSelected: <br>
 	 * Sets the Field "selected" with a value.
 	 * 
-	 * @param selected
-	 *            The Value to set the selected field
+	 * @param selected The Value to set the selected field
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
@@ -640,8 +626,7 @@ public class Assessment implements Cloneable {
 	 * setUncertainty: <br>
 	 * Sets the field "uncertainty" with a value
 	 * 
-	 * @param uncertainty
-	 *            The value to set "uncertainty"
+	 * @param uncertainty The value to set "uncertainty"
 	 * @throws TrickException
 	 */
 	public void setUncertainty(double uncertainty) throws TrickException {
@@ -666,8 +651,7 @@ public class Assessment implements Cloneable {
 	}
 
 	/**
-	 * @param impactMapper
-	 *            the impactMapper to set
+	 * @param impactMapper the impactMapper to set
 	 */
 	protected void setImpactMapper(Map<String, IValue> impactMapper) {
 		this.impactMapper = impactMapper;

@@ -116,7 +116,7 @@ public class DynamicRiskComputer {
 			measures.addAll(standard.getMeasures());
 
 		// Find all static expression parameters ("p0" etc.)
-		final Map<String,Double> parameters = new HashMap<>();
+		final Map<String, Double> parameters = new HashMap<>();
 		IParameter tuningParameter = null;
 		for (IParameter p : allParameters) {
 			if (p instanceof LikelihoodParameter) {
@@ -127,8 +127,7 @@ public class DynamicRiskComputer {
 			else if ((p instanceof SimpleParameter) && p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
 		}
-		
-	
+
 		// Find all dynamic parameters and the respective values back then
 		for (String sourceUserName : cache_sourceUserNames)
 			// expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp,
@@ -143,9 +142,11 @@ public class DynamicRiskComputer {
 				continue;
 			else if (impact instanceof FormulaValue) {
 				realImact = new StringExpressionParser(impact.getVariable(), StringExpressionParser.IMPACT).evaluate(parameters);
-			}else realImact = impact.getReal();
+			} else
+				realImact = impact.getReal();
 			// Determine the likelihood and ALE of the current risk assessment
-			final StringExpressionParser likelihoodExprParser = new StringExpressionParser(assessment.getLikelihood(), StringExpressionParser.PROBABILITY);
+			final StringExpressionParser likelihoodExprParser = new StringExpressionParser(assessment.getLikelihood() == null ? "0" : assessment.getLikelihood().getVariable(),
+					StringExpressionParser.PROBABILITY);
 			final double likelihood = likelihoodExprParser.evaluate(out_expressionParameters);
 			final double ale = realImact * likelihood;
 			if (!assessment.isSelected())

@@ -508,6 +508,7 @@ public class ControllerStandard extends AbstractController {
 	@RequestMapping(value = "/Measures", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object loadMeasureByStandard(@RequestParam("idStandard") Integer idStandard, Principal principal, HttpSession session, Locale locale) {
+		final ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS)));
 		return serviceMeasure.getAllFromAnalysisAndStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard).stream()
 				.filter(measure -> !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && measure.getImplementationRateValue(Collections.emptyList()) < 100)
 				.sorted(new MeasureComparator()).map(measure -> {
@@ -517,7 +518,7 @@ public class ControllerStandard extends AbstractController {
 					measureForm.setIdStandard(idStandard);
 					measureForm.setReference(measure.getMeasureDescription().getReference());
 					measureForm.setComputable(measure.getMeasureDescription().isComputable());
-					measureForm.setImplementationRate((int) measure.getImplementationRateValue(Collections.emptyList()));
+					measureForm.setImplementationRate((int) measure.getImplementationRateValue(factory));
 					measureForm.setStatus(measure.getStatus());
 					measureForm.setPhase(measure.getPhase().getNumber());
 					measureForm.setResponsible(measure.getResponsible());
@@ -1050,7 +1051,7 @@ public class ControllerStandard extends AbstractController {
 
 			// set data
 			String error = validator.validate(standard, "label", label);
-			
+
 			if (error != null)
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if ((standard.getId() < 1 || !prevLabel.equalsIgnoreCase(label)) && analysis.findStandardByLabel(label) != null)

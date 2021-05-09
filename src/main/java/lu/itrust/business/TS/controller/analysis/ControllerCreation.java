@@ -74,7 +74,6 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.AbstractValue;
@@ -297,9 +296,7 @@ public class ControllerCreation {
 			analysis.setOwner(serviceUser.get(principal.getName()));
 			analysis.addUserRight(analysis.getOwner(), AnalysisRight.ALL);
 			String baseAnalysis = "";
-
 			Locale analysisLocale = new Locale(language.getAlpha2());
-
 			if (analysisForm.getAsset() > 0) {
 				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getAsset());
 				String label = serviceAnalysis.getLabelFromId(analysisForm.getAsset());
@@ -426,11 +423,10 @@ public class ControllerCreation {
 
 					if (analysis.isQuantitative() && !analysis.getAssessments().isEmpty()) {
 						analysis.getImpactParameters().stream().filter(p -> p.isMatch(Constant.DEFAULT_IMPACT_NAME) && p.getLevel() == 0).findAny().ifPresent(p -> {
-							final ValueFactory factory = new ValueFactory(analysis.getParameters());
 							analysis.getAssessments().parallelStream().forEach(assessment -> {
 								if (!assessment.getImpacts().stream().anyMatch(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME))) {
 									assessment.getImpacts().add(new RealValue(0d, p));
-									AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
+									AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 								}
 							});
 						});

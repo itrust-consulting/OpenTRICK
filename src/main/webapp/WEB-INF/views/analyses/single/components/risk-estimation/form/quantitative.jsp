@@ -17,6 +17,7 @@
 		</div>
 	</div>
 </div>
+<spring:message code='label.status.na' var="na" />
 <div class="form-group">
 	<table class='table form-no-fill'>
 		<thead>
@@ -60,22 +61,46 @@
 								<input name="IMPACT" class="form-control" value='0' list="dataList-parameter-impact" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
 							</c:when>
 							<c:otherwise>
+
+
 								<c:choose>
-									<c:when test="${impact.real<100}">
-										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
-									</c:when>
-									<c:when test="${impact.real<1000}">
-										<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
-									</c:when>
-									<c:when test="${impact.real<10000}">
-										<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
+									<c:when test="${impact['class'].simpleName=='RealValue'}">
+										<fmt:formatNumber value="${impact.real}" var="realImpact" />
+										<c:choose>
+											<c:when test="${impact.real<100}">
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+											</c:when>
+											<c:when test="${impact.real<1000}">
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="impactValue" />
+											</c:when>
+											<c:when test="${impact.real<10000}">
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="impactValue" />
+											</c:when>
+											<c:otherwise>
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+											</c:otherwise>
+										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+										<spring:message text="${impact.raw}" var="impactValue" />
+										<c:choose>
+											<c:when test="${impact.real<100}">
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="realImpact" />
+											</c:when>
+											<c:when test="${impact.real<1000}">
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,2)}" var="realImpact" />
+											</c:when>
+											<c:when test="${impact.real<10000}">
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,1)}" var="realImpact" />
+											</c:when>
+											<c:otherwise>
+												<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="realImpact" />
+											</c:otherwise>
+										</c:choose>
 									</c:otherwise>
 								</c:choose>
 								<input name="IMPACT" class="form-control" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
-									title="${impact.variable}">
+									title="${realImpact}">
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -83,20 +108,30 @@
 				<td>
 					<div class="input-group" align="right">
 						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Probability,#DynamicParameters">${probaUnit}</button></span>
-						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
+						<c:set var="likelihood" value="${assessment.likelihood}" />
 						<c:choose>
 							<c:when test="${empty likelihood}">
-								<spring:message text="${assessment.likelihood}" var="probaValue" />
-								<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${probaValue}" placeholder="${probaValue}"
-									data-trick-type='string'>
+								<input name="likelihood" class="form-control" value="${na}" list="dataList-parameter-probability" title="${0}" placeholder="${na}" data-trick-type='string'>
+							</c:when>
+							<c:when test="${likelihood['class'].simpleName=='RealValue'}">
+								<c:choose>
+									<c:when test="${likelihood.real==0}">
+										<input name="likelihood" class="form-control" value="${na}" list="dataList-parameter-probability" title="${0}" placeholder="${na}" data-trick-type='string'>
+									</c:when>
+									<c:otherwise>
+										<spring:message text="${likelihood.raw}" var="rawProba" />
+										<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="realValue" />
+										<input name="likelihood" class="form-control" value='<spring:message text="${likelihood.variable}" />' list="dataList-parameter-probability" title="${realValue}"
+											placeholder="${rawProba}" data-trick-type='string'>
+									</c:otherwise>
+								</c:choose>
 							</c:when>
 							<c:otherwise>
-								<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="probaValue" />
-								<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${likelihood.variable}" placeholder="${probaValue}"
+								<spring:message text="${likelihood.raw}" var="rawProba" />
+								<input name="likelihood" class="form-control" value="${rawProba}" list="dataList-parameter-probability" title="${fct:round(likelihood.real,3)}" placeholder="${rawProba}"
 									data-trick-type='string'>
 							</c:otherwise>
 						</c:choose>
-
 					</div>
 				</td>
 				<c:choose>
@@ -139,14 +174,15 @@
 	<spring:message code="label.comment" var='comment' />
 	<spring:message text="${assessment.comment}" var="commentContent" />
 	<label class='label-control'>${comment}</label>
-	<textarea id="assessment-comment" rows="${rowLength}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
+	<textarea id="assessment-comment" rows="${rowLength}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}"
+		data-trick-type='string'>${commentContent}</textarea>
 </div>
 <c:if test="${showHiddenComment}">
 	<div class='form-group form-group-fill'>
 		<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 		<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 		<label class='label-control'>${hiddenComment}</label>
-		<textarea id="assessment-hiddenComment" rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}"
-			data-trick-type='string'>${hiddenCommentContent}</textarea>
+		<textarea id="assessment-hiddenComment" rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;"
+			placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
 	</div>
 </c:if>

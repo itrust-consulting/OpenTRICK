@@ -16,7 +16,7 @@ public class ApiAssessment extends ApiAssessmentValue {
 	public ApiAssessment() {
 	}
 
-	public ApiAssessment(Integer id, ApiAsset asset, ApiScenario scenario, double likelihood, Map<String, Double> impacts) {
+	public ApiAssessment(Integer id, ApiAsset asset, ApiScenario scenario, double likelihood, Map<String, Object> impacts) {
 		super(id, likelihood, impacts);
 		this.asset = asset;
 		this.scenario = scenario;

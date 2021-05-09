@@ -4,7 +4,6 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 
 import java.security.Principal;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +31,7 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
+import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.exception.TrickException;
@@ -48,6 +48,7 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -64,6 +65,9 @@ public class ControllerAssessment {
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
+	
+	@Autowired
+	private ServiceDynamicParameter serviceDynamicParameter; 
 
 	@Autowired
 	private MessageSource messageSource;
@@ -166,8 +170,9 @@ public class ControllerAssessment {
 		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
 		if (riskProfile == null)
 			return null;
+		final List<DynamicParameter> dynamicParameters = serviceDynamicParameter.findByAnalysisId(idAnalysis);
 		model.addAttribute("riskProfile", riskProfile);
-		model.addAttribute("valueFactory", new ValueFactory(Collections.emptyList()));
+		model.addAttribute("valueFactory", new ValueFactory(dynamicParameters));
 		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class, AssetStandard.class));
 		return "analyses/single/components/risk-estimation/form/measure";
 	}

@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 @AttributeOverride(name="id", column=@Column(name="idDynamicParameter"))
 public class DynamicParameter extends Parameter implements IAcronymParameter {
 
+	@Column(name = "dtAcronym", nullable = false)
 	private String acronym;
 	
 	/**

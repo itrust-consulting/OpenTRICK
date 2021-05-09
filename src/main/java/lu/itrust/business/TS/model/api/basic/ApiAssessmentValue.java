@@ -7,19 +7,19 @@ import java.util.Map;
  */
 public class ApiAssessmentValue extends ApiTrickObject {
 
-	private double likelihood;
-	private Map<String, Double> impacts;
+	private Object likelihood;
+	private Map<String, Object> impacts;
 
 	public ApiAssessmentValue() {
 	}
 
-	public ApiAssessmentValue(Object id, double likelihood, Map<String, Double> impacts) {
+	public ApiAssessmentValue(Object id, Object likelihood, Map<String, Object> impacts) {
 		super(id);
 		this.likelihood = likelihood;
 		this.impacts = impacts;
 	}
 
-	public double getLikelihood() {
+	public Object getLikelihood() {
 		return likelihood;
 	}
 
@@ -27,7 +27,7 @@ public class ApiAssessmentValue extends ApiTrickObject {
 		this.likelihood = likelihood;
 	}
 
-	public Map<String, Double> getImpacts() {
+	public Map<String, Object> getImpacts() {
 		return impacts;
 	}
 }

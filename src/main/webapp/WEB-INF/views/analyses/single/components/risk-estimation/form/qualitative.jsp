@@ -275,18 +275,19 @@
 			<td style="transform: rotate(270deg);">${net}</td>
 			<td class='form-estimation  form-estimation-right'>
 				<div class="input-group" align="right">
-					<spring:message text="${assessment.likelihood}" var="likelihood" />
+					<spring:message code='label.status.na' var="na" />
+					<c:set var="likelihood" value="${assessment.likelihood}" />
+					<spring:message code='label.parameter.label.na' text="${parameter.label}" var="labelNA" />
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 0px" data-scale-modal='#Scale_Probability'>
 							<span class="fa-stack"> <i class="fa fa-arrows-v" aria-hidden="true"></i> <i class="fa fa-list-ol" aria-hidden="true"></i>
 							</span>
 						</button></span>
 					<c:choose>
 						<c:when test="${type.quantitative}">
-							<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
+							<c:set var="likelihood" value="${assessment.likelihood}" />
 							<c:choose>
 								<c:when test="${empty likelihood}">
-									<spring:message text="${assessment.likelihood}" var="probaValue" />
-									<input name="likelihood" class="form-control" value="${probaValue}" list="dataList-parameter-probability" title="${probaValue}" placeholder="${probaValue}"
+									<input name="likelihood" class="form-control" value="${na}" list="dataList-parameter-probability" title="${labelNA}" placeholder="${na}"
 										data-trick-type='string'>
 								</c:when>
 								<c:when test="${likelihood['class'].simpleName=='RealValue' && likelihood.real==0}">
@@ -300,11 +301,10 @@
 							</c:choose>
 						</c:when>
 						<c:otherwise>
-							<c:set var="netProbaValue" value="${valueFactory.findProb(likelihood)}" />
-							<spring:message var="netProTitle" text="${empty netProbaValue? '' : netProbaValue.parameter.label}" />
-							<select class="form-control" title='${netProTitle}' name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
+							<spring:message var="netProTitle" text="${empty likelihood or likelihood['class'].simpleName=='FormulaValue'? '' :  likelihood.parameter.label}" />
+							<select class="form-control" title='${netProTitle}' name="likelihood" data-trick-type='string' data-trick-value='${empty likelihood? "na": 1}'>
 								<c:forEach items="${probabilities}" var="parameter">
-									<option value="${parameter.acronym}" ${likelihood == parameter.acronym? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
+									<option value="${parameter.acronym}" ${likelihood.level == parameter.level? "selected='selected'" : ""} title='<spring:message text="${parameter.label}"/>'><c:choose>
 											<c:when test="${parameter.level == 0}">
 												<spring:message code='label.status.na' />
 											</c:when>
@@ -560,7 +560,8 @@
 	<spring:message code="label.risk_treatment" text="Risk treatment" var='riskTreatment' />
 	<spring:message text='${riskProfile.riskTreatment}' var="riskTreatmentContent" />
 	<label class='label-control'>${riskTreatment}</label>
-	<textarea id="assessment-riskTreatment" class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;" placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
+	<textarea id="assessment-riskTreatment" class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;"
+		placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
 </div>
 <div class='form-group' id="section_estimation_action_plan">
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
@@ -647,6 +648,7 @@
 		<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 		<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 		<label class='label-control'>${hiddenComment}</label>
-		<textarea id="assessment-hiddenComment" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
+		<textarea id="assessment-hiddenComment" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}"
+			data-trick-type='string'>${hiddenCommentContent}</textarea>
 	</div>
 </c:if>

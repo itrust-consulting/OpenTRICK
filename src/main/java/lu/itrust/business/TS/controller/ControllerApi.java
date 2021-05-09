@@ -2,8 +2,11 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.text.MessageFormat;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -74,8 +77,6 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
-import lu.itrust.business.TS.model.parameter.value.impl.LevelValue;
-import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.IDS;
@@ -396,21 +397,41 @@ public class ControllerApi {
 	public @ResponseBody Object saveAnalysisAssessments(@PathVariable Integer idAnalysis, @RequestBody ApiAssessmentValue assessmentValue, Principal principal, Locale locale)
 			throws Exception {
 		try {
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			// Find assessment
-			Assessment assessment = serviceAssessment.getFromAnalysisById(idAnalysis, (Integer) assessmentValue.getId());
-			// Set new likelihood
-			assessment.setLikelihood(Double.toString(assessmentValue.getLikelihood()));
-			assessment.setLikelihoodReal(assessmentValue.getLikelihood());
+			final Assessment assessment = analysis.getAssessments().stream().filter(a -> assessmentValue.getId().equals(a.getId())).findAny().orElse(null);
+			if (assessment == null)
+				return null;
+
+			final List<IValue> values = new LinkedList<>();
+
+			final ValueFactory factory = new ValueFactory(analysis.getParameters());
+
+			if (assessmentValue.getLikelihood() != null) {
+				final IValue value = factory.findProb(assessmentValue.getLikelihood());
+				// Update likelihood
+				if (assessment.getLikelihood() == null)
+					assessment.setLikelihood(value);
+				else if (!assessment.getLikelihood().merge(value)) {
+					values.add(assessment.getLikelihood());
+					assessment.setLikelihood(value);
+				}
+
+				if (analysis.isQuantitative() && assessment.getLikelihood() != null)
+					assessment.setLikelihoodReal(assessment.getLikelihood().getReal());
+
+			}
+
 			// Set new impacts
-			for (IValue currentValue : assessment.getImpacts()) {
-				final Double newValue = assessmentValue.getImpacts().get(currentValue.getName());
-				// Only update impact if a new value has been provided for it
-				if (newValue != null) {
-					if (currentValue instanceof RealValue)
-						((RealValue) currentValue).setReal(newValue);
-					else if (currentValue instanceof LevelValue)
-						((LevelValue) currentValue).setLevel((int) Math.round(newValue));
-					// silently ignore all other value types
+			for (Entry<String, Object> entry : assessmentValue.getImpacts().entrySet()) {
+				final IValue oldValue = assessment.getImpact(entry.getKey());
+				final IValue newValue = factory.findValue(entry.getValue(), entry.getKey());
+				if (oldValue == null) {
+					if (newValue != null && factory.getImpactMapper().containsKey(entry.getKey()))
+						assessment.setImpact(newValue);
+				} else if (!oldValue.merge(newValue)) {
+					if (newValue != null)
+						assessment.setImpact(newValue);
 				}
 			}
 			serviceAssessment.save(assessment);

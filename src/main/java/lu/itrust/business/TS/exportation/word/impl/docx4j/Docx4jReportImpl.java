@@ -686,11 +686,11 @@ public class Docx4jReportImpl implements Docx4jReport {
 				.findAny().orElse(null);
 	}
 
-	public String formatLikelihood(String likelihood) {
+	public String formatLikelihood(Object likelihood) {
 		try {
-			return getKiloNumberFormat().format(Double.parseDouble(likelihood));
+			return likelihood instanceof Double ? getKiloNumberFormat().format((double) likelihood) : getKiloNumberFormat().format(Double.parseDouble(likelihood.toString()));
 		} catch (Exception e) {
-			return likelihood;
+			return likelihood.toString();
 		}
 	}
 

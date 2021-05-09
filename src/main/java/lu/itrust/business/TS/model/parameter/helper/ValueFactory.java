@@ -311,8 +311,8 @@ public class ValueFactory {
 	 * @return importance
 	 * @see IValue#maxByLevel(IValue, IValue)
 	 */
-	public int findImportance(String proba, List<? extends IValue> impacts) {
-		return findImpactLevel(impacts) * findProbaExpLevel(proba);
+	public int findImportance(IValue proba, List<? extends IValue> impacts) {
+		return findImpactLevel(impacts) * (proba == null ? 0 : proba.getLevel());
 	}
 
 	public int findImpactLevel(List<? extends IValue> impacts) {

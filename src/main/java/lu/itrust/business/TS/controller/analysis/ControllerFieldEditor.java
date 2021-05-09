@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -209,7 +210,7 @@ public class ControllerFieldEditor {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
-			
+
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get acion plan entry
@@ -221,7 +222,7 @@ public class ControllerFieldEditor {
 			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 			if (phase == null)
 				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
-			
+
 			// set new phase value of measure
 			ape.getMeasure().setPhase(phase);
 
@@ -366,10 +367,13 @@ public class ControllerFieldEditor {
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				switch (fieldEditor.getFieldName()) {
 				case "value":
+					final Analysis analysis = serviceAnalysis.get(idAnalysis);
 					parameter.setValue(parameter.getValue() * 1000);
-					List<ImpactParameter> parameters = serviceImpactParameter.findByTypeAndAnalysisId(parameter.getType(), idAnalysis);
-					ImpactParameter.ComputeScales(parameters);
-					UpdateAssessment(idAnalysis, parameter.getType(), parameters);
+					if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
+						ImpactParameter.ComputeScales(analysis.getImpactParameters().stream().filter(i -> i.getType().equals(parameter.getType())).collect(Collectors.toList()));
+						UpdateAssessmentImpact(analysis, parameter.getType());
+					} else
+						serviceImpactParameter.saveOrUpdate(parameter);
 					break;
 				case "label":
 					List<ImpactParameter> impactParameters = serviceImpactParameter.findByIdAnalysisAndLevel(idAnalysis, parameter.getLevel());
@@ -528,10 +532,10 @@ public class ControllerFieldEditor {
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				if ("value".equals(fieldEditor.getFieldName())) {
-					parameter.setValue(parameter.getValue());
-					List<LikelihoodParameter> parameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
-					ParameterManager.ComputeLikehoodValue(parameters);
-					UpdateAssessment(idAnalysis, parameters);
+					final Analysis analysis = serviceAnalysis.get(idAnalysis);
+					analysis.getLikelihoodParameters().stream().filter(p -> p.getId().equals(elementID)).forEach(p -> p.setValue(parameter.getValue()));
+					ParameterManager.ComputeLikehoodValue(analysis.getLikelihoodParameters());
+					UpdateAssessmentLikelihood(analysis);
 				} else
 					serviceLikelihoodParameter.saveOrUpdate(parameter);
 
@@ -1304,7 +1308,7 @@ public class ControllerFieldEditor {
 			if (!serviceDataValidation.isRegistred(Assessment.class))
 				serviceDataValidation.register(new AssessmentValidator());
 			ValueFactory factory = null;
-			IValue impactToDelete = null;
+			IValue toDelete = null;
 			// retrieve all acronyms of impact and likelihood
 			if (assessment.hasImpact(fieldEditor.getFieldName())) {
 				final Optional<Double> optional = ParseFrNumber(fieldEditor.getValue().toString());
@@ -1327,22 +1331,29 @@ public class ControllerFieldEditor {
 					return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
 				if (!oldValue.merge(newValue)) {
 					assessment.setImpact(newValue);
-					impactToDelete = oldValue;
+					toDelete = oldValue;
 				}
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
 				factory = createFactoryForAssessment(idAnalysis);
 				if (fieldEditor.getValue().toString().equalsIgnoreCase("na"))
-					assessment.setLikelihood("0");
+					assessment.setLikelihood(factory.findProb(0));
 				else {
+					final IValue likelihood;
 					final Optional<Double> optional = ParseFrNumber(fieldEditor.getValue().toString());
 					if (optional.isPresent()) {
 						final double value = optional.get();
 						if (value < 0)
 							return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
-						fieldEditor.setValue(value);
-					} else if (!new StringExpressionParser(fieldEditor.getValue().toString(), StringExpressionParser.PROBABILITY).isValid(factory))
-						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
-					assessment.setLikelihood(fieldEditor.getValue().toString());
+						likelihood = factory.findProb(value);
+					} else {
+						likelihood = factory.findProb(fieldEditor.getValue());
+						if (likelihood == null)
+							return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
+					}
+
+					if (assessment.getLikelihood() != null && assessment.getLikelihood().merge(likelihood))
+						toDelete = assessment.getLikelihood();
+					assessment.setLikelihood(likelihood);
 				}
 			} else {
 				// get value
@@ -1368,7 +1379,7 @@ public class ControllerFieldEditor {
 				if (netImportance && AnalysisType.isQualitative(type))
 					result.add(updateFieldValue(idAnalysis, factory.findImportance(assessment), new FieldValue("computedNetImportance")));
 				if (AnalysisType.isQuantitative(type)) {
-					AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
+					AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
 					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
@@ -1398,8 +1409,8 @@ public class ControllerFieldEditor {
 					}
 				}
 			}
-			if (impactToDelete != null)
-				serviceAssessment.delete(impactToDelete);
+			if (toDelete != null)
+				serviceAssessment.delete(toDelete);
 			serviceAssessment.saveOrUpdate(assessment);
 			// return success message
 			return result;
@@ -1418,43 +1429,40 @@ public class ControllerFieldEditor {
 				true);
 	}
 
-	private void UpdateAssessment(Integer idAnalysis, List<LikelihoodParameter> parameters) {
-		List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(idAnalysis);
-		if (assessments.isEmpty()) {
-			ValueFactory factory = new ValueFactory(parameters);
-			factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-			factory.add(serviceImpactParameter.findByTypeAndAnalysisId(Constant.DEFAULT_IMPACT_NAME, idAnalysis));
-			assessments.forEach(assessment -> {
-				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory);
-				serviceAssessment.saveOrUpdate(assessment);
+	private void UpdateAssessmentLikelihood(Analysis analysis) {
+		if (!analysis.getAssessments().isEmpty()) {
+			final ValueFactory factory = new ValueFactory(analysis.getParameters());
+			analysis.getAssessments().forEach(assessment -> {
+				if (assessment.getLikelihood() == null)
+					return;
+				if (assessment.getLikelihood() instanceof FormulaValue)
+					assessment.getLikelihood().merge(factory.findDynValue(assessment.getLikelihood().getVariable(), Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 			});
 		}
-		serviceLikelihoodParameter.saveOrUpdate(parameters);
+		serviceAnalysis.saveOrUpdate(analysis);
 	}
 
-	private void UpdateAssessment(Integer idAnalysis, ScaleType type, List<ImpactParameter> parameters) {
-		final List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(idAnalysis);
-		if (!assessments.isEmpty()) {
-			final ValueFactory factory = new ValueFactory(parameters);
-			factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-			factory.add(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-			assessments.forEach(assessment -> {
-				assessment.getImpacts().stream().filter(value -> (value instanceof RealValue || value instanceof FormulaValue) && value.getName().equals(type.getName())).findAny()
+	private void UpdateAssessmentImpact(Analysis analysis, ScaleType type) {
+		if (!analysis.getAssessments().isEmpty()) {
+			final ValueFactory factory = new ValueFactory(analysis.getParameters());
+			analysis.getAssessments().forEach(assessment -> {
+				assessment.getImpacts().stream().filter(value -> value.getName().equals(type.getName()) && (value instanceof RealValue || value instanceof FormulaValue)).findAny()
 						.ifPresent(value -> {
-							final IValue impact = value instanceof AbstractValue ? factory.findValue(value.getReal(), type.getName())
-									: factory.findValue(value.getVariable(), type.getName());
+							final IValue impact = value instanceof AbstractValue ? factory.findValue(value.getRaw(), type.getName())
+									: factory.findDynValue(value.getVariable(), type.getName());
 							if (impact != null) {
 								if (value instanceof AbstractValue)
-									((RealValue) value).setParameter(((AbstractValue) impact).getParameter());
+									((AbstractValue) value).setParameter(((AbstractValue) impact).getParameter());
 								else
-									value.merge(factory.findValue(value.getVariable(), type.getName()));
+									value.merge(impact);
+								AssessmentAndRiskProfileManager.ComputeAlE(assessment, value);
 							}
-							AssessmentAndRiskProfileManager.ComputeAlE(assessment, value, factory);
-							serviceAssessment.saveOrUpdate(assessment);
+
 						});
 			});
 		}
-		serviceImpactParameter.saveOrUpdate(parameters);
+		serviceAnalysis.saveOrUpdate(analysis);
 	}
 
 	/**

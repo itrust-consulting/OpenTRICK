@@ -123,7 +123,8 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						String.format("Risk estimation for the asset %s", asset.getName()))));
 			});
 			if (exporter.insertAllAfter(paragraphOrigin, contents))
-				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors()));
+				contents.parallelStream().filter(t -> (t instanceof Tbl))
+						.forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors()));
 			assessementsByAsset.clear();
 		}
 		return true;
@@ -188,7 +189,10 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						exporter.addCellNumber((Tc) row.getContent().get(colIndex++),
 								value == null || value.getLevel() == 0 ? exporter.getMessage("label.status.na", null, "na") : value.getLevel().toString());
 					}
-					exporter.setCellText((Tc) row.getContent().get(colIndex++), exporter.formatLikelihood(assessment.getLikelihood()), alignmentCenter);
+					exporter.setCellText((Tc) row.getContent().get(colIndex++),
+							exporter.formatLikelihood(
+									assessment.getLikelihood() == null ? exporter.getMessage("label.status.na", null, "na") : assessment.getLikelihood().getRaw()),
+							alignmentCenter);
 					exporter.addCellNumber((Tc) row.getContent().get(colIndex++),
 							assessment.getALE() == 0 ? exporter.getKiloNumberFormat().format(assessment.getALE() * 0.001) : assessmentFormat.format(assessment.getALE() * 0.001));
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
@@ -199,7 +203,8 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						String.format("Risk estimation for the asset %s", ale.getAssetName()))));
 			});
 			if (exporter.insertAllAfter(paragraphOrigin, contents))
-				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors()));
+				contents.parallelStream().filter(t -> (t instanceof Tbl))
+						.forEach(t -> DocxChainFactory.format(t, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors()));
 			assessementsmap.clear();
 			contents.clear();
 		}

@@ -974,7 +974,7 @@ public class ImportAnalysis {
 				tmpAssessment.setAsset(assets.get(assetId));
 				tmpAssessment.setScenario(scenarios.get(scenarioId));
 				tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
-				tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
+				tmpAssessment.setLikelihood(factory.findProb(rs.getString(Constant.ASSESSMENT_POTENTIALITY)));
 				tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
 				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
@@ -3227,7 +3227,7 @@ public class ImportAnalysis {
 		if (Constant.DEFAULT_IMPACT_NAME.equals(type)) {
 			if (value != null)
 				return value;
-			else if(content instanceof String){
+			else if (content instanceof String) {
 				return new FormulaValue((String) content, 0D);
 			}
 		} else if (value != null) {

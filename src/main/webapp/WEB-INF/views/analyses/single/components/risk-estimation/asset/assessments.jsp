@@ -28,15 +28,17 @@
 	${fn:replace(probabilityScaleTitle,"'", "\\'" )}
 </c:set>
 <fmt:setLocale value="fr" scope="session" />
-<div class="section col-lg-10 col-md-9 trick-ui" id="section_asset_assessment" data-view-type='table' data-view-name='estimation-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='-1'
-	data-trick-content='asset'>
+<div class="section col-lg-10 col-md-9 trick-ui" id="section_asset_assessment" data-view-type='table' data-view-name='estimation-ui' data-trick-asset-id='${asset.id}'
+	data-trick-scenario-id='-1' data-trick-content='asset'>
 	<div class="page-header tab-content-header hidden-xs">
 		<div class="container">
 			<div class="row-fluid">
 				<h3 role="title">
 					<spring:message code="label.assessment.for.asset">
-						<spring:argument value="${asset.name}"/>
-						<spring:argument><fmt:formatNumber value="${fct:round(asset.value*0.001,0)}" /></spring:argument>
+						<spring:argument value="${asset.name}" />
+						<spring:argument>
+							<fmt:formatNumber value="${fct:round(asset.value*0.001,0)}" />
+						</spring:argument>
 					</spring:message>
 				</h3>
 			</div>
@@ -171,22 +173,22 @@
 		</thead>
 		<tbody>
 			<c:if test="${not empty asset}">
-				<c:set var="naParameterLabel">0-<spring:message code='label.parameter.label.na' /></c:set>
+				<c:set var="naParameterLabel">0-<spring:message code='label.parameter.label.na' />
+				</c:set>
 				<c:forEach items="${assessments}" var="assessment">
 					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 						<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
-						<c:set var="likelihood" value="${valueFactory.findProb(assessment.likelihood)}" />
+						<c:set var="likelihood" value="${assessment.likelihood}" />
 						<c:choose>
 							<c:when test="${type.qualitative}">
 								<c:choose>
 									<c:when test="${type.quantitative}">
 										<c:choose>
 											<c:when test="${empty likelihood}">
-												<spring:message text="${assessment.likelihood}" var="likelihood" />
-												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
+														code='label.status.na' /></td>
 											</c:when>
 											<c:when test="${likelihood['class'].simpleName=='RealValue'}">
-
 												<c:choose>
 													<c:when test="${likelihood.real==0}">
 														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
@@ -198,10 +200,9 @@
 															data-real-value='${realValue}'><spring:message text="${likelihood.variable}" /></td>
 													</c:otherwise>
 												</c:choose>
-
 											</c:when>
 											<c:otherwise>
-												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" data-real-value='${likelihood.raw}'
 													title='<fmt:formatNumber value="${fct:round(likelihood.real,3)}" />'><spring:message text="${likelihood.variable}" /></td>
 											</c:otherwise>
 										</c:choose>
@@ -211,14 +212,34 @@
 												<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" title='0 &euro;' onclick="return editField(this);">0</td>
 											</c:when>
 											<c:otherwise>
-												<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${impact.variable}'><c:choose>
-														<c:when test="${impact.real < 10000}">
-															<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" />
-														</c:when>
-														<c:otherwise>
-															<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" />
-														</c:otherwise>
-													</c:choose></td>
+												<c:choose>
+													<c:when test="${impact['class'].simpleName=='RealValue'}">
+														<fmt:formatNumber value="${impact.real}" var="realImpact" />
+														<c:choose>
+															<c:when test="${impact.real < 10000}">
+																<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+															</c:when>
+															<c:otherwise>
+																<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+															</c:otherwise>
+														</c:choose>
+														<td data-trick-field="IMPACT" data-trick-field-type="string" data-real-value='${impactValue}' class="editable" onclick="return editField(this);"
+															title='${realImpact} &euro;'>${impactValue}</td>
+													</c:when>
+													<c:otherwise>
+														<c:choose>
+															<c:when test="${impact.real < 10000}">
+																<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="realImpact" />
+															</c:when>
+															<c:otherwise>
+																<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="realImpact" />
+															</c:otherwise>
+														</c:choose>
+														<spring:message text="${impact.raw}" var="impactValue" />
+														<td data-trick-field="IMPACT" data-trick-field-type="string" data-real-value='${impactValue}' class="editable" onclick="return editField(this);"
+															title='${realImpact} k&euro;'>${impactValue}</td>
+													</c:otherwise>
+												</c:choose>
 											</c:otherwise>
 										</c:choose>
 									</c:when>
@@ -228,18 +249,22 @@
 												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
 														code='label.status.na' /></td>
 											</c:when>
-											<c:otherwise>
+											<c:when test="${likelihood['class'].simpleName=='RealValue'}">
 												<c:choose>
-													<c:when test="${likelihood.level == 0}">
-														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${naParameterLabel}'><spring:message
+													<c:when test="${likelihood.real==0}">
+														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
 																code='label.status.na' /></td>
 													</c:when>
 													<c:otherwise>
-														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
-															title='<spring:message text="${likelihood.level}-${likelihood.parameter.label}"/>'>${likelihood.level}</td>
+														<spring:message text="${likelihood.variable}" var="likelihoodVar" />
+														<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${likelihoodVar}'
+															data-real-value='${likelihood.level}'>${likelihood.level}</td>
 													</c:otherwise>
 												</c:choose>
-
+											</c:when>
+											<c:otherwise>
+												<spring:message text="${likelihood.variable}" var="likelihoodVar"/>
+													<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${likelihoodVar}' data-real-value='${likelihood.level}'>${likelihood.level}</td>
 											</c:otherwise>
 										</c:choose>
 									</c:otherwise>
@@ -289,24 +314,57 @@
 										<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" title='0 &euro;' onclick="return editField(this);">0</td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${impact.variable}'><c:choose>
-												<c:when test="${impact.real < 10000}">
-													<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" />
-												</c:when>
-												<c:otherwise>
-													<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" />
-												</c:otherwise>
-											</c:choose></td>
+										<c:choose>
+											<c:when test="${impact['class'].simpleName=='RealValue'}">
+												<fmt:formatNumber value="${impact.real}" var="realImpact" />
+												<c:choose>
+													<c:when test="${impact.real < 10000}">
+														<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+													</c:when>
+													<c:otherwise>
+														<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+													</c:otherwise>
+												</c:choose>
+												<td data-trick-field="IMPACT" data-trick-field-type="string" data-real-value='${impactValue}' class="editable" onclick="return editField(this);"
+													title='${realImpact} &euro;'>${impactValue}</td>
+											</c:when>
+											<c:otherwise>
+												<c:choose>
+													<c:when test="${impact.real < 10000}">
+														<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="realImpact" />
+													</c:when>
+													<c:otherwise>
+														<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="realImpact" />
+													</c:otherwise>
+												</c:choose>
+												<spring:message text="${impact.raw}" var="impactValue" />
+												<td data-trick-field="IMPACT" data-trick-field-type="string" data-real-value='${impactValue}' class="editable" onclick="return editField(this);"
+													title='${realImpact} k&euro;'>${impactValue}</td>
+											</c:otherwise>
+										</c:choose>
 									</c:otherwise>
 								</c:choose>
 								<c:choose>
 									<c:when test="${empty likelihood}">
-										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
+												code='label.status.na' /></td>
+									</c:when>
+									<c:when test="${likelihood['class'].simpleName=='RealValue'}">
+										<c:choose>
+											<c:when test="${likelihood.real==0}">
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
+														code='label.status.na' /></td>
+											</c:when>
+											<c:otherwise>
+												<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="realValue" />
+												<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='${realValue}' data-real-value='${realValue}'><spring:message
+														text="${likelihood.variable}" /></td>
+											</c:otherwise>
+										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);"
-											title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,3)}" /></td>
+										<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" data-real-value='${likelihood.raw}'
+											title='<fmt:formatNumber value="${fct:round(likelihood.real,3)}" />'><spring:message text="${likelihood.variable}" /></td>
 									</c:otherwise>
 								</c:choose>
 								<c:if test="${show_uncertainty}">

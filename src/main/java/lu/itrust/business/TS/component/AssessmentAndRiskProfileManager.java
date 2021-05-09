@@ -22,7 +22,6 @@ import lu.itrust.business.TS.database.dao.DAORiskProfile;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisUtils;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
@@ -31,10 +30,8 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * AssessmentAndRiskProfileManager.java: <br>
@@ -333,7 +330,7 @@ public class AssessmentAndRiskProfileManager {
 				if (assessments == null)
 					continue;
 				for (Assessment assessment : assessments) {
-					ComputeAlE(assessment, factory);
+					ComputeAlE(assessment);
 					ale += assessment.getALE();
 					aleo += assessment.getALEO();
 					alep += assessment.getALEP();
@@ -534,25 +531,24 @@ public class AssessmentAndRiskProfileManager {
 		assessment.setImpact(factory.findValue(impact.equals(Constant.DEFAULT_IMPACT_NAME) ? 0D : 0, impact));
 	}
 
-	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory) {
-		return ComputeAlE(assessment, null, factory);
+	public static Assessment ComputeAlE(Assessment assessment) {
+		return ComputeAlE(assessment, (IValue)null);
 	}
 
-	public static Assessment ComputeAlE(Assessment assessment, IValue value, ValueFactory factory) {
+	public static Assessment ComputeAlE(Assessment assessment, IValue value) {
 		if (value == null || !value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
 			assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
 		else
 			assessment.setImpactReal(value.getReal());
-		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood(),StringExpressionParser.PROBABILITY).evaluate(factory));
+		assessment.setLikelihoodReal(assessment.getLikelihood() == null ? 0 : assessment.getLikelihood().getReal());
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
 		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
 		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
 		return assessment;
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<AbstractProbability> parameters, AnalysisType type) {
-		final ValueFactory factory = new ValueFactory(parameters);
-		assessments.forEach(assessment -> ComputeAlE(assessment, factory));
+	public static void ComputeAlE(List<Assessment> assessments) {
+		assessments.forEach(assessment -> ComputeAlE(assessment));
 	}
 
 	/**

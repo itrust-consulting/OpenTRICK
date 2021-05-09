@@ -88,19 +88,19 @@ import lu.itrust.business.TS.usermanagement.User;
  *
  */
 public class WorkerImportEstimation extends WorkerImpl {
-	
+
 	private int idAnalysis;
 
 	private String username;
-	
+
 	private String filename;
 
 	private DAOUser daoUser;
-	
+
 	private boolean assetOnly;
 
 	private DAOAsset daoAsset;
-	
+
 	private boolean scenarioOnly;
 
 	private DAOAnalysis daoAnalysis;
@@ -119,8 +119,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	private final Pattern impactPattern = Pattern.compile("^i\\d+$");
 
-	public WorkerImportEstimation(int idAnalysis, String username, String filename,
-			boolean assetOnly, boolean scenarioOnly) {
+	public WorkerImportEstimation(int idAnalysis, String username, String filename, boolean assetOnly, boolean scenarioOnly) {
 		setUsername(username);
 		setFilename(filename);
 		setAssetOnly(assetOnly);
@@ -190,7 +189,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 	public String getUsername() {
 		return username;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -287,7 +286,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
-	
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -311,9 +310,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 				}
 			}
 		}
-		
+
 		getServiceStorage().delete(getFilename());
-		
+
 		if (getWorkersPoolManager() != null)
 			getWorkersPoolManager().remove(this);
 	}
@@ -341,8 +340,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 		final int nameIndex = columns.indexOf("name"), odlNameIndex = columns.indexOf("old name");
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "Name column cannot be found!", "Name");
-		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
-		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
+		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
+		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream().collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String name = getString(row, nameIndex, formatter), oldName = getString(row, odlNameIndex, formatter);
@@ -397,14 +396,12 @@ public class WorkerImportEstimation extends WorkerImpl {
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
 			getServiceTaskFeedback().send(getId(), handler);
 		}
-		
+
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
-				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), getUsername(), LogAction.IMPORT,
-				analysis.getIdentifier(), analysis.getVersion());
+				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(), analysis.getVersion()), getUsername(), LogAction.IMPORT, analysis.getIdentifier(),
+				analysis.getVersion());
 
 	}
-
-	
 
 	private void importRiskEstimation(final Analysis analysis, ValueFactory factory, AssessmentAndRiskProfileManager riskProfileManager, final WorkbookPart workbook,
 			final Map<String, Sheet> sheets, DataFormatter formatter, final int min, final int max) throws Exception, Docx4JException {
@@ -445,9 +442,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 						.collect(Collectors.groupingBy(m -> m.getMeasureDescription().getStandard().getName(),
 								Collectors.mapping(Function.identity(), Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()))))
 				: Collections.emptyMap();
-		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
-		final Map<String, ScaleType> scalesMapper = scaleTypes.stream().collect(Collectors.toMap(e-> e.getDisplayName().trim(), Function.identity()));
-		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
+		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
+		final Map<String, ScaleType> scalesMapper = scaleTypes.stream().collect(Collectors.toMap(e -> e.getDisplayName().trim(), Function.identity()));
+		final Map<String, Asset> assets = analysis.getAssets().stream().collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
 		riskProfiles.values().forEach(r -> r.setIdentifier(null));
 		daoRiskProfile.resetRiskIdByIds(riskIDs.values().stream().filter(r -> r.getId() > 0).map(RiskProfile::getId).collect(Collectors.toList()));
 		for (int i = 1; i < size; i++) {
@@ -477,7 +474,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 					riskProfile.setRiskStrategy(parseResponse(value, riskProfile.getRiskStrategy()));
 					break;
 				case "Probability":
-					assessment.setLikelihood(value);
+					final IValue probability = factory.findProb(value);
+					if (assessment.getLikelihood() == null)
+						assessment.setLikelihood(probability);
+					else if (!(assessment.getLikelihood().merge(probability) || probability == null)) {
+						valuesToDelete.add(assessment.getLikelihood());
+						assessment.setLikelihood(probability);
+					}
 					break;
 				case "Impact":
 					if (!analysis.isQuantitative())
@@ -597,7 +600,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		for (ScenarioType scenarioType : ScenarioType.values())
 			scenarioTypes.put(scenarioType.getName(), scenarioType);
 
-		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e-> e.getName().trim(), Function.identity()));
+		final Map<String, Scenario> scenarios = analysis.getScenarios().stream().collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String name = getString(row, nameIndex, formatter), oldName = getString(row, odlNameIndex, formatter);
@@ -666,7 +669,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(), handler);
 
 		}
-		
+
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
 				String.format("Analysis: %s, version: %s, type: Scenario", analysis.getIdentifier(), analysis.getVersion()), getUsername(), LogAction.IMPORT,
 				analysis.getIdentifier(), analysis.getVersion());
@@ -886,5 +889,5 @@ public class WorkerImportEstimation extends WorkerImpl {
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
-	
+
 }
