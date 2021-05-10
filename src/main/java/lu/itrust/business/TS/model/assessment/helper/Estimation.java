@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.model.parameter.value.AbstractValue;
 import lu.itrust.business.TS.model.parameter.value.IParameterValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -64,8 +65,15 @@ public class Estimation {
 		setRiskProfile(riskProfile);
 		setArgumentation(assessment.getComment());
 		setAssessmentId(assessment.getId());
-		setNetEvaluation(new RiskProbaImpact((LikelihoodParameter) convertor.findProbParameter(assessment.getLikelihood()),
-				assessment.getImpacts().stream().filter(i -> (i instanceof IParameterValue)).map(impact -> (ImpactParameter) ((IParameterValue) impact).getParameter()).collect(Collectors.toList())));
+		final LikelihoodParameter likelihood = assessment.getLikelihood() == null ? (LikelihoodParameter) convertor.findProbParameter(0)
+				: assessment.getLikelihood() instanceof AbstractValue ? (LikelihoodParameter) ((AbstractValue) assessment.getLikelihood()).getParameter()
+						: (LikelihoodParameter) convertor.findProbParameter(assessment.getLikelihood().getLevel());
+		setNetEvaluation(new RiskProbaImpact(likelihood, assessment.getImpacts().stream().map(impact ->{
+			if (impact instanceof IParameterValue)
+				return (ImpactParameter) ((IParameterValue) impact).getParameter();
+			else
+				return (ImpactParameter) convertor.findParameter(impact.getLevel(), impact.getName());
+		}).collect(Collectors.toList())));
 	}
 
 	/**
@@ -76,8 +84,7 @@ public class Estimation {
 	}
 
 	/**
-	 * @param netEvaluation
-	 *            the netEvaluation to set
+	 * @param netEvaluation the netEvaluation to set
 	 */
 	public void setNetEvaluation(RiskProbaImpact netEvaluation) {
 		this.netEvaluation = netEvaluation;
@@ -207,8 +214,7 @@ public class Estimation {
 	}
 
 	/**
-	 * @param riskProfile
-	 *            the riskProfile to set
+	 * @param riskProfile the riskProfile to set
 	 */
 	public void setRiskProfile(RiskProfile riskProfile) {
 		this.riskProfile = riskProfile;
@@ -226,8 +232,7 @@ public class Estimation {
 	}
 
 	/**
-	 * @param owner
-	 *            the owner to set
+	 * @param owner the owner to set
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
@@ -241,8 +246,7 @@ public class Estimation {
 	}
 
 	/**
-	 * @param argumentation
-	 *            the argumentation to set
+	 * @param argumentation the argumentation to set
 	 */
 	public void setArgumentation(String argumentation) {
 		this.argumentation = argumentation;
@@ -398,8 +402,7 @@ public class Estimation {
 	}
 
 	/**
-	 * @param assessmentId
-	 *            the assessmentId to set
+	 * @param assessmentId the assessmentId to set
 	 */
 	public void setAssessmentId(int assessmentId) {
 		this.assessmentId = assessmentId;

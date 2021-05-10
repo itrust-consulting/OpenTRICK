@@ -4,12 +4,13 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.TS.constants.Constant.APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.RI_SHEET_MAPPERS;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
@@ -126,10 +127,10 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -335,8 +336,8 @@ public class ControllerDataManager {
 				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales, analysis.getType());
 				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales);
 			} else {
-				setValue(row, cellIndex++, assessment.getLikelihood());
-				writeQuantitativeImpact(row, cellIndex++, assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME));
+				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
+				writeQuantitativeImpact(row, cellIndex++, assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
 			}
 
 			if (uncertainty)
@@ -882,11 +883,12 @@ public class ControllerDataManager {
 
 	@PostMapping(value = "/Risk-information/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file, @RequestParam(value="overwrite",defaultValue = "true") boolean overwrite, HttpSession session, Principal principal, HttpServletRequest request,
-			Locale locale) throws Exception {
+	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file,
+			@RequestParam(value = "overwrite", defaultValue = "true") boolean overwrite, HttpSession session, Principal principal, HttpServletRequest request, Locale locale)
+			throws Exception {
 		final String filename = ServiceStorage.randoomFilename();
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename,overwrite);
+		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename, overwrite);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
@@ -1105,7 +1107,7 @@ public class ControllerDataManager {
 
 	private void exportRawActionPlan(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, Locale locale) throws Exception {
 		ObjectFactory factory = Context.getsmlObjectFactory();
-		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
+		List<IAcronymParameter> expressionParameters = analysis.getExpressionParameters();
 		ActionPlanMode[] types = analysis.isHybrid() ? new ActionPlanMode[] { ActionPlanMode.APPN, ActionPlanMode.APQ }
 				: analysis.isQualitative() ? new ActionPlanMode[] { ActionPlanMode.APQ } : new ActionPlanMode[] { ActionPlanMode.APPN };
 
@@ -1246,7 +1248,7 @@ public class ControllerDataManager {
 		}
 	}
 
-	private Row writeActionPLanData(Row row, int colCount, ActionPlanEntry actionPlanEntry, List<IProbabilityParameter> expressionParameters, Locale locale) {
+	private Row writeActionPLanData(Row row, int colCount, ActionPlanEntry actionPlanEntry, List<IAcronymParameter> expressionParameters, Locale locale) {
 		for (int i = 0; i < colCount; i++) {
 			if (row.getC().size() < i)
 				row.getC().add(Context.smlObjectFactory.createCell());
@@ -1282,7 +1284,7 @@ public class ControllerDataManager {
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales, AnalysisType analysisType) {
-		setValue(row, colIndex++, assessment.getLikelihood());
+		writeLikelihood(row, colIndex++, assessment.getLikelihood());
 		for (ScaleType type : scales) {
 			IValue value = assessment.getImpact(type.getName());
 			if (value == null)
@@ -1326,6 +1328,18 @@ public class ControllerDataManager {
 		else if (impact.getRaw() instanceof Double)
 			setValue(row, cellIndex, impact.getReal() * 0.001);
 		else
+			setValue(row, cellIndex, impact.getVariable());
+	}
+
+	private void writeLikelihood(Row row, int cellIndex, IValue impact) {
+		if (impact == null)
+			setValue(row, cellIndex, "na");
+		else if (impact.getRaw() instanceof Double) {
+			if (impact.getRaw().equals(0d))
+				setValue(row, cellIndex, "na");
+			else
+				setValue(row, cellIndex, impact.getReal());
+		} else
 			setValue(row, cellIndex, impact.getVariable());
 	}
 

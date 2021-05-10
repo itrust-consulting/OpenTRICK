@@ -179,7 +179,7 @@ public class ControllerCreation {
 
 		model.addAttribute("profiles", serviceAnalysis.getAllProfiles());
 
-		model.addAttribute("impacts", serviceScaleType.findAllExpect(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME));
+		model.addAttribute("impacts", serviceScaleType.findAllExpect(Constant.PARAMETER_TYPE_IMPACT_NAME));
 		// set author as the username
 
 		User user = serviceUser.get(principal.getName());

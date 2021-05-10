@@ -138,7 +138,7 @@ public class FormulaValue implements IValue {
 
 	@Override
 	public String getName() {
-		return Constant.PARAMETERTYPE_TYPE_IMPACT_NAME;
+		return Constant.PARAMETER_TYPE_IMPACT_NAME;
 	}
 	
 	

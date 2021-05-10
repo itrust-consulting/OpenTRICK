@@ -37,9 +37,9 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
-import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -1546,7 +1546,7 @@ public class ExportAnalysis {
 		MaturityMeasure maturity = null;
 		String measurequery = "", specdefaultquery = "";
 		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
-		List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
+		List<IAcronymParameter> expressionParameters = analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * export standard measures (27001, 27002, custom)

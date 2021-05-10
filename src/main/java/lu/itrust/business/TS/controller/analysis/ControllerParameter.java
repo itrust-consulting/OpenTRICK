@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerScaleLevelMigrator;
 import lu.itrust.business.TS.component.AnalysisImpactManager;
+import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
@@ -41,9 +44,15 @@ import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisUtils;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
+import lu.itrust.business.TS.model.parameter.value.IParameterValue;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
+import lu.itrust.business.expressions.TokenType;
+import lu.itrust.business.expressions.TokenizerToString;
 
 /**
  * @author eom
@@ -146,7 +155,7 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("reportSettings", loadReportSettings(analysis));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
-		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters( analysis.getParameters()));
+		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));
 		return "analyses/single/components/parameters/other";
 	}
 
@@ -213,6 +222,42 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("maxImportance", level * level);
 		model.addAttribute("parameters", serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
 		return "analyses/single/components/parameters/form/riskAcceptance";
+	}
+
+	@DeleteMapping(value = "/Dynamic/Delete/{id}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session,#id, 'DynamicParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String deleteDynamicParameter(@PathVariable int id, HttpSession session, Principal principal, Locale locale) {
+		try {
+			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
+			final DynamicParameter parameter = analysis.getDynamicParameters().stream().filter(p -> p.getId() == id).findAny().orElse(null);
+			if (!analysis.getAssessments().isEmpty()) {
+				analysis.getDynamicParameters().remove(parameter);
+				final ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
+				final int result = analysis.getAssessments().stream().mapToInt(a -> {
+					final IValue impact = a.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME);
+					if (updateValue(a.getLikelihood(), parameter.getAcronym(), factory) || updateValue(impact, parameter.getAcronym(), factory)) {
+						AssessmentAndRiskProfileManager.ComputeAlE(a, impact);
+						return 1;
+					}
+					return 0;
+				}).max().orElse(0);
+
+				if (result > 0)
+					serviceAnalysis.saveOrUpdate(analysis);
+			}
+			serviceDynamicParameter.delete(parameter);
+			return JsonMessage.Success(messageSource.getMessage("success.delete.parameter", null, "Parameter has been successfully deleted", locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+		}
+	}
+
+	private boolean updateValue(final IValue value, final String acronym, final ValueFactory factory) {
+		return !(value == null || value instanceof IParameterValue)
+				&& new TokenizerToString(value.getVariable()).getTokens().parallelStream().anyMatch(e -> e.getType().equals(TokenType.Variable) && e.getParameter().equals(acronym))
+				&& value.merge(factory.findDynValue(value.getVariable(), value.getName()));
 	}
 
 	/**

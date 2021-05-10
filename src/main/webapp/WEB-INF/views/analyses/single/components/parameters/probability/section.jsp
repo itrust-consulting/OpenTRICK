@@ -25,7 +25,7 @@
 					<c:if test="${type.qualitative}">
 						<th class="textaligncenter" width="${type.quantitative?'10' : '20' }%"><spring:message code="label.parameter.label" /></th>
 					</c:if>
-					<th><spring:message code="label.parameter.qualification" /></th>
+					<th data-th-name='qualification'><spring:message code="label.parameter.qualification" /></th>
 					<c:if test="${type.quantitative}">
 						<th class="textaligncenter" width="8%"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
 						<th class="textaligncenter" width="8%"><spring:message code="label.parameter.range.min" /></th>
@@ -104,14 +104,17 @@
 					<tr>
 						<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
 						<th class="textaligncenter"><spring:message code="label.parameter.value" /></th>
+						<th class="textaligncenter" data-name='action'><spring:message code="label.action" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<fmt:setLocale value="fr" scope="session" />
 					<c:forEach items="${mappedParameters['DYNAMIC']}" var="parameter" varStatus="status">
+						<spring:message text="${parameter.acronym}" var="dynamicAcronym"/>
 						<tr data-trick-class="DynamicParameter" data-trick-id="${parameter.id}">
-							<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+							<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter">${dynamicAcronym}</td>
 							<td data-trick-field="value" class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
+							<td class='text-center' data-name='action'><button class='btn btn-danger' onclick="deleteDynamicParameter(${parameter.id},'${dynamicAcronym}')"><i class='glyphicon glyphicon-trash'></i></button></td>
 						</tr>
 					</c:forEach>
 					<fmt:setLocale value="${language}" scope="session" />

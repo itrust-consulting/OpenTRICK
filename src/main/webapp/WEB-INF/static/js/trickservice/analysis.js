@@ -983,6 +983,38 @@ function displayChart(id, response) {
 		$element.loadOrUpdateChart(response);
 }
 
+
+function deleteDynamicParameter(id, acronym) {
+	var $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete dynamic {"+acronym+"}?",acronym));
+	$("button[name='yes']", $modal).unbind().one("click", function () {
+		var $progress = $("#loading-indicator").show();
+		$.ajax(
+				{
+					url : context + "/Analysis/Parameter/Dynamic/Delete/"+id,
+					type : "DELETE",
+					contentType : "application/json;charset=UTF-8",
+					success : function(response, textStatus, jqXHR) {
+						if (response.success){
+							$("tr[data-trick-class='DynamicParameter'][data-trick-id="+id+"]").remove();
+							$("datalist[id^='dataList-parameter-']").remove();
+							updateAssessmentAle(true);
+						}
+						else if (response.error)
+							showDialog("#alert-dialog",response.error);
+						else
+							unknowError();
+						return false;
+					},
+					error : unknowError
+				}).complete(function() {
+			$progress.hide();
+		});
+		$modal.modal("hide");
+		return false;
+	});
+	
+}
+
 function manageRiskAcceptance() {
 	var $progress = $("#loading-indicator").show();
 	$

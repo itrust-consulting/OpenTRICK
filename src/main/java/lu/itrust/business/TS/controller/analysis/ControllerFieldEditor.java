@@ -369,7 +369,7 @@ public class ControllerFieldEditor {
 				case "value":
 					final Analysis analysis = serviceAnalysis.get(idAnalysis);
 					parameter.setValue(parameter.getValue() * 1000);
-					if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
+					if (parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)) {
 						ImpactParameter.ComputeScales(analysis.getImpactParameters().stream().filter(i -> i.getType().equals(parameter.getType())).collect(Collectors.toList()));
 						UpdateAssessmentImpact(analysis, parameter.getType());
 					} else
@@ -1319,7 +1319,7 @@ public class ControllerFieldEditor {
 						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
 					fieldEditor.setValue(value * 1000);
 				} else if (!factory.hasAcronym(fieldEditor.getValue().toString(), fieldEditor.getFieldName())) {
-					if (!fieldEditor.getFieldName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					if (!fieldEditor.getFieldName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
 						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
 				}
 
@@ -1436,7 +1436,7 @@ public class ControllerFieldEditor {
 				if (assessment.getLikelihood() == null)
 					return;
 				if (assessment.getLikelihood() instanceof FormulaValue)
-					assessment.getLikelihood().merge(factory.findDynValue(assessment.getLikelihood().getVariable(), Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
+					assessment.getLikelihood().merge(factory.findDynValue(assessment.getLikelihood().getVariable(), Constant.PARAMETER_TYPE_PROPABILITY_NAME));
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 			});
 		}

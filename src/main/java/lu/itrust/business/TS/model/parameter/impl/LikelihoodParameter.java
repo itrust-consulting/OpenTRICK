@@ -125,7 +125,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 
 	@Override
 	public String getTypeName() {
-		return Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
+		return Constant.PARAMETER_TYPE_PROPABILITY_NAME;
 	}
 
 	/*

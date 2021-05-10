@@ -122,7 +122,7 @@ public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 	}
 
 	private ImpactParameter createImpactParameter(ExtendedParameterMapper parameter) {
-		return new ImpactParameter(scaleTypes.get(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME), parameter.getAcronym(), parameter.getLevel(), parameter.getValue(),
+		return new ImpactParameter(scaleTypes.get(Constant.PARAMETER_TYPE_IMPACT_NAME), parameter.getAcronym(), parameter.getLevel(), parameter.getValue(),
 				parameter.getDescription(), new Bounds(parameter.getFrom(), parameter.getTo()));
 	}
 
@@ -316,7 +316,7 @@ public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 				financials = paramters.get(Constant.DEFAULT_IMPACT_TYPE_NAMES[0]), legals = paramters.get(Constant.DEFAULT_IMPACT_TYPE_NAMES[1]),
 				operationals = paramters.get(Constant.DEFAULT_IMPACT_TYPE_NAMES[2]), reputationals = paramters.get(Constant.DEFAULT_IMPACT_TYPE_NAMES[3]);
 		for (AssessmentMapper assessmentMapper : assessmentMappers) {
-			IValue likelihood = findValue(assessmentMapper.getLikelihood(), likelihoods, valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME),
+			IValue likelihood = findValue(assessmentMapper.getLikelihood(), likelihoods, valueFactory, Constant.PARAMETER_TYPE_PROPABILITY_NAME),
 					financial = findValue(assessmentMapper.getFinancial(), financials, valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[0]),
 					legal = findValue(assessmentMapper.getLegal(), legals, valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[1]),
 					operational = findValue(assessmentMapper.getOperational(), operationals, valueFactory, Constant.DEFAULT_IMPACT_TYPE_NAMES[2]),
@@ -390,7 +390,7 @@ public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 
 			if (riskProfileMapper.getExpLikelihood() > 0)
 				riskProfileMapper.setExpLikelihood(
-						findParameter(likelihoodParameters.get(riskProfileMapper.getExpLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
+						findParameter(likelihoodParameters.get(riskProfileMapper.getExpLikelihood()), valueFactory, Constant.PARAMETER_TYPE_PROPABILITY_NAME).getId());
 			else
 				riskProfileMapper.setExpLikelihood(null);
 
@@ -412,7 +412,7 @@ public class V2_1_9_2__MigrateData extends TrickServiceDataBaseMigration {
 
 			if (riskProfileMapper.getRawLikelihood() > 0)
 				riskProfileMapper.setRawLikelihood(
-						findParameter(likelihoodParameters.get(riskProfileMapper.getRawLikelihood()), valueFactory, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).getId());
+						findParameter(likelihoodParameters.get(riskProfileMapper.getRawLikelihood()), valueFactory, Constant.PARAMETER_TYPE_PROPABILITY_NAME).getId());
 			else
 				riskProfileMapper.setRawLikelihood(null);
 

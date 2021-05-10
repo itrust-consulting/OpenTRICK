@@ -4,7 +4,7 @@
 package lu.itrust.business.TS.model.parameter.helper;
 
 import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETER_TYPE_PROPABILITY_NAME;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,7 +105,7 @@ public class ValueFactory {
 	}
 
 	public IValue findProb(Object value) {
-		return findValue(value, PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+		return findValue(value, PARAMETER_TYPE_PROPABILITY_NAME);
 	}
 
 	public Integer findProbLevel(Object value) {
@@ -194,6 +194,8 @@ public class ValueFactory {
 				final ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
 				if (parameter != null)
 					return new Value(parameter);
+				if ("na".equalsIgnoreCase((String) value))
+					value = "0";
 			}
 
 			final Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
@@ -218,7 +220,7 @@ public class ValueFactory {
 
 	private IValue findDynValue(String value, String type, final List<? extends ILevelParameter> parameters) {
 		final int family = Constant.DEFAULT_IMPACT_NAME.equals(type) ? StringExpressionParser.IMPACT
-				: Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME.equals(type) ? StringExpressionParser.PROBABILITY : -1;
+				: Constant.PARAMETER_TYPE_PROPABILITY_NAME.equals(type) ? StringExpressionParser.PROBABILITY : -1;
 		if (family != -1) {
 			final List<? extends ILevelParameter> myParameters = parameters == null || parameters.isEmpty() ? getParameters(type) : parameters;
 			final Double result = new StringExpressionParser(value, family).evaluate(this, null);
@@ -243,7 +245,7 @@ public class ValueFactory {
 
 	private List<? extends ILevelParameter> getParameters(String type) {
 		switch (type) {
-		case PARAMETERTYPE_TYPE_PROPABILITY_NAME:
+		case PARAMETER_TYPE_PROPABILITY_NAME:
 			return probabilities == null ? null : probabilities.get(type);
 		default:
 			return impacts == null ? null : impacts.get(type);
@@ -253,7 +255,7 @@ public class ValueFactory {
 	private Map<String, ? extends ILevelParameter> getParameterMapper(String type) {
 		switch (type) {
 		case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
-		case PARAMETERTYPE_TYPE_PROPABILITY_NAME:
+		case PARAMETER_TYPE_PROPABILITY_NAME:
 			if (probabilities == null)
 				return Collections.emptyMap();
 			if (probabilityMapper == null)

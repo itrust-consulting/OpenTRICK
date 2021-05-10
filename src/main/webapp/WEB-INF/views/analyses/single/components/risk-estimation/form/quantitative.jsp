@@ -61,10 +61,8 @@
 								<input name="IMPACT" class="form-control" value='0' list="dataList-parameter-impact" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
 							</c:when>
 							<c:otherwise>
-
-
 								<c:choose>
-									<c:when test="${impact['class'].simpleName=='RealValue'}">
+									<c:when test="${impact.real eq impact.raw}">
 										<fmt:formatNumber value="${impact.real}" var="realImpact" />
 										<c:choose>
 											<c:when test="${impact.real<100}">

@@ -287,8 +287,7 @@
 							<c:set var="likelihood" value="${assessment.likelihood}" />
 							<c:choose>
 								<c:when test="${empty likelihood}">
-									<input name="likelihood" class="form-control" value="${na}" list="dataList-parameter-probability" title="${labelNA}" placeholder="${na}"
-										data-trick-type='string'>
+									<input name="likelihood" class="form-control" value="${na}" list="dataList-parameter-probability" title="${labelNA}" placeholder="${na}" data-trick-type='string'>
 								</c:when>
 								<c:when test="${likelihood['class'].simpleName=='RealValue' && likelihood.real==0}">
 									<input name="likelihood" class="form-control" value="${naValue}" list="dataList-parameter-probability" title="0" placeholder="${naValue}" data-trick-type='string'>
@@ -381,8 +380,18 @@
 										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
 									</c:otherwise>
 								</c:choose>
-								<input name="IMPACT" class="form-control text-right" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
-									title="${impact.variable}">
+								<c:choose>
+									<c:when test="${impact.real eq impact.raw }">
+										<input name="IMPACT" class="form-control text-right" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
+											title="${impact.variable}">
+									</c:when>
+									<c:otherwise>
+										<spring:message var="impactVariable" text="${impact.raw}" />
+										<input name="IMPACT" class="form-control text-right" value="${impactVariable}" list="dataList-parameter-impact" placeholder="${impactVariable}" data-trick-type='string'
+											title="${impactValue}">
+									</c:otherwise>
+								</c:choose>
+
 							</c:otherwise>
 						</c:choose>
 					</div></td>

@@ -335,8 +335,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			impact = expProbaImpact.getImpactLevel();
 			proba = expProbaImpact.getProbabilityLevel();
 		}
-		addInt(impact, row, index);
-		addInt(proba, row, ++index);
+		addInt(proba, row, index);
+		addInt(impact, row, ++index);
 		addInt(proba * impact, row, ++index);
 	}
 

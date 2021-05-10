@@ -27,7 +27,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -250,7 +250,7 @@ public abstract class Measure implements Cloneable {
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
 
 	@Transient
-	public double getImplementationRateValue(List<IProbabilityParameter> expressionParameters) {
+	public double getImplementationRateValue(List<IAcronymParameter> expressionParameters) {
 		// Turn expression parameters into a map { key => value }
 		return this.getImplementationRateValue(new ValueFactory(expressionParameters));
 	}

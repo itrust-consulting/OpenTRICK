@@ -21,7 +21,7 @@
 				<tr>
 					<th class="textaligncenter" width="1%"><spring:message code="label.parameter.level" /></th>
 					<th class="textaligncenter" width="1%"><spring:message code="label.parameter.acronym" /></th>
-					<th><spring:message code="label.parameter.qualification" /></th>
+					<th data-th-name='qualification'><spring:message code="label.parameter.qualification" /></th>
 					<th class="textaligncenter" width="8%"><spring:message code="label.parameter.value" /> k&euro;</th>
 					<th class="textaligncenter" width="8%"><spring:message code="label.parameter.range.min" /></th>
 					<th class="textaligncenter" width="8%"><spring:message code="label.parameter.range.max" /></th>

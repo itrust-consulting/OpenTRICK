@@ -65,7 +65,7 @@ public class DynamicParameterComputer {
 		daoIDS.findSubscriberIdByUsername(userName).parallel().forEach(id -> computeForAnalysisAndSource(userName, id));
 	}
 
-	@Transactional(propagation = Propagation.MANDATORY)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void computeForAnalysisAndSource(String username, Integer idAnalysis) {
 		computeForAnalysisAndSource(username, daoAnalysis.get(idAnalysis));
 	}
@@ -145,10 +145,10 @@ public class DynamicParameterComputer {
 		// Update Dynamics impact.
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
 		analysis.getAssessments().stream().filter(a -> {
-			final IValue value = a.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			final IValue value = a.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME);
 			return (value != null && value instanceof FormulaValue);
-		}).map(a -> (FormulaValue) a.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)).forEach(v -> {
-			IValue value = factory.findDynValue(v.getVariable(), Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+		}).map(a -> (FormulaValue) a.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME)).forEach(v -> {
+			IValue value = factory.findDynValue(v.getVariable(), Constant.PARAMETER_TYPE_IMPACT_NAME);
 			if (value != null)
 				v.merge(value);
 			else {

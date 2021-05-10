@@ -186,8 +186,8 @@ public class StringExpressionParser implements ExpressionParser {
 				return evaluateFunction(source, values, variableName, defaultValue);
 			else if (values instanceof ValueFactory) {
 				final IValue value = (this.type == IMPLEMENTATION ? null
-						: (this.type == PROBABILITY ? ((ValueFactory) values).findValue(variableName, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, false)
-								: (this.type == IMPACT ? ((ValueFactory) values).findValue(variableName, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, false) : null)));
+						: (this.type == PROBABILITY ? ((ValueFactory) values).findValue(variableName, Constant.PARAMETER_TYPE_PROPABILITY_NAME, false)
+								: (this.type == IMPACT ? ((ValueFactory) values).findValue(variableName, Constant.PARAMETER_TYPE_IMPACT_NAME, false) : null)));
 				return value == null ? ((ValueFactory) values).findDyn(variableName) : value.getReal();
 			} else if (values instanceof Map) {
 				final Map<String, Double> variableValueMap = (Map<String, Double>) values;

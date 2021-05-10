@@ -60,7 +60,7 @@
 							</ul>
 						</c:if></li>
 
-					<li class="disabled nav-dropdown-menu" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a class="pull-left" href="#"
+					<li class="disabled nav-dropdown-menu" data-trick-selectable="true" data-trick-check="hasRight('EXPORT') && !isArchived()"><a class="pull-left" href="#"
 						onclick="return exportAnalysisReport()"> <span class="glyphicon glyphicon-export"></span> <spring:message code="label.action.export.report" text="Export" /></a> <a href="#"
 						class="pull-left dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i></a>
 						<ul class="dropdown-menu">

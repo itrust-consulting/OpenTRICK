@@ -283,16 +283,16 @@ public class Constant {
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
-	public final static String PARAMETERTYPE_TYPE_IMPACT_NAME = "IMPACT";
+	public final static String PARAMETER_TYPE_IMPACT_NAME = "IMPACT";
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME = "IMPSCALE";
 	public final static String PARAMETERTYPE_TYPE_MAX_EFF_NAME = "MAXEFF";
-	public final static String PARAMETERTYPE_TYPE_PROPABILITY_NAME = "PROBA";
+	public final static String PARAMETER_TYPE_PROPABILITY_NAME = "PROBA";
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
 	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
 	public final static String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
 
-	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETERTYPE_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME };
+	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME };
 
 	/**
 	 * FINANCIAL, LEGAL, OPERATIONAL, REPUTATIONAL
@@ -312,7 +312,7 @@ public class Constant {
 
 	public final static String[] DEFAULT_IMPACT_TYPE_SHORT_NAMES = { "Fin.", "Leg.", "Op.", "Rep." };
 
-	public static final String DEFAULT_IMPACT_NAME = PARAMETERTYPE_TYPE_IMPACT_NAME;
+	public static final String DEFAULT_IMPACT_NAME = PARAMETER_TYPE_IMPACT_NAME;
 
 	public static final String DEFAULT_IMPACT_TRANSLATE = "Impact";
 

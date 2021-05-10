@@ -19,7 +19,7 @@
 						<tr>
 							<th width='1%' class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 							<th width='20%' class="textaligncenter"><spring:message code="label.parameter.label" /></th>
-							<th><spring:message code="label.parameter.qualification" /></th>
+							<th data-th-name='qualification'><spring:message code="label.parameter.qualification" /></th>
 						</tr>
 					</thead>
 					<tbody>

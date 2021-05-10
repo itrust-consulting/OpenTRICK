@@ -122,7 +122,7 @@ public class DynamicRiskComputer {
 			if (p instanceof LikelihoodParameter) {
 				out_expressionParameters.put(((LikelihoodParameter) p).getAcronym(), p.getValue().doubleValue());
 				parameters.put(((LikelihoodParameter) p).getAcronym(), p.getValue().doubleValue());
-			} else if ((p instanceof IImpactParameter) && p.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+			} else if ((p instanceof IImpactParameter) && p.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
 				parameters.put(((IImpactParameter) p).getAcronym(), p.getValue().doubleValue());
 			else if ((p instanceof SimpleParameter) && p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
@@ -136,7 +136,7 @@ public class DynamicRiskComputer {
 
 		final Map<Assessment, Double> totalAleGrouped = new HashMap<>();
 		for (Assessment assessment : assessments) {
-			final IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			final IValue impact = assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME);
 			final double realImact;
 			if (impact == null)
 				continue;

@@ -56,9 +56,9 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -1016,7 +1016,7 @@ public class Analysis implements Cloneable {
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#findExpressionParameterByAnalysis(Integer)
 	 */
 	@Transient
-	public List<IProbabilityParameter> getExpressionParameters() {
+	public List<IAcronymParameter> getExpressionParameters() {
 		// We assume that all parameters that have an acronym can be used in an
 		// expression
 		// Maybe we want to change this in the future (checking parameter.type);
@@ -1026,9 +1026,9 @@ public class Analysis implements Cloneable {
 		// so in particular
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
 		return this.parameters.entrySet().stream()
-				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD)
+				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_TYPE_PROPABILITY_NAME) || entry.getKey().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC))
-				.flatMap(entry -> entry.getValue().stream()).map(parameter -> (IProbabilityParameter) parameter).collect(Collectors.toList());
+				.flatMap(entry -> entry.getValue().stream()).map(parameter -> (IAcronymParameter) parameter).collect(Collectors.toList());
 	}
 
 	/**
@@ -1433,7 +1433,7 @@ public class Analysis implements Cloneable {
 	public void groupExtended(List<LikelihoodParameter> probabilities, List<ImpactParameter> impacts) {
 		this.getParameters().values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter instanceof IBoundedParameter)
 				.map(parameter -> (IBoundedParameter) parameter).forEach(parameter -> {
-					if ((parameter instanceof ImpactParameter) && parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					if ((parameter instanceof ImpactParameter) && parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
 						impacts.add((ImpactParameter) parameter);
 					else if (parameter instanceof LikelihoodParameter)
 						probabilities.add((LikelihoodParameter) parameter);
