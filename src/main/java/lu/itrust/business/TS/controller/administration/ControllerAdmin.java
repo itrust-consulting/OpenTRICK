@@ -361,7 +361,6 @@ public class ControllerAdmin {
 	public String uiSwitchAnalysisOwner(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
 			if (analysis == null || analysis.isProfile()) {
 				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 				return "redirect:/Error";

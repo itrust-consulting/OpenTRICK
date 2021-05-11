@@ -32,9 +32,13 @@ ALTER TABLE `FormulaValue`
 --
 ALTER TABLE `FormulaValue`
   MODIFY `idFormulaValue` int(11) NOT NULL AUTO_INCREMENT;
-  
 
-ALTER TABLE `Assessment` ADD `dtLikelihoodType` VARCHAR(255) NULL AFTER `dtImpactReal`;
-ALTER TABLE `Assessment` ADD `fiLikelihood` INT(11) NULL AFTER `fiAsset`; 
+--
+-- Indexes for table `Assessment`
+--
+ALTER TABLE `Assessment` 
+  ADD `dtLikelihoodType` VARCHAR(255) NULL AFTER `dtImpactReal`,
+  ADD `fiLikelihood` INT(11) NULL AFTER `fiAsset`,
+  ADD UNIQUE KEY `UKrd3d457xxc6s0mc99ionvtfo4` (`dtLikelihoodType`,`fiLikelihood`);
 
 COMMIT;

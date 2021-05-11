@@ -120,7 +120,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_05_SwitchOwner() throws Exception {
 		this.mockMvc
-				.perform(get(String.format("/Admin/Analysis/%d/Switch/Owner", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.perform(get(String.format("/Admin/Analysis/%d/Switch/Owner", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-owner"));
 	}

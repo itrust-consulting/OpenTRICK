@@ -122,7 +122,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		Worker worker = null;
 
-		for (int i = 0; i < 3000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {

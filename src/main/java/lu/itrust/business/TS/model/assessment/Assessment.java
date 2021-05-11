@@ -54,7 +54,7 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }), @UniqueConstraint(columnNames = { "dtLikelihoodType", "fiLikelihood" }) })
 public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
@@ -110,7 +110,7 @@ public class Assessment implements Cloneable {
 	/** The likelihood value of this assessment */
 	@Any(metaDef = "VALUE_META_DEF", metaColumn = @Column(name = "dtLikelihoodType"))
 	@Cascade(CascadeType.ALL)
-	@JoinColumn(name = "fiLikelihood", unique = true)
+	@JoinColumn(name = "fiLikelihood")
 	private IValue likelihood = null;
 
 	/** The likelihood value of this assessment */

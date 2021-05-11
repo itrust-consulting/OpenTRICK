@@ -76,7 +76,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	@Test
 	public void test_00_Install() throws Exception {
 		INSTALL_TASK_ID = new ObjectMapper()
-				.readTree(this.mockMvc.perform(post("/Install").contentType(MediaType.APPLICATION_JSON_UTF8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()))
+				.readTree(this.mockMvc.perform(post("/Install").contentType(MediaType.APPLICATION_JSON_VALUE).with(httpBasic(USERNAME, PASSWORD)).with(csrf()))
 						.andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn().getResponse().getContentAsString())
 				.findValue("idTask").asText(null);
 	}
