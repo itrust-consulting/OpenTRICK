@@ -43,9 +43,11 @@ public class ValueFactory {
 
 	private Map<String, List<IProbabilityParameter>> probabilities;
 
-	private Map<String, List<IAcronymParameter>> dynamiques;
+	private Map<String, List<IAcronymParameter>> dynamics;
 
-	private Map<String, Map<String, IProbabilityParameter>> probabilityMapper;
+	private Map<String, IProbabilityParameter> probabilityMapper;
+
+	private Map<String, IAcronymParameter> dynamicMapper;
 
 	private Map<String, Map<String, IImpactParameter>> impactMapper;
 
@@ -74,10 +76,10 @@ public class ValueFactory {
 	}
 
 	public double findDyn(Object value) {
-		if (value == null || dynamiques == null)
+		if (value == null || dynamics == null)
 			return 0.0;
 		if (value instanceof String) {
-			final List<IAcronymParameter> dynamicParameters = dynamiques.get(PARAMETERTYPE_TYPE_DYNAMIC_NAME);
+			final List<IAcronymParameter> dynamicParameters = dynamics.get(PARAMETERTYPE_TYPE_DYNAMIC_NAME);
 			if (dynamicParameters != null) {
 				final IAcronymParameter parameter = (IAcronymParameter) getParameterMapper(PARAMETERTYPE_TYPE_DYNAMIC_NAME).get(value.toString());
 				if (parameter != null)
@@ -86,7 +88,6 @@ public class ValueFactory {
 		}
 		return (value instanceof Double) ? (Double) value : ToDouble(value.toString(), 0.0);
 	}
-
 
 	public Integer findProbaExpLevel(Object value) {
 		IValue iValue = findProb(value);
@@ -137,11 +138,11 @@ public class ValueFactory {
 	}
 
 	private void add(IAcronymParameter parameter) {
-		if (dynamiques == null)
-			dynamiques = new LinkedHashMap<>();
-		List<IAcronymParameter> parameters = dynamiques.get(parameter.getTypeName());
+		if (dynamics == null)
+			dynamics = new LinkedHashMap<>();
+		List<IAcronymParameter> parameters = dynamics.get(parameter.getTypeName());
 		if (parameters == null)
-			dynamiques.put(parameter.getTypeName(), parameters = new ArrayList<>());
+			dynamics.put(parameter.getTypeName(), parameters = new ArrayList<>());
 		parameters.add(parameter);
 	}
 
@@ -224,6 +225,7 @@ public class ValueFactory {
 					IValue aux = findByValue(result, myParameters);
 					if (aux != null)
 						formulaValue.setLevel(aux.getLevel());
+
 				}
 				return formulaValue;
 			}
@@ -246,22 +248,30 @@ public class ValueFactory {
 		}
 	}
 
-	private Map<String, ? extends ILevelParameter> getParameterMapper(String type) {
+	private Map<String, ? extends IAcronymParameter> getParameterMapper(String type) {
 		switch (type) {
 		case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
+			if (dynamics == null)
+				return Collections.emptyMap();
+			if (dynamicMapper == null) {
+				final List<IAcronymParameter> parameters = dynamics.get(type);
+				if (parameters == null)
+					return Collections.emptyMap();
+				dynamicMapper = parameters.stream().collect(Collectors.toMap(IAcronymParameter::getAcronym, Function.identity()));
+			}
+			return dynamicMapper;
+
 		case PARAMETER_TYPE_PROPABILITY_NAME:
 			if (probabilities == null)
 				return Collections.emptyMap();
-			if (probabilityMapper == null)
-				probabilityMapper = new HashMap<>();
-			Map<String, IProbabilityParameter> values = probabilityMapper.get(type);
-			if (values == null) {
-				List<IProbabilityParameter> parameters = probabilities.get(type);
+			if (probabilityMapper == null) {
+				final List<IProbabilityParameter> parameters = probabilities.get(type);
 				if (parameters == null)
 					return Collections.emptyMap();
-				probabilityMapper.put(type, values = parameters.stream().collect(Collectors.toMap(IProbabilityParameter::getAcronym, Function.identity())));
+				else
+					probabilityMapper = parameters.stream().collect(Collectors.toMap(IProbabilityParameter::getAcronym, Function.identity()));
 			}
-			return values;
+			return probabilityMapper;
 		default:
 			if (impacts == null)
 				return Collections.emptyMap();
@@ -382,14 +392,14 @@ public class ValueFactory {
 	/**
 	 * @return the probabilityMapper
 	 */
-	public Map<String, Map<String, IProbabilityParameter>> getProbabilityMapper() {
+	public Map<String, IProbabilityParameter> getProbabilityMapper() {
 		return probabilityMapper;
 	}
 
 	/**
 	 * @param probabilityMapper the probabilityMapper to set
 	 */
-	public void setProbabilityMapper(Map<String, Map<String, IProbabilityParameter>> probabilityMapper) {
+	public void setProbabilityMapper(Map<String, IProbabilityParameter> probabilityMapper) {
 		this.probabilityMapper = probabilityMapper;
 	}
 

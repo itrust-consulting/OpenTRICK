@@ -103,6 +103,7 @@
 	<cache alias="lu.itrust.business.TS.model.parameter.value.impl.RealValue" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.parameter.impl.SimpleParameter" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.parameter.value.impl.LevelValue" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.TS.model.parameter.value.impl.FormulaValue" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.parameter.type.impl.ParameterType" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.analysis.AnalysisShareInvitation" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.general.TSSetting" uses-template="entityDefaultCache" />

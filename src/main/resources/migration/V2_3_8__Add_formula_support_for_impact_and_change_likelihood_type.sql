@@ -8,9 +8,9 @@ START TRANSACTION;
 
 CREATE TABLE `FormulaValue` (
   `idFormulaValue` int(11) NOT NULL,
-  `dtLevel` int(11) DEFAULT NULL,
-  `dtValue` double DEFAULT NULL,
-  `dtFormula` varchar(255) DEFAULT NULL
+  `dtLevel` int(11) NOT NULL,
+  `dtValue` double NOT NULL,
+  `dtFormula` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

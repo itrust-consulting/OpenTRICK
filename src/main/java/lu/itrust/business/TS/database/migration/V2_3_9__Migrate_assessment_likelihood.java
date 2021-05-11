@@ -11,6 +11,7 @@ import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
@@ -39,6 +40,7 @@ public class V2_3_9__Migrate_assessment_likelihood extends TrickServiceDataBaseM
 	public void migrate(JdbcTemplate template) throws Exception {
 		loadAnalysis(template);
 		analyses.stream().forEach(i -> updateAssessment(template, i));
+		template.update("ALTER TABLE `Assessment` DROP `dtLikelihood`");
 	}
 
 	private void updateAssessment(JdbcTemplate template, Integer analysisId) {
@@ -46,13 +48,11 @@ public class V2_3_9__Migrate_assessment_likelihood extends TrickServiceDataBaseM
 		template.query("Select `idAssessment`, `dtLikelihood` From Assessment where fiAnalysis = ?", new Object[] { analysisId }, (row) -> {
 			assessment.put(row.getInt("idAssessment"), row.getString("dtLikelihood"));
 		});
-
 		if (assessment.isEmpty())
 			return;
 		final ValueFactory factory = new ValueFactory(loadLikelihoodParameters(template, analysisId));
 		factory.add(loadDynamicParameters(template, analysisId));
 		assessment.forEach((id, likelihood) -> saveValue(template, id, factory.findProb(likelihood)));
-
 	}
 
 	private void saveValue(JdbcTemplate template, Integer assessmentId, IValue value) {
@@ -76,17 +76,17 @@ public class V2_3_9__Migrate_assessment_likelihood extends TrickServiceDataBaseM
 			simpleJdbcInsert = new SimpleJdbcInsert(template.getDataSource()).withTableName("FormulaValue").usingGeneratedKeyColumns("idFormulaValue");
 			parameters.put("dtLevel", value.getLevel());
 			parameters.put("dtValue", value.getReal());
-			parameters.put("dtFormula ", value.getVariable());
+			parameters.put("dtFormula", value.getVariable());
 			type = "FORMULA";
 		}
 
 		if (value instanceof AbstractValue) {
-			parameters.put("dtParameterType", value.getName());
+			parameters.put("dtParameterType", Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD);
 			parameters.put("fiParameter", ((AbstractValue) value).getParameter().getId());
 		}
-		
+
 		final int valueId = simpleJdbcInsert.executeAndReturnKey(parameters).intValue();
-		template.update("UPDATE `Assessment` SET `dtLikelihoodType`= ? ,`fiLikelihood `= ? WHERE `idAssessment` = ?", type, valueId, assessmentId);
+		template.update("UPDATE `Assessment` SET `dtLikelihoodType` = ? ,`fiLikelihood`= ? WHERE `idAssessment` = ?", type, valueId, assessmentId);
 	}
 
 	private List<DynamicParameter> loadDynamicParameters(JdbcTemplate template, Integer analysisId) {
@@ -95,7 +95,8 @@ public class V2_3_9__Migrate_assessment_likelihood extends TrickServiceDataBaseM
 	}
 
 	private List<LikelihoodParameter> loadLikelihoodParameters(JdbcTemplate template, Integer analysisId) {
-		return template.query("Select `idLikelihoodParameter`, `dtAcronym`, `dtValue` ,`dtFrom`,`dtTo`,`dtLevel` From LikelihoodParameter where fiAnalysis = ?",
+		return template.query(
+				"Select `idLikelihoodParameter`, `dtAcronym`, `dtValue` ,`dtFrom`,`dtTo`,`dtLevel` From LikelihoodParameter where fiAnalysis = ? order by dtLevel, dtAcronym, dtValue",
 				new Object[] { analysisId }, (row, cout) -> new LikelihoodParameter(row.getInt("idLikelihoodParameter"), row.getInt("dtLevel"), row.getString("dtAcronym"),
 						row.getDouble("dtValue"), new Bounds(row.getDouble("dtFrom"), row.getDouble("dtTo"))));
 	}

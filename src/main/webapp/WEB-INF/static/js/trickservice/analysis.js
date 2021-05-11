@@ -985,7 +985,7 @@ function displayChart(id, response) {
 
 
 function deleteDynamicParameter(id, acronym) {
-	var $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete dynamic {"+acronym+"}?",acronym));
+	var $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete variable ("+acronym+")?",acronym));
 	$("button[name='yes']", $modal).unbind().one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax(

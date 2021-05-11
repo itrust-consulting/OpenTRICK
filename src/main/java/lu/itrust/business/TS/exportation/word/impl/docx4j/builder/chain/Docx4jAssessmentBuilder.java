@@ -36,6 +36,7 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
 /**
@@ -108,7 +109,7 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						exporter.setCellText((Tc) row.getContent().get(colIndex++),
 								impact == null || impact.getLevel() == 0 ? exporter.getMessage("label.status.na", null, "na") : impact.getLevel() + "", alignmentCenter);
 					}
-					int probaLevel = exporter.getValueFactory().findProbLevel(assessment.getLikelihood());
+					final int probaLevel = assessment.getLikelihood() == null ? 0 : assessment.getLikelihood().getLevel();
 					exporter.setCellText((Tc) row.getContent().get(colIndex++), probaLevel == 0 ? exporter.getMessage("label.status.na", null, "na") : probaLevel + "",
 							alignmentCenter);
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
@@ -189,10 +190,14 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						exporter.addCellNumber((Tc) row.getContent().get(colIndex++),
 								value == null || value.getLevel() == 0 ? exporter.getMessage("label.status.na", null, "na") : value.getLevel().toString());
 					}
+
+					final Object likelihood = assessment.getLikelihood() == null ? null
+							: assessment.getLikelihood() instanceof FormulaValue
+									? String.format("%s (p%d)", exporter.getKiloNumberFormat().format(assessment.getLikelihood().getReal()), assessment.getLikelihood().getLevel())
+									: assessment.getLikelihood().getRaw();
+
 					exporter.setCellText((Tc) row.getContent().get(colIndex++),
-							exporter.formatLikelihood(
-									assessment.getLikelihood() == null ? exporter.getMessage("label.status.na", null, "na") : assessment.getLikelihood().getRaw()),
-							alignmentCenter);
+							exporter.formatLikelihood(assessment.getLikelihood() == null ? exporter.getMessage("label.status.na", null, "na") : likelihood), alignmentCenter);
 					exporter.addCellNumber((Tc) row.getContent().get(colIndex++),
 							assessment.getALE() == 0 ? exporter.getKiloNumberFormat().format(assessment.getALE() * 0.001) : assessmentFormat.format(assessment.getALE() * 0.001));
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
