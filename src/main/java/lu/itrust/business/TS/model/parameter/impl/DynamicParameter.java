@@ -21,12 +21,12 @@ import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@AttributeOverride(name="id", column=@Column(name="idDynamicParameter"))
+@AttributeOverride(name = "id", column = @Column(name = "idDynamicParameter"))
 public class DynamicParameter extends Parameter implements IAcronymParameter {
 
 	@Column(name = "dtAcronym", nullable = false)
 	private String acronym;
-	
+
 	/**
 	 * 
 	 */
@@ -38,20 +38,42 @@ public class DynamicParameter extends Parameter implements IAcronymParameter {
 		setDescription(description);
 	}
 
+	/**
+	 * @param value
+	 * @param description
+	 * @param acronym
+	 */
+	public DynamicParameter(String acronym, String description, double value) {
+		super(value, description);
+		this.acronym = acronym;
+	}
+
+	/**
+	 * @param value
+	 * @param description
+	 * @param acronym
+	 */
+	public DynamicParameter(int id, String acronym, String description, double value) {
+		super(value, description);
+		this.acronym = acronym;
+		this.setId(id);
+	}
 
 	@Override
 	public String getTypeName() {
 		return Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.parameter.IProbabilityParameter#getGroup()
 	 */
 	@Override
 	public String getGroup() {
 		return Constant.PARAMETER_CATEGORY_DYNAMIC;
 	}
-	
+
 	public void setAcronym(String acronym) {
 		this.acronym = acronym;
 	}

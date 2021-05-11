@@ -87,20 +87,14 @@ public class ValueFactory {
 		return (value instanceof Double) ? (Double) value : ToDouble(value.toString(), 0.0);
 	}
 
-	public IValue findProbaExp(Object value) {
-		IValue iValue = findProb(value);
-		if (iValue == null)
-			iValue = findProb(new StringExpressionParser(value.toString(), StringExpressionParser.PROBABILITY).evaluate(this));
-		return iValue;
-	}
 
 	public Integer findProbaExpLevel(Object value) {
-		IValue iValue = findProbaExp(value);
+		IValue iValue = findProb(value);
 		return iValue == null ? 0 : iValue.getLevel();
 	}
 
 	public Double findProbaExpValue(Object value) {
-		IValue iValue = findProbaExp(value);
+		IValue iValue = findProb(value);
 		return iValue == null ? 0D : iValue.getReal();
 	}
 
@@ -423,7 +417,7 @@ public class ValueFactory {
 	}
 
 	public IProbabilityParameter findExpParameter(String likelihood) {
-		IValue value = findProbaExp(likelihood);
+		IValue value = findProb(likelihood);
 		return value == null || !(value instanceof IParameterValue) ? null : (IProbabilityParameter) ((IParameterValue) value).getParameter();
 	}
 
