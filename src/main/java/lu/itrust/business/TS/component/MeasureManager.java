@@ -227,7 +227,7 @@ public class MeasureManager {
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
 				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-				implementationRate = new Double(0);
+				implementationRate = 0D;
 			} else if (analysisStandard instanceof MaturityStandard) {
 				measure = new MaturityMeasure();
 				implementationRate = analysis.getSimpleParameters().stream().filter(p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && p.getValue() == 0)
@@ -235,7 +235,7 @@ public class MeasureManager {
 			} else if (analysisStandard instanceof AssetStandard) {
 				measure = new AssetMeasure();
 				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-				implementationRate = new Double(0);
+				implementationRate = 0D;
 				((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);

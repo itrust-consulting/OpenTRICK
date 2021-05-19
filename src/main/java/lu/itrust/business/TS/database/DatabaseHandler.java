@@ -86,6 +86,7 @@ public class DatabaseHandler implements AutoCloseable{
 	 * 
 	 * @
 	 */
+	@Deprecated
 	public DatabaseHandler(String database, String user, String password, String hostname, int port)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 

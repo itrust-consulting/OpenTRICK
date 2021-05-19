@@ -89,7 +89,6 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			// where p0 := initial probability = severity, t0 := timestamp of notification, T := half-life.
 			final double timeElapsed = timestamp - notification.getTimestamp(); // we know this quantity to be >= 0
 			final double p = notification.getSeverity() * Math.pow(0.5, timeElapsed / notification.getHalfLife());
-
 			// Store new computed probability
 			probabilities.put(parameterName, p);
 		});

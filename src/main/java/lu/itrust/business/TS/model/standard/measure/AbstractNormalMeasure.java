@@ -123,7 +123,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public double getImplementationRateValue(ValueFactory factory) {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate(),StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
+			final double value = (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
+			return value < 0 ? 0 : value > 100 ? 100 : value;
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -132,7 +133,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public double getImplementationRateValue(Map<String, Double> factory) {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
+			final double value = (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
+			return value < 0 ? 0 : value > 100 ? 100 : value;
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -142,7 +144,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public List<String> getVariablesInvolvedInImplementationRateValue() {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate(),StringExpressionParser.IMPLEMENTATION)).getInvolvedVariables().stream().collect(Collectors.toList());
+			return (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).getInvolvedVariables().stream().collect(Collectors.toList());
 		} catch (Exception ex) {
 			return Collections.emptyList();
 		}

@@ -77,6 +77,7 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.AbstractValue;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.RealValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
@@ -414,10 +415,19 @@ public class ControllerCreation {
 						duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
 						duplication.setImpacts(new LinkedList<>());
 						assessment.getImpacts().forEach(impact -> {
-							AbstractValue value = (AbstractValue) impact.duplicate();
-							value.setParameter((ILevelParameter) mappingParameters.get(value.getParameter().getKey()));
+							IValue value = impact.duplicate();
+							if (value instanceof AbstractValue)
+								((AbstractValue) value).setParameter((ILevelParameter) mappingParameters.get(((AbstractValue) value).getParameter().getKey()));
 							duplication.setImpact(value);
 						});
+
+						if (assessment.getLikelihood() != null) {
+							IValue value = assessment.getLikelihood().duplicate();
+							if (value instanceof AbstractValue)
+								((AbstractValue) value).setParameter((ILevelParameter) mappingParameters.get(((AbstractValue) value).getParameter().getKey()));
+							duplication.setLikelihood(value);
+						}
+
 						analysis.add(duplication);
 					}
 

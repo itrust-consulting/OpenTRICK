@@ -207,7 +207,7 @@ public class ControllerStandard extends AbstractController {
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
 				((AbstractNormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-				implementationRate = new Double(0);
+				implementationRate = Double.valueOf(0d);
 			} else
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
@@ -219,8 +219,9 @@ public class ControllerStandard extends AbstractController {
 			}
 
 			analysisStandard.setStandard(standard);
-			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
+			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
+			
 			for (MeasureDescription measureDescription : measureDescriptions) {
 				Measure measure2 = measure.duplicate(analysisStandard, phase);
 				measure2.setMeasureDescription(measureDescription);

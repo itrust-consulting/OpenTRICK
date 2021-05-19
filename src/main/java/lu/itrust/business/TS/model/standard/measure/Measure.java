@@ -248,6 +248,7 @@ public abstract class Measure implements Cloneable {
 
 	@Transient
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
+	
 
 	@Transient
 	public double getImplementationRateValue(List<IAcronymParameter> expressionParameters) {

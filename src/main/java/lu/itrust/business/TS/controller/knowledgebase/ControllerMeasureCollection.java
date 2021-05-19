@@ -321,7 +321,7 @@ public class ControllerMeasureCollection {
 	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, RedirectAttributes attributes, Locale locale)
 			throws Exception {
-		final String filename = ServiceStorage.randoomFilename();
+		final String filename = ServiceStorage.RandoomFilename();
 		final Worker worker = new WorkerImportStandard(filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));

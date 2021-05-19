@@ -10,7 +10,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getAddress;
-import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.*;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -99,6 +99,10 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	public static String P_STYLE = "BodyOfText";
 
 	public static String TC_P_STYLE = "TabText2";
+
+	public static String DEFAULT_EXCEL_TEMPLATE;
+
+	public static String DEFAULT_EXCEL_TABLE;
 
 	private String alpha2 = "EN";
 
@@ -563,27 +567,31 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	private long exportData() throws Exception {
-		final File file = InstanceManager.getServiceStorage().createTmpFile();
+		final File file = InstanceManager.getServiceStorage().createTmpFileOf(DEFAULT_EXCEL_TEMPLATE);
 		try {
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
 			final ObjectFactory factory = org.xlsx4j.jaxb.Context.getsmlObjectFactory();
-			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.createPackage();
+			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			final Analysis analysis = daoAnalysis.get(idAnalysis);
 			final List<ScaleType> scaleTypes = analysis.findImpacts();
 			final CSSFFilter cssfFilter = cssfExportForm.getFilter();
+			final int[] indexes = findNextSheetNumberAndId(spreadsheetMLPackage);
 			final ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
+
 			final List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
+
 			setLocale(new Locale(analysis.getLanguage().getAlpha2()));
 			if (getLocale().getLanguage().equals("fr"))
 				dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			else
 				dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
+
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
-			final String internalName = String.format("RISK_SHEET_%s_%d_v%s.xlsx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(), analysis.getVersion());
-			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet1.xml"),
-					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()), 1);
+			final String internalName = String.format("RISK_SHEET_%s_%d_v%s.xlsx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""),
+					System.nanoTime(), analysis.getVersion());
+			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])),
+					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()), indexes[1]);
 
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
@@ -629,7 +637,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
 					Estimation.IdComparator());
 			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
-			final String filename = String.format("RISK_SHEET_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(), analysis.getVersion());
+			final String filename = String.format("RISK_SHEET_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(),
+					analysis.getVersion());
 			final String templatePath = String.format("docx/%s.docx", analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
 			InstanceManager.getServiceStorage().copy(templatePath, workFile.getName());
 			WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(workFile);

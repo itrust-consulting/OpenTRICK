@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -36,7 +37,9 @@ public interface ServiceStorage {
 	Path load(String filename);
 
 	Resource loadAsResource(String filename);
-	
+
+	File createTmpFileOf(String filename);
+
 	File createTmpFile();
 
 	File loadAsFile(String filename);
@@ -44,12 +47,15 @@ public interface ServiceStorage {
 	void delete(String filename);
 
 	void deleteAll();
-	
+
 	Path getRoot();
 
-	static String randoomFilename() {
-		return "ts-" + UUID.randomUUID() + "-" + System.nanoTime() + ".tmp";
+	static String RandoomFilename() {
+		return RandoomFilename(null);
 	}
 
-	
+	static String RandoomFilename(String extension) {
+		return "ts-" + UUID.randomUUID() + "-" + System.nanoTime() + (StringUtils.hasText(extension) ? extension.trim() : ".tmp");
+	}
+
 }

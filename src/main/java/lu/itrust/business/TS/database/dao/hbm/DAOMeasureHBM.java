@@ -215,9 +215,8 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) {
-		return getSession()
-				.createQuery(
-						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and analysisStandard.standard.type != 'MATURITY' and measure.status <> 'NA'")
+		return getSession().createQuery(
+				"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and analysisStandard.standard.type != 'MATURITY' and measure.status <> 'NA'")
 				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
@@ -322,9 +321,8 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Measure> mappingAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) {
-		return (Map<String, Measure>) getSession()
-				.createQuery(
-						"Select  measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and  analysis.id= :idAnalysis")
+		return (Map<String, Measure>) getSession().createQuery(
+				"Select  measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and  analysis.id= :idAnalysis")
 				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).getResultList().stream()
 				.collect(Collectors.toMap(measure -> ((Measure) measure).getMeasureDescription().getReference(), Function.identity()));
 
@@ -366,15 +364,13 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int,
-	 *      java.lang.String,
-	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
+	 *      java.lang.String, lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int idAnalysis, String standard, ActionPlanMode actionPlanMode) {
-		return getSession()
-				.createQuery(
-						"Select measure.id From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType)")
+		return getSession().createQuery(
+				"Select measure.id From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType)")
 				.setParameter("idAnalysis", idAnalysis).setParameter("standard", standard).setParameter("actionPlanType", actionPlanMode).getResultList();
 	}
 
@@ -393,36 +389,32 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		if (ids.isEmpty())
 			return Collections.emptyList();
 		else
-			return getSession()
-					.createQuery(
-							"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and measure.id in :ids order by measure.id")
+			return getSession().createQuery(
+					"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and measure.id in :ids order by measure.id")
 					.setParameter("idAnalysis", idAnalysis).setParameterList("ids", ids).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Measure getByAnalysisAndStandardAndReference(Integer idAnalysis, String standard, String reference) {
-		return (Measure) getSession()
-				.createQuery(
-						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference = :reference")
+		return (Measure) getSession().createQuery(
+				"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference = :reference")
 				.setParameter("idAnalysis", idAnalysis).setParameter("standard", standard).setParameter("reference", reference).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references) {
-		return getSession()
-				.createQuery(
-						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference in :references")
+		return getSession().createQuery(
+				"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference in :references")
 				.setParameter("idAnalysis", idAnalysis).setParameter("standard", standard).setParameterList("references", references).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getReferenceStartWith(Integer idAnalysis, String standard, String reference) {
-		return getSession()
-				.createQuery(
-						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference like :reference")
+		return getSession().createQuery(
+				"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference like :reference")
 				.setParameter("idAnalysis", idAnalysis).setParameter("standard", standard).setParameter("reference", reference + "%").getResultList();
 	}
 

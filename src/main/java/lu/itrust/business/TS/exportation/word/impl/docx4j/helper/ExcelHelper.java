@@ -24,6 +24,7 @@ import org.xlsx4j.sml.CTSheetDimension;
 import org.xlsx4j.sml.CTTable;
 import org.xlsx4j.sml.CTTableColumn;
 import org.xlsx4j.sml.CTTablePart;
+import org.xlsx4j.sml.CTTableStyleInfo;
 import org.xlsx4j.sml.CTXstringWhitespace;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.Row;
@@ -198,8 +199,8 @@ public final class ExcelHelper {
 	}
 
 	public static WorksheetPart createWorkSheetPart(SpreadsheetMLPackage mlPackage, String name) throws Exception {
-		int index = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().size() + 1;
-		WorksheetPart part = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", index)), name, index);
+		final int[] indexes = findNextSheetNumberAndId(mlPackage);
+		final WorksheetPart part = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])), name, indexes[1]);
 		part.getContents().getSheetData().setParent(part.getContents());
 		part.getContents().setParent(part);
 		return part;
@@ -232,9 +233,15 @@ public final class ExcelHelper {
 		return part;
 	}
 
-	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String[] columns, int length) throws Exception {
+	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns, int length) throws Exception {
 		TablePart tablePart = createTablePart(worksheetPart);
 		CTTable table = tablePart.getContents();
+		if (style != null) {
+			if (table.getTableStyleInfo() == null)
+				table.setTableStyleInfo(new CTTableStyleInfo());
+			table.getTableStyleInfo().setName(style);
+		}
+
 		Row row = getRow(worksheetPart.getContents().getSheetData(), 0, columns.length);
 		for (int i = 0; i < columns.length; i++) {
 			CTTableColumn column = new CTTableColumn();
@@ -452,6 +459,31 @@ public final class ExcelHelper {
 				return table;
 		}
 		return null;
+	}
+
+	/**
+	 * It will retrieve an array of int size 2, int[2]<br>
+	 * [0] Next sheet file name number: /xl/worksheets/sheet[0].xml<br>
+	 * [1] The id of the sheet : rid[1]
+	 * 
+	 * @param mlPackage
+	 * @return
+	 */
+	public static int[] findNextSheetNumberAndId(SpreadsheetMLPackage mlPackage) {
+		final int result[] = { mlPackage.getParts().getParts().values().parallelStream().filter(p -> p.getPartName().getName().startsWith("/xl/worksheets/sheet")).mapToInt(p -> {
+			try {
+				return Integer.parseInt(p.getPartName().getName().replaceAll("[/xl/worksheets/sheet]|[.xml]", ""));
+			} catch (NumberFormatException e) {
+				return 0;
+			}
+		}).max().orElse(0) + 1, 1 };
+
+		try {
+			result[1] = Integer.parseInt(mlPackage.getWorkbookPart().getRelationshipsPart().getNextId().replace("rId", ""));
+		} catch (NumberFormatException e) {
+		}
+		return result;
+
 	}
 
 	public static boolean isEmptyOrWhiteSpace(String value) {

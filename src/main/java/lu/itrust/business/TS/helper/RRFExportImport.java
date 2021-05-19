@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -100,9 +101,9 @@ public class RRFExportImport {
 		this.messageSource = messageSource;
 	}
 
-	public void exportRawRRF(Analysis analysis, HttpServletResponse response, Locale locale, Consumer<SpreadsheetMLPackage> callback) throws Exception {
-		SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.createPackage();
-		List<AssetType> assetTypes = serviceAssetType.getAll();
+	public void exportRawRRF(Analysis analysis, File file, HttpServletResponse response, Locale locale, Consumer<SpreadsheetMLPackage> callback) throws Exception {
+		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file);
+		final List<AssetType> assetTypes = serviceAssetType.getAll();
 		writeScenario(analysis.getScenarios(), mlPackage, locale);
 		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values())
 			writeMeasure(analysis.isQualitative(), analysisStandard, assetTypes, mlPackage, locale);

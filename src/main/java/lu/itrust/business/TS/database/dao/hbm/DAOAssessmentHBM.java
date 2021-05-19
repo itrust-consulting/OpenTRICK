@@ -57,7 +57,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * @return
 	 * @
 	 *
-	 * 	@see
+	 *   @see
 	 *   lu.itrust.business.TS.database.dao.DAOAssessment#getFromAnalysisById(java.lang.Integer,
 	 *   java.lang.Integer)
 	 */
@@ -311,9 +311,8 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctOwnerByIdAnalysis(Integer analysisId) {
-		return getSession()
-				.createQuery(
-						"Select distinct assessment.owner From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true and assessment.owner<>''")
+		return getSession().createQuery(
+				"Select distinct assessment.owner From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true and assessment.owner<>''")
 				.setParameter("idAnalysis", analysisId).getResultList();
 	}
 

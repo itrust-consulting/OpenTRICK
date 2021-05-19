@@ -291,7 +291,7 @@ public class ValueFactory {
 
 	public static Double ToDouble(String value, Double defaultValue) {
 		try {
-			return value == null ? defaultValue : new Double(Double.parseDouble(value));
+			return value == null ? defaultValue : Double.parseDouble(value);
 		} catch (NumberFormatException e) {
 			return defaultValue;
 		}

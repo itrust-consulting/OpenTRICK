@@ -17,8 +17,9 @@
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <fmt:setLocale value="fr" scope="session" />
+<c:set value="${measure.getImplementationRateValue(valueFactory)}" var="implementationRate" />
 <c:set var="css">
-	<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA'}">class="editable"</c:if>
+	<c:if test="${implementationRate < 100 and measure.status!='NA'}">class="editable"</c:if>
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
@@ -111,7 +112,7 @@
 						${statusM}
 					</c:otherwise>
 				</c:choose></td>
-			<fmt:formatNumber value="${measure.getImplementationRateValue(valueFactory)}" maxFractionDigits="0" minFractionDigits="0" var="implementationRateValue" />
+			<fmt:formatNumber value="${implementationRate}" maxFractionDigits="0" minFractionDigits="0" var="implementationRateValue" />
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double" title="${implementationRateValue} %"

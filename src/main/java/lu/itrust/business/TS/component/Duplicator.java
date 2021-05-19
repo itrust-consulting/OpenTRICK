@@ -85,7 +85,6 @@ public class Duplicator {
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
-
 	public Duplicator() {
 	}
 
@@ -192,10 +191,18 @@ public class Duplicator {
 				clone.setImpacts(new LinkedList<>());
 				assessment.getImpacts().forEach(impact -> {
 					IValue value = impact.duplicate();
-					if(value instanceof AbstractValue)
+					if (value instanceof AbstractValue)
 						((AbstractValue) value).setParameter((ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
 					clone.setImpact(value);
 				});
+
+				if (assessment.getLikelihood() != null) {
+					final IValue value = assessment.getLikelihood().duplicate();
+					if (value instanceof AbstractValue)
+						((AbstractValue) value).setParameter((ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
+					clone.setLikelihood(value);
+				}
+				
 				copy.getAssessments().add(clone);
 			}
 

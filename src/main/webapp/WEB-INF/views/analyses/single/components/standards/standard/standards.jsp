@@ -136,8 +136,9 @@
 					</tfoot>
 					<tbody>
 						<c:forEach items="${measuresByStandard.get(standard)}" var="measure">
+							<c:set value="${measure.getImplementationRateValue(valueFactory)}" var="implementationRate" />
 							<c:set var="css">
-								<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA' }">class="editable"</c:if>
+								<c:if test="${implementationRate < 100 and measure.status!='NA' }">class="editable"</c:if>
 							</c:set>
 							<c:set var="todoCSS">
 								<c:choose>
@@ -230,7 +231,7 @@
 													${statusM}
 												</c:otherwise>
 											</c:choose></td>
-										<fmt:formatNumber value="${measure.getImplementationRateValue(valueFactory)}" maxFractionDigits="0" minFractionDigits="0" var="implementationRateValue" />
+										<fmt:formatNumber value="${implementationRate}" maxFractionDigits="0" minFractionDigits="0" var="implementationRateValue" />
 										<c:choose>
 											<c:when test="${standardType.name.equals('MATURITY')}">
 												<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double" title="${implementationRateValue} %"

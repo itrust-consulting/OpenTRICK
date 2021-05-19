@@ -118,4 +118,15 @@ public class ControllerRiskRegister {
 	public void setRiskRegisterEnTemplate(String template) {
 		WorkerExportRiskRegister.ENG_TEMPLATE = template;
 	}
+	
+	@Value("${app.settings.excel.default.table.style}")
+	public void setRiskRegisterExcelTable(String table) {
+		WorkerExportRiskSheet.DEFAULT_EXCEL_TABLE = table;
+	}
+	
+	@Value("${app.settings.excel.default.template.path}")
+	public void setRiskRegisterExcelTemplate(String template) {
+		WorkerExportRiskSheet.DEFAULT_EXCEL_TEMPLATE = template;
+	}
+	
 }

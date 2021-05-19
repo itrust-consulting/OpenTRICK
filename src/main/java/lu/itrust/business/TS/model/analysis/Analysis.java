@@ -3,10 +3,12 @@ package lu.itrust.business.TS.model.analysis;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -253,6 +255,12 @@ public class Analysis implements Cloneable {
 	@Access(AccessType.FIELD)
 	@OrderBy("dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
+	
+	@ElementCollection
+	@Column(name = "dtAcronym")
+	@Cascade(CascadeType.ALL)
+	@CollectionTable(name = "AnalysisExcludeAcronyms", joinColumns = @JoinColumn(name = "fiAnalysis"), uniqueConstraints = @UniqueConstraint(columnNames = { "dtAcronym", "fiAnalysis" }))
+	private Set<String> excludeAcronyms = new HashSet<String>();
 
 	/** List of Scenarios */
 	@OneToMany
@@ -555,6 +563,7 @@ public class Analysis implements Cloneable {
 		analysis.riskRegisters = new ArrayList<>();
 		analysis.summaries = new ArrayList<>();
 		analysis.settings = new LinkedHashMap<>(this.settings);
+		analysis.excludeAcronyms = new HashSet<>(this.excludeAcronyms);
 		analysis.id = -1;
 		return analysis;
 	}
@@ -579,6 +588,7 @@ public class Analysis implements Cloneable {
 		copy.riskRegisters = new ArrayList<>();
 		copy.summaries = new ArrayList<>();
 		copy.settings = new LinkedHashMap<>(settings);
+		copy.excludeAcronyms = new HashSet<>(excludeAcronyms);
 		copy.id = -1;
 		return copy;
 	}
@@ -2306,6 +2316,20 @@ public class Analysis implements Cloneable {
 
 	public List<AnalysisStandard> findAllAnalysisStandard() {
 		return getAnalysisStandards().values().stream().collect(Collectors.toList());
+	}
+
+	/**
+	 * @return the excludeAcronyms
+	 */
+	public Set<String> getExcludeAcronyms() {
+		return excludeAcronyms;
+	}
+
+	/**
+	 * @param excludeAcronyms the excludeAcronyms to set
+	 */
+	public void setExcludeAcronyms(Set<String> excludeAcronyms) {
+		this.excludeAcronyms = excludeAcronyms;
 	}
 
 }

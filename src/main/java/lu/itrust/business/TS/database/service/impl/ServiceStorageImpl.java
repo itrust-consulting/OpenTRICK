@@ -19,6 +19,7 @@ import javax.annotation.PreDestroy;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -207,7 +208,15 @@ public class ServiceStorageImpl implements ServiceStorage {
 
 	@Override
 	public File createTmpFile() {
-		return load(ServiceStorage.randoomFilename()).toFile();
+		return load(ServiceStorage.RandoomFilename()).toFile();
+	}
+
+	@Override
+	public File createTmpFileOf(String filename) {
+		final String extension = FilenameUtils.getExtension(filename);
+		final File file = load(ServiceStorage.RandoomFilename(extension)).toFile();
+		copy(filename, file.getAbsolutePath());
+		return file;
 	}
 
 }

@@ -58,7 +58,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 	public static String FR_TEMPLATE;
 
 	public static String ENG_TEMPLATE;
-
+	
 	private String username;
 
 	private Integer idAnalysis;

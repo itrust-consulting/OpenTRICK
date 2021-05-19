@@ -356,6 +356,5 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	@Override
 	public void delete(IValue impact) {
 		daoAssessment.delete(impact);
-		
 	}
 }

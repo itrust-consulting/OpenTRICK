@@ -39,7 +39,11 @@ public class V2_3_9__Migrate_assessment_likelihood extends TrickServiceDataBaseM
 	@Override
 	public void migrate(JdbcTemplate template) throws Exception {
 		loadAnalysis(template);
-		analyses.stream().forEach(i -> updateAssessment(template, i));
+		final int count[] = { 0 };
+		analyses.stream().forEach(i -> {
+			updateAssessment(template, i);
+			System.out.println(String.format("Analysis migration: %d / %d, current id: %d", ++count[0], analyses.size(), i));
+		});
 		template.update("ALTER TABLE `Assessment` DROP `dtLikelihood`");
 	}
 
@@ -53,6 +57,7 @@ public class V2_3_9__Migrate_assessment_likelihood extends TrickServiceDataBaseM
 		final ValueFactory factory = new ValueFactory(loadLikelihoodParameters(template, analysisId));
 		factory.add(loadDynamicParameters(template, analysisId));
 		assessment.forEach((id, likelihood) -> saveValue(template, id, factory.findProb(likelihood)));
+
 	}
 
 	private void saveValue(JdbcTemplate template, Integer assessmentId, IValue value) {

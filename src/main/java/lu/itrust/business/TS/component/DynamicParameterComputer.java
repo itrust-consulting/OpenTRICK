@@ -122,7 +122,7 @@ public class DynamicParameterComputer {
 		// - update existing dynamic parameters with the respective value in the
 		// frequencies collection; or
 		// - create parameter if it does not exist.
-		for (String parameterName : likelihoods.keySet()) {
+		likelihoods.keySet().stream().filter(e -> !analysis.getExcludeAcronyms().contains(e)).forEach(parameterName -> {
 			DynamicParameter parameter = dynamicParameters.get(parameterName);
 			if (parameter == null) {
 				// The description/label of dynamic parameters is never used
@@ -140,7 +140,7 @@ public class DynamicParameterComputer {
 			// NB: the user is free to enforce a minimum value by using the
 			// max() function in his formula
 			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
-		}
+		});
 
 		// Update Dynamics impact.
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
