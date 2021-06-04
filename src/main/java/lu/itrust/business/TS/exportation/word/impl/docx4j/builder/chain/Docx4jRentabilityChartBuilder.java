@@ -67,7 +67,6 @@ public class Docx4jRentabilityChartBuilder extends Docx4jBuilder {
 				final String path = chart.getRelationshipsPart().getRelationships().getRelationship().parallelStream().filter(r -> r.getTarget().endsWith(".xlsx"))
 						.map(Relationship::getTarget).findAny().orElse(null);
 				if (path != null) {
-
 					final Part excel = exporter.getWordMLPackage().getParts().get(new PartName("/word" + path.replace("..", "")));
 					if (excel != null) {
 
@@ -131,41 +130,44 @@ public class Docx4jRentabilityChartBuilder extends Docx4jBuilder {
 
 							for (int i = 1; i < dataName.length; i++)
 								profiltabilityDatasets.get(dataName[i]).setCat(barSer.getCat());
-							for (int i = 0; i < usesPhases.size(); i++) {
-								for (int j = 0; j < dataName.length; j++) {
-									final CTNumVal numVal = new CTNumVal();
-									final CTBarSer ser = profiltabilityDatasets.get(dataName[j]);
-									final Double rosi = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i);
-									double value = 0d;
-									switch (dataName[j]) {
-									case "ALE":
-										value = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i);
-										break;
-									case "COST":
-										if (rosi >= 0)
-											value = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i);
-										else {
-											List<Object> ales = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
-											value = ((Number) ales.get(i - 1)).doubleValue() - ((Number) ales.get(i)).doubleValue();
+							
+							if (!(summaries == null || summaries.isEmpty())) {
+								for (int i = 0; i < usesPhases.size(); i++) {
+									for (int j = 0; j < dataName.length; j++) {
+										final CTNumVal numVal = new CTNumVal();
+										final CTBarSer ser = profiltabilityDatasets.get(dataName[j]);
+										final Double rosi = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI).get(i);
+										double value = 0d;
+										switch (dataName[j]) {
+										case "ALE":
+											value = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END).get(i);
+											break;
+										case "COST":
+											if (rosi >= 0)
+												value = (Double) summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE).get(i);
+											else {
+												List<Object> ales = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
+												value = ((Number) ales.get(i - 1)).doubleValue() - ((Number) ales.get(i)).doubleValue();
+											}
+											exporter.setColor(ser, ChartGenerator.getStaticColor(1));
+											break;
+										case "ROSI":
+											if (rosi >= 0)
+												value = rosi;
+											break;
+										case "LOST":
+											if (rosi < 0)
+												value = (rosi * -1);
+											break;
 										}
-										exporter.setColor(ser, ChartGenerator.getStaticColor(1));
-										break;
-									case "ROSI":
-										if (rosi >= 0)
-											value = rosi;
-										break;
-									case "LOST":
-										if (rosi < 0)
-											value = (rosi * -1);
-										break;
-									}
 
-									numVal.setIdx(i);
-									if (value > 0) {
-										numVal.setV(value + "");
-										setValue(sheet.getRow().get(j + 1), i + 1, value);
+										numVal.setIdx(i);
+										if (value > 0) {
+											numVal.setV(value + "");
+											setValue(sheet.getRow().get(j + 1), i + 1, value);
+										}
+										ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 									}
-									ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
 								}
 							}
 
