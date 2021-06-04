@@ -259,9 +259,7 @@ public class ControllerScenario {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteDuplicationAssetTypeValue(HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
-			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisId);
-			customDelete.deleteDuplicationAssetTypeValue(scenarios);
+			customDelete.deleteDuplicationAssetTypeValue((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);

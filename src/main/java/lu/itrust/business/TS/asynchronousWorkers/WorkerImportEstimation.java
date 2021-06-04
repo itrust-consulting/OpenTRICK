@@ -607,6 +607,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			if (isEmpty(name))
 				continue;
 			Scenario scenario = scenarios.get(name.trim());
+			
 			if (scenario == null) {
 				if (isEmpty(oldName))
 					scenario = scenarios.get(oldName);
@@ -615,6 +616,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 					scenarios.put(name, scenario);
 				}
 			}
+			
 			for (int j = 0; j < columns.size(); j++) {
 				if (j == nameIndex || j == odlNameIndex)
 					continue;

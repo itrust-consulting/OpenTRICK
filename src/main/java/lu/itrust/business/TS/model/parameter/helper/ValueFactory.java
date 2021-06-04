@@ -95,8 +95,14 @@ public class ValueFactory {
 	}
 
 	public Double findProbaExpValue(Object value) {
-		IValue iValue = findProb(value);
-		return iValue == null ? 0D : iValue.getReal();
+		if (value == null)
+			return 0d;
+		else if (value instanceof IValue)
+			return ((IValue) value).getReal();
+		else {
+			IValue iValue = findProb(value);
+			return iValue == null ? 0D : iValue.getReal();
+		}
 	}
 
 	public IValue findProb(Object value) {
@@ -104,8 +110,14 @@ public class ValueFactory {
 	}
 
 	public Integer findProbLevel(Object value) {
-		IValue impact = findProb(value);
-		return impact == null ? 0 : impact.getLevel();
+		if (value == null)
+			return 0;
+		else if (value instanceof IValue)
+			return ((IValue) value).getLevel();
+		else {
+			IValue impact = findProb(value);
+			return impact == null ? 0 : impact.getLevel();
+		}
 	}
 
 	public IProbabilityParameter findProbParameter(Object value) {

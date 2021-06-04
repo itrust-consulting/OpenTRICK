@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package lu.itrust.business.TS.component;
 
@@ -50,7 +50,6 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
-import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
@@ -69,7 +68,7 @@ import lu.itrust.business.TS.usermanagement.helper.UserDeleteHelper;
 
 /**
  * @author eom
- * 
+ *
  */
 @Component
 public class CustomDelete {
@@ -145,7 +144,7 @@ public class CustomDelete {
 
 	@Transactional
 	public void customDeleteEmptyAnalysis(String identifier, String username) throws Exception {
-		List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
+		final List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
 		if (analyses.stream().anyMatch(analysis -> analysis.hasData()))
 			return;
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
@@ -155,15 +154,21 @@ public class CustomDelete {
 
 	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription, Principal principal) throws Exception {
 		for (Analysis analysis : analyses) {
-			final AnalysisStandard analysisStandard = analysis.getAnalysisStandards().values().stream().filter(a -> a.getStandard().equals(measureDescription.getStandard())).findAny()
-					.orElse(null);
+			final AnalysisStandard analysisStandard = analysis.getAnalysisStandards().values().stream().filter(a -> a.getStandard().equals(measureDescription.getStandard()))
+					.findAny().orElse(null);
 			if (analysisStandard != null) {
-				analysis.getAnalysisStandards().values().stream().filter(standard -> standard.getStandard().is(Constant.STANDARD_27002)).map(standard -> standard.getMeasures()).findFirst()
-						.ifPresent(measures -> measures.forEach(measure -> ((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+
+				analysis.getAnalysisStandards().values().stream().filter(standard -> standard.getStandard().is(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
+						.findFirst().ifPresent(measures -> measures.forEach(measure -> ((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+
 				removeMeasureDependencies(measureDescription, analysis);
-				Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
+
+				final Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
+
 				while (iterator.hasNext()) {
-					Measure measure = iterator.next();
+
+					final Measure measure = iterator.next();
+
 					if (measure.getMeasureDescription().equals(measureDescription)) {
 						iterator.remove();
 						daoMeasure.delete(measure);
@@ -204,7 +209,7 @@ public class CustomDelete {
 	@Transactional
 	public boolean deleteAnalysis(List<Integer> ids, String username) {
 		try {
-			List<Analysis> analyses = daoAnalysis.getAll(ids);
+			final List<Analysis> analyses = daoAnalysis.getAll(ids);
 			Collections.sort(analyses, new AnalysisComparator().reversed());
 			for (Analysis analysis : analyses)
 				deleteAnalysis(analysis, username);
@@ -218,7 +223,7 @@ public class CustomDelete {
 	/**
 	 * It must be done in a transaction<br>
 	 * Clear Action plan and Action plan summary
-	 * 
+	 *
 	 * @param analysis
 	 */
 	public void deleteAnalysisActionPlan(Analysis analysis) {
@@ -231,16 +236,16 @@ public class CustomDelete {
 	@Transactional
 	public void deleteAnalysisMeasure(Integer analysisID, Integer idStandard, Integer idMeasure) {
 
-		Measure measure = daoMeasure.getFromAnalysisById(analysisID, idMeasure);
+		final Measure measure = daoMeasure.getFromAnalysisById(analysisID, idMeasure);
 
 		if (measure == null || measure.getAnalysisStandard().getStandard().getId() != idStandard)
 			throw new TrickException("error.measure.not_found", "Measure cannot be found");
 		else if (!measure.getAnalysisStandard().isAnalysisOnly())
 			throw new TrickException("error.measure.manage_knowledgebase_measure", "This measure can only be managed from the knowledge base");
 
-		Analysis analysis = daoAnalysis.get(analysisID);
+		final Analysis analysis = daoAnalysis.get(analysisID);
 
-		MeasureDescription measureDescription = measure.getMeasureDescription();
+		final MeasureDescription measureDescription = measure.getMeasureDescription();
 
 		removeMeasureDependencies(measureDescription, analysis);
 
@@ -248,9 +253,9 @@ public class CustomDelete {
 
 		daoMeasure.delete(measure);
 
-		daoAnalysis.saveOrUpdate(analysis);
-
 		daoMeasureDescription.delete(measureDescription);
+
+		daoAnalysis.saveOrUpdate(analysis);
 	}
 
 	private void deleteAnalysisProcess(Analysis analysis, String username) {
@@ -272,16 +277,25 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteAsset(int idAsset, int idAnalysis) throws Exception {
-		Asset asset = daoAsset.getFromAnalysisById(idAnalysis, idAsset);
-		Analysis analysis = daoAnalysis.get(idAnalysis);
+
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
-		else if (asset == null)
+
+		final Asset asset = analysis.findAsset(idAsset);
+
+		if (asset == null)
 			throw new TrickException("error.asset.not_found", "Asset cannot be found");
+
 		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(asset), analysis.removeRiskProfile(asset));
+
 		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
+
 		analysis.getAssets().remove(asset);
+
 		daoAsset.delete(asset);
+
+		daoAnalysis.saveOrUpdate(analysis);
 	}
 
 	private void deleteAssetOrScenarioDependencies(Analysis analysis, List<Assessment> assessments, List<RiskProfile> riskProfiles) throws Exception {
@@ -323,18 +337,17 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteDuplicationAssetTypeValue(List<Scenario> scenarios) throws Exception {
-		for (Scenario scenario : scenarios) {
-			List<AssetTypeValue> assetTypeValues = scenario.deleteDuplicatedAndUnsed();
-			daoScenario.saveOrUpdate(scenario);
-			daoAssetTypeValue.delete(assetTypeValues);
-		}
+	public void deleteDuplicationAssetTypeValue(Integer analysisId) throws Exception {
+		final Analysis analysis = daoAnalysis.get(analysisId);
+		for (Scenario scenario : analysis.getScenarios())
+			daoAssetTypeValue.delete(scenario.deleteDuplicatedAndUnsed());
+		daoAnalysis.saveOrUpdate(analysis);
 	}
 
 	@Transactional
 	public void deleteScenario(int idScenario, int idAnalysis) throws Exception {
-		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
-		Analysis analysis = daoAnalysis.get(idAnalysis);
+		final Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
 
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
@@ -342,40 +355,48 @@ public class CustomDelete {
 			throw new TrickException("error.scenario.not_found", "Scenario cannot be found");
 
 		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(scenario), analysis.removeRiskProfile(scenario));
+
 		analysis.getScenarios().remove(scenario);
 		daoScenario.delete(scenario);
+		daoAnalysis.saveOrUpdate(analysis);
 	}
 
 	@Transactional
 	public void deleteStandard(Standard standard) throws Exception {
+
 		if (daoAnalysisStandard.getAllFromStandard(standard).size() > 0)
 			throw new TrickException("error.delete.norm.analyses_with_norm", "Standard could not be deleted: it is used in analyses!");
 
-		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByStandard(standard);
+		final List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByStandard(standard);
+
 		for (MeasureDescription measureDescription : measureDescriptions) {
-			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
-			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
+
+			final List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
+
+			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts)
 				daoMeasureDescriptionText.delete(measureDescriptiontext);
-			}
+
 			daoMeasureDescription.delete(measureDescription);
 		}
+
 		daoStandard.delete(standard);
 
 	}
 
 	protected void deleteUser(User user, String username) throws Exception {
-		user.disable();
-		ResetPassword resetPassword = daoResetPassword.get(user);
+
+		final ResetPassword resetPassword = daoResetPassword.get(user);
+
 		if (resetPassword != null)
 			daoResetPassword.delete(resetPassword);
+
 		daoWordReport.deeleteByUser(user);
 		daoUserSqLite.deeleteByUser(user);
 		daoUserAnalysisRight.deleteByUser(user);
 		daoAnalysisShareInvitation.deleteByUser(user);
 		daoEmailValidatingRequest.deleteByUser(user);
-
-		user.getCustomers().clear();
 		daoUser.delete(user);
+
 		TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.delete",
 				String.format("User: %s %s, username: %s, email: %s", user.getFirstName(), user.getLastName(), user.getLogin(), user.getEmail()), username, LogAction.DELETE,
 				user.getFirstName(), user.getLastName(), user.getLogin(), user.getEmail());
@@ -383,22 +404,35 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteUser(UserDeleteHelper deleteHelper, Map<Object, String> errors, Principal principal, MessageSource messageSource, Locale locale) throws Exception {
-		User user = daoUser.get(deleteHelper.getIdUser());
+
+		final User user = daoUser.get(deleteHelper.getIdUser());
+
 		if (user == null)
 			errors.put("user", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 		else {
+
 			if (deleteHelper.hasAnalysesToSwitch()) {
+
 				SwitchAnalysisOwnerHelper switchAnalysisOwnerHelper = new SwitchAnalysisOwnerHelper(daoAnalysis);
+
 				for (Entry<Integer, Integer> entry : deleteHelper.getSwitchOwners().entrySet()) {
+
 					try {
-						Analysis analysis = daoAnalysis.get(entry.getKey());
-						User owner = daoUser.get(entry.getValue());
+
+						final Analysis analysis = daoAnalysis.get(entry.getKey());
+
+						final User owner = daoUser.get(entry.getValue());
+
 						if (owner == null || analysis == null)
 							throw new TrickException("error.action.not_authorise", "Action does not authorised");
+
 						switchAnalysisOwnerHelper.switchOwner(principal, analysis, owner);
-						UserAnalysisRight userAnalysisRight = analysis.findRightsforUser(user);
+
+						final UserAnalysisRight userAnalysisRight = analysis.findRightsforUser(user);
+
 						if (userAnalysisRight != null && analysis.getUserRights().remove(userAnalysisRight))
 							daoUserAnalysisRight.delete(userAnalysisRight);
+
 					} catch (TrickException e) {
 						TrickLogManager.Persist(e);
 						errors.put(entry.getKey(), messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -411,20 +445,29 @@ public class CustomDelete {
 				}
 			}
 			if (deleteHelper.hasAnalysesToDelete()) {
-				List<Analysis> analyses = daoAnalysis.getAll(deleteHelper.getDeleteAnalysis());
+
+				final List<Analysis> analyses = daoAnalysis.getAll(deleteHelper.getDeleteAnalysis());
+
 				Collections.sort(analyses, new AnalysisComparator().reversed());
+
 				deleteHelper.getDeleteAnalysis().stream().filter(idAnalysis -> !analyses.stream().anyMatch(analysis -> analysis.getId() == idAnalysis))
 						.forEach(idAnalysis -> errors.put(idAnalysis, messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale)));
+
 				if (!errors.isEmpty())
 					throw new DataIntegrityViolationException("Action does not authorised");
 
 				for (Analysis analysis : analyses) {
+
 					try {
+
 						if (!daoAnalysis.exists(analysis.getId()))
 							continue;
+
 						if (!analysis.getOwner().equals(user))
 							throw new TrickException("error.action.not_authorise", "Action does not authorised");
+
 						deleteAnalysis(analysis, principal.getName());
+
 					} catch (TrickException e) {
 						errors.put(analysis.getId(), messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 						throw new DataIntegrityViolationException(e.getMessage(), e);
@@ -454,21 +497,23 @@ public class CustomDelete {
 
 	@Transactional
 	public boolean removeCustomerByUser(int customerId, String userName, String adminUsername) {
-		Customer customer = daoCustomer.get(customerId);
+		final Customer customer = daoCustomer.get(customerId);
+
 		if (customer == null || !customer.isCanBeUsed())
 			return false;
-		User user = daoUser.get(userName);
+		final User user = daoUser.get(userName);
+
 		if (user == null)
 			return false;
-		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
+
+		final List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
 
 		if (!(user.containsCustomer(customer) && user.getCustomers().remove(customer)))
 			return false;
 
 		for (Analysis analysis : analyses) {
-			UserAnalysisRight userAnalysisRight = analysis.removeRights(user);
+			daoUserAnalysisRight.delete(analysis.removeRights(user));
 			daoAnalysis.saveOrUpdate(analysis);
-			daoUserAnalysisRight.delete(userAnalysisRight);
 		}
 
 		daoUser.saveOrUpdate(user);
@@ -485,7 +530,7 @@ public class CustomDelete {
 	 * It must be done in a transaction<br>
 	 * Clear Action plan and Action plan summary and remove measure from
 	 * {@link RiskProfile#getMeasures()}
-	 * 
+	 *
 	 * @param measureDescription
 	 * @param analysis
 	 * @see CustomDelete#deleteAnalysisActionPlan

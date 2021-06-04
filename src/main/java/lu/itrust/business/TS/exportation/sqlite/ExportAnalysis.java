@@ -1486,7 +1486,10 @@ public class ExportAnalysis {
 			params.add(assessment.getScenario().getId());
 			params.add(assessment.isSelected() ? Constant.ASSESSMENT_SELECTED : Constant.EMPTY_STRING);
 			params.add(assessment.getImpactReal());
-			params.add(assessment.getLikelihood());
+			if (assessment.getLikelihood() == null)
+				params.add("0");
+			else
+				params.add(assessment.getLikelihood().getRaw() + "");
 			params.add(assessment.getLikelihoodReal());
 			params.add(assessment.getComment());
 			params.add(assessment.getHiddenComment());
