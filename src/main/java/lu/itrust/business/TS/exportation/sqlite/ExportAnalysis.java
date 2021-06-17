@@ -46,6 +46,7 @@ import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.AbstractValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -1044,7 +1045,6 @@ public class ExportAnalysis {
 			queryParameters.add(dynamicParameter.getDescription());
 			queryParameters.add(dynamicParameter.getAcronym());
 			queryParameters.add(dynamicParameter.getValue());
-
 			// Execute query
 			sqlite.query(query, queryParameters);
 		}
@@ -1449,7 +1449,8 @@ public class ExportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 
-		Map<Integer, Double> totalALEs = new HashMap<Integer, Double>();
+		final List<Object> params = new ArrayList<Object>();
+		final Map<Integer, Double> totalALEs = new HashMap<Integer, Double>();
 
 		for (Assessment assessment : this.analysis.getAssessments()) {
 
@@ -1462,7 +1463,6 @@ public class ExportAnalysis {
 			totalALEs.put(key, totalALE);
 		}
 
-		List<Object> params = new ArrayList<Object>();
 		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?",
 				baseQuery = "INSERT INTO Assessment SELECT ? as id_asset, ? as id_threat,? as selected, ? as impact_hidden,? as potentiality,? as potentiality_hidden,? as comment,? as comment_2, ? as owner,"
 						+ "? as total_ALE,? as uncertainty";
@@ -1502,13 +1502,13 @@ public class ExportAnalysis {
 			sqlite.query(query, params);
 
 		query = "";
-		unionQuery = " UNION SELECT ?,?,?,?";
-		baseQuery = "INSERT INTO assessment_impacts SELECT ? as id_asset, ? as id_threat,? as name,? as value";
+		unionQuery = " UNION SELECT ?,?,?,?,?";
+		baseQuery = "INSERT INTO assessment_impacts SELECT ? as id_asset, ? as id_threat,? as name,? as value, ? as raw_value";
 		params.clear();
 		for (Assessment assessment : analysis.getAssessments()) {
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + (assessment.getImpacts().size() * 4) > 999) {
+			else if (params.size() + (assessment.getImpacts().size() * 5) > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
@@ -1520,6 +1520,10 @@ public class ExportAnalysis {
 				params.add(assessment.getScenario().getId());
 				params.add(value.getName());
 				params.add(value.getReal());
+				if (value instanceof AbstractValue)
+					params.add("");
+				else
+					params.add(value.getRaw().toString());
 				if (--count > 0)
 					query += unionQuery;
 			}

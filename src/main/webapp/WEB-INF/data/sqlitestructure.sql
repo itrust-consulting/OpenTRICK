@@ -33,7 +33,7 @@ CREATE TABLE risk_profile_impact (`id_threat` INTEGER NOT NULL , `id_asset` INTE
 CREATE TABLE risk_profile_measure (`id_threat` INTEGER NOT NULL , `id_asset` INTEGER NOT NULL,id_norme TEXT NOT NULL , version_norme int(11) NOT NULL,ref_measure TEXT NOT NULL);
 CREATE TABLE dynamic_parameter (id_parameter INTEGER PRIMARY KEY NOT NULL, name_parameter TEXT DEFAULT '', acro_parameter TEXT DEFAULT '', value_parameter DOUBLE DEFAULT 0);
 CREATE TABLE impact_type (`name` VARCHAR(255) PRIMARY KEY NOT NULL, `acronym` VARCHAR(255) NOT NULL,`translation` VARCHAR(255) NOT NULL,`shortName` VARCHAR(255) NOT NULL);
-CREATE TABLE assessment_impacts ( `id_asset` INTEGER NOT NULL,`id_threat` INTEGER NOT NULL ,`name` VARCHAR(255), `value` DOUBLE, PRIMARY KEY (`id_threat`, `id_asset`,`name`));
+CREATE TABLE assessment_impacts ( `id_asset` INTEGER NOT NULL,`id_threat` INTEGER NOT NULL ,`name` VARCHAR(255), `value` DOUBLE,`raw_value` VARCHAR(255) DEFAULT '', PRIMARY KEY (`id_threat`, `id_asset`,`name`));
 CREATE TABLE risk_acceptance ( `label` VARCHAR(255) DEFAULT '',`level` INTEGER NOT NULL, `color` VARCHAR(255) DEFAULT '#fada91', `description` VARCHAR(255) DEFAULT '');
 CREATE TABLE threat_assets ( id_threat INTEGER NOT NULL, id_asset INTEGER NOT NULL);
  -- INDEX CREATION

@@ -1018,9 +1018,31 @@ public class ImportAnalysis {
 				rs = sqlite.query("SELECT * FROM assessment_impacts");
 				if (rs == null)
 					return;
-				while (rs.next())
-					assessments.get(key(rs.getInt(Constant.ASSET_ID_ASSET), rs.getInt(Constant.THREAT_ID_THREAT)))
-							.setImpact(findValue(getDouble(rs, "value"), getString(rs, "name")));
+				boolean isCompatibilityMode = false;
+				boolean isFirst = true;
+				while (rs.next()) {
+					if (isFirst) {
+						isCompatibilityMode = getString(rs, "raw_value") == null;
+						isFirst = false;
+					}
+
+					final IValue impact;
+					final double value = getDouble(rs, "value");
+					final String name = getString(rs, "name");
+					final int assetId = rs.getInt(Constant.ASSET_ID_ASSET);
+					final int scenarioId = rs.getInt(Constant.THREAT_ID_THREAT);
+
+					if (isCompatibilityMode)
+						impact = findValue(value, name);
+					else {
+						final String raw_value = getString(rs, "raw_value");
+						if (raw_value == null || raw_value.trim().isEmpty())
+							impact = findValue(value, name);
+						else
+							impact = findValue(raw_value, name);
+					}
+					assessments.get(key(assetId, scenarioId)).setImpact(impact);
+				}
 			}
 
 		} finally {
@@ -1313,8 +1335,6 @@ public class ImportAnalysis {
 	}
 
 	private void importDynamicParameters() throws Exception {
-		if (analysis.getType() == AnalysisType.QUALITATIVE)
-			return;
 		// Import dynamic parameters
 		ResultSet rs = null;
 		try {
@@ -3280,7 +3300,7 @@ public class ImportAnalysis {
 
 	public static boolean getBoolean(ResultSet rs, String name) {
 		try {
-			return columnExists(rs, name) ? rs.getBoolean(name) : false;
+			return  rs.getBoolean(name);
 		} catch (SQLException e) {
 			return false;
 		}
@@ -3288,7 +3308,7 @@ public class ImportAnalysis {
 
 	public static double getDouble(ResultSet rs, String name) {
 		try {
-			return columnExists(rs, name) ? rs.getDouble(name) : 0;
+			return rs.getDouble(name);
 		} catch (SQLException e) {
 			return 0;
 		}
@@ -3296,7 +3316,7 @@ public class ImportAnalysis {
 
 	public static int getInt(ResultSet rs, String name) {
 		try {
-			return columnExists(rs, name) ? rs.getInt(name) : 0;
+			return rs.getInt(name);
 		} catch (SQLException e) {
 			return 0;
 		}
@@ -3308,7 +3328,7 @@ public class ImportAnalysis {
 
 	public static String getString(ResultSet rs, String name, String defaultValue) {
 		try {
-			return columnExists(rs, name) ? rs.getString(name) : defaultValue;
+			return rs.getString(name);
 		} catch (SQLException e) {
 			return defaultValue;
 		}
