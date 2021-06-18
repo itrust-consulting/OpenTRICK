@@ -5,6 +5,7 @@ package lu.itrust.business.TS.controller;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,9 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControllerError implements ErrorController {
 
 	@RequestMapping("/Error")
-	public ModelAndView handleError(HttpServletRequest request) {
+	public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response) {
+		if(response.isCommitted())
+			return null;
 		final ModelAndView modelAndView = new ModelAndView("errors/404");
 		final Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 		if (status != null) {
@@ -45,5 +48,4 @@ public class ControllerError implements ErrorController {
 	public String getErrorPath() {
 		return "/Error";
 	}
-
 }

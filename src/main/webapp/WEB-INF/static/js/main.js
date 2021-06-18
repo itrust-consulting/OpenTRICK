@@ -15,28 +15,28 @@ function Application() {
 	this.analysisType = {};
 	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	this.timeoutSetting = {
-		idle : 720000,
-		sessionTimeout : 900000,
-		refreshTime : 300000,
-		idleRefreshTime : 180000,
+		idle: 720000,
+		sessionTimeout: 900000,
+		refreshTime: 300000,
+		idleRefreshTime: 180000,
 	}
 	this.notification = {
-		z_index : 1068,
-		offset : {
-			x : 0,
-			y : 35
+		z_index: 1068,
+		offset: {
+			x: 0,
+			y: 35
 		},
-		placement : {
-			from : "bottom",
-			align : "right"
+		placement: {
+			from: "bottom",
+			align: "right"
 		},
-		delay : 5000,
+		delay: 5000,
 		errorDelay: 10000
 	}
-	this.currencyFormat = new Intl.NumberFormat("fr-FR", {style: "currency", currency: "EUR", maximumFractionDigits:0, minimumFractionDigits:0});
+	this.currencyFormat = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0, minimumFractionDigits: 0 });
 	this.numberFormat = new Intl.NumberFormat("fr-FR");
-	this.numberFormatNoDecimal = new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0, minimumFractionDigits:0});
-	this.percentageFormat = new Intl.NumberFormat("fr-FR", {style: "percent", maximumFractionDigits:0, minimumFractionDigits:0});
+	this.numberFormatNoDecimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+	this.percentageFormat = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 0, minimumFractionDigits: 0 });
 	this.currentNotifications = {};
 }
 
@@ -45,21 +45,21 @@ function Application() {
  */
 
 var ANALYSIS_RIGHT = {
-	ALL : {
-		value : 0,
-		name : "ALL"
+	ALL: {
+		value: 0,
+		name: "ALL"
 	},
-	EXPORT : {
-		value : 1,
-		name : "EXPORT"
+	EXPORT: {
+		value: 1,
+		name: "EXPORT"
 	},
-	MODIFY : {
-		value : 2,
-		name : "MODIFY"
+	MODIFY: {
+		value: 2,
+		name: "MODIFY"
 	},
-	READ : {
-		value : 3,
-		name : "READ"
+	READ: {
+		value: 3,
+		name: "READ"
 	}
 };
 
@@ -67,34 +67,34 @@ var ANALYSIS_RIGHT = {
  * Open mode
  */
 var OPEN_MODE = {
-	READ : {
-		value : "read-only",
-		name : "READ"
+	READ: {
+		value: "read-only",
+		name: "READ"
 	},
-	READ_ESTIMATION : {
-		value : "read-only-estimation",
-		name : "READ_ESTIMATION"
+	READ_ESTIMATION: {
+		value: "read-only-estimation",
+		name: "READ_ESTIMATION"
 	},
-	EDIT : {
-		value : "edit",
-		name : "EDIT"
+	EDIT: {
+		value: "edit",
+		name: "EDIT"
 	},
-	EDIT_ESTIMATION : {
-		value : "edit-estimation",
-		name : "EDIT_ESTIMATION"
+	EDIT_ESTIMATION: {
+		value: "edit-estimation",
+		name: "EDIT_ESTIMATION"
 	},
-	EDIT_MEASURE : {
-		value : "edit-measure",
-		name : "EDIT_MEASURE"
+	EDIT_MEASURE: {
+		value: "edit-measure",
+		name: "EDIT_MEASURE"
 	},
-	isReadOnly : function(mode) {
-		if(mode === undefined)
+	isReadOnly: function (mode) {
+		if (mode === undefined)
 			return application.openMode && application.openMode.value.startsWith("read-only");
 		var openMode = this.valueOf(mode);
 		return openMode && openMode.value.startsWith("read-only");
 	},
-	valueOf : function(value) {
-		for ( var key in OPEN_MODE) {
+	valueOf: function (value) {
+		for (var key in OPEN_MODE) {
 			if (key == "valueOf" || key == "isReadOnly")
 				continue;
 			else if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
@@ -105,33 +105,33 @@ var OPEN_MODE = {
 }
 
 var NOTIFICATION_TYPE = {
-	ERROR : {
-		type : "danger",
-		icon : "glyphicon glyphicon-warning-sign",
-		names : [ "error", "#alert-dialog", "#danger-dialog", "alert-dialog", "danger-dialog", "danger", "alert" ]
+	ERROR: {
+		type: "danger",
+		icon: "glyphicon glyphicon-warning-sign",
+		names: ["error", "#alert-dialog", "#danger-dialog", "alert-dialog", "danger-dialog", "danger", "alert"]
 	},
-	WARNING : {
-		type : "warning",
-		icon : "glyphicon glyphicon-exclamation-sign",
-		names : [ "#warning-dialog", "warning-dialog", "warning" ]
+	WARNING: {
+		type: "warning",
+		icon: "glyphicon glyphicon-exclamation-sign",
+		names: ["#warning-dialog", "warning-dialog", "warning"]
 	},
-	INFO : {
-		type : "info",
-		icon : "glyphicon glyphicon-info-sign",
-		names : [ "#info-dialog", "info-dialog", "info","message" ]
+	INFO: {
+		type: "info",
+		icon: "glyphicon glyphicon-info-sign",
+		names: ["#info-dialog", "info-dialog", "info", "message"]
 	},
-	SUCCESS : {
-		type : "success",
-		icon : "glyphicon glyphicon-ok-sign",
-		names : [ "#success-dialog", "success-dialog", "success" ]
+	SUCCESS: {
+		type: "success",
+		icon: "glyphicon glyphicon-ok-sign",
+		names: ["#success-dialog", "success-dialog", "success"]
 	},
-	DOWNLOAD : {
-		type : "success",
-		icon : "glyphicon glyphicon-download",
-		names : [ "#download-dialog", "download-dialog", "download" ]
-	} ,
-	valueOf : function(value) {
-		for ( var key in NOTIFICATION_TYPE) {
+	DOWNLOAD: {
+		type: "success",
+		icon: "glyphicon glyphicon-download",
+		names: ["#download-dialog", "download-dialog", "download"]
+	},
+	valueOf: function (value) {
+		for (var key in NOTIFICATION_TYPE) {
 			if (key == "valueOf")
 				continue;
 			else if (NOTIFICATION_TYPE[key] == value || NOTIFICATION_TYPE[key].type == value || NOTIFICATION_TYPE[key].names.indexOf(value) != -1)
@@ -142,26 +142,26 @@ var NOTIFICATION_TYPE = {
 }
 
 var ANALYSIS_TYPE = {
-	QUANTITATIVE : {
-		type : "QUANTITATIVE",
-		isQualitative : () => false,
-		isQuantitative : () => true,
-		isSupported : type => type ==  "QUANTITATIVE" || type == "HYBRID"
+	QUANTITATIVE: {
+		type: "QUANTITATIVE",
+		isQualitative: () => false,
+		isQuantitative: () => true,
+		isSupported: type => type == "QUANTITATIVE" || type == "HYBRID"
 	},
-	HYBRID : {
-		type : "HYBRID",
-		isQualitative : () => true,
-		isQuantitative : () => true,
-		isSupported : type => true
+	HYBRID: {
+		type: "HYBRID",
+		isQualitative: () => true,
+		isQuantitative: () => true,
+		isSupported: type => true
 	},
-	QUALITATIVE : {
-		type : "QUALITATIVE",
-		isQualitative : () => true,
-		isQuantitative : () => false,
-		isSupported : type => type ==  "QUALITATIVE" || type == "HYBRID"
+	QUALITATIVE: {
+		type: "QUALITATIVE",
+		isQualitative: () => true,
+		isQuantitative: () => false,
+		isSupported: type => type == "QUALITATIVE" || type == "HYBRID"
 	},
-	valueOf : value => {
-		for ( var key in ANALYSIS_TYPE) {
+	valueOf: value => {
+		for (var key in ANALYSIS_TYPE) {
 			if (typeof key === "function")
 				continue;
 			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value)
@@ -169,31 +169,31 @@ var ANALYSIS_TYPE = {
 		}
 		return undefined;
 	},
-	isSupported : (typeName, value) => {
+	isSupported: (typeName, value) => {
 		var type = ANALYSIS_TYPE.valueOf(typeName);
 		return type && type.isSupported(value);
 	},
-	isHybrid : value => value ==='HYBRID',
-	isQuantitative : value => value === 'QUANTITATIVE',
-	isQualitative : value => value === 'QUALITATIVE'
+	isHybrid: value => value === 'HYBRID',
+	isQuantitative: value => value === 'QUANTITATIVE',
+	isQualitative: value => value === 'QUALITATIVE'
 }
 
 
 if (!String.prototype.capitalize) {
-	String.prototype.capitalize = function() {
+	String.prototype.capitalize = function () {
 		return this.charAt(0).toUpperCase() + this.slice(1);
 	}
 }
 
 if (!String.prototype.startsWith) {
-	String.prototype.startsWith = function(searchString, position) {
+	String.prototype.startsWith = function (searchString, position) {
 		position = position || 0;
 		return this.substr(position, searchString.length) === searchString;
 	};
 }
 
 if (!Array.prototype.removeIf) {
-	Array.prototype.removeIf = function(callback) {
+	Array.prototype.removeIf = function (callback) {
 		var i = this.length;
 		while (i--) {
 			if (callback(this[i], i)) {
@@ -204,12 +204,12 @@ if (!Array.prototype.removeIf) {
 }
 
 function isFunction(value) {
-	 var getType = {};
-	 return value && getType.toString.call(value) === '[object Function]';
+	var getType = {};
+	return value && getType.toString.call(value) === '[object Function]';
 }
 
 if (!String.prototype.endsWith) {
-	String.prototype.endsWith = function(searchString, position) {
+	String.prototype.endsWith = function (searchString, position) {
 		var subjectString = this.toString();
 		if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
 			position = subjectString.length;
@@ -221,21 +221,21 @@ if (!String.prototype.endsWith) {
 }
 
 function hexToRgb(hex) {
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-        return r + r + g + g + b + b;
-    });
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
+	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+	hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+		return r + r + g + g + b + b;
+	});
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	return result ? {
+		r: parseInt(result[1], 16),
+		g: parseInt(result[2], 16),
+		b: parseInt(result[3], 16)
+	} : null;
 }
 
 function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return re.test(email);
 }
 
 
@@ -243,12 +243,12 @@ function checkExtention(value, extention, button) {
 	var extentions = extention.split(","), match = false;
 	for (var i = 0; i < extentions.length; i++)
 		match |= value.endsWith(extentions[i]);
-	if(button)
+	if (button)
 		$(button).prop("disabled", !match);
 	return match;
 }
 
-function switchLangueTo(url){
+function switchLangueTo(url) {
 	if (window.location.hash == undefined)
 		return true;
 	window.location.replace(url + window.location.hash);
@@ -305,42 +305,42 @@ function showStaticDialog(dialog, message, title, url, onClose) {
 	}
 }
 
-function gotToPage(page){
-	window.location.assign(context+page);
+function gotToPage(page) {
+	window.location.assign(context + page);
 }
 
-function showNotifcation(type, message, icon, url, title, onClose,placement) {
+function showNotifcation(type, message, icon, url, title, onClose, placement) {
 	return $.notify({
-		title : title?  title : undefined,
-		icon : icon,
-		message : message,
-		url : url
+		title: title ? title : undefined,
+		icon: icon,
+		message: message,
+		url: url
 	}, {
-		type : type,
-		z_index : application.notification.z_index,
-		offset : application.notification.offset,
-		placement : placement === undefined? application.notification.placement : placement,
-		delay : type ==="danger" || type ==="warning"? application.notification.errorDelay : application.notification.delay,
-		onClose : onClose
+		type: type,
+		z_index: application.notification.z_index,
+		offset: application.notification.offset,
+		placement: placement === undefined ? application.notification.placement : placement,
+		delay: type === "danger" || type === "warning" ? application.notification.errorDelay : application.notification.delay,
+		onClose: onClose
 	});
 }
 
-function showStaticNotifcation(type, message, icon, title , url, onClose) {
+function showStaticNotifcation(type, message, icon, title, url, onClose) {
 	var $notification = $.notify({
-		title : title?  title : undefined,
-		icon : icon,
-		message : message,
-		url : url
+		title: title ? title : undefined,
+		icon: icon,
+		message: message,
+		url: url
 	}, {
-		type : type,
-		z_index : application.notification.z_index,
-		offset : application.notification.offset,
-		placement : application.notification.placement,
-		onClose : onClose,
-		delay : -1
+		type: type,
+		z_index: application.notification.z_index,
+		offset: application.notification.offset,
+		placement: application.notification.placement,
+		onClose: onClose,
+		delay: -1
 	});
-	
-	if(url)
+
+	if (url)
 		$notification.$ele.on('click', 'a[data-notify="url"]', (e) => {
 			setTimeout(() => {
 				$notification.close();
@@ -350,48 +350,48 @@ function showStaticNotifcation(type, message, icon, title , url, onClose) {
 }
 
 function onElementInserted(elementClass, callback) {
-    var onMutationsObserved = function(mutations) {
-        mutations.forEach(function(mutation) {
-           for (var i = 0; i < mutation.addedNodes.length; i++) {
-        	   var element = mutation.addedNodes[i];
-        	   if(element.classList && element.classList.contains(elementClass))
-           			callback(element);
-           }
-        });
-    };
-    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-    new MutationObserver(onMutationsObserved).observe(document, { childList: true, subtree: true });
+	var onMutationsObserved = function (mutations) {
+		mutations.forEach(function (mutation) {
+			for (var i = 0; i < mutation.addedNodes.length; i++) {
+				var element = mutation.addedNodes[i];
+				if (element.classList && element.classList.contains(elementClass))
+					callback(element);
+			}
+		});
+	};
+	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+	new MutationObserver(onMutationsObserved).observe(document, { childList: true, subtree: true });
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
 	if (typeof textStatus != 'undefined' && textStatus === 'abort' || application["isReloading"])
 		return false;
 	if (jqXHR !== undefined) {
-		 if (jqXHR.status!==undefined) {
+		if (jqXHR.status !== undefined) {
 			switch (jqXHR.status) {
-			case 400:
-				showDialog("#alert-dialog", MessageResolver("error.400.message"));
-				break;
-			case 401:
-				showDialog("#alert-dialog", MessageResolver("error.401.message"));
-				break;
-			case 403:
-				showDialog("#alert-dialog", MessageResolver("error.403.message"));
-				break;
-			case 404:
-				showDialog("#alert-dialog", MessageResolver("error.404.message"));
-				break;
-			case 500:
-				showDialog("#alert-dialog", MessageResolver("error.500.message"));
-				break;
-			case 503:
-				showDialog("#alert-dialog", MessageResolver("error.503.message"));
-				break;
-			case 504:
-				showDialog("#alert-dialog", MessageResolver("error.504.message"));
-				break;
-			default:
-				showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+				case 400:
+					showDialog("#alert-dialog", MessageResolver("error.400.message"));
+					break;
+				case 401:
+					showDialog("#alert-dialog", MessageResolver("error.401.message"));
+					break;
+				case 403:
+					showDialog("#alert-dialog", MessageResolver("error.403.message"));
+					break;
+				case 404:
+					showDialog("#alert-dialog", MessageResolver("error.404.message"));
+					break;
+				case 500:
+					showDialog("#alert-dialog", MessageResolver("error.500.message"));
+					break;
+				case 503:
+					showDialog("#alert-dialog", MessageResolver("error.503.message"));
+					break;
+				case 504:
+					showDialog("#alert-dialog", MessageResolver("error.504.message"));
+					break;
+				default:
+					showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 			}
 		} else
 			showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
@@ -425,21 +425,21 @@ function getScrollbarWidth() {
 	return widthNoScroll - widthWithScroll;
 }
 
-function isAnalysisType(type, section){
-	var analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section? section : "#section_analysis").closest("tr").attr("data-trick-type");
-	return  analysisType && analysisType.isSupported(trType);
+function isAnalysisType(type, section) {
+	var analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section ? section : "#section_analysis").closest("tr").attr("data-trick-type");
+	return analysisType && analysisType.isSupported(trType);
 }
 
-function findAnalysisType(section, idAnalysis){
-	if(Object.keys(application.analysisType).length)
+function findAnalysisType(section, idAnalysis) {
+	if (Object.keys(application.analysisType).length)
 		return application.analysisType.type;
-	return 	 $("table>tbody>tr[data-trick-id='"+idAnalysis+"'][data-trick-type]", section).attr("data-trick-type");
+	return $("table>tbody>tr[data-trick-id='" + idAnalysis + "'][data-trick-type]", section).attr("data-trick-type");
 }
 
-function isArchived(analysisId){
-	return analysisId==undefined? 
-			$("table>tbody>tr[data-trick-archived='true']>td>input:checked","#section_analysis").length > 0 : 
-		$("table>tbody>tr[data-trick-id='"+analysisId+"'][data-trick-archived='true']","#section_analysis").length > 0;
+function isArchived(analysisId) {
+	return analysisId == undefined ?
+		$("table>tbody>tr[data-trick-archived='true']>td>input:checked", "#section_analysis").length > 0 :
+		$("table>tbody>tr[data-trick-id='" + analysisId + "'][data-trick-archived='true']", "#section_analysis").length > 0;
 }
 
 function isLinked() {
@@ -447,12 +447,12 @@ function isLinked() {
 }
 
 function downloadWordReport(id) {
-	window.open(context + '/Account/Report/' + id + "/Download","_blank");
+	window.open(context + '/Account/Report/' + id + "/Download", "_blank");
 	return false;
 }
 
 function downloadExportedSqLite(id) {
-	window.open(context + '/Account/Sqlite/' + id + "/Download","_blank");
+	window.open(context + '/Account/Sqlite/' + id + "/Download", "_blank");
 	return false;
 }
 
@@ -467,59 +467,59 @@ function hasScrollBar(element) {
 	return element.get(0).scrollHeight > element.get(0).clientHeight;
 }
 
-function sortTable(type, element, number){
-	var previousIndexes = [],$table = $(element).closest("table"), $tbody = $("tbody", $table),  $trs =  $("tr",$tbody), order = element == undefined?  undefined :  element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='"+type+"']";
-	if($trs.length && order !== undefined){
-		$trs.each((i,e)=> previousIndexes[e] = i);
-		$trs.sort( (a, b)  => {
+function sortTable(type, element, number) {
+	var previousIndexes = [], $table = $(element).closest("table"), $tbody = $("tbody", $table), $trs = $("tr", $tbody), order = element == undefined ? undefined : element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='" + type + "']";
+	if ($trs.length && order !== undefined) {
+		$trs.each((i, e) => previousIndexes[e] = i);
+		$trs.sort((a, b) => {
 			var oldA = previousIndexes[a], oldB = previousIndexes[b];
-			var value1 = $(selector,a).text() , value2 = $(selector,b).text();
-			var result =   (number? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, ""))  : naturalSort(value1, value2) ) * order;
-			return !result? oldA > oldB? 1: -1 : result;
+			var value1 = $(selector, a).text(), value2 = $(selector, b).text();
+			var result = (number ? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, "")) : naturalSort(value1, value2)) * order;
+			return !result ? oldA > oldB ? 1 : -1 : result;
 		}).detach().appendTo($tbody);
 		var $tr = $(element).closest("tr"), $thead = $tr.closest("thead");
-		if($thead.length)
+		if ($thead.length)
 			$thead.find("a[data-order]>.fa").remove();
 		else $tr.find("a[data-order]>.fa").remove();
 		$tr.find("a[data-order]").attr("data-order", 1);
-		element.setAttribute("data-order", order > 0 ? 0 : 1 );
-		$(order > 0 ? "<i class='fa fa-caret-up' aria-hidden='true' style='margin-left:3px;'/>" :  "<i class='fa fa-caret-down' style='margin-left:3px;' aria-hidden='true' />").appendTo(element);
+		element.setAttribute("data-order", order > 0 ? 0 : 1);
+		$(order > 0 ? "<i class='fa fa-caret-up' aria-hidden='true' style='margin-left:3px;'/>" : "<i class='fa fa-caret-down' style='margin-left:3px;' aria-hidden='true' />").appendTo(element);
 	}
 	return false;
 }
 
-$.fn.hasAttr = function(name) {
+$.fn.hasAttr = function (name) {
 	return this[0].hasAttribute(name);
 };
 
-$.fn.hasScrollBar = function() {
+$.fn.hasScrollBar = function () {
 	return this.get(0).scrollHeight > this.get(0).clientHeight;
 }
 
-$.fn.removeAttributes = function(only, except) {
+$.fn.removeAttributes = function (only, except) {
 	if (only) {
-		only = $.map(only, function(item) {
+		only = $.map(only, function (item) {
 			return item.toString().toLowerCase();
 		});
 	}
 	if (except) {
-		except = $.map(except, function(item) {
+		except = $.map(except, function (item) {
 			return item.toString().toLowerCase();
 		});
 		if (only) {
-			only = $.grep(only, function(item, index) {
+			only = $.grep(only, function (item, index) {
 				return $.inArray(item, except) == -1;
 			});
 		}
 	}
-	return this.each(function() {
+	return this.each(function () {
 		var attributes;
 		if (!only) {
-			attributes = $.map(this.attributes, function(item) {
+			attributes = $.map(this.attributes, function (item) {
 				return item.name.toString().toLowerCase();
 			});
 			if (except) {
-				attributes = $.grep(attributes, function(item, index) {
+				attributes = $.grep(attributes, function (item, index) {
 					return $.inArray(item, except) == -1;
 				});
 			}
@@ -527,7 +527,7 @@ $.fn.removeAttributes = function(only, except) {
 			attributes = only;
 		}
 		var handle = $(this);
-		$.each(attributes, function(index, item) {
+		$.each(attributes, function (index, item) {
 			handle.removeAttr(item);
 		});
 	});
@@ -539,10 +539,10 @@ $.fn.removeAttributes = function(only, except) {
  * @param $
  */
 
-$.fn.serializeJSON = function() {
+$.fn.serializeJSON = function () {
 	var json = {};
 	var form = $(this);
-	form.find('input, select, textarea').each(function() {
+	form.find('input, select, textarea').each(function () {
 		var val;
 		if (!this.name)
 			return;
@@ -559,15 +559,15 @@ $.fn.serializeJSON = function() {
 					json[this.name] = '';
 				}
 			} else {
-				json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+				json[this.name] = typeof val === 'string' ? [val, this.value] : $.isArray(val) ? $.merge(val, [this.value]) : this.value;
 			}
-		} else if("select-multiple" === this.type) {
-			json[this.name] = Array.prototype.filter.call(this.options, (option)=> {
-		        return option.selected;
-		    }).map((option)=> {
-		        return option.value;
-		    });
-		}else
+		} else if ("select-multiple" === this.type) {
+			json[this.name] = Array.prototype.filter.call(this.options, (option) => {
+				return option.selected;
+			}).map((option) => {
+				return option.value;
+			});
+		} else
 			json[this.name] = this.value;
 	});
 	return json;
@@ -584,7 +584,7 @@ function findRight(idAnalysis) {
 	var idRight = $(right).attr('data-trick-rights-id');
 	if (!$.trim(idRight).length)
 		return undefined;
-	for ( var key in ANALYSIS_RIGHT)
+	for (var key in ANALYSIS_RIGHT)
 		if (ANALYSIS_RIGHT[key].value == idRight)
 			return ANALYSIS_RIGHT[key];
 	return undefined;
@@ -607,8 +607,8 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
-function isOwner(idAnalysis){
-	return idAnalysis === undefined?  $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") === "true" : $("#section_analysis tbody>tr[data-trick-id='"+idAnalysis+"']").attr("data-analysis-owner") === "true" 
+function isOwner(idAnalysis) {
+	return idAnalysis === undefined ? $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") === "true" : $("#section_analysis tbody>tr[data-trick-id='" + idAnalysis + "']").attr("data-analysis-owner") === "true"
 }
 
 function canManageAccess() {
@@ -648,24 +648,24 @@ function MessageResolver(code, defaulttext, params) {
 		application.localesMessages[uniqueCode] = defaulttext;
 
 	var data = {
-		code : code,
-		message : defaulttext,
-		parameters : []
+		code: code,
+		message: defaulttext,
+		parameters: []
 	}
-	
+
 	if ($.isArray(params))
 		data.parameters = params;
-	else if ($.isNumeric(params) ||params && params.length)
+	else if ($.isNumeric(params) || params && params.length)
 		data.parameters[0] = params;
 	else delete data.parameters;
-	
+
 	$.ajax({
-		url : context + "/MessageResolver",
-		type : 'post',
-		data : JSON.stringify(data),
-		async : false,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
+		url: context + "/MessageResolver",
+		type: 'post',
+		data: JSON.stringify(data),
+		async: false,
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
 			if (!(response.message == undefined || response.message == null || !response.message.length))
 				data.message = application.localesMessages[uniqueCode] = response.message;
 		}
@@ -731,9 +731,9 @@ function hasSelectedState(sectionName, state) {
 
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
-			application[appModalVar].modal).find("tbody tr td:first-child input");
+		application[appModalVar].modal).find("tbody tr td:first-child input");
 	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
-			application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0, $checkbox = $(checkbox);
+		application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0, $checkbox = $(checkbox);
 	if (!multiSelectAllowed) {
 		$(checkbox).prop("disabled", true).prop("checked", false);
 		return false;
@@ -752,17 +752,17 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 }
 
 function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
-	
+
 	var $section, $menu;
-	
-	if(!(appModalVar == undefined || appModalVar == null)){
+
+	if (!(appModalVar == undefined || appModalVar == null)) {
 		$section = $(application[appModalVar].modal);
 		$menu = $(idMenu, $section);
-	}else {
+	} else {
 		$section = $(idsection);
-		$menu = $(idsection+" "+idMenu+", #menu-option "+idMenu);
+		$menu = $(idsection + " " + idMenu + ", #menu-option " + idMenu);
 	}
-	
+
 	if (sender) {
 		var $sender = $(sender), items = $("tbody :checked", $section);
 		if ($sender.is(":checked")) {
@@ -814,18 +814,18 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		}
 	}
 
-	if(!(callback===undefined || callback===null))
+	if (!(callback === undefined || callback === null))
 		invokeCallback(callback);
-	
+
 	var menuCallBack = $menu.attr("data-trick-callback");
-	
-	if(!(menuCallBack===undefined || menuCallBack===null))
+
+	if (!(menuCallBack === undefined || menuCallBack === null))
 		invokeCallback(menuCallBack);
-	
+
 	return false;
 }
 
-function invokeCallback(callback){
+function invokeCallback(callback) {
 	try {
 		if ($.isFunction(callback))
 			callback();
@@ -839,9 +839,9 @@ function invokeCallback(callback){
 	}
 }
 
-function updateDropdown(){
-	var $menu =  $(".nav-dropdown-menu"), $controller =  $("a.dropdown-toggle", $menu), $lis =  $('ul.dropdown-menu>li:not(.disabled)',$menu);
-	if($lis.length)
+function updateDropdown() {
+	var $menu = $(".nav-dropdown-menu"), $controller = $("a.dropdown-toggle", $menu), $lis = $('ul.dropdown-menu>li:not(.disabled)', $menu);
+	if ($lis.length)
 		$controller.removeClass("disabled");
 	else $controller.addClass("disabled");
 	return false;
@@ -865,7 +865,7 @@ function serializeForm(form) {
 	return JSON.stringify($form.serializeJSON());
 }
 
-function serializeFormToJson(form){
+function serializeFormToJson(form) {
 	var $form = $(form);
 	if (!$form.length)
 		$form = $("#" + form);
@@ -886,13 +886,13 @@ function parseJson(data) {
 }
 
 function log(msg) {
-	setTimeout(function() {
+	setTimeout(function () {
 		throw new Error(msg);
 	}, 0);
 }
 
 function findSelectItemIdBySection(section, modal) {
-	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("tbody>tr>td>:checked","#" + section) : $("tbody>tr>td>:checked", modal);
+	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("tbody>tr>td>:checked", "#" + section) : $("tbody>tr>td>:checked", modal);
 	for (var i = 0; i < $items.length; i++) {
 		trickId = findTrickID($items[i]);
 		if (trickId == null || trickId == undefined)
@@ -910,7 +910,7 @@ function findTrickID(element) {
 
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
-	if (!(current == undefined ||current.$element == null )) {
+	if (!(current == undefined || current.$element == null)) {
 		if (target === current.$element[0])
 			return e;
 		else if ($(current.$tip).is(":visible")) {
@@ -938,22 +938,22 @@ function closeToolTips() {
 function displayTimeoutNotification(notification, message, title) {
 	if (application['sessionNotification']) {
 		application['sessionNotification'].update({
-			type : notification.type,
-			icon : notification.icon,
-			message : message
+			type: notification.type,
+			icon: notification.icon,
+			message: message
 		});
 	} else {
 		application['sessionNotification'] = $.notify({
-			title : title,
-			icon : notification.icon,
-			message : message,
+			title: title,
+			icon: notification.icon,
+			message: message,
 		}, {
-			type : notification.type,
-			z_index : application.notification.z_index,
-			offset : application.notification.offset,
-			placement : application.notification.placement,
-			delay : -1,
-			onClose : function() {
+			type: notification.type,
+			z_index: application.notification.z_index,
+			offset: application.notification.offset,
+			placement: application.notification.placement,
+			delay: -1,
+			onClose: function () {
 				clearTimeout(application['sessionTimerId']);
 				delete application['sessionNotification'];
 			}
@@ -964,7 +964,7 @@ function displayTimeoutNotification(notification, message, title) {
 function displayTimeoutWarning(counter) {
 	var message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0} seconds");
 	displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", counter))
-	application['sessionTimerId'] = setInterval(function() {
+	application['sessionTimerId'] = setInterval(function () {
 		displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", (--counter)))
 		if (counter < 2)
 			clearTimeout(application['sessionTimerId']);
@@ -973,7 +973,7 @@ function displayTimeoutWarning(counter) {
 
 function forceCloseToolTips() {
 	closeToolTips();
-	setTimeout(function() {
+	setTimeout(function () {
 		$(".tooltip.fade.in:visible").remove();
 	}, 100);
 }
@@ -982,276 +982,269 @@ function generateHelper($selection, container) {
 	if (container == undefined || container == null)
 		container = "body";
 	if ($selection == undefined || $selection == null)
-		$selection = $("[data-helper-content]",container);
+		$selection = $("[data-helper-content]", container);
 	$selection
-			.each(function() {
-				var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");
-				$this.removeAttr("data-helper-content");
-				if (title == "" || title == undefined) {
-					title = $this.attr("title");
-					if (title == "" || title == undefined)
-						return false;
-				}
-				if (placement == undefined || placement == "")
-					placement = "auto right";
+		.each(function () {
+			var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");
+			$this.removeAttr("data-helper-content");
+			if (title == "" || title == undefined) {
+				title = $this.attr("title");
+				if (title == "" || title == undefined)
+					return false;
+			}
+			if (placement == undefined || placement == "")
+				placement = "auto right";
 
-				$helper.attr("data-content", title).attr("data-placement", placement).appendTo($this).popover({
-					'container' : container
-				});
+			$helper.attr("data-content", title).attr("data-placement", placement).appendTo($this).popover({
+				'container': container
 			});
+		});
 	return false;
 }
 
-function updateUserGuideURL(){
-	try{
+function updateUserGuideURL() {
+	try {
 		var $this = $("#footer a[data-base-url]"), baseURL = $this.attr("data-base-url");
-		var $container =  $("[data-ug-root]"), $tabActive = $(".tab-pane.active",$container);
-		if(!$container.length || !$this.length)
+		var $container = $("[data-ug-root]"), $tabActive = $(".tab-pane.active", $container);
+		if (!$container.length || !$this.length)
 			return false;
-		baseURL+=("#"+$container.attr("data-ug-root"));
-		if($tabActive.length)
-			baseURL+=$tabActive.attr("id").substr(3);
+		baseURL += ("#" + $container.attr("data-ug-root"));
+		if ($tabActive.length)
+			baseURL += $tabActive.attr("id").substr(3);
 		$this.attr("href", baseURL);
-	}catch(error){
+	} catch (error) {
 		console.log(error);
 	}
 	return false;
 }
 
 $(document)
-		.ready(
-				function() {
-					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
-					
-					$(document).ajaxSend(function(e, xhr, options) {
-						if (options.url !== (context + '/IsAuthenticate'))
-							$(document).trigger("session:resquest:send");
-						xhr.setRequestHeader(header, token);
-					}).idle(
-							{
-								idle : application.timeoutSetting.idle,
-								sessionTimeout : application.timeoutSetting.sessionTimeout,
-								refreshTime : application.timeoutSetting.refreshTime,
-								idleRefreshTime : application.timeoutSetting.idleRefreshTime,
-								onIdle : function() {
-									displayTimeoutWarning((application.timeoutSetting.sessionTimeout - application.timeoutSetting.idle) / 1000);
-								},
-								onRefreshSession : function() {
-									$.get(context + '/IsAuthenticate', function(isAuthenticated) {
-										if (isAuthenticated === false)
-											$(document).trigger("session.timeout");
-									});
-								},
-								onSessionTimeout : function() {
-									displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expired",
-											"Your session has been expired, you will be redirected to the login page in few seconds."));
-									setTimeout(function() {
-										$.get(context + '/IsAuthenticate', function(isAuthenticated) {
-											if (isAuthenticated === false)
-												location.reload();
-											else
-												displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expire.monitor",
-														"It seems you have many tabs opened on TS, Session timeout monitoring is not supported that, it is now disabled."));
-										});
-									}, 10000);
-								},
-								onActive : function() {
-									if (application['sessionNotification']) {
-										application['sessionNotification'].close();
-									}
-								},
-								onIdleRefreshTime : function() {
-									showDialog("info", MessageResolver("info.session.expire.in.x.minutes", "Your session will be expired in {0} minute(s)").replace("{0}",
-											application.timeoutSetting.sessionTimeout / 60000))
-								}
-							});
+	.ready(
+		function () {
+			var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
 
-
-					if ($tabNav.length) {
-
-						var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabContainer.find("#menu-option");
-						$window.on("resize.window", function() {
-							$tabContainer.css({
-								"margin-top" : $tabNav.height() + 10
-							// default margin-top is 50px and default $tabNav
-							// size is 38px
-							});
+			$(document).ajaxSend(function (e, xhr, options) {
+				if (options.url !== (context + '/IsAuthenticate'))
+					$(document).trigger("session:resquest:send");
+				xhr.setRequestHeader(header, token);
+			}).idle(
+				{
+					idle: application.timeoutSetting.idle,
+					sessionTimeout: application.timeoutSetting.sessionTimeout,
+					refreshTime: application.timeoutSetting.refreshTime,
+					idleRefreshTime: application.timeoutSetting.idleRefreshTime,
+					onIdle: function () {
+						displayTimeoutWarning((application.timeoutSetting.sessionTimeout - application.timeoutSetting.idle) / 1000);
+					},
+					onRefreshSession: function () {
+						$.get(context + '/IsAuthenticate', function (isAuthenticated) {
+							if (isAuthenticated === false)
+								$(document).trigger("session.timeout");
 						});
-
-						if ($option.length) {
-							var updateOption = function() {
-								var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills:visible");
-								var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
-								if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-									$option.fadeOut(function() {
-										$option.hide();
-									});
-								else {
-									if (!$option.find("#" + optionMenu.prop("id")).length) {
-										$option.find("ul").remove();
-										var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-										$("li[data-role='title']", cloneOption).remove()
-										cloneOption.removeAttr("style");
-										if ($subMenu.length) {
-											$subMenu.each(function() {
-												var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
-												$this.removeClass();
-												if ($this.closest("li").length)
-													$this.before("<li class='divider'></li>");
-												$lis.appendTo(cloneOption);
-												$this.text(text);
-												$this.addClass("dropdown-header");
-											});
-										} else {
-											$("li.dropdown-header", cloneOption).each(function() {
-												var $this = $(this), $closestli = $this.closest("li");
-												if ($closestli.length && !$closestli.hasClass("divider"))
-													$this.before("<li class='divider'></li>");
-												$this.show();
-											});
-										}
-										$("li.divider", cloneOption).show();
-										cloneOption.appendTo($option);
-										cloneOption.removeClass();
-										cloneOption.find("li").removeClass("pull-right")
-										cloneOption.addClass("dropdown-menu dropdown-menu-right")
-									}
-
-									if (!$option.is(":visible")) {
-										$option.fadeIn(function() {
-											$option.show();
-										});
-									}
-								}
-							}
-
-							$window.on("scroll.window", function() {
-								setTimeout(updateOption, 100);
+					},
+					onSessionTimeout: function () {
+						displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expired",
+							"Your session has been expired, you will be redirected to the login page in few seconds."));
+						setTimeout(function () {
+							$.get(context + '/IsAuthenticate', function (isAuthenticated) {
+								if (isAuthenticated === false)
+									location.reload();
+								else
+									displayTimeoutNotification(NOTIFICATION_TYPE.ERROR, MessageResolver("error.session.expire.monitor",
+										"It seems you have many tabs opened on TS, Session timeout monitoring is not supported that, it is now disabled."));
 							});
+						}, 10000);
+					},
+					onActive: function () {
+						if (application['sessionNotification']) {
+							application['sessionNotification'].close();
 						}
-
-					
-						// prevent perform click while a menu is disabled
-						$("ul.nav li>a").on("click", function(e) {
-							if ($(e.currentTarget).parent().hasClass("disabled"))
-								e.preventDefault();
-						});
-
-						// prevent perform click while a menu is disabled
-						$("ul.nav li").on("click", function(e) {
-							if ($(e.currentTarget).hasClass("disabled"))
-								e.stopPropagation();
-						});
-
-						// prevent unknown error modal display
-						$window.bind("beforeunload", function() {
-							application["isReloading"] = true;
-						});
-
-						$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-							var $target = $(e.currentTarget);
-							if ($target.find("li.active").length && !$target.hasClass("active"))
-								$target.addClass("active");
-						});
-
-						$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-							var $parent = $(e.target).closest("li.dropdown-submenu");
-							if (!$parent.hasClass("active"))
-								$parent.addClass("active");
-						});
-
-						$("a[data-toggle='taskmanager']").on("click", function(e) { // task
-							// manager
-							var taksmanager = application['taskManager'];
-							if (taksmanager.isEmpty())
-								return false;
-							var $target = $(e.currentTarget), $parent = $target.parent();
-							if ($parent.hasClass("open"))
-								taksmanager.Hide();
-							else
-								taksmanager.Show();
-						});
-
-						
-						
-						$window.on('hashchange', function() {
-							var hash = window.location.hash;
-							application["no-update-hash"] = true;
-							switchTab(hash ? hash.split('#')[1] : hash);
-							application["no-update-hash"] = false;
-							updateUserGuideURL();
-						});
-
-						if (window.location.hash) {
-							$window.trigger("hashchange");
-							$bodyHtml.animate({
-								scrollTop : 0
-							}, 20);
-						}
-						
-						$('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
-						
-						$window.keydown(function(e) {
-							if (e.keyCode == 27)
-								forceCloseToolTips();
-						});
-				
-						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-							forceCloseToolTips();
-							if (application.shownScrollTop) {
-								$bodyHtml.animate({
-									scrollTop : 0
-								}, 20);
-							}
-							var hash = e.target.getAttribute("href"), $target = $(hash);
-							callBackCaller($target);
-							triggerCaller($target);
-							if (!application["no-update-hash"])
-								window.location.hash = $target.attr("id");
-						});
+					},
+					onIdleRefreshTime: function () {
+						showDialog("info", MessageResolver("info.session.expire.in.x.minutes", "Your session will be expired in {0} minute(s)").replace("{0}",
+							application.timeoutSetting.sessionTimeout / 60000))
 					}
-					
-					$('#confirm-dialog').on('hidden.bs.modal', function() {
-						$("#confirm-dialog .btn-danger").unbind("click");
-					});
-
-					$('#alert-dialog').on('hidden.bs.modal', function() {
-						$("#alert-dialog .btn-danger").unbind("click");
-					});
-
-					if (window.location.hash != undefined)
-						$('a[data-toggle="tab"][href="' + window.location.hash + '"]', $tabNav).trigger("shown.bs.tab");
-					
-					setTimeout(() => 
-					{
-						generateHelper();
-						onElementInserted("modal",(element) => generateHelper(undefined, element));
-						updateUserGuideURL();
-					}, 100);
-					
-					// load notification.
-					$("#controller-notifications div[data-notification-type]").each(function(){
-						var id = this.id, type = this.getAttribute("data-type");
-						if(type === null || type === undefined)
-							showDialog(this.getAttribute("data-notification-type"), this.innerText);
-						else {
-							application.currentNotifications[id] = showStaticDialog(this.getAttribute("data-notification-type"), this.innerText, undefined, undefined, (e) => {
-								application['taskManager'].Remove(id);
-							});
-						}
-						this.parentNode.removeChild(this);
-					});
-					
-					$("#logout-form").on("submit", (e) => application["taskManager"].Disconnect());
-					
-					// Prevent click on disabled menus
-					$("li>a,a").on("click", (e) => {
-						var parent = e.currentTarget.closest("li");
-						if(e.currentTarget.classList.contains("disabled") || parent && parent.classList.contains("disabled")){
-							e.preventDefault();
-							e.stopPropagation();
-							return false;
-						}
-					});
-					
 				});
+
+
+			if ($tabNav.length) {
+
+				var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabContainer.find("#menu-option");
+				$window.on("resize.window", function () {
+					$tabContainer.css({
+						"margin-top": $tabNav.height() + 10
+						// default margin-top is 50px and default $tabNav
+						// size is 38px
+					});
+				});
+
+				if ($option.length) {
+					var updateOption = function () {
+						var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills:visible");
+						var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
+						if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
+							$option.fadeOut(function () {
+								$option.hide();
+							});
+						else {
+							if (!$option.find("#" + optionMenu.prop("id")).length) {
+								$option.find("ul").remove();
+								var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
+								$("li[data-role='title']", cloneOption).remove()
+								cloneOption.removeAttr("style");
+								if ($subMenu.length) {
+									$subMenu.each(function () {
+										var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+										$this.removeClass();
+										if ($this.closest("li").length)
+											$this.before("<li class='divider'></li>");
+										$lis.appendTo(cloneOption);
+										$this.text(text);
+										$this.addClass("dropdown-header");
+									});
+								} else {
+									$("li.dropdown-header", cloneOption).each(function () {
+										var $this = $(this), $closestli = $this.closest("li");
+										if ($closestli.length && !$closestli.hasClass("divider"))
+											$this.before("<li class='divider'></li>");
+										$this.show();
+									});
+								}
+								$("li.divider", cloneOption).show();
+								cloneOption.appendTo($option);
+								cloneOption.removeClass();
+								cloneOption.find("li").removeClass("pull-right")
+								cloneOption.addClass("dropdown-menu dropdown-menu-right")
+							}
+
+							if (!$option.is(":visible")) {
+								$option.fadeIn(function () {
+									$option.show();
+								});
+							}
+						}
+					}
+
+					$window.on("scroll.window", function () {
+						setTimeout(updateOption, 100);
+					});
+				}
+
+
+				// prevent perform click while a menu is disabled
+				$("ul.nav li>a").on("click", function (e) {
+					if ($(e.currentTarget).parent().hasClass("disabled"))
+						e.preventDefault();
+				});
+
+				// prevent perform click while a menu is disabled
+				$("ul.nav li").on("click", function (e) {
+					if ($(e.currentTarget).hasClass("disabled"))
+						e.stopPropagation();
+				});
+
+				// prevent unknown error modal display
+				$window.bind("beforeunload", function () {
+					application["isReloading"] = true;
+				});
+
+				$(".dropdown-submenu").on("hide.bs.dropdown", function (e) {
+					var $target = $(e.currentTarget);
+					if ($target.find("li.active").length && !$target.hasClass("active"))
+						$target.addClass("active");
+				});
+
+				$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function (e) {
+					var $parent = $(e.target).closest("li.dropdown-submenu");
+					if (!$parent.hasClass("active"))
+						$parent.addClass("active");
+				});
+
+				$("a[data-toggle='taskmanager']").on("click", function (e) { // task
+					// manager
+					var taksmanager = application['taskManager'];
+					if (taksmanager.isEmpty())
+						return false;
+					var $target = $(e.currentTarget), $parent = $target.parent();
+					if ($parent.hasClass("open"))
+						taksmanager.Hide();
+					else
+						taksmanager.Show();
+				});
+
+
+
+				$window.on('hashchange', function () {
+					var hash = window.location.hash;
+					application["no-update-hash"] = true;
+					switchTab(hash ? hash.split('#')[1] : hash);
+					application["no-update-hash"] = false;
+					updateUserGuideURL();
+				});
+
+				if (window.location.hash)
+					$window.trigger("hashchange");
+
+				$('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
+
+				$window.keydown(function (e) {
+					if (e.keyCode == 27)
+						forceCloseToolTips();
+				});
+
+				$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function (e) {
+					forceCloseToolTips();
+					var hash = e.target.getAttribute("href"), $target = $(hash);
+					callBackCaller($target);
+					triggerCaller($target);
+					if (!application["no-update-hash"])
+						window.location.hash = $target.attr("id");
+					$bodyHtml.animate({
+						scrollTop: 0
+					}, 300);
+				});
+			}
+
+			$('#confirm-dialog').on('hidden.bs.modal', function () {
+				$("#confirm-dialog .btn-danger").unbind("click");
+			});
+
+			$('#alert-dialog').on('hidden.bs.modal', function () {
+				$("#alert-dialog .btn-danger").unbind("click");
+			});
+
+			if (window.location.hash != undefined)
+				$('a[data-toggle="tab"][href="' + window.location.hash + '"]', $tabNav).trigger("shown.bs.tab");
+
+			setTimeout(() => {
+				generateHelper();
+				onElementInserted("modal", (element) => generateHelper(undefined, element));
+				updateUserGuideURL();
+			}, 100);
+
+			// load notification.
+			$("#controller-notifications div[data-notification-type]").each(function () {
+				var id = this.id, type = this.getAttribute("data-type");
+				if (type === null || type === undefined)
+					showDialog(this.getAttribute("data-notification-type"), this.innerText);
+				else {
+					application.currentNotifications[id] = showStaticDialog(this.getAttribute("data-notification-type"), this.innerText, undefined, undefined, (e) => {
+						application['taskManager'].Remove(id);
+					});
+				}
+				this.parentNode.removeChild(this);
+			});
+
+			$("#logout-form").on("submit", (e) => application["taskManager"].Disconnect());
+
+			// Prevent click on disabled menus
+			$("li>a,a").on("click", (e) => {
+				var parent = e.currentTarget.closest("li");
+				if (e.currentTarget.classList.contains("disabled") || parent && parent.classList.contains("disabled")) {
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				}
+			});
+
+		});
