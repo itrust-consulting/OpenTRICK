@@ -24,6 +24,7 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.DocxChainFactory;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jBuilder;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.asset.Asset;
 
@@ -46,16 +47,20 @@ public class Docx4jAssetBuilder extends Docx4jBuilder {
 	protected boolean internalBuild(Docx4jData data) {
 		try {
 			switch (data.getAnchor()) {
-			case TS_QL_ASSET:
-				return qualitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream().filter(Asset::isSelected).collect(Collectors.toList()));
-			case TS_QL_ASSETNOTSELECTED:
-				return qualitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream().filter(a -> !a.isSelected()).collect(Collectors.toList()));
-			case TS_QT_ASSET:
-				return quantitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream().filter(Asset::isSelected).collect(Collectors.toList()));
-			case TS_QT_ASSETNOTSELECTED:
-				return quantitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream().filter(a -> !a.isSelected()).collect(Collectors.toList()));
-			default:
-				return false;
+				case TS_QL_ASSET:
+					return qualitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream()
+							.filter(Asset::isSelected).collect(Collectors.toList()));
+				case TS_QL_ASSETNOTSELECTED:
+					return qualitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream()
+							.filter(a -> !a.isSelected()).collect(Collectors.toList()));
+				case TS_QT_ASSET:
+					return quantitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream()
+							.filter(Asset::isSelected).collect(Collectors.toList()));
+				case TS_QT_ASSETNOTSELECTED:
+					return quantitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream()
+							.filter(a -> !a.isSelected()).collect(Collectors.toList()));
+				default:
+					return false;
 			}
 		} catch (XPathBinderAssociationIsPartialException | JAXBException e) {
 			throw new TrickException("error.internal.report", null, e);
@@ -66,38 +71,59 @@ public class Docx4jAssetBuilder extends Docx4jBuilder {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraph = exporter.findP(data.getSource());
 		if (paragraph != null) {
-			
 			final Tbl table = exporter.createTable("TableTSAsset", assets.size() + 1, 6);
 			final TextAlignment alignment = exporter.createAlignment("left");
 			Tr row = (Tr) table.getContent().get(0);
 			// set header
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
-			exporter.setCellText((Tc) row.getContent().get(0), exporter.getMessage("report.asset.title.number.row", null, "Nr"));
-			exporter.setCellText((Tc) row.getContent().get(1), exporter.getMessage("report.asset.title.name", null, "Name"));
-			exporter.setCellText((Tc) row.getContent().get(2), exporter.getMessage("report.asset.title.type", null, "Type"));
-			exporter.setCellText((Tc) row.getContent().get(3), exporter.getMessage("report.asset.title.value", null, "Value(k€)"));
-			exporter.setCellText((Tc) row.getContent().get(4), exporter.getMessage("report.asset.title.ale", null, "ALE(k€)"));
-			exporter.setCellText((Tc) row.getContent().get(5), exporter.getMessage("report.asset.title.comment", null, "Comment"));
+			exporter.setCellText((Tc) row.getContent().get(0),
+					exporter.getMessage("report.asset.title.number.row", null, "Nr"));
+			exporter.setCellText((Tc) row.getContent().get(1),
+					exporter.getMessage("report.asset.title.name", null, "Name"));
+			exporter.setCellText((Tc) row.getContent().get(2),
+					exporter.getMessage("report.asset.title.type", null, "Type"));
+			exporter.setCellText((Tc) row.getContent().get(3),
+					exporter.getMessage("report.asset.title.value", null, "Value(k€)"));
+			exporter.setCellText((Tc) row.getContent().get(4),
+					exporter.getMessage("report.asset.title.ale", null, "ALE(k€)"));
+			exporter.setCellText((Tc) row.getContent().get(5),
+					exporter.getMessage("report.asset.title.comment", null, "Comment"));
 			exporter.setRepeatHeader(row);
 			int number = 1;
 			// set data
+
+			assets.sort((a1, a2) -> {
+				int result = Double.compare(a1.getValue(), a2.getValue()) * -1;
+				if (result == 0) {
+					result = Double.compare(a1.getALE(), a2.getALE()) * -1;
+					if (result == 0) {
+						result = NaturalOrderComparator.compareTo(a1.getName(), a1.getName());
+					}
+				}
+				return result;
+			});
+
 			for (Asset asset : assets) {
 				row = (Tr) table.getContent().get(number);
 				exporter.setCellText((Tc) row.getContent().get(0), "" + (number++));
 				exporter.setCellText((Tc) row.getContent().get(1), asset.getName(), alignment);
 				exporter.setCellText((Tc) row.getContent().get(2), exporter.getDisplayName(asset.getAssetType()));
-				exporter.addCellNumber((Tc) row.getContent().get(3), exporter.getKiloNumberFormat().format(asset.getValue() * 0.001));
+				exporter.addCellNumber((Tc) row.getContent().get(3),
+						exporter.getKiloNumberFormat().format(asset.getValue() * 0.001));
 				setColor(((Tc) row.getContent().get(4)), exporter.getLightColor());
-				exporter.addCellNumber((Tc) row.getContent().get(4), exporter.getKiloNumberFormat().format(asset.getALE() * 0.001));
+				exporter.addCellNumber((Tc) row.getContent().get(4),
+						exporter.getKiloNumberFormat().format(asset.getALE() * 0.001));
 				exporter.addCellParagraph((Tc) row.getContent().get(5), asset.getComment());
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE,
+						exporter.getColors());
 		}
 		return true;
 	}
 
-	private boolean qualitativeBuild(final Docx4jData data, final List<Asset> assets) throws XPathBinderAssociationIsPartialException, JAXBException {
+	private boolean qualitativeBuild(final Docx4jData data, final List<Asset> assets)
+			throws XPathBinderAssociationIsPartialException, JAXBException {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraph = (P) exporter.findP(data.getSource());
 		if (paragraph != null) {
@@ -107,24 +133,39 @@ public class Docx4jAssetBuilder extends Docx4jBuilder {
 			Tr row = (Tr) table.getContent().get(0);
 			// set header
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
-			exporter.setCellText((Tc) row.getContent().get(0), exporter.getMessage("report.asset.title.number.row", null, "Nr"));
-			exporter.setCellText((Tc) row.getContent().get(1), exporter.getMessage("report.asset.title.name", null, "Name"));
-			exporter.setCellText((Tc) row.getContent().get(2), exporter.getMessage("report.asset.title.type", null, "Type"));
-			exporter.setCellText((Tc) row.getContent().get(3), exporter.getMessage("report.asset.title.value", null, "Value(k€)"));
-			exporter.setCellText((Tc) row.getContent().get(4), exporter.getMessage("report.asset.title.comment", null, "Comment"));
+			exporter.setCellText((Tc) row.getContent().get(0),
+					exporter.getMessage("report.asset.title.number.row", null, "Nr"));
+			exporter.setCellText((Tc) row.getContent().get(1),
+					exporter.getMessage("report.asset.title.name", null, "Name"));
+			exporter.setCellText((Tc) row.getContent().get(2),
+					exporter.getMessage("report.asset.title.type", null, "Type"));
+			exporter.setCellText((Tc) row.getContent().get(3),
+					exporter.getMessage("report.asset.title.value", null, "Value(k€)"));
+			exporter.setCellText((Tc) row.getContent().get(4),
+					exporter.getMessage("report.asset.title.comment", null, "Comment"));
 			exporter.setRepeatHeader(row);
 			int number = 1;
 			// set data
+
+			assets.sort((a1, a2) -> {
+				int result = Double.compare(a1.getValue(), a2.getValue()) * -1;
+				if (result == 0)
+					result = NaturalOrderComparator.compareTo(a1.getName(), a1.getName());
+				return result;
+			});
+
 			for (Asset asset : assets) {
 				row = (Tr) table.getContent().get(number);
 				exporter.setCellText((Tc) row.getContent().get(0), "" + (number++), alignmentCenter);
 				exporter.setCellText((Tc) row.getContent().get(1), asset.getName(), alignmentLeft);
 				exporter.setCellText((Tc) row.getContent().get(2), exporter.getDisplayName(asset.getAssetType()));
-				exporter.addCellNumber((Tc) row.getContent().get(3), exporter.getKiloNumberFormat().format(asset.getValue() * 0.001));
+				exporter.addCellNumber((Tc) row.getContent().get(3),
+						exporter.getKiloNumberFormat().format(asset.getValue() * 0.001));
 				exporter.addCellParagraph((Tc) row.getContent().get(4), asset.getComment());
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
+				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE,
+						exporter.getColors());
 		}
 		return true;
 	}

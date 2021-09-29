@@ -9,6 +9,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import java.security.Principal;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,6 +45,7 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.JsonMessage;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -102,7 +104,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object aleByAsset(HttpSession session, Model model, Principal principal, Locale locale)
+			throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		// generate chart of assets for this analysis
@@ -121,7 +124,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object assetByALE(HttpSession session, Model model, Principal principal, Locale locale)
+			throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		// generate chart of assets for this analysis
@@ -140,19 +144,22 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Delete/{idAsset}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String delete(@PathVariable int idAsset, Principal principal, Locale locale, HttpSession session) throws Exception {
+	public @ResponseBody String delete(@PathVariable int idAsset, Principal principal, Locale locale,
+			HttpSession session) throws Exception {
 		try {
 			// delete asset ( delete asset from from assessments) then from
 			// assets
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			customDelete.deleteAsset(idAsset, idAnalysis);
-			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null,
+					"Asset was deleted successfully", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
 	}
 
@@ -167,7 +174,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Edit/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String edit(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session, Locale locale) throws Exception {
+	public String edit(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session,
+			Locale locale) throws Exception {
 		// add all assettypes to model
 		model.addAttribute("assettypes", serviceAssetType.getAll());
 		// add asset object to model
@@ -196,7 +204,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object riskByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object riskByAsset(HttpSession session, Model model, Principal principal, Locale locale)
+			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return chartGenerator.riskByAsset(idAnalysis, locale);
 	}
@@ -213,7 +222,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Type/Risk", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object riskByAssetType(HttpSession session, Model model, Principal principal, Locale locale)
+			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		return chartGenerator.riskByAssetType(idAnalysis, locale);
 	}
@@ -231,7 +241,8 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Object save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Object save(@RequestBody String value, HttpSession session, Principal principal, Locale locale)
+			throws Exception {
 		Map<String, Object> results = new LinkedHashMap<>(), errors = new HashMap<>();
 		try {
 			results.put("errors", errors);
@@ -245,7 +256,8 @@ public class ControllerAsset {
 
 			Asset asset = idAsset > 1 ? serviceAsset.getFromAnalysisById(idAnalysis, idAsset) : new Asset();
 			if (asset == null) {
-				errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", locale));
+				errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null,
+						"Asset does not belong to selected analysis", locale));
 				return results;
 			}
 			// build asset
@@ -294,19 +306,34 @@ public class ControllerAsset {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
-		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+		final Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final AnalysisType type = serviceAnalysis.getAnalysisTypeById(integer);
+		final List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
+		final List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+
+		assets.sort(sortAsset());
+
 		loadAnalysisSettings(model, integer);
-		AnalysisType type = serviceAnalysis.getAnalysisTypeById(integer);
 		// load all assets of analysis to model
-		if(AnalysisType.isQuantitative(type))
+		if (AnalysisType.isQuantitative(type))
 			model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
 		model.addAttribute("type", type);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analyses/single/components/asset/asset";
+	}
+
+	private Comparator<? super Asset> sortAsset() {
+		return (a1, a2) -> {
+			int result = Double.compare(a2.getValue(), a1.getValue());
+			if (result == 0) {
+				result = Double.compare(a2.getALE(), a1.getALE());
+				if (result == 0)
+					result = NaturalOrderComparator.compareTo(a1.getName(), a2.getName());
+			}
+			return result;
+		};
 	}
 
 	/**
@@ -321,16 +348,19 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
+	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale,
+			HttpSession session) throws Exception {
 		try {
 			// retrieve asset
 			assessmentAndRiskProfileManager.toggledAsset(elementID);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null,
+					"Asset was updated successfully", locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -347,12 +377,14 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
+	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale,
+			HttpSession session) throws Exception {
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		// init list of errors
 		List<String> errors = new LinkedList<String>();
 		if (!serviceAsset.belongsToAnalysis(integer, ids)) {
-			errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null, "One of the assets does not belong to this analysis!", locale)));
+			errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null,
+					"One of the assets does not belong to this analysis!", locale)));
 			return errors;
 		}
 		assessmentAndRiskProfileManager.toggledAssets(ids);
@@ -371,7 +403,8 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAsset(JsonNode jsonNode, Integer idAnalysis, Map<String, Object> errors, Asset asset, Locale locale) {
+	private boolean buildAsset(JsonNode jsonNode, Integer idAnalysis, Map<String, Object> errors, Asset asset,
+			Locale locale) {
 		try {
 			// check if asset is to be updated or created
 			ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
@@ -395,8 +428,10 @@ public class ControllerAsset {
 			error = validator.validate(asset, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if ((asset.getId() > 0 && !asset.getName().equalsIgnoreCase(name) || asset.getId() < 0) && serviceAsset.exist(idAnalysis, name))
-				errors.put("name", messageSource.getMessage("error.asset.duplicate", null, String.format("Asset name is already in use", name), locale));
+			else if ((asset.getId() > 0 && !asset.getName().equalsIgnoreCase(name) || asset.getId() < 0)
+					&& serviceAsset.exist(idAnalysis, name))
+				errors.put("name", messageSource.getMessage("error.asset.duplicate", null,
+						String.format("Asset name is already in use", name), locale));
 			else
 				asset.setName(name);
 
@@ -448,8 +483,10 @@ public class ControllerAsset {
 
 	private void loadAnalysisSettings(Model model, Integer integer) {
 		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
-		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
-		model.addAttribute("showHiddenComment", Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN,
+				hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		model.addAttribute("showHiddenComment",
+				Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
 		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
 	}
 }

@@ -137,11 +137,11 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/jakarta/activation/jakarta.activation-api/1.2.2/jakarta.activation-api-1.2.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/codehaus/woodstox/stax2-api/4.2.1/stax2-api-4.2.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/woodstox/woodstox-core/6.2.3/woodstox-core-6.2.3.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-JAXB-ReferenceImpl/8.3.0/docx4j-JAXB-ReferenceImpl-8.3.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-core/8.3.0/docx4j-core-8.3.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-openxml-objects/8.3.0/docx4j-openxml-objects-8.3.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-openxml-objects-pml/8.3.0/docx4j-openxml-objects-pml-8.3.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-openxml-objects-sml/8.3.0/docx4j-openxml-objects-sml-8.3.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-JAXB-ReferenceImpl/8.3.1/docx4j-JAXB-ReferenceImpl-8.3.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-core/8.3.1/docx4j-core-8.3.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-openxml-objects/8.3.1/docx4j-openxml-objects-8.3.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-openxml-objects-pml/8.3.1/docx4j-openxml-objects-pml-8.3.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/docx4j/docx4j-openxml-objects-sml/8.3.1/docx4j-openxml-objects-sml-8.3.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/plutext/jaxb-svg11/1.0.2/jaxb-svg11-1.0.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/net/engio/mbassador/1.3.2/mbassador-1.3.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/commons/commons-compress/1.20/commons-compress-1.20.jar" enabled="true" runInBatchMode="false"/>

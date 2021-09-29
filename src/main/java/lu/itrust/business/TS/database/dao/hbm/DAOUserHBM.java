@@ -261,7 +261,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	public String findLocaleByUsername(String username) {
 		System.out.println(getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResult());
 		return getSession().createQuery("Select locale From User where login = :username", String.class).setParameter("username", username).uniqueResultOptional()
-				.filter(value -> !StringUtils.isEmpty(value)).orElse("en");
+				.filter(value -> StringUtils.hasText(value)).orElse("en");
 	}
 
 	@Override

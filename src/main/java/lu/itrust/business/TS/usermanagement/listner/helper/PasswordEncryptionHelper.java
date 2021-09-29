@@ -65,7 +65,7 @@ public final class PasswordEncryptionHelper {
 
 	public static boolean isEncrypted(String source, String salt, String ivKey) {
 		try {
-			if (StringUtils.isEmpty(source) || StringUtils.isEmpty(ivKey))
+			if (!(StringUtils.hasText(source) && StringUtils.hasText(ivKey)))
 				return false;
 			decrypt(source, salt, ivKey);
 			return true;

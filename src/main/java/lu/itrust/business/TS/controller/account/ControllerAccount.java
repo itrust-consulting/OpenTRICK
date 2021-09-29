@@ -576,7 +576,7 @@ public class ControllerAccount {
 			String oldPassword = user.getPassword();
 			String error = null;
 			if (user.getConnexionType() != User.LADP_CONNEXION) {
-				if (StringUtils.isEmpty(currentPassword))
+				if (!StringUtils.hasText(currentPassword))
 					errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null,
 							"Enter current password for changes to take effect!", locale));
 				else if (!isMatch(oldPassword, currentPassword, user.getLogin()))
@@ -585,7 +585,7 @@ public class ControllerAccount {
 			}
 
 			if (!errors.containsKey("currentPassword")) {
-				if (!StringUtils.isEmpty(password)) {
+				if (StringUtils.hasText(password)) {
 					if (user.getConnexionType() == User.LADP_CONNEXION)
 						errors.put("user", messageSource.getMessage("error.ldap.change.password", null,
 								"Please contact your administrator to reset your password.", locale));

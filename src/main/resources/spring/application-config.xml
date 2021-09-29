@@ -21,10 +21,6 @@
 		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
 
-	<mvc:cors>
-		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS" />
-	</mvc:cors>
-
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />

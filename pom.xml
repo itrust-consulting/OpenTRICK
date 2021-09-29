@@ -9,6 +9,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<spring-boot.version>2.3.12.RELEASE</spring-boot.version>
+		<hibernate.version>5.5.7.Final</hibernate.version>
 	</properties>
 
 	<dependencies>
@@ -332,7 +333,7 @@
 		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
-			<version>8.3.0</version>
+			<version>8.3.1</version>
 		</dependency>
 
 		<!-- Email -->

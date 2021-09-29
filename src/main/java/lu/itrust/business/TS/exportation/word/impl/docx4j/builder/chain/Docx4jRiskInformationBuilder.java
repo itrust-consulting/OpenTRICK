@@ -86,7 +86,7 @@ public class Docx4jRiskInformationBuilder extends Docx4jBuilder {
 			riskInformations.forEach(riskinfo -> {
 				final Tr row = (Tr) table.getContent().get(index[0]++);
 				for (int i = 0; i < coloredColumn; i++)
-					setColor(((Tc) row.getContent().get(i)), exporter.getDarkColor());
+					setColor(((Tc) row.getContent().get(i)), exporter.getLightColor());
 				exporter.setCellText((Tc) row.getContent().get(index[1] = 0), riskinfo.getChapter());// reset column counter
 				exporter.setCellText((Tc) row.getContent().get(++index[1]),
 						exporter.getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,

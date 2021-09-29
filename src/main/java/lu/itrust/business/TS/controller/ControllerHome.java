@@ -108,6 +108,7 @@ public class ControllerHome {
 			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null,
 					"No connection to the database...", locale));
 		} catch (Exception e) {
+			e.printStackTrace();
 			model.addAttribute("error",
 					messageSource.getMessage("error.setting.not.loaded", null, "Settings cannot be loaded", locale));
 		}

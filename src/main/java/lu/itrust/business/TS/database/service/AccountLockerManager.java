@@ -26,7 +26,7 @@ public interface AccountLockerManager {
 	AccountLocker lock(String username, String ip);
 
 	public static String keyLock(String username, String ip) {
-		return StringUtils.isEmpty(ip) ? username : String.format("%s%s%s", username, SEPRARATOR, ip);
+		return StringUtils.hasText(ip) ?  String.format("%s%s%s", username, SEPRARATOR, ip) :  username;
 	}
 
 	public static String getIP(HttpServletRequest request) {

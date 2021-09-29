@@ -47,7 +47,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 					&& PasswordEncryptionHelper.isEncrypted(source.getEncryption(), user.getLogin(), source.getIv()))
 				return;
 			String password = user.getSecret();
-			if (StringUtils.isEmpty(password))
+			if (!StringUtils.hasText(password))
 				return;
 			user.setSecret(PasswordEncryptionHelper.encrypt(password, user.getLogin()).toMerge());
 		} catch (Exception e) {

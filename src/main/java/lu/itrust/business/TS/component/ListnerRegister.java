@@ -28,7 +28,7 @@ public class ListnerRegister {
 	@PostConstruct
 	public void registerListner() {
 
-		final EventListenerRegistry eventListenerRegistry = ((SessionFactoryImplementor) sessionFactory)
+		final EventListenerRegistry eventListenerRegistry = sessionFactory.unwrap(SessionFactoryImplementor.class)
 				.getServiceRegistry().getService(EventListenerRegistry.class);
 
 		final UserEncryptListner userEncryptListner = new UserEncryptListner();

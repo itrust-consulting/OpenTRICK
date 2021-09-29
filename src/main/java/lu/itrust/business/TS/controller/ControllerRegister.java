@@ -233,7 +233,7 @@ public class ControllerRegister {
 			String ipAdress = request.getHeader("X-FORWARDED-FOR");
 			if (ipAdress == null)
 				ipAdress = request.getRemoteAddr();
-			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
+			User user = StringUtils.hasText(resetPassword.getUsername()) ?  serviceUser.get(resetPassword.getUsername()): serviceUser.getByEmail(resetPassword.getEmail());
 			if (!(user == null || user.getConnexionType() == User.LADP_CONNEXION)) {
 				ResetPassword resetPassword2 = serviceResetPassword.get(user);
 				if (resetPassword2 != null)

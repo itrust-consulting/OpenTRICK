@@ -537,7 +537,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			document.getContent().add(format(table));
 		}
 
-		if (!StringUtils.isEmpty(riskProfile.getActionPlan()))
+		if (StringUtils.hasText(riskProfile.getActionPlan()))
 			addFieldContent(document, riskProfile.getActionPlan());
 
 	}
@@ -668,7 +668,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
-				if (strategy != RiskStrategy.ACCEPT || !(riskProfile.getMeasures().isEmpty() && StringUtils.isEmpty(riskProfile.getActionPlan()))) {
+				if (strategy != RiskStrategy.ACCEPT || !riskProfile.getMeasures().isEmpty() || StringUtils.hasText(riskProfile.getActionPlan())) {
 					addActionTable(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile);
 					addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
 				}

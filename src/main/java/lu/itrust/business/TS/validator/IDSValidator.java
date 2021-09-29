@@ -34,13 +34,13 @@ public class IDSValidator extends ValidatorFieldImpl implements Validator {
 	public String validate(String fieldName, Object candidate) throws TrickException {
 		switch (fieldName) {
 		case DESCRIPTION:
-			if (StringUtils.isEmpty(candidate) || !(candidate instanceof String))
+			if (candidate == null || !StringUtils.hasText(candidate.toString()) || !(candidate instanceof String))
 				return "error.ids.description.empty::Description cannot be empty";
 			if (candidate.toString().length() > 255)
 				return "error.description.too.long:255:Description length can not be greater than 255";
 			break;
 		case PREFIX:
-			if (StringUtils.isEmpty(candidate) || !(candidate instanceof String))
+			if (candidate == null || !StringUtils.hasText(candidate.toString()) || !(candidate instanceof String))
 				return "error.ids.prefix.empty::Name cannot be empty";
 			if (candidate.toString().length() > 32)
 				return "error.ids.prefix.too.long:32:Name length can not be greater than 32";

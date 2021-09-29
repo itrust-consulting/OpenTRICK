@@ -527,7 +527,7 @@ public class ControllerAnalysis extends AbstractController {
 	 */
 	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(@PathVariable("idCustomer") Integer idCustomer, @RequestBody String name, HttpSession session, Principal principal, Model model) throws Exception {
-		if (StringUtils.isEmpty(name))
+		if (!StringUtils.hasText(name))
 			name = "ALL";
 		session.setAttribute(CURRENT_CUSTOMER, idCustomer);
 		session.setAttribute(FILTER_ANALYSIS_NAME, name);
@@ -707,7 +707,7 @@ public class ControllerAnalysis extends AbstractController {
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
-		if (customer == null || StringUtils.isEmpty(nameFilter)) {
+		if (customer == null || !StringUtils.hasText(nameFilter)) {
 			user = serviceUser.get(principal.getName());
 			if (user == null)
 				throw new AccessDeniedException("Access denied");
@@ -721,9 +721,9 @@ public class ControllerAnalysis extends AbstractController {
 				}
 				session.setAttribute(CURRENT_CUSTOMER, customer);
 			}
-			if (StringUtils.isEmpty(nameFilter)) {
+			if (!StringUtils.hasText(nameFilter)) {
 				nameFilter = user.getSetting(LAST_SELECTED_ANALYSIS_NAME);
-				if (StringUtils.isEmpty(nameFilter) && customer != null) {
+				if (!StringUtils.hasText(nameFilter) && customer != null) {
 					names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
 					if (!names.isEmpty()) {
 						user.setSetting(LAST_SELECTED_ANALYSIS_NAME, nameFilter = names.get(0));
@@ -737,7 +737,7 @@ public class ControllerAnalysis extends AbstractController {
 			if (names == null || names.isEmpty())
 				names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
 			// load model with objects by the selected customer
-			if (StringUtils.isEmpty(nameFilter) || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
+			if (!StringUtils.hasText(nameFilter) || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 			else
 				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
@@ -745,7 +745,7 @@ public class ControllerAnalysis extends AbstractController {
 		}
 
 		model.addAttribute("names", names);
-		model.addAttribute("analysisSelectedName", StringUtils.isEmpty(nameFilter) ? "ALL" : nameFilter);
+		model.addAttribute("analysisSelectedName", StringUtils.hasText(nameFilter) ?  nameFilter : "ALL" );
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());

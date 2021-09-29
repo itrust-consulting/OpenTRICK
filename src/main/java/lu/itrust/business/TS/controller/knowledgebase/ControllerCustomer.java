@@ -244,7 +244,7 @@ public class ControllerCustomer {
 		if (template.getFile() == null || template.getFile().length == 0)
 			result.put("file", messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
 
-		if (StringUtils.isEmpty(templateForm.getLabel()))
+		if (!StringUtils.hasText(templateForm.getLabel()))
 			result.put("label", messageSource.getMessage("error.report.template.label.empty", null, "Title cannot be empty", locale));
 		else {
 			try {
@@ -260,7 +260,7 @@ public class ControllerCustomer {
 			}
 		}
 
-		if (StringUtils.isEmpty(templateForm.getVersion()))
+		if (!StringUtils.hasText(templateForm.getVersion()))
 			result.put("version", messageSource.getMessage("error.report.template.version.empty", null, "Version cannot be empty", locale));
 		else {
 			try {

@@ -95,7 +95,7 @@ public class ControllerProfile {
 			final List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 			final List<Integer> standards = analysisStandards.stream().map(AnalysisStandard::getStandard).map(Standard::getId).filter(idStandard -> data.containsKey(idStandard+""))
 					.collect(Collectors.toList());
-			if (StringUtils.isEmpty(name))
+			if (!StringUtils.hasText(name))
 				errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
 			else if (serviceAnalysis.isProfileNameInUsed(name))
 				errors.put("description",

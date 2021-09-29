@@ -530,7 +530,7 @@ public class ChartGenerator {
 		if (!dataset.getData().isEmpty())
 			chart.getDatasets().add(dataset);
 
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getName(), actionPlanMode);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard.getLabel(), actionPlanMode);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
@@ -1339,12 +1339,12 @@ public class ChartGenerator {
 		}
 
 		probabilities.stream().filter(probability -> probability.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel())).forEach(probability -> {
-			chart.getLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : separator + probability.getLabel()));
+			chart.getLabels().add(probability.getLevel() + (StringUtils.hasText(probability.getLabel()) ? separator + probability.getLabel() : ""));
 		});
 
 		impacts.stream().filter(impact -> impact.getLevel() > 0).sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
 			final Dataset<List<String>> dataset = new Dataset<List<String>>(new ArrayList<>());
-			dataset.setLabel(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : separator + impact.getLabel()));
+			dataset.setLabel(impact.getLevel() + (StringUtils.hasText(impact.getLabel()) ? separator + impact.getLabel() : ""));
 			for (int i = 1; i < probabilities.size(); i++) {
 				final Integer importance = impact.getLevel() * i, count = importanceByCount.get(String.format("%d-%d", impact.getLevel(), i));
 				final ColorBound colorBound = colorBounds.stream().filter(color -> color.isAccepted(importance)).findAny().orElse(null);
@@ -1378,14 +1378,14 @@ public class ChartGenerator {
 			if (probability.getLevel() == 0)
 				chart.getXLabels().add(probability.getLevel() + separator + notApplicable);
 			else
-				chart.getXLabels().add(probability.getLevel() + (StringUtils.isEmpty(probability.getLabel()) ? "" : separator + probability.getLabel()));
+				chart.getXLabels().add(probability.getLevel() + (StringUtils.hasText(probability.getLabel()) ? separator + probability.getLabel() : ""));
 		});
 
 		impacts.stream().sorted((p1, p2) -> Integer.compare(p2.getLevel(), p1.getLevel())).forEach(impact -> {
 			if (impact.getLevel() == 0)
 				chart.getYLabels().add(impact.getLevel() + separator + notApplicable);
 			else
-				chart.getYLabels().add(impact.getLevel() + (StringUtils.isEmpty(impact.getLabel()) ? "" : separator + impact.getLabel()));
+				chart.getYLabels().add(impact.getLevel() + (StringUtils.hasText(impact.getLabel()) ? separator + impact.getLabel() : ""));
 		});
 
 		for (int i = 0; i < riskAcceptanceParameters.size(); i++) {
@@ -1467,7 +1467,7 @@ public class ChartGenerator {
 					dataset.getData().add(new Point(0, inverseImpacts[0], true));
 				else
 					dataset.getData().add(new Point(probaImpact.getProbabilityLevel(), inverseImpacts[probaImpact.getImpactLevel()], true));
-				dataset.setLabel(StringUtils.isEmpty(riskProfile.getIdentifier()) ? separator : riskProfile.getIdentifier());
+				dataset.setLabel(StringUtils.hasText(riskProfile.getIdentifier()) ? riskProfile.getIdentifier() : separator);
 			} else {
 				dataset.setLabel(separator);
 				dataset.getData().add(new Point(0, inverseImpacts[0], true));

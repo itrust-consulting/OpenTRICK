@@ -1058,7 +1058,7 @@ public class ActionPlanComputation {
 					: null;
 			if (measureProperties != null) {
 				measureProperties.setSoaRisk(soarisk);
-				if (StringUtils.isEmpty(measureProperties.getSoaComment()))
+				if (!StringUtils.hasText(measureProperties.getSoaComment()))
 					measureProperties.setSoaComment(soarisk);
 			}
 		}

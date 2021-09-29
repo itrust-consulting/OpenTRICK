@@ -127,7 +127,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 			User user = daoUser.get(username);
 			if (user == null) {
-				if (!StringUtils.isEmpty(email))
+				if (StringUtils.hasText(email))
 					user = daoUser.getByEmail(email);
 				else
 					throw new TrickException("error.ldap.email.empty", "Please contact your administrator, your email cannot be loaded");
@@ -189,7 +189,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			AddRole(essence, authority, userRoles, RoleType.ROLE_USER.name());
 		}
 
-		if (essence.getGrantedAuthorities().isEmpty() && !StringUtils.isEmpty(defaultRole))
+		if (essence.getGrantedAuthorities().isEmpty() && StringUtils.hasText(defaultRole))
 			essence.addAuthority(new SimpleGrantedAuthority(defaultRole));
 		
 		user.disable();

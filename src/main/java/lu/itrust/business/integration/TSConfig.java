@@ -5,6 +5,7 @@ package lu.itrust.business.integration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -30,6 +31,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
@@ -95,7 +99,8 @@ public class TSConfig {
 	@Bean
 	protected ResourceHttpRequestHandler faviconRequestHandler() {
 		final ResourceHttpRequestHandler requestHandler = new ResourceHttpRequestHandler();
-		requestHandler.setLocations(Arrays.<Resource>asList(new ClassPathResource("classpath:/WEB-INF/static/images/")));
+		requestHandler
+				.setLocations(Arrays.<Resource>asList(new ClassPathResource("classpath:/WEB-INF/static/images/")));
 		return requestHandler;
 	}
 
@@ -119,12 +124,25 @@ public class TSConfig {
 	}
 
 	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		final CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(Duration.ofSeconds(900));
+		configuration.setAllowedOrigins(Collections.singletonList("*"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "HEAD", "OPTIONS"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/Api/**", configuration);
+		return source;
+	}
+
+	@Bean
 	@DependsOn("flyway")
 	public LocalSessionFactoryBean sessionFactory() throws IOException {
-		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type") + ".xml";
+		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type")
+				+ ".xml";
+		final Properties properties = new Properties();
 		final Resource resource = resourceLoader.getResource(path);
 		final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		final Properties properties = new Properties();
 		sessionFactory.setDataSource(dataSource);
 		sessionFactory.setPackagesToScan("lu.itrust.business.TS");
 		properties.put("hibernate.dialect", environment.getProperty("jdbc.dialect"));
@@ -134,7 +152,10 @@ public class TSConfig {
 		properties.put("hibernate.javax.cache.provider", environment.getProperty("jdbc.cache.provider"));
 		properties.put("hibernate.cache.use_query_cache", environment.getProperty("jdbc.cache.use_query_cache"));
 		properties.put("hibernate.cache.region.factory_class", environment.getProperty("jdbc.cache.factory_class"));
-		properties.put("hibernate.cache.use_second_level_cache", environment.getProperty("jdbc.cache.use_second_level"));
+		// properties.put("hibernate.current_session_context_class",
+		// environment.getProperty("jdbc.current_session_context_class"));
+		properties.put("hibernate.cache.use_second_level_cache",
+				environment.getProperty("jdbc.cache.use_second_level"));
 		if (resource.exists())
 			properties.put("hibernate.javax.cache.uri", resource.getURI().toString());
 		sessionFactory.setHibernateProperties(properties);
@@ -154,7 +175,8 @@ public class TSConfig {
 				if (success) {
 					webXml.getContextParams().forEach((name, value) -> servletContext.setInitParameter(name, value));
 					for (ServletDef def : webXml.getServlets().values()) {
-						ServletRegistration.Dynamic reg = servletContext.addServlet(def.getServletName(), def.getServletClass());
+						ServletRegistration.Dynamic reg = servletContext.addServlet(def.getServletName(),
+								def.getServletClass());
 						reg.setLoadOnStartup(1);
 					}
 					for (Map.Entry<String, String> mapping : webXml.getServletMappings().entrySet())

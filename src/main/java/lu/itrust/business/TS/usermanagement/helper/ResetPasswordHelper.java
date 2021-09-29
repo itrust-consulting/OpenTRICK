@@ -3,9 +3,9 @@ package lu.itrust.business.TS.usermanagement.helper;
 import org.springframework.util.StringUtils;
 
 public class ResetPasswordHelper {
-	
+
 	private String username;
-	
+
 	private String email;
 
 	/**
@@ -29,13 +29,13 @@ public class ResetPasswordHelper {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+
 	public boolean isEmpty() {
 		return (username == null || username.trim().isEmpty()) && (email == null || email.trim().isEmpty());
 	}
-	
+
 	public String getData() {
-		return StringUtils.isEmpty(username)? email : username;
+		return StringUtils.hasText(username) ? username : email;
 	}
-	
+
 }

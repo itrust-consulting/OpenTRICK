@@ -982,7 +982,7 @@ public class ControllerFieldEditor {
 		else {
 			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			final String color = fieldEditor.getValue() == null ? null : fieldEditor.getValue().toString();
-			if (StringUtils.isEmpty(color))
+			if (!StringUtils.hasText(color))
 				analysis.setSetting(setting.name(), null);
 			else if (!hexColor.matcher(color).matches())
 				result.put("error", messageSource.getMessage("error.hex.color.excepted", null, locale));

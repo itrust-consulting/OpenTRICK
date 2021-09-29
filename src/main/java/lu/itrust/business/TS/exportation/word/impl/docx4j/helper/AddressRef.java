@@ -93,7 +93,7 @@ public class AddressRef {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(3);
-		if(!StringUtils.isEmpty(sheet))
+		if(StringUtils.hasText(sheet))
 			builder.append(sheet+"!");
 		builder.append(begin.toString());
 		if(end!=null)

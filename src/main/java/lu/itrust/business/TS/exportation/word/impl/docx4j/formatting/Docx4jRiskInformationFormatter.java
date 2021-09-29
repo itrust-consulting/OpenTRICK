@@ -42,7 +42,10 @@ public class Docx4jRiskInformationFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = "TableTSThreat".equals(findId(table)) ? new int[] { 467, 1835, 542, 526, 501, 5757 } : new int[] { 467, 1835, 542, 526, 6258 };
+		final String tableName = findId(table);
+		final int[] cols = tableName.equals("TableTSThreat") ? new int[] { 467, 1835, 542, 526, 501, 5757 }
+				: tableName.equals("TableTSRisk") ? new int[] { 467, 1835, 542, 526, 6258 }
+						: new int[] { 467, 6258, 542, 526, 1835 };
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		getTrs(table).forEach(tr -> updateRow(tr, cols, "dxa"));

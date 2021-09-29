@@ -80,7 +80,7 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 			Totp totp = (Totp) request.getSession().getAttribute(Constant.OTP_CHALLENGE_AUTHEN);
 			if (totp == null) {
 				String secret = user.getSecret();
-				if (StringUtils.isEmpty(secret))
+				if (!StringUtils.hasText(secret))
 					throw new TrickOtpException("error.otp.code.no_secret");
 				totp = new Totp(secret);
 			} else {

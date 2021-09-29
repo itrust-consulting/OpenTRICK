@@ -53,6 +53,6 @@ public enum ReportType {
 
 	public static String getExtension(ReportType type, String filename) {
 		String extension = FilenameUtils.getExtension(filename);
-		return StringUtils.isEmpty(extension) ? getExtension(type) : extension;
+		return StringUtils.hasText(extension) ? extension : getExtension(type);
 	}
 }

@@ -335,7 +335,7 @@ public class ControllerAdmin {
 
 	@RequestMapping(value = "/TSSetting/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean updateSetting(@RequestBody TSSetting tsSetting, Principal principal, Locale locale) {
-		if (StringUtils.isEmpty(tsSetting.getName()))
+		if (tsSetting.getName() == null)
 			return false;
 		try {
 			TSSetting setting = serviceTSSetting.get(tsSetting.getName());
@@ -343,7 +343,7 @@ public class ControllerAdmin {
 				setting = tsSetting;
 			else
 				setting.setValue(tsSetting.getValue());
-			if (StringUtils.isEmpty(setting.getValue()) && tsSetting.getName() != TSSettingName.USER_GUIDE_URL) {
+			if (StringUtils.hasText(setting.getValue()) && tsSetting.getName() != TSSettingName.USER_GUIDE_URL) {
 				if (!setting.equals(tsSetting))
 					serviceTSSetting.delete(tsSetting.getName().name());
 			} else
@@ -998,11 +998,11 @@ public class ControllerAdmin {
 		for (String langue : locales) {
 			String message = notification.getMessages().get(langue);
 			if (message == null || message.trim().isEmpty()) {
-				if (StringUtils.isEmpty(notification.getCode()))
+				if (!StringUtils.hasText(notification.getCode()))
 					notification.getMessages().put(langue, defaultMessage);
 				else
 					notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(), notification.getParameters(), defaultMessage, new Locale(langue)));
-			} else if (!StringUtils.isEmpty(notification.getCode()))
+			} else if (StringUtils.hasText(notification.getCode()))
 				notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(), notification.getParameters(), message, new Locale(langue)));
 		}
 		return notification;
@@ -1053,7 +1053,7 @@ public class ControllerAdmin {
 			user.setConnexionType(User.BOTH_CONNEXION);
 
 		if (user.getConnexionType() != User.LADP_CONNEXION) {
-			if (newUser || !StringUtils.isEmpty(password)) {
+			if (newUser || StringUtils.hasText(password)) {
 				error = validator.validate(user, "password", password);
 				if (error != null)
 					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));

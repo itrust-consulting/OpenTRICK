@@ -144,7 +144,7 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 
 		final List<String> ids = new LinkedList<>();
 		final long currentTime = System.currentTimeMillis();
-		final String name = StringUtils.isEmpty(username) || username.equals(ALL_USER_KEY) ? ALL_USER_KEY : username;
+		final String name = !StringUtils.hasText(username) || username.equals(ALL_USER_KEY) ? ALL_USER_KEY : username;
 
 		ids.addAll(usernameToIds.getOrDefault(name, Collections.emptyList()));
 		if (!name.equals(ALL_USER_KEY))
@@ -182,7 +182,7 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 
 	@Override
 	public void clear(String username) {
-		if (StringUtils.isEmpty(username) || username.equals(ALL_USER_KEY))
+		if (!StringUtils.hasText(username) || username.equals(ALL_USER_KEY))
 			findAll().parallelStream().forEach(notfication -> remove(notfication.getId(), ALL_USER_KEY));
 		else
 			findAllByUsername(username).forEach(notfication -> remove(notfication.getId(), username));

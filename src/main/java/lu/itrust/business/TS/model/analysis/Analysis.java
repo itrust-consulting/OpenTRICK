@@ -255,11 +255,12 @@ public class Analysis implements Cloneable {
 	@Access(AccessType.FIELD)
 	@OrderBy("dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
-	
+
 	@ElementCollection
 	@Column(name = "dtAcronym")
 	@Cascade(CascadeType.ALL)
-	@CollectionTable(name = "AnalysisExcludeAcronyms", joinColumns = @JoinColumn(name = "fiAnalysis"), uniqueConstraints = @UniqueConstraint(columnNames = { "dtAcronym", "fiAnalysis" }))
+	@CollectionTable(name = "AnalysisExcludeAcronyms", joinColumns = @JoinColumn(name = "fiAnalysis"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"dtAcronym", "fiAnalysis" }))
 	private Set<String> excludeAcronyms = new HashSet<String>();
 
 	/** List of Scenarios */
@@ -360,7 +361,8 @@ public class Analysis implements Cloneable {
 	 */
 	public void add(Asset asset) throws TrickException {
 		if (this.assets.contains(asset))
-			throw new TrickException("error.asset.duplicate", String.format("Asset (%s) is duplicated", asset.getName()), asset.getName());
+			throw new TrickException("error.asset.duplicate",
+					String.format("Asset (%s) is duplicated", asset.getName()), asset.getName());
 		this.assets.add(asset);
 	}
 
@@ -399,7 +401,9 @@ public class Analysis implements Cloneable {
 			phases.add(phase);
 			phase.setAnalysis(this);
 		} else
-			throw new TrickException("error.phase.duplicated", String.format("An other phase with the same number `%d` already exists", phase.getNumber()), phase.getNumber() + "");
+			throw new TrickException("error.phase.duplicated",
+					String.format("An other phase with the same number `%d` already exists", phase.getNumber()),
+					phase.getNumber() + "");
 	}
 
 	/**
@@ -541,8 +545,9 @@ public class Analysis implements Cloneable {
 		lifetimeDefault = this.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
-				measure.getLifetime(), measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(),
+				measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(),
+				measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 
 		// return calculated cost
 		return cost;
@@ -645,7 +650,8 @@ public class Analysis implements Cloneable {
 	 **********************************************************************************************/
 
 	public List<NormalStandard> findAllNormalStandards() {
-		return analysisStandards.values().stream().filter(a -> a instanceof NormalStandard).map(a -> (NormalStandard) a).collect(Collectors.toList());
+		return analysisStandards.values().stream().filter(a -> a instanceof NormalStandard).map(a -> (NormalStandard) a)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -655,12 +661,15 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<AnalysisStandard> findAnalysisOnlyStandards() {
-		return analysisStandards.values().stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
+		return analysisStandards.values().stream().filter(standard -> standard.getStandard().isAnalysisOnly())
+				.collect(Collectors.toList());
 
 	}
 
 	public AnalysisStandard findAnalysisStandardByStandardId(Integer standardID) {
-		return standardID == null ? null : analysisStandards.values().stream().filter(standard -> standard.getStandard().getId() == standardID).findAny().orElse(null);
+		return standardID == null ? null
+				: analysisStandards.values().stream().filter(standard -> standard.getStandard().getId() == standardID)
+						.findAny().orElse(null);
 	}
 
 	public Map<Asset, List<Assessment>> findAssessmentByAsset() {
@@ -720,33 +729,39 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
-		return getDynamicParameters().stream().collect(Collectors.toMap(parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
+		return getDynamicParameters().stream().collect(Collectors.toMap(
+				parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
 	}
 
 	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
-		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn).map(ActionPlanEntry::getMeasure)
-				.collect(Collectors.toMap(Measure::getId, e -> true, (m1, m2) -> m1));
+		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn)
+				.map(ActionPlanEntry::getMeasure).collect(Collectors.toMap(Measure::getId, e -> true, (m1, m2) -> m1));
 	}
 
 	public LikelihoodParameter findLikelihoodByTypeAndLevel(int level) {
-		return getLikelihoodParameters().stream().filter(parameter -> parameter.getLevel() == level).findAny().orElse(null);
+		return getLikelihoodParameters().stream().filter(parameter -> parameter.getLevel() == level).findAny()
+				.orElse(null);
 	}
 
 	public Measure findMeasureById(int idMeasure) {
-		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
+		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream())
+				.filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
 	}
 
 	public List<? extends Measure> findMeasureByStandard(String standard) {
-		return this.analysisStandards.values().stream().filter(a -> a.getStandard().is(standard)).findAny().map(AnalysisStandard::getMeasures).orElse(Collections.emptyList());
+		return this.analysisStandards.values().stream().filter(a -> a.getStandard().is(standard)).findAny()
+				.map(AnalysisStandard::getMeasures).orElse(Collections.emptyList());
 	}
 
 	public List<Measure> findMeasuresByActionPlan(ActionPlanMode appn) {
-		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn).map(ActionPlanEntry::getMeasure).collect(Collectors.toList());
+		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn)
+				.map(ActionPlanEntry::getMeasure).collect(Collectors.toList());
 	}
 
 	public List<Measure> findMeasuresByActionPlanAndNotToImplement(ActionPlanMode appn) {
-		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn && a.getROI() <= 0.0).map(ActionPlanEntry::getMeasure)
-				.collect(Collectors.toList());
+		return this.actionPlans.stream()
+				.filter(a -> a.getActionPlanType().getActionPlanMode() == appn && a.getROI() <= 0.0)
+				.map(ActionPlanEntry::getMeasure).collect(Collectors.toList());
 	}
 
 	public List<Asset> findNoAssetSelected() {
@@ -754,11 +769,13 @@ public class Analysis implements Cloneable {
 	}
 
 	public IParameter findParameter(String type, String baseKey) {
-		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.isMatch(type, baseKey)).findAny().orElse(null);
+		return this.parameters.values().stream().flatMap(paramters -> paramters.stream())
+				.filter(parameter -> parameter.isMatch(type, baseKey)).findAny().orElse(null);
 	}
 
 	public List<? extends IParameter> findParametersByType(String type) {
-		return this.parameters.values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
+		return this.parameters.values().stream().flatMap(paramters -> paramters.stream())
+				.filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
 	}
 
 	public double findParameterValueByTypeAndAcronym(String type, String acronym) {
@@ -775,7 +792,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<RiskProfile> findRiskProfileByAsset(Asset asset) {
-		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().equals(asset)).collect(Collectors.toList());
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().equals(asset))
+				.collect(Collectors.toList());
 	}
 
 	public RiskProfile findRiskProfileByAssetAndScenario(int idAsset, int idScenario) {
@@ -793,7 +811,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public RiskRegisterItem findRiskRegisterByAssetAndScenario(int idAsset, int idScenario) {
-		return riskRegisters.stream().filter(riskRegister -> riskRegister.is(idAsset, idScenario)).findAny().orElse(null);
+		return riskRegisters.stream().filter(riskRegister -> riskRegister.is(idAsset, idScenario)).findAny()
+				.orElse(null);
 	}
 
 	public Scenario findScenario(int idScenario) {
@@ -808,16 +827,25 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<Asset, List<Assessment>> findSelectedAssessmentByAsset() {
-		return assessments.stream().filter(Assessment::isSelected).sorted((a1, a2) -> NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName()))
-				.collect(Collectors.groupingBy(Assessment::getAsset, LinkedHashMap::new, Collectors.toList()));
+		return assessments.stream().filter(Assessment::isSelected).sorted((a1, a2) -> {
+			int result = NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
+			if (result == 0)
+				NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
+			return result;
+
+		}).collect(Collectors.groupingBy(Assessment::getAsset, LinkedHashMap::new, Collectors.toList()));
 	}
 
 	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {
-		return assessments.stream().filter(assessment -> assessment.isSelected() && assessment.getAsset().getId() == idAsset).collect(Collectors.toList());
+		return assessments.stream()
+				.filter(assessment -> assessment.isSelected() && assessment.getAsset().getId() == idAsset)
+				.collect(Collectors.toList());
 	}
 
 	public List<Assessment> findSelectedAssessmentByScenario(int idScenario) {
-		return assessments.stream().filter(assessment -> assessment.isSelected() && assessment.getScenario().getId() == idScenario).collect(Collectors.toList());
+		return assessments.stream()
+				.filter(assessment -> assessment.isSelected() && assessment.getScenario().getId() == idScenario)
+				.collect(Collectors.toList());
 	}
 
 	public List<Asset> findSelectedAsset() {
@@ -851,11 +879,14 @@ public class Analysis implements Cloneable {
 	}
 
 	public SimpleParameter findSimpleParameter(String type, String description) {
-		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
+		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny()
+				.orElse(null);
 	}
 
 	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
-		return this.analysisStandards.values().stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
+		return this.analysisStandards.values().stream()
+				.filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard
+						&& analysisStandard.isAnalysisOnly())
 				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
 	}
 
@@ -893,7 +924,9 @@ public class Analysis implements Cloneable {
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> findActionPlan(ActionPlanMode mode) {
-		return this.actionPlans.stream().filter(actionPlan -> actionPlan.getActionPlanType().getActionPlanMode() == mode).collect(Collectors.toList());
+		return this.actionPlans.stream()
+				.filter(actionPlan -> actionPlan.getActionPlanType().getActionPlanMode() == mode)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -1011,7 +1044,8 @@ public class Analysis implements Cloneable {
 	@OrderBy("acronym,value")
 	@SuppressWarnings("unchecked")
 	public List<DynamicParameter> getDynamicParameters() {
-		List<DynamicParameter> parameters = (List<DynamicParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_DYNAMIC);
+		List<DynamicParameter> parameters = (List<DynamicParameter>) this.parameters
+				.get(Constant.PARAMETER_CATEGORY_DYNAMIC);
 		if (parameters == null)
 			this.parameters.put(Constant.PARAMETER_CATEGORY_DYNAMIC, parameters = new ArrayList<>());
 		return parameters;
@@ -1036,9 +1070,11 @@ public class Analysis implements Cloneable {
 		// so in particular
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
 		return this.parameters.entrySet().stream()
-				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_TYPE_PROPABILITY_NAME) || entry.getKey().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)
+				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_TYPE_PROPABILITY_NAME)
+						|| entry.getKey().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC))
-				.flatMap(entry -> entry.getValue().stream()).map(parameter -> (IAcronymParameter) parameter).collect(Collectors.toList());
+				.flatMap(entry -> entry.getValue().stream()).map(parameter -> (IAcronymParameter) parameter)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -1085,8 +1121,9 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<ScaleType> findImpacts() {
-		return getImpactParameters().stream().map(ImpactParameter::getType).distinct().sorted(
-				(s1, s2) -> s1.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? 1 : s2.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? -1 : s1.getName().compareTo(s2.getName()))
+		return getImpactParameters().stream().map(ImpactParameter::getType).distinct()
+				.sorted((s1, s2) -> s1.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? 1
+						: s2.getName().equals(Constant.DEFAULT_IMPACT_NAME) ? -1 : s1.getName().compareTo(s2.getName()))
 				.collect(Collectors.toList());
 	}
 
@@ -1128,7 +1165,9 @@ public class Analysis implements Cloneable {
 	 */
 	@Transient
 	public History getLastHistory() {
-		return histories == null ? null : histories.stream().max((c1, c2) -> NaturalOrderComparator.compareTo(c1.getVersion(), c2.getVersion())).orElse(null);
+		return histories == null ? null
+				: histories.stream().max((c1, c2) -> NaturalOrderComparator.compareTo(c1.getVersion(), c2.getVersion()))
+						.orElse(null);
 	}
 
 	/**
@@ -1151,9 +1190,11 @@ public class Analysis implements Cloneable {
 	@OrderBy("level")
 	@SuppressWarnings("unchecked")
 	public List<LikelihoodParameter> getLikelihoodParameters() {
-		List<LikelihoodParameter> parameters = (List<LikelihoodParameter>) this.getParameters().get(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD);
+		List<LikelihoodParameter> parameters = (List<LikelihoodParameter>) this.getParameters()
+				.get(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD);
 		if (parameters == null)
-			this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, parameters = new ArrayList<>());
+			this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD,
+					parameters = new ArrayList<>());
 		return parameters;
 	}
 
@@ -1163,7 +1204,8 @@ public class Analysis implements Cloneable {
 	@Cascade(CascadeType.ALL)
 	@SuppressWarnings("unchecked")
 	public List<MaturityParameter> getMaturityParameters() {
-		List<MaturityParameter> parameters = (List<MaturityParameter>) this.getParameters().get(Constant.PARAMETER_CATEGORY_MATURITY);
+		List<MaturityParameter> parameters = (List<MaturityParameter>) this.getParameters()
+				.get(Constant.PARAMETER_CATEGORY_MATURITY);
 		if (parameters == null)
 			this.getParameters().put(Constant.PARAMETER_CATEGORY_MATURITY, parameters = new ArrayList<>());
 		return parameters;
@@ -1171,7 +1213,8 @@ public class Analysis implements Cloneable {
 
 	@Transient
 	public MaturityStandard getMaturityStandard() {
-		return (MaturityStandard) analysisStandards.values().stream().filter(analysisStandard -> analysisStandard instanceof MaturityStandard).findAny().orElse(null);
+		return (MaturityStandard) analysisStandards.values().stream()
+				.filter(analysisStandard -> analysisStandard instanceof MaturityStandard).findAny().orElse(null);
 	}
 
 	/**
@@ -1198,7 +1241,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public double findParameter(String name, double defaultValue) {
-		return getParameters().values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter.getDescription().equals(name))
+		return getParameters().values().stream().flatMap(paramters -> paramters.stream())
+				.filter(parameter -> parameter.getDescription().equals(name))
 				.map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
 
@@ -1211,8 +1255,9 @@ public class Analysis implements Cloneable {
 	 *         parameter was not found
 	 */
 	public double findParameter(String type, String name, double defaultValue) {
-		return getParameters().values().stream().flatMap(parametersList -> parametersList.stream()).filter(parameter -> parameter.isMatch(type, name))
-				.map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
+		return getParameters().values().stream().flatMap(parametersList -> parametersList.stream())
+				.filter(parameter -> parameter.isMatch(type, name)).map(parameter -> parameter.getValue().doubleValue())
+				.findAny().orElse(defaultValue);
 	}
 
 	/**
@@ -1264,7 +1309,8 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight findRightsforUserString(String login) {
-		return userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny().orElse(null);
+		return userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny()
+				.orElse(null);
 	}
 
 	public AnalysisRight findRightValue(User user) {
@@ -1279,7 +1325,8 @@ public class Analysis implements Cloneable {
 	@OrderBy("value,color, label, description")
 	@SuppressWarnings("unchecked")
 	public List<RiskAcceptanceParameter> getRiskAcceptanceParameters() {
-		List<RiskAcceptanceParameter> parameters = (List<RiskAcceptanceParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE);
+		List<RiskAcceptanceParameter> parameters = (List<RiskAcceptanceParameter>) this.parameters
+				.get(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE);
 		if (parameters == null)
 			this.parameters.put(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE, parameters = new ArrayList<>());
 		return parameters;
@@ -1329,11 +1376,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<Assessment> findSelectedAssessments() {
-		List<Assessment> tmpassessments = new ArrayList<Assessment>();
-		for (Assessment assessment : assessments)
-			if (assessment.isSelected())
-				tmpassessments.add(assessment);
-		return tmpassessments;
+		return assessments.stream().filter(e -> e.isSelected()).collect(Collectors.toList());
 	}
 
 	public <T> T findSetting(AnalysisSetting setting) {
@@ -1350,7 +1393,8 @@ public class Analysis implements Cloneable {
 	@Cascade(CascadeType.ALL)
 	@SuppressWarnings("unchecked")
 	public List<SimpleParameter> getSimpleParameters() {
-		List<SimpleParameter> parameters = (List<SimpleParameter>) this.parameters.get(Constant.PARAMETER_CATEGORY_SIMPLE);
+		List<SimpleParameter> parameters = (List<SimpleParameter>) this.parameters
+				.get(Constant.PARAMETER_CATEGORY_SIMPLE);
 		if (parameters == null)
 			this.getParameters().put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters = new ArrayList<>());
 		return parameters;
@@ -1363,7 +1407,8 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<Standard> findStandards() {
-		return analysisStandards.values().stream().map(AnalysisStandard::getStandard).sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getName(), e2.getName()))
+		return analysisStandards.values().stream().map(AnalysisStandard::getStandard)
+				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getName(), e2.getName()))
 				.collect(Collectors.toList());
 
 	}
@@ -1389,7 +1434,8 @@ public class Analysis implements Cloneable {
 	 * @return The List of Summary Entries for the requested Action Plan Type
 	 */
 	public List<SummaryStage> findSummary(ActionPlanMode mode) {
-		return getSummaries().stream().filter(e -> e.getActionPlanType().getActionPlanMode() == mode).collect(Collectors.toList());
+		return getSummaries().stream().filter(e -> e.getActionPlanType().getActionPlanMode() == mode)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -1419,7 +1465,8 @@ public class Analysis implements Cloneable {
 		return version;
 	}
 
-	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments, Map<Scenario, List<Assessment>> scenarioAssessments) {
+	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments,
+			Map<Scenario, List<Assessment>> scenarioAssessments) {
 		if (assetAssessments == null || scenarioAssessments == null)
 			return;
 		assessments.forEach(assessment -> {
@@ -1441,9 +1488,11 @@ public class Analysis implements Cloneable {
 	 * @param impacts
 	 */
 	public void groupExtended(List<LikelihoodParameter> probabilities, List<ImpactParameter> impacts) {
-		this.getParameters().values().stream().flatMap(paramters -> paramters.stream()).filter(parameter -> parameter instanceof IBoundedParameter)
+		this.getParameters().values().stream().flatMap(paramters -> paramters.stream())
+				.filter(parameter -> parameter instanceof IBoundedParameter)
 				.map(parameter -> (IBoundedParameter) parameter).forEach(parameter -> {
-					if ((parameter instanceof ImpactParameter) && parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
+					if ((parameter instanceof ImpactParameter)
+							&& parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
 						impacts.add((ImpactParameter) parameter);
 					else if (parameter instanceof LikelihoodParameter)
 						probabilities.add((LikelihoodParameter) parameter);
@@ -1477,7 +1526,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public boolean hasParameterType(String type) {
-		return this.getParameters().values().stream().flatMap(paramters -> paramters.stream()).anyMatch(parameter -> parameter.isMatch(type));
+		return this.getParameters().values().stream().flatMap(paramters -> paramters.stream())
+				.anyMatch(parameter -> parameter.isMatch(type));
 	}
 
 	public boolean hasPhase(int number) {
@@ -1499,7 +1549,8 @@ public class Analysis implements Cloneable {
 	public boolean hasTicket(String idTicket) {
 		if (idTicket == null)
 			return false;
-		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
+		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream())
+				.anyMatch(measure -> idTicket.equals(measure.getTicket()));
 	}
 
 	/**
@@ -1670,7 +1721,8 @@ public class Analysis implements Cloneable {
 
 	@Transient
 	public boolean isUserAuthorized(String username, AnalysisRight right) {
-		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username) && UserAnalysisRight.userIsAuthorized(userRight, right));
+		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username)
+				&& UserAnalysisRight.userIsAuthorized(userRight, right));
 	}
 
 	/**
@@ -1720,12 +1772,14 @@ public class Analysis implements Cloneable {
 
 	public List<Assessment> removeAssessment(Scenario scenario) {
 		final List<Assessment> assessments = new LinkedList<Assessment>();
-		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
+		this.assessments
+				.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
 		return assessments;
 	}
 
 	public List<Scenario> removeFromScenario(Asset asset) {
-		return this.scenarios.stream().filter(scenario -> scenario.getLinkedAssets().remove(asset)).collect(Collectors.toList());
+		return this.scenarios.stream().filter(scenario -> scenario.getLinkedAssets().remove(asset))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -1770,7 +1824,8 @@ public class Analysis implements Cloneable {
 	 * @param analysisStandards
 	 */
 	public void setAnalysisStandards(List<AnalysisStandard> analysisStandards) {
-		setAnalysisStandards(analysisStandards.stream().collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
+		setAnalysisStandards(analysisStandards.stream()
+				.collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
 	}
 
 	/**
@@ -2113,10 +2168,13 @@ public class Analysis implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
-				+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets="
-				+ assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards
-				+ ", phases=" + phases + ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version
+				+ ", creationDate=" + creationDate + ", label=" + label + ", histories=" + histories + ", language="
+				+ language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters
+				+ ", assets=" + assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios
+				+ ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", phases=" + phases
+				+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters
+				+ "]";
 	}
 
 	@Transient
@@ -2125,7 +2183,8 @@ public class Analysis implements Cloneable {
 		if (scaleTypes.isEmpty())
 			this.type = AnalysisType.QUALITATIVE;
 		else if (scaleTypes.size() == 1)
-			this.type = scaleTypes.get(0).getName().equals(Constant.DEFAULT_IMPACT_NAME) ? AnalysisType.QUANTITATIVE : AnalysisType.QUALITATIVE;
+			this.type = scaleTypes.get(0).getName().equals(Constant.DEFAULT_IMPACT_NAME) ? AnalysisType.QUANTITATIVE
+					: AnalysisType.QUALITATIVE;
 		else if (scaleTypes.stream().anyMatch(scaleType -> scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)))
 			this.type = AnalysisType.HYBRID;
 		else
@@ -2195,8 +2254,9 @@ public class Analysis implements Cloneable {
 	 * @return The Calculated Cost
 	 */
 	@Transient
-	public static final double computeCost(double internalSetupRate, double externalSetupRate, double lifetimeDefault, double internalMaintenance, double externalMaintenance,
-			double recurrentInvestment, double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
+	public static final double computeCost(double internalSetupRate, double externalSetupRate, double lifetimeDefault,
+			double internalMaintenance, double externalMaintenance, double recurrentInvestment, double internalWorkLoad,
+			double externalWorkLoad, double investment, double lifetime) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -2205,8 +2265,10 @@ public class Analysis implements Cloneable {
 		// workload
 		// check if lifetime is not 0 -> YES: use default lifetime
 		// return calculated cost
-		return (((internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad) + investment) * (1. / (lifetime == 0 ? lifetimeDefault : lifetime)))
-				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
+		return (((internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad) + investment)
+				* (1. / (lifetime == 0 ? lifetimeDefault : lifetime)))
+				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate)
+						+ recurrentInvestment);
 	}
 
 	@Transient
@@ -2236,19 +2298,23 @@ public class Analysis implements Cloneable {
 		ItemInformation iteminfo;
 		iteminfo = new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.TYPE_PROFIT_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.TYPE_PROFIT_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.NAME_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.PRESENTATION_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.PRESENTATION_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.SECTOR_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.RESPONSIBLE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.RESPONSIBLE_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.STAFF_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.ACTIVITIES_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.ACTIVITIES_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.EXCLUDED_ASSETS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
@@ -2258,9 +2324,11 @@ public class Analysis implements Cloneable {
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.JURIDIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.POL_ORGANISATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.POL_ORGANISATION, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.MANAGEMENT_ORGANISATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.MANAGEMENT_ORGANISATION, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.PREMISES, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
@@ -2274,17 +2342,23 @@ public class Analysis implements Cloneable {
 		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.STRATEGIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.PROCESSUS_DEVELOPMENT, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.PROCESSUS_DEVELOPMENT, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.STAKEHOLDER_IDENTIFICATION, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.STAKEHOLDER_IDENTIFICATION, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.ROLE_RESPONSABILITY, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.ROLE_RESPONSABILITY, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.STAKEHOLDER_RELATION, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.STAKEHOLDER_RELATION, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.ESCALATION_WAY, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.ESCALATION_WAY, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
-		iteminfo = new ItemInformation(Constant.DOCUMENT_CONSERVE, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		iteminfo = new ItemInformation(Constant.DOCUMENT_CONSERVE, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING);
 		analysis.add(iteminfo);
 	}
 
@@ -2307,11 +2381,13 @@ public class Analysis implements Cloneable {
 	}
 
 	public Standard findStandardByLabel(String label) {
-		return analysisStandards.values().stream().map(AnalysisStandard::getStandard).filter(a -> a.getLabel().equalsIgnoreCase(label)).findAny().orElse(null);
+		return analysisStandards.values().stream().map(AnalysisStandard::getStandard)
+				.filter(a -> a.getLabel().equalsIgnoreCase(label)).findAny().orElse(null);
 	}
 
 	public Standard findStandardByName(String name) {
-		return analysisStandards.values().stream().map(AnalysisStandard::getStandard).filter(a -> a.getName().equalsIgnoreCase(name)).findAny().orElse(null);
+		return analysisStandards.values().stream().map(AnalysisStandard::getStandard)
+				.filter(a -> a.getName().equalsIgnoreCase(name)).findAny().orElse(null);
 	}
 
 	public List<AnalysisStandard> findAllAnalysisStandard() {

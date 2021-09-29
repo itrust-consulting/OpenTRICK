@@ -337,7 +337,7 @@ public final class ExcelHelper {
 	}
 
 	private static int colToIndex(String r, int index) {
-		return StringUtils.isEmpty(r) ? index : colStringToIndex(r);
+		return StringUtils.hasText(r) ? colStringToIndex(r): index ;
 	}
 
 	public static double getDouble(Cell cell, DataFormatter formatter) {

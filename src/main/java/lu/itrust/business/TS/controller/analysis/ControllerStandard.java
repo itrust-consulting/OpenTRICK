@@ -623,7 +623,7 @@ public class ControllerStandard extends AbstractController {
 				model.addAttribute("countLine", measureDescriptionText.getDescription().trim().split("\r\n|\r|\n").length);
 				MeasureDescriptionText otherMeasureDescriptionText = measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase("fra") ? measureDescription.findByAlph2("en")
 						: measureDescription.findByAlph2("fr");
-				if (!(otherMeasureDescriptionText == null || StringUtils.isEmpty(otherMeasureDescriptionText.getDescription())))
+				if (otherMeasureDescriptionText != null && StringUtils.hasText(otherMeasureDescriptionText.getDescription()))
 					model.addAttribute("otherMeasureDescriptionText", true);
 			}
 			model.addAttribute("measureDescription", measureDescription);

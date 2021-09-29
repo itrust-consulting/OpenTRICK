@@ -393,7 +393,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static void GenerateRiskProfileIdentifer(List<RiskProfile> riskProfiles) {
-		final String maxId = riskProfiles.stream().filter(risk -> !StringUtils.isEmpty(risk.getIdentifier())).map(RiskProfile::getIdentifier)
+		final String maxId = riskProfiles.stream().filter(risk -> StringUtils.hasText(risk.getIdentifier())).map(RiskProfile::getIdentifier)
 				.max((i1, i2) -> NaturalOrderComparator.compareTo(i1, i2)).orElse("R0");
 		final Object[] numbering = extractNumbering(maxId);
 		if (numbering[1] == null)
@@ -404,7 +404,7 @@ public class AssessmentAndRiskProfileManager {
 			if (result == 0)
 				result = Integer.compare(r1.getComputedExpImportance(), r2.getComputedExpImportance());
 			return result * -1;
-		}).filter(risk -> StringUtils.isEmpty(risk.getIdentifier())).forEach(riskProfile -> riskProfile.setIdentifier(numbering[0] + "" + id.incrementAndGet()));
+		}).filter(risk -> !StringUtils.hasText(risk.getIdentifier())).forEach(riskProfile -> riskProfile.setIdentifier(numbering[0] + "" + id.incrementAndGet()));
 	}
 
 	/**

@@ -16,7 +16,7 @@ public final class Utils {
 	}
 	
 	public static boolean isEmpty(String text) {
-		return  StringUtils.isEmpty(text);
+		return  !StringUtils.hasText(text);
 	}
 
 }

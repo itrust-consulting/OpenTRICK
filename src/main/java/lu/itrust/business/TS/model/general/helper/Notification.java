@@ -124,12 +124,12 @@ public class Notification implements Serializable {
 	}
 
 	public boolean isValid() {
-		return isValidId() && (!StringUtils.isEmpty(this.code) || isEmpty());
+		return isValidId() && (StringUtils.hasText(this.code) || isEmpty());
 	}
 
 	private boolean isValidId() {
 		try {
-			return !StringUtils.isEmpty(this.id) && UUID.fromString(id).toString().equals(id);
+			return StringUtils.hasText(this.id) && UUID.fromString(id).toString().equals(id);
 		} catch (Exception e) {
 			return false;
 		}
@@ -144,7 +144,7 @@ public class Notification implements Serializable {
 			this.id = UUID.randomUUID().toString();
 		if (this.created == null)
 			this.created = new Timestamp(System.currentTimeMillis());
-		return !(StringUtils.isEmpty(this.code) && isEmpty());
+		return StringUtils.hasText(this.code) || !isEmpty();
 	}
 
 	public Notification update(Notification notification) {

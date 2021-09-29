@@ -338,9 +338,9 @@ public class WorkerImportStandard extends WorkerImpl {
 				if (descriptionText == null)
 					measureDescription.getMeasureDescriptionTexts().add(descriptionText = new MeasureDescriptionText(measureDescription, language));
 				String domain = getString(row, domInd, formatter), description = getString(row, descInd, formatter);
-				if (!StringUtils.isEmpty(domain))
+				if (StringUtils.hasText(domain))
 					descriptionText.setDomain(domain);
-				if (!StringUtils.isEmpty(description))
+				if (StringUtils.hasText(description))
 					descriptionText.setDescription(description);
 			}
 			daoMeasureDescription.saveOrUpdate(measureDescription);

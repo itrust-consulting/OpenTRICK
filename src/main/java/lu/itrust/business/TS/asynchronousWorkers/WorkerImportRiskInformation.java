@@ -241,7 +241,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 				final String chapter = getString(row, colIndex++, formatter);
 
-				if (StringUtils.isEmpty(chapter))
+				if (!StringUtils.hasText(chapter))
 					emptyCellError(mapper[1].toString(), i, colIndex);
 				else if (chapterIndexer.containsKey(chapter))
 					duplicateCellError(mapper[1].toString(), i, colIndex);
@@ -262,7 +262,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 				final String name = getString(row, colIndex++, formatter);
 
-				if (StringUtils.isEmpty(name))
+				if (!StringUtils.hasText(name))
 					emptyCellError(mapper[1].toString(), i, colIndex);
 
 				if (!riskInformation.isCustom() && riskInformation.getId() > 0) {
@@ -280,7 +280,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 					riskInformation.setAcronym(getString(row, colIndex++, formatter));
 
 				final String exposed = getString(row, colIndex++, formatter);
-				if (StringUtils.isEmpty(exposed) || exposurePattern.matcher(exposed.trim()).matches())
+				if (!StringUtils.hasText(exposed) || exposurePattern.matcher(exposed.trim()).matches())
 					riskInformation.setExposed(exposed);
 				else
 					errorInvalidValue(mapper[0].toString(), i, colIndex);

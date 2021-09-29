@@ -229,7 +229,7 @@ public class ControllerRRF {
 	public @ResponseBody Object loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (measureFilter.getIdStandard() < 1 || StringUtils.isEmpty(measureFilter.getChapter()))
+		if (measureFilter.getIdStandard() < 1 || !StringUtils.hasText(measureFilter.getChapter()))
 			return null;
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());

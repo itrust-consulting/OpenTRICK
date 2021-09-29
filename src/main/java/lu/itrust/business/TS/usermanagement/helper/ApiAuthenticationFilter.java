@@ -59,7 +59,7 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		final boolean debug = this.logger.isDebugEnabled();
 		String token = request.getHeader(Constant.API_AUTHENTICATION_TOKEN_NAME);
-		if (StringUtils.isEmpty(token)) {
+		if (!StringUtils.hasText(token)) {
 			filterChain.doFilter(request, response);
 			return;
 		}

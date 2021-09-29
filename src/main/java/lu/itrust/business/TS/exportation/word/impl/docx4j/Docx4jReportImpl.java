@@ -229,14 +229,16 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public P addFigureCaption(String value) {
 		P paragraph = setStyle(factory.createP(), "Caption");
 		R run = setText(factory.createR(), getMessage("report.caption.figure.name", null, "Figure", locale));
-		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text).forEach(text -> text.setSpace("preserve"));
+		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text)
+				.forEach(text -> text.setSpace("preserve"));
 		paragraph.getContent().add(run);
 		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
 		paragraph.getContent().add(setInstrText(factory.createR(), "SEQ Figure \\* ARABIC "));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.SEPARATE));
 		paragraph.getContent().add(setText(factory.createR(), "1"));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.END));
-		paragraph.getContent().add(setText(factory.createR(), (getLocale().getLanguage().equalsIgnoreCase("fr") ? "\u00A0:\u00A0" : ": ") + value));
+		paragraph.getContent().add(setText(factory.createR(),
+				(getLocale().getLanguage().equalsIgnoreCase("fr") ? "\u00A0:\u00A0" : ": ") + value));
 		return paragraph;
 
 	}
@@ -251,14 +253,16 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public P addTableCaption(String value) {
 		P paragraph = setStyle(factory.createP(), "Caption");
 		R run = setText(factory.createR(), getMessage("report.caption.table.name", null, "Table", locale));
-		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text).forEach(text -> text.setSpace("preserve"));
+		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text)
+				.forEach(text -> text.setSpace("preserve"));
 		paragraph.getContent().add(run);
 		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
 		paragraph.getContent().add(setInstrText(factory.createR(), "SEQ Table \\* ARABIC "));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.SEPARATE));
 		paragraph.getContent().add(setText(factory.createR(), "1"));
 		paragraph.getContent().add(createSpecialRun(STFldCharType.END));
-		paragraph.getContent().add(setText(factory.createR(), (getLocale().getLanguage().equalsIgnoreCase("fr") ? "\u00A0:\u00A0" : ": ") + value));
+		paragraph.getContent().add(setText(factory.createR(),
+				(getLocale().getLanguage().equalsIgnoreCase("fr") ? "\u00A0:\u00A0" : ": ") + value));
 		return paragraph;
 	}
 
@@ -273,15 +277,18 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	public PartName chartDependancyPartName(Relationship relationship) throws InvalidFormatException {
 		final String name = relationship.getTarget();
-		return name.startsWith("..") ? new PartName("/word" + name.replace("..", "")) : new PartName("/word/charts/" + name);
+		return name.startsWith("..") ? new PartName("/word" + name.replace("..", ""))
+				: new PartName("/word/charts/" + name);
 	}
 
 	public void cleanup(RangeFinder finder) throws Docx4JException {
 		final List<CTRelId> refs = new LinkedList<>();
 		final Map<BigInteger, BookmarkClean> bookmarks = new LinkedHashMap<>();
 
-		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr")).forEach(c -> bookmarks.put(c.getId(), new BookmarkClean(c)));
-		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId())).forEach(c -> bookmarks.get(c.getId()).update(c));
+		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr"))
+				.forEach(c -> bookmarks.put(c.getId(), new BookmarkClean(c)));
+		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId()))
+				.forEach(c -> bookmarks.get(c.getId()).update(c));
 
 		bookmarks.values().stream().forEach(c -> {
 			if (c.hasContent()) {
@@ -289,17 +296,24 @@ public class Docx4jReportImpl implements Docx4jReport {
 				int startIndex = findIndexLoop(c.getStart()), endIndex = findIndexLoop(c.getEnd());
 
 				if (!(startIndex == -1 || endIndex == -1)) {
-					final List<Object> contents = getDocument().getContent().subList(startIndex + (c.getStartParent() instanceof P ? 1 : 0),
-							Math.min(endIndex + (c.getEndParent() instanceof P ? 0 : 1), getDocument().getContent().size()));
+					final List<Object> contents = getDocument().getContent().subList(
+							startIndex + (c.getStartParent() instanceof P ? 1 : 0),
+							Math.min(endIndex + (c.getEndParent() instanceof P ? 0 : 1),
+									getDocument().getContent().size()));
 
-					contents.stream().filter(i -> XmlUtils.unwrap(i) instanceof P).map(i -> (P) XmlUtils.unwrap(i)).flatMap(p -> p.getContent().stream())
-							.filter(r -> XmlUtils.unwrap(r) instanceof R).flatMap(r -> ((R) XmlUtils.unwrap(r)).getContent().stream())
-							.filter(i -> XmlUtils.unwrap(i) instanceof Drawing).map(i -> (Drawing) XmlUtils.unwrap(i)).flatMap(d -> d.getAnchorOrInline().stream())
+					contents.stream().filter(i -> XmlUtils.unwrap(i) instanceof P).map(i -> (P) XmlUtils.unwrap(i))
+							.flatMap(p -> p.getContent().stream()).filter(r -> XmlUtils.unwrap(r) instanceof R)
+							.flatMap(r -> ((R) XmlUtils.unwrap(r)).getContent().stream())
+							.filter(i -> XmlUtils.unwrap(i) instanceof Drawing).map(i -> (Drawing) XmlUtils.unwrap(i))
+							.flatMap(d -> d.getAnchorOrInline().stream())
 							.filter(i -> XmlUtils.unwrap(i) instanceof Inline).map(i -> (Inline) XmlUtils.unwrap(i))
-							.filter(i -> !(i.getGraphic() == null || i.getGraphic().getGraphicData() == null || i.getGraphic().getGraphicData().getAny().isEmpty())
-									&& i.getGraphic().getGraphicData().getUri().equals(HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART))
-							.flatMap(i -> i.getGraphic().getGraphicData().getAny().stream()).filter(i -> XmlUtils.unwrap(i) instanceof CTRelId)
-							.map(i -> (CTRelId) XmlUtils.unwrap(i)).filter(i -> i != null).forEach(ref -> refs.add(ref));
+							.filter(i -> !(i.getGraphic() == null || i.getGraphic().getGraphicData() == null
+									|| i.getGraphic().getGraphicData().getAny().isEmpty())
+									&& i.getGraphic().getGraphicData().getUri()
+											.equals(HTTP_SCHEMAS_OPENXMLFORMATS_ORG_DRAWINGML_2006_CHART))
+							.flatMap(i -> i.getGraphic().getGraphicData().getAny().stream())
+							.filter(i -> XmlUtils.unwrap(i) instanceof CTRelId).map(i -> (CTRelId) XmlUtils.unwrap(i))
+							.filter(i -> i != null).forEach(ref -> refs.add(ref));
 
 					contents.clear();
 				}
@@ -313,9 +327,11 @@ public class Docx4jReportImpl implements Docx4jReport {
 		});
 
 		if (!refs.isEmpty()) {
-			final Relationships mainRelationships = getWordMLPackage().getMainDocumentPart().getRelationshipsPart().getContents();
+			final Relationships mainRelationships = getWordMLPackage().getMainDocumentPart().getRelationshipsPart()
+					.getContents();
 			for (CTRelId ctRelId : refs) {
-				final Relationship relationship = mainRelationships.getRelationship().stream().filter(p -> p.getId().equals(ctRelId.getId())).findAny().orElse(null);
+				final Relationship relationship = mainRelationships.getRelationship().stream()
+						.filter(p -> p.getId().equals(ctRelId.getId())).findAny().orElse(null);
 				if (relationship == null)
 					continue;
 				final Part chart = getWordMLPackage().getParts().get(new PartName("/word/" + relationship.getTarget()));
@@ -324,7 +340,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 				final List<Relationship> relationships = chart.getRelationshipsPart().getContents().getRelationship();
 				while (!relationships.isEmpty()) {
-					final Part part = getWordMLPackage().getParts().get(chartDependancyPartName(relationships.remove(0)));
+					final Part part = getWordMLPackage().getParts()
+							.get(chartDependancyPartName(relationships.remove(0)));
 					if (part != null)
 						part.remove();
 				}
@@ -335,21 +352,28 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	}
 
-	public ClonePartResult cloneChart(Chart part, String name, String description) throws Docx4JException, InvalidFormatException, JAXBException {
+	public ClonePartResult cloneChart(Chart part, String name, String description)
+			throws Docx4JException, InvalidFormatException, JAXBException {
 		final Part copy = PartClone.clone(part, null);
-		final Relationship relationship = getWordMLPackage().getMainDocumentPart().addTargetPart(copy, AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-		part.getRelationshipsPart().getContents().getRelationship().stream().sorted((r1, r2) -> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
-			try {
-				if (re.getTarget().startsWith(".."))
-					copy.addTargetPart(PartClone.clone(getWordMLPackage().getParts().get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
-							AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-				else
-					copy.addTargetPart(PartClone.clone(getWordMLPackage().getParts().get(new PartName("/word/charts/" + re.getTarget())), null),
-							AddPartBehaviour.RENAME_IF_NAME_EXISTS);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
+		final Relationship relationship = getWordMLPackage().getMainDocumentPart().addTargetPart(copy,
+				AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+		part.getRelationshipsPart().getContents().getRelationship().stream()
+				.sorted((r1, r2) -> NaturalOrderComparator.compareTo(r1.getId(), r2.getId())).forEach(re -> {
+					try {
+						if (re.getTarget().startsWith(".."))
+							copy.addTargetPart(
+									PartClone.clone(getWordMLPackage().getParts()
+											.get(new PartName("/word" + re.getTarget().replace("..", ""))), null),
+									AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+						else
+							copy.addTargetPart(
+									PartClone.clone(getWordMLPackage().getParts()
+											.get(new PartName("/word/charts/" + re.getTarget())), null),
+									AddPartBehaviour.RENAME_IF_NAME_EXISTS);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
 		return new ClonePartResult(copy, relationship, createGraphic(name, description, relationship.getId()));
 	}
 
@@ -358,7 +382,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public List<String> getStandardNames() {
-		return analysis.findStandards().stream().map(Standard::getName).sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList());
+		return analysis.findStandards().stream().map(Standard::getName).sorted(NaturalOrderComparator::compareTo)
+				.collect(Collectors.toList());
 	}
 
 	public TextAlignment createAlignment(String value) {
@@ -367,7 +392,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return alignment;
 	}
 
-	public <T extends CTChartSer> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel, T ser) {
+	public <T extends CTChartSer> T createChart(CTAxDataSource cat, String reference, long index, String phaseLabel,
+			T ser) {
 
 		setupTitle(reference, index, phaseLabel, ser);
 
@@ -394,7 +420,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	}
 
-	public P createGraphic(String name, String description, String refId) throws XPathBinderAssociationIsPartialException, JAXBException {
+	public P createGraphic(String name, String description, String refId)
+			throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraph = setStyle(getFactory().createP(), "FigurewithCaption");
 		R run = getFactory().createR();
 		run.setRPr(getFactory().createRPr());
@@ -497,7 +524,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 			return Collections.emptyList();
 		int count = 1;
 		if (size > Constant.CHAR_SINGLE_CONTENT_MAX_SIZE)
-			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE).getDivisor();
+			count = Distribution.Distribut(size, Constant.CHAR_MULTI_CONTENT_SIZE, Constant.CHAR_MULTI_CONTENT_MAX_SIZE)
+					.getDivisor();
 		final List<Part> parts = new ArrayList<>(count);
 		parts.add(part);
 		if (count > 1) {
@@ -530,7 +558,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return findChartById(id);
 	}
 
-	public Part findChart(String name) throws InvalidFormatException, XPathBinderAssociationIsPartialException, JAXBException {
+	public Part findChart(String name)
+			throws InvalidFormatException, XPathBinderAssociationIsPartialException, JAXBException {
 		final String id = findChartId(name);
 		if (id == null)
 			return null;
@@ -538,38 +567,46 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public Part findChartById(final String id) throws InvalidFormatException {
-		final Relationship relationship = getWordMLPackage().getMainDocumentPart().getRelationshipsPart().getRelationships().getRelationship().parallelStream()
-				.filter(part -> part.getId().equalsIgnoreCase(id)).findAny().orElse(null);
+		final Relationship relationship = getWordMLPackage().getMainDocumentPart().getRelationshipsPart()
+				.getRelationships().getRelationship().parallelStream().filter(part -> part.getId().equalsIgnoreCase(id))
+				.findAny().orElse(null);
 		if (relationship == null)
 			return null;
 		return getWordMLPackage().getParts().get(new PartName("/word/" + relationship.getTarget()));
 	}
 
 	public String findChartId(P p) {
-		return p.getContent().parallelStream().filter(r -> r instanceof R).flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
-				.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
-				.filter(i -> (i instanceof Inline)).flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream())
+		return p.getContent().parallelStream().filter(r -> r instanceof R)
+				.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
+				.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing)
+				.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> (i instanceof Inline))
+				.flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream())
 				.map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny().orElse(null);
 	}
 
 	public String findChartId(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraph = findTableAnchor(name);
 		if (paragraph == null)
-			return getDocument().getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
-					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
-					.filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
-					.filter(i -> (i instanceof Inline) && ((Inline) i).getDocPr() != null && name.equalsIgnoreCase(((Inline) i).getDocPr().getDescr()))
-					.flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream()).map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny()
-					.orElse(null);
+			return getDocument().getContent().parallelStream().filter(p -> p instanceof P)
+					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
+					.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing)
+					.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
+					.filter(i -> (i instanceof Inline) && ((Inline) i).getDocPr() != null
+							&& name.equalsIgnoreCase(((Inline) i).getDocPr().getDescr()))
+					.flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream())
+					.map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny().orElse(null);
 		else
 			return findChartId(paragraph);
 	}
 
 	public synchronized Long findDrawingId() throws XPathBinderAssociationIsPartialException, JAXBException {
 		if (getDrawingIndex() == null) {
-			setDrawingIndex(new AtomicLong(getDocument().getContent().parallelStream().filter(p -> p instanceof P).flatMap(p -> ((P) p).getContent().parallelStream())
-					.filter(r -> r instanceof R).flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement).map(d -> ((JAXBElement<?>) d).getValue())
-					.filter(d -> d instanceof Drawing).flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> i instanceof Inline)
+			setDrawingIndex(new AtomicLong(getDocument().getContent().parallelStream().filter(p -> p instanceof P)
+					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
+					.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing)
+					.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> i instanceof Inline)
 					.mapToLong(i -> ((Inline) i).getDocPr().getId()).max().orElse(0)));
 		}
 		return getDrawingIndex().incrementAndGet();
@@ -680,15 +717,17 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public P findTableAnchor(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
-		return (P) getDocument().getContent().parallelStream()
-				.filter(p -> (p instanceof P) && ((P) p).getContent().parallelStream().anyMatch(b -> (b instanceof JAXBElement)
-						&& ((JAXBElement<?>) b).getValue() instanceof CTBookmark && ((CTBookmark) ((JAXBElement<?>) b).getValue()).getName().equalsIgnoreCase(name)))
+		return (P) getDocument().getContent().parallelStream().filter(p -> (p instanceof P) && ((P) p).getContent()
+				.parallelStream()
+				.anyMatch(b -> (b instanceof JAXBElement) && ((JAXBElement<?>) b).getValue() instanceof CTBookmark
+						&& ((CTBookmark) ((JAXBElement<?>) b).getValue()).getName().equalsIgnoreCase(name)))
 				.findAny().orElse(null);
 	}
 
 	public String formatLikelihood(Object likelihood) {
 		try {
-			return likelihood instanceof Double ? getKiloNumberFormat().format((double) likelihood) : getKiloNumberFormat().format(Double.parseDouble(likelihood.toString()));
+			return likelihood instanceof Double ? getKiloNumberFormat().format((double) likelihood)
+					: getKiloNumberFormat().format(Double.parseDouble(likelihood.toString()));
 		} catch (Exception e) {
 			return likelihood.toString();
 		}
@@ -946,7 +985,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
 		P paragraph = (P) cell.getContent().get(0);
-		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, getCurrentParagraphId()));
+		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p)
+				.forEach(p -> setStyle(p, getCurrentParagraphId()));
 		setText(paragraph, text, alignment);
 	}
 
@@ -1063,7 +1103,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public void setRepeatHeader(Tr row) {
 		if (row.getTrPr() == null)
 			row.setTrPr(getFactory().createTrPr());
-		row.getTrPr().getCnfStyleOrDivIdOrGridBefore().add(getFactory().createCTTrPrBaseTblHeader(getFactory().createBooleanDefaultTrue()));
+		row.getTrPr().getCnfStyleOrDivIdOrGridBefore()
+				.add(getFactory().createCTTrPrBaseTblHeader(getFactory().createBooleanDefaultTrue()));
 	}
 
 	public P setStyle(P p, String styleId) {
@@ -1219,22 +1260,28 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		setKiloNumberFormat((DecimalFormat) DecimalFormat.getInstance(Locale.FRENCH));
 
-		setLocale(getAnalysis().getLanguage().getAlpha2().equalsIgnoreCase(Locale.FRENCH.getLanguage()) ? Locale.FRENCH : Locale.ENGLISH);
+		setLocale(getAnalysis().getLanguage().getAlpha2().equalsIgnoreCase(Locale.FRENCH.getLanguage()) ? Locale.FRENCH
+				: Locale.ENGLISH);
 
-		setBookmarkMaxId(new AtomicInteger(finder.getStarts().parallelStream().mapToInt(p -> p.getId().intValue()).max().orElse(1)));
+		setBookmarkMaxId(new AtomicInteger(
+				finder.getStarts().parallelStream().mapToInt(p -> p.getId().intValue()).max().orElse(1)));
 
-		setStyles(getWordMLPackage().getMainDocumentPart().getStyleDefinitionsPart().getContents().getStyle().parallelStream()
-				.collect(Collectors.toMap(Style::getStyleId, Function.identity())));
+		setStyles(getWordMLPackage().getMainDocumentPart().getStyleDefinitionsPart().getContents().getStyle()
+				.parallelStream().collect(Collectors.toMap(Style::getStyleId, Function.identity())));
 
 		setBookmarks(finder.getStarts().stream().filter(c -> internalName(c.getName(), type).startsWith("ts_"))
-				.collect(Collectors.toMap(c -> internalName(c.getName(), type), Function.identity(), (c1, c2) -> c1, LinkedHashMap::new)));
-		setColors(new ColorSet(getAnalysis().findSetting(ReportSetting.DARK_COLOR), getAnalysis().findSetting(ReportSetting.DEFAULT_COLOR),
-				getAnalysis().findSetting(ReportSetting.LIGHT_COLOR), getAnalysis().findSetting(ReportSetting.ZERO_COST_COLOR),
+				.collect(Collectors.toMap(c -> internalName(c.getName(), type), Function.identity(), (c1, c2) -> c1,
+						LinkedHashMap::new)));
+		setColors(new ColorSet(getAnalysis().findSetting(ReportSetting.DARK_COLOR),
+				getAnalysis().findSetting(ReportSetting.DEFAULT_COLOR),
+				getAnalysis().findSetting(ReportSetting.LIGHT_COLOR),
+				getAnalysis().findSetting(ReportSetting.ZERO_COST_COLOR),
 				getAnalysis().findSetting(ReportSetting.CEEL_COLOR)));
 		return false;
 	}
 
-	protected synchronized void internalReportExport(final Task task, final Analysis analysis, final ReportTemplate template, final ServiceTaskFeedback serviceTaskFeedback) {
+	protected synchronized void internalReportExport(final Task task, final Analysis analysis,
+			final ReportTemplate template, final ServiceTaskFeedback serviceTaskFeedback) {
 		try {
 			if (getMutex().get())
 				throw new TrickException("error.export.already.start", "Export is already started!");
@@ -1244,7 +1291,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 			initialise();
 			final int[] progressing = { 0, getBookmarks().size() };
 			getBookmarks().forEach((key, value) -> {
-				serviceTaskFeedback.send(task.getId(), new MessageHandler("info.printing.report." + extractName(key), null, task.update(progressing[0]++, progressing[1])));
+				serviceTaskFeedback.send(task.getId(), new MessageHandler("info.printing.report." + extractName(key),
+						null, task.update(progressing[0]++, progressing[1])));
 				DocxChainFactory.build(new Docx4jData(key, value, this));
 			});
 			updateProperties();
@@ -1265,12 +1313,18 @@ public class Docx4jReportImpl implements Docx4jReport {
 	protected void updateProperties() throws Docx4JException {
 
 		final List<Double> compliances = new LinkedList<>();
-		final String currentTime = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT).replaceAll("\\.\\d*", "");
+		final String currentTime = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
+				.replaceAll("\\.\\d*", "");
+		final double soaThreshold = getAnalysis().getSimpleParameters().stream()
+				.filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue())
+				.findAny().orElse(0D);
 
 		for (AnalysisStandard analysisStandard : getAnalysis().getAnalysisStandards().values()) {
-			final long count = analysisStandard.getMeasures().stream().filter(m -> m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE)).count();
+			final long count = analysisStandard.getMeasures().stream()
+					.filter(m -> m.getStatus().equalsIgnoreCase(Constant.MEASURE_STATUS_NOT_APPLICABLE)).count();
 			final String name = analysisStandard.getStandard().is(Constant.STANDARD_27001) ? Constant.STANDARD_27001
-					: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002 : analysisStandard.getStandard().getName();
+					: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002
+							: analysisStandard.getStandard().getName();
 			final double compliance = ChartGenerator.ComputeCompliance(analysisStandard, valueFactory);
 			if (count > 0)
 				setCustomProperty(name.toUpperCase() + NA_MEASURES, count);
@@ -1278,22 +1332,35 @@ public class Docx4jReportImpl implements Docx4jReport {
 			compliances.add(compliance);
 		}
 
+		setCustomProperty(MAX_IMPL, soaThreshold);
+
+		setCustomProperty("NON-COMPLIANT-MEASURES",
+				getAnalysis().getAnalysisStandards().values().stream().flatMap(e -> e.getMeasures().stream())
+						.filter(m -> !Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(m.getStatus())
+								&& m.getMeasureDescription().isComputable()
+								&& m.getImplementationRateValue(getValueFactory()) < soaThreshold)
+						.count());
+
 		setCustomProperty(PHASE_COUNT, analysis.getPhases().stream().filter(phase -> phase.getNumber() > 0).count());
 
 		setCustomProperty(CURRENT_COMPLIANCE, Math.round(compliances.stream().mapToDouble(c -> c).average().orElse(0)));
 
-		setCustomProperty(MAX_IMPL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.SOA_THRESHOLD)).map(p -> p.getValue().doubleValue())
-				.findAny().orElse(0D));
+		setCustomProperty(EXTERNAL_WL_VAL,
+				getAnalysis().getSimpleParameters().stream()
+						.filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
+						.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 
-		setCustomProperty(EXTERNAL_WL_VAL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE))
-				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
-
-		setCustomProperty(INTERNAL_WL_VAL, getAnalysis().getSimpleParameters().stream().filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
-				.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+		setCustomProperty(INTERNAL_WL_VAL,
+				getAnalysis().getSimpleParameters().stream()
+						.filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
+						.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 
 		setCustomProperty(NUMBER_MEASURES_ALL_PHASES,
-				getAnalysis().getAnalysisStandards().values().stream().flatMap(e -> e.getMeasures().stream()).filter(m -> m.getMeasureDescription().isComputable()
-						&& !(m.getImplementationRateValue(getValueFactory()) >= 100 || Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(m.getStatus()))).count());
+				getAnalysis().getAnalysisStandards().values().stream().flatMap(e -> e.getMeasures().stream())
+						.filter(m -> m.getMeasureDescription().isComputable()
+								&& !(m.getImplementationRateValue(getValueFactory()) >= 100
+										|| Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(m.getStatus())))
+						.count());
 
 		setCustomProperty(CLIENT_NAME, getAnalysis().getCustomer().getOrganisation());
 
@@ -1305,20 +1372,24 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		getWordMLPackage().getDocPropsCorePart().getContents().getModified().getContent().clear();
 
-		getWordMLPackage().getDocPropsExtendedPart().getContents().setCompany(getAnalysis().getCustomer().getOrganisation());
+		getWordMLPackage().getDocPropsExtendedPart().getContents()
+				.setCompany(getAnalysis().getCustomer().getOrganisation());
 
-		getWordMLPackage().getDocPropsExtendedPart().getContents().setManager(getAnalysis().getCustomer().getContactPerson());
+		getWordMLPackage().getDocPropsExtendedPart().getContents()
+				.setManager(getAnalysis().getCustomer().getContactPerson());
 
-		getWordMLPackage().getDocPropsCorePart().getContents().getCreator().getContent()
-				.add(String.format("%s %s", getAnalysis().getOwner().getFirstName(), getAnalysis().getOwner().getLastName()));
+		getWordMLPackage().getDocPropsCorePart().getContents().getCreator().getContent().add(String.format("%s %s",
+				getAnalysis().getOwner().getFirstName(), getAnalysis().getOwner().getLastName()));
 
 		getWordMLPackage().getDocPropsCorePart().getContents().getCreated().getContent().add(currentTime);
 
 		getWordMLPackage().getDocPropsCorePart().getContents().getModified().getContent().add(currentTime);
 
-		getWordMLPackage().getDocPropsCorePart().getContents().setLastModifiedBy(getMessage("report.export.from.ts", "Exported from TRICK Service"));
+		getWordMLPackage().getDocPropsCorePart().getContents()
+				.setLastModifiedBy(getMessage("report.export.from.ts", "Exported from TRICK Service"));
 
-		getWordMLPackage().getMainDocumentPart().getDocumentSettingsPart().getContents().setUpdateFields(getFactory().createBooleanDefaultTrue());
+		getWordMLPackage().getMainDocumentPart().getDocumentSettingsPart().getContents()
+				.setUpdateFields(getFactory().createBooleanDefaultTrue());
 
 		updateALEAndAssetTypeProperties();
 
@@ -1327,8 +1398,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	private void updateALEAndAssetTypeProperties() throws Docx4JException {
-		if (!(getAnalysis().isQuantitative()
-				|| getBookmarks().keySet().parallelStream().anyMatch(e -> e.equalsIgnoreCase("ts_qt_asset") || e.equalsIgnoreCase("ts_qt_assessment"))))
+		if (!(getAnalysis().isQuantitative() || getBookmarks().keySet().parallelStream()
+				.anyMatch(e -> e.equalsIgnoreCase("ts_qt_asset") || e.equalsIgnoreCase("ts_qt_assessment"))))
 			return;
 		updateAssetValueProperties();
 		updateAssessmentALEProperties();
@@ -1355,8 +1426,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private void updateAssetValueProperties() throws Docx4JException {
 		final DecimalFormat assetDecimalFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-		final Map<String, Double> assetTypeValues = analysis.findSelectedAssets().stream()
-				.collect(Collectors.groupingBy(asset -> asset.getAssetType().getName(), Collectors.summingDouble(Asset::getValue)));
+		final Map<String, Double> assetTypeValues = analysis.findSelectedAssets().stream().collect(Collectors
+				.groupingBy(asset -> asset.getAssetType().getName(), Collectors.summingDouble(Asset::getValue)));
 		final List<SummaryStage> summaries = getSummaryStage(ActionPlanMode.APPN);
 		final List<Phase> phases = analysis.findUsablePhase();
 
@@ -1369,7 +1440,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		double time = 0, sumRosi = 0, sumDRosi = 0, sumCost = 0;
 		for (SummaryStage stage : summaries) {
-			final Phase phase = phases.stream().filter(p -> stage.getStage().equals("Phase " + p.getNumber())).findAny().orElse(null);
+			final Phase phase = phases.stream().filter(p -> stage.getStage().equals("Phase " + p.getNumber())).findAny()
+					.orElse(null);
 			if (phase == null)
 				continue;
 			time += phase.getTime();
@@ -1432,44 +1504,44 @@ public class Docx4jReportImpl implements Docx4jReport {
 			return tmp;
 		final String prefix = type == AnalysisType.QUALITATIVE ? "ts_ql_" : "ts_qt_";
 		switch (tmp) {
-		case "additionalcollection":
-			return (type == AnalysisType.HYBRID ? "ts_hy_" : prefix) + tmp;
-		case "actionplan":
-		case "assessment":
-		case "asset":
-		case "assetnotselected":
-		case "chartcompliance27001":
-		case "chartcompliance27002":
-		case "impact":
-		case "impactlist":
-		case "phase":
-		case "proba":
-		case "summary":
-			return prefix + tmp;
-		case "chartalebyasset":
-		case "chartalebyassettype":
-		case "chartalebyscenario":
-		case "chartalebyscenariotype":
-		case "chartrentability":
-		case "chartriskbyasset":
-		case "chartriskbyassettype":
-		case "chartriskbyscenario":
-		case "chartriskbyscenariotype":
-		case "currentsecuritylevel":
-		case "listcollection":
-		case "measurescollection":
-		case "riskacceptance":
-		case "riskheatmap":
-		case "riskheatmapsummary":
-		case "scenario":
-		case "scope":
-		case "risk":
-		case "threat":
-			return "ts_" + tmp;
-		case "vul":
-			return "ts_vulnerability";
-		default:
-			return tmp;
+			case "additionalcollection":
+				return (type == AnalysisType.HYBRID ? "ts_hy_" : prefix) + tmp;
+			case "actionplan":
+			case "assessment":
+			case "asset":
+			case "assetnotselected":
+			case "chartcompliance27001":
+			case "chartcompliance27002":
+			case "impact":
+			case "impactlist":
+			case "phase":
+			case "proba":
+			case "summary":
+				return prefix + tmp;
+			case "chartalebyasset":
+			case "chartalebyassettype":
+			case "chartalebyscenario":
+			case "chartalebyscenariotype":
+			case "chartrentability":
+			case "chartriskbyasset":
+			case "chartriskbyassettype":
+			case "chartriskbyscenario":
+			case "chartriskbyscenariotype":
+			case "currentsecuritylevel":
+			case "listcollection":
+			case "measurescollection":
+			case "riskacceptance":
+			case "riskheatmap":
+			case "riskheatmapsummary":
+			case "scenario":
+			case "scope":
+			case "risk":
+			case "threat":
+				return "ts_" + tmp;
+			case "vul":
+				return "ts_vulnerability";
+			default:
+				return tmp;
 		}
 	}
 
