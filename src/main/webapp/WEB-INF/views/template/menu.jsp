@@ -90,6 +90,8 @@
 								</a></li>
 								<li><a href="#" onclick="return addCSSFParameters()"> <spring:message code="label.add.css_parameters" text="Add CSSF Parameters" />
 								</a></li>
+								<li><a href="#" onclick="return fixQualitativeImpactParameter()"> <spring:message code="label.fix.qualitative_impact_parameter" text="Fix qualitative impact parameters" />
+								</a></li>
 								<li class="divider"></li>
 								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Major" text="Major patches" /></li>
 								<li><a href="#" onclick="return updateAnalysesRiskAndItemInformation()"> <spring:message code="label.update.analyses.risk_item.information"

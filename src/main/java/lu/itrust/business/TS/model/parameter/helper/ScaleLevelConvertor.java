@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
@@ -34,7 +35,8 @@ public class ScaleLevelConvertor {
 
 	private List<IBoundedParameter> parameters = new LinkedList<>();
 
-	public ScaleLevelConvertor(Map<Integer, List<Integer>> mappers, List<ImpactParameter> impactParameters, List<LikelihoodParameter> likelihoods) {
+	public ScaleLevelConvertor(Map<Integer, List<Integer>> mappers, List<ImpactParameter> impactParameters,
+			List<LikelihoodParameter> likelihoods) {
 		try {
 			initialise(impactParameters.size() + likelihoods.size());
 			mappers.values().forEach(levels -> levels.sort((l1, l2) -> l1.compareTo(l2)));
@@ -45,42 +47,51 @@ public class ScaleLevelConvertor {
 				return result == 0 ? p1.getLevel().compareTo(p2.getLevel()) : result;
 			});
 		} catch (Exception e) {
-			throw new TrickException("error.scale.level.migrate.convertor.initialise", "Scale level cannot be migrated", e);
+			throw new TrickException("error.scale.level.migrate.convertor.initialise", "Scale level cannot be migrated",
+					e);
 		}
 
 	}
 
 	private void setUpLikelihood(Map<Integer, List<Integer>> mappers, List<LikelihoodParameter> likelihoods) {
-		Map<Integer, LikelihoodParameter> levelMapping = likelihoods.stream().collect(Collectors.toMap(LikelihoodParameter::getLevel, Function.identity()));
-		List<LikelihoodParameter> parameters = new ArrayList<>(mappers.size());
+		final Map<Integer, LikelihoodParameter> levelMapping = likelihoods.stream()
+				.collect(Collectors.toMap(LikelihoodParameter::getLevel, Function.identity()));
+		final List<LikelihoodParameter> parameters = new ArrayList<>(mappers.size());
 		mappers.forEach((level, matchingLevels) -> {
 			if (matchingLevels.isEmpty()) {
-				LikelihoodParameter parameter = new LikelihoodParameter(level, "p" + level);
+				final LikelihoodParameter parameter = new LikelihoodParameter(level, "p" + level);
 				parameters.add(parameter);
 				this.parameters.add(parameter);
 			} else {
-				LikelihoodParameter parameter = levelMapping.get(matchingLevels.get(0)).duplicate();
+				final LikelihoodParameter parameter = levelMapping.get(matchingLevels.get(0)).duplicate();
 				parameter.setLevel(level);
 				parameter.setAcronym("p" + level);
 				matchingLevels.forEach(lvl -> {
-					LikelihoodParameter likelihoodParameter = levelMapping.get(lvl);
+					final LikelihoodParameter likelihoodParameter = levelMapping.get(lvl);
 					parameterMapper.put(likelihoodParameter, parameter);
 					acronymMappers.put(likelihoodParameter.getAcronym(), parameter);
-					levelMappers.put(likelihoodParameter.getTypeName() + "-+-" + likelihoodParameter.getLevel(), parameter);
+					levelMappers.put(likelihoodParameter.getTypeName() + "-+-" + likelihoodParameter.getLevel(),
+							parameter);
 				});
 				parameters.add(parameter);
 				this.parameters.add(parameter);
 			}
 		});
-		double maxValue = likelihoods.stream().mapToDouble(LikelihoodParameter::getValue).max().orElse(12);
-		computeLikelihoods(mappers.size(), maxValue, parameters);
-		LikelihoodParameter.ComputeScales(parameters);
+
+		likelihoods.sort((p1, p2) -> p1.getLevel().compareTo(p2.getLevel()));
+		if (IntStream.range(0, likelihoods.size() - 1)
+				.anyMatch(i -> likelihoods.get(i).getValue() > likelihoods.get(i + 1).getValue())) {
+			final double maxValue = likelihoods.stream().mapToDouble(LikelihoodParameter::getValue).max().orElse(12);
+			computeLikelihoods(maxValue, parameters);
+			LikelihoodParameter.ComputeScales(parameters);
+		}
 	}
 
 	private void setUpImpacts(Map<Integer, List<Integer>> mappers, List<ImpactParameter> impactParameters) {
-		Map<ScaleType, List<ImpactParameter>> mappedImpacts = new LinkedHashMap<>();
+		final Map<ScaleType, List<ImpactParameter>> mappedImpacts = new LinkedHashMap<>();
 		impactParameters.stream().collect(Collectors.groupingBy(ImpactParameter::getType)).forEach((type, impacts) -> {
-			Map<Integer, ImpactParameter> levelMapping = impacts.stream().collect(Collectors.toMap(ImpactParameter::getLevel, Function.identity()));
+			Map<Integer, ImpactParameter> levelMapping = impacts.stream()
+					.collect(Collectors.toMap(ImpactParameter::getLevel, Function.identity()));
 			mappedImpacts.put(type, new ArrayList<>(mappers.size()));
 			mappers.forEach((level, matchingLevels) -> {
 				if (matchingLevels.isEmpty()) {
@@ -102,16 +113,22 @@ public class ScaleLevelConvertor {
 				}
 			});
 		});
-		double maxValue = impactParameters.stream().mapToDouble(i -> i.getValue().doubleValue()).max().orElse(300000);
+
+		final double maxValue = impactParameters.stream().mapToDouble(i -> i.getValue().doubleValue()).max()
+				.orElse(300000);
 		mappedImpacts.forEach((type, impacts) -> {
-			impacts.sort((p1, p2) -> p1.getValue().compareTo(p2.getValue()));
-			computeImpacts(mappers.size(), maxValue, impacts);
-			ImpactParameter.ComputeScales(impacts);
+			impacts.sort((p1, p2) -> p1.getLevel().compareTo(p2.getLevel()));
+			if (IntStream.range(0, impacts.size() - 1)
+					.anyMatch(i -> impacts.get(i).getValue() > impacts.get(i + 1).getValue())) {
+				computeImpacts(maxValue, impacts);
+				ImpactParameter.ComputeScales(impacts);
+			}
 		});
 
 	}
 
-	private void computeLikelihoods(int maxLevel, double maxValue, List<LikelihoodParameter> likelihoods) {
+	public static void computeLikelihoods(double maxValue, List<LikelihoodParameter> likelihoods) {
+		final int maxLevel = likelihoods.size();
 		double currentValue = maxValue;
 		if (maxLevel % 2 == 0) {
 			for (int level = maxLevel - 1; level >= 0; level--) {
@@ -123,7 +140,8 @@ public class ScaleLevelConvertor {
 		} else {
 			LikelihoodParameter prev = null;
 			for (int level = maxLevel - 2; level > 0; level -= 2) {
-				LikelihoodParameter current = likelihoods.get(level), next = prev == null ? likelihoods.get(level + 1) : prev;
+				LikelihoodParameter current = likelihoods.get(level),
+						next = prev == null ? likelihoods.get(level + 1) : prev;
 				prev = likelihoods.get(level - 1);
 				if (prev.getLevel() == maxLevel)
 					prev.setValue(currentValue);
@@ -135,7 +153,8 @@ public class ScaleLevelConvertor {
 
 	}
 
-	private void computeImpacts(int maxLevel, double maxValue, List<ImpactParameter> impacts) {
+	public static void computeImpacts(double maxValue, List<ImpactParameter> impacts) {
+		final int maxLevel = impacts.size();
 		double currentValue = maxValue;
 		if (maxLevel % 2 == 0) {
 			for (int level = maxLevel - 1; level >= 0; level--) {

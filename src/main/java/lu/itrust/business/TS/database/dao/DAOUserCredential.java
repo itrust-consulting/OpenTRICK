@@ -10,5 +10,4 @@ import lu.itrust.business.TS.database.template.TemplateUserCredential;
  *
  */
 public interface DAOUserCredential extends TemplateUserCredential {
-
 }

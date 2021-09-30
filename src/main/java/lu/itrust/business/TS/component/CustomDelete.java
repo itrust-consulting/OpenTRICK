@@ -390,8 +390,9 @@ public class CustomDelete {
 		if (resetPassword != null)
 			daoResetPassword.delete(resetPassword);
 
-		daoWordReport.deeleteByUser(user);
-		daoUserSqLite.deeleteByUser(user);
+		user.getCustomers().clear();
+		daoWordReport.deleteByUser(user);
+		daoUserSqLite.deleteByUser(user);
 		daoUserAnalysisRight.deleteByUser(user);
 		daoAnalysisShareInvitation.deleteByUser(user);
 		daoEmailValidatingRequest.deleteByUser(user);

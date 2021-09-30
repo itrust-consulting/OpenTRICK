@@ -246,7 +246,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 	private void update(RiskProbaImpact riskProbaImpact, ScaleLevelConvertor convertor) {
 		if (riskProbaImpact.getProbability() != null)
 			riskProbaImpact.setProbability((LikelihoodParameter) convertor.find(riskProbaImpact.getProbability()));
-		List<ImpactParameter> impactParameters = riskProbaImpact.getImpacts().stream().map(i -> (ImpactParameter) convertor.find(i)).collect(Collectors.toList());
+		final List<ImpactParameter> impactParameters = riskProbaImpact.getImpacts().stream().map(i -> (ImpactParameter) convertor.find(i)).collect(Collectors.toList());
 		riskProbaImpact.getImpacts().clear();
 		riskProbaImpact.setImpacts(impactParameters);
 	}

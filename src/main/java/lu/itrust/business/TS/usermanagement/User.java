@@ -137,10 +137,10 @@ public class User implements Serializable, IUser {
 	@CollectionTable(name = "UserSetting", joinColumns = @JoinColumn(name = "fiUser"))
 	private Map<String, String> userSettings = new HashMap<String, String>();
 	
-	@OneToMany(orphanRemoval=true)
+	@OneToMany
 	@JoinColumn(name="fiUser")
 	@MapKey(name="ticketingSystem")
-	@Cascade(CascadeType.ALL)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private Map<TicketingSystem,UserCredential> credentials = new LinkedHashMap<>();
 	

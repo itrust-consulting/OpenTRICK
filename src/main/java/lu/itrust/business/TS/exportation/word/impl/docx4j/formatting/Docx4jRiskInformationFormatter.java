@@ -45,7 +45,7 @@ public class Docx4jRiskInformationFormatter extends Docx4jFormatter {
 		final String tableName = findId(table);
 		final int[] cols = tableName.equals("TableTSThreat") ? new int[] { 467, 1835, 542, 526, 501, 5757 }
 				: tableName.equals("TableTSRisk") ? new int[] { 467, 1835, 542, 526, 6258 }
-						: new int[] { 467, 6258, 542, 526, 1835 };
+						: new int[] { 467, 4046, 542, 526, 4047 };
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		getTrs(table).forEach(tr -> updateRow(tr, cols, "dxa"));

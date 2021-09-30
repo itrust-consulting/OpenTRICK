@@ -42,7 +42,7 @@ public interface DAOUserSqLite {
 
 	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter);
 
-	public void deeleteByUser(User user);
+	public void deleteByUser(User user);
 
 	public List<UserSQLite> findByCreatedBefore(Date date, int page, int size);
 

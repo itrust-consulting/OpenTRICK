@@ -202,7 +202,7 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 				exporter.setCellText((Tc) row.getContent().get(colIndex++),
 						exporter.getMessage("report.assessment.scenarios", null, "Scenarios"), alignmentLeft);
 				exporter.setCellText((Tc) row.getContent().get(colIndex++),
-						exporter.getMessage("report.assessment.impact.financial", null, "Fin."), alignmentCenter);
+						exporter.getMessage("report.assessment.impact.financial", null, "Fin.(k€/y)"), alignmentCenter);
 				for (ScaleType impact : scaleTypes)
 					exporter.setCellText((Tc) row.getContent().get(colIndex++),
 							impact.getShortName(exporter.getLocale().getLanguage()), alignmentCenter);
@@ -224,10 +224,11 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 							.format(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME) * 0.001));
 					for (ScaleType type : scaleTypes) {
 						final IValue value = assessment.getImpact(type.getName());
-						exporter.addCellNumber((Tc) row.getContent().get(colIndex++),
+						exporter.setCellText((Tc) row.getContent().get(colIndex++),
 								value == null || value.getLevel() == 0
 										? exporter.getMessage("label.status.na", null, "na")
-										: value.getLevel().toString());
+										: value.getLevel().toString(),
+								alignmentCenter);
 					}
 
 					final Object likelihood = assessment.getLikelihood() == null ? null

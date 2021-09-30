@@ -44,7 +44,7 @@ public interface DAOWordReport {
 
 	List<String> getDistinctIdentifierByUser(User user);
 
-	void deeleteByUser(User user);
+	void deleteByUser(User user);
 
 	List<WordReport> findByCreatedBefore(Date date, int page, int size);
 

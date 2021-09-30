@@ -90,7 +90,8 @@ public class DAOUserCredentialHBM extends DAOHibernate implements DAOUserCredent
 	 */
 	@Override
 	public boolean exists(Long id) {
-		return getSession().createQuery("Select count(*) > 0 From UserCredential where id = :id", Boolean.class).setParameter("id", id).uniqueResult();
+		return getSession().createQuery("Select count(*) > 0 From UserCredential where id = :id", Boolean.class)
+				.setParameter("id", id).uniqueResult();
 	}
 
 	/*
@@ -112,7 +113,8 @@ public class DAOUserCredentialHBM extends DAOHibernate implements DAOUserCredent
 	@Override
 	public List<UserCredential> findAll(List<Long> ids) {
 		return ids == null || ids.isEmpty() ? Collections.emptyList()
-				: getSession().createQuery("From UserCredential where id in :ids", UserCredential.class).setParameterList("ids", ids).list();
+				: getSession().createQuery("From UserCredential where id in :ids", UserCredential.class)
+						.setParameterList("ids", ids).list();
 	}
 
 	/*
@@ -144,7 +146,7 @@ public class DAOUserCredentialHBM extends DAOHibernate implements DAOUserCredent
 	 */
 	@Override
 	public List<Long> save(List<UserCredential> entities) {
-		return entities.stream().map(e-> save(e)).collect(Collectors.toList());
+		return entities.stream().map(e -> save(e)).collect(Collectors.toList());
 	}
 
 	/*
@@ -166,7 +168,7 @@ public class DAOUserCredentialHBM extends DAOHibernate implements DAOUserCredent
 	 */
 	@Override
 	public void saveOrUpdate(List<UserCredential> entities) {
-		entities.forEach(e-> saveOrUpdate(e));
+		entities.forEach(e -> saveOrUpdate(e));
 	}
 
 	/*
@@ -183,12 +185,16 @@ public class DAOUserCredentialHBM extends DAOHibernate implements DAOUserCredent
 
 	@Override
 	public List<UserCredential> findByUsername(String username) {
-		return getSession().createQuery("Select credential From User user inner join user.credentials as credential where user.login = :username order by credential.ticketingSystem.customer.organisation", UserCredential.class).setParameter("username", username).list();
+		return getSession().createQuery(
+				"Select credential From User user inner join user.credentials as credential where user.login = :username order by credential.ticketingSystem.customer.organisation",
+				UserCredential.class).setParameter("username", username).list();
 	}
 
 	@Override
 	public UserCredential findByIdAndUsername(long id, String name) {
-		return getSession().createQuery("Select credential From User user inner join user.credentials as credential where user.login = :username and credential.id = :id", UserCredential.class).setParameter("id", id).setParameter("username", name).uniqueResult();
+		return getSession().createQuery(
+				"Select credential From User user inner join user.credentials as credential where user.login = :username and credential.id = :id",
+				UserCredential.class).setParameter("id", id).setParameter("username", name).uniqueResult();
 	}
 
 }

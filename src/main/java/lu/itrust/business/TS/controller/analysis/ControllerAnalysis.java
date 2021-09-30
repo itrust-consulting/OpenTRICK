@@ -64,6 +64,7 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.Comparators;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
@@ -619,6 +620,7 @@ public class ControllerAnalysis extends AbstractController {
 					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
+			analysis.getAssets().sort(Comparators.ASSET());
 			analysis.getHistories().sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);

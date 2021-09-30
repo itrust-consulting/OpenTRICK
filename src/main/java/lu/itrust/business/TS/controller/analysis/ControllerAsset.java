@@ -9,7 +9,6 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import java.security.Principal;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,8 +43,8 @@ import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.helper.Comparators;
 import lu.itrust.business.TS.helper.JsonMessage;
-import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
@@ -311,7 +310,7 @@ public class ControllerAsset {
 		final List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		final List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 
-		assets.sort(sortAsset());
+		assets.sort(Comparators.ASSET());
 
 		loadAnalysisSettings(model, integer);
 		// load all assets of analysis to model
@@ -324,17 +323,7 @@ public class ControllerAsset {
 		return "analyses/single/components/asset/asset";
 	}
 
-	private Comparator<? super Asset> sortAsset() {
-		return (a1, a2) -> {
-			int result = Double.compare(a2.getValue(), a1.getValue());
-			if (result == 0) {
-				result = Double.compare(a2.getALE(), a1.getALE());
-				if (result == 0)
-					result = NaturalOrderComparator.compareTo(a1.getName(), a2.getName());
-			}
-			return result;
-		};
-	}
+	
 
 	/**
 	 * select: <br>

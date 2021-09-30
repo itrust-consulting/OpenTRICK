@@ -192,7 +192,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	}
 
 	@Override
-	public void deeleteByUser(User user) {
+	public void deleteByUser(User user) {
 		getSession().createQuery("Delete From UserSQLite where user =:user").setParameter("user", user).executeUpdate();
 	}
 
