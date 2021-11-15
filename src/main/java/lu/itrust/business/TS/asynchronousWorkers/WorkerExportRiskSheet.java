@@ -381,6 +381,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		worksheet.getSheetData().getRow().add(row);
 		worksheet.getSheetData().getRow().add(row1);
 
+		createRow(worksheet.getSheetData(), rowCount);
+
 		int step = 2, size = types.size() + step, netIndex = (showRawColumn ? 6 + types.size() : 4), expIndex = netIndex + types.size() + step,
 				index = expIndex + types.size() + step;
 		setValue(row.getC().get(0), getMessage("report.risk_sheet.risk_id", "Risk ID"));
@@ -407,19 +409,19 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		for (int i = 0; i < 4; i++) {
 			CTMergeCell mergeCell = factory.createCTMergeCell();
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
-			mergeCell.setRef(getAddress(1, i, 2, i));
+			mergeCell.setRef(getAddress(0, i, 1, i));
 		}
 
 		for (int i = 4; i <= expIndex; i += size) {
 			CTMergeCell mergeCell = factory.createCTMergeCell();
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
-			mergeCell.setRef(getAddress(1, i, 1, i + size - 1));
+			mergeCell.setRef(getAddress(0, i, 1, i + size - 1));
 		}
 
 		for (int i = expIndex + types.size() + 2; i < index; i++) {
 			CTMergeCell mergeCell = factory.createCTMergeCell();
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
-			mergeCell.setRef(getAddress(1, i, 2, i));
+			mergeCell.setRef(getAddress(0, i, 1, i));
 		}
 	}
 
@@ -597,7 +599,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
 			addHeader(worksheetPart.getContents(), factory, scaleTypes);
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
-			addEstimation(worksheetPart.getContents(), factory, directs, scaleTypes);
+			if(!directs.isEmpty())
+				addEstimation(worksheetPart.getContents(), factory, directs, scaleTypes);
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
 			if (!indirects.isEmpty())
 				addEstimation(worksheetPart.getContents(), factory, indirects, scaleTypes);

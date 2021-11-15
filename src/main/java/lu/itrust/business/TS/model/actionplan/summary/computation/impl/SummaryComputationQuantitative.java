@@ -19,8 +19,8 @@ import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * @author eomar
@@ -28,15 +28,14 @@ import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
  */
 public class SummaryComputationQuantitative extends SummaryComputation {
 
-	private ValueFactory factory;
-
 	/**
 	 * @param factory
 	 *
 	 */
 	public SummaryComputationQuantitative(Analysis analysis, ValueFactory factory, List<AnalysisStandard> analysisStandards) {
-		setFactory(factory);
+		
 		setAnalysis(analysis);
+		setValueFactory(factory);
 		setPhases(new ArrayList<>());
 		setCurrentValues(new SummaryValues(analysisStandards));
 		setPreMaintenance(new MaintenanceRecurrentInvestment());
@@ -133,24 +132,10 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		getAnalysis().addSummaryEntries(getSummaryStages());
 	}
 
-	/**
-	 * @return the factory
-	 */
-	public ValueFactory getFactory() {
-		return factory;
-	}
-
-	/**
-	 * @param factory the factory to set
-	 */
-	public void setFactory(ValueFactory factory) {
-		this.factory = factory;
-	}
-
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
 		analysisStandards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
-				if (measure.getImplementationRateValue(getFactory()) >= 100)
+				if (measure.getImplementationRateValue(getValueFactory()) >= 100)
 					getPreMaintenance().add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 				if (!this.getPhases().contains(measure.getPhase()))
 					this.getPhases().add(measure.getPhase());
@@ -180,7 +165,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 			helper.conformance = 0;
 			helper.notCompliantMeasureCount = 0;
 			for (Measure measure : helper.standard.getMeasures()) {
-				final double imprate = measure.getImplementationRateValue(getFactory());
+				final double imprate = measure.getImplementationRateValue(getValueFactory());
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
@@ -192,7 +177,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 							numerator += (1.0 - imprate * 0.01);
 							getCurrentValues().measureCount++;
 						}
-						if (imprate < getSoa() && measure instanceof NormalMeasure && (!isSelected || measure.getPhase().getNumber() > number)) {
+						if (imprate < getSoa() && (measure instanceof AbstractNormalMeasure) && (!isSelected || measure.getPhase().getNumber() > number)) {
 							helper.notCompliantMeasureCount++;
 						}
 					}

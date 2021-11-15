@@ -45,6 +45,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.helper.InstanceManager;
+import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -236,6 +237,7 @@ public class WorkerSOAExport extends WorkerImpl {
 				if (p == null)
 					document.getContent().add(p = new P());
 				setText(setStyle(p, "Heading1"), analysisStandard.getStandard().getName());
+				analysisStandard.getMeasures().sort((e1,e2)-> NaturalOrderComparator.compareTo(e1.getMeasureDescription().getReference(), e2.getMeasureDescription().getReference()));
 				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, progressing);
 				document.getContent().add(tbl);
 			}

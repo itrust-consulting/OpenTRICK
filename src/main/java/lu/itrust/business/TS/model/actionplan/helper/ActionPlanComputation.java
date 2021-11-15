@@ -307,7 +307,7 @@ public class ActionPlanComputation {
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 70));
 
-		new SummaryComputationQualitative(analysis, new LinkedList<>(tmpAnalysisStandards.values())).compute(ActionPlanMode.APQ);
+		new SummaryComputationQualitative(analysis, new LinkedList<>(tmpAnalysisStandards.values()),factory).compute(ActionPlanMode.APQ);
 
 		return 95;
 	}

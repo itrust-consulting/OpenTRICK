@@ -13,6 +13,7 @@ import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurren
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * @author eomar
@@ -29,6 +30,8 @@ public abstract class SummaryComputation implements ISummaryComputation {
 	private Analysis analysis;
 	
 	private ActionPlanType actionPlanType;
+
+	private ValueFactory valueFactory;
 
 	private List<Phase> phases;
 
@@ -52,6 +55,14 @@ public abstract class SummaryComputation implements ISummaryComputation {
 	@Override
 	public Analysis getAnalysis() {
 		return this.analysis;
+	}
+
+	public ValueFactory getValueFactory() {
+		return valueFactory;
+	}
+
+	public void setValueFactory(ValueFactory valueFactory) {
+		this.valueFactory = valueFactory;
 	}
 
 	/*

@@ -21,8 +21,8 @@ import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 
 /**
  * @author eomar
@@ -35,9 +35,10 @@ public class SummaryComputationQualitative extends SummaryComputation {
 	/**
 	 *
 	 */
-	public SummaryComputationQualitative(Analysis analysis, List<AnalysisStandard> analysisStandards) {
+	public SummaryComputationQualitative(Analysis analysis, List<AnalysisStandard> analysisStandards, ValueFactory valueFactory) {
 		setAnalysis(analysis);
 		setPhases(new ArrayList<>());
+		setValueFactory(valueFactory);
 		setSummaryStages(new ArrayList<SummaryStage>());
 		setActionPlans(analysis.findActionPlan(ActionPlanMode.APQ));
 		setMaintenances(new HashMap<>());
@@ -171,7 +172,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			helper.notCompliantMeasureCount = 0;
 			final AnalysisStandard analysisStandard = getAnalysisStandards().get(helper.standard.getStandard().getName());
 			for (Measure measure : analysisStandard.getMeasures()) {
-				final double imprate = measure.getImplementationRateValue((ValueFactory) null);
+				final double imprate = measure.getImplementationRateValue(getValueFactory());
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
@@ -184,7 +185,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 							getCurrentValues().measureCount++;
 						}
 
-						if (imprate < getSoa() && measure instanceof NormalMeasure && (!isSelected || measure.getPhase().getNumber() > number))
+						if (imprate < getSoa() && measure instanceof AbstractNormalMeasure && (!isSelected || measure.getPhase().getNumber() > number))
 							helper.notCompliantMeasureCount++;
 					}
 
