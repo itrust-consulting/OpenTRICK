@@ -381,8 +381,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		worksheet.getSheetData().getRow().add(row);
 		worksheet.getSheetData().getRow().add(row1);
 
-		createRow(worksheet.getSheetData(), rowCount);
-
 		int step = 2, size = types.size() + step, netIndex = (showRawColumn ? 6 + types.size() : 4), expIndex = netIndex + types.size() + step,
 				index = expIndex + types.size() + step;
 		setValue(row.getC().get(0), getMessage("report.risk_sheet.risk_id", "Risk ID"));
@@ -415,14 +413,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		for (int i = 4; i <= expIndex; i += size) {
 			CTMergeCell mergeCell = factory.createCTMergeCell();
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
-			mergeCell.setRef(getAddress(0, i, 1, i + size - 1));
+			mergeCell.setRef(getAddress(0, i, 0, i + size - 1));
 		}
 
-		for (int i = expIndex + types.size() + 2; i < index; i++) {
+		for (int i = expIndex + size; i < index; i++) {
 			CTMergeCell mergeCell = factory.createCTMergeCell();
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
 			mergeCell.setRef(getAddress(0, i, 1, i));
 		}
+	
 	}
 
 	private void addRiskSheetHeader(Document document, RiskProfile riskProfile, boolean isFirst) {
