@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
 import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_2;
+import static lu.itrust.business.TS.exportation.word.ExportReport.TB_HEADER_0;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.setColor;
 
 import java.util.LinkedList;
@@ -65,25 +66,29 @@ public class Docx4jHeatMapRiskAcceptanceBuilder extends Docx4jBuilder {
 		if (paragraph != null) {
 			final Tbl table = exporter.createTable("TableTSRiskAcceptance", exporter.getAnalysis().getRiskAcceptanceParameters().size() + 1, 2);
 			final Tr header = (Tr) table.getContent().get(0);
-			final TextAlignment alignmentCenter = exporter.createAlignment("center");
+			//final TextAlignment alignment = exporter.createAlignment("left");
 			// set header
-			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
+			exporter.setCurrentParagraphId(TB_HEADER_0);
 			exporter.setCellText((Tc) header.getContent().get(0), exporter.getMessage("report.risk_acceptance.title.level", null, "Risk level"));
 			exporter.setCellText((Tc) header.getContent().get(1), exporter.getMessage("report.risk_acceptance.title.acceptance.criteria", null, "Risk acceptance criteria"));
 			int index = 1;
 			for (RiskAcceptanceParameter parameter : exporter.getAnalysis().getRiskAcceptanceParameters()) {
 				final Tr row = (Tr) table.getContent().get(index++);
 				final Tc cell = (Tc) row.getContent().get(0);
+
+				exporter.setCurrentParagraphId(TB_HEADER_0);
 				exporter.addCellParagraph(cell, parameter.getLabel());
-				exporter.setAlignment(cell, alignmentCenter);
+				//exporter.setAlignment(cell, alignment);
 				exporter.addCellParagraph(cell, exporter.getMessage("report.risk_acceptance.importance_threshold.value", new Object[] { parameter.getValue().intValue() },
 						"Importance threshold: " + parameter.getValue().intValue()), true);
+				
+				exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
 				exporter.addCellParagraph((Tc) row.getContent().get(1), parameter.getDescription());
 				if (!parameter.getColor().isEmpty())
 					setColor(cell, parameter.getColor().substring(1));
 			}
 			if (exporter.insertBefore(paragraph, table))
-				DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUALITATIVE, exporter.getColors());
+				DocxChainFactory.format(table, exporter.getTableStyleOrDefault("TableBLight"), AnalysisType.QUALITATIVE, exporter.getColors());
 		}
 		return true;
 	}

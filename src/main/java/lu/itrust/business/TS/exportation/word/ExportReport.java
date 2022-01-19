@@ -29,6 +29,10 @@ public interface ExportReport {
 
 	String MAX_IMPL = "MAX_IMPL";
 
+	String TB_HEADER_0 = "TabHeader0";
+
+	String TB_HEADER_1 = "TabHeader1";
+
 	String TS_TAB_TEXT_1 = "TSTabText1";
 
 	String TS_TAB_TEXT_2 = "TSTabText2";
@@ -72,6 +76,8 @@ public interface ExportReport {
 	ReportTemplate getTemplate();
 
 	Object getDefaultTableStyle();
+
+	Object getTableStyleOrDefault(String style);
 
 	ValueFactory getValueFactory();
 

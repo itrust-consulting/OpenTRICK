@@ -41,7 +41,7 @@ public class Docx4jScenarioFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = { 272, 3216, 6140 };
+		int[] cols = { 272, 1300, 7056 };
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		getTrs(table).forEach(tr -> updateRow(tr, cols, "dxa"));

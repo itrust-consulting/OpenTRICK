@@ -147,7 +147,7 @@ public abstract class Docx4jFormatter implements DocxFormatter {
 			if (style instanceof String)
 				((Tbl) data).getTblPr().getTblStyle().setVal(style.toString());
 			else if (style instanceof Style)
-				((Tbl) data).getTblPr().getTblStyle().setVal(((Style) style).getName().getVal());
+				((Tbl) data).getTblPr().getTblStyle().setVal(((Style) style).getStyleId());
 		}
 	}
 

@@ -779,6 +779,14 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return styles == null || defaultTableStyle == null ? defaultTableStyle : styles.get(defaultTableStyle);
 	}
 
+	@Override
+	public Object getTableStyleOrDefault(String style) {
+		if (style == null || style.isEmpty())
+			return defaultTableStyle;
+		final Object myStyle  = styles.get(style.trim());
+		return myStyle == null? styles.get(defaultTableStyle) : myStyle;
+	}
+
 	public String getDisplayName(AssetType type) {
 		return getMessage("label.asset_type." + type.getName().toLowerCase(), null, type.getName(), locale);
 	}
@@ -1616,5 +1624,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public void setColors(ColorSet colors) {
 		this.colors = colors;
 	}
+
+	
 
 }
