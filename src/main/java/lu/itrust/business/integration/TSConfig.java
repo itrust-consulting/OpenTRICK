@@ -15,6 +15,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.ServletRegistration;
 
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.apache.tomcat.util.descriptor.web.WebXmlParser;
@@ -29,7 +30,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -59,7 +59,7 @@ public class TSConfig {
 	private ResourceLoader resourceLoader;
 
 	@Autowired
-	private DriverManagerDataSource dataSource;
+	private BasicDataSource dataSource;
 
 	@Bean
 	public CommandLineRunner init(ServiceStorage serviceStorage) {

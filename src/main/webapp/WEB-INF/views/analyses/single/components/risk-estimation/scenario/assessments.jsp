@@ -172,7 +172,7 @@
 			</c:set>
 			<c:forEach items="${assessments}" var="assessment">
 				<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
-					<td style="height: 32px;"><spring:message text="${assessment.asset.name}" /></td>
+					<td style="height: 32px;" title='<spring:message text="${assessment.asset.comment}" />'><spring:message text="${assessment.asset.name}" /></td>
 					<td title="<fmt:formatNumber value="${assessment.asset.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.asset.value*0.001,0)}" /></td>
 					<c:set var="likelihood" value="${assessment.likelihood}" />
 					<c:choose>

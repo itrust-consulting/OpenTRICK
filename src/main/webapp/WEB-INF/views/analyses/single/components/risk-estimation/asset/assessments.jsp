@@ -177,7 +177,7 @@
 				</c:set>
 				<c:forEach items="${assessments}" var="assessment">
 					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
-						<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
+						<td style="height: 32px;" title='<spring:message text="${assessment.scenario.description}" />'><spring:message text="${assessment.scenario.name}" /></td>
 						<c:set var="likelihood" value="${assessment.likelihood}" />
 						<c:choose>
 							<c:when test="${type.qualitative}">

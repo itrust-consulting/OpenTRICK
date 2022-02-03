@@ -349,12 +349,12 @@ public class WorkerImportEstimation extends WorkerImpl {
 				continue;
 			Asset asset = assets.get(name.trim());
 			if (asset == null) {
-				if (isEmpty(oldName))
+				if (!isEmpty(oldName))
 					asset = assets.get(oldName);
 				if (asset == null) {
 					analysis.getAssets().add(asset = new Asset(name.trim()));
 					assets.put(asset.getName(), asset);
-				}
+				}else asset.setName(name);
 			}
 
 			for (int j = 0; j < columns.size(); j++) {
@@ -609,12 +609,12 @@ public class WorkerImportEstimation extends WorkerImpl {
 			Scenario scenario = scenarios.get(name.trim());
 			
 			if (scenario == null) {
-				if (isEmpty(oldName))
+				if (!isEmpty(oldName))
 					scenario = scenarios.get(oldName);
 				if (scenario == null) {
 					analysis.getScenarios().add(scenario = new Scenario(name));
 					scenarios.put(name, scenario);
-				}
+				}else scenario.setName(name);
 			}
 			
 			for (int j = 0; j < columns.size(); j++) {

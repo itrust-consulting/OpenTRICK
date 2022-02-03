@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.exportation.word.impl.docx4j.builder.chain;
 
+import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_1;
 import static lu.itrust.business.TS.exportation.word.ExportReport.TS_TAB_TEXT_2;
 import static lu.itrust.business.TS.exportation.word.ExportReport.TB_HEADER_0;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl.setColor;
@@ -82,7 +83,7 @@ public class Docx4jHeatMapRiskAcceptanceBuilder extends Docx4jBuilder {
 				exporter.addCellParagraph(cell, exporter.getMessage("report.risk_acceptance.importance_threshold.value", new Object[] { parameter.getValue().intValue() },
 						"Importance threshold: " + parameter.getValue().intValue()), true);
 				
-				exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
+				exporter.setCurrentParagraphId(TS_TAB_TEXT_1);
 				exporter.addCellParagraph((Tc) row.getContent().get(1), parameter.getDescription());
 				if (!parameter.getColor().isEmpty())
 					setColor(cell, parameter.getColor().substring(1));

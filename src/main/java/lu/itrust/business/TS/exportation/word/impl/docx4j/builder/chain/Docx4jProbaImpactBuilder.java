@@ -116,7 +116,7 @@ public class Docx4jProbaImpactBuilder extends Docx4jBuilder {
 			countrow++;
 		}
 		contents.add(
-				exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSEstimationTitle"), exporter.getMessage("report.parameter.title." + type.toLowerCase())));
+				exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "Heading3"), exporter.getMessage("report.parameter.title." + type.toLowerCase())));
 		contents.add(table);
 		if (exporter.insertAllBefore(paragraph, contents))
 			DocxChainFactory.format(table, exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors());
@@ -181,7 +181,7 @@ public class Docx4jProbaImpactBuilder extends Docx4jBuilder {
 			exporter.setCellText((Tc) row.getContent().get(1), parameter.getLabel());
 			exporter.setCellText((Tc) row.getContent().get(2), parameter.getDescription());
 		}
-		contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSEstimationTitle"), title));
+		contents.add(exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "Heading3"), title));
 		contents.add(table);
 	}
 

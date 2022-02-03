@@ -127,7 +127,7 @@
 		<property name="password" value="${app.settings.password.ecryption.key}" />
 	</bean>
 
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
+	<bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp2.BasicDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
 		p:username="${jdbc.username}" p:password="${jdbc.password}" />
 
 	<bean id="flywayConfig" class="org.flywaydb.core.api.configuration.ClassicConfiguration">
@@ -187,7 +187,7 @@
 		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
 			<property name="paramName" value="theme" />
 		</bean>
-
+     
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />
 		</bean>

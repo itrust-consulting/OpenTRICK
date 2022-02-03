@@ -9,7 +9,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<spring-boot.version>2.3.12.RELEASE</spring-boot.version>
-		<hibernate.version>5.5.7.Final</hibernate.version>
+		<hibernate.version>5.6.3.Final</hibernate.version>
 		<log4j2.version>2.17.1</log4j2.version>
 	</properties>
 
@@ -85,11 +85,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
-
+<!--
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -229,10 +229,18 @@
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
 		</dependency>
-
+     
+		<!---
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
+		</dependency>
+	-->
+	
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-dbcp</artifactId>
+			<version>10.0.14</version>
 		</dependency>
 
 		<dependency>
