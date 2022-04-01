@@ -36,7 +36,7 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 
 	protected static final String USERNAME = "admin";
 
-	protected static final String PASSWORD = "test.TS_65";
+	protected static final String PASSWORD = "test.TS_2022";
 
 	protected static final String ADMIN_USER_ID = "ADMIN_USER_ID";
 
