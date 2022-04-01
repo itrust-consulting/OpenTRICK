@@ -142,7 +142,7 @@ public class Constant {
 	public static final String REGEXP_VALID_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 	/** Password Regular expression */
-	public static final String REGEXP_VALID_PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*)(?=\\S+$).{8,}$";
+	public static final String REGEXP_VALID_PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*)(?=\\S+$).{12,}$";
 
 	/** Telephone number regular expression to be valid */
 	public static final String REGEXP_VALID_PHONE = "^(\\+)?(\\d){5,}$";
