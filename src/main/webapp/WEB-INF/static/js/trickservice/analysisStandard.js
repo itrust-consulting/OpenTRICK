@@ -149,6 +149,7 @@ function importStandardFromFile(e) {
 		showError($("#error-standard-modal", $standardModal)[0],MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
 		return false;
 	}
+	let $importBtn = $(e.currentTarget).prop('disabled', true);
 	$progress.show();
 	$.ajax({
 		url: context + "/Analysis/Standard/Import-from-file",
@@ -172,6 +173,7 @@ function importStandardFromFile(e) {
 
 	}).complete(function () {
 		$progress.hide();
+		$importBtn.prop('disabled',false);
 	});
 	return false;
 }

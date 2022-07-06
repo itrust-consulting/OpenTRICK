@@ -410,12 +410,12 @@ public class ImportCustomStandard {
 			final AnalysisStandard assetStandard = analysis.getAnalysisStandards().get(newStandard.getName());
 
 			final Map<String, Asset> assetByName = analysis.getAssets().stream()
-					.collect(Collectors.toMap(Asset::getName, Function.identity()));
+					.collect(Collectors.toMap(a -> a.getName().toUpperCase(), Function.identity()));
 
 			for (Measure measure : assetStandard.getMeasures()) {
 				if (measure instanceof AssetMeasure) {
 					assetsByRef.getOrDefault(measure.getMeasureDescription().getReference(), Collections.emptyList())
-							.stream()
+							.stream().map(String::trim).map(String::toUpperCase)
 							.map(assetByName::get).filter(Objects::nonNull)
 							.filter(a -> ((AssetMeasure) measure).getMeasureAssetValueByAsset(a) == null)
 							.forEach(a -> ((AssetMeasure) measure).addAnMeasureAssetValue(new MeasureAssetValue(a, 0)));

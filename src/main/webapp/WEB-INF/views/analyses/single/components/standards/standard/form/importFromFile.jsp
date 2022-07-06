@@ -24,7 +24,7 @@
 		</div>
 	</fieldset>
 	<fieldset >
-		<legend for="name" data-helper-content='<spring:message code="label.norm.import.choose_file" />' > <spring:message code="label.import.choose_file" text="Choose the file" /></legend>
+		<legend for="name" data-helper-content='<spring:message code="label.norm.import.choose_file" />' > <spring:message code="label.file" text="Choose the file" /></legend>
 		<div class="col-lg-12">
 			<div class="input-group-btn">
 				<input id="importStandardFromFileInputFile" type="file" accept=".xls,.xlsx,.xlsm"
