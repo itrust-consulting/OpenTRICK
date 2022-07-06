@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.asynchronousWorkers;
+package lu.itrust.business.TS.component;
 
 import static lu.itrust.business.TS.component.MeasureManager.update;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
@@ -7,28 +7,35 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.colToIndex;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
-import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
-import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
@@ -44,22 +51,28 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.messagehandler.TaskName;
+import lu.itrust.business.TS.helper.InstanceManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
-public class WorkerImportStandard extends WorkerImpl {
+public class ImportCustomStandard {
 
 	private boolean updated = false;
 
@@ -81,11 +94,17 @@ public class WorkerImportStandard extends WorkerImpl {
 
 	private String filename;
 
-	private Standard newstandard;
+	private Standard newStandard;
 
-	private MessageHandler messageHandler;
+	private String standardName;
 
-	public WorkerImportStandard(String filename) {
+	private StandardType type;
+
+	private Analysis analysis;
+
+	public ImportCustomStandard(StandardType type, String name, String filename) {
+		this.type = type;
+		this.standardName = StringUtils.hasText(name) ? name.trim() : null;
 		setFilename(filename);
 	}
 
@@ -99,21 +118,11 @@ public class WorkerImportStandard extends WorkerImpl {
 		daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
 	}
 
-	@Override
-	public void run() {
-		Session session = null;
+	public Map<String, String> importStandard(int analysisId, String username, Locale locale) {
+		final Map<String, String> messages = new HashMap<>();
 		Transaction transaction = null;
+		Session session = null;
 		try {
-			synchronized (this) {
-				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
-					if (!getWorkersPoolManager().add(this))
-						return;
-				if (isCanceled() || isWorking())
-					return;
-				setWorking(true);
-				setStarted(new Timestamp(System.currentTimeMillis()));
-				setCurrent(Thread.currentThread());
-			}
 
 			session = getSessionFactory().openSession();
 
@@ -121,37 +130,42 @@ public class WorkerImportStandard extends WorkerImpl {
 
 			transaction = session.beginTransaction();
 
-			importNewStandard();
+			analysis = daoAnalysis.findByIdAndEager(analysisId);
 
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			if (analysis == null)
+				throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+
+			importNewStandard();
 
 			transaction.commit();
 
-			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
+			if (isUpdated())
+				messages.put("success", getMessageSource().getMessage("success.update.norm", null,
+						"The standard has been updated", locale));
+			else
+				messages.put("success", getMessageSource().getMessage("success.import.norm", null,
+						"The new standard has been imported", locale));
 
-			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_kb_standard"));
-			getServiceTaskFeedback().send(getId(), messageHandler);
 			/**
 			 * Log
 			 */
-			String username = getServiceTaskFeedback().findUsernameById(this.getId());
+
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard",
-					String.format("Standard: %s, version: %d", newstandard.getName(), newstandard.getVersion()),
+					String.format("Standard: %s, version: %d", newStandard.getName(), newStandard.getVersion()),
 					username,
-					LogAction.IMPORT, newstandard.getName(), String.valueOf(newstandard.getVersion()));
+					LogAction.IMPORT, newStandard.getName(), String.valueOf(newStandard.getVersion()));
 		} catch (TrickException e) {
-			setError(e);
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+			messages.put("error",
+					getMessageSource().getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			if (transaction != null && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			setError(e);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm",
-					"Import of standard failed! Error message is: " + e.getMessage(), e));
+			messages.put("error", getMessageSource().getMessage("error.import.norm", null,
+					"Import of standard failed! Error message is: " + e.getMessage(), locale));
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
 				if (session != null && !session.isOpen())
@@ -159,46 +173,24 @@ public class WorkerImportStandard extends WorkerImpl {
 			} catch (HibernateException e) {
 				TrickLogManager.Persist(e);
 			}
-			if (isWorking()) {
-				synchronized (this) {
-					if (isWorking()) {
-						setWorking(false);
-						setFinished(new Timestamp(System.currentTimeMillis()));
-					}
-				}
-			}
+
 			getServiceStorage().delete(getFilename());
 
 		}
+		return messages;
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String ,
-	 * java.lang.Object)
-	 */
-	@Override
-	public boolean isMatch(String express, Object... values) {
-		try {
-			String[] expressions = express.split("\\+");
-			boolean match = values.length == expressions.length && values.length == 1;
-			for (int i = 0; i < expressions.length && match; i++) {
-				switch (expressions[i]) {
-					case "class":
-						match &= values[i].equals(getClass());
-						break;
-					default:
-						match = false;
-						break;
-				}
-			}
-			return match;
-		} catch (Exception e) {
-			return false;
-		}
+	private ServiceStorage getServiceStorage() {
+		return InstanceManager.getServiceStorage();
+	}
+
+	private SessionFactory getSessionFactory() {
+		return InstanceManager.getSessionFactory();
+	}
+
+	private MessageSource getMessageSource() {
+		return InstanceManager.getMessageSource();
 	}
 
 	/**
@@ -209,25 +201,15 @@ public class WorkerImportStandard extends WorkerImpl {
 	 */
 	public void importNewStandard() throws Exception {
 
-		getServiceTaskFeedback().send(getId(),
-				new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
-
 		final DataFormatter formatter = new DataFormatter();
 
 		final WorkbookPart workbookPart = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()))
 				.getWorkbookPart();
 
-		getServiceTaskFeedback().send(getId(),
-				new MessageHandler("info.import.norm.information", "Import standard information", 5));
-
 		getStandard(workbookPart, formatter);
 
-		if (newstandard != null) {
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("info.import.norm.measure", "Import measures", 10));
+		if (newStandard != null) {
 			getMeasures(workbookPart, formatter);
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
 		} else
 			throw new TrickException("error.import.norm.malformedExcelFile",
 					"The Excel file containing Standard to import is malformed. Please check its content!");
@@ -243,13 +225,19 @@ public class WorkerImportStandard extends WorkerImpl {
 	 * 
 	 */
 	public void getStandard(WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
-		this.newstandard = null;
+		this.newStandard = null;
 		SheetData infoSheet = findSheet(workbookPart, "NormInfo");
 		if (infoSheet == null)
 			return;
-		this.newstandard = loadStandard(infoSheet, formatter);
+		this.newStandard = loadStandard(infoSheet, formatter);
 	}
 
+	/**
+	 * @param infoSheet
+	 * @param formatter
+	 * @return
+	 * @throws Exception
+	 */
 	private Standard loadStandard(SheetData infoSheet, DataFormatter formatter) throws Exception {
 		final TablePart tablePart = findTable(infoSheet, "TableNormInfo");
 		if (tablePart == null)
@@ -260,45 +248,55 @@ public class WorkerImportStandard extends WorkerImpl {
 				: addressRef.getBegin().getCol() + 1;
 		final String label = getString(data.getC().get(labelIndex), formatter);
 		final int version = getInt(data.getC().get(labelIndex + 1), formatter);
-		final String name = data.getC().size() == 4 ? label
-				: getString(data.getC().get(addressRef.getBegin().getCol()), formatter);
-		if (isEmpty(label))
-			throw new TrickException("error.standard.label.empty", "Standard name cannot be empty");
-		if (isEmpty(name))
-			throw new TrickException("error.standard.name.empty", "Standard display name cannot be empty");
-		if (version == 0)
-			throw new TrickException("error.standard.version.zero", "Standard version must be greather than 0");
-		Standard standard = daoStandard.getStandardByNameAndVersion(label, version);
-		if (standard == null)
-			standard = new Standard(name.trim(), label.trim(), version);
-		else if (standard.isAnalysisOnly())
-			throw new TrickException("error.standard.link.analysis", "Standard cannot be updated from knowledge base");
 
+		final String name = StringUtils.isEmpty(this.standardName) ? (data.getC().size() == 4 ? label
+				: getString(data.getC().get(addressRef.getBegin().getCol()), formatter)) : this.standardName;
+
+		if (isEmpty(label))
+			throw new TrickException("error.standard.label.empty", "Standard internal name cannot be empty");
+		if (Constant.STANDARD_MATURITY.equalsIgnoreCase(label))
+			throw new TrickException("error.maturity.name.reserve", "Maturity name is reserved");
+		if (isEmpty(name))
+			throw new TrickException("error.standard.name.empty", "Standard name cannot be empty");
+		if (Constant.STANDARD_MATURITY.equalsIgnoreCase(name))
+			throw new TrickException("error.maturity.name.reserve", "Maturity name is reserved");
+
+		Standard standard = analysis.findStandardByName(name);
+		if (standard == null) {
+			standard = analysis.findStandardByLabel(label);
+			if (standard == null) {
+				standard = new Standard(name, label, daoStandard.getNextVersion(label));
+			}
+		}
+
+		if (standard.getId() > 1 && !standard.isAnalysisOnly()) {
+			if (name.equalsIgnoreCase(standard.getName()))
+				throw new TrickException("error.standard.name.duplicated",
+						"The name cannot be duplicated into a risk analysis");
+			else {
+				final String myLabel = String.format("%s - %s", label, version);
+				standard = analysis.findStandardByLabel(myLabel);
+				if (standard == null) {
+					standard = new Standard(name, myLabel, daoStandard.getNextVersion(label));
+				} else if (!standard.isAnalysisOnly()) {
+					throw new TrickException("error.standard.internal.name.duplicated",
+							"The internal name cannot be duplicated into a risk analysis");
+				}
+			}
+
+		}
+		standard.setAnalysisOnly(true);
 		return loadStandardData(standard, data, labelIndex, formatter);
 	}
 
 	private Standard loadStandardData(Standard standard, Row data, int startCol, DataFormatter formatter) {
-		standard.setVersion(getInt(data.getC().get(startCol + 1), formatter));
 		standard.setDescription(getString(data.getC().get(startCol + 2), formatter));
 		standard.setComputable(getBoolean(data.getC().get(startCol + 3), formatter));
 		if (standard.getId() > 0) {
 			setUpdated(true);
 			daoStandard.saveOrUpdate(standard);
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("info.import.norm.safe.update",
-							new Object[] { standard.getName(), standard.getVersion() },
-							String.format("Updating of standard %s, version %d. No measure shall be waived.",
-									standard.getName(), standard.getVersion()),
-							10));
 		} else {
-			if (Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getName()))
-				standard.setType(StandardType.MATURITY);
-			else
-				standard.setType(StandardType.NORMAL);
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("info.import.norm", new Object[] { standard.getName(), standard.getVersion() },
-							String.format("Import standard %s, version %d.", standard.getName(), standard.getVersion()),
-							10));
+			standard.setType(type);
 			daoStandard.save(standard);
 			setUpdated(false);
 		}
@@ -318,27 +316,28 @@ public class WorkerImportStandard extends WorkerImpl {
 	public void getMeasures(WorkbookPart workbookPart, DataFormatter formatter) throws Exception {
 		SheetData sheet = findSheet(workbookPart, "NormData");
 		if (sheet == null)
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("error.import.norm.measure", null,
-							"There was problem during import of measures. Please check measure content!"));
+			throw new TrickException("error.import.norm.measure", null,
+					"There was problem during import of measures. Please check measure content!");
 		TablePart tablePart = findTable(sheet, "TableNormData");
 		if (tablePart == null)
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("error.import.norm.measure", null,
-							"There was problem during import of measures. Please check measure content!"));
+			throw new TrickException("error.import.norm.measure", null,
+					"There was problem during import of measures. Please check measure content!");
 		loadMeasureDescription(sheet, AddressRef.parse(tablePart.getContents().getRef()), formatter);
 	}
 
 	private void loadMeasureDescription(SheetData sheet, AddressRef address, DataFormatter formatter) {
 		Map<Integer, Language> languages = loadLanguages(sheet, address, formatter);
 		if (languages.isEmpty())
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("error.import.norm.measure", null,
-							"There was problem during import of measures. Please check measure content!"));
+			throw new TrickException("error.import.norm.measure", null,
+					"There was problem during import of measures. Please check measure content!");
 
 		final int begin = address.getBegin().getRow() + 1,
 				end = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size()),
 				startIndex = getStartIndex(sheet, begin, formatter);
+
+		final Map<String, List<String>> assetsByRef = new HashMap<>();
+
+		final int assetIndex = type.equals(StandardType.ASSET) ? findAssetIndex(sheet, formatter) : -1;
 
 		final List<MeasureDescription> measureDescriptions = new LinkedList<>();
 
@@ -348,13 +347,9 @@ public class WorkerImportStandard extends WorkerImpl {
 			if (isEmpty(reference))
 				continue;
 			MeasureDescription measureDescription = daoMeasureDescription.getByReferenceAndStandard(reference,
-					newstandard);
-
-			if (measureDescription == null) {
-				measureDescription = new MeasureDescription(reference, newstandard);
-				if (isUpdated())
-					measureDescriptions.add(measureDescription);
-			}
+					newStandard);
+			if (measureDescription == null)
+				measureDescriptions.add(measureDescription = new MeasureDescription(reference, newStandard));
 
 			measureDescription.setComputable(getBoolean(row.getC().get(startIndex + 1), formatter));
 			final int languageCount = (address.getEnd().getCol() - (startIndex + 1)) / 2;
@@ -371,27 +366,77 @@ public class WorkerImportStandard extends WorkerImpl {
 					descriptionText.setDomain(domain);
 				if (StringUtils.hasText(description))
 					descriptionText.setDescription(description);
+				if (assetIndex > -1) {
+					String asset = getString(row, assetIndex, formatter);
+					if (StringUtils.hasText(asset))
+						assetsByRef.put(reference, Arrays.asList(asset.split(";")));
+				}
+
 			}
 			daoMeasureDescription.saveOrUpdate(measureDescription);
 		}
 
 		if (!measureDescriptions.isEmpty()) {
-			getServiceTaskFeedback().send(getId(),
-					new MessageHandler("info.synchronise.analyses.measure.collection",
-							"Synchronising measure collection of knowledge base to analyses", 50));
-			final int total = (int) daoAnalysisStandard.countByStandard(newstandard), size = 40,
-					count = (total / size) + 1;
-			for (int page = 1; page <= count; page++) {
-				daoAnalysisStandard.findByStandard(page, size, newstandard).forEach(a -> {
-					if (a instanceof MaturityStandard)
-						update((MaturityStandard) a, measureDescriptions, daoAnalysisStandard, daoAnalysis);
-					else if (a instanceof AssetStandard)
-						update((AssetStandard) a, measureDescriptions, daoAnalysisStandard, daoAnalysis);
-					else if (a instanceof NormalStandard)
-						update((NormalStandard) a, measureDescriptions, daoAnalysisStandard, daoAnalysis, daoAssetType);
-				});
+			if (!isUpdated()) {
+				switch (newStandard.getType()) {
+					case ASSET:
+						analysis.add(new AssetStandard(newStandard));
+						break;
+					case MATURITY:
+						analysis.add(new MaturityStandard(newStandard));
+						break;
+					case NORMAL:
+						analysis.add(new NormalStandard(newStandard));
+						break;
+					default:
+						break;
+
+				}
+				daoAnalysis.saveOrUpdate(analysis);
+			}
+			AnalysisStandard a = analysis.getAnalysisStandards().get(newStandard.getName());
+			if (a != null) {
+				if (a instanceof MaturityStandard)
+					update((MaturityStandard) a, this.analysis, measureDescriptions, daoAnalysisStandard);
+				else if (a instanceof AssetStandard)
+					update((AssetStandard) a, this.analysis, measureDescriptions, daoAnalysisStandard);
+				else if (a instanceof NormalStandard)
+					update((NormalStandard) a, this.analysis, measureDescriptions, daoAnalysisStandard, daoAssetType);
+			}
+
+		}
+
+		if (!assetsByRef.isEmpty()) {
+			final AnalysisStandard assetStandard = analysis.getAnalysisStandards().get(newStandard.getName());
+
+			final Map<String, Asset> assetByName = analysis.getAssets().stream()
+					.collect(Collectors.toMap(Asset::getName, Function.identity()));
+
+			for (Measure measure : assetStandard.getMeasures()) {
+				if (measure instanceof AssetMeasure) {
+					assetsByRef.getOrDefault(measure.getMeasureDescription().getReference(), Collections.emptyList())
+							.stream()
+							.map(assetByName::get).filter(Objects::nonNull)
+							.filter(a -> ((AssetMeasure) measure).getMeasureAssetValueByAsset(a) == null)
+							.forEach(a -> ((AssetMeasure) measure).addAnMeasureAssetValue(new MeasureAssetValue(a, 0)));
+				}
+			}
+			daoAnalysis.saveOrUpdate(analysis);
+		}
+
+	}
+
+	private int findAssetIndex(SheetData sheet, DataFormatter formatter) {
+		if (sheet.getRow().isEmpty())
+			return -1;
+		final Row firstRow = sheet.getRow().get(0);
+		for (int i = 0; i < firstRow.getC().size(); i++) {
+			final String name = getString(firstRow.getC().get(i), formatter);
+			if ("Assets".equalsIgnoreCase(name)) {
+				return colToIndex(firstRow.getC().get(i).getR(), i);
 			}
 		}
+		return -1;
 
 	}
 
@@ -428,47 +473,6 @@ public class WorkerImportStandard extends WorkerImpl {
 			languages.put(i, language);
 		}
 		return languages;
-	}
-
-	@Override
-	public synchronized void start() {
-		run();
-	}
-
-	@Override
-	public void cancel() {
-		try {
-			if (isWorking() && !isCanceled()) {
-				synchronized (this) {
-					if (isWorking() && !isCanceled()) {
-						if (getCurrent() == null)
-							Thread.currentThread().interrupt();
-						else
-							getCurrent().interrupt();
-
-						setCanceled(true);
-					}
-				}
-			}
-		} catch (Exception e) {
-			setError(e);
-			TrickLogManager.Persist(e);
-		} finally {
-			if (isWorking()) {
-				synchronized (this) {
-					if (isWorking()) {
-						setWorking(false);
-						setFinished(new Timestamp(System.currentTimeMillis()));
-					}
-				}
-			}
-			getServiceStorage().delete(getFilename());
-		}
-	}
-
-	@Override
-	public TaskName getName() {
-		return TaskName.IMPORT_MEASURE_COLLECTION;
 	}
 
 	public boolean isUpdated() {

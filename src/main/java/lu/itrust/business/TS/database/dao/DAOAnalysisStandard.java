@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.StandardType;
 
 /**
  * DAOAnalysisStandard.java: <br>
@@ -65,4 +66,7 @@ public interface DAOAnalysisStandard {
 	public List<AnalysisStandard> findByStandard(int page, int size, Standard standard);
 
 	public long countByStandard(Standard standard);
+
+    public List<String> findByAnalysisAndNameLikeAndTypeAndCustom(Integer idAnalysis, String name, StandardType type,
+            boolean custom);
 }

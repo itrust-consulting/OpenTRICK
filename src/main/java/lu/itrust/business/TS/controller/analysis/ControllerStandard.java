@@ -19,16 +19,20 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerSOAExport;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.ImportCustomStandard;
 import lu.itrust.business.TS.component.MeasureManager;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -53,6 +58,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.form.MeasureAssetValueForm;
@@ -161,6 +167,9 @@ public class ControllerStandard extends AbstractController {
 	@Autowired
 	private ServiceMaturityParameter serviceMaturityParameter;
 
+	@Autowired
+	private ServiceStorage serviceStorage;
+
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
 	 * compliances)
@@ -179,17 +188,21 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			final Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null,
+						"Unfortunately, selected standard does not exist", locale));
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis.getAnalysisStandards().values().stream()
-					.anyMatch(a -> a.getStandard().getName().equalsIgnoreCase(standard.getName()) || a.getStandard().getLabel().equalsIgnoreCase(standard.getLabel())))
+					.anyMatch(a -> a.getStandard().getName().equalsIgnoreCase(standard.getName())
+							|| a.getStandard().getLabel().equalsIgnoreCase(standard.getLabel())))
 				return JsonMessage
-						.Error(messageSource.getMessage("error.analysis.add.standard.duplicate", null, "Your analysis already has another version of the standard!", locale));
+						.Error(messageSource.getMessage("error.analysis.add.standard.duplicate", null,
+								"Your analysis already has another version of the standard!", locale));
 			Measure measure = null;
 			AnalysisStandard analysisStandard = null;
 			final List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
@@ -197,8 +210,11 @@ public class ControllerStandard extends AbstractController {
 			if (standard.getType() == StandardType.MATURITY && analysis.isQuantitative()) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
-				implementationRate = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
-						&& (parameter.getValue().doubleValue() == 0 || parameter.getDescription().equals(Constant.IS_NOT_ACHIEVED))).findAny().orElse(null);
+				implementationRate = analysis.getSimpleParameters().stream()
+						.filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
+								&& (parameter.getValue().doubleValue() == 0
+										|| parameter.getDescription().equals(Constant.IS_NOT_ACHIEVED)))
+						.findAny().orElse(null);
 			} else if (standard.getType() == StandardType.NORMAL) {
 				analysisStandard = new NormalStandard();
 				measure = new NormalMeasure();
@@ -221,7 +237,7 @@ public class ControllerStandard extends AbstractController {
 			analysisStandard.setStandard(standard);
 			measure.setImplementationRate(implementationRate);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
-			
+
 			for (MeasureDescription measureDescription : measureDescriptions) {
 				Measure measure2 = measure.duplicate(analysisStandard, phase);
 				measure2.setMeasureDescription(measureDescription);
@@ -233,12 +249,15 @@ public class ControllerStandard extends AbstractController {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "The standard was successfully added", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null,
+					"The standard was successfully added", locale));
 		} catch (TrickException e) {
-			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage
+					.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null,
+					"An unknown error occurred during analysis saving", locale));
 		}
 	}
 
@@ -253,11 +272,14 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/{standardId}/Compliance/{type}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Chart compliance(@PathVariable Integer standardId, @PathVariable ActionPlanMode type, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Chart compliance(@PathVariable Integer standardId, @PathVariable ActionPlanMode type,
+			HttpSession session, Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == standardId)
-				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale)).findAny().orElse(new Chart());
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream()
+				.filter(analysisStandard -> analysisStandard.getStandard().getId() == standardId)
+				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale))
+				.findAny().orElse(new Chart());
 	}
 
 	/**
@@ -270,21 +292,27 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/Compliances/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody List<Chart> compliances(@PathVariable ActionPlanMode type, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody List<Chart> compliances(@PathVariable ActionPlanMode type, HttpSession session,
+			Principal principal, Locale locale) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream().map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale))
+		return serviceAnalysisStandard.getAllFromAnalysis(idAnalysis).stream()
+				.map(analysisStandard -> chartGenerator.compliance(idAnalysis, analysisStandard, type, locale))
 				.collect(Collectors.toList());
 	}
 
 	@RequestMapping(value = "/Compute-efficiency", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session, Principal principal) throws Exception {
+	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session,
+			Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002, chapters);
-		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_MATURITY,
+		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002,
+				chapters);
+		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis,
+				Constant.STANDARD_MATURITY,
 				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
-		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, loadMaturityParameters(idAnalysis), false,
+		return MeasureManager.computeMaturiyEfficiencyRate(measures, maturities, loadMaturityParameters(idAnalysis),
+				false,
 				new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 	}
 
@@ -303,7 +331,8 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Object createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+	public @ResponseBody Object createStandardForm(@RequestBody String value, HttpSession session, Principal principal,
+			Model model, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -313,24 +342,27 @@ public class ControllerStandard extends AbstractController {
 			if (!errors.isEmpty())
 				return errors;
 			if (standard.getId() < 1) {
-				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
+				standard.setVersion(
+						serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 				switch (standard.getType()) {
-				case ASSET:
-					analysis.add(new AssetStandard(standard));
-					break;
-				case MATURITY:
-					analysis.add(new MaturityStandard(standard));
-					break;
-				case NORMAL:
-				default:
-					analysis.add(new NormalStandard(standard));
-					break;
+					case ASSET:
+						analysis.add(new AssetStandard(standard));
+						break;
+					case MATURITY:
+						throw new TrickException("error.custom.maturity.standard",
+								"Custom Maturity standard is not supported");
+					case NORMAL:
+					default:
+						analysis.add(new NormalStandard(standard));
+						break;
 				}
 				serviceAnalysis.saveOrUpdate(analysis);
-				return JsonMessage.Success(messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.create.standard", null,
+						"The standard was successfully created", locale));
 			} else {
 				serviceStandard.saveOrUpdate(standard);
-				return JsonMessage.Success(messageSource.getMessage("success.analysis.update.standard", null, "The standard was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.update.standard", null,
+						"The standard was successfully updated", locale));
 			}
 		} catch (TrickException e) {
 			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -355,23 +387,29 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Principal principal,
+	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard,
+			@PathVariable("idMeasure") int idMeasure, Locale locale, Principal principal,
 			HttpSession session) {
 		try {
-			customDelete.deleteAnalysisMeasure((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard, idMeasure);
+			customDelete.deleteAnalysisMeasure((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard,
+					idMeasure);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
+					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in use", locale));
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
+						((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
+					"Measure deleting was failed: Standard might be in use", locale));
 		}
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Edit", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String editAssetMeasure(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session, RedirectAttributes attributes) {
+	public String editAssetMeasure(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model,
+			Principal principal, HttpSession session, RedirectAttributes attributes) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		try {
@@ -379,7 +417,8 @@ public class ControllerStandard extends AbstractController {
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 			if (measure == null)
 				throw new TrickException("error.measure.not_found", "Measure cannot be found");
-			else if (!(measure.getAnalysisStandard().getStandard().isComputable() || measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
+			else if (!(measure.getAnalysisStandard().getStandard().isComputable()
+					|| measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
@@ -427,16 +466,19 @@ public class ControllerStandard extends AbstractController {
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
+			model.addAttribute("measureForm",
+					MeasureForm.Build(measure, type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return "redirect:/Error";
 	}
@@ -454,11 +496,47 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String getAvailableStandards(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public String getAvailableStandards(HttpSession session, Model model, Principal principal, Locale locale) {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		model.addAttribute("availableStandards", AnalysisType.isQuantitative(serviceAnalysis.getAnalysisTypeById(idAnalysis)) ? serviceStandard.getAllNotInAnalysis(idAnalysis)
-				: serviceStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis));
-		return "analyses/single/components/standards/standard/form/import";
+		model.addAttribute("availableStandards",
+				AnalysisType.isQuantitative(serviceAnalysis.getAnalysisTypeById(idAnalysis))
+						? serviceStandard.getAllNotInAnalysis(idAnalysis)
+						: serviceStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis));
+		return "analyses/single/components/standards/standard/form/importFromKb";
+	}
+
+	/****
+	 * 
+	 *
+	 */
+	@GetMapping(value = "/Suggest/{type}/{name}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody List<String> listOfExistenceStandardName(@PathVariable StandardType type,
+			@PathVariable String name, HttpSession session,
+			Principal principal) {
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		return serviceAnalysisStandard.findByAnalysisAndNameLikeAndTypeAndCustom(idAnalysis, name, type, true);
+	}
+
+	@PostMapping(value = "/Import-from-file", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object importFromFile(@RequestParam(value = "file") MultipartFile file,
+			@RequestParam(value = "id") int id,
+			@RequestParam(value = "type",required = false) StandardType type, @RequestParam(value = "name",required = false) String name,
+			HttpSession session, Principal principal, Locale locale) {
+		if (id > 0) {
+			final Standard standard = serviceStandard.get(id);
+			if (standard != null) {
+				name = standard.getName();
+				type = standard.getType();
+			} else if (type == null || StringUtils.isEmpty(name)) {
+				return JsonMessage.Error(messageSource.getMessage("error.standard.not_found", null, locale));
+			}
+		}
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final String filename = ServiceStorage.RandoomFilename("xlsx");
+		serviceStorage.store(file, filename);
+		return new ImportCustomStandard(type, name, filename).importStandard(idAnalysis, principal.getName(), locale);
 	}
 
 	/**
@@ -474,7 +552,8 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
+	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal)
+			throws Exception {
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -483,12 +562,14 @@ public class ControllerStandard extends AbstractController {
 		loadAnalysisSettings(model, idAnalysis);
 		loadEfficience(model, idAnalysis, measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode)
+				&& serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getName());
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
-		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis)
+				&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
@@ -496,25 +577,33 @@ public class ControllerStandard extends AbstractController {
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Description/{langue}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadDescription(@PathVariable("idMeasure") int idMeasure, @PathVariable("langue") String langue, Principal principal, HttpSession session,
+	public @ResponseBody String loadDescription(@PathVariable("idMeasure") int idMeasure,
+			@PathVariable("langue") String langue, Principal principal, HttpSession session,
 			Locale locale) {
 		Measure measure = serviceMeasure.get(idMeasure);
 		MeasureDescriptionText measureDescriptionText = measure.getMeasureDescription().findByAlph2(langue);
 		if (measureDescriptionText == null)
-			return JsonMessage.Error(messageSource.getMessage("error.measure.description.empty", null, "There is no other description for this security measure", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.measure.description.empty", null,
+					"There is no other description for this security measure", locale));
 		else
 			return JsonMessage.Field("description", measureDescriptionText.getDescription());
 	}
 
 	@RequestMapping(value = "/Measures", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object loadMeasureByStandard(@RequestParam("idStandard") Integer idStandard, Principal principal, HttpSession session, Locale locale) {
-		final ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS)));
-		return serviceMeasure.getAllFromAnalysisAndStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard).stream()
-				.filter(measure -> !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && measure.getImplementationRateValue(Collections.emptyList()) < 100)
+	public @ResponseBody Object loadMeasureByStandard(@RequestParam("idStandard") Integer idStandard,
+			Principal principal, HttpSession session, Locale locale) {
+		final ValueFactory factory = new ValueFactory(
+				serviceDynamicParameter.findByAnalysisId((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS)));
+		return serviceMeasure
+				.getAllFromAnalysisAndStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard)
+				.stream()
+				.filter(measure -> !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+						&& measure.getImplementationRateValue(Collections.emptyList()) < 100)
 				.sorted(new MeasureComparator()).map(measure -> {
 					MeasureForm measureForm = new MeasureForm();
-					MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+					MeasureDescriptionText descriptionText = measure.getMeasureDescription()
+							.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
 					measureForm.setId(measure.getId());
 					measureForm.setIdStandard(idStandard);
 					measureForm.setReference(measure.getMeasureDescription().getReference());
@@ -547,7 +636,8 @@ public class ControllerStandard extends AbstractController {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		IParameter parameter = serviceSimpleParameter.findByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
+		IParameter parameter = serviceSimpleParameter.findByAnalysisIdAndDescription(idAnalysis,
+				Constant.SOA_THRESHOLD);
 
 		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue().doubleValue());
 
@@ -558,10 +648,13 @@ public class ControllerStandard extends AbstractController {
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 
 		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream()
-				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getName(), e2.getStandard().getName())).map(analysisStandard -> {
+				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getStandard().getName(),
+						e2.getStandard().getName()))
+				.map(analysisStandard -> {
 					analysisStandard.getMeasures().sort(comparator);
 					return analysisStandard;
-				}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures, (e1, e2) -> e1, LinkedHashMap::new)));
+				}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures,
+						(e1, e2) -> e1, LinkedHashMap::new)));
 
 		return "analyses/single/components/soa/home";
 	}
@@ -580,7 +673,8 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
 		return "analyses/single/components/standards/standard/form/manage";
@@ -600,15 +694,19 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/SOA/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String manageSOA(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String manageSOA(HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 		model.addAttribute("analysisStandards",
-				serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), NormalStandard.class, AssetStandard.class));
+				serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn(
+						(Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), NormalStandard.class,
+						AssetStandard.class));
 		return "analyses/single/components/soa/form";
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String measureForm(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
+	public String measureForm(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal,
+			HttpSession session) {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			final Measure measure = serviceMeasure.get(idMeasure);
@@ -616,22 +714,28 @@ public class ControllerStandard extends AbstractController {
 			final boolean isMaturity = measure instanceof MaturityMeasure;
 			final List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
 			final MeasureDescription measureDescription = measure.getMeasureDescription();
-			final MeasureDescriptionText measureDescriptionText = measureDescription.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+			final MeasureDescriptionText measureDescriptionText = measureDescription
+					.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
 			model.addAttribute("measureDescriptionText", measureDescriptionText);
 			model.addAttribute("measureDescription", measureDescription);
 			if (measureDescriptionText != null) {
-				model.addAttribute("countLine", measureDescriptionText.getDescription().trim().split("\r\n|\r|\n").length);
-				MeasureDescriptionText otherMeasureDescriptionText = measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase("fra") ? measureDescription.findByAlph2("en")
-						: measureDescription.findByAlph2("fr");
-				if (otherMeasureDescriptionText != null && StringUtils.hasText(otherMeasureDescriptionText.getDescription()))
+				model.addAttribute("countLine",
+						measureDescriptionText.getDescription().trim().split("\r\n|\r|\n").length);
+				MeasureDescriptionText otherMeasureDescriptionText = measureDescriptionText.getLanguage().getAlpha3()
+						.equalsIgnoreCase("fra") ? measureDescription.findByAlph2("en")
+								: measureDescription.findByAlph2("fr");
+				if (otherMeasureDescriptionText != null
+						&& StringUtils.hasText(otherMeasureDescriptionText.getDescription()))
 					model.addAttribute("otherMeasureDescriptionText", true);
 			}
 			model.addAttribute("measureDescription", measureDescription);
 
 			model.addAttribute("isMaturity", isMaturity);
 			if (isMaturity)
-				model.addAttribute("impscales", serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis));
-			model.addAttribute("isLinkedToProject", analysis.hasProject() && loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+				model.addAttribute("impscales", serviceSimpleParameter
+						.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis));
+			model.addAttribute("isLinkedToProject", analysis.hasProject()
+					&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
 			model.addAttribute("showTodo", measureDescription.isComputable());
 			model.addAttribute("selectedMeasure", measure);
 			model.addAttribute("phases", phases);
@@ -644,17 +748,20 @@ public class ControllerStandard extends AbstractController {
 
 	@RequestMapping(value = "/Measure/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, Object> measuresave(@RequestBody MeasureForm measureForm, Model model, Principal principal, HttpSession session, Locale locale)
+	public @ResponseBody Map<String, Object> measuresave(@RequestBody MeasureForm measureForm, Model model,
+			Principal principal, HttpSession session, Locale locale)
 			throws Exception {
 		Map<String, Object> result = new HashMap<>(), errors = new LinkedHashMap<>();
 		try {
 			result.put("errors", errors);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
+			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis,
+					measureForm.getIdStandard());
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			if (analysisStandard == null) {
-				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not belong to analysis!", locale));
+				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null,
+						"Standard does not belong to analysis!", locale));
 				return result;
 			}
 
@@ -662,32 +769,38 @@ public class ControllerStandard extends AbstractController {
 			if (measureForm.getId() > 0) {
 				measure = serviceMeasure.getFromAnalysisById(idAnalysis, measureForm.getId());
 				if (measure == null)
-					errors.put("measure", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+					errors.put("measure", messageSource.getMessage("error.measure.not_found", null,
+							"Measure cannot be found", locale));
 				else if (measure.getAnalysisStandard().getId() != analysisStandard.getId())
-					errors.put("measure", messageSource.getMessage("error.measure.belong.standard", null, "Measure does not belong to standard", locale));
-				else if (measure instanceof AssetMeasure && measureForm.isComputable() && measureForm.getAssetValues().isEmpty())
-					errors.put("asset", messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
+					errors.put("measure", messageSource.getMessage("error.measure.belong.standard", null,
+							"Measure does not belong to standard", locale));
+				else if (measure instanceof AssetMeasure && measureForm.isComputable()
+						&& measureForm.getAssetValues().isEmpty())
+					errors.put("asset",
+							messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
 				if (!errors.isEmpty())
 					return result;
 			} else {
 				switch (measureForm.getType()) {
-				case ASSET:
-					measure = new AssetMeasure();
-					if (measureForm.isComputable() && measureForm.getAssetValues().isEmpty()) {
-						errors.put("asset", messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
-						return result;
-					}
-					break;
-				case NORMAL:
-					measure = new NormalMeasure();
-					break;
-				default:
-					throw new TrickException("error.measure.cannot.be.created", "Measure cannot be created");
+					case ASSET:
+						measure = new AssetMeasure();
+						if (measureForm.isComputable() && measureForm.getAssetValues().isEmpty()) {
+							errors.put("asset", messageSource.getMessage("error.asset.empty", null,
+									"Asset cannot be empty", locale));
+							return result;
+						}
+						break;
+					case NORMAL:
+						measure = new NormalMeasure();
+						break;
+					default:
+						throw new TrickException("error.measure.cannot.be.created", "Measure cannot be created");
 				}
 
 				Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, Constant.PHASE_DEFAULT);
 				if (phase == null) {
-					errors.put("phase", messageSource.getMessage("error.measure.default.pahse.not_found", null, "Default phase cannot be found", locale));
+					errors.put("phase", messageSource.getMessage("error.measure.default.pahse.not_found", null,
+							"Default phase cannot be found", locale));
 					return result;
 				}
 
@@ -697,12 +810,12 @@ public class ControllerStandard extends AbstractController {
 
 				measure.setImplementationRate(0.0);
 
-				// measure.setAnalysisStandard(analysisStandard);
 				analysisStandard.add(measure);
 			}
 
 			if (AnalysisType.isQuantitative(type) && measureForm.getProperties() == null) {
-				errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
+				errors.put("properties",
+						messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 				return result;
 			}
 
@@ -710,13 +823,15 @@ public class ControllerStandard extends AbstractController {
 				validate(measureForm, errors, locale);
 				if (!errors.isEmpty())
 					return result;
-				if (!update(measure, measureForm, idAnalysis, type, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
+				if (!update(measure, measureForm, idAnalysis, type, serviceLanguage.getFromAnalysis(idAnalysis), locale,
+						errors).isEmpty())
 					return result;
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
 					throw new TrickException("error.measure.not_found", "Measure cannot be found");
 				measureForm.getProperties().copyTo(((AbstractNormalMeasure) measure).getMeasurePropertyList());
-				if (!updateAssetTypeValues((NormalMeasure) measure, measureForm.getAssetValues(), errors, locale).isEmpty())
+				if (!updateAssetTypeValues((NormalMeasure) measure, measureForm.getAssetValues(), errors, locale)
+						.isEmpty())
 					return result;
 			} else
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
@@ -730,14 +845,16 @@ public class ControllerStandard extends AbstractController {
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			errors.put("error",
+					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return result;
 	}
 
 	@RequestMapping(value = "/{idStandard}/Measure/New", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String newAssetMeasure(@PathVariable("idStandard") int idStandard, Model model, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) {
+	public String newAssetMeasure(@PathVariable("idStandard") int idStandard, Model model, HttpSession session,
+			Principal principal, RedirectAttributes attributes, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		try {
@@ -746,7 +863,8 @@ public class ControllerStandard extends AbstractController {
 
 			locale = new Locale(language.getAlpha2());
 
-			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, idStandard);
+			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis,
+					idStandard);
 
 			if (analysisStandard == null)
 				throw new TrickException("error.standard.not_in_analysis", "Standard does not beloong to analysis!");
@@ -756,7 +874,7 @@ public class ControllerStandard extends AbstractController {
 
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
-			Measure measure = MeasureManager.Create(analysisStandard);
+			Measure measure = MeasureManager.create(analysisStandard);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -805,10 +923,12 @@ public class ControllerStandard extends AbstractController {
 			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return "redirect:/Error";
 	}
@@ -826,20 +946,24 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null,
+					"Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null,
+					"Standard could not be deleted!", locale));
 		}
 	}
 
 	@RequestMapping(value = "/SOA/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Object saveSOA(@RequestBody List<SOAForm> soaForms, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+	public @ResponseBody Object saveSOA(@RequestBody List<SOAForm> soaForms, HttpSession session, Principal principal,
+			Model model, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		soaForms.forEach(form -> {
@@ -849,7 +973,8 @@ public class ControllerStandard extends AbstractController {
 				serviceAnalysisStandard.saveOrUpdate(analysisStandard);
 			}
 		});
-		return JsonMessage.Success(messageSource.getMessage("success.update.soa", null, "SOA has been successfully updated", locale));
+		return JsonMessage.Success(
+				messageSource.getMessage("success.update.soa", null, "SOA has been successfully updated", locale));
 	}
 
 	/**
@@ -889,8 +1014,10 @@ public class ControllerStandard extends AbstractController {
 		});
 
 		if (hasMaturity)
-			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002),
-					measuresByStandard.get(Constant.STANDARD_MATURITY), loadMaturityParameters(idAnalysis), true, factory));
+			model.addAttribute("effectImpl27002",
+					MeasureManager.computeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002),
+							measuresByStandard.get(Constant.STANDARD_MATURITY), loadMaturityParameters(idAnalysis),
+							true, factory));
 
 		model.addAttribute("hasMaturity", hasMaturity);
 
@@ -898,9 +1025,11 @@ public class ControllerStandard extends AbstractController {
 
 		model.addAttribute("measuresByStandard", measuresByStandard);
 
-		model.addAttribute("isLinkedToProject", analysis.hasProject() && loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+		model.addAttribute("isLinkedToProject", analysis.hasProject()
+				&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
 
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode)
+				&& serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
@@ -923,14 +1052,16 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping("/Section/{standardid}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String sectionByStandard(@PathVariable Integer standardid, HttpSession session, Model model, Principal principal) throws Exception {
+	public String sectionByStandard(@PathVariable Integer standardid, HttpSession session, Model model,
+			Principal principal) throws Exception {
 
 		// retrieve analysis id
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		final AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, standardid);
+		final AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis,
+				standardid);
 		if (analysisStandard == null)
 			return null;
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -938,11 +1069,14 @@ public class ControllerStandard extends AbstractController {
 		final Map<String, List<Measure>> measuresByStandard = new HashMap<>(1);
 		final ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		if (analysisStandard.getStandard().is(Constant.STANDARD_27002)) {
-			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
+			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis,
+					Constant.STANDARD_MATURITY);
 			if (maturityStandard != null) {
 				if (maturityStandard.getStandard().isComputable())
-					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(),
-							loadMaturityParameters(idAnalysis), true, factory));
+					model.addAttribute("effectImpl27002",
+							MeasureManager.computeMaturiyEfficiencyRate(analysisStandard.getMeasures(),
+									maturityStandard.getMeasures(),
+									loadMaturityParameters(idAnalysis), true, factory));
 				model.addAttribute("hasMaturity", true);
 			} else
 				model.addAttribute("hasMaturity", false);
@@ -956,11 +1090,13 @@ public class ControllerStandard extends AbstractController {
 
 		model.addAttribute("measuresByStandard", measuresByStandard);
 
-		model.addAttribute("isLinkedToProject", analysis.hasProject() && loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+		model.addAttribute("isLinkedToProject", analysis.hasProject()
+				&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
 
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode)
+				&& serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		model.addAttribute("valueFactory", factory);
 
@@ -985,24 +1121,26 @@ public class ControllerStandard extends AbstractController {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		Iterator<SimpleParameter> iterator = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		Iterator<SimpleParameter> iterator = analysis.getSimpleParameters().stream()
+				.filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
 		while (iterator.hasNext()) {
 			IParameter parameter = iterator.next();
 			switch (parameter.getDescription()) {
-			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
-				internalSetupValue = parameter.getValue().doubleValue();
-				break;
-			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
-				externalSetupValue = parameter.getValue().doubleValue();
-				break;
-			case Constant.PARAMETER_LIFETIME_DEFAULT:
-				lifetimeDefault = parameter.getValue().doubleValue();
-				break;
+				case Constant.PARAMETER_INTERNAL_SETUP_RATE:
+					internalSetupValue = parameter.getValue().doubleValue();
+					break;
+				case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
+					externalSetupValue = parameter.getValue().doubleValue();
+					break;
+				case Constant.PARAMETER_LIFETIME_DEFAULT:
+					lifetimeDefault = parameter.getValue().doubleValue();
+					break;
 			}
 		}
 		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
 		serviceAnalysis.saveOrUpdate(analysis);
-		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null, "Measure cost has been successfully updated", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null,
+				"Measure cost has been successfully updated", locale));
 	}
 
 	/**
@@ -1032,7 +1170,8 @@ public class ControllerStandard extends AbstractController {
 			if (id > 0) {
 				standard = analysis.findStandardByAndAnalysisOnly(id);
 				if (standard == null) {
-					errors.put("standard", messageSource.getMessage("error.standard.not.belong.selected.analysis", null, "Standard does not belong to selected analysis", locale));
+					errors.put("standard", messageSource.getMessage("error.standard.not.belong.selected.analysis", null,
+							"Standard does not belong to selected analysis", locale));
 					return null;
 				}
 			} else {
@@ -1055,16 +1194,20 @@ public class ControllerStandard extends AbstractController {
 
 			if (error != null)
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if ((standard.getId() < 1 || !prevLabel.equalsIgnoreCase(label)) && analysis.findStandardByLabel(label) != null)
-				errors.put("label", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+			else if ((standard.getId() < 1 || !prevLabel.equalsIgnoreCase(label))
+					&& analysis.findStandardByLabel(label) != null)
+				errors.put("label", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null,
+						"The standard already exists in this analysis!", locale));
 			else
 				standard.setLabel(label);
 
 			error = validator.validate(standard, "name", label);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if ((standard.getId() < 1 || !prevName.equalsIgnoreCase(name)) && analysis.findStandardByName(name) != null)
-				errors.put("name", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+			else if ((standard.getId() < 1 || !prevName.equalsIgnoreCase(name))
+					&& analysis.findStandardByName(name) != null)
+				errors.put("name", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null,
+						"The standard already exists in this analysis!", locale));
 			else
 				standard.setName(name);
 
@@ -1078,7 +1221,6 @@ public class ControllerStandard extends AbstractController {
 			if (standard.getId() < 1) {
 
 				final StandardType type = StandardType.getByName(jsonNode.get("type").asText());
-
 				error = validator.validate(standard, "type", type);
 				if (error != null)
 					errors.put("type", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -1099,7 +1241,8 @@ public class ControllerStandard extends AbstractController {
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			// return error
-			errors.put("standard", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			errors.put("standard",
+					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return null;
@@ -1107,11 +1250,14 @@ public class ControllerStandard extends AbstractController {
 
 	private void loadAnalysisSettings(Model model, Integer integer) {
 		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
-		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT,
+		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN,
+				hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT,
 				dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
-		model.addAttribute("showHiddenComment", Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
+		model.addAttribute("showHiddenComment",
+				Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
 		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
-		model.addAttribute("showDynamicAnalysis", Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
+		model.addAttribute("showDynamicAnalysis",
+				Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
 	}
 
 	/**
@@ -1128,16 +1274,22 @@ public class ControllerStandard extends AbstractController {
 			if (measure.getMeasureDescription().isComputable()) {
 				ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
-				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
+				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY,
+						"M." + chapter);
 				if (measures.isEmpty())
-					model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
+					model.addAttribute("hasMaturity",
+							serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 				else {
 					model.addAttribute("hasMaturity", true);
-					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, loadMaturityParameters(idAnalysis), factory).get(chapter);
-					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(factory) * maturity * 0.01);
+					Double maturity = MeasureManager
+							.computeMaturityByChapter(measures, loadMaturityParameters(idAnalysis), factory)
+							.get(chapter);
+					model.addAttribute("effectImpl27002",
+							maturity == null ? 0 : measure.getImplementationRateValue(factory) * maturity * 0.01);
 				}
 			} else
-				model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
+				model.addAttribute("hasMaturity",
+						serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
@@ -1146,33 +1298,46 @@ public class ControllerStandard extends AbstractController {
 
 	private List<IParameter> loadMaturityParameters(Integer idAnalysis) {
 		List<IParameter> parameters = new LinkedList<>(serviceMaturityParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME, idAnalysis));
+		parameters.addAll(
+				serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME, idAnalysis));
 		return parameters;
 	}
 
-	private Map<String, Object> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type, Language language, Locale locale,
+	private Map<String, Object> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type,
+			Language language, Locale locale,
 			Map<String, Object> errors) throws Exception {
 		if (errors == null)
 			errors = new LinkedHashMap<String, Object>();
 		MeasureDescription description = measure.getMeasureDescription();
 		if (description == null) {
-			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {
+			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(),
+					measure.getAnalysisStandard().getId())) {
 				errors.put("reference",
-						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getName() },
-								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getName()), locale));
+						messageSource.getMessage("error.measure_description.reference.duplicated",
+								new String[] { measure.getAnalysisStandard().getStandard().getName() },
+								String.format("The reference already exists for %s",
+										measure.getAnalysisStandard().getStandard().getName()),
+								locale));
 				return errors;
 			}
-			description = serviceMeasureDescription.getByReferenceAndStandard(measureForm.getReference(), measure.getAnalysisStandard().getStandard());
+			description = serviceMeasureDescription.getByReferenceAndStandard(measureForm.getReference(),
+					measure.getAnalysisStandard().getStandard());
 			if (description == null) {
-				description = new MeasureDescription(measureForm.getReference(), measure.getAnalysisStandard().getStandard(), measureForm.isComputable());
-				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
+				description = new MeasureDescription(measureForm.getReference(),
+						measure.getAnalysisStandard().getStandard(), measureForm.isComputable());
+				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(),
+						measureForm.getDescription(), language));
 			}
 			measure.setMeasureDescription(description);
 		} else if (!description.getReference().equals(measureForm.getReference())) {
-			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {
+			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(),
+					measure.getAnalysisStandard().getId())) {
 				errors.put("reference",
-						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getName() },
-								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getName()), locale));
+						messageSource.getMessage("error.measure_description.reference.duplicated",
+								new String[] { measure.getAnalysisStandard().getStandard().getName() },
+								String.format("The reference already exists for %s",
+										measure.getAnalysisStandard().getStandard().getName()),
+								locale));
 				return errors;
 			}
 			description.setReference(measureForm.getReference());
@@ -1180,7 +1345,8 @@ public class ControllerStandard extends AbstractController {
 		if (description.getId() > 0) {
 			MeasureDescriptionText descriptionText = description.findByLanguage(language);
 			if (descriptionText == null)
-				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
+				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(),
+						measureForm.getDescription(), language));
 			else
 				descriptionText.update(measureForm.getDomain(), measureForm.getDescription());
 		}
@@ -1188,7 +1354,8 @@ public class ControllerStandard extends AbstractController {
 		description.setComputable(measureForm.isComputable());
 
 		if (AnalysisType.isQuantitative(type) && measureForm.getProperties() == null) {
-			errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
+			errors.put("properties",
+					messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 			return errors;
 		}
 
@@ -1205,7 +1372,8 @@ public class ControllerStandard extends AbstractController {
 				Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, assetValueForm.getId());
 				if (asset == null)
 					throw new TrickException("error.asset.not_found", "Asset does not found");
-				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByMeasureIdAndAssetId(measure.getId(), asset.getId());
+				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByMeasureIdAndAssetId(measure.getId(),
+						asset.getId());
 				if (assetValue == null)
 					assetValue = new MeasureAssetValue(asset, assetValueForm.getValue());
 				else
@@ -1235,7 +1403,8 @@ public class ControllerStandard extends AbstractController {
 		return errors;
 	}
 
-	private Map<String, Object> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, Object> errors, Locale locale)
+	private Map<String, Object> updateAssetTypeValues(NormalMeasure measure,
+			List<MeasureAssetValueForm> assetValueForms, final Map<String, Object> errors, Locale locale)
 			throws Exception {
 		Map<Integer, AssetType> assetTypes = new LinkedHashMap<Integer, AssetType>();
 		serviceAssetType.getAll().stream().forEach(assetType -> assetTypes.put(assetType.getId(), assetType));
@@ -1243,16 +1412,19 @@ public class ControllerStandard extends AbstractController {
 			try {
 				AssetType assetType = assetTypes.get(assetTypeValueForm.getId());
 				if (assetType == null) {
-					errors.put("assetType", messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", locale));
+					errors.put("assetType", messageSource.getMessage("error.asset_type.not_found", null,
+							"Asset type cannot be found", locale));
 					return;
 				}
 				AssetTypeValue assetTypeValue = measure.getAssetTypeValueByAssetType(assetType);
 				if (assetTypeValue == null)
-					measure.addAnAssetTypeValue(assetTypeValue = new AssetTypeValue(assetType, assetTypeValueForm.getValue()));
+					measure.addAnAssetTypeValue(
+							assetTypeValue = new AssetTypeValue(assetType, assetTypeValueForm.getValue()));
 				else
 					assetTypeValue.setValue(assetTypeValueForm.getValue());
 			} catch (TrickException e) {
-				errors.put("assetTypeValue", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+				errors.put("assetTypeValue",
+						messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 				return;
 			}
 		});
@@ -1260,12 +1432,16 @@ public class ControllerStandard extends AbstractController {
 
 	}
 
-	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault, Analysis analysis) {
-		analysis.getAnalysisStandards().values().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
-			double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
-					measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
-			measure.setCost(cost >= 0D ? cost : 0D);
-		});
+	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault,
+			Analysis analysis) {
+		analysis.getAnalysisStandards().values().stream()
+				.flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
+					double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
+							measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+							measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
+							measure.getInvestment(), measure.getLifetime());
+					measure.setCost(cost >= 0D ? cost : 0D);
+				});
 	}
 
 	private void validate(MeasureForm measureForm, Map<String, Object> errors, Locale locale) throws Exception {

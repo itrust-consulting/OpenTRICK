@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.StandardType;
 
 /**
  * ServiceAnalysisStandard.java: <br>
@@ -22,13 +23,13 @@ public interface ServiceAnalysisStandard {
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId);
 
 	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId);
-	
+
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis);
 
 	public List<AnalysisStandard> getAllFromStandard(Standard standard);
 
 	public void deleteAllFromAnalysis(Integer analysisId);
-	
+
 	public void save(AnalysisStandard analysisStandard);
 
 	public void saveOrUpdate(AnalysisStandard analysisStandard);
@@ -49,13 +50,18 @@ public interface ServiceAnalysisStandard {
 
 	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean b, Integer idAnalysis);
 
-	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?> ... classes);
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?>... classes);
 
 	public AnalysisStandard findOne(int id, int analysisId);
-	
-	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?> ...classes);
 
-	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?> ...classes);
+	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis,
+			Class<?>... classes);
+
+	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis,
+			Class<?>... classes);
 
 	public List<Standard> findStandardByAnalysisIdAndTypeIn(Integer idAnalysis, Class<?>... classes);
+
+	public List<String> findByAnalysisAndNameLikeAndTypeAndCustom(Integer idAnalysis, String name, StandardType type,
+			boolean custom);
 }

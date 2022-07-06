@@ -44,6 +44,7 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 @PreAuthorize(ROLE_MIN_USER)
 public abstract class AbstractController {
+	
 	@Autowired
 	protected TaskExecutor executor;
 

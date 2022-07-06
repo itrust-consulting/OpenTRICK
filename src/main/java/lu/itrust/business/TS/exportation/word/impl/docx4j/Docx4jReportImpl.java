@@ -783,8 +783,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public Object getTableStyleOrDefault(String style) {
 		if (style == null || style.isEmpty())
 			return defaultTableStyle;
-		final Object myStyle  = styles.get(style.trim());
-		return myStyle == null? styles.get(defaultTableStyle) : myStyle;
+		final Object myStyle = styles.get(style.trim());
+		return myStyle == null ? styles.get(defaultTableStyle) : myStyle;
 	}
 
 	public String getDisplayName(AssetType type) {
@@ -1334,8 +1334,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 					: analysisStandard.getStandard().is(Constant.STANDARD_27002) ? Constant.STANDARD_27002
 							: analysisStandard.getStandard().getName();
 			final double compliance = ChartGenerator.ComputeCompliance(analysisStandard, valueFactory);
-			if (count > 0)
-				setCustomProperty(name.toUpperCase() + NA_MEASURES, count);
+
+			setCustomProperty(name.toUpperCase() + NA_MEASURES, count);
 			setCustomProperty(name + CURRENT_COMPLIANCE_TEXT, Math.round(compliance));
 			compliances.add(compliance);
 		}
@@ -1420,6 +1420,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		double totalale = 0;
 
+		for (String type : Constant.REGEXP_VALID_ASSET_TYPE.toUpperCase().split("\\|")) {
+			aleByAssetTypes.put(type, 0D);
+		}
+
 		for (Assessment assessment : assessments) {
 			final String assetType = assessment.getAsset().getAssetType().getName().toUpperCase();
 			aleByAssetTypes.put(assetType, aleByAssetTypes.getOrDefault(assetType, 0D) + assessment.getALE());
@@ -1427,23 +1431,29 @@ public class Docx4jReportImpl implements Docx4jReport {
 		}
 
 		for (Entry<String, Double> entry : aleByAssetTypes.entrySet())
-			setCustomProperty(entry.getKey() + "_Rsk", (long) (entry.getValue() * 0.001));
+			setCustomProperty(entry.getKey() + "_Rsk", Math.round(entry.getValue() * 0.001));
 
-		setCustomProperty("TOTAL_ALE_VAL", (long) (totalale * 0.001));
+		setCustomProperty("TOTAL_ALE_VAL", Math.round(totalale * 0.001));
 	}
 
 	private void updateAssetValueProperties() throws Docx4JException {
 		final DecimalFormat assetDecimalFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 		final Map<String, Double> assetTypeValues = analysis.findSelectedAssets().stream().collect(Collectors
-				.groupingBy(asset -> asset.getAssetType().getName(), Collectors.summingDouble(Asset::getValue)));
+				.groupingBy(asset -> asset.getAssetType().getName().toUpperCase(),
+						Collectors.summingDouble(Asset::getValue)));
 		final List<SummaryStage> summaries = getSummaryStage(ActionPlanMode.APPN);
 		final List<Phase> phases = analysis.findUsablePhase();
 
 		double assetTotalValue = 0;
 
+		for (String type : Constant.REGEXP_VALID_ASSET_TYPE.toUpperCase().split("\\|")) {
+			if (!assetTypeValues.containsKey(type))
+				assetTypeValues.put(type, 0D);
+		}
+
 		for (Entry<String, Double> entry : assetTypeValues.entrySet()) {
 			assetTotalValue += entry.getValue();
-			setCustomProperty(entry.getKey().toUpperCase() + "_Val", (long) (entry.getValue() * 0.001));
+			setCustomProperty(entry.getKey() + "_Val", Math.round(entry.getValue() * 0.001));
 		}
 
 		double time = 0, sumRosi = 0, sumDRosi = 0, sumCost = 0;
@@ -1473,10 +1483,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 		assetDecimalFormat.setMaximumFractionDigits(2);
 		assetDecimalFormat.setMinimumFractionDigits(1);
-		setCustomProperty("AV_DROSI_VAL", (long) avDRosi);
+		setCustomProperty("AV_DROSI_VAL", Math.round(avDRosi));
 		setCustomProperty("GAIN_VAL", assetDecimalFormat.format(1 + avDRosi * 0.01));
 		if (!summaries.isEmpty())
-			setCustomProperty("FINAL_ALE_VAL", (long) (summaries.get(summaries.size() - 1).getTotalALE() * 0.001));
+			setCustomProperty("FINAL_ALE_VAL", Math.round(summaries.get(summaries.size() - 1).getTotalALE() * 0.001));
 	}
 
 	public List<SummaryStage> getSummaryStage(ActionPlanMode planMode) {
@@ -1624,7 +1634,5 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public void setColors(ColorSet colors) {
 		this.colors = colors;
 	}
-
-	
 
 }

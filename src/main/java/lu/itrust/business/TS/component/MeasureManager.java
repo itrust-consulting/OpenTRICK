@@ -10,7 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.form.ImportRRFForm;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -123,7 +126,7 @@ public class MeasureManager {
 	 * @param measures
 	 * @return
 	 */
-	public static Map<String, List<Measure>> SplitByStandard(List<Measure> measures) {
+	public static Map<String, List<Measure>> splitByStandard(List<Measure> measures) {
 		Map<String, List<Measure>> mappingMeasures = new LinkedHashMap<>();
 		Collections.sort(measures, new MeasureComparator());
 		for (Measure measure : measures) {
@@ -139,7 +142,7 @@ public class MeasureManager {
 		return mappingMeasures;
 	}
 
-	public static List<Measure> ConcatMeasure(List<AnalysisStandard> analysisStandards) {
+	public static List<Measure> concatMeasure(List<AnalysisStandard> analysisStandards) {
 		List<Measure> measures = new LinkedList<>();
 		for (AnalysisStandard analysisStandard : analysisStandards)
 			measures.addAll(analysisStandard.getMeasures());
@@ -171,13 +174,13 @@ public class MeasureManager {
 	 * @param measures
 	 * @return
 	 */
-	public static Map<Chapter, List<Measure>> SplitByChapter(List<Measure> measures) {
+	public static Map<Chapter, List<Measure>> splitByChapter(List<Measure> measures) {
 		Map<Chapter, List<Measure>> chapters = new LinkedHashMap<Chapter, List<Measure>>();
 		Map<String, Chapter> chapterMapping = new LinkedHashMap<String, Chapter>();
 
 		Comparator<Measure> cmp = new MeasureComparator();
 
-		Map<String, List<Measure>> splittedmeasures = MeasureManager.SplitByStandard(measures);
+		Map<String, List<Measure>> splittedmeasures = MeasureManager.splitByStandard(measures);
 
 		List<Measure> allmeasures = new ArrayList<Measure>();
 
@@ -199,7 +202,8 @@ public class MeasureManager {
 			measures2.add(measure);
 		}
 
-		List<Chapter> keys = chapters.entrySet().stream().filter(entry -> !entry.getValue().stream().anyMatch(measure -> measure.getMeasureDescription().isComputable()))
+		List<Chapter> keys = chapters.entrySet().stream().filter(
+				entry -> !entry.getValue().stream().anyMatch(measure -> measure.getMeasureDescription().isComputable()))
 				.map(Entry::getKey).collect(Collectors.toList());
 
 		keys.forEach(key -> chapters.remove(key));
@@ -215,7 +219,8 @@ public class MeasureManager {
 	 */
 	@Transactional
 	public void createNewMeasureForAllAnalyses(MeasureDescription measureDescription) throws Exception {
-		final List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
+		final List<AnalysisStandard> analysisStandards = daoAnalysisStandard
+				.getAllFromStandard(measureDescription.getStandard());
 		for (AnalysisStandard analysisStandard : analysisStandards) {
 			final Analysis analysis = daoAnalysis.getByAnalysisStandardId(analysisStandard.getId());
 			Measure measure = null;
@@ -230,7 +235,8 @@ public class MeasureManager {
 				implementationRate = 0D;
 			} else if (analysisStandard instanceof MaturityStandard) {
 				measure = new MaturityMeasure();
-				implementationRate = analysis.getSimpleParameters().stream().filter(p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && p.getValue() == 0)
+				implementationRate = analysis.getSimpleParameters().stream().filter(
+						p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && p.getValue() == 0)
 						.min((p1, p2) -> p1.getValue().compareTo(p2.getValue())).orElse(null);
 			} else if (analysisStandard instanceof AssetStandard) {
 				measure = new AssetMeasure();
@@ -252,9 +258,11 @@ public class MeasureManager {
 			daoAnalysisStandard.saveOrUpdate(analysisStandard);
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
-					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
+					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
+							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(),
+					measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 
 		if (measureDescription.getId() < 1)
@@ -264,14 +272,17 @@ public class MeasureManager {
 	@Transactional
 	public void importStandard(Integer idAnalysis, ImportRRFForm rrfForm) throws Exception {
 		for (Integer idStandard : rrfForm.getStandards()) {
-			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndStandard(rrfForm.getAnalysis(), idStandard);
+			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndStandard(rrfForm.getAnalysis(),
+					idStandard);
 			List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, idStandard);
 			for (Measure measure : measures) {
-				NormalMeasure normalMeasure = (NormalMeasure) profileMeasures.get(measure.getMeasureDescription().getReference());
+				NormalMeasure normalMeasure = (NormalMeasure) profileMeasures
+						.get(measure.getMeasureDescription().getReference());
 				if (normalMeasure == null)
 					continue;
 				// Force hibernate to initialise data
-				((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
+				((NormalMeasure) measure).setMeasurePropertyList(
+						DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
 				normalMeasure.setMeasurePropertyList(DAOHibernate.Initialise(normalMeasure.getMeasurePropertyList()));
 				normalMeasure.copyMeasureCharacteristicsTo(((NormalMeasure) measure));
 				daoMeasure.saveOrUpdate(measure);
@@ -326,7 +337,8 @@ public class MeasureManager {
 
 		customDelete.deleteAnalysisActionPlan(analysis);
 
-		analysis.getRiskProfiles().forEach(riskProfile -> riskProfile.getMeasures().removeIf(measure -> measure.getAnalysisStandard().equals(analysisStandard)));
+		analysis.getRiskProfiles().forEach(riskProfile -> riskProfile.getMeasures()
+				.removeIf(measure -> measure.getAnalysisStandard().equals(analysisStandard)));
 
 		final Standard standard = analysisStandard.getStandard();
 
@@ -340,22 +352,25 @@ public class MeasureManager {
 			customDelete.deleteStandard(standard);
 	}
 
-	public static Measure Create(AnalysisStandard analysisStandard) throws TrickException {
-		if (analysisStandard == null || analysisStandard.getStandard() == null || analysisStandard.getStandard().getType() == null)
-			throw new TrickException("error.create.measure.invalid.standard", "Measure cannot be created: invalid standard");
+	public static Measure create(AnalysisStandard analysisStandard) throws TrickException {
+		if (analysisStandard == null || analysisStandard.getStandard() == null
+				|| analysisStandard.getStandard().getType() == null)
+			throw new TrickException("error.create.measure.invalid.standard",
+					"Measure cannot be created: invalid standard");
 		Measure measure = null;
 		switch (analysisStandard.getStandard().getType()) {
-		case ASSET:
-			measure = new AssetMeasure();
-			break;
-		case NORMAL:
-			measure = new NormalMeasure();
-			break;
-		case MATURITY:
-			measure = new MaturityMeasure();
-			break;
-		default:
-			throw new TrickException("error.create.measure.invalid.standard.type", "Measure cannot be created: invalid standard type");
+			case ASSET:
+				measure = new AssetMeasure();
+				break;
+			case NORMAL:
+				measure = new NormalMeasure();
+				break;
+			case MATURITY:
+				measure = new MaturityMeasure();
+				break;
+			default:
+				throw new TrickException("error.create.measure.invalid.standard.type",
+						"Measure cannot be created: invalid standard type");
 		}
 		measure.setAnalysisStandard(analysisStandard);
 		return measure;
@@ -368,22 +383,24 @@ public class MeasureManager {
 	 * @param maturityMeasures
 	 * @param parameters       : require Maturity parameters +
 	 *                         {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
-	 * @param                  reference: mapped by reference
+	 * @param reference:       mapped by reference
 	 * @return Map<27002 Reference or id, efficiency implementation Rate>
 	 */
-	public static Map<Object, Double> ComputeMaturiyEfficiencyRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<IParameter> parameters, boolean reference,
+	public static Map<Object, Double> computeMaturiyEfficiencyRate(List<Measure> measures27002,
+			List<Measure> maturityMeasures, List<IParameter> parameters, boolean reference,
 			ValueFactory factory) {
 		Map<Object, Double> effectiveImpelementationRate = new HashMap<>();
 		if (measures27002 == null || maturityMeasures == null || parameters == null)
 			return effectiveImpelementationRate;
-		Map<String, Double> maturities = ComputeMaturityByChapter(maturityMeasures, parameters, factory);
+		Map<String, Double> maturities = computeMaturityByChapter(maturityMeasures, parameters, factory);
 		if (maturities.isEmpty())
 			return effectiveImpelementationRate;
 		for (Measure measure : measures27002) {
 			if (measure.getMeasureDescription().isComputable()) {
 				Double maturity = maturities.get(measure.getMeasureDescription().getReference().split("[.]", 2)[0]);
 				if (maturity != null)
-					effectiveImpelementationRate.put(reference ? measure.getMeasureDescription().getReference() : measure.getId(),
+					effectiveImpelementationRate.put(
+							reference ? measure.getMeasureDescription().getReference() : measure.getId(),
 							measure.getImplementationRateValue(factory) * maturity * 0.01);
 			}
 		}
@@ -398,14 +415,16 @@ public class MeasureManager {
 	 *                         {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
 	 * @return Map<Chapter, Maturity rate>
 	 */
-	public static Map<String, Double> ComputeMaturityByChapter(List<Measure> maturityMeasures, List<IParameter> parameters, ValueFactory factory) {
+	public static Map<String, Double> computeMaturityByChapter(List<Measure> maturityMeasures,
+			List<IParameter> parameters, ValueFactory factory) {
 		Map<String, Double> maturities = new HashMap<>();
 		Map<String, IMaturityParameter> mappedMaturityParameters = new HashMap<>(23);
 		Map<String, IParameter> efficiencyRates = new HashMap<>(6);
 		parameters.forEach(parameter -> {
 			if (parameter instanceof IMaturityParameter)
 				mappedMaturityParameters.put(parameter.getDescription(), (MaturityParameter) parameter);
-			else if ((parameter instanceof SimpleParameter) && parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
+			else if ((parameter instanceof SimpleParameter)
+					&& parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
 				efficiencyRates.put(parameter.getDescription(), parameter);
 		});
 
@@ -425,21 +444,21 @@ public class MeasureManager {
 			IMaturityParameter maturityMeasure = mappedMaturityParameters.get(descriptionText.getDomain());
 			double implementation = measure.getImplementationRateValue(factory) * 0.01;
 			switch (chapters[1]) {
-			case "1":
-				complainces[0] &= implementation >= maturityMeasure.getSMLLevel1();
-				break;
-			case "2":
-				complainces[1] &= implementation >= maturityMeasure.getSMLLevel2();
-				break;
-			case "3":
-				complainces[2] &= implementation >= maturityMeasure.getSMLLevel3();
-				break;
-			case "4":
-				complainces[3] &= implementation >= maturityMeasure.getSMLLevel5();
-				break;
-			case "5":
-				complainces[4] &= implementation >= maturityMeasure.getSMLLevel5();
-				break;
+				case "1":
+					complainces[0] &= implementation >= maturityMeasure.getSMLLevel1();
+					break;
+				case "2":
+					complainces[1] &= implementation >= maturityMeasure.getSMLLevel2();
+					break;
+				case "3":
+					complainces[2] &= implementation >= maturityMeasure.getSMLLevel3();
+					break;
+				case "4":
+					complainces[3] &= implementation >= maturityMeasure.getSMLLevel5();
+					break;
+				case "5":
+					complainces[4] &= implementation >= maturityMeasure.getSMLLevel5();
+					break;
 			}
 		}
 
@@ -458,10 +477,19 @@ public class MeasureManager {
 		return maturities;
 	}
 
-	public static void update(NormalStandard normalStandard, Collection<MeasureDescription> measureDescriptions, DAOAnalysisStandard daoAnalysisStandard, DAOAnalysis daoAnalysis,
+	public static void update(NormalStandard normalStandard, Collection<MeasureDescription> measureDescriptions,
+			DAOAnalysisStandard daoAnalysisStandard, DAOAnalysis daoAnalysis,
+			DAOAssetType daoAssetType) {
+
+		update(normalStandard, daoAnalysis.getByAnalysisStandardId(normalStandard.getId()), measureDescriptions,
+				daoAnalysisStandard, daoAssetType);
+	}
+
+	public static void update(NormalStandard normalStandard, Analysis analysis,
+			Collection<MeasureDescription> measureDescriptions,
+			DAOAnalysisStandard daoAnalysisStandard,
 			DAOAssetType daoAssetType) {
 		final List<AssetType> assetTypes = daoAssetType.getAll();
-		final Analysis analysis = daoAnalysis.getByAnalysisStandardId(normalStandard.getId());
 		Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 		if (phase == null) {
 			phase = new Phase(Constant.PHASE_DEFAULT);
@@ -469,7 +497,7 @@ public class MeasureManager {
 		}
 		for (MeasureDescription measureDescription : measureDescriptions) {
 			NormalMeasure measure = new NormalMeasure(measureDescription);
-			List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
+			List<AssetTypeValue> assetTypeValues = measure.getAssetTypeValues();
 			for (AssetType assetType : assetTypes)
 				assetTypeValues.add(new AssetTypeValue(assetType, 0));
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
@@ -480,16 +508,24 @@ public class MeasureManager {
 			measure.setAnalysisStandard(normalStandard);
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
-					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
+					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
+							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(),
+					measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 		daoAnalysisStandard.saveOrUpdate(normalStandard);
 
 	}
 
-	public static void update(AssetStandard assetStandard, Collection<MeasureDescription> measureDescriptions, DAOAnalysisStandard daoAnalysisStandard, DAOAnalysis daoAnalysis) {
-		final Analysis analysis = daoAnalysis.getByAnalysisStandardId(assetStandard.getId());
+	public static void update(AssetStandard assetStandard, Collection<MeasureDescription> measureDescriptions,
+			DAOAnalysisStandard daoAnalysisStandard, DAOAnalysis daoAnalysis) {
+		update(assetStandard, daoAnalysis.getByAnalysisStandardId(assetStandard.getId()),measureDescriptions, daoAnalysisStandard);
+	}
+
+	public static void update(AssetStandard assetStandard, Analysis analysis,
+			Collection<MeasureDescription> measureDescriptions, DAOAnalysisStandard daoAnalysisStandard) {
+
 		Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 		if (phase == null) {
 			phase = new Phase(Constant.PHASE_DEFAULT);
@@ -505,16 +541,26 @@ public class MeasureManager {
 			assetStandard.getMeasures().add(measure);
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
-					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
+					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
+							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(),
+					measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 		daoAnalysisStandard.saveOrUpdate(assetStandard);
 	}
 
-	public static void update(MaturityStandard maturityStandard, Collection<MeasureDescription> measureDescriptions, DAOAnalysisStandard daoAnalysisStandard,
+	public static void update(MaturityStandard maturityStandard, Collection<MeasureDescription> measureDescriptions,
+			DAOAnalysisStandard daoAnalysisStandard,
 			DAOAnalysis daoAnalysis) {
-		final Analysis analysis = daoAnalysis.getByAnalysisStandardId(maturityStandard.getId());
+		update(maturityStandard, daoAnalysis.getByAnalysisStandardId(maturityStandard.getId()), measureDescriptions,
+				daoAnalysisStandard);
+	}
+
+	public static void update(MaturityStandard maturityStandard, Analysis analysis,
+			Collection<MeasureDescription> measureDescriptions,
+			DAOAnalysisStandard daoAnalysisStandard) {
+
 		Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 		if (phase == null) {
 			phase = new Phase(Constant.PHASE_DEFAULT);
@@ -522,7 +568,8 @@ public class MeasureManager {
 		}
 
 		final SimpleParameter implementationRate = analysis.getSimpleParameters().stream()
-				.filter(p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && p.getValue() == 0).min((p1, p2) -> p1.getValue().compareTo(p2.getValue()))
+				.filter(p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && p.getValue() == 0)
+				.min((p1, p2) -> p1.getValue().compareTo(p2.getValue()))
 				.orElse(null);
 		for (MeasureDescription measureDescription : measureDescriptions) {
 			MaturityMeasure measure = new MaturityMeasure(measureDescription);
@@ -533,9 +580,11 @@ public class MeasureManager {
 			maturityStandard.getMeasures().add(measure);
 
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
-					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
+					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
+							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
-					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getName());
+					"System", LogAction.ADD, analysis.getIdentifier(), analysis.getVersion(),
+					measureDescription.getReference(), measureDescription.getStandard().getName());
 		}
 		daoAnalysisStandard.saveOrUpdate(maturityStandard);
 	}

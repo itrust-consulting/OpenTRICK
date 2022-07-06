@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +58,9 @@ public class GlobalControllerAdvice {
 			if (request.getParameter("lang") != null)
 				serviceTaskFeedback.update(principal.getName(), new Locale(request.getParameter("lang")));
 			model.addAttribute("userNotifcations", serviceMessageNotifier.findAllByUsername(principal.getName()));
+
+			model.addAttribute("customJSs", new ArrayList<String>());
+			model.addAttribute("customCSSs", new ArrayList<String>());
 		}
 	}
 

@@ -5,8 +5,16 @@
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
 </c:if>
-<script src="<c:url value="/js/jquery-2.2.4.min.js" />"></script>
+
+<script src="<c:url value="/js/jquery-3.5.1.min.js" />"></script>
+<script src="<c:url value="/js/jquery-migrate-3.3.0.min.js" />"></script>
 <script src="<c:url value="/js/bootstrap/bootstrap.min.js" />"></script>
+<script src="<c:url value="/js/underscore-min.js" />"></script>
+
+<c:forEach items="${customJSs}" var="customJS">
+	<script src="<c:url value="${customJS}" />"></script>
+</c:forEach>
+
 <sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
 	<script src="<c:url value="/js/he.js" />"></script>
 	<script src="<c:url value="/js/jquery.serializeToJson.min.js" />"></script>

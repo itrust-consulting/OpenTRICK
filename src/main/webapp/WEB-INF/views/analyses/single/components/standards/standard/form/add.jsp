@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <form name="standard" action="/Create?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="standard_form" method="post">
-	<input type="hidden" value="-1" name="id" id="id">
+	<input type="hidden" value="-1" name="id" id="standard_formId">
 	<div class="form-group">
 		<label class="control-label col-sm-3" data-helper-content='<spring:message code="help.norm.type" />' ><spring:message code="label.norm.standard_type" /></label>
 		<div class="col-sm-9 text-center">

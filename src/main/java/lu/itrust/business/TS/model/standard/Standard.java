@@ -380,16 +380,16 @@ public class Standard implements Cloneable {
 	}
 
 	public boolean isMatch(Standard standard) {
-		return label.equalsIgnoreCase(standard.label) && standard.type == standard.type;
+		return name.equalsIgnoreCase(standard.name) && standard.type.equals(this.type);
 	}
 
 	public boolean hasSameName(Standard standard) {
-		return label.equalsIgnoreCase(standard.label);
+		return name.equalsIgnoreCase(standard.name);
 	}
 
-	public Boolean is(String label) {
-		return (analysisOnly || !(label.equals(Constant.STANDARD_27001) || label.equals(Constant.STANDARD_27002))) ? this.label.equalsIgnoreCase(label)
-				: this.label.startsWith(label);
+	public Boolean is(String name) {
+		return (analysisOnly || !(name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002))) ? this.name.equalsIgnoreCase(name)
+				: this.label.startsWith(name);
 	}
 
 	public String getName() {

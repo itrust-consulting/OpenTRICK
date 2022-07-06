@@ -15,6 +15,9 @@
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <c:set var="language" value="${locale.language}" scope="request" />
+<!-- inject css -->
+<c:set var="DummTMP">${customCSSs.add("/css/autoComplete.min.css")}</c:set>
+
 <!DOCTYPE html>
 <html lang="${language}">
 <c:set scope="request" var="title">label.title.analysis</c:set>
@@ -84,10 +87,10 @@
 	<script type="text/javascript" src="<c:url value="/js/trickservice/scenario.js" />"></script>
 	<script type="text/javascript" src="<c:url value="/js/trickservice/phase.js" />"></script>
 	<script type="text/javascript" src="<c:url value="/js/trickservice/rrfManager.js" />"></script>
-	
 	<script type="text/javascript" src="<c:url value="/js/trickservice/analysisStandard.js" />"></script>
 	<script type="text/javascript" src="<c:url value="/js/trickservice/analysis-measure.js" />"></script>
 	<c:if test="${isEditable}">
+	    <c:set var="DummTMP">${customJSs.add("/js/autoComplete.min.js")}</c:set>
 		<script type="text/javascript" src="<c:url value="/js/trickservice/analysisImport.js" />"></script>
 	</c:if>
 	

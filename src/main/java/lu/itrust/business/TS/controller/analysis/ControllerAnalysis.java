@@ -60,7 +60,6 @@ import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceTicketingSystem;
-import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
@@ -107,9 +106,6 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 @RequestMapping("/Analysis")
 @Controller
 public class ControllerAnalysis extends AbstractController {
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private ServiceIDS serviceIDS;
@@ -161,7 +157,7 @@ public class ControllerAnalysis extends AbstractController {
 	}
 
 	@RequestMapping("/All")
-	public String AllAnalysis(Model model, Principal principal, HttpSession session) throws Exception {
+	public String allAnalysis(Model model, Principal principal, HttpSession session) throws Exception {
 		session.removeAttribute(OPEN_MODE);
 		session.removeAttribute(SELECTED_ANALYSIS);
 		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
@@ -601,7 +597,7 @@ public class ControllerAnalysis extends AbstractController {
 
 			if (analysis.isHybrid() && hasMaturity) {
 				model.addAttribute("effectImpl27002",
-						MeasureManager.ComputeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
+						MeasureManager.computeMaturiyEfficiencyRate(measuresByStandard.get(Constant.STANDARD_27002), measuresByStandard.get(Constant.STANDARD_MATURITY),
 								analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
 				model.addAttribute("hasMaturity", hasMaturity);
 			}

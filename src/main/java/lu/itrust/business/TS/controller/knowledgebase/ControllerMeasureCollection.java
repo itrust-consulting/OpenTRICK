@@ -139,7 +139,7 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Model model) throws Exception {
+	public String displayAll(Model model){
 		model.addAttribute("standards", serviceStandard.getAllNotBoundToAnalysis());
 		return "knowledgebase/standards/standard/standards";
 	}
@@ -153,8 +153,7 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String section(Model model) throws Exception {
-
+	public String section(Model model){
 		// call default
 		return displayAll(model);
 	}

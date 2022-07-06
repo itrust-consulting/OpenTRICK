@@ -9,9 +9,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<spring-boot.version>2.3.12.RELEASE</spring-boot.version>
-		<spring-mvc.version>5.2.20.RELEASE</spring-mvc.version>
+		<spring-mvc.version>5.2.22.RELEASE</spring-mvc.version>
 		<hibernate.version>5.6.7.Final</hibernate.version>
 		<log4j2.version>2.17.2</log4j2.version>
+		<mysql.version>8.0.29</mysql.version>
+		<jackson-bom.version>2.13.3</jackson-bom.version>
 	</properties>
 
 	<dependencies>
@@ -359,7 +361,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>24.1-jre</version>
+			<version>31.1-jre</version>
 		</dependency>
 
 		<dependency>
@@ -478,9 +480,16 @@
 
 	<dependencyManagement>
 		<dependencies>
+			
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
+				<version>${spring-mvc.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
 				<version>${spring-mvc.version}</version>
 			</dependency>
 	

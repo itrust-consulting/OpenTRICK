@@ -336,7 +336,7 @@ public final class ExcelHelper {
 		return null;
 	}
 
-	private static int colToIndex(String r, int index) {
+	public static int colToIndex(String r, int index) {
 		return StringUtils.hasText(r) ? colStringToIndex(r): index ;
 	}
 

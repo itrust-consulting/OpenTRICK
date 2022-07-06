@@ -10,6 +10,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
@@ -62,7 +63,9 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllFromAnalysis(Integer analysisId) {
-		final Analysis analysis = (Analysis) getSession().createQuery("select analysis from Analysis analysis where analysis.id = :analysis").setParameter("analysis", analysisId)
+		final Analysis analysis = (Analysis) getSession()
+				.createQuery("select analysis from Analysis analysis where analysis.id = :analysis")
+				.setParameter("analysis", analysisId)
 				.uniqueResultOptional().orElse(null);
 
 		final List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
@@ -85,7 +88,8 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 			final Standard tmpstandard = standard.getStandard();
 
 			List<MeasureDescription> mesDescs = (List<MeasureDescription>) getSession()
-					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).getResultList();
+					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard")
+					.setParameter("standard", tmpstandard).getResultList();
 
 			for (MeasureDescription mesDesc : mesDescs) {
 				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())
@@ -117,7 +121,8 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAll() {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard order by standard.label").getResultList();
+		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard order by standard.label")
+				.getResultList();
 	}
 
 	/**
@@ -173,14 +178,16 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAllFromStandard(Standard standard) {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where standard = :standard").setParameter("standard", standard).getResultList();
+		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where standard = :standard")
+				.setParameter("standard", standard).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) {
 		return (Integer) getSession()
-				.createQuery("SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
+				.createQuery(
+						"SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
 				.setParameter("analysisstandard", analysisStandard).uniqueResultOptional().orElse(-1);
 	}
 
@@ -198,7 +205,8 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard) {
 		return (AnalysisStandard) getSession().createQuery(
 				"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
-				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResultOptional().orElse(null);
+				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResultOptional()
+				.orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -206,20 +214,23 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String name) {
 		return (AnalysisStandard) getSession().createQuery(
 				"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.label = :standardName")
-				.setParameter("idAnalysis", idAnalysis).setParameter("standardName", name).uniqueResultOptional().orElse(null);
+				.setParameter("idAnalysis", idAnalysis).setParameter("standardName", name).uniqueResultOptional()
+				.orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Standard getStandardById(int idAnalysisStandard) {
-		return (Standard) getSession().createQuery("Select analysisStandard.standard From AnalysisStandard analysisStandard where analysisStandard.id = :id")
+		return (Standard) getSession().createQuery(
+				"Select analysisStandard.standard From AnalysisStandard analysisStandard where analysisStandard.id = :id")
 				.setParameter("id", idAnalysisStandard).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public String getStandardNameById(int idAnalysisStandard) {
-		return (String) getSession().createQuery("Select analysisStandard.standard.label From AnalysisStandard analysisStandard where analysisStandard.id = :id")
+		return (String) getSession().createQuery(
+				"Select analysisStandard.standard.label From AnalysisStandard analysisStandard where analysisStandard.id = :id")
 				.setParameter("id", idAnalysisStandard).uniqueResultOptional().orElse(null);
 	}
 
@@ -268,29 +279,35 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?>... classes) {
 		return getSession().createQuery(
 				"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and type(analysisStandard) in :types order by analysisStandard.standard.label ASC",
-				AnalysisStandard.class).setParameter("analysis", analysisId).setParameterList("types", classes).getResultList();
+				AnalysisStandard.class).setParameter("analysis", analysisId).setParameterList("types", classes)
+				.getResultList();
 	}
 
 	@Override
 	public AnalysisStandard findOne(int id, int analysisId) {
 		return (AnalysisStandard) getSession().createQuery(
 				"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.id = :id",
-				AnalysisStandard.class).setParameter("analysis", analysisId).setParameter("id", id).uniqueResultOptional().orElse(null);
+				AnalysisStandard.class).setParameter("analysis", analysisId).setParameter("id", id)
+				.uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
+	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis,
+			Class<?>... classes) {
 		return getSession().createQuery(
 				"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = :computable and type(analysisStandard) in :types order by analysisStandard.standard.label ASC")
-				.setParameter("analysis", idAnalysis).setParameter("computable", computable).setParameterList("types", classes).getResultList();
+				.setParameter("analysis", idAnalysis).setParameter("computable", computable)
+				.setParameterList("types", classes).getResultList();
 	}
 
 	@Override
-	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
+	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis,
+			Class<?>... classes) {
 		return getSession().createQuery(
 				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = :computable and type(analysisStandard) in :types order by analysisStandard.standard.label ASC",
-				Standard.class).setParameter("analysis", idAnalysis).setParameter("computable", computable).setParameterList("types", classes).getResultList();
+				Standard.class).setParameter("analysis", idAnalysis).setParameter("computable", computable)
+				.setParameterList("types", classes).getResultList();
 	}
 
 	@Override
@@ -302,14 +319,24 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 
 	@Override
 	public long countByStandard(Standard standard) {
-		return getSession().createQuery("Select count(*) From AnalysisStandard where standard = :standard", Long.class).setParameter("standard", standard).uniqueResult();
+		return getSession().createQuery("Select count(*) From AnalysisStandard where standard = :standard", Long.class)
+				.setParameter("standard", standard).uniqueResult();
 	}
 
 	@Override
 	public List<AnalysisStandard> findByStandard(int page, int size, Standard standard) {
-		return getSession().createQuery("From AnalysisStandard where standard = :standard", AnalysisStandard.class).setParameter("standard", standard).setMaxResults(size)
+		return getSession().createQuery("From AnalysisStandard where standard = :standard", AnalysisStandard.class)
+				.setParameter("standard", standard).setMaxResults(size)
 				.setFirstResult((page - 1) * size).list();
 	}
-	
-	
+
+	@Override
+	public List<String> findByAnalysisAndNameLikeAndTypeAndCustom(Integer idAnalysis, String name, StandardType type,
+			boolean custom) {
+		return getSession().createQuery(
+				"Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.label like :name and analysisStandard.standard.type = :stdType order by analysisStandard.standard.label ASC",
+				String.class).setParameter("analysis", idAnalysis).setParameter("name", name)
+				.setParameter("stdType", type).getResultList();
+	}
+
 }

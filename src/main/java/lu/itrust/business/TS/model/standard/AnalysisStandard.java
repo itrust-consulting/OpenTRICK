@@ -56,9 +56,9 @@ public abstract class AnalysisStandard implements Cloneable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAnalysisStandard")
 	private int id = -1;
-	
+
 	/**
-	 * Only for hibernate mapping, 
+	 * Only for hibernate mapping,
 	 * see analysisStandard mapping from Analysis.
 	 */
 	@Formula("(Select STD.dtName From Standard STD where STD.idStandard = fiStandard)")
@@ -76,9 +76,9 @@ public abstract class AnalysisStandard implements Cloneable {
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	private List<Measure> measures = new ArrayList<Measure>();
+	private List<Measure> measures = new ArrayList<>();
 
-	@Column(name = "dtSOAEnabled",nullable = false)
+	@Column(name = "dtSOAEnabled", nullable = false)
 	private boolean soaEnabled = false;
 
 	/***********************************************************************************************
@@ -93,6 +93,8 @@ public abstract class AnalysisStandard implements Cloneable {
 	 */
 	public AnalysisStandard(Standard standard) {
 		this.standard = standard;
+		if (standard != null)
+			this.name = standard.getName();
 	}
 
 	/**
@@ -140,7 +142,7 @@ public abstract class AnalysisStandard implements Cloneable {
 			throw new TrickException("error.norm.null", "Standard cannot be empty");
 		else if (standard.getLabel() == null)
 			throw new TrickException("error.norm.label_null", "Standard name cannot be empty");
-		else if(standard.getName() == null)
+		else if (standard.getName() == null)
 			throw new TrickException("error.norm.name_null", "Standard display name cannot be empty");
 		this.standard = standard;
 	}
@@ -160,7 +162,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * Sets the Field "id" with a value.
 	 * 
 	 * @param id
-	 *            The Value to set the id field
+	 *           The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -191,7 +193,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * Sets the Field "measures" with a value.
 	 * 
 	 * @param measures
-	 *            The Value to set the measures field
+	 *                 The Value to set the measures field
 	 */
 	public void setMeasures(List<Measure> measures) {
 		this.measures = measures;
@@ -206,7 +208,7 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/**
 	 * @param soaEnabled
-	 *            the soaEnabled to set
+	 *                   the soaEnabled to set
 	 */
 	public void setSoaEnabled(Boolean soaEnabled) {
 		if (soaEnabled == null)

@@ -28,11 +28,7 @@ $(document).ready(function () {
 });
 
 function isAnalysisOnlyStandard(section) {
-	var selectedStandard = $(section + " tbody :checked").parent().parent().attr("data-trick-analysisOnly");
-	if (selectedStandard === "true")
-		return true;
-	else
-		return false;
+	return $(section + " tbody :checked").parent().parent().attr("data-trick-analysisOnly") === "true";
 }
 /**
  * @author eomar
@@ -49,7 +45,7 @@ function manageStandard() {
 				type: "get",
 				contentType: "application/json;charset=UTF-8",
 				async: false,
-				success: function (response, textStatus, jqXHR) {
+				success: function (response) {
 					if (response["error"] != undefined)
 						showDialog("error", response["error"]);
 					else {
@@ -61,26 +57,50 @@ function manageStandard() {
 							$("#section_manage_standards").replaceWith($forms);
 
 						var $tabs = $standardModal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $standardModal.find(".modal-footer button[name='cancel']"), $backBtn = $standardModal
-							.find(".modal-footer a.btn"), $saveBtn = $standardModal.find(".modal-footer button[name='save']");
+							.find(".modal-footer a.btn"), $saveBtn = $standardModal.find(".modal-footer button[name='save']"), $importBtn = $standardModal.find(".modal-footer button[name='import']");
 
 						$saveBtn.on("click", saveStandard);
 
+						$importBtn.on("click", importStandardFromFile);
+
 						$tabs.on('shown.bs.tab', function () {
-							$(this).parent().removeClass("active");
-							if (this.getAttribute("role") != "import")
+							let role = this.getAttribute("role");
+							let $this = $(this);
+
+							$this.parent().removeClass("active");
+
+							if (!role.includes("import")) {
 								$saveBtn.show();
+							} else if (role.includes("import-file")) {
+								$importBtn.show();
+								$standardModal.find("#importStandardFromFileInputFile").trigger("change");
+							}
+
 							$backBtn.show();
 							$cancelBtn.hide();
+
 						}).each(function () {
+							let $this = $(this);
 							switch (this.getAttribute("role")) {
-								case "import":
-									$(this).on('show.bs.tab', importStandard)
+								case "import-kb":
+									$this.on('show.bs.tab', importStandardFromKb)
 									break;
 								case "edit":
-									$(this).on('show.bs.tab', editStandard)
+									$this.on('show.bs.tab', editStandard)
+									break;
+								case "import-file":
+									$this.on('show.bs.tab', () => {
+										$standardModal.find("#importStandardFromFile")[0].reset();
+										$standardModal.find("#importStandardFromFile input[name='id']").prop("value", "-1");
+										$standardModal.find("#importStandardFromFile select[name='type']").prop("disabled", false);
+										$standardModal.find("#importStandardFromFile input[name='name']").prop("value", name).prop("disabled", false);
+									});
+									break;
+								case "import-file-update":
+									$this.on('show.bs.tab', updateImportFileForm)
 									break;
 								case "add":
-									$(this).on('show.bs.tab', addStandard)
+									$this.on('show.bs.tab', addStandard)
 									break;
 								default:
 									break;
@@ -90,6 +110,7 @@ function manageStandard() {
 						$backBtn.on('click', function () {
 							$saveBtn.hide();
 							$backBtn.hide();
+							$importBtn.hide();
 							$cancelBtn.show();
 							$standardModal.find(".label-danger,.alert-danger").remove();
 						});
@@ -104,8 +125,59 @@ function manageStandard() {
 	return false;
 }
 
+/**
+ * Load data from measure table. 
+ */
+function updateImportFileForm(e) {
+	if ($(e.currentTarget).parent().hasClass("disabled"))
+		return false;
+	let $tr = $standardModal.find("input:checked").closest("tr");
+	let id = $tr.attr("data-trick-id");
+	let name = $tr.find('td[data-name="name"]').text();
+	let type = $tr.find('td[data-name="type"]').attr("data-real-value");
+	$standardModal.find("#importStandardFromFile")[0].reset();
+	$standardModal.find("#importStandardFromFile input[name='id']").prop("value", id);
+	$standardModal.find("#importStandardFromFile select[name='type']").prop("value", type).prop("disabled", true);
+	$standardModal.find("#importStandardFromFile input[name='name']").prop("value", name).prop("disabled", true);
+}
+
+function importStandardFromFile(e) {
+	var $uploadFile = $("#upload-file-info",$standardModal), $progress = $("#loading-indicator");
+	if (!$uploadFile.length)
+		return false;
+	else if ($uploadFile.val() == "") {
+		showError($("#error-standard-modal", $standardModal)[0],MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
+		return false;
+	}
+	$progress.show();
+	$.ajax({
+		url: context + "/Analysis/Standard/Import-from-file",
+		type: 'POST',
+		data: new FormData($('#importStandardFromFile')[0]),
+		cache: false,
+		contentType: false,
+		processData: false,
+		success: function (response) {
+			if (response.success){
+				application["standard-change"] = true;
+				showDialog("#success-dialog", response.success);
+				reloadStandardTable();
+			}
+			else if (response.error)
+				showDialog("#alert-dialog", response.error);
+			else
+				showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
+		},
+		error: unknowError
+
+	}).complete(function () {
+		$progress.hide();
+	});
+	return false;
+}
+
 // rewritten by @eomar 24/05/2016
-function importStandard(e) {
+function importStandardFromKb(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
 	var $progress = $("#loading-indicator").show();
@@ -115,33 +187,33 @@ function importStandard(e) {
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		async: false,
-		success: function (response, textStatus, jqXHR) {
+		success: function (response) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#importStandardTable");
 			if (!$content.length) {
-				showDialog("error",MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+				showDialog("error", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 				e.preventDefault();
 			} else {
 				var $tableStandard = $standardModal.find("#table_current_standard");
 				$("#importStandardTable", $standardModal).replaceWith($content);
-				$content.find("button.btn").on("click", function (e) {
-					var $this = $(this), $tr = $this.closest("tr"), $tbodySource = $tr.closest("tbody") ;
+				$content.find("button.btn").on("click", function () {
+					var $this = $(this), $tr = $this.closest("tr"), $tbodySource = $tr.closest("tbody");
 					$progress.show();
 					$.ajax({
 						url: context + "/Analysis/Standard/Add/" + $tr.attr("data-trick-id"),
 						type: "post",
 						contentType: "application/json;charset=UTF-8",
-						success: function (response, textStatus, jqXHR) {
-							if (response["error"] != undefined) {
-								showDialog("error",response["error"]);
-							} else if (response["success"] != undefined) {
+						success: function (data) {
+							if (data["error"] != undefined) {
+								showDialog("error", data["error"]);
+							} else if (data["success"] != undefined) {
 								$tableStandard.find("tbody>tr:not([data-trick-id])").remove();
 								$tr.find("td:last-child").remove();
-								if ($("tbody>tr[data-trick-id='" + $tr.attr("data-trick-id") + "']",$tableStandard).length)
+								if ($("tbody>tr[data-trick-id='" + $tr.attr("data-trick-id") + "']", $tableStandard).length)
 									$tr.remove();
 								else
 									$tr.appendTo($tableStandard.find("tbody")).find("td:hidden").show();
-								$tr.on("click",(e) => {selectElement(e.currentTarget);});
-								$("tr[data-trick-name='"+$tr.attr("data-trick-name")+"']",$tbodySource).remove();
+								$tr.on("click", (ev) => { selectElement(ev.currentTarget); });
+								$("tr[data-trick-name='" + $tr.attr("data-trick-name") + "']", $tbodySource).remove();
 								application["standard-change"] = true;
 							}
 						},
@@ -164,7 +236,7 @@ function reloadStandardTable() {
 		url: context + "/Analysis/Standard/Manage",
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
+		success: function (response) {
 			var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
 			if ($table.length) {
 				$("#section_manage_standards table.table").replaceWith($table);
@@ -188,7 +260,7 @@ function editStandard(e) {
 	var $tr = $("#section_manage_standards tbody>tr[data-trick-analysisOnly='true'] :checked").closest("tr"), $form = $("#standard_form"), id = $tr.attr("data-trick-id");
 	var label = $tr.find("td[data-name='label']").text(), description = $tr.find("td[data-name='description']").text(), type = $tr.attr("data-trick-type");
 	var name = $tr.find("td[data-name='name']").text(), computable = $tr.attr("data-trick-computable");
-	$("#id", $form).val(id);
+	$("#standard_formId", $form).val(id);
 	$("#standard_name", $form).val(name);
 	$("#standard_label", $form).val(label);
 	$("#standard_description", $form).val(description);
@@ -206,7 +278,7 @@ function addStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
 	var $form = $("#standard_form")
-	$("#id", $form).prop("value", "-1");
+	$("#standard_formId", $form).prop("value", "-1");
 	$("#standard_name", $form).prop("value", "");
 	$("#standard_label", $form).prop("value", "");
 	$("#standard_version", $form).prop("value", "");
@@ -318,7 +390,7 @@ function manageMeasure(url) {
 				unknowError()
 		},
 		error: unknowError
-	}).complete( () => $progress.hide());
+	}).complete(() => $progress.hide());
 	return false;
 }
 
@@ -437,10 +509,10 @@ function saveMeasure(form, callback) {
 
 	} else
 		data.type = "NORMAL";
-	
+
 	data.properties = properties;
 	data.computable = data.computable === "on";
-	
+
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Standard/Measure/Save",
@@ -482,7 +554,7 @@ function saveMeasure(form, callback) {
 				$("#error_container", $modalMeasureForm));
 			return false;
 		}
-	}).complete( () => $progress.hide());
+	}).complete(() => $progress.hide());
 	return false;
 }
 

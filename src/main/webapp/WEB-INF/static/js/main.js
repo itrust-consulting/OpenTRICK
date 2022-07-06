@@ -615,10 +615,11 @@ function canManageAccess() {
 	return isOwner() || hasRight("ALL");
 }
 
-function selectElement(element) {
-	var $input = $(element).find("input,textarea,select");
-	if ($input.length == 1)
-		$input.filter("input[type='checkbox']:not(:hover):not(:focus)").trigger("click");
+function selectElement(elm) {
+	var $input = $(elm).find("input,textarea,select");
+	if ($input.length == 1) {
+		$input.filter("input[type='checkbox']:not(:hover):not(:focus)")[0].click();
+	}
 	return false;
 }
 
@@ -834,7 +835,6 @@ function invokeCallback(callback) {
 		else
 			eval(callback);
 	} catch (e) {
-		console.log(idsection);
 		console.log(e);
 	}
 }

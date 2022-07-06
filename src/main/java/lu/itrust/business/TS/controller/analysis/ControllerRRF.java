@@ -311,7 +311,7 @@ public class ControllerRRF {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.getAllSelectedFromAnalysis(idAnalysis);
-		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.SplitByChapter(measures);
+		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.splitByChapter(measures);
 		if (!splittedmeasures.isEmpty() && splittedmeasures.entrySet().iterator().next().getValue().get(0) != null) {
 
 			model.addAttribute("measures", splittedmeasures);

@@ -19,14 +19,20 @@
 			</div>
 			<div class="modal-body tab-content">
 				<div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px"></div>
-				<div id="available_standards" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
-					<jsp:include page="form/import.jsp" />
+				<div id="importFromKb" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+					<jsp:include page="form/importFromKb.jsp" />
+				</div>
+				<div id="importFromFile" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+					<jsp:include page="form/importFromFile.jsp" />
 				</div>
 				<div id="standard_form_container" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 500px;">
 					<jsp:include page="form/add.jsp" />
 				</div>
 			</div>
 			<div class="modal-footer">
+				<button class="btn btn-primary" style="display: none;" name="import" disable id="standardModalImportBtn">
+					<spring:message code="label.action.import" />
+				</button>
 				<button class="btn btn-primary" style="display: none;" name="save">
 					<spring:message code="label.action.save" />
 				</button>

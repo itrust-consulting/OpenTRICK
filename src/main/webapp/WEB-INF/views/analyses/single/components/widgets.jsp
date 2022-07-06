@@ -13,7 +13,6 @@
 			<c:forEach end="100" begin="0" step="1" var="implementationRate">
 				<option value="${implementationRate}">${implementationRate}</option>
 			</c:forEach>
-		</datalist>
-		
+		</datalist>	
 	</c:if>
 </div>

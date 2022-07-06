@@ -140,8 +140,8 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 		final P paragraph = exporter.findP(data.getSource());
 		if (paragraph != null) {
 			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-			final List<ALE> ales2 = new LinkedList<ALE>();
+			final Map<Integer, ALE> ales = new LinkedHashMap<>();
+			final List<ALE> ales2 = new LinkedList<>();
 			for (Assessment assessment : assessments) {
 				ALE ale = ales.get(assessment.getScenario().getType().getValue());
 				if (ale == null) {

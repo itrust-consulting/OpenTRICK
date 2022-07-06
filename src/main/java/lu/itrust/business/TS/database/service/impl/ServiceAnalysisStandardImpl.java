@@ -11,6 +11,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.StandardType;
 
 /**
  * ServiceAnalysisStandardImpl.java: <br>
@@ -231,5 +232,11 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	@Override
 	public List<Standard> findStandardByAnalysisIdAndTypeIn(Integer idAnalysis, Class<?>... classes) {
 		return daoAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis,classes);
+	}
+
+	@Override
+	public List<String> findByAnalysisAndNameLikeAndTypeAndCustom(Integer idAnalysis, String name, StandardType type,
+			boolean custom) {
+		return daoAnalysisStandard.findByAnalysisAndNameLikeAndTypeAndCustom(idAnalysis,name,type, custom);
 	}
 }
