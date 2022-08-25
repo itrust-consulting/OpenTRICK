@@ -19,8 +19,6 @@ public interface IValue extends Cloneable {
 	
 	Object getRaw();
 
-	
-	
 	boolean merge(IValue value);
 
 	/**

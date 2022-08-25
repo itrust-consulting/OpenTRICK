@@ -152,8 +152,6 @@ public class TSConfig {
 		properties.put("hibernate.javax.cache.provider", environment.getProperty("jdbc.cache.provider"));
 		properties.put("hibernate.cache.use_query_cache", environment.getProperty("jdbc.cache.use_query_cache"));
 		properties.put("hibernate.cache.region.factory_class", environment.getProperty("jdbc.cache.factory_class"));
-		// properties.put("hibernate.current_session_context_class",
-		// environment.getProperty("jdbc.current_session_context_class"));
 		properties.put("hibernate.cache.use_second_level_cache",
 				environment.getProperty("jdbc.cache.use_second_level"));
 		if (resource.exists())

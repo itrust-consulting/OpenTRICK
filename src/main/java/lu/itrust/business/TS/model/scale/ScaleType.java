@@ -129,4 +129,5 @@ public class ScaleType extends AbstractParameterType {
 		return StringUtils.capitalize(name.length() > 3 ? name.substring(0, 3).toLowerCase() + "." : name);
 	}
 
+	
 }

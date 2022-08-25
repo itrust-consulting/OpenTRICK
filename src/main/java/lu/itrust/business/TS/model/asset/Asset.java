@@ -1,9 +1,13 @@
 package lu.itrust.business.TS.model.asset;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.directory.InvalidAttributesException;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,11 +15,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 
 import lu.itrust.business.TS.exception.TrickException;
 
@@ -55,6 +61,9 @@ public class Asset implements Cloneable {
 	@Access(AccessType.FIELD)
 	private AssetType assetType = null;
 
+	//@OneToMany(cascade = CascadeType.ALL, mappedBy = "parent")
+	//private List<AssetEdge> edges = new ArrayList<>();
+
 	/** The Asset Value */
 	@Column(name = "dtValue", nullable = false)
 	private double value = 0;
@@ -93,6 +102,14 @@ public class Asset implements Cloneable {
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	/*public List<AssetEdge> getEdges() {
+		return this.edges;
+	}
+
+	public void setEdges(List<AssetEdge> edges) {
+		this.edges = edges;
+	}*/
 
 	/**
 	 * getId: <br>
@@ -330,6 +347,7 @@ public class Asset implements Cloneable {
 		try {
 			Asset asset = (Asset) super.clone();
 			asset.id = -1;
+			//asset.edges = new ArrayList<>();
 			return asset;
 		} catch (CloneNotSupportedException e) {
 			throw new TrickException("error.clone.asset", "Asset cannot be copied");
@@ -406,7 +424,8 @@ public class Asset implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Asset [id=" + id + ", name=" + name + ", assetType=" + assetType + ", value=" + value + ", comment=" + comment + ", hiddenComment=" + hiddenComment + ", selected="
+		return "Asset [id=" + id + ", name=" + name + ", assetType=" + assetType + ", value=" + value + ", comment="
+				+ comment + ", hiddenComment=" + hiddenComment + ", selected="
 				+ selected + ", ALEP=" + ALEP + ", ALE=" + ALE + ", ALEO=" + ALEO + "]";
 	}
 }

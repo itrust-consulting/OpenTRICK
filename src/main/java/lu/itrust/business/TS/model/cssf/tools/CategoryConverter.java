@@ -31,12 +31,12 @@ public class CategoryConverter {
 	 * d62, d63, d64, d7, i1, i2, i3, i4, i5, i6, i7, i8, i81, i82, i83, i84,
 	 * i9,i10
 	 */
-	public static final String[] SQLITEKEYS = new String[] { "confidentiality", "integrity", "availability", "exploitability", "reliability", "d1", "d2", "d3", "d4", "d5", "d6",
+	public static final String[] SQLITEKEYS = new String[] { "confidentiality", "integrity", "availability", "exploitability", "reliability","ilr", "d1", "d2", "d3", "d4", "d5", "d6",
 			"d61", "d62", "d63", "d64", "d7", "i1", "i2", "i3", "i4", "i5", "i6", "i7", "i8", "i81", "i82", "i83", "i84", "i9", "i10" };
 
 	/**
 	 * MYSQLKEYS: <br>
-	 * dtConfidentialityCat, dtIntegrityCat, dtAvailabilityCat,dtExploitabilityCat,dtReliabilityCat, dtDirect1Cat,
+	 * dtConfidentialityCat, dtIntegrityCat, dtAvailabilityCat,dtExploitabilityCat,dtReliabilityCat, dtILRCat, dtDirect1Cat,
 	 * dtDirect2Cat, dtDirect3Cat, dtDirect4Cat, dtDirect5Cat, dtDirect6Cat,
 	 * dtDirect6.1Cat, dtDirect6.2Cat, dtDirect6.3Cat, dtDirect6.4Cat,
 	 * dtDirect7Cat, dtIndirect1Cat, dtIndirect2Cat, dtIndirect3Cat,
@@ -44,20 +44,20 @@ public class CategoryConverter {
 	 * dtIndirect8Cat, dtIndirect8.1Cat, dtIndirect8.2Cat, dtIndirect8.3Cat,
 	 * dtIndirect8.4Cat, dtIndirect9Cat, dtIndirect10Cat
 	 */
-	public static final String[] MYSQLKEYS = new String[] { "dtConfidentialityCat", "dtIntegrityCat", "dtAvailabilityCat", "dtExploitabilityCat", "dtReliabilityCat",
+	public static final String[] MYSQLKEYS = new String[] { "dtConfidentialityCat", "dtIntegrityCat", "dtAvailabilityCat", "dtExploitabilityCat", "dtReliabilityCat","dtILRCat",
 			"dtDirect1Cat", "dtDirect2Cat", "dtDirect3Cat", "dtDirect4Cat", "dtDirect5Cat", "dtDirect6Cat", "dtDirect6.1Cat", "dtDirect6.2Cat", "dtDirect6.3Cat", "dtDirect6.4Cat",
 			"dtDirect7Cat", "dtIndirect1Cat", "dtIndirect2Cat", "dtIndirect3Cat", "dtIndirect4Cat", "dtIndirect5Cat", "dtIndirect6Cat", "dtIndirect7Cat", "dtIndirect8Cat",
 			"dtIndirect8.1Cat", "dtIndirect8.2Cat", "dtIndirect8.3Cat", "dtIndirect8.4Cat", "dtIndirect9Cat", "dtIndirect10Cat" };
 
 	/**
 	 * JAVAKEYS: <br>
-	 * Confidentiality, Integrity, Availability, Exploitability, Reliability, Direct1, Direct2, Direct3,
+	 * Confidentiality, Integrity, Availability, Exploitability, Reliability, IRL, Direct1, Direct2, Direct3,
 	 * Direct4, Direct5, Direct6, Direct6.1, Direct6.2, Direct6.3, Direct6.4,
 	 * Direct7, Indirect1, Indirect2, Indirect3, Indirect4, Indirect5,
 	 * Indirect6,Indirect7, Indirect8, Indirect8.1, Indirect8.2, Indirect8.3,
 	 * Indirect8.4, Indirect9,Indirect10
 	 */
-	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability", "Direct1", "Direct2", "Direct3",
+	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability","ILR", "Direct1", "Direct2", "Direct3",
 			"Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5",
 			"Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
 
@@ -74,9 +74,9 @@ public class CategoryConverter {
 
 	/**
 	 * TYPE_CIA_KEYS:<br>
-	 * Confidentiality, Integrity, Availability, Exploitability,Reliability
+	 * Confidentiality, Integrity, Availability, Exploitability,Reliability, IRL
 	 */
-	public static final String[] TYPE_CIA_KEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability" };
+	public static final String[] TYPE_CIA_KEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Exploitability", "Reliability" , "ILR"};
 
 	/**
 	 * SCENARIO_TYPE_CSSF:<br>

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -38,6 +39,8 @@ public class RiskProbaImpact implements Cloneable {
 	@ManyToMany
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private List<ImpactParameter> impacts = new LinkedList<>();
+
+	private Integer vulnerability = 1;
 
 	@Transient
 	private Map<String, IImpactParameter> impactMapper;
@@ -74,7 +77,7 @@ public class RiskProbaImpact implements Cloneable {
 
 	/**
 	 * @param probability
-	 *            the probability to set
+	 *                    the probability to set
 	 */
 	public void setProbability(LikelihoodParameter probabitity) {
 		this.probability = probabitity;
@@ -89,10 +92,19 @@ public class RiskProbaImpact implements Cloneable {
 
 	/**
 	 * @param impacts
-	 *            the impacts to set
+	 *                the impacts to set
 	 */
 	public void setImpacts(List<ImpactParameter> impacts) {
 		this.impacts = impacts;
+	}
+
+	public int getVulnerability() {
+		return vulnerability == null ? 1 : vulnerability;
+	}
+
+	public void setVulnerability(Integer vulnerability) {
+
+		this.vulnerability = vulnerability == null ? 1 : vulnerability;
 	}
 
 	/**
@@ -100,13 +112,14 @@ public class RiskProbaImpact implements Cloneable {
 	 */
 	protected Map<String, IImpactParameter> getImpactMapper() {
 		if (impactMapper == null)
-			setImpactMapper(impacts.stream().collect(Collectors.toMap(ImpactParameter::getTypeName, Function.identity())));
+			setImpactMapper(
+					impacts.stream().collect(Collectors.toMap(ImpactParameter::getTypeName, Function.identity())));
 		return impactMapper;
 	}
 
 	/**
 	 * @param impactMapper
-	 *            the impactMapper to set
+	 *                     the impactMapper to set
 	 */
 	protected void setImpactMapper(Map<String, IImpactParameter> impactMapper) {
 		this.impactMapper = impactMapper;
@@ -137,7 +150,7 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public int getImportance() {
-		return getImpactLevel() * getProbabilityLevel();
+		return getImpactLevel() * getProbabilityLevel() * getVulnerability();
 	}
 
 	/**
@@ -171,7 +184,7 @@ public class RiskProbaImpact implements Cloneable {
 
 	/**
 	 * @param parameters
-	 *            Map< Acronym, SimpleParameter >
+	 *                   Map< Acronym, SimpleParameter >
 	 * @return copy
 	 * @throws CloneNotSupportedException
 	 */
@@ -185,13 +198,14 @@ public class RiskProbaImpact implements Cloneable {
 	 * Replace parameters
 	 * 
 	 * @param parameters
-	 *            Map< Acronym, SimpleParameter >
+	 *                   Map< Acronym, SimpleParameter >
 	 */
 	public void updateData(Map<String, IParameter> parameters) {
 		if (probability != null)
 			probability = (LikelihoodParameter) parameters.get(probability.getKey());
 		this.impactMapper = null;
-		setImpacts(this.impacts.stream().map(impact -> (ImpactParameter) parameters.get(impact.getKey())).collect(Collectors.toList()));
+		setImpacts(this.impacts.stream().map(impact -> (ImpactParameter) parameters.get(impact.getKey()))
+				.collect(Collectors.toList()));
 	}
 
 	protected ILevelParameter getValueOrDefault(ILevelParameter value, ILevelParameter defaultValue) {
@@ -201,4 +215,5 @@ public class RiskProbaImpact implements Cloneable {
 	public ILevelParameter getProbability(ILevelParameter defaultValue) {
 		return getValueOrDefault(probability, defaultValue);
 	}
+
 }

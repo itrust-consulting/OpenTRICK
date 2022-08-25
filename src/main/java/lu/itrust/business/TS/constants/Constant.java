@@ -177,8 +177,8 @@ public class Constant {
 	/** Regular expression for SimpleParameter types */
 	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
-	/** Regular expression for asset types */
-	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";
+	/** Regular expression for asset types, the order is important to not change it! */
+	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl|Sys|Site|Out";
 
 	/** Regular expression for exposed field value */
 	public static final String REGEXP_VALID_RISKINFORMATION_EXPOSED = "N|\\+|\\+\\+|-|--|=||";
@@ -186,12 +186,12 @@ public class Constant {
 	/** Regular expression for Risk Information Categories */
 	public static final String REGEXP_VALID_RISKINFORMATION_TYPE = "Vul|Threat|Risk_(TBS|TBA)";
 
-	public static final String REGEXP_VALID_SCENARIO_TYPE = "Confidentiality|Integrity|Availability|Exploitability|Reliability|D1-Strat|D2-RH|D3-Processus|D4-BCM|D5-Soustrait|D6-SI|"
+	public static final String REGEXP_VALID_SCENARIO_TYPE = "Confidentiality|Integrity|Availability|Exploitability|Reliability|ILR|D1-Strat|D2-RH|D3-Processus|D4-BCM|D5-Soustrait|D6-SI|"
 			+ "D6\\.1-Secu|D6\\.2-Dev|D6\\.3-Expl|D6\\.4-Support|D7-Aut|I1-Strat|I2-Fin|I3-Leg|I4-RH|I5-Processus|"
 			+ "I6-BCM|I7-Soustrait|I8-SI|I8\\.1-Secu|I8\\.2-Dev|I8\\.3-Expl|I8\\.4-Support|I9-Prest|I10-Aut";
 
 	/** The Regular expression for valid Risk Categories */
-	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|Confidentiality|Availability|Integrity|Exploitability|Reliability";
+	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|Confidentiality|Availability|Integrity|Exploitability|Reliability|ILR";
 
 	/***********************************************************************************************
 	 * List of Regular Expressions - END
@@ -240,8 +240,11 @@ public class Constant {
 	public static final String ASSET_TYPE_BUSI = "Busi";
 	public static final String ASSET_TYPE_FIN = "Fin";
 	public static final String ASSET_TYPE_COMPL = "Compl";
+	public static final String ASSET_TYPE_SYS = "Sys";
+	public static final String ASSET_TYPE_SITE = "Site";
+	public static final String ASSET_TYPE_OUT = "Out";
 
-	public static final String ASSET_TYPES = "Serv,Info,SW,HW,Net,Staff,IV,Busi,Fin,Compl";
+	public static final String ASSET_TYPES = "Serv,Info,SW,HW,Net,Staff,IV,Busi,Fin,Compl,Sys,Site,Out";
 
 	/** Item Information Categories */
 	public static final String ITEMINFORMATION_SCOPE = "Scope";
@@ -385,6 +388,7 @@ public class Constant {
 	public static final String AVAILABILITY_RISK = "Availability";
 	public static final String EXPLOITABILITY_RISK = "Exploitability";
 	public static final String RELIABILITY_RISK = "Reliability";
+	public static final String ILR_RISK = "ILR";
 
 	public final static String EMPTY_STRING = "";
 
@@ -459,6 +463,7 @@ public class Constant {
 	public static final String MEASURE_CONFIDENTIALITY = CONFIDENTIALITY_RISK.toLowerCase();
 	public static final String MEASURE_EXPLOITABILITY = EXPLOITABILITY_RISK.toLowerCase();
 	public static final String MEASURE_RELIABILITY = RELIABILITY_RISK.toLowerCase();
+	public static final String MEASURE_ILR = ILR_RISK.toLowerCase();
 	public static final String MEASURE_STRENGTH_SECTORAL = "strength_sectoral";
 	public static final String MEASURE_STRENGTH_MEASURE = "strength_measure";
 	public static final String MEASURE_REVISION = "revision";
@@ -539,6 +544,7 @@ public class Constant {
 	public static final String ASSESSMENT_IMPACT_REAL = "impact_hidden";
 	public static final String ASSESSMENT_POTENTIALITY = "potentiality";
 	public static final String ASSESSMENT_POTENTIALITY_REAL = "potentiality_hidden";
+	public static final String ASSESSMENT_VULNERABILITY = "vulnerability";
 	public static final String ASSESSMENT_SEL_ASSESSMENT = "selected";
 
 	/**
@@ -568,6 +574,7 @@ public class Constant {
 	public static final String THREAT_AVAILABILITY = MEASURE_AVAILABILITY;
 	public static final String THREAT_EXPLOITABILITY = MEASURE_EXPLOITABILITY;
 	public static final String THREAT_RELIABILITY = MEASURE_RELIABILITY;
+	public static final String THREAT_ILR = MEASURE_ILR;
 	public static final String THREAT_INTEGRITY = MEASURE_INTEGRITY;
 	public static final String THREAT_CONFIDENTIALITY = MEASURE_CONFIDENTIALITY;
 	public static final String THREAT_SERV = "serv";
@@ -580,6 +587,9 @@ public class Constant {
 	public static final String THREAT_BUSI = "busi";
 	public static final String THREAT_FIN = "fin";
 	public static final String THREAT_COMPL = "compl";
+	public static final String THREAT_SYS = "sys";
+	public static final String THREAT_SITE = "site";
+	public static final String THREAT_OUT = "out";
 	public static final String THREAT_DESCRIPTION_THREAT = "description_threat";
 	public static final String THREAT_SEL_THREAT = "sel_threat";
 	public static final String THREAT_NAME_THREAT = "name_threat";

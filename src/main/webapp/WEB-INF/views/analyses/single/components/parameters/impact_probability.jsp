@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tab-parameter-impact-probability">
-	<div class='section row' id='section_parameter_impact_probability'>
+	<div class='section' id='section_parameter_impact_probability'>
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -16,12 +16,24 @@
 				</div>
 			</div>
 		</div>
-		<c:if test="${type.quantitative}">
-			<jsp:include page="impact/financial.jsp" />
-		</c:if>
-		<c:if test="${type.qualitative}">
-			<jsp:include page="impact/qualitative.jsp" />
-		</c:if>
-		<jsp:include page="probability/section.jsp" />
+
+		<c:choose>
+			<c:when test="${type.quantitative and not type.qualitative}"> 
+				<div class="row">
+				    <jsp:include page="impact/financial.jsp" />
+				    <jsp:include page="probability/likelihood.jsp" />
+					<jsp:include page="probability/dynamic.jsp" />
+				</div>
+			</c:when>
+			<c:otherwise>
+				<c:if test="${type.quantitative}">
+					<div class="row">
+					    <jsp:include page="probability/likelihood.jsp" />
+						<jsp:include page="impact/financial.jsp" />
+					</div>
+				</c:if>
+				<jsp:include page="impact/qualitative.jsp" />
+			</c:otherwise>
+		</c:choose> 
 	</div>
 </div>

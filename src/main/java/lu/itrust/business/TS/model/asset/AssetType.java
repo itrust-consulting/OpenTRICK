@@ -33,7 +33,7 @@ public class AssetType implements Serializable, Cloneable {
 
 	/** AssetType id, unsaved value = -1 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAssetType")
 	private int id = -1;
 
@@ -55,16 +55,24 @@ public class AssetType implements Serializable, Cloneable {
 	 * Constructor:<br>
 	 * 
 	 * @param name
-	 *            Type Name
+	 *             Type Name
 	 * @throws TrickException
 	 */
 	public AssetType(String type) throws TrickException {
 		setName(type);
 	}
 
+	public AssetType(int id, String name) {
+		setId(id);
+		setName(name);
+	}
+	
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	
 
 	/**
 	 * getId: <br>
@@ -81,7 +89,7 @@ public class AssetType implements Serializable, Cloneable {
 	 * Sets the Field "id" with a value.
 	 * 
 	 * @param id
-	 *            The Value to set the id field
+	 *           The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -102,7 +110,7 @@ public class AssetType implements Serializable, Cloneable {
 	 * Sets the Field "name" with a value.
 	 * 
 	 * @param name
-	 *            The Value to set the name field
+	 *             The Value to set the name field
 	 * @throws TrickException
 	 */
 	public void setName(String name) throws TrickException {
@@ -164,6 +172,6 @@ public class AssetType implements Serializable, Cloneable {
 	}
 
 	public boolean isSame(String name) {
-		return this.name == null ? (name == null ? true : false) : this.name.equals(name);
+		return this.name == null ? name == null : this.name.equalsIgnoreCase(name);
 	}
 }

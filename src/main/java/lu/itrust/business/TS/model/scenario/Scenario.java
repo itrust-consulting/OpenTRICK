@@ -85,7 +85,7 @@ public class Scenario extends SecurityCriteria {
 	 * Appends the specified element to the end of this list.
 	 * 
 	 * @param assetTypeValue
-	 *            The Object of AssetTypeValue to add to the list
+	 *                       The Object of AssetTypeValue to add to the list
 	 */
 	public void add(AssetTypeValue assetTypeValue) {
 		if (!isAssetLinked()) {
@@ -96,17 +96,12 @@ public class Scenario extends SecurityCriteria {
 	}
 
 	public String assetTypeIds() {
-		String value = "";
 		if (isAssetLinked()) {
-			for (Asset asset : getLinkedAssets())
-				value += (value.isEmpty() ? "" : "|") + asset.getId();
+			return getLinkedAssets().stream().map(a -> a.getId() + "").distinct().collect(Collectors.joining("|"));
 		} else {
-			for (AssetTypeValue assetTypeValue : getAssetTypeValues()) {
-				if (assetTypeValue.getValue() > 0)
-					value += (value.isEmpty() ? "" : "|") + assetTypeValue.getAssetType().getId();
-			}
+			return getAssetTypeValues().stream().filter(a -> a.getValue() > 0).map(a -> a.getAssetType().getId() + "")
+					.distinct().collect(Collectors.joining("|"));
 		}
-		return value;
 	}
 
 	/**
@@ -121,10 +116,12 @@ public class Scenario extends SecurityCriteria {
 			Scenario scenario = (Scenario) super.clone();
 			if (isAssetLinked()) {
 				scenario.setAssetTypeValues(new LinkedList<>());
-				scenario.setLinkedAssets(scenario.getLinkedAssets().stream().map(Asset::clone).collect(Collectors.toList()));
+				scenario.setLinkedAssets(
+						scenario.getLinkedAssets().stream().map(Asset::clone).collect(Collectors.toList()));
 			} else {
 				scenario.setLinkedAssets(new LinkedList<>());
-				scenario.setAssetTypeValues(getAssetTypeValues().stream().map(AssetTypeValue::clone).collect(Collectors.toList()));
+				scenario.setAssetTypeValues(
+						getAssetTypeValues().stream().map(AssetTypeValue::clone).collect(Collectors.toList()));
 			}
 			return scenario;
 		} catch (CloneNotSupportedException e) {
@@ -176,12 +173,14 @@ public class Scenario extends SecurityCriteria {
 				if (assets == null || assets.isEmpty())
 					scenario.setLinkedAssets(new ArrayList<>());
 				else
-					scenario.setLinkedAssets(scenario.getLinkedAssets().stream().filter(asset -> assets.containsKey(asset.getId())).map(asset -> assets.get(asset.getId()))
+					scenario.setLinkedAssets(scenario.getLinkedAssets().stream()
+							.filter(asset -> assets.containsKey(asset.getId())).map(asset -> assets.get(asset.getId()))
 							.collect(Collectors.toList()));
 				scenario.setAssetTypeValues(new LinkedList<>());
 			} else {
 				scenario.setLinkedAssets(new LinkedList<>());
-				scenario.setAssetTypeValues(getAssetTypeValues().stream().map(AssetTypeValue::duplicate).collect(Collectors.toList()));
+				scenario.setAssetTypeValues(
+						getAssetTypeValues().stream().map(AssetTypeValue::duplicate).collect(Collectors.toList()));
 			}
 			return scenario;
 		} catch (CloneNotSupportedException e) {
@@ -232,10 +231,11 @@ public class Scenario extends SecurityCriteria {
 	 * Appends the specified element to the end of this list.
 	 * 
 	 * @param assetTypeValue
-	 *            The Object of AssetTypeValue to add to the list
+	 *                       The Object of AssetTypeValue to add to the list
 	 */
 	public AssetTypeValue findByAssetType(AssetType assetType) {
-		return getAssetTypeValues().stream().filter(typeValue -> typeValue.getAssetType().equals(assetType)).findAny().orElse(null);
+		return getAssetTypeValues().stream().filter(typeValue -> typeValue.getAssetType().equals(assetType)).findAny()
+				.orElse(null);
 	}
 
 	/**
@@ -245,8 +245,10 @@ public class Scenario extends SecurityCriteria {
 	 * @return The List of AssetTypeValues
 	 */
 	@ManyToMany
-	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
-			@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue", "fiScenario" }))
+	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = {
+			@JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
+							"fiAssetTypeValue", "fiScenario" }))
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
@@ -268,8 +270,10 @@ public class Scenario extends SecurityCriteria {
 	 * @return the linkedAssets
 	 */
 	@ManyToMany
-	@JoinTable(name = "ScenarioLinkedAsset", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
-			@JoinColumn(name = "fiAsset", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiScenario", "fiAsset" }))
+	@JoinTable(name = "ScenarioLinkedAsset", joinColumns = {
+			@JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "fiAsset", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
+							"fiScenario", "fiAsset" }))
 	@Cascade(CascadeType.SAVE_UPDATE)
 	public List<Asset> getLinkedAssets() {
 		return linkedAssets;
@@ -338,12 +342,14 @@ public class Scenario extends SecurityCriteria {
 	 * @return
 	 */
 	public boolean hasInfluenceOnAsset(AssetType assetType) {
-		return isAssetLinked() ? false
-				: getAssetTypeValues().stream().filter(typeValue -> typeValue.getAssetType().equals(assetType)).map(typeValue -> typeValue.getValue() > 0).findAny().orElse(false);
+		return !isAssetLinked()
+				&& getAssetTypeValues().stream().filter(typeValue -> typeValue.getAssetType().equals(assetType))
+						.map(typeValue -> typeValue.getValue() > 0).findAny().orElse(false);
 	}
 
 	public boolean hasThreatSource() {
-		return (getAccidental() + getIntentional() + getEnvironmental() + getExternalThreat() + getInternalThreat()) > 0;
+		return (getAccidental() + getIntentional() + getEnvironmental() + getExternalThreat()
+				+ getInternalThreat()) > 0;
 	}
 
 	/**
@@ -370,7 +376,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "accidental" field with a value
 	 * 
 	 * @param accidental
-	 *            The value to set the Accidental
+	 *                   The value to set the Accidental
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setAccidental(int)
 	 */
@@ -383,7 +389,7 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * @param assetLinked
-	 *            the assetLinked to set
+	 *                    the assetLinked to set
 	 */
 	public void setAssetLinked(boolean assetLinked) {
 		this.assetLinked = assetLinked;
@@ -394,7 +400,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the Field "assetTypeValues" with a value.
 	 * 
 	 * @param assetTypeValues
-	 *            The Value to set the assetTypeValues field
+	 *                        The Value to set the assetTypeValues field
 	 */
 	public void setAssetTypeValues(List<AssetTypeValue> assetTypeValues) {
 		this.assetTypeValues = assetTypeValues;
@@ -405,7 +411,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "corrective" field with a value
 	 * 
 	 * @param corrective
-	 *            The value to set the Corrective
+	 *                   The value to set the Corrective
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setCorrective(double)
 	 */
@@ -421,7 +427,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "description" field with a value
 	 * 
 	 * @param description
-	 *            The value to set the Scenario Description
+	 *                    The value to set the Scenario Description
 	 */
 	public void setDescription(String description) {
 		if (description == null)
@@ -435,7 +441,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "detective" field with a value
 	 * 
 	 * @param detective
-	 *            The value to set the Detective
+	 *                  The value to set the Detective
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setDetective(double)
 	 */
@@ -451,14 +457,15 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "environmental" field with a value
 	 * 
 	 * @param environmental
-	 *            The value to set the Environmental
+	 *                      The value to set the Environmental
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setEnvironmental(int)
 	 */
 	@Override
 	public void setEnvironmental(int environmental) throws TrickException {
 		if (!isValidValue(environmental))
-			throw new TrickException("error.scenario.environmental.invalid", "Environmental needs to be between 0 and 4");
+			throw new TrickException("error.scenario.environmental.invalid",
+					"Environmental needs to be between 0 and 4");
 		super.setEnvironmental(environmental);
 	}
 
@@ -467,14 +474,15 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "externalthreat" field with a value
 	 * 
 	 * @param externalthreat
-	 *            The value to set the External Threat
+	 *                       The value to set the External Threat
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setExternalThreat(int)
 	 */
 	@Override
 	public void setExternalThreat(int externalthreat) throws TrickException {
 		if (!isValidValue(externalthreat))
-			throw new TrickException("error.scenario.external_threat.invalid", "External Threat needs to be between 0 and 4");
+			throw new TrickException("error.scenario.external_threat.invalid",
+					"External Threat needs to be between 0 and 4");
 		super.setExternalThreat(externalthreat);
 	}
 
@@ -483,7 +491,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "intentional" field with a value
 	 * 
 	 * @param intentional
-	 *            The value to set the Intentional
+	 *                    The value to set the Intentional
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setIntentional(int)
 	 */
@@ -499,14 +507,15 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "internalthreat" field with a value
 	 * 
 	 * @param internalthreat
-	 *            The value to set the Internal Threat
+	 *                       The value to set the Internal Threat
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setInternalThreat(int)
 	 */
 	@Override
 	public void setInternalThreat(int internalthreat) throws TrickException {
 		if (!isValidValue(internalthreat))
-			throw new TrickException("error.scenario.internal_threat.invalid", "Internal Threat needs to be between 0 and 4");
+			throw new TrickException("error.scenario.internal_threat.invalid",
+					"Internal Threat needs to be between 0 and 4");
 		super.setInternalThreat(internalthreat);
 	}
 
@@ -515,7 +524,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "limitative" field with a value
 	 * 
 	 * @param limitative
-	 *            The value to set the Limitative
+	 *                   The value to set the Limitative
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setLimitative(double)
 	 */
@@ -528,7 +537,7 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * @param linkedAssets
-	 *            the linkedAssets to set
+	 *                     the linkedAssets to set
 	 */
 
 	public void setLinkedAssets(List<Asset> linkedAssets) {
@@ -540,7 +549,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "name" field with a value
 	 * 
 	 * @param name
-	 *            The value to set the Scenario Name
+	 *             The value to set the Scenario Name
 	 * @throws TrickException
 	 */
 	public void setName(String name) throws TrickException {
@@ -554,7 +563,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "preventive" field with a value
 	 * 
 	 * @param preventive
-	 *            The value to set the Preventive
+	 *                   The value to set the Preventive
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#setPreventive(double)
 	 */
@@ -570,12 +579,14 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "selected" field with a value
 	 * 
 	 * @param selected
-	 *            The value to set the Selected Flag
+	 *                 The value to set the Selected Flag
 	 * @throws TrickException
 	 */
 	public void setSelected(boolean selected) throws TrickException {
-		if (((this.getCorrective() + this.getLimitative() + this.getDetective() + this.getPreventive()) != 1) && (this.getName().isEmpty()) && (selected))
-			throw new TrickException("error.scenario.initialisation.early", "Scenario Fields have not been correctly initialised in order to be selected!");
+		if (((this.getCorrective() + this.getLimitative() + this.getDetective() + this.getPreventive()) != 1)
+				&& (this.getName().isEmpty()) && (selected))
+			throw new TrickException("error.scenario.initialisation.early",
+					"Scenario Fields have not been correctly initialised in order to be selected!");
 		this.selected = selected;
 	}
 
@@ -584,7 +595,7 @@ public class Scenario extends SecurityCriteria {
 	 * Sets the "type" field with a value
 	 * 
 	 * @param type
-	 *            The value to set the Scenario Type
+	 *             The value to set the Scenario Type
 	 * @throws TrickException
 	 */
 	public void setType(ScenarioType type) throws TrickException {
@@ -601,7 +612,8 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public String toString() {
-		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description + ", assetTypeValues=" + assetTypeValues + "]";
+		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description
+				+ ", assetTypeValues=" + assetTypeValues + "]";
 	}
 
 	/**
@@ -610,7 +622,7 @@ public class Scenario extends SecurityCriteria {
 	 * or 1 or 4.
 	 * 
 	 * @param value
-	 *            The value to check if valid
+	 *              The value to check if valid
 	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#isValidValue(int)
 	 */
 	@Override
@@ -630,7 +642,8 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	protected int valueFixer(String category, int value) throws TrickException {
 		if (value < 0 || value > 4)
-			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
+			throw new TrickException("error.security_criteria.category.invalid",
+					String.format("'%s' is not valid!", category), category);
 		return value == 0 ? 0 : 4;
 	}
 
@@ -657,13 +670,16 @@ public class Scenario extends SecurityCriteria {
 	@Transient
 	public List<AssetType> getAssetTypes() {
 		return isAssetLinked() ? getLinkedAssets().stream().map(Asset::getAssetType).collect(Collectors.toList())
-				: getAssetTypeValues().stream().filter(assetValue -> assetValue.getValue() > 0).map(AssetTypeValue::getAssetType).collect(Collectors.toList());
+				: getAssetTypeValues().stream().filter(assetValue -> assetValue.getValue() > 0)
+						.map(AssetTypeValue::getAssetType).collect(Collectors.toList());
 	}
 
 	@Transient
 	public List<AssetType> getDistinctAssetTypes() {
-		return isAssetLinked() ? getLinkedAssets().stream().map(Asset::getAssetType).distinct().collect(Collectors.toList())
-				: getAssetTypeValues().stream().filter(assetValue -> assetValue.getValue() > 0).map(AssetTypeValue::getAssetType).distinct().collect(Collectors.toList());
+		return isAssetLinked()
+				? getLinkedAssets().stream().map(Asset::getAssetType).distinct().collect(Collectors.toList())
+				: getAssetTypeValues().stream().filter(assetValue -> assetValue.getValue() > 0)
+						.map(AssetTypeValue::getAssetType).distinct().collect(Collectors.toList());
 	}
 
 }

@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -44,7 +46,8 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }), @UniqueConstraint(columnNames = { "dtIdentifier", "fiAnalysis" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }),
+		@UniqueConstraint(columnNames = { "dtIdentifier", "fiAnalysis" }) })
 public class RiskProfile implements Cloneable {
 
 	@Id
@@ -83,14 +86,18 @@ public class RiskProfile implements Cloneable {
 	private List<Measure> measures = new LinkedList<Measure>();
 
 	@Embedded
-	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
+	@AttributeOverrides(@AttributeOverride(name = "vulnerability", column = @Column(name = "dtRawVulnerability")))
+	@AssociationOverrides({
+			@AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
 			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileRawImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiRawImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
 					"fiRawImpact", "fiRiskProfile" }))) })
 	@Cascade(CascadeType.ALL)
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
-	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
+	@AttributeOverrides(@AttributeOverride(name = "vulnerability", column = @Column(name = "dtExpVulnerability")))
+	@AssociationOverrides({
+			@AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
 			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileExpImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiExpImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
 					"fiExpImpact", "fiRiskProfile" }))) })
 	@Cascade(CascadeType.ALL)
@@ -116,7 +123,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param id
-	 *            the id to set
+	 *           the id to set
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -131,7 +138,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param identifier
-	 *            the identifier to set
+	 *                   the identifier to set
 	 */
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier == null || identifier.isEmpty() ? null : identifier;
@@ -146,7 +153,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param asset
-	 *            the asset to set
+	 *              the asset to set
 	 */
 	public void setAsset(Asset asset) {
 		this.asset = asset;
@@ -161,7 +168,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param scenario
-	 *            the scenario to set
+	 *                 the scenario to set
 	 */
 	public void setScenario(Scenario scenario) {
 		this.scenario = scenario;
@@ -176,7 +183,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param riskStrategy
-	 *            the riskStrategy to set
+	 *                     the riskStrategy to set
 	 */
 	public void setRiskStrategy(RiskStrategy riskStrategy) {
 		if (riskStrategy == null)
@@ -193,7 +200,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param riskTreatment
-	 *            the riskTreatment to set
+	 *                      the riskTreatment to set
 	 */
 	public void setRiskTreatment(String riskTreatment) {
 		this.riskTreatment = riskTreatment;
@@ -208,7 +215,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param actionPlan
-	 *            the actionPlan to set
+	 *                   the actionPlan to set
 	 */
 	public void setActionPlan(String actionPlan) {
 		this.actionPlan = actionPlan;
@@ -230,7 +237,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param measures
-	 *            the measures to set
+	 *                 the measures to set
 	 */
 	public void setMeasures(List<Measure> measures) {
 		this.measures = measures;
@@ -238,7 +245,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param rawProbaImpact
-	 *            the rawProbaImpact to set
+	 *                       the rawProbaImpact to set
 	 */
 	public void setRawProbaImpact(RiskProbaImpact rawProbaImpact) {
 		this.rawProbaImpact = rawProbaImpact;
@@ -253,7 +260,7 @@ public class RiskProfile implements Cloneable {
 
 	/**
 	 * @param expProbaImpact
-	 *            the expProbaImpact to set
+	 *                       the expProbaImpact to set
 	 */
 	public void setExpProbaImpact(RiskProbaImpact expProbaImpact) {
 		this.expProbaImpact = expProbaImpact;
@@ -310,7 +317,8 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
-	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters, Map<String, Measure> measures)
+	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios,
+			Map<String, IParameter> parameters, Map<String, Measure> measures)
 			throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
 		riskProfile.updateData(assets, scenarios, parameters, measures);
@@ -318,7 +326,8 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
-	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters, Map<String, Measure> measures)
+	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios,
+			Map<String, IParameter> parameters, Map<String, Measure> measures)
 			throws CloneNotSupportedException {
 		if (rawProbaImpact != null)
 			rawProbaImpact = rawProbaImpact.duplicate(parameters);
@@ -326,7 +335,8 @@ public class RiskProfile implements Cloneable {
 			expProbaImpact = expProbaImpact.duplicate(parameters);
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
-		this.measures = this.measures.stream().filter(measure -> measures.containsKey(measure.getKeyName())).map(measure -> measures.get(measure.getKeyName()))
+		this.measures = this.measures.stream().filter(measure -> measures.containsKey(measure.getKeyName()))
+				.map(measure -> measures.get(measure.getKeyName()))
 				.collect(Collectors.toList());
 	}
 

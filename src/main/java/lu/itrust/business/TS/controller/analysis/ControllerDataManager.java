@@ -84,6 +84,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
@@ -223,6 +224,9 @@ public class ControllerDataManager {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+
+	@Autowired
+	private ServiceAssetTypeValue serviceAssetTypeValue;
 
 	@RequestMapping(value = "/Action-plan-raw/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -825,8 +829,7 @@ public class ControllerDataManager {
 					throw new RuntimeException(e);
 				}
 			};
-			new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).exportRawRRF(analysis, file, response,
-					locale, callback);
+			new RRFExportImport(serviceAssetType, serviceAnalysis, serviceAssetTypeValue, messageSource).exportRawRRF(analysis, file, callback);
 		} finally {
 			serviceStorage.delete(file.getAbsolutePath());
 		}
@@ -1150,7 +1153,7 @@ public class ControllerDataManager {
 			HttpSession session, Principal principal, HttpServletRequest request,
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return new RRFExportImport(serviceAssetType, serviceAnalysis, messageSource).importRawRRF(idAnalysis, file,
+		return new RRFExportImport(serviceAssetType, serviceAnalysis, serviceAssetTypeValue, messageSource).importRawRRF(idAnalysis, file,
 				principal.getName(), locale);
 	}
 

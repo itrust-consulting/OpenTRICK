@@ -1,6 +1,4 @@
-<beans:beans xmlns="http://www.springframework.org/schema/security" xmlns:beans="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+<beans:beans xmlns="http://www.springframework.org/schema/security" xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security.xsd">
@@ -12,8 +10,7 @@
 	<!-- API -->
 
 	<!-- IDS API -->
-	<http pattern="/Api/ids/**" realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false"
-		entry-point-ref="apiAuthenticationEntryPoint" create-session="stateless">
+	<http pattern="/Api/ids/**" realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false" entry-point-ref="apiAuthenticationEntryPoint" create-session="stateless">
 		<cors />
 		<custom-filter ref="apiAuthenticationFilter" position="FORM_LOGIN_FILTER" />
 		<!-- Authorise access -->
@@ -42,6 +39,7 @@
 	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
 
 	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
+	
 	<!-- end API -->
 	<http use-expressions="false" entry-point-ref="loginUrlAuthenticationEntryPoint" auto-config="false" authentication-manager-ref="authenticationManager">
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
@@ -52,50 +50,82 @@
 		<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER" />
 		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
-		<session-management session-fixation-protection="changeSessionId" />
+		<session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />
 	</http>
 
+	<beans:bean id="sessionFixationProtectionStrategy" class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+
 	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" p:defaultTargetUrl="/Home" />
-	
+
 	<beans:bean id="authenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationFailureHandler" p:defaultFailureUrl="/Login/Error" />
-	
+
 	<beans:bean id="customUsernamePasswordAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.CustomUsernamePasswordAuthenticationFilter">
 		<beans:property name="filterProcessesUrl" value="/signin" />
 		<beans:property name="authenticationManager" ref="authenticationManager" />
 		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
 		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+		<beans:property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
 		<beans:property name="continueChainBeforeSuccessfulAuthentication" value="${app.settings.otp.enable}" />
 		<beans:property name="enable2FA" value="${app.settings.otp.enable}" />
 		<beans:property name="force2FA" value="${app.settings.otp.force}" />
 	</beans:bean>
 
 	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationFilter">
-		<beans:constructor-arg name="url" value="/signin"/>
-		<beans:constructor-arg name="redirectURL" value="/OTP/Options"/>
+		<beans:constructor-arg name="url" value="/signin" />
+		<beans:constructor-arg name="redirectURL" value="/OTP/Options" />
 	</beans:bean>
-		
+
 	<beans:bean id="otpAuthenticationProcessingFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationProcessingFilter">
 		<beans:constructor-arg name="url" value="/OTP/Authorise" />
 		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
 		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
 	</beans:bean>
 
-	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint" >
-		<beans:constructor-arg name="loginFormUrl" value="/Login"/>
+	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:constructor-arg name="loginFormUrl" value="/Login" />
 	</beans:bean>
-	
+
 	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder" />
 
 	<beans:bean id="methodSecurityExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
 		<beans:property name="permissionEvaluator" ref="permissionEvaluator" />
 	</beans:bean>
 
-<!-- 	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" /> -->
-	
-	<beans:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall"/>
-	
+	<!-- Session fixation -->
+
+	<beans:bean id="redirectSessionInformationExpiredStrategy" class="org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy">
+		<beans:constructor-arg name="invalidSessionUrl" value="/Login?Error=25" />
+	</beans:bean>
+
+	<beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+		<beans:constructor-arg name="sessionInformationExpiredStrategy" ref="redirectSessionInformationExpiredStrategy" />
+	</beans:bean>
+
+	<beans:bean id="sessionAuthenticationStrategy" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+		<beans:constructor-arg>
+			<beans:list>
+				<!--<beans:bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+					<beans:constructor-arg ref="sessionRegistry" />
+					<beans:property name="maximumSessions" value="5" />
+					<beans:property name="exceptionIfMaximumExceeded" value="true" />
+				</beans:bean>-->
+				<beans:bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+				<beans:bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+					<beans:constructor-arg ref="sessionRegistry" />
+				</beans:bean>
+			</beans:list>
+		</beans:constructor-arg>
+	</beans:bean>
+
+	<beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+	<!-- end of Session fixation -->
+
+	<beans:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall" />
+
 	<http-firewall ref="firewall" />
-	
+
 	<beans:import resource="authentication-manager.xml" />
 
 </beans:beans>

@@ -18,7 +18,7 @@
 				<spring:message code="label.title.user.register" text="Sign up" />
 			</h2>
 			<span id="success" hidden="hidden"></span>
-			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister?${_csrf.parameterName}=${_csrf.token}" onsubmit="return register('registerform')">
+			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister?${_csrf.parameterName}=${_csrf.token}">
 				<div class="form-group">
 					<label for="login" class="col-sm-4 control-label">
 						<spring:message code="label.user.login" text="Username" />
@@ -96,8 +96,7 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
-		<script src="<c:url value="/js/jquery-2.2.4.min.js" />"></script>
-		<script src="<c:url value="/js/jquery-ui.min.js" />"></script>
+		<jsp:include page="../template/scripts.jsp" />
 		<script src="<c:url value="/js/trickservice/register.js" />"></script>
 	</div>
 	<!-- ################################################################ End Container ################################################################# -->

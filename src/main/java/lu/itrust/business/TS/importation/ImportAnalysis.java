@@ -413,7 +413,8 @@ public class ImportAnalysis {
 			importMaturityMeasures();
 
 			if (measures != null)
-				analysis.setAnalysisStandards(analysisStandards.values().stream().collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
+				analysis.setAnalysisStandards(analysisStandards.values().stream()
+						.collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
 
 			// System.out.println("Saving Data to Database...");
 
@@ -428,7 +429,8 @@ public class ImportAnalysis {
 
 			// Update values of dynamic parameters
 			if (this.analysis.isQuantitative())
-				new DynamicParameterComputer(session, daoAnalysis, assessmentAndRiskProfileManager).computeForAnalysis(this.analysis);
+				new DynamicParameterComputer(session, daoAnalysis, assessmentAndRiskProfileManager)
+						.computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
 			AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, factory);
@@ -638,7 +640,8 @@ public class ImportAnalysis {
 		int length = 1;
 		while (daoScaleType.hasAcronym(acronym)) {
 			if (acronym.equals(name) || length >= name.length())
-				throw new TrickException("error.generate.impact.acronym", "Impact acronym cannot be generated, please contact your support.");
+				throw new TrickException("error.generate.impact.acronym",
+						"Impact acronym cannot be generated, please contact your support.");
 			acronym = "i" + name.substring(0, length++).toLowerCase();
 		}
 		return acronym;
@@ -820,13 +823,15 @@ public class ImportAnalysis {
 		Collections.sort(versions, comparator);
 
 		if (!(versions.isEmpty()
-				|| daoUserAnalysisRight.isUserAuthorizedOrOwner(this.analysis.getIdentifier(), versions.get(versions.size() - 1), this.analysis.getOwner(), AnalysisRight.ALL)))
+				|| daoUserAnalysisRight.isUserAuthorizedOrOwner(this.analysis.getIdentifier(),
+						versions.get(versions.size() - 1), this.analysis.getOwner(), AnalysisRight.ALL)))
 			throw new TrickException("error.not_authorized", "Insufficient permissions!");
 
 		// initialise analysis version to the last history version
 		Collections.sort(this.analysis.getHistories(), new ComparatorHistoryVersion());
 
-		this.analysis.getHistories().stream().filter(analysisHistory -> !versions.contains(analysisHistory.getVersion()))
+		this.analysis.getHistories().stream()
+				.filter(analysisHistory -> !versions.contains(analysisHistory.getVersion()))
 				.forEach(analysisHistory -> versions.add(analysisHistory.getVersion()));
 
 		if (!versions.isEmpty())
@@ -861,7 +866,8 @@ public class ImportAnalysis {
 				analysis = new Analysis();
 				int indexOfVersion = versions.indexOf(history.getVersion());
 				Analysis previousVersion = indexOfVersion > 0
-						? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), versions.get(indexOfVersion - 1), this.analysis.getCustomer().getId())
+						? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(),
+								versions.get(indexOfVersion - 1), this.analysis.getCustomer().getId())
 						: null;
 
 				// set data for analyses
@@ -895,7 +901,8 @@ public class ImportAnalysis {
 		}
 
 		// retrive last version of the analysis if it exists
-		analysis = daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), this.analysis.getVersion(), this.analysis.getCustomer().getId());
+		analysis = daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(),
+				this.analysis.getVersion(), this.analysis.getCustomer().getId());
 
 		// if analysis is not null (The Analysis and its version has aready been
 		// imported)
@@ -912,13 +919,16 @@ public class ImportAnalysis {
 			} else {
 				// analysis had already been imported and has data
 				throw new TrickException("error.import.analysis.version.exist",
-						String.format("Your file has already been imported, whether it is a new version( %s ), do not forget to increase version", analysis.getVersion()),
+						String.format(
+								"Your file has already been imported, whether it is a new version( %s ), do not forget to increase version",
+								analysis.getVersion()),
 						analysis.getVersion());
 			}
 		}
 
 		Analysis previousVersion = history == null ? null
-				: daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis.getCustomer().getId());
+				: daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(),
+						this.analysis.getCustomer().getId());
 		this.analysis.setBasedOnAnalysis(previousVersion);
 		if (previousVersion != null) {
 			for (UserAnalysisRight analysisRight : previousVersion.getUserRights())
@@ -976,12 +986,14 @@ public class ImportAnalysis {
 				tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
 				tmpAssessment.setLikelihood(factory.findProb(rs.getString(Constant.ASSESSMENT_POTENTIALITY)));
 				tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
+				tmpAssessment.setVulnerability(getInt(rs,Constant.ASSESSMENT_VULNERABILITY));
 				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
 				tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
 				tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
 
-				tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
+				tmpAssessment.setSelected(
+						rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
 
 				tmpAssessment.setALE(tmpAssessment.getImpactReal() * tmpAssessment.getLikelihoodReal());
 
@@ -995,7 +1007,8 @@ public class ImportAnalysis {
 
 					if (analysis.isQualitative()) {
 						for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
-							setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
+							setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i],
+									getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
 					}
 				} else {
 					if (assessments == null)
@@ -1116,6 +1129,7 @@ public class ImportAnalysis {
 				// add asset type to map of asset types
 				assetTypes.put(rs.getInt(Constant.ASSET_ID_TYPE_ASSET), assetType);
 			}
+
 			// close result
 			rs.close();
 			// build query
@@ -1411,7 +1425,8 @@ public class ImportAnalysis {
 				impactParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
 				impactParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
 				impactParameter.setValue(rs.getDouble(Constant.VALUE_IMPACT));
-				Bounds parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT), rs.getDouble(Constant.VALUE_TO_IMPACT));
+				Bounds parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT),
+						rs.getDouble(Constant.VALUE_TO_IMPACT));
 				impactParameter.setBounds(parameterbounds);
 
 				// ****************************************************************
@@ -1427,7 +1442,8 @@ public class ImportAnalysis {
 					impactParameters.forEach(parameter -> {
 						ImpactParameter impactParameter = parameter.clone();
 						impactParameter.setType(scaleType);
-						this.impactParameters.put(Parameter.key(scaleType.getName(), impactParameter.getAcronym()), impactParameter);
+						this.impactParameters.put(Parameter.key(scaleType.getName(), impactParameter.getAcronym()),
+								impactParameter);
 						impactParameter.setAcronym(scaleType.getAcronym() + impactParameter.getLevel());
 						this.analysis.add(impactParameter);
 					});
@@ -1435,7 +1451,8 @@ public class ImportAnalysis {
 				impactParameters.clear();
 			} else {
 				this.analysis.getParameters().put(Constant.PARAMETER_CATEGORY_IMPACT, impactParameters);
-				this.impactParameters = impactParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
+				this.impactParameters = impactParameters.stream()
+						.collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
 			}
 
 		} finally {
@@ -1452,10 +1469,12 @@ public class ImportAnalysis {
 			impactTypes = new LinkedHashMap<>();
 			if (isCompability1X()) {
 				if (analysis.isQuantitative())
-					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, Constant.DEFAULT_IMPACT_SHORT_NAME, "");
+					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE,
+							Constant.DEFAULT_IMPACT_SHORT_NAME, "");
 				if (analysis.isQualitative()) {
 					for (int i = 0; i < Constant.DEFAULT_IMPACT_TYPE_NAMES.length; i++)
-						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], Constant.DEFAULT_IMPACT_TYPE_SHORT_NAMES[i], "i");
+						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i],
+								Constant.DEFAULT_IMPACT_TYPE_SHORT_NAMES[i], "i");
 				}
 			} else {
 				resultSet = sqlite.query("Select * From impact_type");
@@ -1464,7 +1483,8 @@ public class ImportAnalysis {
 					ScaleType type = daoScaleType.findOne(name);
 					if (type == null) {
 						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym.toLowerCase()));
-						type.put(this.analysis.getLanguage().getAlpha2(), new Translation(resultSet.getString("translation"), resultSet.getString("shortName")));
+						type.put(this.analysis.getLanguage().getAlpha2(),
+								new Translation(resultSet.getString("translation"), resultSet.getString("shortName")));
 						daoScaleType.saveOrUpdate(type);
 					}
 					impactTypes.put(type.getName(), type);
@@ -1496,7 +1516,8 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		ResultSetMetaData rsMetaData = null;
-		String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
+		String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria",
+				"riskAcceptanceCriteria" };
 		int numColumns = 0;
 		setCurrentSqliteTable("scope");
 
@@ -1542,7 +1563,8 @@ public class ImportAnalysis {
 						// ****************************************************************
 						// * add instance to list of item information
 						// ****************************************************************
-						this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
+						this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i),
+								Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
 					}
 				}
 			}
@@ -1550,7 +1572,8 @@ public class ImportAnalysis {
 			rs.close();
 			// Add missing scope
 			for (String scopeName : extendedScopes) {
-				if (!this.analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
+				if (!this.analysis.getItemInformations().stream()
+						.anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
 					this.analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 			}
 			setCurrentSqliteTable("organisation");
@@ -1588,7 +1611,8 @@ public class ImportAnalysis {
 					// ****************************************************************
 					// * add instance to list of item information
 					// ****************************************************************
-					this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
+					this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i),
+							Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
 				}
 			}
 		} finally {
@@ -1674,7 +1698,8 @@ public class ImportAnalysis {
 						// save
 						// in into
 						// database for future
-						standard = new Standard(getString(rs, Constant.MEASURE_NAME_NORM, Constant.STANDARD_MATURITY), Constant.STANDARD_MATURITY, StandardType.MATURITY,
+						standard = new Standard(getString(rs, Constant.MEASURE_NAME_NORM, Constant.STANDARD_MATURITY),
+								Constant.STANDARD_MATURITY, StandardType.MATURITY,
 								standardVersion, description, standardComputable);
 						daoStandard.save(standard);
 						// add standard to map
@@ -1736,7 +1761,8 @@ public class ImportAnalysis {
 					// else: measure description exist: measure description text
 					// exists in the language
 					// of the analysis -> NO
-				} else if (!daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
+				} else if (!daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(mesDesc.getId(),
+						this.analysis.getLanguage().getId())) {
 
 					// create new measure description text
 					mesText = new MeasureDescriptionText();
@@ -1803,7 +1829,8 @@ public class ImportAnalysis {
 				status = rs.getString(Constant.MEASURE_STATUS);
 
 				// set status and by default not applicable (NA)
-				if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE)) && (!status.equals(Constant.MEASURE_STATUS_MANDATORY))
+				if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE))
+						&& (!status.equals(Constant.MEASURE_STATUS_MANDATORY))
 						&& (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
 
 					// set default status
@@ -1814,14 +1841,19 @@ public class ImportAnalysis {
 				// ****************************************************************
 
 				// check if status is not NA -> YES
-				if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_APPLICABLE))
-						|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
+				if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
+						.equals(Constant.MEASURE_STATUS_APPLICABLE))
+						|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
+								.equals(Constant.MEASURE_STATUS_MANDATORY))) {
 
 					// calculate cost
 					cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-							this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
-							rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"), rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL),
-							rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), rs.getInt(Constant.MEASURE_LIFETIME));
+							this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+							this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
+							rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"),
+							rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL),
+							rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT),
+							rs.getInt(Constant.MEASURE_LIFETIME));
 				} else {
 
 					// check if status is not NA -> NO
@@ -1888,7 +1920,8 @@ public class ImportAnalysis {
 				// ****************************************************************
 				((MaturityStandard) analysisStandard).addMeasure(maturityMeasure);
 				// add measure to measures map
-				measures.put(analysisStandard.getStandard().getLabel() + "_" + analysisStandard.getStandard().getVersion() + "_" + chapter, maturityMeasure);
+				measures.put(analysisStandard.getStandard().getLabel() + "_"
+						+ analysisStandard.getStandard().getVersion() + "_" + chapter, maturityMeasure);
 			}
 		} finally {
 			// close result
@@ -1987,36 +2020,36 @@ public class ImportAnalysis {
 				}
 
 				switch (rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML)) {
-				case 0: {
-					maturityParameter.setSMLLevel0(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 1: {
-					maturityParameter.setSMLLevel1(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 2: {
-					maturityParameter.setSMLLevel2(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 3: {
-					maturityParameter.setSMLLevel3(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 4: {
-					maturityParameter.setSMLLevel4(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 5: {
-					maturityParameter.setSMLLevel5(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
+					case 0: {
+						maturityParameter.setSMLLevel0(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+						maturityParameter.setValue(-1);
+						break;
+					}
+					case 1: {
+						maturityParameter.setSMLLevel1(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+						maturityParameter.setValue(-1);
+						break;
+					}
+					case 2: {
+						maturityParameter.setSMLLevel2(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+						maturityParameter.setValue(-1);
+						break;
+					}
+					case 3: {
+						maturityParameter.setSMLLevel3(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+						maturityParameter.setValue(-1);
+						break;
+					}
+					case 4: {
+						maturityParameter.setSMLLevel4(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+						maturityParameter.setValue(-1);
+						break;
+					}
+					case 5: {
+						maturityParameter.setSMLLevel5(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+						maturityParameter.setValue(-1);
+						break;
+					}
 				}
 
 			}
@@ -2115,7 +2148,8 @@ public class ImportAnalysis {
 					// into
 					// database for future
 					if (standard == null) {
-						standard = new Standard(getString(rs, Constant.MEASURE_NAME_NORM, standardName), standardName, StandardType.getByName(rs.getString("norme_type")),
+						standard = new Standard(getString(rs, Constant.MEASURE_NAME_NORM, standardName), standardName,
+								StandardType.getByName(rs.getString("norme_type")),
 								standardVersion, description, standardComputable);
 						standard.setAnalysisOnly(rs.getBoolean("norme_analysisOnly"));
 						daoStandard.save(standard);
@@ -2201,7 +2235,8 @@ public class ImportAnalysis {
 					// else: check if measure description text exists in the
 					// language of the analysis ->
 					// NO
-				} else if (!daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
+				} else if (!daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(mesDesc.getId(),
+						this.analysis.getLanguage().getId())) {
 
 					// System.out.println("Not found");
 
@@ -2256,7 +2291,8 @@ public class ImportAnalysis {
 				measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 				measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 				if (measure instanceof AbstractNormalMeasure)
-					((AbstractNormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? "" : rs.getString(Constant.MEASURE_REVISION));
+					((AbstractNormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? ""
+							: rs.getString(Constant.MEASURE_REVISION));
 
 				measure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
@@ -2266,8 +2302,10 @@ public class ImportAnalysis {
 
 				// calculate cost
 				cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-						this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
-						measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
+						this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+						this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
+						measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+						measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
 						measure.getInvestment(), measure.getLifetime());
 
 				measure.setCost(cost);
@@ -2283,12 +2321,18 @@ public class ImportAnalysis {
 				MeasureProperties measureProperties = new MeasureProperties();
 				measureProperties.setFMeasure(rs.getInt(Constant.MEASURE_STRENGTH_MEASURE));
 				measureProperties.setFSectoral(rs.getInt(Constant.MEASURE_STRENGTH_SECTORAL));
-				measureProperties.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.MEASURE_CONFIDENTIALITY));
+				measureProperties.setCategoryValue(Constant.CONFIDENTIALITY_RISK,
+						rs.getInt(Constant.MEASURE_CONFIDENTIALITY));
 				measureProperties.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.MEASURE_INTEGRITY));
-				measureProperties.setCategoryValue(Constant.AVAILABILITY_RISK, rs.getInt(Constant.MEASURE_AVAILABILITY));
+				measureProperties.setCategoryValue(Constant.AVAILABILITY_RISK,
+						rs.getInt(Constant.MEASURE_AVAILABILITY));
 				if (hasNewType) {
-					measureProperties.setCategoryValue(Constant.EXPLOITABILITY_RISK, rs.getInt(Constant.MEASURE_EXPLOITABILITY));
-					measureProperties.setCategoryValue(Constant.RELIABILITY_RISK, rs.getInt(Constant.MEASURE_RELIABILITY));
+					measureProperties.setCategoryValue(Constant.EXPLOITABILITY_RISK,
+							rs.getInt(Constant.MEASURE_EXPLOITABILITY));
+					measureProperties.setCategoryValue(Constant.RELIABILITY_RISK,
+							rs.getInt(Constant.MEASURE_RELIABILITY));
+					measureProperties.setCategoryValue(Constant.ILR_RISK,
+							getInt(rs, Constant.MEASURE_ILR));
 				}
 				// load CSSF Risk data from sqlLight
 				setAllCriteriaCSSFCategories(measureProperties, rs);
@@ -2438,7 +2482,8 @@ public class ImportAnalysis {
 				likelihoodParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
 				likelihoodParameter.setAcronym(rs.getString(Constant.ACRO_POTENTIALITY));
 				likelihoodParameter.setValue(rs.getDouble(Constant.VALUE_POTENTIALITY));
-				parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_POTENTIALITY), rs.getDouble(Constant.VALUE_TO_POTENTIALITY));
+				parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_POTENTIALITY),
+						rs.getDouble(Constant.VALUE_TO_POTENTIALITY));
 				likelihoodParameter.setBounds(parameterbounds);
 
 				// ****************************************************************
@@ -2451,7 +2496,8 @@ public class ImportAnalysis {
 
 			this.analysis.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, likelihoodParameters);
 
-			this.probabilities = likelihoodParameters.stream().collect(Collectors.toMap(LikelihoodParameter::getAcronym, Function.identity()));
+			this.probabilities = likelihoodParameters.stream()
+					.collect(Collectors.toMap(LikelihoodParameter::getAcronym, Function.identity()));
 
 		} finally {
 			if (rs != null)
@@ -2630,25 +2676,39 @@ public class ImportAnalysis {
 
 				riskProfile.setExpProbaImpact(new RiskProbaImpact());
 				riskProfile.setRawProbaImpact(new RiskProbaImpact());
-				riskProfile.getExpProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("exp_probability")));
-				riskProfile.getRawProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("raw_probability")));
+				riskProfile.getExpProbaImpact().setVulnerability(getInt(resultSet, "exp_vulnerability", 1));
+				riskProfile.getRawProbaImpact().setVulnerability(getInt(resultSet, "raw_vulnerability", 1));
+
+				riskProfile.getExpProbaImpact().setProbability(
+						(LikelihoodParameter) probabilities.get(resultSet.getString("exp_probability")));
+				riskProfile.getRawProbaImpact().setProbability(
+						(LikelihoodParameter) probabilities.get(resultSet.getString("raw_probability")));
+
 				if (isCompability1X()) {
 					riskProfile.getExpProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("exp_impact_fin"))));
+							.add((ImpactParameter) impactParameters.get(Parameter.key(
+									Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("exp_impact_fin"))));
 					riskProfile.getExpProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("exp_impact_leg"))));
+							.add((ImpactParameter) impactParameters.get(Parameter.key(
+									Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("exp_impact_leg"))));
 					riskProfile.getExpProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("exp_impact_op"))));
+							.add((ImpactParameter) impactParameters.get(Parameter
+									.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("exp_impact_op"))));
 					riskProfile.getExpProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("exp_impact_rep"))));
+							.add((ImpactParameter) impactParameters.get(Parameter.key(
+									Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("exp_impact_rep"))));
 					riskProfile.getRawProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("raw_impact_fin"))));
+							.add((ImpactParameter) impactParameters.get(Parameter.key(
+									Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("raw_impact_fin"))));
 					riskProfile.getRawProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("raw_impact_leg"))));
+							.add((ImpactParameter) impactParameters.get(Parameter.key(
+									Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("raw_impact_leg"))));
 					riskProfile.getRawProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("raw_impact_op"))));
+							.add((ImpactParameter) impactParameters.get(Parameter
+									.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("raw_impact_op"))));
 					riskProfile.getRawProbaImpact()
-							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("raw_impact_rep"))));
+							.add((ImpactParameter) impactParameters.get(Parameter.key(
+									Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("raw_impact_rep"))));
 				}
 				riskProfiles.put(key(assetId, scenarioId), riskProfile);
 			}
@@ -2661,15 +2721,16 @@ public class ImportAnalysis {
 			if (resultSet == null)
 				return;
 			while (resultSet.next()) {
-				RiskProfile riskProfile = riskProfiles.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
+				RiskProfile riskProfile = riskProfiles
+						.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
 				ImpactParameter impact = (ImpactParameter) impactParameters.get(resultSet.getString("value"));
 				switch (resultSet.getString("name")) {
-				case "RAW":
-					riskProfile.getRawProbaImpact().add(impact);
-					break;
-				case "EXP":
-					riskProfile.getExpProbaImpact().add(impact);
-					break;
+					case "RAW":
+						riskProfile.getRawProbaImpact().add(impact);
+						break;
+					case "EXP":
+						riskProfile.getExpProbaImpact().add(impact);
+						break;
 				}
 			}
 			analysis.setRiskProfiles(riskProfiles.values().parallelStream().collect(Collectors.toList()));
@@ -2691,9 +2752,11 @@ public class ImportAnalysis {
 			if (resultSet == null)
 				return;
 			while (resultSet.next()) {
-				Measure measure = measures.get(measureKey(resultSet.getString(Constant.MEASURE_ID_NORM), resultSet.getInt(Constant.MEASURE_VERSION_NORM),
+				Measure measure = measures.get(measureKey(resultSet.getString(Constant.MEASURE_ID_NORM),
+						resultSet.getInt(Constant.MEASURE_VERSION_NORM),
 						resultSet.getString(Constant.MEASURE_REF_MEASURE)));
-				RiskProfile riskProfile = riskProfiles.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
+				RiskProfile riskProfile = riskProfiles
+						.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
 				riskProfile.getMeasures().add(measure);
 			}
 		} finally {
@@ -2801,12 +2864,15 @@ public class ImportAnalysis {
 
 				tempScenario.setAssetLinked(getBoolean(rs, "linked_asset_threat"));
 				tempScenario.setDescription(rs.getString(Constant.THREAT_DESCRIPTION_THREAT));
-				tempScenario.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.THREAT_CONFIDENTIALITY));
+				tempScenario.setCategoryValue(Constant.CONFIDENTIALITY_RISK,
+						rs.getInt(Constant.THREAT_CONFIDENTIALITY));
 				tempScenario.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.THREAT_INTEGRITY));
 				tempScenario.setCategoryValue(Constant.AVAILABILITY_RISK, rs.getInt(Constant.THREAT_AVAILABILITY));
 				if (hasNewType) {
-					tempScenario.setCategoryValue(Constant.EXPLOITABILITY_RISK, rs.getInt(Constant.THREAT_EXPLOITABILITY));
-					tempScenario.setCategoryValue(Constant.RELIABILITY_RISK, rs.getInt(Constant.THREAT_RELIABILITY));
+					tempScenario.setCategoryValue(Constant.EXPLOITABILITY_RISK,
+							getInt(rs, Constant.THREAT_EXPLOITABILITY));
+					tempScenario.setCategoryValue(Constant.RELIABILITY_RISK, getInt(rs, Constant.THREAT_RELIABILITY));
+					tempScenario.setCategoryValue(Constant.ILR_RISK, getInt(rs, Constant.THREAT_ILR));
 				}
 				// add cssf categories to object
 				setAllCriteriaCSSFCategories(tempScenario, rs);
@@ -2980,7 +3046,8 @@ public class ImportAnalysis {
 				// * Insert mandatoryPhase into simple parameter table
 				// ****************************************************************
 
-				simpleParameter = new SimpleParameter(parameterType, Constant.SOA_THRESHOLD, rs.getDouble(Constant.SOA_THRESHOLD));
+				simpleParameter = new SimpleParameter(parameterType, Constant.SOA_THRESHOLD,
+						rs.getDouble(Constant.SOA_THRESHOLD));
 				this.analysis.add(simpleParameter);
 
 				// ****************************************************************
@@ -3004,20 +3071,28 @@ public class ImportAnalysis {
 			parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_CSSF_NAME);
 			if (parameterType == null)
 				daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
-			rs = sqlite.query("SELECT cssfImpactThreshold, cssfProbabilityThreshold, cssfDirectSize, cssfIndirectSize, cssfCIASize FROM scope");
+			rs = sqlite.query(
+					"SELECT cssfImpactThreshold, cssfProbabilityThreshold, cssfDirectSize, cssfIndirectSize, cssfCIASize FROM scope");
 			if (rs == null) {
-				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
-				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD,
+						(double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD,
+						(double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
 				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
 				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
 				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
 			} else {
 				while (rs.next()) {
-					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
-					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
-					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
-					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
-					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, rs.getDouble(Constant.CSSF_CIA_SIZE)));
+					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD,
+							rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
+					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD,
+							rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
+					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE,
+							rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
+					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE,
+							rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
+					this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE,
+							rs.getDouble(Constant.CSSF_CIA_SIZE)));
 				}
 				rs.close();
 			}
@@ -3056,7 +3131,8 @@ public class ImportAnalysis {
 			// paramter type does not exist -> NO
 			if (parameterType == null) {
 				// save parameter type into database
-				daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
+				daoParameterType
+						.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
 			}
 			currentSqliteTable = "maturity_IS";
 			// build and execute query
@@ -3076,24 +3152,24 @@ public class ImportAnalysis {
 				String desc = "ImpScale";
 
 				switch (rs.getInt(Constant.MATURITY_IS_LINE)) {
-				case 1:
-					desc = Constant.IS_NOT_ACHIEVED;
-					break;
-				case 2:
-					desc = Constant.IS_RUDIMENTARY_ACHIEVED;
-					break;
-				case 3:
-					desc = Constant.IS_PARTIALLY_ACHIEVED;
-					break;
-				case 4:
-					desc = Constant.IS_LARGELY_ACHIEVED;
-					break;
-				case 5:
-					desc = Constant.IS_FULLY_ACHIEVED;
-					break;
-				default:
-					desc = "ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
-					break;
+					case 1:
+						desc = Constant.IS_NOT_ACHIEVED;
+						break;
+					case 2:
+						desc = Constant.IS_RUDIMENTARY_ACHIEVED;
+						break;
+					case 3:
+						desc = Constant.IS_PARTIALLY_ACHIEVED;
+						break;
+					case 4:
+						desc = Constant.IS_LARGELY_ACHIEVED;
+						break;
+					case 5:
+						desc = Constant.IS_FULLY_ACHIEVED;
+						break;
+					default:
+						desc = "ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
+						break;
 				}
 
 				simpleParameter.setDescription(desc);
@@ -3111,11 +3187,13 @@ public class ImportAnalysis {
 				rs.close();
 				parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
 				if (parameterType == null)
-					daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME));
+					daoParameterType
+							.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME));
 				rs = sqlite.query("SELECT label, level, color, description from risk_acceptance");
 				if (rs != null) {
 					while (rs.next())
-						this.analysis.add(new RiskAcceptanceParameter(getStringOrEmpty(rs, "label"), rs.getDouble("level"), getStringOrEmpty(rs, "color"),
+						this.analysis.add(new RiskAcceptanceParameter(getStringOrEmpty(rs, "label"),
+								rs.getDouble("level"), getStringOrEmpty(rs, "color"),
 								getStringOrEmpty(rs, "description")));
 				}
 			}
@@ -3294,13 +3372,13 @@ public class ImportAnalysis {
 			}
 
 			// add asset type values to scenario
-			scenario.add(new AssetTypeValue(assetType, rs.getInt(key)));
+			scenario.add(new AssetTypeValue(assetType, getInt(rs, key)));
 		}
 	}
 
 	public static boolean getBoolean(ResultSet rs, String name) {
 		try {
-			return  rs.getBoolean(name);
+			return rs.getBoolean(name);
 		} catch (SQLException e) {
 			return false;
 		}
@@ -3315,10 +3393,14 @@ public class ImportAnalysis {
 	}
 
 	public static int getInt(ResultSet rs, String name) {
+		return getInt(rs, name, 0);
+	}
+
+	public static int getInt(ResultSet rs, String name, int defaultValue) {
 		try {
 			return rs.getInt(name);
 		} catch (SQLException e) {
-			return 0;
+			return defaultValue;
 		}
 	}
 

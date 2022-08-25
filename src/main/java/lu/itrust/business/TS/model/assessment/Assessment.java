@@ -54,7 +54,8 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }), @UniqueConstraint(columnNames = { "dtLikelihoodType", "fiLikelihood" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }),
+		@UniqueConstraint(columnNames = { "dtLikelihoodType", "fiLikelihood" }) })
 public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
@@ -135,6 +136,10 @@ public class Assessment implements Cloneable {
 	/** The uncertainty value of this assessment */
 	@Column(name = "dtUncertainty", nullable = false)
 	private double uncertainty = 2; // 1 + 1e-7;
+
+	/** The uncertainty value of this assessment */
+	@Column(name = "dtVulnerability", nullable = false)
+	private int vulnerability = 1;
 
 	public Assessment() {
 	}
@@ -393,6 +398,20 @@ public class Assessment implements Cloneable {
 	}
 
 	/**
+	 * 
+	 */
+	public void setVulnerability(int vulnerability) {
+		this.vulnerability = vulnerability;
+	}
+
+	/**
+	 * 
+	 */
+	public int getVulnerability() {
+		return this.vulnerability;
+	}
+
+	/**
 	 * hashCode: <br>
 	 * Used in method equals(). <br>
 	 * <br>
@@ -439,11 +458,13 @@ public class Assessment implements Cloneable {
 	 */
 	public boolean isUsable() {
 		return (this.getAsset() == null) || (this.getScenario() == null) ? false
-				: (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this.getALE() > 0);
+				: (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected()
+						&& this.getALE() > 0);
 	}
 
 	public IValue remove(ScaleType scaleType) {
-		IValue value = impacts.stream().filter(impact -> impact.getName().equals(scaleType.getName())).findAny().orElse(null);
+		IValue value = impacts.stream().filter(impact -> impact.getName().equals(scaleType.getName())).findAny()
+				.orElse(null);
 		if (value != null)
 			impacts.remove(value);
 		return value;

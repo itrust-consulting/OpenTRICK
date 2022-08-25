@@ -32,8 +32,8 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version
  * @since Sep 26, 2014
  */
-@Transactional
-@Component
+//@Transactional
+//@Component
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
 	@Autowired
