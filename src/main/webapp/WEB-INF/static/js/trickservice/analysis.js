@@ -40,7 +40,7 @@ $(document).ready(function () {
 	}, 100);
 
 	// Periodically dynamic charts
-	if(application.isDynamic){
+	if (application.isDynamic) {
 		window.setInterval(function () {
 			loadChartDynamicParameterEvolution();
 			loadChartDynamicAleEvolutionByAssetType();
@@ -105,7 +105,7 @@ function findAnalysisId() {
 	return id;
 }
 
-function manageImpactScale(){
+function manageImpactScale() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -115,29 +115,29 @@ function manageImpactScale(){
 			success: function (response, textStatus, jqXHR) {
 				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
-					
+
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					// load view static error message
-					$("[data-lang-code]", $view).each(function(){
+					$("[data-lang-code]", $view).each(function () {
 						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
 					});
-					
-					$("button[name='save']",$view ).on("click", e => {
+
+					$("button[name='save']", $view).on("click", e => {
 						var data = {}, notEmpty = false;
 						$(".form-group[data-trick-id]", $view).each(function () {
 							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
 								data[$this.attr("data-trick-id")] = newValue;
-							notEmpty|= newValue === 'true';
+							notEmpty |= newValue === 'true';
 						});
-						
-						if(!notEmpty){
-							showDialog("#alert-dialog",MessageResolver("error.manage.impact.empty"));
+
+						if (!notEmpty) {
+							showDialog("#alert-dialog", MessageResolver("error.manage.impact.empty"));
 							return false;
 						}
-						
+
 						if (Object.keys(data).length) {
-							
+
 							$progress.show();
 							$.ajax({
 								url: context + "/Analysis/Parameter/Impact-scale/Manage/Save",
@@ -152,7 +152,7 @@ function manageImpactScale(){
 										setTimeout(() => window.location.reload(), 1000);
 									} else if (response.warning != undefined)
 										showDialog("warning", response.warning);
-									else 
+									else
 										unknowError();
 								},
 								error: unknowError
@@ -160,7 +160,7 @@ function manageImpactScale(){
 								$progress.hide();
 							});
 						}
-						
+
 						$view.modal("hide");
 					});
 				}
@@ -171,7 +171,7 @@ function manageImpactScale(){
 	return false;
 }
 
-function manageScaleLevel(){
+function manageScaleLevel() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -183,76 +183,76 @@ function manageScaleLevel(){
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					// load view static error message
-					var $orignalContainer = $("#original-container"), $container = $("#new-level-container", $view), $levelTemplate = $("#level-template-ui",$view);
-					
+					var $orignalContainer = $("#original-container"), $container = $("#new-level-container", $view), $levelTemplate = $("#level-template-ui", $view);
+
 					var drop = (e) => {
-						 e.preventDefault();
-						 var $body =  $(".panel-body",e.currentTarget), $item = $(document.getElementById(e.originalEvent.dataTransfer.getData("level"))), $oldParent = $item.parent();
-						 $item.appendTo($body);
-						 $("span:visible", $body).hide();
-						 if(!$("[data-value]", $oldParent).length)
-							 $("span:hidden", $oldParent).show();
+						e.preventDefault();
+						var $body = $(".panel-body", e.currentTarget), $item = $(document.getElementById(e.originalEvent.dataTransfer.getData("level"))), $oldParent = $item.parent();
+						$item.appendTo($body);
+						$("span:visible", $body).hide();
+						if (!$("[data-value]", $oldParent).length)
+							$("span:hidden", $oldParent).show();
 					}, dragover = (e) => {
 						e.preventDefault();
-					}, removeLevel  = (e) => {
+					}, removeLevel = (e) => {
 						var $panelUI = $(e.currentTarget).closest('.panel');
-						$("[data-value]",$panelUI).appendTo($orignalContainer);
+						$("[data-value]", $panelUI).appendTo($orignalContainer);
 						$panelUI.remove();
-						$(".panel[data-container-level!='0']", $container).each(function(i){
-							this.setAttribute("data-container-level", (i+1));
-							$(".panel-title", this).text(MessageResolver("label.scale.level.value").replace("{0}",(i+1)));
+						$(".panel[data-container-level!='0']", $container).each(function (i) {
+							this.setAttribute("data-container-level", (i + 1));
+							$(".panel-title", this).text(MessageResolver("label.scale.level.value").replace("{0}", (i + 1)));
 						});
 						return false;
 					};
-					
-				
-					$(".list-group-item[data-value]", $orignalContainer).on("dragstart", function(e) {
+
+
+					$(".list-group-item[data-value]", $orignalContainer).on("dragstart", function (e) {
 						e.originalEvent.dataTransfer.setData("level", e.target.id);
-						$(".panel-body",$container).addClass("alert-warning");
+						$(".panel-body", $container).addClass("alert-warning");
 					});
-					
-					$(".list-group-item[data-value]", $orignalContainer).on("dragend", function(e) {
-						$(".panel-body.alert-warning",$container).removeClass("alert-warning");
+
+					$(".list-group-item[data-value]", $orignalContainer).on("dragend", function (e) {
+						$(".panel-body.alert-warning", $container).removeClass("alert-warning");
 					});
-					
+
 					$(".panel[data-container-level]", $container).on("drop", drop).on("dragover", dragover);
-					
+
 					$("[data-role='remove']", $container).on("click", removeLevel);
-					
-					
-					$("[data-lang-code]", $view).each(function(){
+
+
+					$("[data-lang-code]", $view).each(function () {
 						resolveMessage(this.getAttribute("data-lang-code"), this.textContent);
 					});
-					
+
 					$("#btn-add-level", $view).on("click", (e) => {
-						var index = parseInt($(".panel[data-container-level]:last-child", $container).attr("data-container-level"))+1;
+						var index = parseInt($(".panel[data-container-level]:last-child", $container).attr("data-container-level")) + 1;
 						var $ui = $levelTemplate.clone().removeAttr('id').attr("data-container-level", index);
-						$(".panel-title", $ui).text(MessageResolver("label.scale.level.value").replace("{0}",index));
+						$(".panel-title", $ui).text(MessageResolver("label.scale.level.value").replace("{0}", index));
 						$ui.appendTo($container).on("drop", drop).on("dragover", dragover);
-						$("[data-role='remove']", $ui).on("click", removeLevel );
+						$("[data-role='remove']", $ui).on("click", removeLevel);
 					});
-					
-					$("[data-value][draggable='true']", $view).on("dragstart", function(e) {
-						if(e.target.getAttribute("draggable") ==="true")
+
+					$("[data-value][draggable='true']", $view).on("dragstart", function (e) {
+						if (e.target.getAttribute("draggable") === "true")
 							e.originalEvent.dataTransfer.setData("level", e.target.id);
 						else e.preventDefault();
 					});
-					
-					
+
+
 					$("button[name='save']").on("click", e => {
-						if($("[data-value]",$orignalContainer).length){
+						if ($("[data-value]", $orignalContainer).length) {
 							showDialog("#alert-dialog", MessageResolver("error.scale.level.not.all.selected"));
 							return false;
 						}
-						
+
 						var data = {};
-						$(".panel[data-container-level]", $container).each(function(i){
+						$(".panel[data-container-level]", $container).each(function (i) {
 							data[i] = [];
-							$("[data-value]", this).each(function(){
+							$("[data-value]", this).each(function () {
 								data[i].push(parseInt(this.getAttribute("data-value")));
 							});
 						})
-				
+
 						$progress.show();
 						$.ajax({
 							url: context + "/Analysis/Parameter/Scale-level/Manage/Save",
@@ -267,14 +267,14 @@ function manageScaleLevel(){
 									application["taskManager"].Start();
 								} else if (response.warning != undefined)
 									showDialog("warning", response.warning);
-								else 
+								else
 									unknowError();
 							},
 							error: unknowError
 						}).complete(function () {
 							$progress.hide();
 						});
-						
+
 						$view.modal("hide");
 					});
 				}
@@ -315,9 +315,9 @@ function reloadAssetScenario() {
 }
 
 function reloadAssetScenarioChart() {
-	if(application.analysisType.isQualitative())
+	if (application.analysisType.isQualitative())
 		reloadRiskChart();
-	if(application.analysisType.isQuantitative())
+	if (application.analysisType.isQuantitative())
 		chartALE();
 	return false;
 }
@@ -377,7 +377,7 @@ function updateMeasuresCost() {
 			},
 			error: unknowError
 		});
-		
+
 	} else
 		permissionError();
 	return false;
@@ -481,14 +481,14 @@ function reloadMeasureRow(idMeasure, standard) {
 	} else
 		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
 			MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
-	
+
 	reloadSection("section_phase");
-	
+
 	return false;
 }
 
-function soaThresholdUpdate(){
-	return reloadSection(["section_soa","section_phase"]);
+function soaThresholdUpdate() {
+	return reloadSection(["section_soa", "section_phase"]);
 }
 
 
@@ -498,7 +498,7 @@ function reloadMeasureAndCompliance(standard, idMeasure) {
 	return tryToReloadSOA(standard, idMeasure);
 }
 
-function tryToReloadSOA(standard, idMeasure){
+function tryToReloadSOA(standard, idMeasure) {
 	if (document.getElementById("table_SOA_" + standard))
 		reloadSection("section_soa");
 	return false;
@@ -633,43 +633,43 @@ function loadRiskEvolutionHeatMap() {
 				options: evolutionHeatMapOption(response["xLabels"], response["yLabels"])
 			});
 			var $displayValue = $("#chart-show-x-element").unbind("change"), count = parseInt($displayValue.val());
-			var $container = $("#risk_acceptance_evolution_legend"),chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets,  $legends = $("<div class='list-group' />");
-			if(isNaN(count))
+			var $container = $("#risk_acceptance_evolution_legend"), chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets, $legends = $("<div class='list-group' />");
+			if (isNaN(count))
 				count = 10;
 			var displayed = 0;
 			for (var i = 0; i < datasets.length; i++) {
-			   var dataset = datasets[i];
-			   if(dataset.type === "heatmap" )
-				   continue;
-			   var $legend = $("<button type='button' class='list-group-item' data-chart-id='"+i+"'><span  style='background-color: "+dataset.backgroundColor+"; padding: 1px 12px;margin-right: 3px;' /></button>"),$text = $("<span class='text'/>").text(dataset.legendText).appendTo($legend);
-			   $legend.appendTo($legends).on("click",function(e) {
-				   var $target = $(e.currentTarget), id = parseInt($target.attr("data-chart-id")), dataset = datasets[id];
-					if(dataset.hidden)
-						$target.css({"text-decoration": "none"});
+				var dataset = datasets[i];
+				if (dataset.type === "heatmap")
+					continue;
+				var $legend = $("<button type='button' class='list-group-item' data-chart-id='" + i + "'><span  style='background-color: " + dataset.backgroundColor + "; padding: 1px 12px;margin-right: 3px;' /></button>"), $text = $("<span class='text'/>").text(dataset.legendText).appendTo($legend);
+				$legend.appendTo($legends).on("click", function (e) {
+					var $target = $(e.currentTarget), id = parseInt($target.attr("data-chart-id")), dataset = datasets[id];
+					if (dataset.hidden)
+						$target.css({ "text-decoration": "none" });
 					else
-						$target.css({"text-decoration": "line-through"});
+						$target.css({ "text-decoration": "line-through" });
 					dataset.hidden = !dataset.hidden;
 					chart.update();
 				});
-			   
-			   if((dataset.hidden = (++displayed > count)))
-				   $legend.css({"text-decoration": "line-through"});
+
+				if ((dataset.hidden = (++displayed > count)))
+					$legend.css({ "text-decoration": "line-through" });
 			}
 			$displayValue.attr("max", displayed);
 			chart.update();
 			$legends.appendTo($container.empty());
-			$legends.css({"height": chart.height });
-	
-			$displayValue.on("change",function(e){
+			$legends.css({ "height": chart.height });
+
+			$displayValue.on("change", function (e) {
 				var value = this.value, count = 0;
 				for (var i = 0; i < datasets.length; i++) {
-				   var dataset = datasets[i];
-				   if(dataset.type === "heatmap")
-					   continue;
-				   var $target = $("[data-chart-id='"+i+"']", $container);
-				   if((dataset.hidden =  (++count > value)))
-					   $target.css({"text-decoration": "line-through"});
-				   else  $target.css({"text-decoration": "none"});
+					var dataset = datasets[i];
+					if (dataset.type === "heatmap")
+						continue;
+					var $target = $("[data-chart-id='" + i + "']", $container);
+					if ((dataset.hidden = (++count > value)))
+						$target.css({ "text-decoration": "line-through" });
+					else $target.css({ "text-decoration": "none" });
 				}
 				chart.update();
 				return false;
@@ -684,7 +684,7 @@ function loadRiskEvolutionHeatMap() {
 }
 
 
-function checkForCollectionUpdate(){
+function checkForCollectionUpdate() {
 	triggerCaller($("div[id~='tab-standard-']:visible"));
 }
 
@@ -735,7 +735,7 @@ function loadRiskChart(url, name, container, canvas) {
 	return false;
 }
 
-function updateMeasureEffience(reference,force) {
+function updateMeasureEffience(reference, force) {
 	if (!application.hasMaturity)
 		return;
 	var $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
@@ -794,10 +794,10 @@ function updateMeasureEffience(reference,force) {
 
 function compliances() {
 	var $section = $("#tab-chart-compliance");
-	if ($section.is(":visible")){
+	if ($section.is(":visible")) {
 		for (let type of application['complianceType'])
-			loadComplianceChart(context + "/Analysis/Standard/Compliances/"+type);
-		
+			loadComplianceChart(context + "/Analysis/Standard/Compliances/" + type);
+
 	}
 	else $section.attr("data-update-required", "true");
 	return false;
@@ -805,9 +805,9 @@ function compliances() {
 
 function compliance(standard) {
 	var $section = $("#tab-chart-compliance");
-	if ($section.is(":visible")){
+	if ($section.is(":visible")) {
 		for (let type of application['complianceType'])
-			loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance/"+type);
+			loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance/" + type);
 	}
 	else
 		$section.attr("data-update-required", "true");
@@ -985,123 +985,123 @@ function displayChart(id, response) {
 
 
 function deleteDynamicParameter(id, acronym) {
-	var $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete variable ("+acronym+")?",acronym));
+	var $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete variable (" + acronym + ")?", acronym));
 	$("button[name='yes']", $modal).unbind().one("click", function () {
 		var $progress = $("#loading-indicator").show();
 		$.ajax(
-				{
-					url : context + "/Analysis/Parameter/Dynamic/Delete/"+id,
-					type : "DELETE",
-					contentType : "application/json;charset=UTF-8",
-					success : function(response, textStatus, jqXHR) {
-						if (response.success){
-							$("tr[data-trick-class='DynamicParameter'][data-trick-id="+id+"]").remove();
-							$("datalist[id^='dataList-parameter-']").remove();
-							updateAssessmentAle(true);
-						}
-						else if (response.error)
-							showDialog("#alert-dialog",response.error);
-						else
-							unknowError();
-						return false;
-					},
-					error : unknowError
-				}).complete(function() {
-			$progress.hide();
-		});
+			{
+				url: context + "/Analysis/Parameter/Dynamic/Delete/" + id,
+				type: "DELETE",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					if (response.success) {
+						$("tr[data-trick-class='DynamicParameter'][data-trick-id=" + id + "]").remove();
+						$("datalist[id^='dataList-parameter-']").remove();
+						updateAssessmentAle(true);
+					}
+					else if (response.error)
+						showDialog("#alert-dialog", response.error);
+					else
+						unknowError();
+					return false;
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
 		$modal.modal("hide");
 		return false;
 	});
-	
+
 }
 
 function manageRiskAcceptance() {
 	var $progress = $("#loading-indicator").show();
 	$
 		.ajax(
-		{
-			url: context + "/Analysis/Parameter/Risk-acceptance/form",
-			type: "get",
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
-				if (!$content.length)
-					showError("Error data cannot be loaded");
-				else {
-					var actionDelete = function () {
-						$(this).closest("tr").remove();
-					};
-					$("button[name='delete']", $content).on("click", actionDelete);
-					$("button[name='add']", $content)
-						.on(
-						"click",
-						function () {
-							var $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
-								"<span class='range-text'>0</span>").appendTo($div), $range = $(
-									"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
-							$removeBtn.appendTo($("<td/>").appendTo($tr));
-							$("<td><input name='label' class='form-control'></td>").appendTo($tr);
-							$div.appendTo($("<td />").appendTo($tr));
-							$("<td><textarea name='description' class='form-control resize_vectical_only' rows='1' /></td>").appendTo($tr);
-							$inputColor.appendTo($("<td />").appendTo($tr));
-							$trParent.before($tr);
-							$removeBtn.on("click", actionDelete);
-							$range.on("input change", function () {
-								$rangeInfo.text(this.value);
-								this.setAttribute("title", this.value);
+			{
+				url: context + "/Analysis/Parameter/Risk-acceptance/form",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
+					if (!$content.length)
+						showError("Error data cannot be loaded");
+					else {
+						var actionDelete = function () {
+							$(this).closest("tr").remove();
+						};
+						$("button[name='delete']", $content).on("click", actionDelete);
+						$("button[name='add']", $content)
+							.on(
+								"click",
+								function () {
+									let $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
+										"<span class='range-text'>0</span>").appendTo($div), $range = $(
+											"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
+									$removeBtn.appendTo($("<td/>").appendTo($tr));
+									$("<input name='label' class='form-control'>").appendTo($("<td />").appendTo($tr));
+									$div.appendTo($("<td />").appendTo($tr));
+									$("<textarea name='description' class='form-control resize_vectical_only' rows='1' />").appendTo($("<td />").appendTo($tr));
+									$inputColor.appendTo($("<td />").appendTo($tr));
+									$trParent.before($tr);
+									$removeBtn.on("click", actionDelete);
+									$range.on("input change", function () {
+										$rangeInfo.text(this.value);
+										this.setAttribute("title", this.value);
+									});
+								});
+
+						$("input[type='range']", $content).on("input change", function () {
+							$(".range-text", this.parentElement).text(this.value);
+							this.setAttribute("title", this.value);
+						});
+
+						$("button[name='save']", $content).on("click", function () {
+							$progress.show();
+							var $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
+							$("tr[data-trick-id]", $table).each(function () {
+								var $this = $(this);
+								data.push({
+									id: $this.attr("data-trick-id"),
+									value: $("input[name='value']", $this).val(),
+									label: $("input[name='label']", $this).val(),
+									description: $("textarea[name='description']", $this).val(),
+									color: $("input[name='color']", $this).val()
+								});
+							});
+
+							$.ajax({
+								url: context + "/Analysis/Parameter/Risk-acceptance/Save",
+								type: "post",
+								data: JSON.stringify(data),
+								contentType: "application/json;charset=UTF-8",
+								success: function (response, textStatus, jqXHR) {
+									if (response.error)
+										showNotifcation('danger', response.error);
+									else if (response.success) {
+										$content.modal("hide");
+										showNotifcation('success', response.success);
+										reloadSection(["section_parameter_impact_probability", "section_parameter", "section_riskregister"]);
+										riskEstimationUpdate(true);
+									} else
+										unknowError();
+								},
+								error: unknowError
+							}).complete(function () {
+								$progress.hide();
 							});
 						});
 
-					$("input[type='range']", $content).on("input change", function () {
-						$(".range-text", this.parentElement).text(this.value);
-						this.setAttribute("title", this.value);
-					});
-
-					$("button[name='save']", $content).on("click", function () {
-						$progress.show();
-						var $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
-						$("tr[data-trick-id]", $table).each(function () {
-							var $this = $(this);
-							data.push({
-								id: $this.attr("data-trick-id"),
-								value: $("input[name='value']", $this).val(),
-								label: $("input[name='label']", $this).val(),
-								description: $("textarea[name='description']", $this).val(),
-								color: $("input[name='color']", $this).val()
-							});
+						$content.appendTo("#widgets").modal("show").on("hidden.bs.modal", function () {
+							$content.remove();
 						});
-
-						$.ajax({
-							url: context + "/Analysis/Parameter/Risk-acceptance/Save",
-							type: "post",
-							data: JSON.stringify(data),
-							contentType: "application/json;charset=UTF-8",
-							success: function (response, textStatus, jqXHR) {
-								if (response.error)
-									showNotifcation('danger', response.error);
-								else if (response.success) {
-									$content.modal("hide");
-									showNotifcation('success', response.success);
-									reloadSection(["section_parameter_impact_probability","section_parameter","section_riskregister"]);
-									riskEstimationUpdate(true);
-								} else
-									unknowError();
-							},
-							error: unknowError
-						}).complete(function () {
-							$progress.hide();
-						});
-					});
-
-					$content.appendTo("#widgets").modal("show").on("hidden.bs.modal", function () {
-						$content.remove();
-					});
-				}
-			},
-			error: unknowError
-		}).complete(function () {
-			$progress.hide();
-		});
+					}
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
 	return false;
 }
 
@@ -1327,42 +1327,42 @@ function navToogled(section, parentMenu, navSelected) {
 function manageBrainstorming(type) {
 	var $progress = $("#loading-indicator").show(), category = type.replace(/\b\w/g, s => s.toUpperCase());
 	$.ajax({
-		url: context + "/Analysis/Risk-information/Manage/"+category,
+		url: context + "/Analysis/Risk-information/Manage/" + category,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			var $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
-	
+
 				updateRiskInformationAddBtn($("table", $modal));
 				$("form button[name='add']", $modal).on("click", addNewRiskInformtion);;
-				$("button[name='add-chapter']", $modal).on("click",addNewRiskInformtionChapter);
+				$("button[name='add-chapter']", $modal).on("click", addNewRiskInformtionChapter);
 				$("button[name='clear']", $modal).on("click", clearRiskInformtion);
 				$("button[name='delete']", $modal).on("click", removeRiskInformtion);
 				$("button[name='save']", $modal).on("click", e => $("input[type='submit']", $modal).trigger("click"));
 				$("input[name='chapter']", $modal).on("blur", (e) => validateRiskInformationChapter($modal));
 				$("form", $modal).on("submit", e => {
 					$progress.show();
-					var data  = parseRiskInformationData(category ==="Risk"? "Risk_TBA" : category, $("form tbody>tr[data-trick-id]", $modal));
+					var data = parseRiskInformationData(category === "Risk" ? "Risk_TBA" : category, $("form tbody>tr[data-trick-id]", $modal));
 					$.ajax({
-						url: context + "/Analysis/Risk-information/Manage/"+category+"/Save",
+						url: context + "/Analysis/Risk-information/Manage/" + category + "/Save",
 						type: "post",
 						data: JSON.stringify(data),
 						contentType: "application/json;charset=UTF-8",
 						success: function (response, textStatus, jqXHR) {
-							if(response['success']){
-								reloadSection('section_risk-information_'+type);
+							if (response['success']) {
+								reloadSection('section_risk-information_' + type);
 								$modal.modal("hide");
 							}
-							else if(response['error'])
+							else if (response['error'])
 								showDialog("#alert-dialog", response['error']);
 							else unknowError();
-						},error: unknowError
+						}, error: unknowError
 					}).complete(() => $progress.hide());
 					return false;
 				});
-				
-				
+
+
 			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
 			else
@@ -1373,41 +1373,41 @@ function manageBrainstorming(type) {
 	return false;
 }
 
-function parseRiskInformationData(category,$trs){
-	var data =  [];
-	$trs.each(function(i) {
-		var $this = $(this), $label = $("input[name='label']",$this), $chapter = $("input[name='chapter']",$this), id = $this.attr("data-trick-id"), chapter = $chapter.val(), label = $label.val(), custom = $("input[name='cutom']",$this).val();
+function parseRiskInformationData(category, $trs) {
+	var data = [];
+	$trs.each(function (i) {
+		var $this = $(this), $label = $("input[name='label']", $this), $chapter = $("input[name='chapter']", $this), id = $this.attr("data-trick-id"), chapter = $chapter.val(), label = $label.val(), custom = $("input[name='cutom']", $this).val();
 		data.push({
-			id : id,
-			category : category,
-			chapter : chapter,
-			label : label,
-			custom : custom ==='true' || label !== $label.attr('placeholder') || chapter!== $chapter.attr('placeholder')
+			id: id,
+			category: category,
+			chapter: chapter,
+			label: label,
+			custom: custom === 'true' || label !== $label.attr('placeholder') || chapter !== $chapter.attr('placeholder')
 		});
 	});
 	return data;
-	
+
 }
 
 function addNewRiskInformtion(e) {
-	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1' />");
-	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),true);
+	var $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1' />");
+	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), true);
 	return false;
 }
 
-function addNewRiskInformtionChapter(e){
-	var $this = $(this), $currentTr = $this.closest("tr"),  $tr = $("<tr data-trick-id='-1'/>");
-	addNewRiskInformation($currentTr,$tr, $("#risk-information-btn",$this.closest(".modal")),false);
+function addNewRiskInformtionChapter(e) {
+	var $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1'/>");
+	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), false);
 	return false;
 }
 
-function addNewRiskInformation($currentTr,$tr,$buttons,after){
+function addNewRiskInformation($currentTr, $tr, $buttons, after) {
 	$("<td><input type='hidden' name='id' value='-1' /><input name='chapter' required class='form-control'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
 	$("<td><input class='form-control' type='text' name='label' placeholder='' required ></td>").appendTo($tr);
 	$("<td />").html($buttons.html()).appendTo($tr);
 	$("button[name='delete']", $tr).on("click", removeRiskInformtion);
 	$("button[name='clear']", $tr).on("click", clearRiskInformtion);
-	if(after)
+	if (after)
 		$tr.insertAfter($currentTr);
 	else $tr.insertBefore($currentTr);
 	$("button[name='add']", $tr).on("click", addNewRiskInformtion);
@@ -1425,10 +1425,10 @@ function removeRiskInformtion(e) {
 	return false;
 }
 
-function updateRiskInformationAddBtn($table){
-	if($table || $table.length){
+function updateRiskInformationAddBtn($table) {
+	if ($table || $table.length) {
 		var $chapter = $("input[name='chapter']", $table);
-		if($chapter.length)
+		if ($chapter.length)
 			$("tr[data-role='add-btn']", $table).hide();
 		else $("tr[data-role='add-btn']", $table).show();
 		validateRiskInformationChapter($table.closest(".modal"));
@@ -1436,50 +1436,50 @@ function updateRiskInformationAddBtn($table){
 	return false;
 }
 
-function validateRiskInformationChapter($modal){
+function validateRiskInformationChapter($modal) {
 	var chpaters = new Map();
 	$(".has-error", $modal).removeClass("has-error");
 	$("input[name='chapter']", $modal).filter((i, el) => {
-		if(chpaters.has(el.value.trim()))
+		if (chpaters.has(el.value.trim()))
 			return true
 		chpaters.set(el.value, true);
 		return false;
-	}).each((i,el) => $(el).closest("td").addClass("has-error"));
+	}).each((i, el) => $(el).closest("td").addClass("has-error"));
 	$("button[name='save']", $modal).prop('disabled', $(".has-error", $modal).length);
 	return false;
 }
 
 function clearRiskInformtion(e) {
-	var $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']",$tr).val();
-	if(!(value === undefined || value === null)){
+	var $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']", $tr).val();
+	if (!(value === undefined || value === null)) {
 		var filter = () => false;
-		
+
 		value = value.trim();
-		
-		if(value === "")
+
+		if (value === "")
 			filter = (i, el) => el.value.trim() === value;
-		else if(value.match(/(\d+\.)+(\d+\.*)*$/g)){
-			var chapter = value.replace(/(\.0*)*$/g,''); 
-			filter = (i,el) => el.value.startsWith(chapter);
+		else if (value.match(/(\d+\.)+(\d+\.*)*$/g)) {
+			var chapter = value.replace(/(\.0*)*$/g, '');
+			filter = (i, el) => el.value.startsWith(chapter);
 		}
 		else filter = (i, el) => el.value.startsWith(value) || el.value === value;
-		
-		$("input[name='chapter']",$table).filter(filter).closest("tr").remove();
+
+		$("input[name='chapter']", $table).filter(filter).closest("tr").remove();
 	}
 	updateRiskInformationAddBtn($table);
 	return false;
 }
 
-function importRiskInformationForm(){
+function importRiskInformationForm() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Risk-information/Import-form",
 		success: function (response, textStatus, jqXHR) {
 			var $modal = $("#risk-information-modal", new DOMParser().parseFromString(response, "text/html"));
-			if($modal.length){
+			if ($modal.length) {
 				$("button[name='import']", $modal).on("click", importRiskInformation);
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
-			}else if (response["error"])
+			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
 			else
 				unknowError();
@@ -1493,7 +1493,7 @@ function importRiskInformationForm(){
 }
 
 function importRiskInformation() {
-	var $modal = $("#risk-information-modal"), $uploadFile = $("#upload-file-info", $modal), $progress = $("#loading-indicator"), $riskNotification = $("#riskInfromationNotification",$modal);
+	var $modal = $("#risk-information-modal"), $uploadFile = $("#upload-file-info", $modal), $progress = $("#loading-indicator"), $riskNotification = $("#riskInfromationNotification", $modal);
 	if (!$uploadFile.length)
 		return false;
 	else if ($uploadFile.val() == "") {
@@ -1505,7 +1505,7 @@ function importRiskInformation() {
 		$.ajax({
 			url: context + "/Analysis/Risk-information/Import",
 			type: 'POST',
-			data: new FormData($('#importRiskInformationForm',$modal)[0]),
+			data: new FormData($('#importRiskInformationForm', $modal)[0]),
 			cache: false,
 			contentType: false,
 			processData: false,
@@ -1518,25 +1518,25 @@ function importRiskInformation() {
 					showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 			},
 			error: unknowError
-	
+
 		}).complete(function () {
 			$progress.hide();
 		});
-	}finally{
+	} finally {
 		$modal.modal("hide");
 	}
 	return false;
 }
 
-function backupFieldHeight(baseName,name, container) {
-	if(Array.isArray(name)){
+function backupFieldHeight(baseName, name, container) {
+	if (Array.isArray(name)) {
 		for (let field of name)
-			backupFieldHeight(baseName,field,container  );
+			backupFieldHeight(baseName, field, container);
 	}
 	else {
-		var backupName = baseName+"-"+name+"-height", data = application[backupName];
-		if(data!==undefined){
-			var $textarea = $("#"+name,container);
+		var backupName = baseName + "-" + name + "-height", data = application[backupName];
+		if (data !== undefined) {
+			var $textarea = $("#" + name, container);
 			if ($textarea.length) {
 				var height = $textarea.outerHeight();
 				if (Math.abs(height - data.defaultValue) > 8) {
@@ -1550,17 +1550,17 @@ function backupFieldHeight(baseName,name, container) {
 	return false;
 }
 
-function restoreFieldHeight(baseName,name, container) {
-	if(Array.isArray(name)) {
+function restoreFieldHeight(baseName, name, container) {
+	if (Array.isArray(name)) {
 		for (let field of name)
-			restoreFieldHeight(baseName,field,container  );
+			restoreFieldHeight(baseName, field, container);
 	}
 	else {
-		var $textarea = $("#"+name,container);
+		var $textarea = $("#" + name, container);
 		if ($textarea.length) {
-			var backupName = baseName+"-"+name+"-height", height = $textarea.outerHeight(), data = application[backupName];
-			if(data === undefined)
-				data = application[backupName] = {defaultValue : height, value : null, previous : null};
+			var backupName = baseName + "-" + name + "-height", height = $textarea.outerHeight(), data = application[backupName];
+			if (data === undefined)
+				data = application[backupName] = { defaultValue: height, value: null, previous: null };
 			else data.defaultValue = height;
 			if (data.value !== null) {
 				$textarea.css({

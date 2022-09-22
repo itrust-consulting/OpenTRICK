@@ -86,7 +86,7 @@ public class ValueFactory {
 					return parameter.getValue();
 			}
 		}
-		return (value instanceof Double) ? (Double) value : ToDouble(value.toString(), 0.0);
+		return (value instanceof Double) ? (Double) value : toDouble(value.toString(), 0.0);
 	}
 
 	public Integer findProbaExpLevel(Object value) {
@@ -205,7 +205,7 @@ public class ValueFactory {
 					value = "0";
 			}
 
-			final Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
+			final Double doubleValue = (value instanceof Double) ? (Double) value : toDouble(value.toString(), null);
 			if (doubleValue == null) {
 				if (includExpression && value instanceof String) {
 					final IValue aux = findDynValue((String) value, type, parameters);
@@ -301,9 +301,17 @@ public class ValueFactory {
 
 	}
 
-	public static Double ToDouble(String value, Double defaultValue) {
+	public static Double toDouble(String value, Double defaultValue) {
 		try {
 			return value == null ? defaultValue : Double.parseDouble(value);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
+	public static Integer toInt(String value, Integer defaultValue) {
+		try {
+			return value == null ? defaultValue : Integer.parseInt(value);
 		} catch (NumberFormatException e) {
 			return defaultValue;
 		}
@@ -315,7 +323,7 @@ public class ValueFactory {
 	 * @see ValueFactory#findImportance(String, String, String, String, String)
 	 */
 	public int findImportance(Assessment assessment) {
-		return findImportance(assessment.getLikelihood(), assessment.getImpacts());
+		return findImportance(assessment.getLikelihood(), assessment.getImpacts()) *  assessment.getVulnerability();
 	}
 
 	/**

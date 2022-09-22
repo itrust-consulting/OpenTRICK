@@ -105,11 +105,6 @@
 	<beans:bean id="sessionAuthenticationStrategy" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
 		<beans:constructor-arg>
 			<beans:list>
-				<!--<beans:bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
-					<beans:constructor-arg ref="sessionRegistry" />
-					<beans:property name="maximumSessions" value="5" />
-					<beans:property name="exceptionIfMaximumExceeded" value="true" />
-				</beans:bean>-->
 				<beans:bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
 				<beans:bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
 					<beans:constructor-arg ref="sessionRegistry" />

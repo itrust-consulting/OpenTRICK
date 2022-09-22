@@ -401,7 +401,10 @@ public class Assessment implements Cloneable {
 	 * 
 	 */
 	public void setVulnerability(int vulnerability) {
-		this.vulnerability = vulnerability;
+		if (vulnerability < 0)
+			this.vulnerability = 0;
+		else
+			this.vulnerability = vulnerability;
 	}
 
 	/**

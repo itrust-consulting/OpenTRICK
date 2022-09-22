@@ -43,16 +43,8 @@
 				<c:set var="length" value="${mappedParameters['PROBA'].size()-1}" />
 				<c:set var='mod2' value="${length mod 2 != 0}" />
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
-					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}" ${type == 'QUALITATIVE' and parameter.level==0? 'style="display:none"':''}>
-						<td data-trick-field="level" class="textaligncenter"><c:choose>
-								<c:when test="${parameter.level==0}">
-									<spring:message code='label.status.na' />
-								</c:when>
-								<c:otherwise>
-									<spring:message text="${parameter.level}" />
-								</c:otherwise>
-							</c:choose></td>
-
+					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
+						<td data-trick-field="level" class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 						<c:if test="${type.quantitative}">
 							<td data-trick-field="acronym" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
 						</c:if>

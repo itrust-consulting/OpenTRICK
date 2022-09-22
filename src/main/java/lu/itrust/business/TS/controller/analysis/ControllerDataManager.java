@@ -378,11 +378,12 @@ public class ControllerDataManager {
 							(profile.getRiskStrategy() == null ? RiskStrategy.ACCEPT : profile.getRiskStrategy())
 									.getNameToLower());
 					if (rowColumn)
-						cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales);
+						cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
 					cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales, analysis.getType());
-					cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales);
+					cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, true);
 				} else {
 					writeLikelihood(row, cellIndex++, assessment.getLikelihood());
+					setValue(row, cellIndex++, assessment.getVulnerability());
 					writeQuantitativeImpact(row, cellIndex++,
 							assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
 				}
@@ -829,7 +830,8 @@ public class ControllerDataManager {
 					throw new RuntimeException(e);
 				}
 			};
-			new RRFExportImport(serviceAssetType, serviceAnalysis, serviceAssetTypeValue, messageSource).exportRawRRF(analysis, file, callback);
+			new RRFExportImport(serviceAssetType, serviceAnalysis, serviceAssetTypeValue, messageSource)
+					.exportRawRRF(analysis, file, callback);
 		} finally {
 			serviceStorage.delete(file.getAbsolutePath());
 		}
@@ -1153,8 +1155,9 @@ public class ControllerDataManager {
 			HttpSession session, Principal principal, HttpServletRequest request,
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		return new RRFExportImport(serviceAssetType, serviceAnalysis, serviceAssetTypeValue, messageSource).importRawRRF(idAnalysis, file,
-				principal.getName(), locale);
+		return new RRFExportImport(serviceAssetType, serviceAnalysis, serviceAssetTypeValue, messageSource)
+				.importRawRRF(idAnalysis, file,
+						principal.getName(), locale);
 	}
 
 	///
@@ -1516,6 +1519,7 @@ public class ControllerDataManager {
 	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales,
 			AnalysisType analysisType) {
 		writeLikelihood(row, colIndex++, assessment.getLikelihood());
+		setValue(row, colIndex++, assessment.getVulnerability());
 		for (ScaleType type : scales) {
 			IValue value = assessment.getImpact(type.getName());
 			if (value == null)
@@ -1525,12 +1529,17 @@ public class ControllerDataManager {
 			else
 				setValue(row, colIndex++, "i" + value.getLevel());
 		}
-		return 1 + scales.size();
+		return 2 + scales.size();
 	}
 
-	private int writeProbaImpact(Row row, int colIndex, RiskProbaImpact probaImpact, List<ScaleType> scales) {
-		int columnCount = 1;
+	private int writeProbaImpact(Row row, int colIndex, RiskProbaImpact probaImpact, List<ScaleType> scales,
+			boolean hasVulnerability) {
+		int columnCount = hasVulnerability ? 2 : 1;
 		if (probaImpact == null) {
+			setValue(row, colIndex++, 0);
+			if (hasVulnerability)
+				setValue(row, colIndex++, 1);
+
 			for (ScaleType type : scales) {
 				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME)) {
 					setValue(row, colIndex++, 0);
@@ -1540,6 +1549,10 @@ public class ControllerDataManager {
 		} else {
 			setValue(row, colIndex++,
 					probaImpact.getProbability() == null ? 0 : probaImpact.getProbability().getAcronym());
+
+			if (hasVulnerability)
+				setValue(row, colIndex++, probaImpact.getVulnerability());
+
 			for (ScaleType type : scales) {
 				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME)) {
 					IImpactParameter parameter = probaImpact.get(type.getName());
