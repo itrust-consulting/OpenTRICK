@@ -2,12 +2,16 @@ package lu.itrust.business.TS.model.asset;
 
 import java.io.Serializable;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -20,7 +24,10 @@ import lu.itrust.business.TS.exception.TrickException;
  * @version 0.1
  * @since 25 janv. 2013
  */
+
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class AssetType implements Serializable, Cloneable {
 
 	/***********************************************************************************************

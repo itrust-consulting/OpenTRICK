@@ -284,8 +284,8 @@ public class ExportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
-		String query = "", unionQuery = " UNION Select ?,?,?,?,?,?,?",
-				baseQuery = "INSERT INTO risk_profile SELECT ? as id_threat,? as id_asset,? as actionPlan,? as treatment,? as strategy,? as exp_probability,? as raw_probability";
+		String query = "", unionQuery = " UNION Select ?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO risk_profile SELECT ? as id_threat,? as id_asset,? as actionPlan,? as treatment,? as strategy,? as exp_probability,? as exp_vulnerability,? as raw_probability,? as raw_vulnerability";
 
 		// ****************************************************************
 		// * Export the Risk Register Item by Item
@@ -298,7 +298,7 @@ public class ExportAnalysis {
 			// add parameters for the current Risk Register Item
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 7 > 999) {
+			else if (params.size() + 9 > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
@@ -402,15 +402,23 @@ public class ExportAnalysis {
 		if (riskStrategy == null)
 			riskStrategy = RiskStrategy.REDUCE;
 		params.add(riskStrategy);
-		if (riskProfile.getExpProbaImpact() == null)
+		if (riskProfile.getExpProbaImpact() == null){
 			params.add(defaultProbability.getAcronym());
-		else
+			params.add(1);
+		}
+		else{
 			params.add(riskProfile.getExpProbaImpact().getProbability(defaultProbability).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getVulnerability());
+		}
 
-		if (riskProfile.getRawProbaImpact() == null)
+		if (riskProfile.getRawProbaImpact() == null){
 			params.add(defaultProbability.getAcronym());
-		else
+			params.add(1);
+		}
+		else{
 			params.add(riskProfile.getRawProbaImpact().getProbability(defaultProbability).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getVulnerability());
+		}
 	}
 
 	/**

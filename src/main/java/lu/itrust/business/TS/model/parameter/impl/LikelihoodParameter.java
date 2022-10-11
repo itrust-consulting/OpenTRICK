@@ -61,6 +61,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	public LikelihoodParameter(int level, String acronym) {
 		setLevel(level);
 		setAcronym(acronym);
+		setBounds(new Bounds(0, 1));
 	}
 
 	/**

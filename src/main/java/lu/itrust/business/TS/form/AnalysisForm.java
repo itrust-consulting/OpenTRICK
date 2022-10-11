@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.security.auth.PrivateCredentialPermission;
+
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisStandardBaseInfo;
 import lu.itrust.business.TS.model.history.History;
@@ -57,6 +59,8 @@ public class AnalysisForm {
 
 	private boolean uncertainty;
 
+	private boolean assetDependancy;
+
 	private AnalysisType type;
 
 	/**
@@ -82,7 +86,7 @@ public class AnalysisForm {
 
 	/**
 	 * @param riskProfile
-	 *            the riskProfile to set
+	 *                    the riskProfile to set
 	 */
 	public void setRiskProfile(boolean riskProfile) {
 		this.riskProfile = riskProfile;
@@ -178,8 +182,10 @@ public class AnalysisForm {
 
 	@Override
 	public String toString() {
-		return "AnalysisForm [assessment=" + assessment + ", asset=" + asset + ", author=" + author + ", comment=" + comment + ", customer=" + customer + ", language=" + language
-				+ ", parameter=" + parameter + ", phase=" + phase + ", riskInformation=" + riskInformation + ", scenario=" + scenario + ", scope=" + scope + ", standards="
+		return "AnalysisForm [assessment=" + assessment + ", asset=" + asset + ", asset dependancy=" + assetDependancy
+				+ ", author=" + author + ", comment=" + comment + ", customer=" + customer + ", language=" + language
+				+ ", parameter=" + parameter + ", phase=" + phase + ", riskInformation=" + riskInformation
+				+ ", scenario=" + scenario + ", scope=" + scope + ", standards="
 				+ this.standards + ", version=" + version + "]";
 	}
 
@@ -227,7 +233,7 @@ public class AnalysisForm {
 	 * Sets the Field "uncertainty" with a value.
 	 * 
 	 * @param uncertainty
-	 *            The Value to set the uncertainty field
+	 *                    The Value to set the uncertainty field
 	 */
 	public void setUncertainty(boolean uncertainty) {
 		this.uncertainty = uncertainty;
@@ -242,7 +248,7 @@ public class AnalysisForm {
 
 	/**
 	 * @param type
-	 *            the type to set
+	 *             the type to set
 	 */
 	public void setType(AnalysisType type) {
 		this.type = type;
@@ -265,7 +271,7 @@ public class AnalysisForm {
 
 	/**
 	 * @param standrads
-	 *            the standrads to set
+	 *                  the standrads to set
 	 */
 	public void setStandards(List<AnalysisStandardBaseInfo> standards) {
 		this.standards = standards;
@@ -280,7 +286,7 @@ public class AnalysisForm {
 
 	/**
 	 * @param impacts
-	 *            the impacts to set
+	 *                the impacts to set
 	 */
 	public void setImpacts(List<Integer> impacts) {
 		this.impacts = impacts;
@@ -295,10 +301,18 @@ public class AnalysisForm {
 
 	/**
 	 * @param scale
-	 *            the scale to set
+	 *              the scale to set
 	 */
 	public void setScale(Scale scale) {
 		this.scale = scale;
+	}
+
+	public boolean isAssetDependancy() {
+		return assetDependancy;
+	}
+
+	public void setAssetDependancy(boolean assetDependancy) {
+		this.assetDependancy = assetDependancy;
 	}
 
 }

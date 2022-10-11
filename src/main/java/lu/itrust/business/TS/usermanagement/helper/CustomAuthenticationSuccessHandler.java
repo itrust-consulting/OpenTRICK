@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.LocaleResolver;
 
@@ -32,8 +33,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version
  * @since Sep 26, 2014
  */
-//@Transactional
-//@Component
+@Transactional(readOnly = true)
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
 	@Autowired
@@ -49,10 +49,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
 		try {
 			User myUser = daoUser.get(authentication.getName());
-			if (myUser.getLocale() == null) {
+			if (myUser.getLocale() == null)
 				myUser.setLocale("en");
-				daoUser.saveOrUpdate(myUser);
-			}
 			localeResolver.setLocale(request, response, new Locale(myUser.getLocale()));
 			String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date());
 			String remoteaddr = request.getHeader("X-FORWARDED-FOR");

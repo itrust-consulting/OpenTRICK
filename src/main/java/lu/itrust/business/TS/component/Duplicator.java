@@ -39,6 +39,9 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.ilr.AssetEdge;
+import lu.itrust.business.TS.model.ilr.AssetImpact;
+import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
@@ -111,44 +114,55 @@ public class Duplicator {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Analysis duplicateAnalysis(Analysis analysis, Analysis newAnalysis, ServiceTaskFeedback serviceTaskFeedback, String idTask, int minProgress, int maxProgress)
+	public Analysis duplicateAnalysis(Analysis analysis, Analysis newAnalysis, ServiceTaskFeedback serviceTaskFeedback,
+			String idTask, int minProgress, int maxProgress)
 			throws Exception {
 
-		Map<Integer, Phase> phases = new LinkedHashMap<>();
+		final Map<Integer, Phase> phases = new LinkedHashMap<>();
 
-		Map<Integer, Scenario> scenarios = new LinkedHashMap<Integer, Scenario>(analysis.getScenarios().size());
+		final Map<Integer, Scenario> scenarios = new LinkedHashMap<>(analysis.getScenarios().size());
 
-		Map<Integer, Asset> assets = new LinkedHashMap<Integer, Asset>(analysis.getAssets().size());
+		final Map<Integer, Asset> assets = new LinkedHashMap<>(analysis.getAssets().size());
 
-		Map<String, IParameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
+		final Map<Long, AssetNode> nodes = new LinkedHashMap<>(analysis.getAssetNodes().size());
+
+		final Map<Long, AssetImpact> assetImpacts = new LinkedHashMap<>(
+				Math.min(analysis.getAssets().size(), analysis.getAssetNodes().size()));
+
+		final Map<String, IParameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
 
 		double bound = ((double) (maxProgress - minProgress)) / 100.0;
 
 		try {
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", (int) (minProgress + bound * 2)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start",
+					"Copy analysis base information", (int) (minProgress + bound * 2)));
 
 			Analysis copy = analysis.duplicateTo(newAnalysis);
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.right", "Copy rights", (int) (minProgress + bound * 4)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.right", "Copy rights",
+					(int) (minProgress + bound * 4)));
 
-			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
+			copy.setUserRights(new ArrayList<>(analysis.getUserRights().size()));
 			for (UserAnalysisRight uar : analysis.getUserRights())
 				copy.addUserRight(uar.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.history", "Copy history", (int) (minProgress + bound * 7)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.history", "Copy history",
+					(int) (minProgress + bound * 7)));
 
-			copy.setHistories(new ArrayList<History>(analysis.getHistories().size()));
+			copy.setHistories(new ArrayList<>(analysis.getHistories().size()));
 			for (History history : analysis.getHistories())
 				copy.getHistories().add(history.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", (int) (minProgress + bound * 10)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation",
+					"Copy item information", (int) (minProgress + bound * 10)));
 
-			copy.setItemInformations(new ArrayList<ItemInformation>(analysis.getItemInformations().size()));
+			copy.setItemInformations(new ArrayList<>(analysis.getItemInformations().size()));
 			for (ItemInformation itemInformation : analysis.getItemInformations())
 				copy.getItemInformations().add(itemInformation.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", (int) (minProgress + bound * 12)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter",
+					"Copy parameters", (int) (minProgress + bound * 12)));
 
 			copy.setParameters(new LinkedHashMap<>(analysis.getParameters().size()));
 
@@ -158,31 +172,82 @@ public class Duplicator {
 				parameters.put(parameter.getKey(), duplicate);
 			}));
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", (int) (minProgress + bound * 15)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation",
+					"Copy risk information", (int) (minProgress + bound * 15)));
 
-			copy.setRiskInformations(new ArrayList<RiskInformation>(analysis.getRiskInformations().size()));
+			copy.setRiskInformations(new ArrayList<>(analysis.getRiskInformations().size()));
 			for (RiskInformation riskInformation : analysis.getRiskInformations())
 				copy.getRiskInformations().add(riskInformation.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", (int) (minProgress + bound * 20)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets",
+					(int) (minProgress + bound * 18)));
 
-			copy.setAssets(new ArrayList<Asset>(analysis.getAssets().size()));
+			copy.setAssets(new ArrayList<>(analysis.getAssets().size()));
 			for (Asset asset : analysis.getAssets()) {
 				assets.put(asset.getId(), asset.duplicate());
 				copy.getAssets().add(assets.get(asset.getId()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", (int) (minProgress + bound * 30)));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.duplication.asset_dependancy", "Copy assets dependancies",
+							(int) (minProgress + bound * 18)));
 
-			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
+			copy.setAssetNodes(new ArrayList<>(analysis.getAssetNodes().size()));
+			for (AssetNode node : analysis.getAssetNodes()) {
+				final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
+						(k) -> node.getImpact().duplicate(assets.get(node.getAsset().getId())));
+
+				final AssetNode myNode = node.duplicate(impact);
+				copy.getAssetNodes().add(myNode);
+				nodes.put(node.getId(), myNode);
+			}
+
+			if (!copy.getAssetNodes().isEmpty()) {
+
+				do {
+					final List<AssetNode> children = copy.getAssetNodes().stream()
+							.flatMap(e -> e.getEdges().keySet().stream())
+							.filter(e -> e.getId() > 0).collect(Collectors.toList());
+
+					boolean hasChange = false;
+
+					for (AssetNode node : children) {
+						final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
+								(k) -> node.getImpact().duplicate(assets.get(node.getAsset().getId())));
+						final AssetNode myNode = node.duplicate(impact);
+						hasChange |= copy.getAssetNodes().add(myNode);
+						nodes.put(node.getId(), myNode);
+					}
+
+					if (!hasChange)
+						break;
+				} while (true);
+			}
+
+			analysis.getAssetNodes().stream().filter(e -> !e.getEdges().isEmpty()).forEach(e -> {
+				final List<AssetEdge> edges = new ArrayList<>(e.getEdges().values());
+				for (AssetEdge edge : edges) {
+					if (edge.getChild().getId() > 0) {
+						e.getEdges().remove(edge.getChild());
+						edge.setChild(nodes.get(edge.getChild().getId()));
+						e.getEdges().put(edge.getChild(), edge);
+					}
+				}
+			});
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios",
+					(int) (minProgress + bound * 30)));
+
+			copy.setScenarios(new ArrayList<>(analysis.getScenarios().size()));
 			for (Scenario scenario : analysis.getScenarios()) {
 				scenarios.put(scenario.getId(), scenario.duplicate(assets));
 				copy.getScenarios().add(scenarios.get(scenario.getId()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy estimations", (int) (minProgress + bound * 35)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment",
+					"Copy estimations", (int) (minProgress + bound * 35)));
 
-			copy.setAssessments(new ArrayList<Assessment>(analysis.getAssessments().size()));
+			copy.setAssessments(new ArrayList<>(analysis.getAssessments().size()));
 
 			for (Assessment assessment : analysis.getAssessments()) {
 				Assessment clone = assessment.duplicate();
@@ -192,32 +257,36 @@ public class Duplicator {
 				assessment.getImpacts().forEach(impact -> {
 					IValue value = impact.duplicate();
 					if (value instanceof AbstractValue)
-						((AbstractValue) value).setParameter((ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
+						((AbstractValue) value).setParameter(
+								(ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
 					clone.setImpact(value);
 				});
 
 				if (assessment.getLikelihood() != null) {
 					final IValue value = assessment.getLikelihood().duplicate();
 					if (value instanceof AbstractValue)
-						((AbstractValue) value).setParameter((ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
+						((AbstractValue) value).setParameter(
+								(ILevelParameter) parameters.get(((AbstractValue) value).getParameter().getKey()));
 					clone.setLikelihood(value);
 				}
-				
+
 				copy.getAssessments().add(clone);
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", (int) (minProgress + bound * 40)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases",
+					(int) (minProgress + bound * 40)));
 
-			copy.setPhases(new ArrayList<Phase>(analysis.getPhases().size()));
+			copy.setPhases(new ArrayList<>(analysis.getPhases().size()));
 
 			for (Phase phase : analysis.getPhases()) {
 				phases.put(phase.getNumber(), phase.duplicate(copy));
 				copy.add(phases.get(phase.getNumber()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * 42)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards",
+					(int) (minProgress + bound * 42)));
 
-			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
+			copy.setAnalysisStandards(new ArrayList<>());
 
 			if (!analysis.getAnalysisStandards().isEmpty()) {
 
@@ -228,23 +297,27 @@ public class Duplicator {
 				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 					copycounter++;
 					serviceTaskFeedback.send(idTask,
-							new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * (42 + (percentageperstandard * copycounter)))));
+							new MessageHandler("info.analysis.duplication.measure", "Copy standards",
+									(int) (minProgress + bound * (42 + (percentageperstandard * copycounter)))));
 					copy.add(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
 				}
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", (int) (minProgress + bound * 90)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile",
+					"Copy risk profiles", (int) (minProgress + bound * 90)));
 
 			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
 
 			if (!analysis.getRiskProfiles().isEmpty()) {
-				Map<String, Measure> measures = copy.getAnalysisStandards().values().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+				Map<String, Measure> measures = copy.getAnalysisStandards().values().stream()
+						.flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
 						.collect(Collectors.toMap(Measure::getKeyName, Function.identity()));
 				for (RiskProfile riskProfile : analysis.getRiskProfiles())
 					copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters, measures));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 95)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies",
+					"Update risk dependencies", (int) (minProgress + bound * 95)));
 
 			AssessmentAndRiskProfileManager.UpdateRiskDendencies(copy, null);
 
@@ -269,7 +342,8 @@ public class Duplicator {
 	 * @return
 	 * @throws Exception
 	 */
-	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, IParameter> parameters, Map<Integer, Asset> assets,
+	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases,
+			Map<String, IParameter> parameters, Map<Integer, Asset> assets,
 			boolean anonymize) throws Exception {
 
 		if (!analysisStandard.getStandard().isAnalysisOnly()) {
@@ -279,10 +353,14 @@ public class Duplicator {
 			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
 			for (Measure measure : analysisStandard.getMeasures())
 				if (anonymize)
-					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets, parameters, anonymize));
+					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets,
+							parameters, anonymize));
 				else
 					measures.add(duplicateMeasure(measure,
-							phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard, assets,
+							phases.containsKey(measure.getPhase().getNumber())
+									? phases.get(measure.getPhase().getNumber())
+									: phases.get(Constant.PHASE_DEFAULT),
+							astandard, assets,
 							parameters, anonymize));
 
 			astandard.setMeasures(measures);
@@ -292,9 +370,10 @@ public class Duplicator {
 
 			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getName(), standard.getType()));
 
-			final List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
+			final List<MeasureDescription> mesDescs = daoMeasureDescription
+					.getAllByStandard(analysisStandard.getStandard());
 
-			final Map<String, MeasureDescription> newMesDescs = new LinkedHashMap<String, MeasureDescription>();
+			final Map<String, MeasureDescription> newMesDescs = new LinkedHashMap<>();
 
 			for (MeasureDescription mesDesc : mesDescs) {
 
@@ -312,13 +391,17 @@ public class Duplicator {
 				tmpAnalysisStandard = new MaturityStandard(standard);
 			else if (analysisStandard instanceof AssetStandard)
 				tmpAnalysisStandard = new AssetStandard(standard);
+			else
+				throw new TrickException("error.unkown.standard", "Unkown standard type");
 
 			final List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
 			for (Measure measure : analysisStandard.getMeasures()) {
 
 				Measure tmpmeasure = null;
 
-				tmpmeasure = duplicateMeasure(measure, anonymize ? phases.get(Constant.PHASE_DEFAULT) : phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, assets,
+				tmpmeasure = duplicateMeasure(measure,
+						anonymize ? phases.get(Constant.PHASE_DEFAULT) : phases.get(measure.getPhase().getNumber()),
+						tmpAnalysisStandard, assets,
 						parameters, anonymize);
 
 				final MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
@@ -349,7 +432,8 @@ public class Duplicator {
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<Integer, Asset> assets, Map<String, IParameter> parameters, boolean anonymize)
+	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<Integer, Asset> assets,
+			Map<String, IParameter> parameters, boolean anonymize)
 			throws CloneNotSupportedException, TrickException {
 		Measure copy = measure.duplicate(standard, phase);
 
@@ -370,12 +454,16 @@ public class Duplicator {
 
 		if (copy instanceof MaturityMeasure) {
 			final MaturityMeasure matmeasure = (MaturityMeasure) copy;
-			IParameter parameter = parameters.get(anonymize ? SimpleParameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, Constant.IS_NOT_ACHIEVED)
+			IParameter parameter = parameters.get(anonymize
+					? SimpleParameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME,
+							Constant.IS_NOT_ACHIEVED)
 					: ((MaturityMeasure) measure).getImplementationRate().getKey());
 			if (parameter == null)
-				parameter = parameters.values().stream().filter(param -> (param.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME))).min((p1, p2) -> {
-					return Double.compare(p1.getValue().doubleValue(), p1.getValue().doubleValue());
-				}).orElse(null);
+				parameter = parameters.values().stream()
+						.filter(param -> (param.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)))
+						.min((p1, p2) -> {
+							return Double.compare(p1.getValue().doubleValue(), p1.getValue().doubleValue());
+						}).orElse(null);
 
 			matmeasure.setImplementationRate(parameter);
 			if (anonymize) {
@@ -437,13 +525,15 @@ public class Duplicator {
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public Analysis createProfile(Analysis analysis, String name, List<Integer> standards, ServiceTaskFeedback serviceTaskFeedback, String idTask) {
+	public Analysis createProfile(Analysis analysis, String name, List<Integer> standards,
+			ServiceTaskFeedback serviceTaskFeedback, String idTask) {
 
 		try {
 
 			final Map<String, IParameter> parameters = new LinkedHashMap<>();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", 2));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", 2));
 
 			// duplicate the analysis
 			final Analysis copy = analysis.duplicate();
@@ -469,51 +559,64 @@ public class Duplicator {
 			copy.setProject(Constant.EMPTY_STRING);
 			// do not set analysis specific data which are unused for profile
 			// history
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.history", "Delete analysis histories", 3));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.history", "Delete analysis histories", 3));
 			copy.setHistories(null);
 
 			// analysis rights
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.right", "Delete analysis rights", 4));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.right", "Delete analysis rights", 4));
 			copy.setUserRights(null);
 
 			// assets
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.asset", "Clear assets", 5));
 			copy.setAssets(null);
 
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.asset_dependancy", "Clear assets dependancy", 8));
+			copy.setAssetNodes(null);
+
 			// assessments
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.assessment", "empty assessments", 10));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.assessment", "empty assessments", 10));
 			copy.setAssessments(null);
 
 			// assessments
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.risk_profile", "empty risk profile", 15));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.risk_profile", "empty risk profile", 15));
 			copy.setRiskProfiles(null);
 
 			// item information
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.itemInformation", "Clear item information", 20));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.itemInformation", "Clear item information", 20));
 			copy.setItemInformations(new ArrayList<>());
 			for (ItemInformation itemInformation : analysis.getItemInformations())
 				copy.getItemInformations().add(itemInformation.anonymise());
 
 			// risk information
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskInformation", "Clear risk information", 30));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.riskInformation", "Clear risk information", 30));
 			copy.setRiskInformations(new ArrayList<>());
 			for (RiskInformation riskInformation : analysis.getRiskInformations())
 				copy.getRiskInformations().add(riskInformation.anonymise());
 
 			// actionplans
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", 35));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", 35));
 			copy.setActionPlans(null);
 
 			copy.setSummaries(null);
 
 			// risk register
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskregister", "Clear risk register", 40));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.delete.riskregister", "Clear risk register", 40));
 			copy.setRiskRegisters(null);
 
 			// copy nessesary data to profile
 
 			// parameters
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
 
 			copy.setParameters(new LinkedHashMap<>(analysis.getParameters().size()));
 
@@ -527,7 +630,7 @@ public class Duplicator {
 
 			copy.setPhases(new ArrayList<Phase>());
 
-			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
+			Map<Integer, Phase> phases = new LinkedHashMap<>();
 
 			Phase tmpPhase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 			if (tmpPhase == null) {
@@ -541,15 +644,17 @@ public class Duplicator {
 			copy.add(tmpPhase);
 
 			// scenarios
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 55));
-			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 55));
+			copy.setScenarios(new ArrayList<>(analysis.getScenarios().size()));
 			for (Scenario scenario : analysis.getScenarios())
 				copy.getScenarios().add(scenario.duplicate(null));
 
 			// standards
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60));
 
-			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
+			copy.setAnalysisStandards(new ArrayList<>());
 			if (!standards.isEmpty()) {
 				Integer percentageperstandard = (int) 40 / standards.size();
 
@@ -559,7 +664,8 @@ public class Duplicator {
 					AnalysisStandard standard = analysis.findAnalysisStandardByStandardId(standardID);
 					if (standard != null) {
 						copy.add(duplicateAnalysisStandard(standard, phases, parameters, null, true));
-						serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60 + (percentageperstandard * copycounter)));
+						serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure",
+								"Copy standards", 60 + (percentageperstandard * copycounter)));
 					}
 				}
 			}

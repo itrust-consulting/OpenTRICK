@@ -12,11 +12,17 @@ import java.util.List;
  */
 public enum AnalysisSetting {
 
-	ALLOW_RISK_ESTIMATION_RAW_COLUMN("label.analysis.setting.allow_risk_estimation_raw_column", Boolean.class, true, AnalysisType.QUALITATIVE,
-			AnalysisType.HYBRID), ALLOW_RISK_HIDDEN_COMMENT("label.analysis.setting.allow_hidden_comment", Boolean.class, true), ALLOW_DYNAMIC_ANALYSIS(
-					"label.analysis.setting.allow_dynamic_analysis", Boolean.class, false, AnalysisType.QUANTITATIVE,
-					AnalysisType.HYBRID), ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT("label.analysis.setting.allow_qualitative_in_quantitative_report", Boolean.class,
-							false, AnalysisType.HYBRID);
+	ALLOW_RISK_ESTIMATION_RAW_COLUMN("label.analysis.setting.allow_risk_estimation_raw_column", Boolean.class, true,
+			AnalysisType.QUALITATIVE,
+			AnalysisType.HYBRID),
+	ALLOW_IRL_ANALYSIS("label.analysis.setting.allow_ilr_analysis", Boolean.class, true),
+	ALLOW_RISK_HIDDEN_COMMENT("label.analysis.setting.allow_hidden_comment", Boolean.class, true),
+	ALLOW_DYNAMIC_ANALYSIS(
+			"label.analysis.setting.allow_dynamic_analysis", Boolean.class, false, AnalysisType.QUANTITATIVE,
+			AnalysisType.HYBRID),
+	ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT("label.analysis.setting.allow_qualitative_in_quantitative_report",
+			Boolean.class,
+			false, AnalysisType.HYBRID);
 
 	private String code;
 
@@ -42,7 +48,7 @@ public enum AnalysisSetting {
 
 	/**
 	 * @param code
-	 *            the code to set
+	 *             the code to set
 	 */
 	protected void setCode(String code) {
 		this.code = code;
@@ -57,7 +63,7 @@ public enum AnalysisSetting {
 
 	/**
 	 * @param type
-	 *            the type to set
+	 *             the type to set
 	 */
 	protected void setType(Class<?> type) {
 		this.type = type;
@@ -72,7 +78,7 @@ public enum AnalysisSetting {
 
 	/**
 	 * @param defaultValue
-	 *            the defaultValue to set
+	 *                     the defaultValue to set
 	 */
 	protected void setDefaultValue(Object defaultValue) {
 		this.defaultValue = defaultValue;
@@ -87,7 +93,7 @@ public enum AnalysisSetting {
 
 	/**
 	 * @param analysisType
-	 *            the analysisType to set
+	 *                     the analysisType to set
 	 */
 	protected void setAnalysisTypes(List<AnalysisType> analysisTypes) {
 		this.analysisTypes = analysisTypes;

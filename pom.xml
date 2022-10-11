@@ -3,16 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.15a</version>
+	<version>2.15b</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<spring-boot.version>2.3.12.RELEASE</spring-boot.version>
 		<spring-mvc.version>5.2.22.RELEASE</spring-mvc.version>
-		<hibernate.version>5.6.7.Final</hibernate.version>
-		<log4j2.version>2.17.2</log4j2.version>
-		<mysql.version>8.0.29</mysql.version>
+		<hibernate.version>5.6.11.Final</hibernate.version>
+		<log4j2.version>2.19.0</log4j2.version>
+		<mysql.version>8.0.30</mysql.version>
 		<jackson-bom.version>2.13.3</jackson-bom.version>
 	</properties>
 
@@ -190,7 +190,7 @@
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-dbcp</artifactId>
-			<version>10.0.14</version>
+			<version>10.0.23</version>
 		</dependency>
 
 		<dependency>
@@ -213,7 +213,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.10.0</version>
+			<version>2.11.0</version>
 		</dependency>
 
 		<dependency>
@@ -292,7 +292,7 @@
 		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
-			<version>8.3.1</version>
+			<version>8.3.8</version>
 		</dependency>
 
 		<!-- Email -->

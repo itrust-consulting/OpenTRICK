@@ -18,13 +18,17 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import java.io.File;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -129,6 +133,9 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.TS.model.ilr.AssetImpact;
+import lu.itrust.business.TS.model.ilr.AssetNode;
+import lu.itrust.business.TS.model.ilr.ILRImpact;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
@@ -152,6 +159,8 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 @Controller
 @RequestMapping("/Analysis/Data-manager")
 public class ControllerDataManager {
+
+	private static int ASSET_HIDDEN_COMMENT_CELL_INDEX = 5;
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
@@ -331,9 +340,9 @@ public class ControllerDataManager {
 		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
 		try {
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file);
-			final WorkbookPart workbook = mlPackage.getWorkbookPart();
 			final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Risk estimation");
 			final SheetData sheetData = worksheetPart.getContents().getSheetData();
+			final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
 			final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
 			final boolean qualitative = analysis.isHybrid() || analysis.isQualitative();
 			final boolean rowColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
@@ -346,7 +355,7 @@ public class ControllerDataManager {
 			final Map<AssetType, String> assetTypes = serviceAssetType.getAll().stream()
 					.collect(Collectors.toMap(Function.identity(), e -> messageSource
 							.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
-			final String[] columns = createTableHeader(scales, workbook, qualitative, hiddenComment, rowColumn,
+			final String[] columns = createTableHeader(scales, qualitative, hiddenComment, rowColumn,
 					uncertainty);
 			createHeader(worksheetPart, "Risk_estimation", defaultExcelTableStyle, columns,
 					analysis.getAssessments().size());
@@ -410,9 +419,19 @@ public class ControllerDataManager {
 						"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
 				setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
 						"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
+
+				setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
+						"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[#All],[Name]:[Type]],4,FALSE)");
 			}
-			exportAsset(analysis, mlPackage, hiddenComment);
+
+			exportAsset(analysis, mlPackage, hiddenComment, isILR);
+
 			exportScenario(analysis, mlPackage);
+
+			// Dependancy
+			if (isILR)
+				exportDependancy(analysis, mlPackage);
+
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition",
@@ -431,6 +450,115 @@ public class ControllerDataManager {
 			serviceStorage.delete(file.getAbsolutePath());
 		}
 
+	}
+
+	private void exportDependancy(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
+		final Set<AssetNode> rootSetNodes = new HashSet<>();
+		final Set<AssetNode> branchSetNodes = new HashSet<>();
+		final Set<AssetNode> leafSetNodes = new HashSet<>();
+		analysis.getAssetNodes().forEach(n -> sortNodeByDependancyLevel(n, rootSetNodes, branchSetNodes, leafSetNodes));
+		rootSetNodes.removeAll(branchSetNodes);
+
+		final List<String> columns = rootSetNodes.stream().map(e -> e.getAsset().getName())
+				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
+
+		final List<String> bStrings = branchSetNodes.stream().map(e -> e.getAsset().getName())
+				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
+
+		columns.removeAll(bStrings);
+		columns.addAll(bStrings);
+
+		final List<String> rowNames = new ArrayList<>(columns);
+
+		final List<String> leafs = leafSetNodes.stream().map(e -> e.getAsset().getName())
+				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
+
+		rowNames.removeAll(leafs);
+
+		rowNames.addAll(leafs);
+
+		final Map<String, Map<String, Integer>> dependancies = new HashMap<>(analysis.getAssets().size());
+
+		final Map<String, String> assetTypes = new HashMap<>(analysis.getAssets().size());
+
+		analysis.getAssets().forEach(asset -> {
+
+			final Map<String, Integer> assetDependancies = new HashMap<>(columns.size());
+			for (String column : columns)
+				assetDependancies.put(column, 0);
+
+			dependancies.put(asset.getName(), assetDependancies);
+			assetTypes.put(asset.getName(), asset.getAssetType().getName());
+			if (!rowNames.contains(asset.getName()))
+				rowNames.add(asset.getName());
+		});
+
+		writeAssetNodeDependancy(rootSetNodes, dependancies);
+		writeAssetNodeDependancy(branchSetNodes, dependancies);
+		writeAssetNodeDependancy(leafSetNodes, dependancies);
+
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Dependency");
+		final SheetData sheetData = worksheetPart.getContents().getSheetData();
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+
+		columns.add(0, "AssetList");
+
+		columns.add(1, "AssetType");
+
+		createHeader(worksheetPart, "Table_dep", defaultExcelTableStyle, columns.toArray(new String[columns.size()]), 2,
+				analysis.getAssets().size());
+
+		for (String assetName : rowNames) {
+			final Row row = factory.createRow();
+			final Map<String, Integer> myDependancies = dependancies.get(assetName);
+			for (int i = 0; i <= columns.size(); i++) {
+				if (row.getC().size() < i)
+					row.getC().add(factory.createCell());
+
+				switch (i) {
+					case 0:
+						setValue(row.getC().get(i), assetName);
+						break;
+					case 1:
+						setValue(row.getC().get(i), assetTypes.get(assetName));
+						break;
+					default:
+						setValue(row.getC().get(i), myDependancies.getOrDefault(columns.get(i), 0));
+
+				}
+			}
+			sheetData.getRow().add(row);
+		}
+	}
+
+	private void writeAssetNodeDependancy(final Collection<AssetNode> nodes,
+			final Map<String, Map<String, Integer>> dependancies) {
+		for (AssetNode node : nodes) {
+			final Map<String, Integer> myDependancies = dependancies.get(node.getAsset().getName());
+			if (myDependancies == null)
+				return;
+			node.getEdges().values().forEach(e -> myDependancies.put(e.getChild().getAsset().getName(), e.getWeight()));
+		}
+	}
+
+	private void sortNodeByDependancyLevel(final AssetNode node, final Set<AssetNode> rootNodes,
+			final Set<AssetNode> branchNodes, final Set<AssetNode> leafNodes) {
+		if (leafNodes.contains(node) || rootNodes.contains(node))
+			return;
+		if (node.isLeaf())
+			leafNodes.add(node);
+		else {
+			if (!branchNodes.contains(node))
+				rootNodes.add(node);
+			node.getEdges().values().forEach(c -> {
+				if (c.getChild().isLeaf())
+					leafNodes.add(c.getChild());
+				else {
+					branchNodes.add(c.getChild());
+					sortNodeByDependancyLevel(c.getChild(), rootNodes, branchNodes, leafNodes);
+				}
+			});
+		}
 	}
 
 	@GetMapping("/Measure/Export-form")
@@ -457,7 +585,7 @@ public class ControllerDataManager {
 				if (standards.contains(analysisStandard.getStandard().getId())) {
 					final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage,
 							analysisStandard.getStandard().getName());
-					exportMeasureStandard(factory, analysisStandard, mlPackage, worksheetPart);
+					exportMeasureStandard(factory, analysisStandard, worksheetPart);
 				}
 			}
 			response.setContentType("xlsx");
@@ -1172,12 +1300,14 @@ public class ControllerDataManager {
 		return importRisEstimation(false, true, file, request, model, session, principal, locale);
 	}
 
-	private String[] createTableHeader(List<ScaleType> scales, WorkbookPart workbook, boolean qualitative,
+	private String[] createTableHeader(List<ScaleType> scales, boolean qualitative,
 			boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
 		List<Column> columns = WorkerImportEstimation.generateColumns(scales, qualitative, hiddenComment, rowColumn,
 				uncertainty);
 		columns.add(new Column("Asset type"));
 		columns.add(new Column("Asset selected"));
+		columns.add(new Column("Scenario selected"));
+
 		String[] result = new String[columns.size()];
 		for (int i = 0; i < columns.size(); i++)
 			result[i] = columns.get(i).getName();
@@ -1187,41 +1317,113 @@ public class ControllerDataManager {
 	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage)
 			throws Exception, JAXBException {
 		final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
-		exportAsset(analysis, spreadsheetMLPackage, hiddenComment);
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+		exportAsset(analysis, spreadsheetMLPackage, hiddenComment, isILR);
 	}
 
-	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, final boolean hiddenComment)
+	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, final boolean hiddenComment,
+			boolean isILR)
 			throws InvalidFormatException, JAXBException, Docx4JException, Exception {
 		final String name = "Assets";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
 		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		final String[] columns = hiddenComment
-				? new String[] { "Name", "Type", "Selected", "Value", "Comment", "Hidden comment" }
-				: new String[] { "Name", "Type", "Selected", "Value", "Comment" };
+		final List<String> ilrImpactHeaders = (isILR ? new ArrayList<>() : Collections.emptyList());
+		final List<String> myColumns = Arrays.asList("Name", "Type", "Selected", "Value", "Comment");
+		final Map<String, Map<String, Integer>> ilrAssetImpacts = (isILR ? new HashMap<>() : Collections.emptyMap());
+
+		if (!hiddenComment)
+			myColumns.add("Hidden comment");
+
+		if (isILR)
+			writeAssetIRLImpacts(analysis, ilrImpactHeaders, myColumns, ilrAssetImpacts);
+
+		final String[] columns = myColumns.toArray(new String[myColumns.size()]);
+
 		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, analysis.getAssets().size());
 		final Map<String, String> assetTypes = exportAssetType(spreadsheetMLPackage,
 				new Locale(analysis.getLanguage().getAlpha2()), factory);
+
 		for (Asset asset : analysis.getAssets()) {
-			Row row = factory.createRow();
+
+			final Row row = factory.createRow();
+
 			for (int i = 0; i <= columns.length; i++) {
 				if (row.getC().size() < i)
 					row.getC().add(Context.smlObjectFactory.createCell());
 			}
-			setValue(row.getC().get(0), asset.getName());
-			setValue(row.getC().get(1),
-					assetTypes.getOrDefault(asset.getAssetType().getName(), asset.getAssetType().getName()));
-			setValue(row.getC().get(2), asset.isSelected());
-			setValue(row.getC().get(3), asset.getValue() * 0.001);
-			setValue(row.getC().get(4), asset.getComment());
+
+			writeAssetDefaultCells(assetTypes, asset, row);
+
 			if (hiddenComment)
-				setValue(row.getC().get(5), asset.getHiddenComment());
+				setValue(row.getC().get(ASSET_HIDDEN_COMMENT_CELL_INDEX), asset.getHiddenComment());
+			if (isILR)
+				writeAssetIRLCells(hiddenComment, ilrImpactHeaders, ilrAssetImpacts, asset, row);
+
 			sheet.getRow().add(row);
 		}
 	}
 
+	private void writeAssetDefaultCells(final Map<String, String> assetTypes, Asset asset, final Row row) {
+		setValue(row.getC().get(0), asset.getName());
+		setValue(row.getC().get(1),
+				assetTypes.getOrDefault(asset.getAssetType().getName(), asset.getAssetType().getName()));
+		setValue(row.getC().get(2), asset.isSelected());
+		setValue(row.getC().get(3), asset.getValue() * 0.001);
+		setValue(row.getC().get(4), asset.getComment());
+	}
+
+	private void writeAssetIRLCells(final boolean hiddenComment, final List<String> ilrImpactHeaders,
+			final Map<String, Map<String, Integer>> ilrAssetImpacts, Asset asset, final Row row) {
+		final int currentColum = ASSET_HIDDEN_COMMENT_CELL_INDEX + (hiddenComment ? 1 : 0);
+		final Map<String, Integer> assetImpacts = ilrAssetImpacts.get(asset.getName());
+
+		if (assetImpacts == null) {
+			for (int j = 0; j < ilrImpactHeaders.size(); j++)
+				setValue(row.getC().get(currentColum + j), -1);
+		} else {
+			for (int j = 0; j < ilrImpactHeaders.size(); j++)
+				setValue(row.getC().get(currentColum + j),
+						assetImpacts.getOrDefault(ilrImpactHeaders.get(j), -1));
+		}
+	}
+
+	private void writeAssetIRLImpacts(Analysis analysis, final List<String> ilrImpactHeaders,
+			final List<String> myColumns,
+			final Map<String, Map<String, Integer>> ilrAssetImpacts) {
+		final String[] cias = { "C-", "I-", "A-" };
+		analysis.getIlrImpactTypes().forEach(s -> {
+			final String acronym = s.getAcronym().replace(".", "");
+			for (String cia : cias)
+				ilrImpactHeaders.add(cia + acronym);
+		});
+
+		myColumns.addAll(ilrImpactHeaders);
+
+		analysis.getAssets().forEach(a -> ilrAssetImpacts.put(a.getName(),
+				ilrImpactHeaders.stream().collect(Collectors.toMap(Function.identity(), r -> -1))));
+
+		analysis.getAssetNodes().forEach(n -> {
+			final AssetImpact assetImpact = n.getImpact();
+			if (assetImpact == null || assetImpact.getAsset() == null)
+				return;
+			final Map<String, Integer> assetImpacts = ilrAssetImpacts.get(assetImpact.getAsset().getName());
+			writeIRLImpact(assetImpact.getConfidentialityImpacts(), "C-", assetImpacts);
+			writeIRLImpact(assetImpact.getIntegrityImpacts(), "I-", assetImpacts);
+			writeIRLImpact(assetImpact.getAvailabilityImpacts(), "A-", assetImpacts);
+		});
+	}
+
+	private void writeIRLImpact(final Map<ScaleType, ILRImpact> impacts, String prefix,
+			final Map<String, Integer> assetImpacts) {
+		impacts.forEach((type, impact) -> {
+			final String acronym = type.getAcronym().replace(".", "");
+			assetImpacts.put(prefix + acronym, impact.getValue());
+		});
+	}
+
 	private Map<String, String> exportAssetType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale,
-			ObjectFactory factory) throws JAXBException, Exception {
+			ObjectFactory factory) throws Exception {
 		final String name = "AssetTypes";
 		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
@@ -1242,7 +1444,7 @@ public class ControllerDataManager {
 	}
 
 	private void exportMeasureStandard(ValueFactory valueFactory, AnalysisStandard analysisStandard,
-			SpreadsheetMLPackage mlPackage, WorksheetPart worksheetPart) throws Exception {
+			WorksheetPart worksheetPart) throws Exception {
 		String[] columns = getColumns(analysisStandard);
 		prepareTableHeader(analysisStandard, worksheetPart, columns);
 		SheetData sheetData = worksheetPart.getContents().getSheetData();
@@ -1519,7 +1721,7 @@ public class ControllerDataManager {
 	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales,
 			AnalysisType analysisType) {
 		writeLikelihood(row, colIndex++, assessment.getLikelihood());
-		setValue(row, colIndex++, assessment.getVulnerability());
+		setValue(row, colIndex++, "v" + assessment.getVulnerability());
 		for (ScaleType type : scales) {
 			IValue value = assessment.getImpact(type.getName());
 			if (value == null)
@@ -1538,7 +1740,7 @@ public class ControllerDataManager {
 		if (probaImpact == null) {
 			setValue(row, colIndex++, 0);
 			if (hasVulnerability)
-				setValue(row, colIndex++, 1);
+				setValue(row, colIndex++, "v1");
 
 			for (ScaleType type : scales) {
 				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME)) {
@@ -1551,7 +1753,7 @@ public class ControllerDataManager {
 					probaImpact.getProbability() == null ? 0 : probaImpact.getProbability().getAcronym());
 
 			if (hasVulnerability)
-				setValue(row, colIndex++, probaImpact.getVulnerability());
+				setValue(row, colIndex++, "v" + probaImpact.getVulnerability());
 
 			for (ScaleType type : scales) {
 				if (!type.getName().equals(Constant.DEFAULT_IMPACT_NAME)) {

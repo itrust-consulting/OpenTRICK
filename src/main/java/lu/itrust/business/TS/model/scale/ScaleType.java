@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -15,6 +16,8 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.springframework.util.StringUtils;
@@ -26,6 +29,8 @@ import lu.itrust.business.TS.model.parameter.type.impl.AbstractParameterType;
  *
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name = "id", column = @Column(name = "idScaleType"))
 public class ScaleType extends AbstractParameterType {
 

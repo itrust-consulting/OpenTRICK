@@ -227,14 +227,18 @@ public class RRFExportImport {
 				if (!scenario.isAssetLinked())
 					continue;
 				final List<String> assetNames = Arrays
-						.asList(getString(row.getC().get(i), formatter).trim().toLowerCase().split(";"));
+						.stream(getString(row.getC().get(i), formatter).trim().toLowerCase().split(";"))
+						.map(String::trim).distinct().collect(Collectors.toList());
 				scenario.getLinkedAssets().removeIf(e -> !assetNames.contains(e.getName().toLowerCase()));
 				assetNames.stream().map(assetMappings::get).filter(Objects::nonNull).forEach(scenario::addApplicable);
 			} else if (nameField.equalsIgnoreCase(RAW_ASSET_TYPES)) {
 				if (scenario.isAssetLinked())
 					continue;
+
 				final List<String> assetTypeNames = Arrays
-						.asList(getString(row.getC().get(i), formatter).trim().toLowerCase().split(";"));
+						.stream(getString(row.getC().get(i), formatter).trim().toLowerCase().split(";"))
+						.map(String::trim).distinct().collect(Collectors.toList());
+
 				scenario.getAssetTypeValues()
 						.removeIf(e -> !assetTypeNames.contains(e.getAssetType().getName().toLowerCase())
 								&& toDeletedsTypeValues.add(e));
@@ -242,9 +246,7 @@ public class RRFExportImport {
 						.forEach(scenario::addApplicable);
 
 			} else {
-
 				double value = getDouble(row.getC().get(i), formatter);
-
 				switch (nameField) {
 					case RAW_EXTERNAL_THREAT:
 						scenario.setExternalThreat((int) value);
@@ -273,6 +275,7 @@ public class RRFExportImport {
 					case RAW_PREVENTIVE:
 						scenario.setPreventive(value);
 						break;
+					default:break;
 				}
 			}
 		}

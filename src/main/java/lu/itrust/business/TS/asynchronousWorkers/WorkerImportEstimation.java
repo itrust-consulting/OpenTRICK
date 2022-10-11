@@ -7,6 +7,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getBoolean;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
@@ -18,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,6 +45,7 @@ import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAORiskProfile;
+import lu.itrust.business.TS.database.dao.DAOScaleType;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
@@ -52,6 +55,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOAssetHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeValueHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAORiskProfileHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOScaleTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
@@ -62,6 +66,7 @@ import lu.itrust.business.TS.helper.Column;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -72,6 +77,10 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.ilr.AssetEdge;
+import lu.itrust.business.TS.model.ilr.AssetImpact;
+import lu.itrust.business.TS.model.ilr.AssetNode;
+import lu.itrust.business.TS.model.ilr.ILRImpact;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -126,6 +135,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 	private DAORiskProfile daoRiskProfile;
 
 	private DAOAssetTypeValue daoAssetTypeValue;
+
+	private DAOScaleType daoScaleType;
 
 	private final Pattern impactPattern = Pattern.compile("^i\\d+$");
 
@@ -364,10 +375,24 @@ public class WorkerImportEstimation extends WorkerImpl {
 		final int nameIndex = columns.indexOf("name"), odlNameIndex = columns.indexOf("old name");
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "Name column cannot be found!", "Name");
+
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+
+		final Map<String, List<AssetNode>> nodeByAssetNames = isILR
+				? analysis.getAssetNodes().stream()
+						.collect(Collectors.groupingBy(e -> e.getAsset().getName().trim(), Collectors.toList()))
+				: Collections.emptyMap();
+
+		final Map<String, ScaleType> scaleTypes = daoScaleType.findAll().stream()
+				.collect(Collectors.toMap(e -> e.getAcronym().replace(".", "").toLowerCase(), Function.identity(),
+						(e1, e2) -> e1));
+
 		final Map<String, Asset> assets = analysis.getAssets().stream()
 				.collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
+
 		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream()
 				.collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
+
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
 			String name = getString(row, nameIndex, formatter), oldName = getString(row, odlNameIndex, formatter);
@@ -384,10 +409,22 @@ public class WorkerImportEstimation extends WorkerImpl {
 					asset.setName(name);
 			}
 
+			final List<AssetNode> nodes;
+
+			if (isILR) {
+				if (isEmpty(oldName) || !nodeByAssetNames.containsKey(oldName))
+					nodes = nodeByAssetNames.computeIfAbsent(asset.getName(), e -> new ArrayList<>());
+				else
+					nodes = nodeByAssetNames.computeIfAbsent(oldName, e -> new ArrayList<>());
+			} else {
+				nodes = Collections.emptyList();
+			}
+
 			for (int j = 0; j < columns.size(); j++) {
 				if (j == nameIndex || j == odlNameIndex)
 					continue;
-				switch (columns.get(j)) {
+				final String column = columns.get(j);
+				switch (column) {
 					case "type":
 						AssetType assetType = asset.getAssetType();
 						String type = getString(row, j, formatter);
@@ -419,10 +456,62 @@ public class WorkerImportEstimation extends WorkerImpl {
 					case "comment":
 						asset.setComment(getString(row, j, formatter));
 						break;
+					default:
+						if (isILR && (column.startsWith("c-") || column.startsWith("i-") || column.startsWith("a-"))) {
+							final String scaleAcronym = column.substring(2);
+							final ScaleType scaleType = scaleTypes.get(scaleAcronym);
+							if (scaleType == null) {
+								handler.update("error.import.asset.scale.not_found",
+										String.format("The impact scale the with acronym '%s' cannot be found!",
+												scaleAcronym),
+										handler.getProgress());
+								getServiceTaskFeedback().send(getId(), handler);
+							} else {
+								final int impact = getInt(row, j, -2, formatter);
+								if (nodes.isEmpty())
+									nodes.add(new AssetNode(asset));
+								if (impact > -2) {
+									switch (column.charAt(0)) {
+										case 'c': {
+											nodes.forEach(n -> {
+												final AssetImpact assetImpact = n.getImpact();
+												final ILRImpact ilrImpact = assetImpact.getConfidentialityImpacts()
+														.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
+												ilrImpact.setValue(impact);
+											});
+											break;
+										}
+										case 'i': {
+											nodes.forEach(n -> {
+												final AssetImpact assetImpact = n.getImpact();
+												final ILRImpact ilrImpact = assetImpact.getIntegrityImpacts()
+														.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
+												ilrImpact.setValue(impact);
+											});
+											break;
+										}
+										default: {
+											nodes.forEach(n -> {
+												final AssetImpact assetImpact = n.getImpact();
+												final ILRImpact ilrImpact = assetImpact.getAvailabilityImpacts()
+														.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
+												ilrImpact.setValue(impact);
+											});
+										}
+									}
+
+								}
+							}
+
+						}
 				}
 			}
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
 			getServiceTaskFeedback().send(getId(), handler);
+		}
+
+		if (isILR) {
+			// Todo: Update dependancy
 		}
 
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
@@ -430,6 +519,102 @@ public class WorkerImportEstimation extends WorkerImpl {
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT, analysis.getIdentifier(),
 				analysis.getVersion());
+
+	}
+
+	private void importAssetDependancy(Analysis analysis, WorkbookPart workbook, Map<String, Sheet> sheets,
+			DataFormatter formatter, int min, int max) throws Exception {
+		final Sheet sheet = sheets.get("Dependency");
+		if (sheet == null)
+			return;
+		final SheetData sheetData = findSheet(workbook, sheet);
+		if (sheetData == null)
+			return;
+		final TablePart table = findTable(sheetData, "Table_dep");
+		if (table == null)
+			throw new TrickException("error.import.data.table.not.found", "Table named `Table_dep` cannot be found!",
+					"Table_dep");
+
+		final MessageHandler handler = new MessageHandler("info.updating.asset_dependancy", null,
+				"Updating asset dependancies", min);
+		getServiceTaskFeedback().send(getId(), handler);
+
+		final AddressRef address = AddressRef.parse(table.getContents().getRef());
+
+		final int size = (int) Math.min(address.getEnd().getRow() + 1, sheetData.getRow().size());
+
+		final Map<String, Asset> assets = analysis.getAssets().stream()
+				.collect(Collectors.toMap(e -> e.getName().toLowerCase(), Function.identity()));
+
+		final Map<String, AssetNode> nodes = analysis.getAssetNodes().stream()
+				.collect(Collectors.toMap(e -> e.getAsset().getName().toLowerCase(), Function.identity()));
+
+		final Map<AssetNode, Map<AssetNode, AssetEdge>> oldDependancies = analysis.getAssetNodes().stream()
+				.collect(Collectors.toMap(Function.identity(),
+						e -> e.getEdges().values().stream()
+								.collect(Collectors.toMap(AssetEdge::getChild, Function.identity()))));
+
+		final int maxProgress = (max - min);
+
+		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
+			throw new TrickException("error.import.data.table.no.data", "Table named `Table_dep` has not enough data!",
+					"Asset");
+		final List<String> columns = table.getContents().getTableColumns().getTableColumn().stream()
+				.map(c -> c.getName().trim().toLowerCase()).collect(Collectors.toList());
+		final int nameIndex = columns.indexOf("assetlist"), assetTypeIndex = columns.indexOf("assettype");
+		if (nameIndex == -1)
+			throw new TrickException("error.import.data.no.column", "AssetList column cannot be found!", "AssetList");
+
+		final int headerRowIndex = address.getBegin().getRow();
+
+		for (int i = headerRowIndex; i < size; i++) {
+			final Row row = sheetData.getRow().get(i);
+			final String name = getString(row, nameIndex, formatter);
+
+			if (isEmpty(name))
+				continue;
+			final Asset asset = assets.get(name.trim().toLowerCase());
+			if (asset == null) {
+				final String myCell = new CellRef(i, nameIndex).toString();
+				throw new TrickException("error.import.data.asset.not_found",
+						String.format("Asset `%s` cannot be found! See cell `%s`", name, myCell), name,
+						myCell);
+			}
+
+			final AssetNode node = nodes.computeIfAbsent(asset.getName().toLowerCase(), k -> new AssetNode(asset));
+			for (int j = 0; j < columns.size(); j++) {
+				if (nameIndex == i || assetTypeIndex == i)
+					continue;
+				final String rootName = columns.get(j);
+				final Asset rootAsset = assets.get(rootName);
+				if (rootAsset == null) {
+					final String myCell = new CellRef(headerRowIndex, j).toString();
+					throw new TrickException("error.import.data.asset.not_found",
+							String.format("Asset `%s` cannot be found! See cell `%s`", rootName, myCell),
+							rootName,
+							myCell);
+				}
+
+				final int weight = getInt(row, j, 0, formatter);
+
+				final AssetNode rootNode = nodes.computeIfAbsent(rootName, k -> new AssetNode(asset));
+
+				Map<AssetNode, AssetEdge> oldEdges = oldDependancies.get(rootNode);
+
+				AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(node);
+
+				if (weight != 0) {
+					if (assetEdge == null)
+						rootNode.getEdges().put(node, new AssetEdge(rootNode, node, weight));
+					else
+						assetEdge.setWeight(weight);
+				}
+
+			}
+		}
+
+		oldDependancies.values().stream().flatMap(e -> e.values().stream())
+				.forEach(e -> e.getParent().getEdges().remove(e.getChild()));
 
 	}
 
@@ -532,7 +717,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 						}
 						break;
 					case VULNERABILITY:
-						assessment.setVulnerability(ValueFactory.toInt(value, assessment.getVulnerability()));
+						assessment.setVulnerability(ValueFactory.toInt(value.toLowerCase().replace("v", "").trim(),
+								assessment.getVulnerability()));
 						break;
 					case "Impact":
 						if (!analysis.isQuantitative())
@@ -590,7 +776,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 							if (subName.equals(PROBABILITY))
 								probaImpact.setProbability((LikelihoodParameter) factory.findProbParameter(value));
 							else if (subName.equals(VULNERABILITY))
-								probaImpact.setVulnerability(ValueFactory.toInt(value, probaImpact.getVulnerability()));
+								probaImpact.setVulnerability(ValueFactory.toInt(
+										value.toLowerCase().replace("v", "").trim(), probaImpact.getVulnerability()));
 							else {
 								type = scalesMapper.get(subName);
 								if (type != null)
@@ -736,6 +923,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 						}
 						updateAssetTypeValue(assetTypes, scenario);
 						break;
+					default:
+						// ignore for now
 				}
 			}
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
@@ -768,6 +957,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		setDaoUser(new DAOUserHBM(session));
 		daoAssetType = new DAOAssetTypeHBM(session);
 		daoAssetTypeValue = new DAOAssetTypeValueHBM(session);
+		daoScaleType = new DAOScaleTypeHBM(session);
 	}
 
 	private boolean loadImpact(Assessment assessment, ScaleType type, String value, Number defaultValue,

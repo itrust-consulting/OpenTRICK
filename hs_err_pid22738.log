@@ -1,0 +1,35 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGBUS (0x7) at pc=0x00007f2a95121cdf, pid=22738, tid=22738
+#
+# JRE version: OpenJDK Runtime Environment Temurin-17.0.4+8 (17.0.4+8) (build 17.0.4+8)
+# Java VM: OpenJDK 64-Bit Server VM Temurin-17.0.4+8 (17.0.4+8, mixed mode, emulated-client, tiered, compressed oops, compressed class ptrs, g1 gc, linux-amd64)
+# Problematic frame:
+# C  [libpthread.so.0+0x9cdf]
+[error occurred during error reporting (printing problematic frame), id 0x7, SIGBUS (0x7) at pc=0x00007f2a94fb8489]
+
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   https://github.com/adoptium/adoptium-support/issues
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -Dsts.lsp.client=vscode -Dsts.log.file=/dev/null -XX:TieredStopAtLevel=1 -Xlog:jni+resolve=off -Dspring.config.location=file:/home/eomar/.vscode-server/extensions/pivotal.vscode-spring-boot-1.39.0/language-server/BOOT-INF/classes/application.properties org.springframework.ide.vscode.boot.app.BootLanguageServerBootApp
+
+Host: 
+[timeout occurred during error reporting in step "printing summary machine and OS info"] after 30 s.
+
+[timeout occurred during error reporting in step "printing date and time"] after 30 s.
+
+---------------  T H R E A D  ---------------
+
+Current thread is native thread
+
+Stack: 
+[timeout occurred during error reporting in step "printing stack bounds"] after 30 s.
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libpthread.so.0+0x9cdf]
+------ Timeout during error reporting after 120 s. ------

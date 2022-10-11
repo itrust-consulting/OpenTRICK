@@ -986,7 +986,7 @@ public class ImportAnalysis {
 				tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
 				tmpAssessment.setLikelihood(factory.findProb(rs.getString(Constant.ASSESSMENT_POTENTIALITY)));
 				tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
-				tmpAssessment.setVulnerability(getInt(rs,Constant.ASSESSMENT_VULNERABILITY));
+				tmpAssessment.setVulnerability(getInt(rs, Constant.ASSESSMENT_VULNERABILITY));
 				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
 				tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
@@ -1784,7 +1784,8 @@ public class ImportAnalysis {
 
 				// check if measure if level 1 (a chapter) -> YES -> add a
 				// attributed phase
-				if (rs.getInt(Constant.MEASURE_LEVEL) == Constant.MEASURE_LEVEL_1) {
+
+				if (getInt(rs, Constant.MEASURE_LEVEL, 0) == Constant.MEASURE_LEVEL_1) {
 
 					// set phase number
 					numPhase = rs.getInt("phase");

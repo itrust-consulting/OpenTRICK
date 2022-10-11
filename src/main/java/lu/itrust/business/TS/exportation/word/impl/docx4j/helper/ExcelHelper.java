@@ -37,9 +37,11 @@ public final class ExcelHelper {
 
 	private static final char ABSOLUTE_REFERENCE_MARKER = '$';
 
-	public static final Pattern CELL_REF_PATTERN = Pattern.compile("(\\$?[A-Z]+)?(\\$?[0-9]+)?", Pattern.CASE_INSENSITIVE);
+	public static final Pattern CELL_REF_PATTERN = Pattern.compile("(\\$?[A-Z]+)?(\\$?[0-9]+)?",
+			Pattern.CASE_INSENSITIVE);
 
-	public static final Pattern STRICTLY_CELL_REF_PATTERN = Pattern.compile("\\$?([A-Z]+)\\$?([0-9]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern STRICTLY_CELL_REF_PATTERN = Pattern.compile("\\$?([A-Z]+)\\$?([0-9]+)",
+			Pattern.CASE_INSENSITIVE);
 
 	public static Cell setValue(Row row, int cellIndex, Object value) {
 		Cell cell2 = getCell(row, cellIndex);
@@ -200,19 +202,23 @@ public final class ExcelHelper {
 
 	public static WorksheetPart createWorkSheetPart(SpreadsheetMLPackage mlPackage, String name) throws Exception {
 		final int[] indexes = findNextSheetNumberAndId(mlPackage);
-		final WorksheetPart part = mlPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])), name, indexes[1]);
+		final WorksheetPart part = mlPackage.createWorksheetPart(
+				new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])), name, indexes[1]);
 		part.getContents().getSheetData().setParent(part.getContents());
 		part.getContents().setParent(part);
 		return part;
 	}
 
 	public static TablePart createTablePart(WorksheetPart worksheetPart) throws Exception {
-		long id = worksheetPart.getPackage().getContentTypeManager().getOverrideContentType().values().parallelStream().filter(r -> r.getPartName().startsWith("/xl/tables/"))
+		long id = worksheetPart.getPackage().getContentTypeManager().getOverrideContentType().values().parallelStream()
+				.filter(r -> r.getPartName().startsWith("/xl/tables/"))
 				.count() + 1;
-		return createTablePart(worksheetPart, new PartName(String.format("/xl/tables/table%d.xml", id)), String.format("Table%d", id), id);
+		return createTablePart(worksheetPart, new PartName(String.format("/xl/tables/table%d.xml", id)),
+				String.format("Table%d", id), id);
 	}
 
-	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id) throws Exception {
+	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id)
+			throws Exception {
 		CTTablePart tablePart = new CTTablePart();
 		TablePart part = new TablePart(partName);
 		Relationship r = worksheetPart.addTargetPart(part);
@@ -233,7 +239,13 @@ public final class ExcelHelper {
 		return part;
 	}
 
-	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns, int length) throws Exception {
+	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns,
+			int length) throws Exception {
+		return createHeader(worksheetPart, name, style, columns, 0, length);
+	}
+
+	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns,
+			int rowIndex, int length) throws Exception {
 		TablePart tablePart = createTablePart(worksheetPart);
 		CTTable table = tablePart.getContents();
 		if (style != null) {
@@ -242,16 +254,18 @@ public final class ExcelHelper {
 			table.getTableStyleInfo().setName(style);
 		}
 
-		Row row = getRow(worksheetPart.getContents().getSheetData(), 0, columns.length);
+		Row row = getRow(worksheetPart.getContents().getSheetData(), rowIndex, columns.length);
 		for (int i = 0; i < columns.length; i++) {
 			CTTableColumn column = new CTTableColumn();
-			column.setId(i + 1);
+			column.setId((long) i + 1);
 			column.setName(columns[i]);
 			table.getTableColumns().getTableColumn().add(column);
 			setValue(row, i, columns[i]);
 		}
 		table.getTableColumns().setCount((long) columns.length);
-		table.setRef(new AddressRef(new CellRef(0, 0), new CellRef(length == 0 ? 1 : length, columns.length - 1)).toString());
+		table.setRef(new AddressRef(new CellRef(0, 0),
+				new CellRef(length == rowIndex ? rowIndex + 1 : rowIndex + length, columns.length - 1))
+				.toString());
 		table.getAutoFilter().setRef(table.getRef());
 		worksheetPart.getContents().setDimension(new CTSheetDimension());
 		worksheetPart.getContents().getDimension().setRef(table.getRef());
@@ -298,22 +312,22 @@ public final class ExcelHelper {
 		if (cell == null)
 			return "";
 		switch (cell.getT()) {
-		case INLINE_STR:
-			if (cell.getIs() != null)
-				return cell.getIs().getT().getValue();
-			break;
-		case S:
-		case STR:
-			if (cell.getV() == null)
-				return null;
-			break;
-		case N:
-			if (getWorksheetPart(cell).getWorkbookPart().getStylesPart() != null)
+			case INLINE_STR:
+				if (cell.getIs() != null)
+					return cell.getIs().getT().getValue();
 				break;
-		case B:
-			return cell.getV();
-		case E:
-			return "";
+			case S:
+			case STR:
+				if (cell.getV() == null)
+					return null;
+				break;
+			case N:
+				if (getWorksheetPart(cell).getWorkbookPart().getStylesPart() != null)
+					break;
+			case B:
+				return cell.getV();
+			case E:
+				return "";
 		}
 		return formatter.formatCellValue(cell);
 	}
@@ -337,7 +351,7 @@ public final class ExcelHelper {
 	}
 
 	public static int colToIndex(String r, int index) {
-		return StringUtils.hasText(r) ? colStringToIndex(r): index ;
+		return StringUtils.hasText(r) ? colStringToIndex(r) : index;
 	}
 
 	public static double getDouble(Cell cell, DataFormatter formatter) {
@@ -384,6 +398,17 @@ public final class ExcelHelper {
 		}
 	}
 
+	public static int getInt(Row row, int index, int defaultValue, DataFormatter formatter) {
+		try {
+			String value = getString(row, index, formatter);
+			if (isEmpty(value))
+				return defaultValue;
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
 	public static boolean getBoolean(Cell cell, DataFormatter formatter) {
 		String value = getString(cell, formatter);
 		try {
@@ -403,7 +428,8 @@ public final class ExcelHelper {
 	}
 
 	public static SheetData findSheet(WorkbookPart workbookPart, String name) throws Exception {
-		String id = workbookPart.getContents().getSheets().getSheet().parallelStream().filter(s -> s.getName().equals(name)).map(s -> s.getId()).findAny().orElse(null);
+		String id = workbookPart.getContents().getSheets().getSheet().parallelStream()
+				.filter(s -> s.getName().equals(name)).map(s -> s.getId()).findAny().orElse(null);
 		if (isEmpty(id))
 			return null;
 		WorksheetPart worksheetPart = (WorksheetPart) workbookPart.getRelationshipsPart().getPart(id);
@@ -421,14 +447,15 @@ public final class ExcelHelper {
 		if (workbookPart.getSharedStrings() == null)
 			return Collections.emptyMap();
 		AtomicInteger integer = new AtomicInteger(0);
-		return workbookPart.getSharedStrings().getContents().getSi().stream().collect(Collectors.toMap(v -> integer.getAndIncrement() + "", v -> {
-			if (v.getT() != null)
-				return v.getT().getValue();
-			else if (!v.getR().isEmpty())
-				return v.getR().stream().map(r -> r.getT().getValue()).collect(Collectors.joining(""));
-			else
-				return v.getRPh().stream().map(r -> r.getT().getValue()).collect(Collectors.joining(""));
-		}));
+		return workbookPart.getSharedStrings().getContents().getSi().stream()
+				.collect(Collectors.toMap(v -> integer.getAndIncrement() + "", v -> {
+					if (v.getT() != null)
+						return v.getT().getValue();
+					else if (!v.getR().isEmpty())
+						return v.getR().stream().map(r -> r.getT().getValue()).collect(Collectors.joining(""));
+					else
+						return v.getRPh().stream().map(r -> r.getT().getValue()).collect(Collectors.joining(""));
+				}));
 	}
 
 	public static TablePart findTable(WorksheetPart worksheetPart, String name) throws Exception {
@@ -470,16 +497,19 @@ public final class ExcelHelper {
 	 * @return
 	 */
 	public static int[] findNextSheetNumberAndId(SpreadsheetMLPackage mlPackage) {
-		final int result[] = { mlPackage.getParts().getParts().values().parallelStream().filter(p -> p.getPartName().getName().startsWith("/xl/worksheets/sheet")).mapToInt(p -> {
-			try {
-				return Integer.parseInt(p.getPartName().getName().replaceAll("[/xl/worksheets/sheet]|[.xml]", ""));
-			} catch (NumberFormatException e) {
-				return 0;
-			}
-		}).max().orElse(0) + 1, 1 };
+		final int result[] = { mlPackage.getParts().getParts().values().parallelStream()
+				.filter(p -> p.getPartName().getName().startsWith("/xl/worksheets/sheet")).mapToInt(p -> {
+					try {
+						return Integer
+								.parseInt(p.getPartName().getName().replaceAll("[/xl/worksheets/sheet]|[.xml]", ""));
+					} catch (NumberFormatException e) {
+						return 0;
+					}
+				}).max().orElse(0) + 1, 1 };
 
 		try {
-			result[1] = Integer.parseInt(mlPackage.getWorkbookPart().getRelationshipsPart().getNextId().replace("rId", ""));
+			result[1] = Integer
+					.parseInt(mlPackage.getWorkbookPart().getRelationshipsPart().getNextId().replace("rId", ""));
 		} catch (NumberFormatException e) {
 		}
 		return result;

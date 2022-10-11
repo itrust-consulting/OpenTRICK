@@ -136,7 +136,7 @@ public class TSConfig {
 	}
 
 	@Bean
-	@DependsOn("flyway")
+	//@DependsOn("flyway")
 	public LocalSessionFactoryBean sessionFactory() throws IOException {
 		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type")
 				+ ".xml";
