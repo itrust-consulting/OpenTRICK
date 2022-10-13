@@ -195,45 +195,19 @@ public class Duplicator {
 			copy.setAssetNodes(new ArrayList<>(analysis.getAssetNodes().size()));
 			for (AssetNode node : analysis.getAssetNodes()) {
 				final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
-						(k) -> node.getImpact().duplicate(assets.get(node.getAsset().getId())));
+						k -> node.getImpact().duplicate(assets.get(node.getAsset().getId())));
 
 				final AssetNode myNode = node.duplicate(impact);
 				copy.getAssetNodes().add(myNode);
 				nodes.put(node.getId(), myNode);
 			}
 
-			if (!copy.getAssetNodes().isEmpty()) {
+			copy.getAssetNodes()
+					.forEach(e -> e.setEdges(e.getEdges().values().stream()
+							.map(b -> b.duplicate(e, nodes.get(b.getChild().getId())))
+							.collect(Collectors.toMap(AssetEdge::getChild, Function.identity())))
 
-				do {
-					final List<AssetNode> children = copy.getAssetNodes().stream()
-							.flatMap(e -> e.getEdges().keySet().stream())
-							.filter(e -> e.getId() > 0).collect(Collectors.toList());
-
-					boolean hasChange = false;
-
-					for (AssetNode node : children) {
-						final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
-								(k) -> node.getImpact().duplicate(assets.get(node.getAsset().getId())));
-						final AssetNode myNode = node.duplicate(impact);
-						hasChange |= copy.getAssetNodes().add(myNode);
-						nodes.put(node.getId(), myNode);
-					}
-
-					if (!hasChange)
-						break;
-				} while (true);
-			}
-
-			analysis.getAssetNodes().stream().filter(e -> !e.getEdges().isEmpty()).forEach(e -> {
-				final List<AssetEdge> edges = new ArrayList<>(e.getEdges().values());
-				for (AssetEdge edge : edges) {
-					if (edge.getChild().getId() > 0) {
-						e.getEdges().remove(edge.getChild());
-						edge.setChild(nodes.get(edge.getChild().getId()));
-						e.getEdges().put(edge.getChild(), edge);
-					}
-				}
-			});
+					);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios",
 					(int) (minProgress + bound * 30)));

@@ -78,6 +78,7 @@ import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.ExportType;
+import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -197,11 +198,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			session.beginTransaction();
 			long reportId = getCssfExportForm().getType() == ExportType.RAW ? exportData() : exportReport();
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.export.risk_sheet", "Risk sheet has been successfully exported", 100);
+			MessageHandler messageHandler = new MessageHandler("success.export.risk_sheet",
+					"Risk sheet has been successfully exported", 100);
 			if (getCssfExportForm().getType() == ExportType.RAW)
 				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId));
 			else
-				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId), new AsyncCallback("reloadSection", "section_riskregister"));
+				messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId),
+						new AsyncCallback("reloadSection", "section_riskregister"));
 			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
@@ -213,7 +216,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			}
 			MessageHandler messageHandler = null;
 			if (e instanceof TrickException)
-				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
+				messageHandler = new MessageHandler(((TrickException) e).getCode(),
+						((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			getServiceTaskFeedback().send(getId(), messageHandler);
@@ -291,12 +295,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		this.username = username;
 	}
 
-	private void addEstimation(Worksheet worksheet, ObjectFactory factory, List<Estimation> estimations, List<ScaleType> types) {
+	private void addEstimation(Worksheet worksheet, ObjectFactory factory, List<Estimation> estimations,
+			List<ScaleType> types) {
 		int size = 16 + types.size() * 3;
 		for (Estimation estimation : estimations) {
 			Row row = createRow(worksheet.getSheetData(), size);
 			String scenarioType = estimation.getScenario().getType().getName();
-			String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType);
+			String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(),
+					scenarioType);
 			int index = 0;
 			setCellString(row, index++, estimation.getIdentifier());
 			setCellString(row, index++, category);
@@ -322,15 +328,20 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			List<String> actionPlan = new LinkedList<>();
 			for (Measure measure : estimation.getRiskProfile().getMeasures()) {
 				MeasureDescription description = measure.getMeasureDescription();
-				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
+				MeasureDescriptionText descriptionText = description
+						.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
 				String date = dateFormat.format(measure.getPhase().getEndDate());
 				actionPlan.add(getMessage("report.risk_profile.action_plan.measure",
-						new Object[] { description.getStandard().getName(), description.getReference(), descriptionText.getDomain(), date },
-						String.format("%s: %s, %s; %s", description.getStandard().getName(), description.getReference(), descriptionText.getDomain(), date)));
+						new Object[] { description.getStandard().getName(), description.getReference(),
+								descriptionText.getDomain(), date },
+						String.format("%s: %s, %s; %s", description.getStandard().getName(), description.getReference(),
+								descriptionText.getDomain(), date)));
 			}
 
 			if (actionPlan.isEmpty())
-				setCellString(row, index++, estimation.getActionPlan() == null || estimation.getActionPlan().isEmpty() ? "" : estimation.getActionPlan());
+				setCellString(row, index++,
+						estimation.getActionPlan() == null || estimation.getActionPlan().isEmpty() ? ""
+								: estimation.getActionPlan());
 			else {
 				if (!(estimation.getActionPlan() == null || estimation.getActionPlan().isEmpty()))
 					actionPlan.add(estimation.getActionPlan());
@@ -381,7 +392,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		worksheet.getSheetData().getRow().add(row);
 		worksheet.getSheetData().getRow().add(row1);
 
-		int step = 2, size = types.size() + step, netIndex = (showRawColumn ? 6 + types.size() : 4), expIndex = netIndex + types.size() + step,
+		int step = 2, size = types.size() + step, netIndex = (showRawColumn ? 6 + types.size() : 4),
+				expIndex = netIndex + types.size() + step,
 				index = expIndex + types.size() + step;
 		setValue(row.getC().get(0), getMessage("report.risk_sheet.risk_id", "Risk ID"));
 		setValue(row.getC().get(1), getMessage("report.risk_sheet.risk_category", "Category"));
@@ -393,7 +405,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setValue(row.getC().get(expIndex), getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"));
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.risk_description", "Risk description"));
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.argumentation", "Argumentation"));
-		setValue(row.getC().get(index++), getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"));
+		setValue(row.getC().get(index++),
+				getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"));
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.risk_treatment", "Risk treatment"));
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.response", "Response strategy"));
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.action_plan", "Action plan"));
@@ -421,16 +434,19 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			worksheet.getMergeCells().getMergeCell().add(mergeCell);
 			mergeCell.setRef(getAddress(0, i, 1, i));
 		}
-	
+
 	}
 
 	private void addRiskSheetHeader(Document document, RiskProfile riskProfile, boolean isFirst) {
 		String scenarioType = riskProfile.getScenario().getType().getName();
-		String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType),
+		String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(),
+				scenarioType),
 				idRisk = riskProfile.getIdentifier() == null ? "" : riskProfile.getIdentifier();
 		String text = getCssfExportForm().isCssf()
-				? getMessage("report.risk_sheet.cssf.page_title", new Object[] { category, idRisk }, String.format("Category %s - Risk %s", category, idRisk))
-				: getMessage("report.risk_sheet.normal.page_title", new Object[] { category, riskProfile.getAsset().getName() },
+				? getMessage("report.risk_sheet.cssf.page_title", new Object[] { category, idRisk },
+						String.format("Category %s - Risk %s", category, idRisk))
+				: getMessage("report.risk_sheet.normal.page_title",
+						new Object[] { category, riskProfile.getAsset().getName() },
 						String.format("Category %s - %s", category, riskProfile.getAsset().getName()));
 		P paragraph = null;
 		if (isFirst)
@@ -459,14 +475,17 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			probaImpact = new RiskProbaImpact();
 
 		BooleanDefaultTrue booleandefaulttrue = Context.getWmlObjectFactory().createBooleanDefaultTrue();
-		JAXBElement<org.docx4j.wml.BooleanDefaultTrue> booleandefaulttrueWrapped = Context.getWmlObjectFactory().createCTTrPrBaseTblHeader(booleandefaulttrue);
+		JAXBElement<org.docx4j.wml.BooleanDefaultTrue> booleandefaulttrueWrapped = Context.getWmlObjectFactory()
+				.createCTTrPrBaseTblHeader(booleandefaulttrue);
 
 		Tr row = (Tr) table.getContent().get(0);
 		TextAlignment alignment = new TextAlignment();
 		alignment.setVal("center");
-		setCellText(setVAlignment((Tc) row.getContent().get(0), "center"), getMessage("report.risk_sheet.probability", "Probability (P)"));
+		setCellText(setVAlignment((Tc) row.getContent().get(0), "center"),
+				getMessage("report.risk_sheet.probability", "Probability (P)"));
 		setCellText((Tc) row.getContent().get(1), getMessage("report.risk_sheet.impact", "Impact (i)"), alignment);
-		setCellText(setVAlignment((Tc) row.getContent().get(types.size() + 1), "center"), getMessage("report.risk_sheet.importance", "Importance"));
+		setCellText(setVAlignment((Tc) row.getContent().get(types.size() + 1), "center"),
+				getMessage("report.risk_sheet.importance", "Importance"));
 
 		if (row.getTrPr() == null)
 			row.setTrPr(new TrPr());
@@ -476,8 +495,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		row = (Tr) table.getContent().get(1);
 		int index = 1;
 		for (ScaleType scaleType : types)
-			setCellText((Tc) row.getContent().get(index++), getMessage("label.impact." + scaleType.getName().toLowerCase(),
-					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()), alignment);
+			setCellText((Tc) row.getContent().get(index++),
+					getMessage("label.impact." + scaleType.getName().toLowerCase(),
+							scaleType.getTranslations().containsKey(alpha2)
+									? scaleType.getTranslations().get(alpha2).getName()
+									: scaleType.getDisplayName()),
+					alignment);
 
 		if (row.getTrPr() == null)
 			row.setTrPr(new TrPr());
@@ -529,7 +552,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			for (Measure measure : riskProfile.getMeasures()) {
 				row = (Tr) table.getContent().get(index++);
 				MeasureDescription description = measure.getMeasureDescription();
-				MeasureDescriptionText descriptionText = description.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
+				MeasureDescriptionText descriptionText = description
+						.getMeasureDescriptionTextByAlpha2(getLocale().getLanguage());
 				addFieldContent((Tc) row.getContent().get(0), description.getStandard().getName());
 				addFieldContent((Tc) row.getContent().get(1), description.getReference());
 				addFieldContent((Tc) row.getContent().get(2), descriptionText.getDomain());
@@ -570,7 +594,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	private long exportData() throws Exception {
 		final File file = InstanceManager.getServiceStorage().createTmpFileOf(DEFAULT_EXCEL_TEMPLATE);
 		try {
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
 			final ObjectFactory factory = org.xlsx4j.jaxb.Context.getsmlObjectFactory();
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -579,7 +604,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			final int[] indexes = findNextSheetNumberAndId(spreadsheetMLPackage);
 			final ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 
-			final List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
+			final List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(),
+					cias = new LinkedList<>();
 
 			setLocale(new Locale(analysis.getLanguage().getAlpha2()));
 			if (getLocale().getLanguage().equals("fr"))
@@ -589,26 +615,38 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
-			final String internalName = String.format("RISK_SHEET_%s_%d_v%s.xlsx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""),
-					System.nanoTime(), analysis.getVersion());
-			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])),
-					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()), indexes[1]);
+			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(
+					new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])),
+					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()),
+					indexes[1]);
 
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
 			addHeader(worksheetPart.getContents(), factory, scaleTypes);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
-			if(!directs.isEmpty())
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
+			if (!directs.isEmpty())
 				addEstimation(worksheetPart.getContents(), factory, directs, scaleTypes);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
 			if (!indirects.isEmpty())
 				addEstimation(worksheetPart.getContents(), factory, indirects, scaleTypes);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
 			if (!cias.isEmpty())
 				addEstimation(worksheetPart.getContents(), factory, cias, scaleTypes);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
 			spreadsheetMLPackage.save(file);
-			WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), daoUser.get(username), internalName,
+			
+			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "RiskSheet", analysis.getVersion(),
+					"xlsx",System.nanoTime());
+
+			final WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(),
+					analysis.getVersion(), daoUser.get(username), filename,
 					file.length(), FileCopyUtils.copyToByteArray(file));
 			daoWordReport.saveOrUpdate(report);
 			return report.getId();
@@ -635,17 +673,23 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		boolean isFirst = true;
 		try {
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
-			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
-			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.risk_register.compute",
+					"Computing risk register", progress));
+			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis,
+					new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),
 					Estimation.IdComparator());
-			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
-			final String filename = String.format("RISK_SHEET_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(),
-					analysis.getVersion());
-			final String templatePath = String.format("docx/%s.docx", analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+			getServiceTaskFeedback().send(getId(),
+					messageHandler = new MessageHandler("info.loading.risk_sheet.template",
+							"Loading risk sheet template", progress += 5));
+
+			final String templatePath = String.format("docx/%s.docx",
+					analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
 			InstanceManager.getServiceStorage().copy(templatePath, workFile.getName());
 			WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(workFile);
-			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
-			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data",
+					"Preparing risk sheet template", progress += 8));
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet",
+					"Generating risk sheet", progress += 8));
 			if (cssfExportForm.hasOwner())
 				estimations.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
 			document = wordprocessingMLPackage.getMainDocumentPart().getContents();
@@ -657,28 +701,47 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				if (isFirst)
 					isFirst = false;
 				addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
-				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
+				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"),
+						riskProfile.getScenario().getDescription());
 				if (showRawColumn)
-					addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"), estimation.getRawProbaImpact(), types);
-				addField(document, getMessage("report.risk_sheet.argumentation", "Argumentation"), estimation.getArgumentation());
+					addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"),
+							estimation.getRawProbaImpact(), types);
+				addField(document, getMessage("report.risk_sheet.argumentation", "Argumentation"),
+						estimation.getArgumentation());
 				if (getCssfExportForm().isCssf())
-					addField(document, getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"), riskProfile.getAsset().getName());
-				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), estimation.getRiskTreatment());
-				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), estimation.getNetEvaluation(), types);
+					addField(document,
+							getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"),
+							riskProfile.getAsset().getName());
+				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"),
+						estimation.getRiskTreatment());
+				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"),
+						estimation.getNetEvaluation(), types);
 				RiskStrategy strategy = riskProfile.getRiskStrategy();
 				if (strategy == null)
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
-				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
-				if (strategy != RiskStrategy.ACCEPT || !riskProfile.getMeasures().isEmpty() || StringUtils.hasText(riskProfile.getActionPlan())) {
+				addField(document, getMessage("report.risk_sheet.response", "Response strategy"),
+						getMessage("label.risk_register.strategy." + response, response));
+				if (strategy != RiskStrategy.ACCEPT || !riskProfile.getMeasures().isEmpty()
+						|| StringUtils.hasText(riskProfile.getActionPlan())) {
 					addActionTable(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile);
-					addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
+					addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"),
+							riskProfile.getExpProbaImpact(), types);
 				}
-				messageHandler.setProgress((int) (progress + (++index / (double) estimations.size()) * (max - progress)));
+				messageHandler
+						.setProgress((int) (progress + (++index / (double) estimations.size()) * (max - progress)));
 			}
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
 			wordprocessingMLPackage.save(workFile);
-			WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, filename, workFile.length(),
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "RiskSheet", analysis.getVersion(),
+					"docx",System.nanoTime());
+
+			final WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(),
+					analysis.getVersion(), user, filename, workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
@@ -690,12 +753,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private Tbl format(Tbl table) {
 		switch (table.getTblPr().getTblStyle().getVal()) {
-		case "TSTABLERISK":
-			return formatTitle(table);
-		case "TSTABLEEVALUATION":
-			return formatEvolution(table);
-		case "TSTABLEMEASURE":
-			return formatMeasure(table);
+			case "TSTABLERISK":
+				return formatTitle(table);
+			case "TSTABLEEVALUATION":
+				return formatEvolution(table);
+			case "TSTABLEMEASURE":
+				return formatMeasure(table);
 		}
 		return table;
 	}
@@ -721,12 +784,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	private Tbl formatEvolution(Tbl table) {
-		int[] headers = createCols(5000, table.getTblGrid().getGridCol().size()), mergeCols = { headers[0], sum(1, headers.length - 2, headers), headers[headers.length - 1] };
+		int[] headers = createCols(5000, table.getTblGrid().getGridCol().size()),
+				mergeCols = { headers[0], sum(1, headers.length - 2, headers), headers[headers.length - 1] };
 		table.getTblPr().getTblW().setType("pct");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
 		for (int i = 0; i < headers.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(headers[i]));
-		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : headers, "pct"));
+		table.getContent().parallelStream().map(tr -> (Tr) tr)
+				.forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : headers, "pct"));
 		return table;
 	}
 
@@ -757,7 +822,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.probability", "Probability (P)"));
 		for (ScaleType scaleType : types)
 			setValue(row.getC().get(index++), getMessage("label.impact." + scaleType.getName().toLowerCase(),
-					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName() : scaleType.getDisplayName()));
+					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2).getName()
+							: scaleType.getDisplayName()));
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.importance", "Importance"));
 	}
 
@@ -789,7 +855,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
 		P paragraph = (P) cell.getContent().get(0);
-		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, TC_P_STYLE));
+		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p)
+				.forEach(p -> setStyle(p, TC_P_STYLE));
 		setText(paragraph, text, alignment);
 	}
 

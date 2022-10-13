@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.analysis.rights;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,6 +15,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -28,7 +31,10 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version 0.1
  * @since Jan 9, 2014
  */
+
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiUser" }))
 public class UserAnalysisRight implements Cloneable {
 
@@ -41,6 +47,7 @@ public class UserAnalysisRight implements Cloneable {
 	/** User */
 	@ManyToOne
 	@JoinColumn(name = "fiUser", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private User user;
@@ -48,6 +55,7 @@ public class UserAnalysisRight implements Cloneable {
 	/** Analysis */
 	@ManyToOne
 	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Analysis analysis;
@@ -55,6 +63,7 @@ public class UserAnalysisRight implements Cloneable {
 	/** rights */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtRight", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private AnalysisRight right;
 
 	/**

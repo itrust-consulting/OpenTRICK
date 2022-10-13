@@ -34,14 +34,17 @@ public class AssetEdge implements Cloneable {
     private boolean marked;
 
     @ManyToOne
-    @JoinColumn(name = "fiParent", nullable = false)
+    @JoinColumn(name = "fiParent")
     @Cascade(CascadeType.SAVE_UPDATE)
     private AssetNode parent;
 
     @ManyToOne
-    @JoinColumn(name = "fiChild", nullable = false)
+    @JoinColumn(name = "fiChild")
     @Cascade(CascadeType.SAVE_UPDATE)
     private AssetNode child;
+
+    public AssetEdge(){
+    }
 
     public AssetEdge(AssetNode parent, AssetNode child) {
         this(parent, child, 1);
@@ -117,7 +120,7 @@ public class AssetEdge implements Cloneable {
     public AssetEdge duplicate() {
         try {
             final AssetEdge edge = (AssetEdge) super.clone();
-            edge.id = 1;
+            edge.id = 0;
             return edge;
         } catch (CloneNotSupportedException e) {
             throw new TrickException("error.clone.assetedge", "AssetEdge cannot be copied");

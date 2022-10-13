@@ -13,6 +13,7 @@ import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOReportTemplate;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -29,6 +30,7 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
+import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -36,6 +38,10 @@ import lu.itrust.business.TS.usermanagement.User;
  *
  */
 public class WorkerExportWordReport extends WorkerImpl {
+
+	/**
+	 *
+	 */
 
 	private int idAnalysis;
 
@@ -89,7 +95,8 @@ public class WorkerExportWordReport extends WorkerImpl {
 				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
 			else if (!analysis.hasData())
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.export.report.prepare.document", "Please wait while preparing word document", 0));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.export.report.prepare.document",
+					"Please wait while preparing word document", 0));
 			final DAOReportTemplate daoReportTemplate = new DAOReportTemplateHBM(session);
 			final ReportTemplate reportTemplate = exportReport.getFile() != null ? null
 					: daoReportTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
@@ -103,10 +110,12 @@ public class WorkerExportWordReport extends WorkerImpl {
 			saveWordDocument(session);
 		} catch (TrickException e) {
 			setError(e);
-			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 		} catch (Exception e) {
 			setError(e);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", e));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("error.unknown.occurred", "An unknown error occurred", e));
 		} finally {
 			try {
 				if (session != null && session.isOpen())
@@ -136,20 +145,32 @@ public class WorkerExportWordReport extends WorkerImpl {
 			final User user = new DAOUserHBM(session).get(username);
 			final Analysis analysis = exportReport.getAnalysis();
 			final File file = exportReport.getFile();
-			WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user,
-					FilenameUtils.removeExtension(file.getName()) + ".docx", file.length(), FileCopyUtils.copyToByteArray(file));
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.word.report", "Saving word report", 99));
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "Report", analysis.getVersion(),
+					"docx",System.nanoTime());
+
+			WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(),
+					analysis.getVersion(), user,
+					filename, file.length(),
+					FileCopyUtils.copyToByteArray(file));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", 100);
+			MessageHandler messageHandler = new MessageHandler("success.save.word.report",
+					"Report has been successfully saved", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", report.getId()));
 			getServiceTaskFeedback().send(getId(), messageHandler);
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word",
-					String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT, analysis.getIdentifier(),
+					String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(),
+							analysis.getVersion()),
+					username, LogAction.EXPORT, analysis.getIdentifier(),
 					analysis.getVersion());
 		} catch (Exception e) {
 			try {
@@ -202,15 +223,15 @@ public class WorkerExportWordReport extends WorkerImpl {
 			boolean match = values.length == expressions.length && values.length == 2;
 			for (int i = 0; i < expressions.length && match; i++) {
 				switch (expressions[i]) {
-				case "analysis.id":
-					match &= values[i].equals(idAnalysis);
-					break;
-				case "class":
-					match &= values[i].equals(getClass());
-					break;
-				default:
-					match = false;
-					break;
+					case "analysis.id":
+						match &= values[i].equals(idAnalysis);
+						break;
+					case "class":
+						match &= values[i].equals(getClass());
+						break;
+					default:
+						match = false;
+						break;
 				}
 			}
 			return match;

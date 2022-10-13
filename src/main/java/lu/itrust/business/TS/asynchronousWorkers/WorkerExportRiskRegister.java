@@ -30,6 +30,7 @@ import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
@@ -46,6 +47,7 @@ import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
+import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -58,7 +60,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 	public static String FR_TEMPLATE;
 
 	public static String ENG_TEMPLATE;
-	
+
 	private String username;
 
 	private Integer idAnalysis;
@@ -154,8 +156,10 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			session.beginTransaction();
 			long reportId = processing();
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.export.risk_register", "Risk register has been successfully exported", 100);
-			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId), new AsyncCallback("reloadSection", "section_riskregister"));
+			MessageHandler messageHandler = new MessageHandler("success.export.risk_register",
+					"Risk register has been successfully exported", 100);
+			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId),
+					new AsyncCallback("reloadSection", "section_riskregister"));
 			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
@@ -167,7 +171,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			}
 			MessageHandler messageHandler = null;
 			if (e instanceof TrickException)
-				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
+				messageHandler = new MessageHandler(((TrickException) e).getCode(),
+						((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			getServiceTaskFeedback().send(getId(), messageHandler);
@@ -202,36 +207,43 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		MessageHandler messageHandler = null;
 		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
 		try {
-			final String filename = String.format("RISK_REGISTER_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""), System.nanoTime(), analysis.getVersion());
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
 			final boolean showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			final Locale locale = new Locale(analysis.getLanguage().getAlpha2());
-			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
-			final String template = String.format("docx/%s.docx", locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.risk_register.template", "Loading risk register template", progress += 5));
+			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis,
+					new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
+			final String template = String.format("docx/%s.docx",
+					locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.risk_register.template",
+					"Loading risk register template", progress += 5));
 			InstanceManager.getServiceStorage().copy(template, workFile.getName());
 			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
 			final Document document = wordMLPackage.getMainDocumentPart().getContents();
-			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
+			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_register",
+					"Generating risk register", progress += 8));
 
-			final Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb)).filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
+			final Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb))
+					.filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", template));
 			if (!showRawColumn) {
-				table.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof Tr).map(tr -> (Tr) tr).forEach(tr -> {
-					tr.getContent().remove(5);
-					if (tr.getContent().size() > 14) {
-						for (int i = 0; i < 2; i++)
+				table.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof Tr)
+						.map(tr -> (Tr) tr).forEach(tr -> {
 							tr.getContent().remove(5);
-					}
+							if (tr.getContent().size() > 14) {
+								for (int i = 0; i < 2; i++)
+									tr.getContent().remove(5);
+							}
 
-				});
+						});
 			}
 
 			final List<Tr> trs = new ArrayList<>(size = estimations.size());
 
-			trs.add(table.getContent().stream().map(tr -> XmlUtils.unwrap(tr)).filter(tr -> tr instanceof Tr).map(tr -> (Tr) tr).reduce((f, l) -> l).get());// it will be removed
-																																							// laster
+			trs.add(table.getContent().stream().map(tr -> XmlUtils.unwrap(tr)).filter(tr -> tr instanceof Tr)
+					.map(tr -> (Tr) tr).reduce((f, l) -> l).get());// it will be removed
+																	// laster
 			for (int i = 1; i < size; i++)
 				trs.add(XmlUtils.deepCopy(trs.get(0)));
 			int rawIndex = 5, nextIndex = showRawColumn ? rawIndex + 3 : rawIndex, expIndex = nextIndex + 3;
@@ -240,7 +252,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);
 				addString(estimation.getIdentifier(), row, 1);
-				addString(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType, locale), row, 2);
+				addString(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(),
+						scenarioType, locale), row, 2);
 				addString(estimation.getScenario().getName(), row, 3);
 				addString(estimation.getAsset().getName(), row, 4);
 				if (showRawColumn)
@@ -260,9 +273,17 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 			table.getContent().addAll(trs);
 
-			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
+			getServiceTaskFeedback().send(getId(),
+					messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
 			wordMLPackage.save(workFile);
-			final WordReport report = WordReport.BuildRiskRegister(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, filename, workFile.length(),
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "RiskRegister", analysis.getVersion(),
+					"docx",System.nanoTime());
+
+			final WordReport report = WordReport.BuildRiskRegister(analysis.getIdentifier(), analysis.getLabel(),
+					analysis.getVersion(), user, filename, workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
@@ -289,7 +310,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
 		P paragraph = (P) cell.getContent().get(0);
-		cell.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, "TabText2"));
+		cell.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof P).map(p -> (P) p)
+				.forEach(p -> setStyle(p, "TabText2"));
 		setText(paragraph, text, alignment);
 	}
 

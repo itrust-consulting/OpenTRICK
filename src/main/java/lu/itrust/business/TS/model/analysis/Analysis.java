@@ -160,6 +160,7 @@ public class Analysis implements Cloneable {
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiCustomer", nullable = false)
 	private Customer customer;
 
@@ -203,6 +204,7 @@ public class Analysis implements Cloneable {
 	/** Language object of the Analysis */
 	@ManyToOne
 	@JoinColumn(name = "fiLanguage", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private Language language;
@@ -210,6 +212,7 @@ public class Analysis implements Cloneable {
 	/** Analysis owner (the one that created or imported it) */
 	@ManyToOne
 	@JoinColumn(name = "fiOwner", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private User owner;
@@ -313,8 +316,10 @@ public class Analysis implements Cloneable {
 
 	@OneToMany
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	@JoinTable(name = "AnalysisILRImpactTypes", joinColumns = @JoinColumn(name = "fiAnalysis", nullable = false), inverseJoinColumns = @JoinColumn(name = "fiScaleType", nullable = false), uniqueConstraints = @UniqueConstraint(columnNames = {
-			"fiScaleType", "fiAnalysis" }))
+	@JoinTable(name = "AnalysisILRImpactTypes", joinColumns = @JoinColumn(name = "fiAnalysis", referencedColumnName = "idAnalysis"), inverseJoinColumns = @JoinColumn(name = "fiScaleType", referencedColumnName = "idScaleType"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiAnalysis", "fiScaleType" }))
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
+	@Access(AccessType.FIELD)
 	@OrderBy("name")
 	private List<ScaleType> ilrImpactTypes = new ArrayList<>();
 
@@ -583,6 +588,7 @@ public class Analysis implements Cloneable {
 		analysis.summaries = new ArrayList<>();
 		analysis.settings = new LinkedHashMap<>(this.settings);
 		analysis.excludeAcronyms = new HashSet<>(this.excludeAcronyms);
+		analysis.ilrImpactTypes = new ArrayList<>();
 		analysis.id = -1;
 		return analysis;
 	}
@@ -607,6 +613,7 @@ public class Analysis implements Cloneable {
 		copy.riskRegisters = new ArrayList<>();
 		copy.summaries = new ArrayList<>();
 		copy.settings = new LinkedHashMap<>(settings);
+		copy.ilrImpactTypes = new ArrayList<>(ilrImpactTypes);
 		copy.excludeAcronyms = new HashSet<>(excludeAcronyms);
 		copy.id = -1;
 		return copy;
@@ -2417,9 +2424,5 @@ public class Analysis implements Cloneable {
 	public List<AnalysisStandard> findAllAnalysisStandard() {
 		return getAnalysisStandards().values().stream().collect(Collectors.toList());
 	}
-
-	
-
-	
 
 }

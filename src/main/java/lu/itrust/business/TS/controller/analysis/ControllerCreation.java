@@ -478,52 +478,26 @@ public class ControllerCreation {
 
 				for (AssetNode node : serviceAssetNode.findByAnalysisId(analysisForm.getAsset())) {
 					final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
-							(k) -> node.getImpact().duplicate(mappingAssets.get(node.getAsset().getId())));
+							k -> node.getImpact().duplicate(mappingAssets.get(node.getAsset().getId())));
 
 					final AssetNode myNode = node.duplicate(impact);
 					analysis.getAssetNodes().add(myNode);
 					nodes.put(node.getId(), myNode);
 				}
 
-				if (!analysis.getAssetNodes().isEmpty()) {
+				analysis.getAssetNodes().stream().filter(e -> !e.getEdges().isEmpty())
+						.forEach(e -> e.setEdges(e.getEdges().values().stream()
+								.map(b -> b.duplicate(e,
+										nodes.get(b.getChild().getId())))
+								.collect(Collectors.toMap(AssetEdge::getChild, Function.identity())))
 
-					do {
-						final List<AssetNode> children = analysis.getAssetNodes().stream()
-								.flatMap(e -> e.getEdges().keySet().stream())
-								.filter(e -> e.getId() > 0).collect(Collectors.toList());
-
-						boolean hasChange = false;
-
-						for (AssetNode node : children) {
-							final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
-									(k) -> node.getImpact().duplicate(mappingAssets.get(node.getAsset().getId())));
-							final AssetNode myNode = node.duplicate(impact);
-							hasChange |= analysis.getAssetNodes().add(myNode);
-							nodes.put(node.getId(), myNode);
-						}
-						// Update Edges
-
-						if (!hasChange)
-							break;
-					} while (true);
-				}
-
-				analysis.getAssetNodes().stream().filter(e -> !e.getEdges().isEmpty()).forEach(e -> {
-					final List<AssetEdge> edges = new ArrayList<>(e.getEdges().values());
-					for (AssetEdge edge : edges) {
-						if (edge.getChild().getId() > 0) {
-							e.getEdges().remove(edge.getChild());
-							edge.setChild(nodes.get(edge.getChild().getId()));
-							e.getEdges().put(edge.getChild(), edge);
-						}
-					}
-				});
+						);
 
 			}
 
 			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisForm.getScenario());
 
-			Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() || assets.isEmpty() ? Collections.emptyMap()
+			Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() ? Collections.emptyMap()
 					: new LinkedHashMap<>(scenarios.size());
 			for (Scenario scenario : scenarios) {
 				Scenario duplication = scenario.duplicate(mappingAssets);

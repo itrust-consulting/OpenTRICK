@@ -1,8 +1,6 @@
 package lu.itrust.business.TS.model.ilr;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -18,7 +16,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
-import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -45,24 +42,23 @@ public class AssetImpact implements Cloneable {
     private Asset asset;
 
     @OneToMany
+    @MapKey(name = "type")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JoinTable(name = "ConfidentialityImpacts", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
-            "fiAssetImpact", "fiILRImpact" }))
+    @JoinTable(name = "AssetILRImpactConfidentialities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
     private Map<ScaleType, ILRImpact> confidentialityImpacts;
 
     @OneToMany
+    @MapKey(name = "type")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JoinTable(name = "IntegrityImpacts", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
-            "fiAssetImpact", "fiILRImpact" }))
+    @JoinTable(name = "AssetILRImpactIntegrities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
     private Map<ScaleType, ILRImpact> integrityImpacts;
 
     @OneToMany
     @MapKey(name = "type")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JoinTable(name = "AvailabilityImpacts", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
-            "fiAssetImpact", "fiILRImpact" }))
+    @JoinTable(name = "AssetILRImpactAvailabilities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
     private Map<ScaleType, ILRImpact> availabilityImpacts;
 
@@ -147,8 +143,8 @@ public class AssetImpact implements Cloneable {
     public AssetImpact duplicate() {
         try {
             final AssetImpact clone = (AssetImpact) super.clone();
-            if (availabilityImpacts != null)
-                clone.availabilityImpacts = availabilityImpacts.values().stream().map(ILRImpact::duplicate)
+            if (confidentialityImpacts != null)
+                clone.confidentialityImpacts = confidentialityImpacts.values().stream().map(ILRImpact::duplicate)
                         .collect(Collectors.toMap(ILRImpact::getType, Function.identity()));
 
             if (integrityImpacts != null)
@@ -159,7 +155,7 @@ public class AssetImpact implements Cloneable {
                 clone.availabilityImpacts = availabilityImpacts.values().stream().map(ILRImpact::duplicate)
                         .collect(Collectors.toMap(ILRImpact::getType, Function.identity()));
 
-            clone.id = -1;
+            clone.id = 0;
 
             return clone;
         } catch (CloneNotSupportedException e) {

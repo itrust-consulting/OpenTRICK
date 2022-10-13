@@ -10,6 +10,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getCell;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
@@ -133,6 +134,8 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.TS.model.general.helper.Utils;
+import lu.itrust.business.TS.model.ilr.AssetEdge;
 import lu.itrust.business.TS.model.ilr.AssetImpact;
 import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.ilr.ILRImpact;
@@ -248,8 +251,12 @@ public class ControllerDataManager {
 			exportRawActionPlan(analysis, spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()));
 			response.setContentType("xlsx");
 			// set response header with location of the filename
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "ActionPlan", analysis.getVersion(),
+					"xlsx");
 			response.setHeader("Content-Disposition", "attachment; filename=\""
-					+ String.format("STA_%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+					+ filename + "\"");
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
@@ -274,9 +281,13 @@ public class ControllerDataManager {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportAsset(analysis, spreadsheetMLPackage);
 			response.setContentType("xlsx");
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "Asset", analysis.getVersion(),
+					"xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\""
-					+ String.format("Assets of %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+					+ filename + "\"");
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
@@ -421,7 +432,7 @@ public class ControllerDataManager {
 						"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
 
 				setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
-						"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[#All],[Name]:[Type]],4,FALSE)");
+						"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
 			}
 
 			exportAsset(analysis, mlPackage, hiddenComment, isILR);
@@ -430,13 +441,17 @@ public class ControllerDataManager {
 
 			// Dependancy
 			if (isILR)
-				exportDependancy(analysis, mlPackage);
+				exportDependancy(analysis, mlPackage, locale);
 
 			response.setContentType("xlsx");
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "RiskEstimation", analysis.getVersion(),
+					"xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition",
-					"attachment; filename=\"" + String.format("Risk estimation for %s_v%s.xlsx", analysis.getLabel(),
-							analysis.getVersion()) + "\"");
+					"attachment; filename=\"" + filename + "\"");
 			updateTokenCookie(request, response);
 			mlPackage.save(response.getOutputStream());
 			serviceAnalysis.saveOrUpdate(analysis);
@@ -452,7 +467,7 @@ public class ControllerDataManager {
 
 	}
 
-	private void exportDependancy(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
+	private void exportDependancy(Analysis analysis, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
 		final Set<AssetNode> rootSetNodes = new HashSet<>();
 		final Set<AssetNode> branchSetNodes = new HashSet<>();
 		final Set<AssetNode> leafSetNodes = new HashSet<>();
@@ -477,25 +492,23 @@ public class ControllerDataManager {
 
 		rowNames.addAll(leafs);
 
-		final Map<String, Map<String, Integer>> dependancies = new HashMap<>(analysis.getAssets().size());
+		final Map<String, String> assetTypes = serviceAssetType.getAll().stream()
+				.collect(Collectors.toMap(AssetType::getName,
+						e -> messageSource.getMessage("label.asset_type." + e.getName().toLowerCase(), null,
+								e.getName(), locale)));
 
-		final Map<String, String> assetTypes = new HashMap<>(analysis.getAssets().size());
+		final Map<String, String> assetToTypes = new HashMap<>(analysis.getAssets().size());
 
 		analysis.getAssets().forEach(asset -> {
-
-			final Map<String, Integer> assetDependancies = new HashMap<>(columns.size());
-			for (String column : columns)
-				assetDependancies.put(column, 0);
-
-			dependancies.put(asset.getName(), assetDependancies);
-			assetTypes.put(asset.getName(), asset.getAssetType().getName());
+			assetToTypes.put(asset.getName(), asset.getAssetType().getName());
 			if (!rowNames.contains(asset.getName()))
 				rowNames.add(asset.getName());
 		});
 
-		writeAssetNodeDependancy(rootSetNodes, dependancies);
-		writeAssetNodeDependancy(branchSetNodes, dependancies);
-		writeAssetNodeDependancy(leafSetNodes, dependancies);
+		Map<String, Map<String, Integer>> dependancies = analysis.getAssetNodes().stream()
+				.flatMap(e -> e.getEdges().values().stream())
+				.collect(Collectors.groupingBy(e -> e.getChild().getAsset().getName(),
+						Collectors.toMap(e -> e.getParent().getAsset().getName(), AssetEdge::getWeight)));
 
 		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Dependency");
 		final SheetData sheetData = worksheetPart.getContents().getSheetData();
@@ -510,34 +523,21 @@ public class ControllerDataManager {
 
 		for (String assetName : rowNames) {
 			final Row row = factory.createRow();
-			final Map<String, Integer> myDependancies = dependancies.get(assetName);
-			for (int i = 0; i <= columns.size(); i++) {
-				if (row.getC().size() < i)
-					row.getC().add(factory.createCell());
-
+			final Map<String, Integer> myDependancies = dependancies.getOrDefault(assetName, Collections.emptyMap());
+			for (int i = 0; i < columns.size(); i++) {
 				switch (i) {
 					case 0:
-						setValue(row.getC().get(i), assetName);
+						setValue(row, i, assetName);
 						break;
 					case 1:
-						setValue(row.getC().get(i), assetTypes.get(assetName));
+						setValue(row, i, assetTypes.get(assetToTypes.get(assetName)));
 						break;
 					default:
-						setValue(row.getC().get(i), myDependancies.getOrDefault(columns.get(i), 0));
+						setValue(row, i, myDependancies.getOrDefault(columns.get(i), 0));
 
 				}
 			}
 			sheetData.getRow().add(row);
-		}
-	}
-
-	private void writeAssetNodeDependancy(final Collection<AssetNode> nodes,
-			final Map<String, Map<String, Integer>> dependancies) {
-		for (AssetNode node : nodes) {
-			final Map<String, Integer> myDependancies = dependancies.get(node.getAsset().getName());
-			if (myDependancies == null)
-				return;
-			node.getEdges().values().forEach(e -> myDependancies.put(e.getChild().getAsset().getName(), e.getWeight()));
 		}
 	}
 
@@ -589,9 +589,14 @@ public class ControllerDataManager {
 				}
 			}
 			response.setContentType("xlsx");
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "MeasureCollection", analysis.getVersion(),
+					"xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\""
-					+ String.format("%s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+					+ filename + "\"");
 			updateTokenCookie(request, response);
 			mlPackage.save(response.getOutputStream());
 			// Log
@@ -827,11 +832,14 @@ public class ControllerDataManager {
 				}
 			}
 
-			String identifierName = "TS_Brainstorming_" + analysis.getIdentifier() + "_Version_"
-					+ analysis.getVersion();
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "Brainstorming", analysis.getVersion(),
+					"xlsx");
+
 			response.setContentType("xlsx");
 			response.setHeader("Content-Disposition",
-					"attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
+					"attachment; filename=\"" + filename + "\"");
 			updateTokenCookie(request, response);
 			mlPackage.save(response.getOutputStream());
 			/**
@@ -943,9 +951,13 @@ public class ControllerDataManager {
 			final Consumer<SpreadsheetMLPackage> callback = (m) -> {
 				try {
 					response.setContentType("xlsx");
+					final String filename = String.format(Constant.ITR_FILE_NAMING,
+							Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+							Utils.cleanUpFileName(analysis.getLabel()), "RRF", analysis.getVersion(),
+							"xlsx");
 					// set response header with location of the filename
 					response.setHeader("Content-Disposition", "attachment; filename=\""
-							+ String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+							+ filename + "\"");
 					updateTokenCookie(request, response);
 					m.save(response.getOutputStream());
 					// log
@@ -975,9 +987,13 @@ public class ControllerDataManager {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportScenario(analysis, spreadsheetMLPackage);
 			response.setContentType("xlsx");
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "Scenario", analysis.getVersion(),
+					"xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\""
-					+ String.format("Scenarios of %s_v%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+					+ filename + "\"");
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
@@ -1329,14 +1345,21 @@ public class ControllerDataManager {
 		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
 		final List<String> ilrImpactHeaders = (isILR ? new ArrayList<>() : Collections.emptyList());
-		final List<String> myColumns = Arrays.asList("Name", "Type", "Selected", "Value", "Comment");
+		final List<String> myColumns = new ArrayList<>(Arrays.asList("Name", "Type", "Selected", "Value", "Comment"));
 		final Map<String, Map<String, Integer>> ilrAssetImpacts = (isILR ? new HashMap<>() : Collections.emptyMap());
+		final Map<String, String> maxFormulas;
 
-		if (!hiddenComment)
+		if (hiddenComment)
 			myColumns.add("Hidden comment");
 
-		if (isILR)
+		if (isILR) {
 			writeAssetIRLImpacts(analysis, ilrImpactHeaders, myColumns, ilrAssetImpacts);
+			maxFormulas = ilrImpactHeaders.stream()
+					.collect(Collectors.groupingBy(e -> e.substring(0, 1),
+							Collectors.reducing("", e -> String.format("Assets[[#This Row],[%s]]", e),
+									(e1, e2) -> e1 + (e1.isEmpty() ? "" : ",") + e2)));
+		} else
+			maxFormulas = Collections.emptyMap();
 
 		final String[] columns = myColumns.toArray(new String[myColumns.size()]);
 
@@ -1359,6 +1382,10 @@ public class ControllerDataManager {
 				setValue(row.getC().get(ASSET_HIDDEN_COMMENT_CELL_INDEX), asset.getHiddenComment());
 			if (isILR)
 				writeAssetIRLCells(hiddenComment, ilrImpactHeaders, ilrAssetImpacts, asset, row);
+			if (!maxFormulas.isEmpty()) {
+				for (int i = columns.length - 3; i < columns.length; i++)
+					setFormula(getCell(row, i), String.format("MAX(%s)", maxFormulas.get(columns[i])));
+			}
 
 			sheet.getRow().add(row);
 		}
@@ -1386,19 +1413,29 @@ public class ControllerDataManager {
 				setValue(row.getC().get(currentColum + j),
 						assetImpacts.getOrDefault(ilrImpactHeaders.get(j), -1));
 		}
+
 	}
 
 	private void writeAssetIRLImpacts(Analysis analysis, final List<String> ilrImpactHeaders,
 			final List<String> myColumns,
 			final Map<String, Map<String, Integer>> ilrAssetImpacts) {
-		final String[] cias = { "C-", "I-", "A-" };
+		final String[] cias = { "C", "I", "A" };
+
+		analysis.getIlrImpactTypes()
+				.sort((e1, e2) -> NaturalOrderComparator.compareTo(e1.getShortName(), e2.getShortName()));
+
 		analysis.getIlrImpactTypes().forEach(s -> {
-			final String acronym = s.getAcronym().replace(".", "");
+			final String name = s.getShortName().replace(".", "");
 			for (String cia : cias)
-				ilrImpactHeaders.add(cia + acronym);
+				ilrImpactHeaders.add(cia + "-" + name);
 		});
 
 		myColumns.addAll(ilrImpactHeaders);
+
+		if (!ilrImpactHeaders.isEmpty()) {
+			for (String cia : cias)
+				myColumns.add(cia);
+		}
 
 		analysis.getAssets().forEach(a -> ilrAssetImpacts.put(a.getName(),
 				ilrImpactHeaders.stream().collect(Collectors.toMap(Function.identity(), r -> -1))));
@@ -1417,7 +1454,7 @@ public class ControllerDataManager {
 	private void writeIRLImpact(final Map<ScaleType, ILRImpact> impacts, String prefix,
 			final Map<String, Integer> assetImpacts) {
 		impacts.forEach((type, impact) -> {
-			final String acronym = type.getAcronym().replace(".", "");
+			final String acronym = type.getShortName().replace(".", "");
 			assetImpacts.put(prefix + acronym, impact.getValue());
 		});
 	}

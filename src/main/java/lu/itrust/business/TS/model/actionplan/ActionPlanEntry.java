@@ -64,12 +64,14 @@ public class ActionPlanEntry {
 	@ManyToOne
 	@JoinColumn(name = "fiActionPlanType", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
 	@ManyToOne
 	@JoinColumn(name = "fiMeasure", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	private Measure measure = null;
 
@@ -113,7 +115,7 @@ public class ActionPlanEntry {
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@OrderBy("currentALE DESC")
 	@Access(AccessType.FIELD)
-	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
+	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<>();
 
 	/***********************************************************************************************
 	 * Constructor

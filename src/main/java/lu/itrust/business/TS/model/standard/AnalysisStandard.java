@@ -68,6 +68,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	private Standard standard = null;
 

@@ -85,7 +85,7 @@ function exportAnalysis(analysisId) {
 	}
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: context + "/Analysis/Export/" + analysisId,
+		url: context + "/Analysis/Data-manager/Sqlite/Export-process?idAnalysis=" + analysisId,
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {

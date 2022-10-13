@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.ilr;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ public class AssetNode implements Cloneable {
     /** Link to the asset */
     @ManyToOne
     @JoinColumn(name = "fiImpact", nullable = false)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Cascade(CascadeType.ALL)
     private AssetImpact impact;
 
@@ -60,7 +62,7 @@ public class AssetNode implements Cloneable {
     @MapKey(name = "child")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Cascade(CascadeType.ALL)
-    private Map<AssetNode,AssetEdge> edges;
+    private Map<AssetNode,AssetEdge> edges = new HashMap<>();
 
     public AssetNode() {
     }
@@ -189,7 +191,7 @@ public class AssetNode implements Cloneable {
             AssetNode assetNode = (AssetNode) super.clone();
             if (edges != null)
                 assetNode.edges = edges.values().stream().map(e -> e.duplicate(assetNode)).collect(Collectors.toMap(AssetEdge::getChild, Function.identity()));
-            assetNode.id = -1;
+            assetNode.id = 0;
             return assetNode;
         } catch (CloneNotSupportedException e) {
             throw new TrickException("error.clone.asset_node", "AssetNode cannot be copied");

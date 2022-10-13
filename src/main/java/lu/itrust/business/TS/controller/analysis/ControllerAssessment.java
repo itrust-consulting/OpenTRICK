@@ -294,9 +294,7 @@ public class ControllerAssessment {
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
-			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
-			// update
-			serviceAnalysis.saveOrUpdate(analysis);
+			assessmentAndRiskProfileManager.updateAndSave(analysis, null);;
 			// return success message
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
 		} catch (TrickException e) {

@@ -75,6 +75,7 @@ import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.model.general.helper.InvitationFilter;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
+import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -231,14 +232,15 @@ public class ControllerAccount {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
-		String extension = ReportType.getExtension(wordReport.getType(), wordReport.getFilename());
+		final String filename = Utils.extractOrignalFilename(wordReport.getFilename());
+
+		String extension = ReportType.getExtension(wordReport.getType(), filename);
 
 		// set response contenttype to sqlite
 		response.setContentType(extension);
 
 		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("%s_%s_v%s.%s",
-				wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());
@@ -292,13 +294,9 @@ public class ControllerAccount {
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");
 
-		// retireve sqlite file name to set
-		String identifierName = userSqLite.getIdentifier();
-
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + (identifierName == null || identifierName.trim().isEmpty() ? "Analysis"
-						: identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+				"attachment; filename=\"" + Utils.extractOrignalFilename(userSqLite.getFilename()) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());

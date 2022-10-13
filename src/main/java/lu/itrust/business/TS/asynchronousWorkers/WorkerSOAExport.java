@@ -37,6 +37,7 @@ import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
@@ -50,6 +51,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
+import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -60,8 +62,6 @@ import lu.itrust.business.TS.usermanagement.User;
  *
  */
 public class WorkerSOAExport extends WorkerImpl {
-
-	
 
 	public static final String DEFAULT_PARAGRAHP_STYLE = "TabText1";
 
@@ -163,7 +163,8 @@ public class WorkerSOAExport extends WorkerImpl {
 			session.beginTransaction();
 			final long reportId = processing();
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.export.soa", "SOA has been successfully exported", 100);
+			MessageHandler messageHandler = new MessageHandler("success.export.soa",
+					"SOA has been successfully exported", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("download", "Report", reportId));
 			getServiceTaskFeedback().send(getId(), messageHandler);
 		} catch (Exception e) {
@@ -176,7 +177,8 @@ public class WorkerSOAExport extends WorkerImpl {
 			}
 			MessageHandler messageHandler = null;
 			if (e instanceof TrickException)
-				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
+				messageHandler = new MessageHandler(((TrickException) e).getCode(),
+						((TrickException) e).getParameters(), e.getMessage(), e);
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			getServiceTaskFeedback().send(getId(), messageHandler);
@@ -218,32 +220,43 @@ public class WorkerSOAExport extends WorkerImpl {
 			int[] progressing = { 2, 95, 0, 0 };
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			final String filename = String.format("SOA_%s_%d_v%s.docx", analysis.getLabel().replaceAll(CLEAN_UP_FILE_NAME, "_").replaceAll("[_]{2,}", ""),
-					System.nanoTime(), analysis.getVersion());
-			final String doctemplate = String.format("docx/%s.docx", locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
+			final String doctemplate = String.format("docx/%s.docx",
+					locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
 			InstanceManager.getServiceStorage().copy(doctemplate, workFile.getName());
 			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
 			final Document document = wordMLPackage.getMainDocumentPart().getContents();
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
-			final List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
-			MessageHandler handler = new MessageHandler("info.printing.soa.data", "Printing soa data", progressing[0] += 1);
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
+			final List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().values().stream()
+					.filter(AnalysisStandard::isSoaEnabled).collect(Collectors.toList());
+			MessageHandler handler = new MessageHandler("info.printing.soa.data", "Printing soa data",
+					progressing[0] += 1);
 			getServiceTaskFeedback().send(getId(), handler);
-			progressing[2] = analysisStandards.stream().mapToInt(analysisStandard -> analysisStandard.getMeasures().size()).sum();
+			progressing[2] = analysisStandards.stream()
+					.mapToInt(analysisStandard -> analysisStandard.getMeasures().size()).sum();
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 				P p = null;
 				if (progressing[3] == 0)
-					p = (P) document.getContent().parallelStream().filter(p1 -> p1 instanceof P).findAny().orElse(null);
+					p = (P) document.getContent().parallelStream().filter(P.class::isInstance).findAny().orElse(null);
 				if (p == null)
-					document.getContent().add(p = new P());
+					document.getContent().add((p = new P()));
 				setText(setStyle(p, "Heading1"), analysisStandard.getStandard().getName());
-				analysisStandard.getMeasures().sort((e1,e2)-> NaturalOrderComparator.compareTo(e1.getMeasureDescription().getReference(), e2.getMeasureDescription().getReference()));
+				analysisStandard.getMeasures()
+						.sort((e1, e2) -> NaturalOrderComparator.compareTo(e1.getMeasureDescription().getReference(),
+								e2.getMeasureDescription().getReference()));
 				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, progressing);
 				document.getContent().add(tbl);
 			}
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));
 			wordMLPackage.save(workFile);
-			WordReport report = WordReport.BuildSOA(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, filename, workFile.length(),
+			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "SOA", analysis.getVersion(),
+					"docx", System.nanoTime());
+			final WordReport report = WordReport.BuildSOA(analysis.getIdentifier(), analysis.getLabel(),
+					analysis.getVersion(), user, filename, workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
 			daoAnalysis.saveOrUpdate(analysis);
@@ -257,19 +270,27 @@ public class WorkerSOAExport extends WorkerImpl {
 		int rowIndex = 0;
 		Tbl table = createTable("TSSOA", measures.size() + 1, 6);
 		Tr row = (Tr) table.getContent().get(rowIndex++);
-		setCellText((Tc) row.getContent().get(0), getMessageSource().getMessage("report.measure.reference", null, "Ref.", locale));
-		setCellText((Tc) row.getContent().get(1), getMessageSource().getMessage("report.measure.domain", null, "Domain", locale));
-		setCellText((Tc) row.getContent().get(2), getMessageSource().getMessage("report.measure.status", null, "Status", locale));
-		setCellText((Tc) row.getContent().get(3), getMessageSource().getMessage("report.measure.due.date", null, "Due date", locale));
-		setCellText((Tc) row.getContent().get(4), getMessageSource().getMessage("report.soa.justification", null, "Justification", locale));
-		setCellText((Tc) row.getContent().get(5), getMessageSource().getMessage("report.soa.reference", null, "Reference", locale));
+		setCellText((Tc) row.getContent().get(0),
+				getMessageSource().getMessage("report.measure.reference", null, "Ref.", locale));
+		setCellText((Tc) row.getContent().get(1),
+				getMessageSource().getMessage("report.measure.domain", null, "Domain", locale));
+		setCellText((Tc) row.getContent().get(2),
+				getMessageSource().getMessage("report.measure.status", null, "Status", locale));
+		setCellText((Tc) row.getContent().get(3),
+				getMessageSource().getMessage("report.measure.due.date", null, "Due date", locale));
+		setCellText((Tc) row.getContent().get(4),
+				getMessageSource().getMessage("report.soa.justification", null, "Justification", locale));
+		setCellText((Tc) row.getContent().get(5),
+				getMessageSource().getMessage("report.soa.reference", null, "Reference", locale));
 		for (Measure measure : measures) {
 			row = (Tr) table.getContent().get(rowIndex++);
 			setCellText((Tc) row.getContent().get(0), measure.getMeasureDescription().getReference());
-			setCellText((Tc) row.getContent().get(1), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
+			setCellText((Tc) row.getContent().get(1), measure.getMeasureDescription()
+					.getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
 			if (measure.getMeasureDescription().isComputable()) {
 				setCellText((Tc) row.getContent().get(2),
-						getMessageSource().getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
+						getMessageSource().getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null,
+								measure.getStatus(), locale));
 				setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
 				if (measure instanceof AbstractNormalMeasure) {
 					setCellText((Tc) row.getContent().get(4), ((AbstractNormalMeasure) measure).getSoaComment());
@@ -277,18 +298,21 @@ public class WorkerSOAExport extends WorkerImpl {
 				}
 			} else
 				mergeCell(row, 1, 5, null);
-			handler.setProgress((int) (progressing[0] + (++progressing[3] / (double) progressing[2]) * (progressing[1] - progressing[0])));
+			handler.setProgress((int) (progressing[0]
+					+ (++progressing[3] / (double) progressing[2]) * (progressing[1] - progressing[0])));
 		}
 		return format(table);
 	}
 
 	private Tbl format(Tbl table) {
-		int[] headers = { 878, 3128, 549, 1000, 5784, 2382 }, cols = { 303, 1147, 189, 400, 2086, 875 }, mergeCols = { 303, sum(1, 5, cols) };
+		int[] headers = { 878, 3128, 549, 1000, 5784, 2382 }, cols = { 303, 1147, 189, 400, 2086, 875 },
+				mergeCols = { 303, sum(1, 5, cols) };
 		table.getTblPr().getTblW().setType("pct");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(5000));
 		for (int i = 0; i < headers.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(headers[i]));
-		table.getContent().parallelStream().map(tr -> (Tr) tr).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "pct"));
+		table.getContent().parallelStream().map(tr -> (Tr) tr)
+				.forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "pct"));
 
 		return table;
 	}
@@ -328,7 +352,8 @@ public class WorkerSOAExport extends WorkerImpl {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
 		P paragraph = (P) cell.getContent().get(0);
-		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p).forEach(p -> setStyle(p, DEFAULT_PARAGRAHP_STYLE));
+		cell.getContent().parallelStream().filter(p -> p instanceof P).map(p -> (P) p)
+				.forEach(p -> setStyle(p, DEFAULT_PARAGRAHP_STYLE));
 		setText(paragraph, text, alignment);
 	}
 

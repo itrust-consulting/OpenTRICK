@@ -83,7 +83,7 @@ public class RiskProfile implements Cloneable {
 	@JoinTable(name = "RiskProfileMeasures", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiMeasure"), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"fiRiskProfile", "fiMeasure" }))
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private List<Measure> measures = new LinkedList<Measure>();
+	private List<Measure> measures = new LinkedList<>();
 
 	@Embedded
 	@AttributeOverrides(@AttributeOverride(name = "vulnerability", column = @Column(name = "dtRawVulnerability")))

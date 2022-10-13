@@ -263,7 +263,7 @@ public final class ExcelHelper {
 			setValue(row, i, columns[i]);
 		}
 		table.getTableColumns().setCount((long) columns.length);
-		table.setRef(new AddressRef(new CellRef(0, 0),
+		table.setRef(new AddressRef(new CellRef(rowIndex, 0),
 				new CellRef(length == rowIndex ? rowIndex + 1 : rowIndex + length, columns.length - 1))
 				.toString());
 		table.getAutoFilter().setRef(table.getRef());

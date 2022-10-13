@@ -52,6 +52,7 @@ public class Asset implements Cloneable {
 	/** The Asset Type Name */
 	@ManyToOne
 	@JoinColumn(name = "fiAssetType", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	private AssetType assetType = null;
 

@@ -22,6 +22,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -245,6 +247,7 @@ public class Scenario extends SecurityCriteria {
 	 * @return The List of AssetTypeValues
 	 */
 	@ManyToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = {
 			@JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -270,6 +273,7 @@ public class Scenario extends SecurityCriteria {
 	 * @return the linkedAssets
 	 */
 	@ManyToMany
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "ScenarioLinkedAsset", joinColumns = {
 			@JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "fiAsset", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -343,8 +347,8 @@ public class Scenario extends SecurityCriteria {
 	 */
 	public boolean hasInfluenceOnAsset(AssetType assetType) {
 		return !isAssetLinked()
-				&& getAssetTypeValues().stream().filter(typeValue -> typeValue.getAssetType().equals(assetType))
-						.map(typeValue -> typeValue.getValue() > 0).findAny().orElse(false);
+				&& getAssetTypeValues().stream()
+						.anyMatch(typeValue ->  typeValue.getValue() > 0 && assetType.equals(typeValue.getAssetType()));
 	}
 
 	public boolean hasThreatSource() {

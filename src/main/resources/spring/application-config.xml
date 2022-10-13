@@ -134,8 +134,6 @@
 	<bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp2.BasicDataSource" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}"
 		p:username="${jdbc.username}" p:password="${jdbc.password}" />
 
-	<!--
-
 	<bean id="flywayConfig" class="org.flywaydb.core.api.configuration.ClassicConfiguration">
 		<property name="dataSource" ref="dataSource" />
 		<property name="table" value="SchemaVersion" />
@@ -157,8 +155,6 @@
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate" depends-on="passwordEncryptionHelper">
 		<constructor-arg ref="flywayConfig" />
 	</bean>
-
--->
 
 	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />

@@ -86,7 +86,7 @@ public class ILRImpact implements Cloneable {
     public ILRImpact duplicate() {
         try {
             final ILRImpact impact = (ILRImpact) super.clone();
-            impact.id = -1;
+            impact.id = 0;
             return impact;
         } catch (CloneNotSupportedException e) {
             throw new TrickException("error.clone.ilr_impact", "ILRImpact cannot be copied");

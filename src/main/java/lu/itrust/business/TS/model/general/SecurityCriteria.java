@@ -73,7 +73,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	private int externalThreat = 0;
 
 	/** The Map of Scenario Categories */
-	private Map<String, Integer> categories = new LinkedHashMap<String, Integer>(25);
+	private Map<String, Integer> categories = new LinkedHashMap<>(25);
 
 	/***********************************************************************************************
 	 * Constructor

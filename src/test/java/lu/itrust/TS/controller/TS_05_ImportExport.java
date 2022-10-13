@@ -398,7 +398,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			notNull(result, "No result");
 			MockHttpServletResponse response = result.getResponse();
 			assertTrue("Bad length", response.getContentLength() / 1048576.0 >= 1E-2);
-			assertEquals("Bad content-disposition", "attachment; filename=\"ENG_2015_07_13_07_31_14.sqlite\"", response.getHeaderValue("Content-Disposition"));
+			assertEquals("Bad content-disposition", "attachment; filename=\"05-X_TSE_me-TSValidationAnalysis-DB_v0.2.sqlite\"", response.getHeaderValue("Content-Disposition"));
 			assertEquals("Bad contentType", "sqlite", response.getContentType());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -472,7 +472,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();
 		assertTrue("Bad length", response.getContentLength() / 1048576.0 > 1E-2);
-		assertEquals("Bad content-disposition", "attachment; filename=\"STA_TS Validation Analysis_v0.2.docx\"", response.getHeaderValue("Content-Disposition"));
+		assertEquals("Bad content-disposition", "attachment; filename=\"05-X_TSE_me-TSValidationAnalysis-Report_v0.2.docx\"", response.getHeaderValue("Content-Disposition"));
 		assertEquals("Bad contentType", "docx", response.getContentType());
 	}
 }

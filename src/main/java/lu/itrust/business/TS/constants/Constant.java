@@ -62,6 +62,25 @@ public class Constant {
 
 	public static final String SETTING_LANGUAGE = "LANGUAGE";
 
+	public static final String TS_GEN_TIME_CTRL = ".ts-gen-time-";
+
+	/**
+	 * 05-x_TSE_CCC-NNN-ExportName_vVVV <br />
+	 * where
+	 * CCC is the customer name
+	 * NNN is the RA name
+	 * ExportName is the name of the eport type chosem (e.g. RRF, Report, RiskEstim
+	 * (with no space)
+	 * VVV the version number
+	 * TSE (stand for TRICK Service Export and is the document type
+	 */
+	public static final String ITR_FILE_NAMING = "05-X_TSE_%s-%s-%s_v%s.%s";
+
+	/**
+	 * @see #ITR_FILE_NAMING
+	 */
+	public static final String ITR_FILE_NAMING_WIHT_CTRL = ITR_FILE_NAMING + TS_GEN_TIME_CTRL + "%d";
+
 	/***********************************************************************************************
 	 * List of Role and permissions (for controllers)s - BEGIN
 	 **********************************************************************************************/
@@ -177,7 +196,9 @@ public class Constant {
 	/** Regular expression for SimpleParameter types */
 	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
-	/** Regular expression for asset types, the order is important to not change it! */
+	/**
+	 * Regular expression for asset types, the order is important to not change it!
+	 */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl|Sys|Site|Out";
 
 	/** Regular expression for exposed field value */
@@ -295,7 +316,8 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
 	public final static String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
 
-	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME };
+	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME,
+			PARAMETERTYPE_TYPE_DYNAMIC_NAME };
 
 	/**
 	 * FINANCIAL, LEGAL, OPERATIONAL, REPUTATIONAL
@@ -311,7 +333,8 @@ public class Constant {
 	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
 	 * @see #ASSESSMENT_IMPACT_NAMES
 	 */
-	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational", "Reputational" };
+	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational",
+			"Reputational" };
 
 	public final static String[] DEFAULT_IMPACT_TYPE_SHORT_NAMES = { "Fin.", "Leg.", "Op.", "Rep." };
 
@@ -349,7 +372,8 @@ public class Constant {
 	 * [{@code RI_TYPE_VUL, SheetName, column size}],
 	 * [{@code RI_TYPE_THREAT, SheetName,column size}] ]
 	 */
-	public static final Object[][] RI_SHEET_MAPPERS = { { RI_TYPE_RISK, "Risks", 6 }, { RI_TYPE_VUL, "Vulnerabilities", 6 }, { RI_TYPE_THREAT, "Threats", 7 } };
+	public static final Object[][] RI_SHEET_MAPPERS = { { RI_TYPE_RISK, "Risks", 6 },
+			{ RI_TYPE_VUL, "Vulnerabilities", 6 }, { RI_TYPE_THREAT, "Threats", 7 } };
 
 	/** SimpleParameter Attributes */
 	public final static String PARAMATTRIBUTE_NAME = "Name";
@@ -553,7 +577,8 @@ public class Constant {
 	 * @see #DEFAULT_IMPACT_TYPE_NAMES
 	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
 	 */
-	public static final String[] ASSESSMENT_IMPACT_NAMES = { ASSESSMENT_IMPACT_FIN, ASSESSMENT_IMPACT_LEG, ASSESSMENT_IMPACT_OP, ASSESSMENT_IMPACT_REP };
+	public static final String[] ASSESSMENT_IMPACT_NAMES = { ASSESSMENT_IMPACT_FIN, ASSESSMENT_IMPACT_LEG,
+			ASSESSMENT_IMPACT_OP, ASSESSMENT_IMPACT_REP };
 
 	/** List of Constants for the Sqlite Table "history" */
 	public static final String HISTORY_COMMENT = MEASURE_COMMENT;
@@ -638,7 +663,7 @@ public class Constant {
 	public static final String REGEX_SPLIT_REFERENCE = "\\.|\\s|;|-|,";
 
 	public static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
-	
+
 	public static final String ACCEPT_TEXT_PLAIN_CHARSET_UTF_8 = "Accept=text/plain;charset=UTF-8";
 
 	public static final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json;charset=UTF-8";
@@ -666,7 +691,7 @@ public class Constant {
 	public static final String CURRENT_CUSTOMER = "currentCustomer";
 
 	public static final String ALLOWED_TICKETING = "allowedTicketing";
-	
+
 	public static final String ADMIN_ALLOWED_TICKETING = "adminaAllowedTicketing";
 
 	public static final String TICKETING_NAME = "ticketingName";
@@ -676,7 +701,7 @@ public class Constant {
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
 	public static final String USER_IV_2_FACTOR_SECRET = "user-iv-2-factor-secret";
-	
+
 	public static final String CLEAN_UP_FILE_NAME = "\\.|/|-|:|\\\\|&|,|\\$|\\+|\\||£|&|\\[|\\]|\\(|\\)|\\{|\\}|\\'|\"";
 
 	/*
@@ -723,16 +748,20 @@ public class Constant {
 
 	public static final String HEAT_MAP_DEFAULT_COLOR = "#FFFFFF";
 
-	public static final String[] NORMAL_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time",
-			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "To check", "Comment", "To do" };
+	public static final String[] NORMAL_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload",
+			"External Workload", "Investment", "Life time",
+			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "To check",
+			"Comment", "To do" };
 
-	public static final String[] MATURITY_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload", "External Workload", "Investment", "Life time",
-			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "Comment", "To do" };
+	public static final String[] MATURITY_MEASURE_COLUMNS = { "Reference", "Status", "Implemention",
+			"Internal Workload", "External Workload", "Investment", "Life time",
+			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "Comment",
+			"To do" };
 
 	public static final String ANALYSIS_REPORT_DARK_COLOR = "REPORT_DARK_COLOR";
-	
+
 	public static final String ANALYSIS_REPORT_DELFAUT_COLOR = "REPORT_DEFAULT_COLOR";
-	
+
 	public static final String ANALYSIS_REPORT_LIGHT_COLOR = "REPORT_LIGHT_COLOR";
 
 	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
@@ -750,6 +779,5 @@ public class Constant {
 	public static volatile List<String> RISK_COLORS;
 
 	public static final long ONE_YEAR_TO_MILLISECONDS = 31556952000L;
-
 
 }

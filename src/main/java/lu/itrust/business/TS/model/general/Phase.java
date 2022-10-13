@@ -67,6 +67,7 @@ public class Phase implements Cloneable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	private Analysis analysis = null;
 

@@ -54,6 +54,7 @@ public class SummaryStage {
 
 	@ManyToOne
 	@JoinColumn(name = "fiActionPlanType", nullable = false)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Access(AccessType.FIELD)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private ActionPlanType actionPlanType = null;
@@ -67,7 +68,7 @@ public class SummaryStage {
 	@JoinColumn(name = "fiActionPlanSummary", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
-	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
+	private List<SummaryStandardConformance> conformances = new ArrayList<>();
 
 	/** Number of Measures in this Stage */
 	@Column(name = "dtMeasureCount", nullable = false)

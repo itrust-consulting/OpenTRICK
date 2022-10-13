@@ -40,6 +40,7 @@ public class ScaleType extends AbstractParameterType {
 	@ElementCollection
 	@MapKeyColumn(name = "dtLocale")
 	@Cascade(CascadeType.ALL)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@CollectionTable(name = "ScaleTypeTranslations", joinColumns = @JoinColumn(name = "fiScaleType"))
 	private Map<String, Translation> translations = new LinkedHashMap<>();
 

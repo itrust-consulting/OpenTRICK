@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -261,7 +262,6 @@ public class WorkerImportEstimation extends WorkerImpl {
 				try {
 					if (session.getTransaction().getStatus().canRollback()) {
 						session.getTransaction().rollback();
-						System.out.println("here");
 					}
 				} catch (Exception e1) {
 				}
@@ -384,7 +384,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 				: Collections.emptyMap();
 
 		final Map<String, ScaleType> scaleTypes = daoScaleType.findAll().stream()
-				.collect(Collectors.toMap(e -> e.getAcronym().replace(".", "").toLowerCase(), Function.identity(),
+				.collect(Collectors.toMap(e -> e.getShortName().replace(".", "").toLowerCase(), Function.identity(),
 						(e1, e2) -> e1));
 
 		final Map<String, Asset> assets = analysis.getAssets().stream()
@@ -392,6 +392,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream()
 				.collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
+
+		final Set<ScaleType> usedScales = new HashSet<>(analysis.getIlrImpactTypes());
+
+		final Set<String> seenAssets = new HashSet<>();
 
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
@@ -407,6 +411,12 @@ public class WorkerImportEstimation extends WorkerImpl {
 					assets.put(asset.getName(), asset);
 				} else
 					asset.setName(name);
+			}
+
+			if (seenAssets.contains(asset.getName().trim().toLowerCase())) {
+				final String cellString = new CellRef(i, 0).toString();
+				throw new TrickException("error.import.data.asset.duplicated",
+						String.format("Duplicated asset `%s`, see: %s", name, cellString), name, cellString);
 			}
 
 			final List<AssetNode> nodes;
@@ -468,6 +478,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 								getServiceTaskFeedback().send(getId(), handler);
 							} else {
 								final int impact = getInt(row, j, -2, formatter);
+								usedScales.add(scaleType);
 								if (nodes.isEmpty())
 									nodes.add(new AssetNode(asset));
 								if (impact > -2) {
@@ -506,13 +517,14 @@ public class WorkerImportEstimation extends WorkerImpl {
 						}
 				}
 			}
+
+			nodes.stream().filter(n -> n.getId() < 1).forEach(e -> analysis.getAssetNodes().add(e));
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
 			getServiceTaskFeedback().send(getId(), handler);
 		}
 
-		if (isILR) {
-			// Todo: Update dependancy
-		}
+		usedScales.stream().filter(e -> !analysis.getIlrImpactTypes().contains(e))
+				.forEach(e -> analysis.getIlrImpactTypes().add(e));
 
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
 				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(),
@@ -567,10 +579,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		final int headerRowIndex = address.getBegin().getRow();
 
-		for (int i = headerRowIndex; i < size; i++) {
+		for (int i = headerRowIndex + 1; i < size; i++) {
 			final Row row = sheetData.getRow().get(i);
 			final String name = getString(row, nameIndex, formatter);
-
 			if (isEmpty(name))
 				continue;
 			final Asset asset = assets.get(name.trim().toLowerCase());
@@ -583,7 +594,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 			final AssetNode node = nodes.computeIfAbsent(asset.getName().toLowerCase(), k -> new AssetNode(asset));
 			for (int j = 0; j < columns.size(); j++) {
-				if (nameIndex == i || assetTypeIndex == i)
+				if (nameIndex == j || assetTypeIndex == j)
 					continue;
 				final String rootName = columns.get(j);
 				final Asset rootAsset = assets.get(rootName);
@@ -593,25 +604,28 @@ public class WorkerImportEstimation extends WorkerImpl {
 							String.format("Asset `%s` cannot be found! See cell `%s`", rootName, myCell),
 							rootName,
 							myCell);
-				}
+				} else if (!rootAsset.equals(asset)) {
 
-				final int weight = getInt(row, j, 0, formatter);
+					final int weight = getInt(row, j, 0, formatter);
 
-				final AssetNode rootNode = nodes.computeIfAbsent(rootName, k -> new AssetNode(asset));
+					final AssetNode rootNode = nodes.computeIfAbsent(rootName, k -> new AssetNode(rootAsset));
 
-				Map<AssetNode, AssetEdge> oldEdges = oldDependancies.get(rootNode);
+					Map<AssetNode, AssetEdge> oldEdges = oldDependancies.get(rootNode);
 
-				AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(node);
+					AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(node);
 
-				if (weight != 0) {
-					if (assetEdge == null)
-						rootNode.getEdges().put(node, new AssetEdge(rootNode, node, weight));
-					else
-						assetEdge.setWeight(weight);
+					if (weight != 0) {
+						if (assetEdge == null)
+							rootNode.getEdges().put(node, new AssetEdge(rootNode, node, weight));
+						else
+							assetEdge.setWeight(weight);
+					}
 				}
 
 			}
 		}
+
+		nodes.values().stream().filter(e -> e.getId() < 1).forEach(e -> analysis.getAssetNodes().add(e));
 
 		oldDependancies.values().stream().flatMap(e -> e.values().stream())
 				.forEach(e -> e.getParent().getEdges().remove(e.getChild()));
@@ -1080,6 +1094,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		final DataFormatter formatter = new DataFormatter();
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream()
@@ -1092,7 +1107,14 @@ public class WorkerImportEstimation extends WorkerImpl {
 			importAsset(analysis, workbook, sheets, formatter, 6, 90);
 		else if (isScenarioOnly())
 			importScenario(analysis, workbook, sheets, formatter, 6, 90);
-		else {
+		else if (isAssetDependancyOnly()) {
+			importAssetDependancy(analysis, workbook, sheets, formatter, 6, 90);
+		} else if (isILR) {
+			importAsset(analysis, workbook, sheets, formatter, 6, 20);
+			importScenario(analysis, workbook, sheets, formatter, 20, 45);
+			importAssetDependancy(analysis, workbook, sheets, formatter, 45, 60);
+			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 60, 90);
+		} else {
 			importAsset(analysis, workbook, sheets, formatter, 6, 35);
 			importScenario(analysis, workbook, sheets, formatter, 35, 60);
 			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 60, 90);
@@ -1104,6 +1126,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 				new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 93));
 		daoAnalysis.saveOrUpdate(analysis);
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 96));
+	}
+
+	private boolean isAssetDependancyOnly() {
+		return false;
 	}
 
 	public final static List<Column> generateColumns(List<ScaleType> scales, boolean qualitative, boolean hiddenComment,

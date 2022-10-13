@@ -71,6 +71,7 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
@@ -130,6 +131,9 @@ public class ControllerMeasureCollection {
 	@Value("${app.settings.standard.template.path}")
 	private String template;
 
+	@Value("${app.settings.version}${app.settings.version.revision}")
+	private String appVersion;
+
 	/**
 	 * displayAll: <br>
 	 * Description
@@ -139,7 +143,7 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Model model){
+	public String displayAll(Model model) {
 		model.addAttribute("standards", serviceStandard.getAllNotBoundToAnalysis());
 		return "knowledgebase/standards/standard/standards";
 	}
@@ -153,7 +157,7 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String section(Model model){
+	public String section(Model model) {
 		// call default
 		return displayAll(model);
 	}
@@ -182,37 +186,45 @@ public class ControllerMeasureCollection {
 		// check if standard has to be create (new) or updated
 		if (standard.getId() < 1) {
 			if (serviceStandard.existsByNameAndVersion(standard.getLabel(), standard.getVersion()))
-				errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
+				errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null,
+						"Version already exists", locale));
 			else
 				serviceStandard.save(standard);
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.add", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
+			TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.add",
+					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
 					principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
 		} else {
 			Standard persited = serviceStandard.get(standard.getId());
 			if (persited == null)
-				errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
+				errors.put("standard",
+						messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
 			else if (persited.isAnalysisOnly())
 				errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
-						"This standard can only be managed within the selected analysis where this standard belongs!", locale));
+						"This standard can only be managed within the selected analysis where this standard belongs!",
+						locale));
 			else if (!persited.getType().equals(standard.getType()) && serviceStandard.isUsed(persited))
-				errors.put("type", messageSource.getMessage("error.norm.type.update", null, "Standard is in use, type cannot be updated!", locale));
+				errors.put("type", messageSource.getMessage("error.norm.type.update", null,
+						"Standard is in use, type cannot be updated!", locale));
 			else {
 
-				if (!persited.getName().equalsIgnoreCase(standard.getName()) && serviceStandard.isNameConflicted(standard.getName(), persited.getName()))
+				if (!persited.getName().equalsIgnoreCase(standard.getName())
+						&& serviceStandard.isNameConflicted(standard.getName(), persited.getName()))
 					errors.put("name", messageSource.getMessage("error.norm.rename.name.conflict", null, locale));
 
 				if (!persited.getLabel().equalsIgnoreCase(standard.getLabel())) {
 					if (serviceStandard.isLabelConflicted(standard.getLabel(), persited.getLabel()))
 						errors.put("label", messageSource.getMessage("error.norm.rename.label.conflict", null, locale));
 					else {
-						final List<Standard> standards = serviceStandard.findByLabelAndAnalysisOnlyFalse(persited.getLabel());
+						final List<Standard> standards = serviceStandard
+								.findByLabelAndAnalysisOnlyFalse(persited.getLabel());
 						standards.remove(persited);
 						for (Standard std : standards) {
 							if (serviceStandard.existsByNameAndVersion(standard.getLabel(), std.getVersion())) {
-								errors.put("standard", messageSource.getMessage("error.norm.rename.sub.version", null, locale));
+								errors.put("standard",
+										messageSource.getMessage("error.norm.rename.sub.version", null, locale));
 								break;
 							}
 						}
@@ -222,15 +234,19 @@ public class ControllerMeasureCollection {
 								s.setLabel(standard.getLabel());
 								serviceStandard.saveOrUpdate(s);
 								TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
-										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", s.getLabel(), s.getVersion(), oldName, s.getVersion()),
-										principal.getName(), LogAction.RENAME, s.getLabel(), String.valueOf(s.getVersion()), oldName, String.valueOf(s.getVersion()));
+										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d",
+												s.getLabel(), s.getVersion(), oldName, s.getVersion()),
+										principal.getName(), LogAction.RENAME, s.getLabel(),
+										String.valueOf(s.getVersion()), oldName, String.valueOf(s.getVersion()));
 							});
 							final int oldVersion = standard.getVersion();
 							serviceStandard.saveOrUpdate(persited.update(standard));
 							TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
-									String.format("Standard, name: %s, version: %d, old name: %s, old version: %d", persited.getLabel(), persited.getVersion(), oldName,
+									String.format("Standard, name: %s, version: %d, old name: %s, old version: %d",
+											persited.getLabel(), persited.getVersion(), oldName,
 											oldVersion),
-									principal.getName(), LogAction.RENAME, persited.getLabel(), String.valueOf(persited.getVersion()), oldName, String.valueOf(oldVersion));
+									principal.getName(), LogAction.RENAME, persited.getLabel(),
+									String.valueOf(persited.getVersion()), oldName, String.valueOf(oldVersion));
 						}
 					}
 				} else if (errors.isEmpty()) {
@@ -238,8 +254,10 @@ public class ControllerMeasureCollection {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.update", String.format("Standard: %s, version: %d", persited.getLabel(), persited.getVersion()),
-							principal.getName(), LogAction.UPDATE, persited.getLabel(), String.valueOf(persited.getVersion()));
+					TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.update",
+							String.format("Standard: %s, version: %d", persited.getLabel(), persited.getVersion()),
+							principal.getName(), LogAction.UPDATE, persited.getLabel(),
+							String.valueOf(persited.getVersion()));
 				}
 			}
 
@@ -257,23 +275,27 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Principal principal,
+			Locale locale) throws Exception {
 
 		try {
 			Standard standard = serviceStandard.get(idStandard);
 			if (standard.isAnalysisOnly())
 				return JsonMessage.Error(messageSource.getMessage("error.norm.manage_analysis_standard", null,
-						"This standard can only be managed within the selected analysis where this standard belongs!", locale));
+						"This standard can only be managed within the selected analysis where this standard belongs!",
+						locale));
 			// try to delete the standard
 			customDelete.deleteStandard(standard);
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.standard.delete",
-					String.format("Standard: %s, version: %d", standard.getName(), standard.getVersion()), principal.getName(), LogAction.DELETE, standard.getName(),
+					String.format("Standard: %s, version: %d", standard.getName(), standard.getVersion()),
+					principal.getName(), LogAction.DELETE, standard.getName(),
 					String.valueOf(standard.getVersion()), principal.getName());
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null,
+					"Standard was deleted successfully", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -288,9 +310,15 @@ public class ControllerMeasureCollection {
 	}
 
 	@RequestMapping(value = "/Template", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<Resource> downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Template.xlsx\"")
-				.header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").body(serviceStorage.loadAsResource(template));
+	public @ResponseBody ResponseEntity<Resource> downloadTemplate(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		final String filename = String.format(Constant.ITR_FILE_NAMING,
+				"KB",
+				"Template", "MeasureCollection", appVersion,
+				"xlsx");
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+				.header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+				.body(serviceStorage.loadAsResource(template));
 	}
 
 	/**
@@ -318,15 +346,18 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, RedirectAttributes attributes, Locale locale)
+	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal,
+			RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		final String filename = ServiceStorage.RandoomFilename();
 		final Worker worker = new WorkerImportStandard(filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+					"Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null, "Importing of measure collection", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null,
+				"Importing of measure collection", locale));
 	}
 
 	/**
@@ -342,7 +373,8 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Export/{idStandard}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response)
+	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal,
+			HttpServletRequest request, Locale locale, HttpServletResponse response)
 			throws Exception {
 
 		final Standard standard = serviceStandard.get(idStandard);
@@ -363,7 +395,8 @@ public class ControllerMeasureCollection {
 			TablePart tablePart = findTable(sheet, "TableNormInfo");
 			tablePart.getContents().getRef();
 			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), labelCol = nameCol + 1, versionCol = labelCol + 1, descCol = versionCol + 1;
+			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), labelCol = nameCol + 1,
+					versionCol = labelCol + 1, descCol = versionCol + 1;
 			// standard name
 			Cell cell = sheet.getRow().get(row).getC().get(nameCol);
 			setValue(cell, standard.getName());
@@ -386,9 +419,11 @@ public class ControllerMeasureCollection {
 
 			sheet = findSheet(workbook, "NormData");
 			final List<Language> languages = serviceLanguage.getAll();
-			final List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
+			final List<MeasureDescription> measuredescriptions = serviceMeasureDescription
+					.getAllByStandard(standard.getId());
 
-			measuredescriptions.sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
+			measuredescriptions
+					.sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
 
 			int referenceCol = 0, computableCol = 1, colSize = (languages.size() + 1) * 2, index = 0;
 			sheet.getRow().clear();
@@ -421,9 +456,9 @@ public class ControllerMeasureCollection {
 
 			if (table.getAutoFilter() != null)
 				table.getAutoFilter().setRef(table.getRef());
-			
+
 			final WorksheetPart worksheetPart = getWorksheetPart(sheet);
-			
+
 			if (worksheetPart.getContents().getDimension() != null)
 				worksheetPart.getContents().getDimension().setRef(table.getRef());
 
@@ -440,7 +475,8 @@ public class ControllerMeasureCollection {
 				int domainCol = computableCol + 1;
 
 				for (Language language : languages) {
-					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
+					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText
+							.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
 					if (measureDescriptionText != null) {
 						setValue(sheetRow.getC().get(domainCol), measureDescriptionText.getDomain());
 						setValue(sheetRow.getC().get(domainCol + 1), measureDescriptionText.getDescription());
@@ -448,15 +484,22 @@ public class ControllerMeasureCollection {
 					domainCol += 2;
 				}
 			}
-			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					"KB",
+					Utils.cleanUpFileName(standard.getLabel()), "MeasureCollection", standard.getVersion(),
+					"xlsx");
+
 			response.setContentType("xlsx");
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"" + filename + "\"");
 			mlPackage.save(response.getOutputStream());
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.export.standard",
-					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()), principal.getName(), LogAction.EXPORT, standard.getLabel(),
+					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
+					principal.getName(), LogAction.EXPORT, standard.getLabel(),
 					String.valueOf(standard.getVersion()));
 			// return
 			return null;
@@ -478,7 +521,8 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}/Language/{idLanguage}/Measures")
-	public String displayAll(@PathVariable int idStandard, @PathVariable int idLanguage, HttpServletRequest request, Model model) throws Exception {
+	public String displayAll(@PathVariable int idStandard, @PathVariable int idLanguage, HttpServletRequest request,
+			Model model) throws Exception {
 
 		// load all measuredescriptions of a standard
 		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByStandard(idStandard);
@@ -514,7 +558,8 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}/Language/{idLanguage}/Measures/{idMeasure}")
-	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response,
+	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure,
+			HttpServletRequest request, HttpServletResponse response,
 			Model model, Locale locale) throws Exception {
 
 		// load all measuredescriptions of a standard
@@ -532,7 +577,8 @@ public class ControllerMeasureCollection {
 			}
 
 			// load only from language
-			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
+			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText
+					.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
 
 			// put data to model
 			model.addAttribute("standard", serviceStandard.get(idStandard));
@@ -558,7 +604,8 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}/Measures/Add")
-	public String displayAddForm(@PathVariable("idStandard") Integer idStandard, HttpServletRequest request, Model model) throws Exception {
+	public String displayAddForm(@PathVariable("idStandard") Integer idStandard, HttpServletRequest request,
+			Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.getAll();
@@ -586,7 +633,8 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}/Measures/{idMeasure}/Edit")
-	public String displayEditForm(@PathVariable("idStandard") Integer idStandard, @PathVariable int idMeasure, HttpServletRequest request, Model model) throws Exception {
+	public String displayEditForm(@PathVariable("idStandard") Integer idStandard, @PathVariable int idMeasure,
+			HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.getAll();
@@ -643,7 +691,8 @@ public class ControllerMeasureCollection {
 	 * @return
 	 */
 	@RequestMapping(value = "/{idStandard}/Measures/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> save(@PathVariable("idStandard") int idStandard, @RequestBody String value, Locale locale) {
+	public @ResponseBody Map<String, String> save(@PathVariable("idStandard") int idStandard, @RequestBody String value,
+			Locale locale) {
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
@@ -662,11 +711,13 @@ public class ControllerMeasureCollection {
 				measureDescription = new MeasureDescription();
 				Standard standard = serviceStandard.get(idStandard);
 				if (standard == null)
-					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
+					errors.put("measureDescription.norm",
+							messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
 				measureDescription.setStandard(standard);
 			} else if (measureDescription.getStandard().getId() != idStandard)
 				errors.put("measureDescription.norm",
-						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
+						messageSource.getMessage("error.measure_description.norm.not_matching", null,
+								"Measure description or standard is not exist", locale));
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, jsonNode, locale)) {
 				if (isNew)
@@ -684,7 +735,8 @@ public class ControllerMeasureCollection {
 		catch (Exception e) {
 
 			// return errors
-			errors.put("measuredescription", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			errors.put("measuredescription",
+					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -702,22 +754,27 @@ public class ControllerMeasureCollection {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{idStandard}/Measures/Delete/{idMeasure}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
+	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard,
+			@PathVariable("idMeasure") int idMeasure, Locale locale) {
 		try {
 			// try to delete measure
 			final MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
 			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			else if (serviceMeasureDescription.isUsed(measureDescription))
-				return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
+						"Measure deleting was failed: Standard might be in used", locale));
 			else
 				serviceMeasureDescription.delete(measureDescription);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
+					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -733,17 +790,21 @@ public class ControllerMeasureCollection {
 	 */
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasureDescription") int idMeasureDescription,
+	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard,
+			@PathVariable("idMeasureDescription") int idMeasureDescription,
 			Principal principal, Locale locale) {
 		try {
 			if (!serviceMeasureDescription.exists(idMeasureDescription, idStandard))
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			customDelete.forceDeleteMeasureDescription(idMeasureDescription, principal);
-			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
+					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
+					"Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
 
@@ -757,7 +818,8 @@ public class ControllerMeasureCollection {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription, JsonNode jsonNode, Locale locale) {
+	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription,
+			JsonNode jsonNode, Locale locale) {
 		try {
 
 			String reference = jsonNode.get("reference").asText();
@@ -771,12 +833,15 @@ public class ControllerMeasureCollection {
 			String error = serviceDataValidation.validate(measuredescription, "reference", reference);
 
 			if (error != null)
-				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
+				errors.put("measuredescription.reference",
+						serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				reference = reference.trim();
-				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
+				if (measuredescription.getId() < 1 && serviceMeasureDescription
+						.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
 					errors.put("measuredescription.reference",
-							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+							messageSource.getMessage("error.measuredescription.reference.duplicate", null,
+									"Reference already exists in this standard", locale));
 				else
 					measuredescription.setReference(reference);
 			}
@@ -789,7 +854,8 @@ public class ControllerMeasureCollection {
 			error = serviceDataValidation.validate(measuredescription, "computable", computable);
 
 			if (error != null)
-				errors.put("measuredescription.computable", serviceDataValidation.ParseError(error, messageSource, locale));
+				errors.put("measuredescription.computable",
+						serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				measuredescription.setComputable(computable);
 
@@ -828,14 +894,16 @@ public class ControllerMeasureCollection {
 				error = validator.validate(mesDescText, "domain", domain);
 
 				if (error != null)
-					errors.put("measureDescriptionText.domain_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
+					errors.put("measureDescriptionText.domain_" + language.getId(),
+							serviceDataValidation.ParseError(error, messageSource, locale));
 				else
 					mesDescText.setDomain(domain);
 
 				error = validator.validate(mesDescText, "description", description);
 
 				if (error != null)
-					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
+					errors.put("measureDescriptionText.description_" + language.getId(),
+							serviceDataValidation.ParseError(error, messageSource, locale));
 				else
 					mesDescText.setDescription(description);
 			}
@@ -845,7 +913,8 @@ public class ControllerMeasureCollection {
 		} catch (Exception e) {
 
 			// return error message
-			errors.put("measureDescription", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			errors.put("measureDescription",
+					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}
@@ -942,7 +1011,8 @@ public class ControllerMeasureCollection {
 
 		} catch (Exception e) {
 			// return error
-			errors.put("standard", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			errors.put("standard",
+					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}

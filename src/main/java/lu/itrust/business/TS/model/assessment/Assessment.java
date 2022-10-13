@@ -78,6 +78,7 @@ public class Assessment implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Asset asset = null;
 
@@ -111,6 +112,7 @@ public class Assessment implements Cloneable {
 	/** The likelihood value of this assessment */
 	@Any(metaDef = "VALUE_META_DEF", metaColumn = @Column(name = "dtLikelihoodType"))
 	@Cascade(CascadeType.ALL)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinColumn(name = "fiLikelihood")
 	private IValue likelihood = null;
 
@@ -126,6 +128,7 @@ public class Assessment implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiScenario", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Scenario scenario = null;
 
