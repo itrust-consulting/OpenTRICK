@@ -17,6 +17,7 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper.findNextSheetNumberAndId;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,6 +113,7 @@ import lu.itrust.business.TS.form.ExportWordReportForm;
 import lu.itrust.business.TS.form.ImportAnalysisForm;
 import lu.itrust.business.TS.form.ImportRRFForm;
 import lu.itrust.business.TS.helper.Column;
+import lu.itrust.business.TS.helper.ILRExport;
 import lu.itrust.business.TS.helper.JsonMessage;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.helper.RRFExportImport;
@@ -306,6 +308,7 @@ public class ControllerDataManager {
 	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session,
 			Principal principal, Locale locale) {
 		final Analysis analysis = serviceAnalysis.findByIdAndEager(idAnalysis);
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
 		final List<DataManagerItem> items = new LinkedList<>();
 		if (!analysis.getActionPlans().isEmpty())
 			items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Export-process"));
@@ -332,6 +335,11 @@ public class ControllerDataManager {
 
 		if (analysis.getAnalysisStandards().values().stream().anyMatch(AnalysisStandard::isSoaEnabled))
 			items.add(new DataManagerItem("soa", "/Analysis/Data-manager/SOA/Export-process", true));
+
+		if (isILR)
+			items.add(new DataManagerItem("ilr", "/Analysis/Data-manager/ILR/Export-form",
+					"/Analysis/Data-manager/ILR/Export-process", ".json;.csv"));
+
 		items.sort((i1, i2) -> NaturalOrderComparator.compareTo(
 				messageSource.getMessage("label.menu.data_manager.export." + i1.getName().replaceAll("-", "_"), null,
 						locale),
@@ -340,6 +348,63 @@ public class ControllerDataManager {
 		model.addAttribute("items", items);
 		model.addAttribute("maxFileSize", maxUploadFileSize);
 		return "analyses/single/components/data-manager/export";
+	}
+
+	@GetMapping(value = "/ILR/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportILRForm(Model model, HttpSession session, Principal principal, Locale locale) {
+		model.addAttribute("item", new DataManagerItem("ilr", "/Analysis/Data-manager/ILR/Export-process"));
+		model.addAttribute("maxFileSize", maxUploadFileSize);
+		return "analyses/single/components/data-manager/export/ilr";
+	}
+
+	@PostMapping(value = "/ILR/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	// @PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal,
+	// T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportILRProcess(@RequestParam(value = "ilrData") MultipartFile ilrData,
+			@RequestParam(value = "mappingFile", required = false) MultipartFile mappingFile,
+			HttpServletRequest request,
+			HttpServletResponse response, HttpSession session, Principal principal, Locale locale) throws Exception {
+
+		final File data = serviceStorage.createTmpFile();
+		final File mapping = serviceStorage.createTmpFile();
+		try {
+			data.deleteOnExit();
+			mapping.deleteOnExit();
+
+			serviceStorage.store(ilrData, data.getName());
+			if (mappingFile != null && mappingFile.getSize() > 0)
+				serviceStorage.store(mappingFile, mapping.getName());
+
+			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			final Analysis analysis = serviceAnalysis.findByIdAndEager(idAnalysis);
+			final List<ScaleType> scales = serviceScaleType.findAll();
+			new ILRExport().exportILRData(analysis, scales, data, mapping);
+
+			response.setContentType("json");
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "IRL-Data", analysis.getVersion(),
+					"json");
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"" + filename + "\"");
+			updateTokenCookie(request, response);
+
+			Files.copy(data.toPath(), response.getOutputStream());
+
+			// Log
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.irl",
+					String.format("Analysis: %s, version: %s, type: IRL", analysis.getIdentifier(),
+							analysis.getVersion()),
+					principal.getName(), LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
+
+		} finally {
+			serviceStorage.delete(data.getAbsolutePath());
+			serviceStorage.delete(mapping.getAbsolutePath());
+		}
+
 	}
 
 	@GetMapping(value = "/Risk-estimation/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -43,7 +43,8 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idScenario")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" })/* ,
+		@UniqueConstraint(columnNames = { "fiAnalysis", "dtThreat", "dtVulnerability" }) */})
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -62,6 +63,10 @@ public class Scenario extends SecurityCriteria {
 
 	/** The Scenario Name */
 	private String name = "";
+
+	private String threat;
+
+	private String vulnerability;
 
 	/** The Selected Flag (Selected for calculation) */
 	private boolean selected = false;
@@ -294,6 +299,26 @@ public class Scenario extends SecurityCriteria {
 		return name;
 	}
 
+	
+	/***
+	 * getThreat
+	 * 
+	 * @return The scenario threat
+	 */
+	@Transient
+	public String getThreat() {
+		return threat;
+	}
+
+	/***
+	 * getVulnerability
+	 * @return the scenario vulnerability
+	 */
+	@Transient
+	public String getVulnerability() {
+		return vulnerability;
+	}
+
 	/**
 	 * getType: <br>
 	 * Returns the "type" field value
@@ -348,7 +373,7 @@ public class Scenario extends SecurityCriteria {
 	public boolean hasInfluenceOnAsset(AssetType assetType) {
 		return !isAssetLinked()
 				&& getAssetTypeValues().stream()
-						.anyMatch(typeValue ->  typeValue.getValue() > 0 && assetType.equals(typeValue.getAssetType()));
+						.anyMatch(typeValue -> typeValue.getValue() > 0 && assetType.equals(typeValue.getAssetType()));
 	}
 
 	public boolean hasThreatSource() {
@@ -561,6 +586,24 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.scenario.name.empty", "Name cannot be empty!");
 		this.name = name;
 	}
+    
+	/**
+	 * setThreat : <br>
+	 * Sets the "threat" field with the given value
+	 * @param threat
+	 */
+	public void setThreat(String threat) {
+		this.threat = threat;
+	}
+
+	/**
+	 * setVulnerability : <br>
+	 * Sets the "vulnerability" field with the given value
+	 * @param threat
+	 */
+	public void setVulnerability(String vulnerability) {
+		this.vulnerability = vulnerability;
+	}
 
 	/**
 	 * setPreventive: <br>
@@ -609,6 +652,15 @@ public class Scenario extends SecurityCriteria {
 		setCategoryValue(getType().getCategory(), 1);
 	}
 
+	@Transient
+	public String getILRKey(){
+		return getILRKey(threat, vulnerability);
+	}
+
+	public static String getILRKey(String threat, String vulnerability){
+		return String.format("%s:@:%selected", threat, vulnerability);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -618,37 +670,6 @@ public class Scenario extends SecurityCriteria {
 	public String toString() {
 		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description
 				+ ", assetTypeValues=" + assetTypeValues + "]";
-	}
-
-	/**
-	 * isValidValue: <br>
-	 * Check if Category value is valid or not. A valid value in scenario is 0
-	 * or 1 or 4.
-	 * 
-	 * @param value
-	 *              The value to check if valid
-	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#isValidValue(int)
-	 */
-	@Override
-	protected boolean isValidValue(int value) {
-		return value >= 0 && value <= 4;
-	}
-
-	/**
-	 * valueFixer: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#valueFixer(java.lang.String,
-	 *      int)
-	 */
-	@Override
-	protected int valueFixer(String category, int value) throws TrickException {
-		if (value < 0 || value > 4)
-			throw new TrickException("error.security_criteria.category.invalid",
-					String.format("'%s' is not valid!", category), category);
-		return value == 0 ? 0 : 4;
 	}
 
 	public void addApplicable(AssetType assetType) {
@@ -684,6 +705,37 @@ public class Scenario extends SecurityCriteria {
 				? getLinkedAssets().stream().map(Asset::getAssetType).distinct().collect(Collectors.toList())
 				: getAssetTypeValues().stream().filter(assetValue -> assetValue.getValue() > 0)
 						.map(AssetTypeValue::getAssetType).distinct().collect(Collectors.toList());
+	}
+
+	/**
+	 * isValidValue: <br>
+	 * Check if Category value is valid or not. A valid value in scenario is 0
+	 * or 1 or 4.
+	 * 
+	 * @param value
+	 *              The value to check if valid
+	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#isValidValue(int)
+	 */
+	@Override
+	protected boolean isValidValue(int value) {
+		return value >= 0 && value <= 4;
+	}
+
+	/**
+	 * valueFixer: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#valueFixer(java.lang.String,
+	 *      int)
+	 */
+	@Override
+	protected int valueFixer(String category, int value) throws TrickException {
+		if (value < 0 || value > 4)
+			throw new TrickException("error.security_criteria.category.invalid",
+					String.format("'%s' is not valid!", category), category);
+		return value == 0 ? 0 : 4;
 	}
 
 }

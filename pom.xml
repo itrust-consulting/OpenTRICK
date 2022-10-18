@@ -130,6 +130,12 @@
 			<artifactId>spring-security-messaging</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>lu.itrust.monarc</groupId>
+			<artifactId>monarc</artifactId>
+			<version>0.1</version>
+		</dependency>
+
 		<!-- For Spring security -->
 		<dependency>
 			<groupId>joda-time</groupId>

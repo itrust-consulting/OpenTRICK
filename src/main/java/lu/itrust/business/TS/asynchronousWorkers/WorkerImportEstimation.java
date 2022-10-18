@@ -388,7 +388,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 						(e1, e2) -> e1));
 
 		final Map<String, Asset> assets = analysis.getAssets().stream()
-				.collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
+				.collect(Collectors.toMap(e -> e.getName().toLowerCase(), Function.identity()));
 
 		final Map<String, AssetType> assetTypes = daoAssetType.getAll().stream()
 				.collect(Collectors.toMap(e -> e.getName().trim(), Function.identity()));
@@ -399,25 +399,31 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		for (int i = 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
-			String name = getString(row, nameIndex, formatter), oldName = getString(row, odlNameIndex, formatter);
+			String name = getString(row, nameIndex, formatter);
 			if (isEmpty(name))
 				continue;
-			Asset asset = assets.get(name.trim());
+
+			String oldName = getString(row, odlNameIndex, formatter);
+			
+			Asset asset = assets.get(name.trim().toLowerCase());
+
 			if (asset == null) {
 				if (!isEmpty(oldName))
-					asset = assets.get(oldName);
+					asset = assets.get(oldName.trim().toLowerCase());
 				if (asset == null) {
-					analysis.getAssets().add(asset = new Asset(name.trim()));
-					assets.put(asset.getName(), asset);
+					asset = assets.computeIfAbsent(name.trim().toLowerCase(), k -> new Asset(name));
+					analysis.getAssets().add(asset);
 				} else
-					asset.setName(name);
+					asset.setName(name.trim());
+
 			}
 
-			if (seenAssets.contains(asset.getName().trim().toLowerCase())) {
+			if (seenAssets.contains(asset.getName().toLowerCase())) {
 				final String cellString = new CellRef(i, 0).toString();
 				throw new TrickException("error.import.data.asset.duplicated",
 						String.format("Duplicated asset `%s`, see: %s", name, cellString), name, cellString);
-			}
+			} else
+				seenAssets.add(asset.getName().toLowerCase());
 
 			final List<AssetNode> nodes;
 
