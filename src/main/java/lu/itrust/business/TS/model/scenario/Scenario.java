@@ -43,8 +43,8 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idScenario")
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" })/* ,
-		@UniqueConstraint(columnNames = { "fiAnalysis", "dtThreat", "dtVulnerability" }) */})
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }),
+		@UniqueConstraint(columnNames = { "fiAnalysis", "dtThreat", "dtVulnerability" }) })
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -299,22 +299,22 @@ public class Scenario extends SecurityCriteria {
 		return name;
 	}
 
-	
 	/***
 	 * getThreat
 	 * 
 	 * @return The scenario threat
 	 */
-	@Transient
+	@Column(name = "dtThreat")
 	public String getThreat() {
 		return threat;
 	}
 
 	/***
 	 * getVulnerability
+	 * 
 	 * @return the scenario vulnerability
 	 */
-	@Transient
+	@Column(name = "dtVulnerability")
 	public String getVulnerability() {
 		return vulnerability;
 	}
@@ -586,23 +586,25 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.scenario.name.empty", "Name cannot be empty!");
 		this.name = name;
 	}
-    
+
 	/**
 	 * setThreat : <br>
 	 * Sets the "threat" field with the given value
+	 * 
 	 * @param threat
 	 */
 	public void setThreat(String threat) {
-		this.threat = threat;
+		this.threat = threat == null || threat.trim().isEmpty() ? null : threat.trim();
 	}
 
 	/**
 	 * setVulnerability : <br>
 	 * Sets the "vulnerability" field with the given value
+	 * 
 	 * @param threat
 	 */
 	public void setVulnerability(String vulnerability) {
-		this.vulnerability = vulnerability;
+		this.vulnerability = vulnerability == null || vulnerability.trim().isEmpty() ? null : vulnerability;
 	}
 
 	/**
@@ -653,11 +655,11 @@ public class Scenario extends SecurityCriteria {
 	}
 
 	@Transient
-	public String getILRKey(){
+	public String getILRKey() {
 		return getILRKey(threat, vulnerability);
 	}
 
-	public static String getILRKey(String threat, String vulnerability){
+	public static String getILRKey(String threat, String vulnerability) {
 		return String.format("%s:@:%selected", threat, vulnerability);
 	}
 

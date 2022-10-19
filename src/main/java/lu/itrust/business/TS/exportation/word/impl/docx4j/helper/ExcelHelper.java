@@ -470,10 +470,12 @@ public final class ExcelHelper {
 	public static TablePart findTable(SheetData sheetData, String name) throws Exception {
 		final Worksheet worksheet = (Worksheet) sheetData.getParent();
 		final WorksheetPart worksheetPart = (WorksheetPart) worksheet.getParent();
-		for (CTTablePart ctTablePart : worksheet.getTableParts().getTablePart()) {
-			TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
-			if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name))
-				return table;
+		if (worksheet.getTableParts() != null) {
+			for (CTTablePart ctTablePart : worksheet.getTableParts().getTablePart()) {
+				TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
+				if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name))
+					return table;
+			}
 		}
 
 		return null;

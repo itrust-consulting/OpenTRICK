@@ -1647,12 +1647,16 @@ public class ControllerDataManager {
 	private void exportScenario(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception {
 		final String name = "Scenarios";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final String[] columns = { "Name", "Type", "Apply to", "Selected", "Description" };
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+		final String[] columns = isILR
+				? new String[] { "Name", "Type", "Apply to", "Selected", "Description", "Threat", "Vulnerability" }
+				: new String[] { "Name", "Type", "Apply to", "Selected", "Description" };
 		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
 		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, analysis.getScenarios().size());
 		final Map<String, String> scenarioTypes = exportScenarioType(spreadsheetMLPackage,
 				new Locale(analysis.getLanguage().getAlpha2()), factory);
+				
 		for (Scenario scenario : analysis.getScenarios()) {
 			Row row = factory.createRow();
 			for (int i = 0; i <= columns.length; i++) {
@@ -1665,6 +1669,12 @@ public class ControllerDataManager {
 			setValue(row.getC().get(2), scenario.isAssetLinked() ? "Asset" : "Asset type");
 			setValue(row.getC().get(3), scenario.isSelected());
 			setValue(row.getC().get(4), scenario.getDescription());
+
+			if (isILR) {
+				setValue(row.getC().get(5), scenario.getThreat());
+				setValue(row.getC().get(6), scenario.getVulnerability());
+			}
+
 			sheet.getRow().add(row);
 		}
 	}

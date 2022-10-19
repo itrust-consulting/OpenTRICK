@@ -59,11 +59,11 @@ public class Column {
 	}
 
 	public int getDeep() {
-		return ComputeDeep(1, childs);
+		return computeDeep(1, childs);
 	}
 
-	private int ComputeDeep(int deep, List<Column> childs) {
-		return childs.stream().mapToInt(c -> c.ComputeDeep(deep + 1, c.childs)).max().orElse(deep);
+	private int computeDeep(int deep, List<Column> childs) {
+		return childs.stream().mapToInt(c -> c.computeDeep(deep + 1, c.childs)).max().orElse(deep);
 	}
 
 }

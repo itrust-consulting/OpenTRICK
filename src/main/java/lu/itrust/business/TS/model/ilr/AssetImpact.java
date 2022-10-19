@@ -37,7 +37,7 @@ public class AssetImpact implements Cloneable {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "fiAsset", nullable = false)
+    @JoinColumn(name = "fiAsset", nullable = false, unique = true)
     @Cascade(CascadeType.SAVE_UPDATE)
     private Asset asset;
 

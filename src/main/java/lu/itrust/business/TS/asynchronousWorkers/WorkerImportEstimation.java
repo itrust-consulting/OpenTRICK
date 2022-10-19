@@ -20,7 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +33,7 @@ import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.hibernate.Session;
+import org.springframework.util.StringUtils;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.Sheet;
@@ -404,7 +407,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 				continue;
 
 			String oldName = getString(row, odlNameIndex, formatter);
-			
+
 			Asset asset = assets.get(name.trim().toLowerCase());
 
 			if (asset == null) {
@@ -869,6 +872,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "Name column cannot be found!", "Name");
 
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+
 		final Map<String, String> names = loadTypeNames(workbook, sheets, formatter, "ScenarioTypes");
 		final Map<String, ScenarioType> scenarioTypes = new LinkedHashMap<>();
 		final List<AssetType> assetTypes = daoAssetType.getAll();
@@ -943,6 +948,21 @@ public class WorkerImportEstimation extends WorkerImpl {
 						}
 						updateAssetTypeValue(assetTypes, scenario);
 						break;
+					case "threat":
+						if (isILR)
+							scenario.setThreat(getString(row, j, formatter));
+						else
+							handler.update("error.import.ilr.no_ilr_analysis",
+									"Trying to import ILR data into No ILR Analysis", handler.getProgress());
+						break;
+					case "vulnerability":
+						if (isILR)
+							scenario.setVulnerability(getString(row, j, formatter));
+						else
+							handler.update("error.import.ilr.no_ilr_analysis",
+									"Trying to import ILR data into No ILR Analysis", handler.getProgress());
+						break;
+
 					default:
 						// ignore for now
 				}
@@ -950,6 +970,18 @@ public class WorkerImportEstimation extends WorkerImpl {
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
 			getServiceTaskFeedback().send(getId(), handler);
 
+		}
+
+		if (isILR) {
+			// check if Threat and Vulnerability are duplicated
+			analysis.getScenarios().stream()
+					.filter(e -> StringUtils.hasText(e.getVulnerability()) && StringUtils.hasText(e.getThreat()))
+					.collect(Collectors.toMap(Scenario::getILRKey, Function.identity(), (e1, e2) -> {
+						throw new TrickException("error.import.scenraio.threat.vulnerability.duplicate",
+								String.format("Threat and vulnerability are duplicated in scenario: %s and %s",
+										e1.getName(), e2.getName()),
+								e1.getName(), e2.getName());
+					}));
 		}
 
 		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
@@ -1116,14 +1148,14 @@ public class WorkerImportEstimation extends WorkerImpl {
 		else if (isAssetDependancyOnly()) {
 			importAssetDependancy(analysis, workbook, sheets, formatter, 6, 90);
 		} else if (isILR) {
-			importAsset(analysis, workbook, sheets, formatter, 6, 20);
-			importScenario(analysis, workbook, sheets, formatter, 20, 45);
-			importAssetDependancy(analysis, workbook, sheets, formatter, 45, 60);
+			// importAsset(analysis, workbook, sheets, formatter, 6, 20);
+			// importScenario(analysis, workbook, sheets, formatter, 20, 45);
+			importAssetDependancy(analysis, workbook, sheets, formatter, 6, 60);
 			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 60, 90);
 		} else {
-			importAsset(analysis, workbook, sheets, formatter, 6, 35);
-			importScenario(analysis, workbook, sheets, formatter, 35, 60);
-			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 60, 90);
+			// importAsset(analysis, workbook, sheets, formatter, 6, 35);
+			// importScenario(analysis, workbook, sheets, formatter, 35, 60);
+			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 6, 90);
 		}
 		getServiceTaskFeedback().send(getId(),
 				new MessageHandler("info.compute.risk.esitmation", null, "Computing risk estimation", 91));

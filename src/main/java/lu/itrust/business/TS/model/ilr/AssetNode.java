@@ -40,7 +40,7 @@ public class AssetNode implements Cloneable {
 
     /** Link to the asset */
     @ManyToOne
-    @JoinColumn(name = "fiImpact", nullable = false)
+    @JoinColumn(name = "fiImpact", nullable = false, unique = true)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Cascade(CascadeType.ALL)
     private AssetImpact impact;
