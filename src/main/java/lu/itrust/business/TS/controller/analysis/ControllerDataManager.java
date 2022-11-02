@@ -308,7 +308,7 @@ public class ControllerDataManager {
 	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session,
 			Principal principal, Locale locale) {
 		final Analysis analysis = serviceAnalysis.findByIdAndEager(idAnalysis);
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
 		final List<DataManagerItem> items = new LinkedList<>();
 		if (!analysis.getActionPlans().isEmpty())
 			items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Export-process"));
@@ -384,7 +384,7 @@ public class ControllerDataManager {
 			response.setContentType("json");
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
-					Utils.cleanUpFileName(analysis.getLabel()), "IRL-Data", analysis.getVersion(),
+					Utils.cleanUpFileName(analysis.getLabel()), "ILR-Data", analysis.getVersion(),
 					"json");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition",
@@ -394,8 +394,8 @@ public class ControllerDataManager {
 			Files.copy(data.toPath(), response.getOutputStream());
 
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.irl",
-					String.format("Analysis: %s, version: %s, type: IRL", analysis.getIdentifier(),
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.ilr",
+					String.format("Analysis: %s, version: %s, type: ILR", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
@@ -418,7 +418,7 @@ public class ControllerDataManager {
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file);
 			final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Risk estimation");
 			final SheetData sheetData = worksheetPart.getContents().getSheetData();
-			final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+			final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
 			final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
 			final boolean qualitative = analysis.isHybrid() || analysis.isQualitative();
 			final boolean rowColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
@@ -1398,7 +1398,7 @@ public class ControllerDataManager {
 	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage)
 			throws Exception, JAXBException {
 		final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
 		exportAsset(analysis, spreadsheetMLPackage, hiddenComment, isILR);
 	}
 
@@ -1418,7 +1418,7 @@ public class ControllerDataManager {
 			myColumns.add("Hidden comment");
 
 		if (isILR) {
-			writeAssetIRLImpacts(analysis, ilrImpactHeaders, myColumns, ilrAssetImpacts);
+			writeAssetILRImpacts(analysis, ilrImpactHeaders, myColumns, ilrAssetImpacts);
 			maxFormulas = ilrImpactHeaders.stream()
 					.collect(Collectors.groupingBy(e -> e.substring(0, 1),
 							Collectors.reducing("", e -> String.format("Assets[[#This Row],[%s]]", e),
@@ -1446,7 +1446,7 @@ public class ControllerDataManager {
 			if (hiddenComment)
 				setValue(row.getC().get(ASSET_HIDDEN_COMMENT_CELL_INDEX), asset.getHiddenComment());
 			if (isILR)
-				writeAssetIRLCells(hiddenComment, ilrImpactHeaders, ilrAssetImpacts, asset, row);
+				writeAssetILRCells(hiddenComment, ilrImpactHeaders, ilrAssetImpacts, asset, row);
 			if (!maxFormulas.isEmpty()) {
 				for (int i = columns.length - 3; i < columns.length; i++)
 					setFormula(getCell(row, i), String.format("MAX(%s)", maxFormulas.get(columns[i])));
@@ -1465,7 +1465,7 @@ public class ControllerDataManager {
 		setValue(row.getC().get(4), asset.getComment());
 	}
 
-	private void writeAssetIRLCells(final boolean hiddenComment, final List<String> ilrImpactHeaders,
+	private void writeAssetILRCells(final boolean hiddenComment, final List<String> ilrImpactHeaders,
 			final Map<String, Map<String, Integer>> ilrAssetImpacts, Asset asset, final Row row) {
 		final int currentColum = ASSET_HIDDEN_COMMENT_CELL_INDEX + (hiddenComment ? 1 : 0);
 		final Map<String, Integer> assetImpacts = ilrAssetImpacts.get(asset.getName());
@@ -1481,7 +1481,7 @@ public class ControllerDataManager {
 
 	}
 
-	private void writeAssetIRLImpacts(Analysis analysis, final List<String> ilrImpactHeaders,
+	private void writeAssetILRImpacts(Analysis analysis, final List<String> ilrImpactHeaders,
 			final List<String> myColumns,
 			final Map<String, Map<String, Integer>> ilrAssetImpacts) {
 		final String[] cias = { "C", "I", "A" };
@@ -1510,13 +1510,13 @@ public class ControllerDataManager {
 			if (assetImpact == null || assetImpact.getAsset() == null)
 				return;
 			final Map<String, Integer> assetImpacts = ilrAssetImpacts.get(assetImpact.getAsset().getName());
-			writeIRLImpact(assetImpact.getConfidentialityImpacts(), "C-", assetImpacts);
-			writeIRLImpact(assetImpact.getIntegrityImpacts(), "I-", assetImpacts);
-			writeIRLImpact(assetImpact.getAvailabilityImpacts(), "A-", assetImpacts);
+			writeILRImpact(assetImpact.getConfidentialityImpacts(), "C-", assetImpacts);
+			writeILRImpact(assetImpact.getIntegrityImpacts(), "I-", assetImpacts);
+			writeILRImpact(assetImpact.getAvailabilityImpacts(), "A-", assetImpacts);
 		});
 	}
 
-	private void writeIRLImpact(final Map<ScaleType, ILRImpact> impacts, String prefix,
+	private void writeILRImpact(final Map<ScaleType, ILRImpact> impacts, String prefix,
 			final Map<String, Integer> assetImpacts) {
 		impacts.forEach((type, impact) -> {
 			final String acronym = type.getShortName().replace(".", "");
@@ -1647,7 +1647,7 @@ public class ControllerDataManager {
 	private void exportScenario(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception {
 		final String name = "Scenarios";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
 		final String[] columns = isILR
 				? new String[] { "Name", "Type", "Apply to", "Selected", "Description", "Threat", "Vulnerability" }
 				: new String[] { "Name", "Type", "Apply to", "Selected", "Description" };

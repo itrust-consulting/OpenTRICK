@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,6 +66,9 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
+import lu.itrust.business.TS.model.ilr.AssetEdge;
+import lu.itrust.business.TS.model.ilr.AssetNode;
+import lu.itrust.business.TS.model.ilr.ILRImpact;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.IMaturityParameter;
@@ -379,8 +384,11 @@ public class ImportAnalysis {
 			notifyUpdate(handler, "info.assessments.importing", "Import assessments", increase(5));// 40%
 			importAssessments();
 
-			notifyUpdate(handler, "info.risk_profile.importing", "Import risk profile", increase(10));// 45%
+			notifyUpdate(handler, "info.risk_profile.importing", "Import risk profile", increase(5));// 45%
 			importRiskProfile();
+
+			notifyUpdate(handler, "info.dependancy_graph.importing", "Import asset dependency", increase(5));// 50%
+			importDependencyGraph();
 
 			// ****************************************************************
 			// * import phases
@@ -1348,6 +1356,68 @@ public class ImportAnalysis {
 		}
 	}
 
+	private void importDependencyGraph() throws SQLException {
+		// Import dependency graph
+		ResultSet rs = null;
+		try {
+			rs = sqlite.query("SELECT * FROM asset_node");
+			if (rs == null)
+				return;
+			final Map<Integer, AssetNode> nodes = new HashMap<>();
+			while (rs.next()) {
+				final int assetId = rs.getInt("id_asset");
+				final AssetNode node = new AssetNode(assets.get(assetId));
+				node.setInheritedConfidentiality(rs.getInt("confidentiality"));
+				node.setInheritedIntegrity(rs.getInt("integrity"));
+				node.setInheritedAvailability(rs.getInt("availability"));
+				this.analysis.getAssetNodes().add(node);
+				nodes.put(assetId, node);
+			}
+
+			rs.close();
+
+			rs = sqlite.query("SELECT * FROM asset_edge");
+			if (rs != null) {
+				while (rs.next()) {
+					final AssetEdge edge = new AssetEdge(nodes.get(rs.getInt("id_parent")),
+							nodes.get(rs.getInt("id_child")),
+							rs.getInt("weight"));
+					edge.getParent().getEdges().put(edge.getChild(), edge);
+				}
+				rs.close();
+			}
+
+			rs = sqlite.query("SELECT * FROM asset_node_impact");
+			if (rs != null) {
+				final Set<ScaleType> usedScales = new HashSet<>(impactTypes.size());
+				while (rs.next()) {
+					final AssetNode node = nodes.get(rs.getInt("id_asset"));
+					final ScaleType scaleType = impactTypes.get(rs.getString("impact_type"));
+					final ILRImpact impact = new ILRImpact(scaleType, rs.getInt("impact_value"));
+					switch (rs.getString("category")) {
+						case Constant.CONFIDENTIALITY:
+							node.getImpact().getConfidentialityImpacts().put(impact.getType(), impact);
+							break;
+						case Constant.INTEGRITY:
+							node.getImpact().getIntegrityImpacts().put(impact.getType(), impact);
+							break;
+						case Constant.AVAILABILITY:
+							node.getImpact().getAvailabilityImpacts().put(impact.getType(), impact);
+							break;
+						default:
+							// TODO: not implemented
+					}
+					usedScales.add(scaleType);
+				}
+				analysis.setIlrImpactTypes(new ArrayList<>(usedScales));
+			}
+
+		} finally {
+			if (rs != null)
+				rs.close();
+		}
+	}
+
 	private void importDynamicParameters() throws Exception {
 		// Import dynamic parameters
 		ResultSet rs = null;
@@ -1404,7 +1474,7 @@ public class ImportAnalysis {
 			query = "SELECT * FROM impact";
 			// execute query
 			rs = sqlite.query(query);
-			impactParameters = new ArrayList<ImpactParameter>(11);
+			impactParameters = new ArrayList<>(11);
 			// retrieve results
 			while (rs.next()) {
 
@@ -2735,9 +2805,7 @@ public class ImportAnalysis {
 				}
 			}
 			analysis.setRiskProfiles(riskProfiles.values().parallelStream().collect(Collectors.toList()));
-		} finally
-
-		{
+		} finally {
 			if (resultSet != null)
 				resultSet.close();
 		}
@@ -2875,6 +2943,11 @@ public class ImportAnalysis {
 					tempScenario.setCategoryValue(Constant.RELIABILITY_RISK, getInt(rs, Constant.THREAT_RELIABILITY));
 					tempScenario.setCategoryValue(Constant.ILR_RISK, getInt(rs, Constant.THREAT_ILR));
 				}
+
+				tempScenario.setThreat(getString(rs, "threat_code"));
+
+				tempScenario.setVulnerability(getString(rs, "vulnerability_code"));
+
 				// add cssf categories to object
 				setAllCriteriaCSSFCategories(tempScenario, rs);
 				tempScenario.setPreventive(rs.getDouble(Constant.THREAT_PREVENTIVE));

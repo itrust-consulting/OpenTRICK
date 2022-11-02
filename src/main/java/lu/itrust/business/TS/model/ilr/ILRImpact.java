@@ -29,7 +29,7 @@ public class ILRImpact implements Cloneable {
 
     @ManyToOne
     @JoinColumn(name = "fiType", nullable = false)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @Cascade({CascadeType.SAVE_UPDATE, CascadeType.MERGE, CascadeType.PERSIST})
     private ScaleType type;
 
     @Column(name = "dtValue")
@@ -39,7 +39,12 @@ public class ILRImpact implements Cloneable {
     }
 
     public ILRImpact(ScaleType type) {
-        this.type = type;
+        this(type, -1);
+    }
+
+    public ILRImpact(ScaleType type, int value) {
+        setType(type);
+        setValue(value);
     }
 
     public long getId() {

@@ -38,7 +38,7 @@ public class AssetImpact implements Cloneable {
 
     @ManyToOne
     @JoinColumn(name = "fiAsset", nullable = false, unique = true)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE, CascadeType.PERSIST })
     private Asset asset;
 
     @OneToMany
@@ -46,30 +46,27 @@ public class AssetImpact implements Cloneable {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JoinTable(name = "AssetILRImpactConfidentialities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
-    private Map<ScaleType, ILRImpact> confidentialityImpacts;
+    private Map<ScaleType, ILRImpact> confidentialityImpacts = new HashMap<>();
 
     @OneToMany
     @MapKey(name = "type")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JoinTable(name = "AssetILRImpactIntegrities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
-    private Map<ScaleType, ILRImpact> integrityImpacts;
+    private Map<ScaleType, ILRImpact> integrityImpacts = new HashMap<>();
 
     @OneToMany
     @MapKey(name = "type")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JoinTable(name = "AssetILRImpactAvailabilities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
-    private Map<ScaleType, ILRImpact> availabilityImpacts;
+    private Map<ScaleType, ILRImpact> availabilityImpacts = new HashMap<>();
 
     public AssetImpact() {
     }
 
     public AssetImpact(Asset asset) {
         setAsset(asset);
-        setAvailabilityImpacts(new HashMap<>());
-        setConfidentialityImpacts(new HashMap<>());
-        setIntegrityImpacts(new HashMap<>());
     }
 
     public long getId() {

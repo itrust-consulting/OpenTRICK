@@ -414,6 +414,11 @@ public class Constant {
 	public static final String RELIABILITY_RISK = "Reliability";
 	public static final String ILR_RISK = "ILR";
 
+
+	public static final String CONFIDENTIALITY = "CONFIDENTIALITY";
+	public static final String INTEGRITY = "INTEGRITY";
+	public static final String AVAILABILITY = "AVAILABILITY";
+
 	public final static String EMPTY_STRING = "";
 
 	public final static String CHECKBOX_CONTROL_ON = "on";

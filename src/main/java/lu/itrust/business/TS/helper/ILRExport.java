@@ -82,9 +82,9 @@ public class ILRExport {
                         final ILRImpact i = node.getImpact().getIntegrityImpacts().get(scaleType);
                         final ILRImpact a = node.getImpact().getAvailabilityImpacts().get(scaleType);
 
-                        e.setC(c == null ? -1 : Math.min(c.getValue(), 4));
-                        e.setI(i == null ? -1 : Math.min(i.getValue(), 4));
-                        e.setD(a == null ? -1 : Math.min(a.getValue(), 4));
+                        e.setC(Math.max((c == null ? -1 : Math.min(c.getValue(), 4)), e.getC()));
+                        e.setI(Math.max((i == null ? -1 : Math.min(i.getValue(), 4)), e.getI()));
+                        e.setD(Math.max((a == null ? -1 : Math.min(a.getValue(), 4)), e.getD()));
                         e.setIsHidden(0);
                     });
                 }
@@ -113,30 +113,54 @@ public class ILRExport {
                     if (assessment == null)
                         return;
 
-                    risk.setVulnerabilityRate(Math.min(assessment.getVulnerability(), 4));
+                    risk.setVulnerabilityRate(
+                            Math.max(Math.min(assessment.getVulnerability(), 4), risk.getVulnerabilityRate()));
 
-                    if (StringUtils.hasText(assessment.getOwner()))
-                        risk.setRiskOwner(assessment.getOwner());
+                    if (StringUtils.hasText(assessment.getOwner())) {
+                        if (StringUtils.hasText(risk.getRiskOwner())) {
+                            if (!risk.getRiskOwner().toLowerCase().contains(assessment.getOwner().toLowerCase()))
+                                risk.setRiskOwner(risk.getRiskOwner() + ", " + assessment.getOwner());
+                        } else {
+                            risk.setRiskOwner(assessment.getOwner());
+                        }
+                    }
 
-                    risk.setComment(assessment.getComment());
+                    if (StringUtils.hasText(assessment.getComment())) {
+                        if (StringUtils.hasText(risk.getComment())) {
+                            if (!risk.getComment().toLowerCase().contains(assessment.getComment().toLowerCase()))
+                                risk.setComment(risk.getComment() + ". " + assessment.getComment());
+                        } else {
+                            risk.setComment(assessment.getComment());
+                        }
+                    }
 
                     final RiskProfile riskProfile = mappingProfiles
                             .get(RiskProfile.key(asset, assessment.getScenario()));
 
                     if (riskProfile == null)
-                        risk.setThreatRate(0);
+                        risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
                     else {
 
-                        risk.setContext(riskProfile.getActionPlan());
+                        if (StringUtils.hasText(riskProfile.getActionPlan())) {
+                            if (StringUtils.hasText(risk.getContext())) {
+                                if (!risk.getContext().toLowerCase()
+                                        .contains(riskProfile.getActionPlan().toLowerCase()))
+                                    risk.setContext(risk.getContext() + ". " + riskProfile.getActionPlan());
+                            } else {
+                                risk.setContext(riskProfile.getActionPlan());
+                            }
+                        }
 
-                        risk.setKindOfMeasure(getRiskStrategy(riskProfile.getRiskStrategy()));
+                        risk.setKindOfMeasure(
+                                Math.min(risk.getKindOfMeasure(), getRiskStrategy(riskProfile.getRiskStrategy())));
 
                         if (riskProfile.getRawProbaImpact() == null
                                 || riskProfile.getRawProbaImpact().getProbability() == null)
-                            risk.setThreatRate(0);
+                            risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
                         else
-                            risk.setThreatRate(
-                                    Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), 4));
+                            risk.setThreatRate(Math.max(
+                                    Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), 4),
+                                    risk.getThreatRate()));
                     }
 
                 });
@@ -185,7 +209,7 @@ public class ILRExport {
                 return 3;
             case TRANSFER: // Share
                 return 4;
-            default:
+            default: // Not defined
                 return 5;
 
         }

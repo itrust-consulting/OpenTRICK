@@ -28,9 +28,9 @@
 		
 		<logger name="org.docx4j.utils.XSLTUtils" level='ERROR' />
 		
-		<logger name="org.hibernate" level='WARN' />
+		<logger name="org.hibernate" level='INFO' />
 		
-		<logger name="org.hibernate.type" level='WARN' />
+		<logger name="org.hibernate.type" level='INFO' />
 			
 		<logger name="org.springframework.security" level='WARN' />
 	
