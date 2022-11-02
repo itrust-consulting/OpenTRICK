@@ -80,6 +80,8 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
+	
+
 	/**
 	 * 
 	 */
@@ -292,4 +294,5 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 
 	}
 
+	
 }

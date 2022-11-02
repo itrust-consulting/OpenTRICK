@@ -25,6 +25,7 @@ import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.IParameterValue;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.FormulaValue;
@@ -60,7 +61,8 @@ public class ValueFactory {
 
 	public ValueFactory(Map<String, List<? extends IParameter>> parameters) {
 		parameters.entrySet().stream()
-				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT) || entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC)
+				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT)
+						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD))
 				.flatMap(entry -> entry.getValue().stream()).forEach(parameter -> add(parameter));
 	}
@@ -81,7 +83,8 @@ public class ValueFactory {
 		if (value instanceof String) {
 			final List<IAcronymParameter> dynamicParameters = dynamics.get(PARAMETERTYPE_TYPE_DYNAMIC_NAME);
 			if (dynamicParameters != null) {
-				final IAcronymParameter parameter = (IAcronymParameter) getParameterMapper(PARAMETERTYPE_TYPE_DYNAMIC_NAME).get(value.toString());
+				final IAcronymParameter parameter = (IAcronymParameter) getParameterMapper(
+						PARAMETERTYPE_TYPE_DYNAMIC_NAME).get(value.toString());
 				if (parameter != null)
 					return parameter.getValue();
 			}
@@ -122,7 +125,8 @@ public class ValueFactory {
 
 	public IProbabilityParameter findProbParameter(Object value) {
 		IValue impact = findProb(value);
-		return impact == null || !(impact instanceof IParameterValue) ? null : (IProbabilityParameter) ((IParameterValue) impact).getParameter();
+		return impact == null || !(impact instanceof IParameterValue) ? null
+				: (IProbabilityParameter) ((IParameterValue) impact).getParameter();
 	}
 
 	public Double findProbValue(Object value) {
@@ -175,7 +179,9 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		IBoundedParameter parameter = (IBoundedParameter) parameters.get(mid);
 		if (parameter.getBounds().isInRange(value))
-			return value != parameter.getValue() || parameter.isMatch(Constant.DEFAULT_IMPACT_NAME) ? new RealValue(value, parameter) : new Value(parameter);
+			return !parameter.getValue().equals(value) || parameter.isMatch(Constant.DEFAULT_IMPACT_NAME)
+					? new RealValue(value, parameter)
+					: new Value(parameter);
 		else if (mid == 0)
 			return new RealValue(value, parameter);
 		else if (parameter.getBounds().getFrom() > value)
@@ -198,11 +204,22 @@ public class ValueFactory {
 			if (value instanceof Integer)
 				return findByLevel((Integer) value, parameters);
 			if (value instanceof String) {
-				final ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
+				ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
 				if (parameter != null)
 					return new Value(parameter);
+
 				if ("na".equalsIgnoreCase((String) value))
 					value = "0";
+				else {
+					final String myValue = (String) value;
+					parameter = parameters.stream()
+							.filter(e -> e instanceof IBoundedParameter && ((IBoundedParameter) e).getLabel() != null
+									&& ((IBoundedParameter) e).getLabel().equalsIgnoreCase(myValue))
+							.findAny().orElse(null);
+
+					if (parameter != null)
+						return new Value(parameter);
+				}
 			}
 
 			final Double doubleValue = (value instanceof Double) ? (Double) value : toDouble(value.toString(), null);
@@ -229,7 +246,9 @@ public class ValueFactory {
 		final int family = Constant.DEFAULT_IMPACT_NAME.equals(type) ? StringExpressionParser.IMPACT
 				: Constant.PARAMETER_TYPE_PROPABILITY_NAME.equals(type) ? StringExpressionParser.PROBABILITY : -1;
 		if (family != -1) {
-			final List<? extends ILevelParameter> myParameters = parameters == null || parameters.isEmpty() ? getParameters(type) : parameters;
+			final List<? extends ILevelParameter> myParameters = parameters == null || parameters.isEmpty()
+					? getParameters(type)
+					: parameters;
 			final Double result = new StringExpressionParser(value, family).evaluate(this, null);
 			if (result != null) {
 				final FormulaValue formulaValue = new FormulaValue(value, result);
@@ -253,50 +272,53 @@ public class ValueFactory {
 
 	private List<? extends ILevelParameter> getParameters(String type) {
 		switch (type) {
-		case PARAMETER_TYPE_PROPABILITY_NAME:
-			return probabilities == null ? null : probabilities.get(type);
-		default:
-			return impacts == null ? null : impacts.get(type);
+			case PARAMETER_TYPE_PROPABILITY_NAME:
+				return probabilities == null ? null : probabilities.get(type);
+			default:
+				return impacts == null ? null : impacts.get(type);
 		}
 	}
 
 	private Map<String, ? extends IAcronymParameter> getParameterMapper(String type) {
 		switch (type) {
-		case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
-			if (dynamics == null)
-				return Collections.emptyMap();
-			if (dynamicMapper == null) {
-				final List<IAcronymParameter> parameters = dynamics.get(type);
-				if (parameters == null)
+			case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
+				if (dynamics == null)
 					return Collections.emptyMap();
-				dynamicMapper = parameters.stream().collect(Collectors.toMap(IAcronymParameter::getAcronym, Function.identity()));
-			}
-			return dynamicMapper;
+				if (dynamicMapper == null) {
+					final List<IAcronymParameter> parameters = dynamics.get(type);
+					if (parameters == null)
+						return Collections.emptyMap();
+					dynamicMapper = parameters.stream()
+							.collect(Collectors.toMap(IAcronymParameter::getAcronym, Function.identity()));
+				}
+				return dynamicMapper;
 
-		case PARAMETER_TYPE_PROPABILITY_NAME:
-			if (probabilities == null)
-				return Collections.emptyMap();
-			if (probabilityMapper == null) {
-				final List<IProbabilityParameter> parameters = probabilities.get(type);
-				if (parameters == null)
+			case PARAMETER_TYPE_PROPABILITY_NAME:
+				if (probabilities == null)
 					return Collections.emptyMap();
-				else
-					probabilityMapper = parameters.stream().collect(Collectors.toMap(IProbabilityParameter::getAcronym, Function.identity()));
-			}
-			return probabilityMapper;
-		default:
-			if (impacts == null)
-				return Collections.emptyMap();
-			if (impactMapper == null)
-				impactMapper = new HashMap<>();
-			Map<String, IImpactParameter> acronymImpacts = impactMapper.get(type);
-			if (acronymImpacts == null) {
-				List<IImpactParameter> parameters = impacts.get(type);
-				if (parameters == null)
+				if (probabilityMapper == null) {
+					final List<IProbabilityParameter> parameters = probabilities.get(type);
+					if (parameters == null)
+						return Collections.emptyMap();
+					else
+						probabilityMapper = parameters.stream()
+								.collect(Collectors.toMap(IProbabilityParameter::getAcronym, Function.identity()));
+				}
+				return probabilityMapper;
+			default:
+				if (impacts == null)
 					return Collections.emptyMap();
-				impactMapper.put(type, acronymImpacts = parameters.stream().collect(Collectors.toMap(IImpactParameter::getAcronym, Function.identity())));
-			}
-			return acronymImpacts;
+				if (impactMapper == null)
+					impactMapper = new HashMap<>();
+				Map<String, IImpactParameter> acronymImpacts = impactMapper.get(type);
+				if (acronymImpacts == null) {
+					List<IImpactParameter> parameters = impacts.get(type);
+					if (parameters == null)
+						return Collections.emptyMap();
+					impactMapper.put(type, acronymImpacts = parameters.stream()
+							.collect(Collectors.toMap(IImpactParameter::getAcronym, Function.identity())));
+				}
+				return acronymImpacts;
 		}
 
 	}
@@ -323,7 +345,7 @@ public class ValueFactory {
 	 * @see ValueFactory#findImportance(String, String, String, String, String)
 	 */
 	public int findImportance(Assessment assessment) {
-		return findImportance(assessment.getLikelihood(), assessment.getImpacts()) *  assessment.getVulnerability();
+		return findImportance(assessment.getLikelihood(), assessment.getImpacts()) * assessment.getVulnerability();
 	}
 
 	/**
@@ -343,7 +365,8 @@ public class ValueFactory {
 
 	public int findImpactLevel(List<? extends IValue> impacts) {
 		return impacts == null ? 0
-				: impacts.stream().filter(value -> !value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel)
+				: impacts.stream().filter(value -> !value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
+						.max((v1, v2) -> IValue.compareByLevel(v1, v2)).map(IValue::getLevel)
 						.orElse(0);
 	}
 
@@ -379,13 +402,15 @@ public class ValueFactory {
 
 	public IValue findMaxImpactByLevel(Object value) {
 		return impacts == null ? null
-				: impacts.keySet().stream().filter(type -> !type.equals(Constant.DEFAULT_IMPACT_NAME)).map(type -> findValue(value, type))
+				: impacts.keySet().stream().filter(type -> !type.equals(Constant.DEFAULT_IMPACT_NAME))
+						.map(type -> findValue(value, type))
 						.max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 	}
 
 	public IValue findMinImpactByLevel(Object value) {
 		return impacts == null ? null
-				: impacts.keySet().stream().filter(type -> !type.equals(Constant.DEFAULT_IMPACT_NAME)).map(type -> findValue(value, type))
+				: impacts.keySet().stream().filter(type -> !type.equals(Constant.DEFAULT_IMPACT_NAME))
+						.map(type -> findValue(value, type))
 						.min((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 	}
 
@@ -401,7 +426,8 @@ public class ValueFactory {
 
 	public IValue findMaxImpactByReal(List<? extends IValue> impacts) {
 		return impacts == null ? null
-				: impacts.stream().filter(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME)).max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+				: impacts.stream().filter(value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
+						.max(IValue::compareByReal).orElse(null);
 	}
 
 	public Double findRealValue(List<? extends IValue> impacts) {
@@ -448,7 +474,8 @@ public class ValueFactory {
 
 	public IProbabilityParameter findExpParameter(String likelihood) {
 		IValue value = findProb(likelihood);
-		return value == null || !(value instanceof IParameterValue) ? null : (IProbabilityParameter) ((IParameterValue) value).getParameter();
+		return !(value instanceof IParameterValue) ? null
+				: (IProbabilityParameter) ((IParameterValue) value).getParameter();
 	}
 
 	public void add(Collection<? extends IParameter> parameters) {
@@ -500,16 +527,42 @@ public class ValueFactory {
 
 	public ILevelParameter findParameter(Integer value, String type) {
 		IValue result = findValue(value, type);
-		return result == null || !(result instanceof IParameterValue) ? null : ((IParameterValue) result).getParameter();
+		return !(result instanceof IParameterValue) ? null
+				: ((IParameterValue) result).getParameter();
 	}
 
 	public ILevelParameter findParameter(Double value, String type) {
 		IValue result = findValue(value, type);
-		return result == null || !(result instanceof IParameterValue) ? null : ((IParameterValue) result).getParameter();
+		return !(result instanceof IParameterValue) ? null
+				: ((IParameterValue) result).getParameter();
 	}
 
 	public ILevelParameter findParameter(Object value, String type) {
 		IValue result = findValue(value, type);
-		return result == null || !(result instanceof IParameterValue) ? null : ((IParameterValue) result).getParameter();
+		return !(result instanceof IParameterValue) ? null
+				: ((IParameterValue) result).getParameter();
+	}
+
+	public int findILRLevel(IValue value) {
+		if (value == null)
+			return 0;
+		else if (value instanceof IParameterValue) {
+			ILevelParameter parameter = ((IParameterValue) value).getParameter();
+			if (parameter instanceof LikelihoodParameter)
+				return ((LikelihoodParameter) parameter).getIlrLevel();
+			else {
+				parameter = findParameter(value.getLevel(), PARAMETER_TYPE_PROPABILITY_NAME);
+				if (!(parameter instanceof LikelihoodParameter))
+					return 0;
+				else
+					return ((LikelihoodParameter) parameter).getIlrLevel();
+			}
+		} else {
+			final ILevelParameter parameter = findParameter(value.getLevel(), PARAMETER_TYPE_PROPABILITY_NAME);
+			if (!(parameter instanceof LikelihoodParameter))
+				return 0;
+			else
+				return ((LikelihoodParameter) parameter).getIlrLevel();
+		}
 	}
 }

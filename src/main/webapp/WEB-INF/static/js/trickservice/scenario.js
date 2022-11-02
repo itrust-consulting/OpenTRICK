@@ -1,25 +1,25 @@
 function editScenario(rowTrickId, isAdding) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		 if (!isAdding && (rowTrickId == null || rowTrickId == undefined)) {
-			var selectedScenario = $("#section_scenario :checked");
+		if (!isAdding && (rowTrickId == null || rowTrickId == undefined)) {
+			let selectedScenario = $("#section_scenario :checked");
 			if (selectedScenario.length != 1)
 				return false;
 			rowTrickId = findTrickID(selectedScenario[0]);
 		}
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $modal = $("#addScenarioModal", new DOMParser().parseFromString(response, "text/html"));
-				
+				let $modal = $("#addScenarioModal", new DOMParser().parseFromString(response, "text/html"));
+
 				if (!$modal.length)
 					unknowError();
 				else {
-					$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", (e) => $modal.remove());
+					;
 					$("input[name='assetLinked'][type='radio']", $modal).on("change", function () {
 						if (this.checked) {
-							var $assetVlues = $("#scenario-asset-values", $modal), $assetTypeValues = $("#scenario-asset-type-values", $modal)
+							let $assetVlues = $("#scenario-asset-values", $modal), $assetTypeValues = $("#scenario-asset-type-values", $modal)
 							if (this.value == "true") {
 								$assetVlues.show();
 								$assetTypeValues.hide();
@@ -31,34 +31,49 @@ function editScenario(rowTrickId, isAdding) {
 					}).trigger("change");
 
 					if (application.analysisType.isQuantitative()) {
-						$modal.find(".slider").slider({
-							reversed: true
-						}).each(
-							function () {
-								$(this).on(
-									"change",
-									function (event) {
-										$modal.find("#scenario_" + event.target.name + "_value").val(event.value.newValue);
-										switch (event.target.name) {
-											case "preventive":
-											case "detective":
-											case "limitative":
-											case "corrective":
-												var total = parseFloat($("#scenario_preventive_value", $modal).val())
-													+ parseFloat($("#scenario_detective_value", $modal).val()) + parseFloat($("#scenario_limitative_value", $modal).val())
-													+ parseFloat($("#scenario_corrective_value", $modal).val());
-												if (Math.abs(1 - total) > 0.01)
-													$(".pdlc", $modal).removeClass("success").addClass("danger");
-												else
-													$(".pdlc", $modal).removeClass("danger").addClass("success");
-												break;
-											default:
-												break;
-										}
-									});
-							});
-					}
-					
+						let scrollY = window.scrollY;
+						let scrollX = window.scrollX;
+						$modal.appendTo("#widgets").modal("show").on("shown.bs.modal", (e) => {
+							window.scroll(0, 0);
+							$modal.find(".slider").slider({
+								reversed: true,
+								tooltip_position: 'bottom',
+							}).each(
+								function () {
+									$(this).on(
+										"change",
+										function (event) {
+											$modal.find("#scenario_" + event.target.name + "_value").val(event.value.newValue);
+											switch (event.target.name) {
+												case "preventive":
+												case "detective":
+												case "limitative":
+												case "corrective":
+													let total = parseFloat($("#scenario_preventive_value", $modal).val())
+														+ parseFloat($("#scenario_detective_value", $modal).val()) + parseFloat($("#scenario_limitative_value", $modal).val())
+														+ parseFloat($("#scenario_corrective_value", $modal).val());
+													if (Math.abs(1 - total) > 0.01)
+														$(".pdlc", $modal).removeClass("success").addClass("danger");
+													else
+														$(".pdlc", $modal).removeClass("danger").addClass("success");
+													break;
+												default:
+													break;
+											}
+										});
+								});
+						}).on("hidden.bs.modal", (e) => {
+							$modal.remove();
+							if (scrollY) {
+								if (scrollX)
+									window.scroll(scrollX, scrollY);
+								else window.scroll(0, scrollY);
+							} else if (scrollX){
+								window.scroll(scrollX, 0);
+							}
+						});
+						$(document.body).addClass("modal-open");
+					} else $modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", (e) => $modal.remove());
 				}
 				return false;
 			},
@@ -70,7 +85,7 @@ function editScenario(rowTrickId, isAdding) {
 
 function saveScenario(form) {
 	try {
-		var $progress = $("#loading-indicator").show(), $scenarioModal = $("#addScenarioModal"), $form = $("#" + form), scenario = serializeScenario($form);
+		let $progress = $("#loading-indicator").show(), $scenarioModal = $("#addScenarioModal"), $form = $("#" + form), scenario = serializeScenario($form);
 		$(".label-danger", $scenarioModal).remove();
 		$.ajax({
 			url: context + "/Analysis/Scenario/Save",
@@ -78,8 +93,8 @@ function saveScenario(form) {
 			data: JSON.stringify(scenario),
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				for (var error in response.errors) {
-					var $errorElement = $("<label class='label label-danger' />").text(response.errors[error]);
+				for (let error in response.errors) {
+					let $errorElement = $("<label class='label label-danger' />").text(response.errors[error]);
 					switch (error) {
 						case "name":
 							$errorElement.appendTo($("#scenario_name", $scenarioModal).parent());
@@ -103,7 +118,7 @@ function saveScenario(form) {
 					reloadSection("section_scenario");
 					if (!application.isProfile) {
 						scenario.id = response.id;
-						if (scenario.assetLinked==='true')
+						if (scenario.assetLinked === 'true')
 							delete scenario['assetTypeValues'];
 						else
 							delete scenario['assetValues'];
@@ -141,13 +156,13 @@ function saveScenario(form) {
 function deleteScenario(scenarioId) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (scenarioId == null || scenarioId == undefined) {
-			var selectedScenario = findSelectItemIdBySection(("section_scenario"));
+			let selectedScenario = findSelectItemIdBySection(("section_scenario"));
 			if (!selectedScenario.length)
 				return false;
-			var $confirmDialog = showDialog("#confirm-dialog", selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
+			let $confirmDialog = showDialog("#confirm-dialog", selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
 				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios"));
-			$(".btn-danger",$confirmDialog).click(function () {
-				var $progress = $("#loading-indicator").show(), hasChange = false;
+			$(".btn-danger", $confirmDialog).click(function () {
+				let $progress = $("#loading-indicator").show(), hasChange = false;
 				$confirmDialog.modal("hide");
 				while (selectedScenario.length) {
 					rowTrickId = selectedScenario.pop();
@@ -179,10 +194,10 @@ function deleteScenario(scenarioId) {
 
 			});
 		} else {
-			var $confirmDialog = showDialog("#confirm-dialog",MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") );
-			$(".btn-danger", $confirmDialog).one("click",function () {
+			let $confirmDialog = showDialog("#confirm-dialog", MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
+			$(".btn-danger", $confirmDialog).one("click", function () {
 				$confirmDialog.modal("hide");
-				var $progress = $("#loading-indicator").show()
+				let $progress = $("#loading-indicator").show()
 				$.ajax({
 					url: context + "/Analysis/Scenario/Delete/" + scenarioId,
 					contentType: "application/json;charset=UTF-8",
@@ -200,7 +215,7 @@ function deleteScenario(scenarioId) {
 }
 
 function serializeScenario($form) {
-	var data = $form.serializeJSON();
+	let data = $form.serializeJSON();
 
 	if (data["assetLinked"] === "true")
 		data["assetTypeValues"] = [];
@@ -212,7 +227,7 @@ function serializeScenario($form) {
 	};
 
 	if (application.analysisType == "QUANTITATIVE") {
-		var total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
+		let total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
 			+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);
 		if (Math.abs(1 - total) > 0.001)
 			throw "error.scenario.control.characteristic";
@@ -223,7 +238,7 @@ function serializeScenario($form) {
 }
 
 function clearScenarioFormData() {
-	var lang = findAnalysisLocale();
+	let lang = findAnalysisLocale();
 	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
@@ -231,17 +246,17 @@ function clearScenarioFormData() {
 function selectScenario(scenarioId, value) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (scenarioId == undefined) {
-			var selectedItem = findSelectItemIdBySection("section_scenario");
+			let selectedItem = findSelectItemIdBySection("section_scenario");
 			if (!selectedItem.length)
 				return false;
-			var requiredUpdates = [];
-			for (var i = 0; i < selectedItem.length; i++) {
-				var selected = $("#section_scenario tbody tr[data-trick-id='" + selectedItem[i] + "']").attr("data-trick-selected");
+			let requiredUpdates = [];
+			for (let i = 0; i < selectedItem.length; i++) {
+				let selected = $("#section_scenario tbody tr[data-trick-id='" + selectedItem[i] + "']").attr("data-trick-selected");
 				if (value != selected)
 					requiredUpdates.push(selectedItem[i]);
 			}
 			if (requiredUpdates.length) {
-				var $progress = $("#loading-indicator").show();
+				let $progress = $("#loading-indicator").show();
 				$.ajax({
 					url: context + "/Analysis/Scenario/Select",
 					contentType: "application/json;charset=UTF-8",
@@ -259,7 +274,7 @@ function selectScenario(scenarioId, value) {
 				});
 			}
 		} else {
-			var $progress = $("#loading-indicator").show();
+			let $progress = $("#loading-indicator").show();
 			$.ajax({
 				url: context + "/Analysis/Scenario/Select/" + scenarioId,
 				contentType: "application/json;charset=UTF-8",

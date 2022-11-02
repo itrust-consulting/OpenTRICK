@@ -60,11 +60,11 @@ public interface IParameter extends Cloneable {
 		return String.format(KEY_PARAMETER_FORMAT, getTypeName(), getBaseKey());
 	}
 
-	default Boolean isMatch(String typeName, String baseKey) {
+	default boolean isMatch(String typeName, String baseKey) {
 		return getTypeName().equalsIgnoreCase(typeName) && getBaseKey().equalsIgnoreCase(baseKey);
 	}
 
-	default Boolean isMatch(String type) {
+	default boolean isMatch(String type) {
 		return getTypeName().equalsIgnoreCase(type);
 	}
 

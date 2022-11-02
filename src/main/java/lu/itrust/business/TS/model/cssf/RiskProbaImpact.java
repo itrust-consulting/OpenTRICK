@@ -140,8 +140,8 @@ public class RiskProbaImpact implements Cloneable {
 		IImpactParameter parameter = getImpactMapper().get(impact.getTypeName());
 		if (parameter != null)
 			remove(parameter);
-		impacts.add((ImpactParameter) impact);
-		return getImpactMapper().put(impact.getTypeName(), (ImpactParameter) impact);
+		impacts.add(impact);
+		return getImpactMapper().put(impact.getTypeName(), impact);
 	}
 
 	private void remove(IImpactParameter impact) {
@@ -150,7 +150,7 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public int getImportance() {
-		return getImpactLevel() * getProbabilityLevel() * getVulnerability();
+		return getImpactLevel() * getProbabilityLevel();
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class RiskProbaImpact implements Cloneable {
 	public RiskProbaImpact clone() throws CloneNotSupportedException {
 		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
 		if (probability != null)
-			probaImpact.probability = (LikelihoodParameter) probability.clone();
+			probaImpact.probability =  probability.clone();
 		return probaImpact;
 	}
 

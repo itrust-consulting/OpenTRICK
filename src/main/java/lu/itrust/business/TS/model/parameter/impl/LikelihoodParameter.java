@@ -48,6 +48,9 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
+	@Column(name = "dtILRLevel", nullable = false)
+	private int ilrLevel = -1;
+
 	/**
 	 * 
 	 */
@@ -168,6 +171,14 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 		this.label = label;
 	}
 
+	public int getIlrLevel() {
+		return ilrLevel;
+	}
+
+	public void setIlrLevel(int ilrLevel) {
+		this.ilrLevel = ilrLevel;
+	}
+
 	/**
 	 * clone: <br>
 	 * Description
@@ -243,5 +254,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 			}
 		}
 	}
+
+	
 
 }

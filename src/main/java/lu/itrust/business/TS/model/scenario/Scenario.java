@@ -47,6 +47,11 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
 		@UniqueConstraint(columnNames = { "fiAnalysis", "dtThreat", "dtVulnerability" }) })
 public class Scenario extends SecurityCriteria {
 
+	/**
+	 *
+	 */
+	private static final String ILR_KEY_FORMATING = "-!-!-%s:-:-:%s-!-!-";
+
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
@@ -660,7 +665,13 @@ public class Scenario extends SecurityCriteria {
 	}
 
 	public static String getILRKey(String threat, String vulnerability) {
-		return String.format("%s:@:%selected", threat, vulnerability);
+		if (threat == null) {
+			if (vulnerability == null)
+				return String.format(ILR_KEY_FORMATING, "-", "-");
+			return String.format(ILR_KEY_FORMATING, "-", vulnerability.trim().toLowerCase());
+		} else if (vulnerability == null)
+			return String.format(ILR_KEY_FORMATING, threat.trim().toLowerCase(), "-");
+		return String.format(ILR_KEY_FORMATING, threat.trim().toLowerCase(), vulnerability.trim().toLowerCase());
 	}
 
 	/*

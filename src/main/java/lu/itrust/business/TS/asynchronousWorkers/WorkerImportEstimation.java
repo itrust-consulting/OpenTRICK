@@ -381,9 +381,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_IRL_ANALYSIS);
 
-		final Map<String, List<AssetNode>> nodeByAssetNames = isILR
+		final Map<String, AssetNode> nodeByAssetNames = isILR
 				? analysis.getAssetNodes().stream()
-						.collect(Collectors.groupingBy(e -> e.getAsset().getName().trim(), Collectors.toList()))
+						.collect(
+								Collectors.toMap(e -> e.getAsset().getName().toLowerCase().trim(), Function.identity()))
 				: Collections.emptyMap();
 
 		final Map<String, ScaleType> scaleTypes = daoScaleType.findAll().stream()
@@ -400,13 +401,20 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		final Set<String> seenAssets = new HashSet<>();
 
-		for (int i = 1; i < size; i++) {
+		final int beginColumn = address.getBegin().getCol();
+
+		final int endColumn = Math.max(address.getEnd().getCol(), columns.size());
+
+		final int namePos = nameIndex + beginColumn;
+		final int oldNamePos = odlNameIndex == -1 ? -1 : odlNameIndex + beginColumn;
+
+		for (int i = address.getBegin().getRow() + 1; i < size; i++) {
 			Row row = sheetData.getRow().get(i);
-			String name = getString(row, nameIndex, formatter);
+			String name = getString(row, namePos, formatter);
 			if (isEmpty(name))
 				continue;
 
-			String oldName = getString(row, odlNameIndex, formatter);
+			String oldName = getString(row, oldNamePos, formatter);
 
 			Asset asset = assets.get(name.trim().toLowerCase());
 
@@ -415,7 +423,6 @@ public class WorkerImportEstimation extends WorkerImpl {
 					asset = assets.get(oldName.trim().toLowerCase());
 				if (asset == null) {
 					asset = assets.computeIfAbsent(name.trim().toLowerCase(), k -> new Asset(name));
-					analysis.getAssets().add(asset);
 				} else
 					asset.setName(name.trim());
 
@@ -428,21 +435,23 @@ public class WorkerImportEstimation extends WorkerImpl {
 			} else
 				seenAssets.add(asset.getName().toLowerCase());
 
-			final List<AssetNode> nodes;
+			final AssetNode node;
+			final Asset myAsset = asset;
 
 			if (isILR) {
-				if (isEmpty(oldName) || !nodeByAssetNames.containsKey(oldName))
-					nodes = nodeByAssetNames.computeIfAbsent(asset.getName(), e -> new ArrayList<>());
+				if (isEmpty(oldName) || !nodeByAssetNames.containsKey(oldName.trim().toLowerCase()))
+					node = nodeByAssetNames.computeIfAbsent(asset.getName().trim().toLowerCase(),
+							e -> new AssetNode(myAsset));
 				else
-					nodes = nodeByAssetNames.computeIfAbsent(oldName, e -> new ArrayList<>());
+					node = nodeByAssetNames.computeIfAbsent(oldName.trim().toLowerCase(), e -> new AssetNode());
 			} else {
-				nodes = Collections.emptyList();
+				node = null;
 			}
 
-			for (int j = 0; j < columns.size(); j++) {
-				if (j == nameIndex || j == odlNameIndex)
+			for (int j = beginColumn; j < endColumn; j++) {
+				if (j == namePos || j == oldNamePos)
 					continue;
-				final String column = columns.get(j);
+				final String column = columns.get(j - beginColumn);
 				switch (column) {
 					case "type":
 						AssetType assetType = asset.getAssetType();
@@ -479,6 +488,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 						if (isILR && (column.startsWith("c-") || column.startsWith("i-") || column.startsWith("a-"))) {
 							final String scaleAcronym = column.substring(2);
 							final ScaleType scaleType = scaleTypes.get(scaleAcronym);
+
 							if (scaleType == null) {
 								handler.update("error.import.asset.scale.not_found",
 										String.format("The impact scale the with acronym '%s' cannot be found!",
@@ -486,37 +496,33 @@ public class WorkerImportEstimation extends WorkerImpl {
 										handler.getProgress());
 								getServiceTaskFeedback().send(getId(), handler);
 							} else {
+
 								final int impact = getInt(row, j, -2, formatter);
+
+								final AssetImpact assetImpact = node.getImpact();
+
 								usedScales.add(scaleType);
-								if (nodes.isEmpty())
-									nodes.add(new AssetNode(asset));
+
 								if (impact > -2) {
 									switch (column.charAt(0)) {
 										case 'c': {
-											nodes.forEach(n -> {
-												final AssetImpact assetImpact = n.getImpact();
-												final ILRImpact ilrImpact = assetImpact.getConfidentialityImpacts()
-														.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
-												ilrImpact.setValue(impact);
-											});
+											final ILRImpact ilrImpact = assetImpact.getConfidentialityImpacts()
+													.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
+											ilrImpact.setValue(impact);
 											break;
 										}
 										case 'i': {
-											nodes.forEach(n -> {
-												final AssetImpact assetImpact = n.getImpact();
-												final ILRImpact ilrImpact = assetImpact.getIntegrityImpacts()
-														.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
-												ilrImpact.setValue(impact);
-											});
+											final ILRImpact ilrImpact = assetImpact.getIntegrityImpacts()
+													.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
+											ilrImpact.setValue(impact);
+
 											break;
 										}
 										default: {
-											nodes.forEach(n -> {
-												final AssetImpact assetImpact = n.getImpact();
-												final ILRImpact ilrImpact = assetImpact.getAvailabilityImpacts()
-														.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
-												ilrImpact.setValue(impact);
-											});
+											final ILRImpact ilrImpact = assetImpact.getAvailabilityImpacts()
+													.computeIfAbsent(scaleType, k -> new ILRImpact(scaleType));
+											ilrImpact.setValue(impact);
+
 										}
 									}
 
@@ -527,10 +533,19 @@ public class WorkerImportEstimation extends WorkerImpl {
 				}
 			}
 
-			nodes.stream().filter(n -> n.getId() < 1).forEach(e -> analysis.getAssetNodes().add(e));
 			handler.setProgress((int) (min + ((double) i / (double) size) * maxProgress));
 			getServiceTaskFeedback().send(getId(), handler);
 		}
+
+		assets.values().stream().filter(e -> e.getId() < 1).forEach(e -> {
+			if (e.getAssetType() == null)
+				nodeByAssetNames.values().removeIf(j -> j.getAsset() == null || j.getAsset().equals(e));
+			else
+				analysis.add(e);
+
+		});
+
+		nodeByAssetNames.values().stream().filter(n -> n.getId() < 1).forEach(e -> analysis.getAssetNodes().add(e));
 
 		usedScales.stream().filter(e -> !analysis.getIlrImpactTypes().contains(e))
 				.forEach(e -> analysis.getIlrImpactTypes().add(e));
@@ -574,8 +589,6 @@ public class WorkerImportEstimation extends WorkerImpl {
 				.collect(Collectors.toMap(Function.identity(),
 						e -> e.getEdges().values().stream()
 								.collect(Collectors.toMap(AssetEdge::getChild, Function.identity()))));
-
-		final int maxProgress = (max - min);
 
 		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
 			throw new TrickException("error.import.data.table.no.data", "Table named `Table_dep` has not enough data!",
@@ -1111,7 +1124,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	private RiskStrategy parseResponse(String value, RiskStrategy defaultValue) {
 		try {
-			return value == null || value.length() == 0 ? defaultValue : RiskStrategy.valueOf(value.toUpperCase());
+			return value == null || value.length() == 0 ? defaultValue : RiskStrategy.valueOf(value.trim().toUpperCase());
 		} catch (Exception e) {
 			return defaultValue;
 		}

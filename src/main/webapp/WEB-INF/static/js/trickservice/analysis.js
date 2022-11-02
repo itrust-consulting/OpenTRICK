@@ -1,12 +1,12 @@
-var el = null, table = null, taskController = function () {
+let el = null, table = null, taskController = function () {
 };
 
-var language = { // translated asynchronously below
+let language = { // translated asynchronously below
 	"label.dynamicparameter.evolution": "from {0} to {1}"
 };
 
 $(document).ready(function () {
-	for (var key in language)
+	for (let key in language)
 		language[key] = MessageResolver(key, language[key]);
 
 	// ******************************************************************************************************************
@@ -54,18 +54,18 @@ $.fn.loadOrUpdateChart = function (parameters) {
 		$.extend(true, parameters, {
 			tooltip: {
 				formatter: function () {
-					var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
-					var str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name
+					let str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
+					let str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name
 						+ ":</span>   <b>" + str_value + "</b>";
 
 					if (this.series.options.metadata) {
-						var dataIndex = this.series.xAxis.categories.indexOf(this.x);
-						var metadata = this.series.options.metadata[dataIndex];
+						let dataIndex = this.series.xAxis.categories.indexOf(this.x);
+						let metadata = this.series.options.metadata[dataIndex];
 						if (metadata.length > 0)
 							str += "<br/>\u00A0"; // non-breaking space;
 						// prevents empty line from
 						// being ignored
-						for (var i = 0; i < metadata.length; i++)
+						for (let i = 0; i < metadata.length; i++)
 							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: "
 								+ language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
 					}
@@ -75,12 +75,12 @@ $.fn.loadOrUpdateChart = function (parameters) {
 		});
 	}
 
-	var chart = this.highcharts();
+	let chart = this.highcharts();
 	if (chart === undefined || parameters.series.length != chart.series.length)
 		return this.highcharts(parameters);
 
 	// Invalidate whole graph if the collection of series changed
-	for (var i = 0; i < chart.series.length; i++) {
+	for (let i = 0; i < chart.series.length; i++) {
 		if (chart.series[i].name != parameters.series[i].name)
 			return this.highcharts(parameters);
 	}
@@ -95,9 +95,9 @@ $.fn.loadOrUpdateChart = function (parameters) {
 };
 
 function findAnalysisId() {
-	var id = application['selected-analysis-id'];
+	let id = application['selected-analysis-id'];
 	if (id === undefined) {
-		var el = document.querySelector("#nav-container");
+		let el = document.querySelector("#nav-container");
 		if (el == null)
 			return -1;
 		id = application['selected-analysis-id'] = el.getAttribute("data-trick-id");
@@ -107,13 +107,13 @@ function findAnalysisId() {
 
 function manageImpactScale() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Parameter/Impact-scale/Manage",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
+				let $view = $("#manageImpactModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
 
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
@@ -123,9 +123,9 @@ function manageImpactScale() {
 					});
 
 					$("button[name='save']", $view).on("click", e => {
-						var data = {}, notEmpty = false;
+						let data = {}, notEmpty = false;
 						$(".form-group[data-trick-id]", $view).each(function () {
-							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
+							let $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
 								data[$this.attr("data-trick-id")] = newValue;
 							notEmpty |= newValue === 'true';
@@ -173,21 +173,21 @@ function manageImpactScale() {
 
 function manageScaleLevel() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Parameter/Scale-level/Manage",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $view = $("#manageScaleLevelModal", new DOMParser().parseFromString(response, "text/html"));
+				let $view = $("#manageScaleLevelModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					// load view static error message
-					var $orignalContainer = $("#original-container"), $container = $("#new-level-container", $view), $levelTemplate = $("#level-template-ui", $view);
+					let $orignalContainer = $("#original-container"), $container = $("#new-level-container", $view), $levelTemplate = $("#level-template-ui", $view);
 
-					var drop = (e) => {
+					let drop = (e) => {
 						e.preventDefault();
-						var $body = $(".panel-body", e.currentTarget), $item = $(document.getElementById(e.originalEvent.dataTransfer.getData("level"))), $oldParent = $item.parent();
+						let $body = $(".panel-body", e.currentTarget), $item = $(document.getElementById(e.originalEvent.dataTransfer.getData("level"))), $oldParent = $item.parent();
 						$item.appendTo($body);
 						$("span:visible", $body).hide();
 						if (!$("[data-value]", $oldParent).length)
@@ -195,7 +195,7 @@ function manageScaleLevel() {
 					}, dragover = (e) => {
 						e.preventDefault();
 					}, removeLevel = (e) => {
-						var $panelUI = $(e.currentTarget).closest('.panel');
+						let $panelUI = $(e.currentTarget).closest('.panel');
 						$("[data-value]", $panelUI).appendTo($orignalContainer);
 						$panelUI.remove();
 						$(".panel[data-container-level!='0']", $container).each(function (i) {
@@ -225,8 +225,8 @@ function manageScaleLevel() {
 					});
 
 					$("#btn-add-level", $view).on("click", (e) => {
-						var index = parseInt($(".panel[data-container-level]:last-child", $container).attr("data-container-level")) + 1;
-						var $ui = $levelTemplate.clone().removeAttr('id').attr("data-container-level", index);
+						let index = parseInt($(".panel[data-container-level]:last-child", $container).attr("data-container-level")) + 1;
+						let $ui = $levelTemplate.clone().removeAttr('id').attr("data-container-level", index);
 						$(".panel-title", $ui).text(MessageResolver("label.scale.level.value").replace("{0}", index));
 						$ui.appendTo($container).on("drop", drop).on("dragover", dragover);
 						$("[data-role='remove']", $ui).on("click", removeLevel);
@@ -245,7 +245,7 @@ function manageScaleLevel() {
 							return false;
 						}
 
-						var data = {};
+						let data = {};
 						$(".panel[data-container-level]", $container).each(function (i) {
 							data[i] = [];
 							$("[data-value]", this).each(function () {
@@ -286,7 +286,7 @@ function manageScaleLevel() {
 }
 
 function updateScroll(element) {
-	var currentActive = document.activeElement;
+	let currentActive = document.activeElement;
 	if (element != currentActive) {
 		element.focus();// update scroll
 		currentActive.focus();
@@ -295,9 +295,9 @@ function updateScroll(element) {
 }
 
 function findAnalysisLocale() {
-	var locale = application['selected-analysis-locale'];
+	let locale = application['selected-analysis-locale'];
 	if (locale === undefined) {
-		var el = document.querySelector("#nav-container");
+		let el = document.querySelector("#nav-container");
 		if (el == null)
 			return 'en';
 		locale = application['selected-analysis-locale'] = el.getAttribute("data-trick-language");
@@ -343,13 +343,13 @@ function updateSettings(element, entryKey) {
 					$(element).removeClass('glyphicon-ok');
 				else
 					$(element).addClass('glyphicon-ok');
-				var sections = $(element).attr("data-trick-section-dependency");
+				let sections = $(element).attr("data-trick-section-dependency");
 				if (sections != undefined)
 					return reloadSection(sections.split(','));
-				var callBack = $(element).attr("data-trick-callback");
+				let callBack = $(element).attr("data-trick-callback");
 				if (callBack != undefined)
 					return eval(callBack);
-				var reload = $(element).attr("data-trick-reload");
+				let reload = $(element).attr("data-trick-reload");
 				if (reload == undefined || reload == 'true')
 					location.reload();
 			}
@@ -385,20 +385,20 @@ function updateMeasuresCost() {
 
 function manageAnalysisSettings() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Manage-settings",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $view = $("#analysisSettingModal", new DOMParser().parseFromString(response, "text/html"));
+				let $view = $("#analysisSettingModal", new DOMParser().parseFromString(response, "text/html"));
 				if ($view.length) {
 					$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
 					$("button[name='save']").on("click", e => {
-						var data = {};
+						let data = {};
 
 						$(".form-group[data-trick-name]", $view).each(function () {
-							var $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
+							let $this = $(this), newValue = $("input[type='radio']:checked,input[type!='radio']:visible", this).val(), oldValue = $("input[type!='radio']:hidden", this).val();
 							if (newValue != oldValue)
 								data[$this.attr("data-trick-name")] = newValue;
 						});
@@ -439,19 +439,19 @@ function manageAnalysisSettings() {
 
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
-	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']");
+	let $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']");
 	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $newRow = $("tr", $("<div/>").html(response));
+				let $newRow = $("tr", $("<div/>").html(response));
 				if (!$newRow.length)
 					$currentRow.addClass("warning").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
 				else {
-					var $checked = $currentRow.find("input:checked");
+					let $checked = $currentRow.find("input:checked");
 					$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
 					$currentRow.replaceWith($newRow);
 					$("[data-toggle='tooltip']", $newRow).tooltip().on('show.bs.tooltip', toggleToolTip);
@@ -505,11 +505,11 @@ function tryToReloadSOA(standard, idMeasure) {
 }
 
 function reloadRiskAcceptanceTable($tabSection) {
-	var $tbody = $("table>tbody", $tabSection), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
+	let $tbody = $("table>tbody", $tabSection), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
 	if ($trs.length) {
 		$tbody.empty();
 		$trs.each(function () {
-			var $this = $(this).removeAttributes();
+			let $this = $(this).removeAttributes();
 			$("td[data-trick-field!='color']", $this).removeAttributes();
 			$("td[data-trick-field]", $this).removeAttr("data-trick-field");
 			$this.attr("style", "text-align:center");
@@ -520,7 +520,7 @@ function reloadRiskAcceptanceTable($tabSection) {
 }
 
 function reloadRiskHeatMapSection(tableChange) {
-	var $tabSection = $("#tab-chart-heat-map");
+	let $tabSection = $("#tab-chart-heat-map");
 	if ($tabSection.is(":visible")) {
 		loadRiskHeatMap();
 		loadRiskEvolutionHeatMap();
@@ -534,7 +534,7 @@ function reloadRiskHeatMapSection(tableChange) {
 }
 
 function reloadRiskAssetSection(tableChange) {
-	var $tabSection = $("#tab-chart-risk-asset");
+	let $tabSection = $("#tab-chart-risk-asset");
 	if ($tabSection.is(":visible")) {
 		loadRiskChart(context + "/Analysis/Asset/Chart/Risk", "riskAsset", "#risk_acceptance_assets", "risk_acceptance_asset_canvas");
 		if (tableChange)
@@ -547,7 +547,7 @@ function reloadRiskAssetSection(tableChange) {
 }
 
 function reloadRiskAssetTypeSection(tableChange) {
-	var $tabSection = $("#tab-chart-risk-asset-type");
+	let $tabSection = $("#tab-chart-risk-asset-type");
 	if ($tabSection.is(":visible")) {
 		loadRiskChart(context + "/Analysis/Asset/Chart/Type/Risk", "riskAssetType", "#risk_acceptance_asset_types", "risk_acceptance_asset_types_canvas");
 		if (tableChange)
@@ -560,7 +560,7 @@ function reloadRiskAssetTypeSection(tableChange) {
 }
 
 function reloadRiskScenarioSection(tableChange) {
-	var $tabSection = $("#tab-chart-risk-scenario");
+	let $tabSection = $("#tab-chart-risk-scenario");
 	if ($tabSection.is(":visible")) {
 		loadRiskChart(context + "/Analysis/Scenario/Chart/Risk", "riskScenario", "#risk_acceptance_scenarios", "risk_acceptance_scenarios_canvas");
 		if (tableChange)
@@ -573,7 +573,7 @@ function reloadRiskScenarioSection(tableChange) {
 }
 
 function reloadRiskScenarioTypeSection(tableChange) {
-	var $tabSection = $("#tab-chart-risk-scenario-type");
+	let $tabSection = $("#tab-chart-risk-scenario-type");
 	if ($tabSection.is(":visible")) {
 		loadRiskChart(context + "/Analysis/Scenario/Chart/Type/Risk", "riskScenarioType", "#risk_acceptance_scenario_types", "risk_acceptance_scenario_types_canvas");
 		if (tableChange)
@@ -596,7 +596,7 @@ function reloadRiskChart(tableChange) {
 }
 
 function loadRiskHeatMap() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Assessment/Chart/Risk-heat-map",
 		type: "get",
@@ -620,7 +620,7 @@ function loadRiskHeatMap() {
 
 
 function loadRiskEvolutionHeatMap() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Assessment/Chart/Risk-evolution-heat-map",
 		type: "get",
@@ -632,18 +632,18 @@ function loadRiskEvolutionHeatMap() {
 				data: response,
 				options: evolutionHeatMapOption(response["xLabels"], response["yLabels"])
 			});
-			var $displayValue = $("#chart-show-x-element").unbind("change"), count = parseInt($displayValue.val());
-			var $container = $("#risk_acceptance_evolution_legend"), chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets, $legends = $("<div class='list-group' />");
+			let $displayValue = $("#chart-show-x-element").unbind("change"), count = parseInt($displayValue.val());
+			let $container = $("#risk_acceptance_evolution_legend"), chart = window.riskEvolutionHeatMap, datasets = chart.data.datasets, $legends = $("<div class='list-group' />");
 			if (isNaN(count))
 				count = 10;
-			var displayed = 0;
-			for (var i = 0; i < datasets.length; i++) {
-				var dataset = datasets[i];
+			let displayed = 0;
+			for (let i = 0; i < datasets.length; i++) {
+				let dataset = datasets[i];
 				if (dataset.type === "heatmap")
 					continue;
-				var $legend = $("<button type='button' class='list-group-item' data-chart-id='" + i + "'><span  style='background-color: " + dataset.backgroundColor + "; padding: 1px 12px;margin-right: 3px;' /></button>"), $text = $("<span class='text'/>").text(dataset.legendText).appendTo($legend);
+				let $legend = $("<button type='button' class='list-group-item' data-chart-id='" + i + "'><span  style='background-color: " + dataset.backgroundColor + "; padding: 1px 12px;margin-right: 3px;' /></button>"), $text = $("<span class='text'/>").text(dataset.legendText).appendTo($legend);
 				$legend.appendTo($legends).on("click", function (e) {
-					var $target = $(e.currentTarget), id = parseInt($target.attr("data-chart-id")), dataset = datasets[id];
+					let $target = $(e.currentTarget), id = parseInt($target.attr("data-chart-id")), dataset = datasets[id];
 					if (dataset.hidden)
 						$target.css({ "text-decoration": "none" });
 					else
@@ -661,12 +661,12 @@ function loadRiskEvolutionHeatMap() {
 			$legends.css({ "height": chart.height });
 
 			$displayValue.on("change", function (e) {
-				var value = this.value, count = 0;
-				for (var i = 0; i < datasets.length; i++) {
-					var dataset = datasets[i];
+				let value = this.value, count = 0;
+				for (let i = 0; i < datasets.length; i++) {
+					let dataset = datasets[i];
 					if (dataset.type === "heatmap")
 						continue;
-					var $target = $("[data-chart-id='" + i + "']", $container);
+					let $target = $("[data-chart-id='" + i + "']", $container);
 					if ((dataset.hidden = (++count > value)))
 						$target.css({ "text-decoration": "line-through" });
 					else $target.css({ "text-decoration": "none" });
@@ -689,7 +689,7 @@ function checkForCollectionUpdate() {
 }
 
 function loadRiskChart(url, name, container, canvas) {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: url,
 		type: "get",
@@ -699,9 +699,9 @@ function loadRiskChart(url, name, container, canvas) {
 				helpers.isArray(window[name]) ? window[name].map(chart => chart.destroy()) : window[name].destroy();
 			if (helpers.isArray(response)) {
 				window[name] = [];
-				var $container = $(container).empty();
+				let $container = $(container).empty();
 				response.map(chart => {
-					var $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($container);
+					let $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($container);
 					window[name].push(new Chart($canvas[0].getContext("2d"), {
 						type: "bar",
 						data: chart,
@@ -738,13 +738,13 @@ function loadRiskChart(url, name, container, canvas) {
 function updateMeasureEffience(reference, force) {
 	if (!application.hasMaturity)
 		return;
-	var $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
+	let $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
 	if (!$standard27002.length)
 		return;
-	var $tabPane = $standard27002.closest("div[data-targetable='true']"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
+	let $tabPane = $standard27002.closest("div[data-targetable='true']"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
 	if (updateRequired && triggerName == "reloadSection")
 		return;
-	var data = [], chapters = application["parameter-27002-efficience"];
+	let data = [], chapters = application["parameter-27002-efficience"];
 	if ($standard27002.is(":visible") || force) {
 		if (Array.isArray(chapters)) {
 			data = chapters;
@@ -758,7 +758,7 @@ function updateMeasureEffience(reference, force) {
 		if (reference == undefined)
 			delete application["parameter-27002-efficience"];
 		else {
-			var chapter = reference.split(".", 3)[1], parameters = application["parameter-27002-efficience"], $selector = $standard27002
+			let chapter = reference.split(".", 3)[1], parameters = application["parameter-27002-efficience"], $selector = $standard27002
 				.find("tr[data-trick-computable='false'][data-trick-reference='" + chapter + "']");
 			if ($selector.length) {
 				if (updateRequired && triggerName == 'updateMeasureEffience') {
@@ -772,7 +772,7 @@ function updateMeasureEffience(reference, force) {
 	}
 	if (!data.length)
 		return;
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Standard/Compute-efficiency",
 		type: "post",
@@ -780,7 +780,7 @@ function updateMeasureEffience(reference, force) {
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (typeof response === 'object') {
-				for (var id in response)
+				for (let id in response)
 					$("tr[data-trick-id='" + id + "'][data-trick-computable='true'] td[data-trick-field='mer']", $standard27002).text(parseInt(response[id], 10));
 			} else
 				showDialog("#alert-dialog", MessageResolver("error.measure.mer.update", "Maturity-based effectiveness rate cannot be updated"));
@@ -793,7 +793,7 @@ function updateMeasureEffience(reference, force) {
 }
 
 function compliances() {
-	var $section = $("#tab-chart-compliance");
+	let $section = $("#tab-chart-compliance");
 	if ($section.is(":visible")) {
 		for (let type of application['complianceType'])
 			loadComplianceChart(context + "/Analysis/Standard/Compliances/" + type);
@@ -804,7 +804,7 @@ function compliances() {
 }
 
 function compliance(standard) {
-	var $section = $("#tab-chart-compliance");
+	let $section = $("#tab-chart-compliance");
 	if ($section.is(":visible")) {
 		for (let type of application['complianceType'])
 			loadComplianceChart(context + "/Analysis/Standard/" + standard + "/Compliance/" + type);
@@ -815,14 +815,14 @@ function compliance(standard) {
 }
 
 function loadComplianceChart(url) {
-	var $progress = $("#loading-indicator").show(), name = "compliancesChart", $container = $("#chart_compliance_body"), canvas = "chart_canvas_compliance_";
+	let $progress = $("#loading-indicator").show(), name = "compliancesChart", $container = $("#chart_compliance_body"), canvas = "chart_canvas_compliance_";
 	try {
 		$.ajax({
 			url: url,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				let color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				charts.map(chart => {
@@ -832,7 +832,7 @@ function loadComplianceChart(url) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $("<div class='col-sm-6 col-md-4 col-lg-3' id= 'chart_compliance_" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
+							let $parent = $("<div class='col-sm-6 col-md-4 col-lg-3' id= 'chart_compliance_" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "radar",
 								data: chart,
@@ -858,15 +858,15 @@ function loadComplianceChart(url) {
 
 
 function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
-	var $section = $("#tab-chart-evolution");
+	let $section = $("#tab-chart-evolution");
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show(), name = "evolutionProfitabilityComplianceChart";
+		let $progress = $("#loading-indicator").show(), name = "evolutionProfitabilityComplianceChart";
 		$.ajax({
 			url: context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				let color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				charts.map(chart => {
@@ -877,7 +877,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
+							let $parent = $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "bar",
 								data: chart,
@@ -912,15 +912,15 @@ function loadChartEvolution() {
 }
 
 function loadChartBudget() {
-	var $section = $("#tab-chart-budget");
+	let $section = $("#tab-chart-budget");
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show(), name = "budgetCharts";
+		let $progress = $("#loading-indicator").show(), name = "budgetCharts";
 		$.ajax({
 			url: context + "/Analysis/ActionPlanSummary/Budget",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var charts = helpers.isArray(response) ? response : [response];
+				let charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				charts.map(chart => {
@@ -929,7 +929,7 @@ function loadChartBudget() {
 							window[name].get(chart.trickId).config.data = chart;
 							window[name].get(chart.trickId).update();
 						} else {
-							var $parent = $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
+							let $parent = $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo("#" + chart.trickId);
 							window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 								type: "bar",
 								data: chart,
@@ -963,21 +963,21 @@ function reloadCharts() {
 };
 
 function displayChart(id, response) {
-	var $element = $(id);
+	let $element = $(id);
 	if ($.isArray(response)) {
 		// First prepare the document structure so that there is exactly one
 		// <div> available for each chart
 		if ($element.find(">div").length != response.length) {
 			$element.empty();
-			for (var i = 0; i < response.length; i++) {
+			for (let i = 0; i < response.length; i++) {
 				if (i > 0)
 					$("<hr  style='margin: 30px 0;'>").appendTo($element);
 				$("<div/>").appendTo($element)
 			}
 		}
 		// Now load the charts themselves
-		var divSelector = $element.find(">div");
-		for (var i = 0; i < response.length; i++)
+		let divSelector = $element.find(">div");
+		for (let i = 0; i < response.length; i++)
 			$(divSelector.get(i)).loadOrUpdateChart(response[i]);
 	} else
 		$element.loadOrUpdateChart(response);
@@ -985,9 +985,9 @@ function displayChart(id, response) {
 
 
 function deleteDynamicParameter(id, acronym) {
-	var $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete variable (" + acronym + ")?", acronym));
+	let $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete letiable (" + acronym + ")?", acronym));
 	$("button[name='yes']", $modal).unbind().one("click", function () {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax(
 			{
 				url: context + "/Analysis/Parameter/Dynamic/Delete/" + id,
@@ -1016,7 +1016,7 @@ function deleteDynamicParameter(id, acronym) {
 }
 
 function manageRiskAcceptance() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$
 		.ajax(
 			{
@@ -1024,11 +1024,11 @@ function manageRiskAcceptance() {
 				type: "get",
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					var $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
+					let $content = $("#modalRiskAcceptanceForm", new DOMParser().parseFromString(response, "text/html"));
 					if (!$content.length)
 						showError("Error data cannot be loaded");
 					else {
-						var actionDelete = function () {
+						let actionDelete = function () {
 							$(this).closest("tr").remove();
 						};
 						$("button[name='delete']", $content).on("click", actionDelete);
@@ -1059,9 +1059,9 @@ function manageRiskAcceptance() {
 
 						$("button[name='save']", $content).on("click", function () {
 							$progress.show();
-							var $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
+							let $table = $("table[data-trick-size]", $content), size = $table.attr("data-trick-size"), data = [];
 							$("tr[data-trick-id]", $table).each(function () {
-								var $this = $(this);
+								let $this = $(this);
 								data.push({
 									id: $this.attr("data-trick-id"),
 									value: $("input[name='value']", $this).val(),
@@ -1106,7 +1106,7 @@ function manageRiskAcceptance() {
 }
 
 function loadChartAsset() {
-	var $section = $("#tab-chart-asset");
+	let $section = $("#tab-chart-asset");
 	if ($section.is(":visible")) {
 		loadALEChart(context + "/Analysis/Asset/Chart/Ale", "aleAsset", "#chart_ale_asset", "risk_ale_asset_canvas");
 		loadALEChart(context + "/Analysis/Asset/Chart/Type/Ale", "aleAssetType", "#chart_ale_asset_type", "risk_ale_asset_type_canvas");
@@ -1117,7 +1117,7 @@ function loadChartAsset() {
 }
 
 function loadChartScenario() {
-	var $section = $("#tab-chart-scenario");
+	let $section = $("#tab-chart-scenario");
 	if ($section.is(":visible")) {
 		loadALEChart(context + "/Analysis/Scenario/Chart/Type/Ale", "aleScenarioType", "#chart_ale_scenario_type", "risk_ale_scenario_type_canvas");
 		loadALEChart(context + "/Analysis/Scenario/Chart/Ale", "aleScenario", "#chart_ale_scenario", "risk_ale_scenario_canvas");
@@ -1128,15 +1128,15 @@ function loadChartScenario() {
 }
 
 function loadChartDynamicParameterEvolution() {
-	var $section = $("#tab-chart-parameter-evolution"), name = 'chart-parameter-evolution-map';
+	let $section = $("#tab-chart-parameter-evolution"), name = 'chart-parameter-evolution-map';
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show(), $container = $section.find("#chart_parameterevolution_body");
+		let $progress = $("#loading-indicator").show(), $container = $section.find("#chart_parameterevolution_body");
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/ParameterEvolution",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				let color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				else {
@@ -1149,7 +1149,7 @@ function loadChartDynamicParameterEvolution() {
 				charts.map(chart => {
 					if (chart.datasets && chart.datasets.length) {
 						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-						var $parent = $("<div class='col-md-offset-1 col-md-10' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						let $parent = $("<div class='col-md-offset-1 col-md-10' id='chart-parameter-evolution-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
@@ -1169,16 +1169,16 @@ function loadChartDynamicParameterEvolution() {
 
 function loadChartDynamicAleEvolutionByAssetType() {
 
-	var $section = $("#tab-chart-ale-evolution-by-asset-type"), name = 'chart-ale-evolution-by-asset-type-map';
+	let $section = $("#tab-chart-ale-evolution-by-asset-type"), name = 'chart-ale-evolution-by-asset-type-map';
 
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show(), $container = $section.find("#chart_aleevolutionbyassettype_body");
+		let $progress = $("#loading-indicator").show(), $container = $section.find("#chart_aleevolutionbyassettype_body");
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				let color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				else {
@@ -1191,7 +1191,7 @@ function loadChartDynamicAleEvolutionByAssetType() {
 				charts.map(chart => {
 					if (chart.datasets && chart.datasets.length) {
 						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-						var $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						let $parent = $("<div class='col-lg-6' id='chart-ale-evolution-by-asset-type-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
@@ -1211,16 +1211,16 @@ function loadChartDynamicAleEvolutionByAssetType() {
 }
 
 function loadChartDynamicAleEvolution() {
-	var $section = $("#tab-chart-ale-evolution"), name = 'chart-ale-evolution';
+	let $section = $("#tab-chart-ale-evolution"), name = 'chart-ale-evolution';
 	if ($section.is(":visible")) {
-		var $progress = $("#loading-indicator").show(), $container = $section.find("#chart_aleevolution_body");
+		let $progress = $("#loading-indicator").show(), $container = $section.find("#chart_aleevolution_body");
 		$.ajax({
 			url: context + "/Analysis/Dynamic/Chart/AleEvolution",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			async: true,
 			success: function (response, textStatus, jqXHR) {
-				var color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
+				let color = Chart.helpers.color, charts = helpers.isArray(response) ? response : [response];
 				if (window[name] == undefined)
 					window[name] = new Map();
 				else {
@@ -1233,7 +1233,7 @@ function loadChartDynamicAleEvolution() {
 				charts.map(chart => {
 					if (chart.datasets && chart.datasets.length) {
 						chart.datasets.map(dataset => dataset.backgroundColor = color(dataset.backgroundColor).alpha(0.1).rgbString());
-						var $parent = $("<div class='col-md-offset-1 col-md-10' id='chart-ale-evolution-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
+						let $parent = $("<div class='col-md-offset-1 col-md-10' id='chart-ale-evolution-" + chart.trickId + "' />").appendTo($container), $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($parent);
 						window[name].set(chart.trickId, new Chart($canvas[0].getContext("2d"), {
 							type: "line",
 							data: chart,
@@ -1251,7 +1251,7 @@ function loadChartDynamicAleEvolution() {
 }
 
 function loadALEChart(url, name, container, canvas) {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	try {
 		$.ajax({
 			url: url,
@@ -1262,9 +1262,9 @@ function loadALEChart(url, name, container, canvas) {
 					helpers.isArray(window[name].destroy) ? window[name].map(chart => chart.destroy()) : window[name].destroy();
 				if (helpers.isArray(response)) {
 					window[name] = [];
-					var $container = $(container).empty();
+					let $container = $(container).empty();
 					response.map(chart => {
-						var $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($container);
+						let $canvas = $("<canvas style='margin-left: auto; margin-right: auto;' />").appendTo($container);
 						window[name].push(new Chart($canvas[0].getContext("2d"), {
 							type: "bar",
 							data: chart,
@@ -1303,7 +1303,7 @@ function chartALE() {
 
 // common
 function navToogled(section, parentMenu, navSelected) {
-	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']", parentMenu);
+	let currentMenu = $("li[data-trick-nav-control='" + navSelected + "']", parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
 	$("li[data-trick-nav-control]", parentMenu).each(function () {
@@ -1314,7 +1314,7 @@ function navToogled(section, parentMenu, navSelected) {
 	});
 
 	$("[data-trick-nav-content]", section).each(function () {
-		var $this = $(this);
+		let $this = $(this);
 		if (this.getAttribute("data-trick-nav-content") == navSelected)
 			$this.show();
 		else if ($this.is(":visible"))
@@ -1325,12 +1325,12 @@ function navToogled(section, parentMenu, navSelected) {
 }
 
 function manageBrainstorming(type) {
-	var $progress = $("#loading-indicator").show(), category = type.replace(/\b\w/g, s => s.toUpperCase());
+	let $progress = $("#loading-indicator").show(), category = type.replace(/\b\w/g, s => s.toUpperCase());
 	$.ajax({
 		url: context + "/Analysis/Risk-information/Manage/" + category,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
+			let $modal = $("#modal-manage-brainstorming", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
 
@@ -1343,7 +1343,7 @@ function manageBrainstorming(type) {
 				$("input[name='chapter']", $modal).on("blur", (e) => validateRiskInformationChapter($modal));
 				$("form", $modal).on("submit", e => {
 					$progress.show();
-					var data = parseRiskInformationData(category === "Risk" ? "Risk_TBA" : category, $("form tbody>tr[data-trick-id]", $modal));
+					let data = parseRiskInformationData(category === "Risk" ? "Risk_TBA" : category, $("form tbody>tr[data-trick-id]", $modal));
 					$.ajax({
 						url: context + "/Analysis/Risk-information/Manage/" + category + "/Save",
 						type: "post",
@@ -1374,9 +1374,9 @@ function manageBrainstorming(type) {
 }
 
 function parseRiskInformationData(category, $trs) {
-	var data = [];
+	let data = [];
 	$trs.each(function (i) {
-		var $this = $(this), $label = $("input[name='label']", $this), $chapter = $("input[name='chapter']", $this), id = $this.attr("data-trick-id"), chapter = $chapter.val(), label = $label.val(), custom = $("input[name='cutom']", $this).val();
+		let $this = $(this), $label = $("input[name='label']", $this), $chapter = $("input[name='chapter']", $this), id = $this.attr("data-trick-id"), chapter = $chapter.val(), label = $label.val(), custom = $("input[name='cutom']", $this).val();
 		data.push({
 			id: id,
 			category: category,
@@ -1390,13 +1390,13 @@ function parseRiskInformationData(category, $trs) {
 }
 
 function addNewRiskInformtion(e) {
-	var $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1' />");
+	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1' />");
 	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), true);
 	return false;
 }
 
 function addNewRiskInformtionChapter(e) {
-	var $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1'/>");
+	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1'/>");
 	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), false);
 	return false;
 }
@@ -1419,7 +1419,7 @@ function addNewRiskInformation($currentTr, $tr, $buttons, after) {
 }
 
 function removeRiskInformtion(e) {
-	var $currentTr = $(this).closest("tr"), $table = $currentTr.closest("table");
+	let $currentTr = $(this).closest("tr"), $table = $currentTr.closest("table");
 	$currentTr.remove();
 	updateRiskInformationAddBtn($table);
 	return false;
@@ -1427,7 +1427,7 @@ function removeRiskInformtion(e) {
 
 function updateRiskInformationAddBtn($table) {
 	if ($table || $table.length) {
-		var $chapter = $("input[name='chapter']", $table);
+		let $chapter = $("input[name='chapter']", $table);
 		if ($chapter.length)
 			$("tr[data-role='add-btn']", $table).hide();
 		else $("tr[data-role='add-btn']", $table).show();
@@ -1437,7 +1437,7 @@ function updateRiskInformationAddBtn($table) {
 }
 
 function validateRiskInformationChapter($modal) {
-	var chpaters = new Map();
+	let chpaters = new Map();
 	$(".has-error", $modal).removeClass("has-error");
 	$("input[name='chapter']", $modal).filter((i, el) => {
 		if (chpaters.has(el.value.trim()))
@@ -1450,16 +1450,16 @@ function validateRiskInformationChapter($modal) {
 }
 
 function clearRiskInformtion(e) {
-	var $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']", $tr).val();
+	let $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']", $tr).val();
 	if (!(value === undefined || value === null)) {
-		var filter = () => false;
+		let filter = () => false;
 
 		value = value.trim();
 
 		if (value === "")
 			filter = (i, el) => el.value.trim() === value;
 		else if (value.match(/(\d+\.)+(\d+\.*)*$/g)) {
-			var chapter = value.replace(/(\.0*)*$/g, '');
+			let chapter = value.replace(/(\.0*)*$/g, '');
 			filter = (i, el) => el.value.startsWith(chapter);
 		}
 		else filter = (i, el) => el.value.startsWith(value) || el.value === value;
@@ -1471,11 +1471,11 @@ function clearRiskInformtion(e) {
 }
 
 function importRiskInformationForm() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Risk-information/Import-form",
 		success: function (response, textStatus, jqXHR) {
-			var $modal = $("#risk-information-modal", new DOMParser().parseFromString(response, "text/html"));
+			let $modal = $("#risk-information-modal", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 				$("button[name='import']", $modal).on("click", importRiskInformation);
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
@@ -1493,7 +1493,7 @@ function importRiskInformationForm() {
 }
 
 function importRiskInformation() {
-	var $modal = $("#risk-information-modal"), $uploadFile = $("#upload-file-info", $modal), $progress = $("#loading-indicator"), $riskNotification = $("#riskInfromationNotification", $modal);
+	let $modal = $("#risk-information-modal"), $uploadFile = $("#upload-file-info", $modal), $progress = $("#loading-indicator"), $riskNotification = $("#riskInfromationNotification", $modal);
 	if (!$uploadFile.length)
 		return false;
 	else if ($uploadFile.val() == "") {
@@ -1534,11 +1534,11 @@ function backupFieldHeight(baseName, name, container) {
 			backupFieldHeight(baseName, field, container);
 	}
 	else {
-		var backupName = baseName + "-" + name + "-height", data = application[backupName];
+		let backupName = baseName + "-" + name + "-height", data = application[backupName];
 		if (data !== undefined) {
-			var $textarea = $("#" + name, container);
+			let $textarea = $("#" + name, container);
 			if ($textarea.length) {
-				var height = $textarea.outerHeight();
+				let height = $textarea.outerHeight();
 				if (Math.abs(height - data.defaultValue) > 8) {
 					data.previous = data.value;
 					data.value = $textarea.outerHeight();
@@ -1556,9 +1556,9 @@ function restoreFieldHeight(baseName, name, container) {
 			restoreFieldHeight(baseName, field, container);
 	}
 	else {
-		var $textarea = $("#" + name, container);
+		let $textarea = $("#" + name, container);
 		if ($textarea.length) {
-			var backupName = baseName + "-" + name + "-height", height = $textarea.outerHeight(), data = application[backupName];
+			let backupName = baseName + "-" + name + "-height", height = $textarea.outerHeight(), data = application[backupName];
 			if (data === undefined)
 				data = application[backupName] = { defaultValue: height, value: null, previous: null };
 			else data.defaultValue = height;

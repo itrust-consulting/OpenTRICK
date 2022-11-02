@@ -22,18 +22,18 @@ public abstract class Parameter implements IParameter {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id = -1;
-	
+
 	/** The SimpleParameter Description */
 	@Column(name = "dtDescription", nullable = false)
 	private String description = "";
-	
+
 	/** The SimpleParameter Value */
 	@Column(name = "dtValue", nullable = false)
 	private double value = 0;
 
 	public Parameter() {
 	}
-	
+
 	/**
 	 * @param value
 	 * @param description
@@ -42,8 +42,6 @@ public abstract class Parameter implements IParameter {
 		this.value = value;
 		this.description = description;
 	}
-
-
 
 	@Override
 	public String getDescription() {
@@ -55,7 +53,7 @@ public abstract class Parameter implements IParameter {
 	 * Sets the "description" field with a value
 	 * 
 	 * @param description
-	 *            The value to set the SimpleParameter Description
+	 *                    The value to set the SimpleParameter Description
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -71,7 +69,7 @@ public abstract class Parameter implements IParameter {
 	 * Sets the "value" field with a value
 	 * 
 	 * @param value
-	 *            The value to set the SimpleParameter value
+	 *              The value to set the SimpleParameter value
 	 */
 	public void setValue(double value) {
 		this.value = value;
@@ -87,7 +85,7 @@ public abstract class Parameter implements IParameter {
 	 * Sets the Field "id" with a value.
 	 * 
 	 * @param id
-	 *            The Value to set the id field
+	 *           The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -123,13 +121,17 @@ public abstract class Parameter implements IParameter {
 		return parameter;
 	}
 
-	public Boolean isMatch(String type) {
-		return this.getTypeName() == null ? type == getTypeName() : this.getTypeName().equalsIgnoreCase(type);
+	public boolean isMatch(String type) {
+		return this.getTypeName() == null ? type == null : this.getTypeName().equalsIgnoreCase(type);
 	}
 
-	public Boolean isMatch(String typeName, String baseKey) {
-		return this.getTypeName() == null ? (typeName == null ? (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equalsIgnoreCase(baseKey)) : false)
-				: this.getTypeName().equalsIgnoreCase(typeName) && (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equalsIgnoreCase(baseKey));
+	public boolean isMatch(String typeName, String baseKey) {
+		return this.getTypeName() == null
+				? (typeName == null
+						? (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equalsIgnoreCase(baseKey))
+						: false)
+				: this.getTypeName().equalsIgnoreCase(typeName)
+						&& (this.getBaseKey() == null ? baseKey == null : this.getBaseKey().equalsIgnoreCase(baseKey));
 	}
 
 	public static String key(String type, String baseKey) {
