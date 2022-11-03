@@ -76,6 +76,13 @@
 	</c:if>
 	<div class="clearfix"></div>
 </div>
+
+<c:forEach items="${impactTypes}" var="impactType">	
+	<c:if test="${impactType.name != 'IMPACT'}">
+		<c:set var="qualitativeImpactCount" value="${qualitativeImpactCount + 1}" />
+	</c:if>
+</c:forEach>
+
 <table class='table form-no-fill'>
 	<thead>
 		<tr class='form-group-fill'>
@@ -83,10 +90,10 @@
 			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
 			<c:choose>
 				<c:when test="${type.quantitative}">
-					<th width="80%" colspan="${impactTypes.size()-1}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
+					<th width="${ ((qualitativeImpactCount+qualitativeImpactCount/2) / (( show_uncertainty? 6 : 4) + qualitativeImpactCount)) * 100 }%" colspan="${qualitativeImpactCount}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 				</c:when>
 				<c:otherwise>
-					<th colspan="${impactTypes.size()}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
+					<th colspan="${qualitativeImpactCount}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 				</c:otherwise>
 			</c:choose>
 			<th class="form-estimation form-estimation-left" rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"

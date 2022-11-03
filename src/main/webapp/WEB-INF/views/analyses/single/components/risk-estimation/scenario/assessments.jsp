@@ -28,6 +28,13 @@
 <c:set var="probabilityScaleTitle">
 	${fn:replace(probabilityScaleTitle,"'", "\\'" )}
 </c:set>
+
+<c:forEach items="${impactTypes}" var="impactType">	
+	<c:if test="${impactType.name != 'IMPACT'}">
+		<c:set var="qualitativeImpactCount" value="${qualitativeImpactCount + 1}" />
+	</c:if>
+</c:forEach>
+
 <fmt:setLocale value="fr" scope="session" />
 <div class="col-lg-10 col-md-9 trick-ui" id="section_scenario_assessment" data-view-type='table' data-view-name='estimation-ui' data-trick-asset-id='-1'
 	data-trick-scenario-id='${scenario.id}' data-trick-content='scenario'>
@@ -106,7 +113,7 @@
 						<th rowspan="2" style="width: 10%" title='<spring:message code="label.assessment.asset" />'><spring:message code="label.assessment.asset" /></th>
 						<th rowspan="2" style="width: 2%" title='<spring:message code="label.assessment.asset.value" />'><spring:message code="label.assessment.asset.value" /></th>
 						<th rowspan="2" style="width: 2%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
-						<th style="text-align: center;" colspan="${impactTypes.size()}"><spring:message code="label.title.impact" /></th>
+						<th style="text-align: center;" colspan="${not type.quantitative? qualitativeImpactCount : impactTypes.size()}"><spring:message code="label.title.impact" /></th>
 						<c:if test="${type.quantitative}">
 							<c:choose>
 								<c:when test="${show_uncertainty}">

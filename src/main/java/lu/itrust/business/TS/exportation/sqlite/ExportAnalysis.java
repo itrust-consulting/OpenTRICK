@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1066,7 +1067,7 @@ public class ExportAnalysis {
 			// Determine insert query
 			String query = null;
 			if (boundedParameter instanceof LikelihoodParameter)
-				query = DatabaseHandler.generateInsertQuery("potentiality", 8);
+				query = DatabaseHandler.generateInsertQuery("potentiality", 9);
 			else if (boundedParameter instanceof ImpactParameter)
 				query = DatabaseHandler.generateInsertQuery("impact", 9);
 			// Determine insert query parameters
@@ -1079,6 +1080,8 @@ public class ExportAnalysis {
 			queryParameters.add(boundedParameter.getDescription());
 			queryParameters.add(boundedParameter.getAcronym());
 			queryParameters.add(boundedParameter.getValue());
+			if (boundedParameter instanceof LikelihoodParameter)
+				queryParameters.add(((LikelihoodParameter) boundedParameter).getIlrLevel());
 			queryParameters.add(boundedParameter.getBounds().getFrom());
 			queryParameters.add(boundedParameter.getBounds().getTo());
 			// Execute query
@@ -1258,6 +1261,8 @@ public class ExportAnalysis {
 		// * export maturity parameters
 		// ****************************************************************
 		exportMaturityParameters();
+
+		exportSettings();
 	}
 
 	private void exportRiskAcceptanceParameters() throws SQLException {
@@ -1284,6 +1289,29 @@ public class ExportAnalysis {
 
 		if (!query.isEmpty())
 			sqlite.query(query, params);
+
+	}
+
+	private void exportSettings() throws SQLException {
+		
+		System.out.println("Export settings");
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		StringBuilder query = new StringBuilder();
+		List<Object> params = new ArrayList<>();
+		int counter = 0;
+
+		for (Entry<?, ?> setting : analysis.getSettings().entrySet()) {
+			counter += prepareQuery(params, "INSERT INTO settings SELECT ? as name, ? as value",
+					2, query, counter);
+			params.add(setting.getKey());
+			params.add(setting.getValue());
+		}
+
+		if (!params.isEmpty())
+			sqlite.query(query.toString(), params);
 
 	}
 
@@ -2428,7 +2456,7 @@ public class ExportAnalysis {
 		// * export entry after entry
 		// ****************************************************************
 
-		if (actionPlanEntries.size() == 0)
+		if (actionPlanEntries.isEmpty())
 			return;
 
 		for (int index = 0; index < actionPlanEntries.size(); index++) {
@@ -2538,7 +2566,7 @@ public class ExportAnalysis {
 		for (RiskRegisterItem registerItem : this.analysis.getRiskRegisters()) {
 
 			counter = prepareQuery(params,
-					"INSERT INTO risk_register SELECT ? as id_threat, ? as id_asset, ? as raw_evaluation_probability, ? as raw_evaluation_impact, ? as raw_evaluation_importance, ? as net_evaluation_probability, ? as net_evaluation_impact, ? as net_evaluation_importance, ? as expected_evaluation_probability, ? as expected_evaluation_impact, ? as expected_evaluation_importance UNION",
+					"INSERT INTO risk_register SELECT ? as id_threat, ? as id_asset, ? as raw_evaluation_probability, ? as raw_evaluation_impact, ? as raw_evaluation_importance, ? as net_evaluation_probability, ? as net_evaluation_impact, ? as net_evaluation_importance, ? as expected_evaluation_probability, ? as expected_evaluation_impact, ? as expected_evaluation_importance",
 					11, query, counter);
 
 			// add parameters for the current Risk Register Item+

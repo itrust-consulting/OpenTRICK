@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
@@ -309,6 +310,7 @@ public class ImportAnalysis {
 
 			notifyUpdate(handler, "info.analysis.importing", "Importing", increase(1));
 			importAnalyses();
+			importSettings();
 
 			// ****************************************************************
 			// * import risk information
@@ -331,6 +333,7 @@ public class ImportAnalysis {
 
 			notifyUpdate(handler, "info.simple_parameters.importing", "Import simple parameters", increase(6));
 			importSimpleParameters();
+			
 
 			// ****************************************************************
 			// * import dynamic parameters
@@ -1321,7 +1324,7 @@ public class ImportAnalysis {
 				// * retrieve asset type values for measures
 				// ****************************************************************
 
-				final List<Object> params = new ArrayList<Object>();
+				final List<Object> params = new ArrayList<>();
 
 				params.add(assetMeasure.getMeasureDescription().getStandard().getLabel());
 				params.add(assetMeasure.getMeasureDescription().getStandard().getVersion());
@@ -1566,6 +1569,23 @@ public class ImportAnalysis {
 		}
 	}
 
+	private void importSettings() throws SQLException {
+		ResultSet result = null;
+		try {
+			result = sqlite.query("Select * From settings");
+			if (result == null)
+				return;
+			while (result.next()) {
+				String name = result.getString("name"), value = result.getString("value");
+				if (StringUtils.hasText(name) && StringUtils.hasText(value))
+					analysis.getSettings().put(name, value);
+			}
+		} finally {
+			if (result != null)
+				result.close();
+		}
+	}
+
 	/**
 	 * importItemInformation: <br>
 	 * <ul>
@@ -1703,9 +1723,6 @@ public class ImportAnalysis {
 	 * @throws Exception
 	 */
 	private void importMaturityMeasures() throws Exception {
-
-		if (!analysis.isQuantitative())
-			return;
 
 		System.out.println("Import maturity measures");
 
@@ -2015,9 +2032,6 @@ public class ImportAnalysis {
 	private void importMaturityParameters() throws Exception {
 
 		System.out.println("Import Maturity Parameters");
-
-		if (!analysis.isQuantitative())
-			return;
 
 		// ****************************************************************
 		// * initialise variables
@@ -2553,6 +2567,7 @@ public class ImportAnalysis {
 				likelihoodParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
 				likelihoodParameter.setAcronym(rs.getString(Constant.ACRO_POTENTIALITY));
 				likelihoodParameter.setValue(rs.getDouble(Constant.VALUE_POTENTIALITY));
+				likelihoodParameter.setIlrLevel(getInt(rs, "ilr_level", -1));
 				parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_POTENTIALITY),
 						rs.getDouble(Constant.VALUE_TO_POTENTIALITY));
 				likelihoodParameter.setBounds(parameterbounds);
@@ -2726,10 +2741,7 @@ public class ImportAnalysis {
 	}
 
 	private void importRiskProfile() throws SQLException {
-		if (!analysis.isQualitative())
-			return;
 		ResultSet resultSet = null;
-
 		try {
 			resultSet = sqlite.query("Select * From risk_profile");
 			if (resultSet == null)

@@ -30,7 +30,9 @@
 									<div class="btn-group" data-toggle="buttons">
 										<c:forEach items="${types}" var="type" varStatus="status">
 											<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
-											<label class="btn btn-default disabled ${analysis.type == type? 'active':''}"><spring:message code="label.analysis.type.${typeValue}" text="${typeValue}" /></label>
+											<label class="btn btn-default ${analysis.type == type? 'active':''}" ><spring:message code="label.analysis.type.${typeValue}" text="${typeValue}" />
+												<input type="radio" name="type" value="${type}" ${analysis.type == type? 'checked':''}>
+											</label>
 										</c:forEach>
 									</div>
 								</div>

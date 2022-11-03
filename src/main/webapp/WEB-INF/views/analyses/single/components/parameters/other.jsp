@@ -130,7 +130,9 @@
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.label" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.ilr" /></th>
+								<c:if test="${isILR}" >
+									<th class="textaligncenter"><spring:message code="label.parameter.ilr" /></th>
+								</c:if>
 						
 							</tr>
 						</thead>
@@ -142,8 +144,10 @@
 									<td data-trick-field="label" data-trick-field-type="string" class="editable textaligncenter"
 										data-trick-callback="reloadSection('section_parameter_impact_probability');reloadRiskHeatMapSection();" onclick="return editField(this);"><spring:message
 											text="${parameter.label}" /></td>
-									<td class="editable textaligncenter" class="editable textaligncenter" data-trick-min-value='-1' data-trick-step-value='1' data-trick-max-value='4' 
-										data-trick-field="ilrLevel"  data-trick-field-type="integer" onclick="return editField(this);"><spring:message text="${parameter.ilrLevel}" /></td>
+									<c:if test="${isILR}" >
+										<td class="editable textaligncenter" class="editable textaligncenter" data-trick-min-value='-1' data-trick-step-value='1' data-trick-max-value='4' 
+											data-trick-field="ilrLevel"  data-trick-field-type="integer" onclick="return editField(this);"><spring:message text="${parameter.ilrLevel}" /></td>
+									</c:if>
 								</tr>
 							</c:forEach>
 						</tbody>

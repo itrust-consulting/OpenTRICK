@@ -1480,6 +1480,14 @@ public class Analysis implements Cloneable {
 		return version;
 	}
 
+	public Map<String,String> getSettings() {
+		return settings;
+	}
+
+	public void setSettings(Map<String,String> settings){
+		this.settings = settings;
+	}
+
 	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments,
 			Map<Scenario, List<Assessment>> scenarioAssessments) {
 		if (assetAssessments == null || scenarioAssessments == null)

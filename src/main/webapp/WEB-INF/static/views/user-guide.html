@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>TRICK Service 2.10 User Guide</title>
+	<title>TRICK Service 2.15 User Guide</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<link rel="stylesheet" href="css/bootstrap-4.0.0.min.css" />
@@ -24,7 +24,7 @@
 	<p>After connecting to the TRICK Service URL, the user sees the following login interface. He has the possibility to:</p>
 	<ul>
 		<li>Create an account (see <a href="#creating-an-account">[Section]</a>);</li>
-		<li>Log in (see <a href="#logging-in">[Section]</a>);</li>
+		<li>Sign in(see <a href="#logging-in">[Section]</a>);</li>
 		<li>Reset password (see <a href="#reset-password">[Section]</a>).</li>
 	</ul>
 	<p>The different options are explained in the following sub-sections.</p>
@@ -104,8 +104,8 @@
 		<li>Knowledge base;</li>
 		<li>Analysis;</li>
 		<li>Risk evolution;</li>
-		<li>Import;</li>
-		<li>Profile;</li>
+		<li>Import;<!-- does not appear --></li>
+		<li>Profile;<!-- does not appear --></li>
 		<li>Administration;</li>
 		<li>Runtime;</li>
 		<li>Logout.</li>
@@ -137,15 +137,15 @@
 		<figcaption class="figure-caption">Add new customer.</figcaption>
 	</figure>
 	<p>For editing or deleting a customer, you must select the customer and click on the appropriate button (“Edit” or “Delete”).</p>
-	<p>Customers have report templates associated to them. These templates serve as a base for the exported reports for risk analyses associated to that customer. Click “Manage report templates” to open a dialog for managing them.</p>
+	<p>Customers have report templates associated to them. These templates serve as a base for the exported reports for risk analyses associated to that customer. Click “Manage customer report templates” to open a dialog for managing them.</p>
 	<figure id="_FIG_12b" class="figure">
-		<img src="img/14b.png" class="figure-img img-fluid" />
+		<img src="img/mcrt.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Manage the report templates for a customer.</figcaption>
 	</figure>
-	<p>In the “Manage report templates” dialog, a list of all available templates is presented. At the top of the list, the default templates deployed with TRICK Service are listed; these cannot be edited or deleted. Below, custom templates are listed. To add a template, click the “Add” button.</p>
+	<p>In the “Manage customer report templates” dialog, a list of all available templates is presented. At the top of the list, the default templates deployed with TRICK Service are listed; these cannot be edited or deleted. Below, custom templates are listed. To add a template, click the “Add” button.</p>
 	<figure id="_FIG_12c" class="figure">
-		<img src="img/14c.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Add or edit a report template for a customer.</figcaption>
+		<img src="img/MCT.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Add or edit a report template for a customer.</figcaption><i-- updated, there was no mixed analysis option-->
 	</figure>
 	<p>In that dialog, you need to specify a type and a language. These specify to which risk analyses the template applies to; the template will only be available for export if the type and language match. The version that is specified is used to check if the template is outdated, or not. If the version specified here corresponds to the version of the template deployed by default, then it is considered to be up to date. Otherwise, it is considered to be obsolete (in which case you can still use the template, but a warning will be displayed). The uploaded file must be in DOCX format.</p>
 	<h3 id="languages"><a id="knowledgebase-language"></a>Languages</h3>
@@ -166,18 +166,18 @@
 	<p>This section includes a repository of standards and collections of security measures that can be included in the risk analyses.
 		The available options are explained in the following subsections.</p>
 	<figure id="_FIG_15" class="figure">
-		<img src="img/17.png" class="figure-img img-fluid" />
+		<img src="img/MC.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">List of Measure collections.</figcaption>
 	</figure>
 	<h4>Add</h4>
 	<p>With the “Add” button, you can add a new measures collection from scratch. Required information are the name of the measure
-		collection, a version number (for standards: this is normally the year when the standard was published), a brief description
+		collection, the internal name, a version number (for standards: this is normally the year when the standard was published), a brief description
 		of the measures collection (for standards: this could be the title of the standard), the type of the measures collection
 		(per default normal) and an indication if the measures of the collection can be used to treat risks (by ticking the “Computable”
 		check box) or whether they only exist for compliance reasons.</p>
 	<p>To add security measures to the newly created collection, follow the guide of the following section.</p>
 	<figure id="_FIG_16" class="figure">
-		<img src="img/18.png" class="figure-img img-fluid" />
+		<img src="img/MC_add.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add a new standard.</figcaption>
 	</figure>
 	<h4>Show measures</h4>
@@ -185,27 +185,28 @@
 	<p>You have the possibility to add, edit or delete a security measure. With the help of the language select box on the right
 		corner, you can switch between the different languages.</p>
 	<figure id="_FIG_17" class="figure">
-		<img src="img/19.png" class="figure-img img-fluid" />
+		<img src="img/SM.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">List of security measures.</figcaption>
 	</figure>
 	<p>To add a new security measure, press the “Add” button and provide the following information:</p>
 	<ul>
-		<li>Reference: A reference number for the security measure to add.</li>
-		<li>Level: By indicating a level, the user gets the possibility to structure the security measures. For example, level one
-			for an overall chapter, level two for subchapters and level three for the security measures themselves.</li>
 		<li>Computable: By ticking the computable box, the user indicates that the entered security measure is not a title of a chapter
 			but a security measure which can be used to treat risk and should appear in the risk treatment plan.</li>
+		<li>Reference: A reference number for the security measure to add.</li>
 		<li>Language: Indicates the language of the entered security measure text.</li>
-		<li>Domain: Allows indicating the title of the security measure.</li>
+		<!--<li><mark>Level: By indicating a level, the user gets the possibility to structure the security measures. For example, level one
+			for an overall chapter, level two for subchapters and level three for the security measures themselves.</mark><!--there is not such this option--></li>
+		<li>Security measure:Allows indicating the title of the security measure.</li>
+		<!--<li><mark>Domain: Allows indicating the title of the security measure needs explenation--></li>	
 		<li>Description: Allows describing the security measures and how to implement it.</li>
 	</ul>
 	<figure id="_FIG_18" class="figure">
-		<img src="img/20.png" class="figure-img img-fluid" />
+		<img src="img/NM_add.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add new security measure.</figcaption>
 	</figure>
 	<p>To edit and modify an existing security measure, select the security measure to be edited and click on the “Edit” button.</p>
 	<p>To delete a security measure, select the security measure to delete and click on the “Delete” button. If a security measure
-		is used in a risk analysis, it is not possible to delete the security measure except if you click on the “Force delete”
+		is used in a risk analysis, it is not possible to delete the security measure except if you click on the “Force delete” (only if you are admin or supervisor) <!--did not exist and could not delete the test-->
 		button.
 	</p>
 	<div class="alert alert-info">This will not only delete the security measure in the knowledge base, but also in all risk analysis that use this measure.</div>
@@ -214,15 +215,15 @@
 		an Excel file including all security measures. You have the possibility to make changes in this excel file and use the
 		“Import” function to reimport the measures collection with the modifications made (see section “Import ”).</p>
 	<h4>Edit</h4>
-	<p>The “Edit” button can be used to update the general information concerning the measures collection (name, version, description).</p>
+	<p>The “Edit” button can be used to update the general information concerning the measures collection (name, version, description, type, internal name, computable<!--added-->).</p>
 	<h4>Get import template</h4>
 	<p>With the “Get import template”, you can retrieve the template needed to import a new measures collection and its security
 		measures (see section “Import ”). The template indicates on how the data must be structured in order to be imported into
 		TRICK Service.</p>
-	<h4>Import measures collection</h4>
+	<h4>Import</h4>
 	<p>The import measures collection function allows you to import a new standard or collection of best practice that is still
 		not included in the knowledge base of TRICK Service.</p>
-	<p>To do so, you must click on the “Import measures collection” button. A new window pops up which allows you to select and
+	<p>To do so, you must click on the “Import” button. A new window pops up which allows you to select and
 		upload a file that includes the measures collection to import. The import file and included information must match an exact
 		format which is provided in the import template.</p>
 	<figure id="_FIG_19" class="figure">
@@ -235,7 +236,7 @@
 	<p>The section “Impacts” allows you to add impact categories to the knowledge base of TRICK Service. These impact categories
 		can be reused in risk analyses.You have the possibility to “Add”, “Edit” and “Delete” impact categories.</p>
 	<figure id="_FIG_20" class="figure">
-		<img src="img/22.png" class="figure-img img-fluid" />
+		<img src="img/add_new_impact.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add/edit impact category.</figcaption>
 	</figure>
 	<p>When adding impact categories, you have to indicate:</p>
@@ -244,19 +245,19 @@
 		<li>An acronym in the “Acronym” field that is used to derive the acronyms for the different scale values by appending the scale
 			level (e.g. for the acronym “il”, the parameters for the impact scale in a risk analysis will have the acronyms “il0”,
 			“il1”, “il2”, etc.);</li>
-		<li>An English and French translation (and abbreviation) that will be used throughout the user interface and in the reports.</li>
+		<li>An English, French and Deutsch translation (and abbreviation) that will be used throughout the user interface and in the reports.</li>
 	</ul>
 	<h3 id="analysis-profiles"><a id="knowledgebase-analyses"></a>Analysis profiles</h3>
 	<p>This view shows a list of analysis profiles, which act as templates for risk analysis. During the creation of a new risk
 		analysis a risk analysis profile can be selected as basis. This allows creating risk analysis from templates that already
 		include some parameters and characteristics which then do not have to be recreated from scratch.</p>
-	<p>Two profiles (one for quantitative risk analyses and one for qualitative risk analyses) are set as default. These profiles
+	<p>Three profiles (one for quantitative risk analyses, one for qualitative risk analyses and one for mixed risk analyses) are set as default. These profiles
 		will be used for the creation of a new risk analyses if no other profiles are selected.</p>
 	<p>You have the possibility</p>
 	<ul>
-		<li>to open an analysis profile and work on the profile by clicking on the “Open Profile” button;</li>
+		<li>to open an analysis profile and work on the profile by clicking on the “Open” button;</li>
 		<li>to set an analysis profile as default by selecting the profile and click on the “Set as default” button;</li>
-		<li>to edit general information concerning the profile (Language of the profile and description of the profile);</li>
+		<li>to edit general information concerning the profile (Language of the profile, description of the profile and title, ) click on the "properties" button;</li>
 		<li>to delete a profile by selecting the profile and clicking on the “Delete” button.</li>
 	</ul>
 	<p>How to create a new profile is explained in <a href="#new-profile">[Section]</a>.</p>
@@ -322,13 +323,13 @@
 			<code>0.0.1</code>. This parameter may be edited for exceptional circumstances;
 		</li>
 		<li>Description: Enter a short description of the risk analysis including any information which may be useful;</li>
-		<li>Uncertainty: Checkbox to indicate if you want to take account of the uncertainty of assessments. Several features, specific
+		<li>Uncertainty: Checkbox to indicate if you want to take account of the uncertainty of assessments (only for quantative or mixed analysis). Several features, specific
 			to uncertainty will be added to the risk analysis if the checkbox is ticked.</li>
-		<li>Impacts: Select the impact scales that you wish to import into the risk analysis. The default is to use the same impact
+		<li>Impacts: Select the impact scales that you wish to import into the risk analysis (only for qualitative and mixed analysis). The default is to use the same impact
 			scales as in the profile (“From profile”).</li>
-		<li>Level: Specify the number of levels that shall be used for the impact and probability scales in the analysis. This option
+		<li>Level: Specify the number of levels that shall be used for the impact and probability scales in the analysis (only for qualitative and mixed analysis)</mark>. This option
 			cannot be changed if “From profile” is selected in the list above, since in that case the level from the profile is considered.</li>
-		<li>Max impact: Specify the maximum value for the quantitative impact scale. This option cannot be changed if “From profile”
+		<li>Max impact: Specify the maximum value for the quantitative impact scale (only for mixed analysis). This option cannot be changed if “From profile”
 			is selected in the list above, since in that case the maximum from the profile is considered. Note that the value provided
 			here is only used to initialise the scale with default values; you can fully change the scale afterwards.</li>
 	</ul>
@@ -386,16 +387,16 @@
 		<img src="img/analysis-rights-invite.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Invitations to access a risk analysis.</figcaption>
 	</figure>
-	<h3 id="manage-ids">Manage IDS</h3>
-	<p>The button “Manage IDS” opens a dialog where the user can pick one or more IDS’s to subscribe to. If a risk analysis has
-		subscribed to an IDS, all parameters that are dynamically set by the IDS will be made available and periodically updated
+	<h3 id="manage-ids">Manage probe subscriptions<!--not such this button, it changed to probes--> </h3>
+	<p>The button “Manage probe subscriptions” opens a dialog where the user can pick one or more probes to subscribe to. If a risk analysis has
+		subscribed to a probe, all parameters that are dynamically set by the probes will be made available and periodically updated
 		in the risk analysis.</p>
 	<figure id="_FIG_28" class="figure">
-		<img src="img/30.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Granting access to IDS users for the selected analysis.</figcaption>
+		<img src="img/MSP.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Granting access to probe users for the selected analysis.</figcaption>
 	</figure>
 	<div class="alert alert-info">The risk assessments may change if they make use of any dynamic parameters. It is recommended that for archiving purposes,
-		old versions of an analysis should unsubscribe from all IDS’s.</div>
+		old versions of an analysis should unsubscribe from all probes.</div>
 	<h3 id="new-version">New version</h3>
 	<p>With the new version button, you can create a new version of the selected risk analysis. All data is copied from the old
 		version to the new version. It is recommended to create new versions if data in a risk analysis is modified or updated.
@@ -408,8 +409,8 @@
 		<figcaption class="figure-caption">Add new risk analysis version.</figcaption>
 	</figure>
 	<p>After clicking on the “Save” button, the new risk analysis version will be created.</p>
-	<h3 id="details">Details</h3>
-	<p>The “Details” button allows to modify the following information regarding the selected analysis:</p>
+	<h3 id="details">Properties</h3>
+	<p>The “properties” button allows to modify the following information regarding the selected analysis:</p>
 	<ul>
 		<li>The company to which the analysis is assigned to;</li>
 		<li>The language of the analysis;</li>
@@ -417,7 +418,7 @@
 		<li>The selection/deselection of the Uncertainty feature.</li>
 	</ul>
 	<figure id="_FIG_30" class="figure">
-		<img src="img/32.png" class="figure-img img-fluid" />
+		<img src="img/risk_analyses_properties.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Edit risk analysis information.</figcaption>
 	</figure>
 	<h3 id="new-profile">New profile</h3>
@@ -428,24 +429,27 @@
 	<p>After providing a name to the profile to create, you can add the new profile to the knowledge base by clicking on “Save”
 		the button.</p>
 	<figure id="_FIG_31" class="figure">
-		<img src="img/33.png" class="figure-img img-fluid" />
+		<img src="img/Newanalysis.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Create new risk analysis profile.</figcaption>
 	</figure>
 	<h3 id="import"><a id="import-analysis"></a>Import</h3>
 	<p>The Import page allows importing an SQLite database including a risk analysis into TRICK Service.</p>
 	<p>The selected file must be an SQLite database that has been previously exported from (any) TRICK Service instance. Backwards-compatibility is guaranteed.</p>
 	<figure id="_FIG_33" class="figure">
-		<img src="img/35.png" class="figure-img img-fluid" />
+		<img src="img/import.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Importing an analysis.</figcaption>
 	</figure>
 	<p>The analysis is imported for the customer that is currently selected (as a filter) in the analyses overview.</p>
-	<h3 id="export">Export</h3>
-	<p>With the “Export” button, you can export the selected risk analysis. The exported file is an SQLite database file including
+	<h3 id="export">Export the database</h3>
+	<p>With the “Export the database” button, you can export the selected risk analysis. The exported file is an SQLite database file including
 		all data of the risk analysis. The exported file can be used as backup or to import it in another TRICK Service instance
 		(e.g.: locally installed TRICK Service).</p>
-	<h3 id="export-report">Export report</h3>
-	<p>The “Export report” button is a short-hand method to generate the exhaustive Word report for the selected analysis. This
+	<h3 id="export-report">Export a report</h3>
+	<p>The “Export a report” button is a short-hand method to generate the exhaustive Word report for the selected analysis. This
 		button is equivalent to opening the analysis, and exporting the report from within the analysis.</p>
+	<h3 id="Archive">Archive</h3>
+	<p>To archive a selected analysis you can use the "Archive" button which this will disallow any future changes of the analysis.</p>
+
 	<h3 id="delete">Delete</h3>
 	<p>You can delete a risk analysis by selecting the risk analysis and clicking on the “Delete” button.</p>
 	<h2 id="risk-evolution"><a id="risk-evolution-total-ale"></a><a id="risk-evolution-ale-scenario-type"></a><a id="risk-evolution-ale-asset-type"></a><a id="risk-evolution-ale-scenario"></a><a id="risk-evolution-ale-asset"></a><a id="risk-evolution-total-risk"></a><a id="risk-evolution-risk-scenario-type"></a><a id="risk-evolution-risk-asset-type"></a><a id="risk-evolution-risk-scenario"></a><a id="risk-evolution-risk-asset"></a><a id="risk-evolution-compliance"></a>Risk evolution</h2>
@@ -455,10 +459,17 @@
 		<img src="img/34.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk evolution.</figcaption>
 	</figure>
+	<!-- <h3 id="Total ALE"><mark>Total ALE</mark></h3>
+	<h3 id="ALE by scenario types"><mark>ALE by scenario types</mark></h3>
+	<h3 id="ALE by asset types"><mark>ALE by asset types</mark></h3>
+	<h3 id="ALE by Scenarios"><mark>ALE by Scenarios</mark></h3>
+	<h3 id="ALE by assets"><mark>ALE by assets</mark></h3>
+	<h3 id="Compliance"><mark>Compliance</mark></h3> -->
 	<h2 id="profile">Profile</h2>
-	<p>The profile page can be accessed from the right-hand side of the ribbon. The profile page includes five different sections:</p>
+	<p>The profile page can be accessed from the username button on the right-hand side of the ribbon. The profile page includes five different sections:</p>
 	<ul>
 		<li>My profile</li>
+		<li>My Credentials</li>
 		<li>My invitations</li>
 		<li>My sqlites</li>
 		<li>My reports</li>
@@ -470,13 +481,32 @@
 	</p>
 	<p>Information that can be changed are:</p>
 	<ul>
-		<li>Connection information (password);</li>
+		<li>Connection information (password);<!--only appeared when I have access to demo--></li>
 		<li>Personal information (first name, Last name, E-mail address);</li>
 		<li>Application setting (default user interface language).</li>
 	</ul>
 	<p>The username and roles attributed to the user cannot be modified by the user.</p>
 	<p>This section also allows to see the Authentication type (Standard – User &amp; password, LDAP or both) and the role to which
 		you have been granted permission.</p>
+	<h3 id="my-credentials"><a id="account-credentials"></a>My Credentials</h3>
+	<p>In this section you can "Add" and "Edit" your credentials. Click on "Add" button. </p>
+	<figure id="_FIG_credentials_1" class="figure">
+		<img src="img/add_credential.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Add New Credentials.</figcaption>
+	</figure>
+	<p>In the add new credential window, you have two options for creating credential for the customers for accessing the Ticketing system (Jira/Redmine): Token or Password.</p> 
+	<ul>	
+		<li>Token: to create a token as credential, you need to enable Token and choose the customer and add the value of the created Token which is available in the ticketing system (Jira/Redmine).</mark></li>
+	    <li>Password: You can also enable "password" and by choosing the customer, adding a username and the value of the password in the ticketing system create a credential.</li>
+		
+	</ul>
+	<figure id="_FIG_credential_2" class="figure">
+		<img src="img/edit_credential.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">List of Credentials.</figcaption>
+	</figure>
+
+	<p>You also can edit a credential by selecting the credential and click on the "Edit" button and save your changes.
+	To delete a credential, you can select the credential and click on "Delete" button.</p>
 	<h3 id="my-invitations"><a id="account-invitations"></a>My invitations</h3>
 	<p>This sections shows all risk analyses which the user got invited to access (see <a href="#_FIG_invitations">[Figure]</a>).
 		In order to access the risk analysis, the user must first accept the invitation by clicking on the “Accept” button.
@@ -585,35 +615,39 @@
 	</figure>
 	<h4>Delete</h4>
 	<p>A user can be deleted by selecting the user to delete and clicking on the “Delete” button.</p>
-	<h3 id="ids"><a id="administration-ids"></a>IDS</h3>
-	<p>This section lists all IDS users that have access to TRICK Service. In contrast to a regular user, an IDS user can only
+	<h3 id="ids"><a id="administration-ids"></a>Probes</h3>
+	<p>This section lists all Probes that have access to TRICK Service. In contrast to a regular user, a probe can only
 		access the TRICK Service API (see Annex B) but not the web interface. Just as for regular users, it will also need additional
-		access rights for every analysis it wants to connect to (see <a href="#manage-ids">[Section]</a>).</p>
+		access rights for every analysis it wants to connect to (see <a href="#manage-ids">[Section]</a>).
+		Click on "Add" button, you can add a new probe. In the "Add new probe" window, you should eneter a probe prefix, a decription and enable/disable the "Allow access" and click on "Save" button. The token will be created automatically.</p>
+	
 	<figure id="_FIG_39" class="figure">
-		<img src="img/41.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Managing IDS users.</figcaption>
+		<img src="img/probes.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Managing Probes users.</figcaption>
 	</figure>
+	
 	<p>The displayed values are the following:</p>
 	<ul>
-		<li>a name, for identifying the IDS throughout TRICK Service;</li>
+		<li>a name, for identifying the Probes throughout TRICK Service;</li>
 		<li>a renewable access token used for login (there is no user name or password);</li>
 		<li>a description text;</li>
-		<li>the “Last update” column shows when the IDS has last accessed
+		<li>the “Last update” column shows when the probes has last accessed
 			<code>/Api/set</code> via the TRICK Service API;</li>
-		<li>the “Last alert” column shows when the IDS has last accessed
+		<li>the “Last alert” column shows when the probes has last accessed
 			<code>/Api/notify</code> via the TRICK Service API;</li>
-		<li>“Status” indicates if the IDS is enabled or disabled;</li>
-		<li>“Number of subscribers” specified how many risk analyses have given access to the IDS.</li>
+		<li>“Allow access” indicates if the probes is enabled or disabled;</li>
+		<li>“Number of subscribers” specified how many risk analyses have given access to the probes.</li>
 	</ul>
+	<p>Entering this token in the <a href="./js/SRC_Rxxx_TS-NotifyToTS_v0.0.2.txt" target="_blank"> powershell client</a> the probe is able to change dynamic parameters.</mark>.</p>
 	<p>When checking a user, the “Edit”, “Renew” and “Delete” buttons will become available.</p>
-	<p>The “Renew” button permits to assign a new access token to the selected IDS user.</p>
+	<p>The “Renew” button permits to assign a new access token to the selected probes user.</p>
 	<p>When editing or adding a new user, the “Name”, “Description” and “Status” properties (as described above) can be changed.</p>
-	<h3 id="customers--"><a id="administration-customer"></a>Customers</h3>
+	<h3 id="customers--"><a id="administration-customer"></a>Customers</h3><!--some more explenation about ticketing-->
 	<p>The customers section includes a list of all customers. Further options of this section are adding, editing, manage customer
 		users or deleting a customer. </p>
 	<p>The options “Add”, “Edit” and “Delete” are explained in <a href="#customers">[Section]</a>. The option “Manage customer users” is explained in the following subsection.</p>
 	<figure id="_FIG_40" class="figure">
-		<img src="img/42.png" class="figure-img img-fluid" />
+		<img src="img/customers.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Customer section on admin page.</figcaption>
 	</figure>
 	<div class="alert alert-info">The “Profile only” option is used to define a customer that is linked to the risk analysis profiles. At most one customer
@@ -629,13 +663,19 @@
 	</figure>
 	<div class="alert alert-info">The access rights to a risk analysis have to be set either by an administrator/ supervisor in the “All Analyses” section
 		on the admin page (see <a href="#all-analyses">[Section]</a>) or by a user having full access rights on a risk analysis on the “Analyses” page (see <a href="#manage-access-rights">[Section]</a>).</div>
-	<h3 id="all-analyses"><a id="administration-analyses"></a>All analyses</h3>
+	<h4>Manage customer report templates</h4><!--must be added with explenation-->
+	<p>Selecting a customer (only can be activated for the customers that are linked to the risk analysis profiles "profile only" ), you can click on "Manage customer report template" button to "Download" or "Edit" selected templates in the list.</p>
+	<figure id="_FIG_42" class="figure">
+		<img src="img/MCRT1842.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Manage customer template.</figcaption>
+	</figure>
+		<h3 id="all-analyses"><a id="administration-analyses"></a>All analyses</h3>
 	<p>The “All analyses” section includes a list of all analyses of the different customers. The different risk analyses of the
 		different customers can be shown by selecting a customer in the analyses filter positioned on the top of the list.</p>
 	<p>Options related to this section are managing the access rights towards the risk analyses of the different customers, the
 		option to switch an analysis to another customer and the option to delete risk analyses.</p>
 	<figure id="_FIG_42" class="figure">
-		<img src="img/44.png" class="figure-img img-fluid" />
+		<img src="img/allanalysis.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">“All analyses” section on admin page.</figcaption>
 	</figure>
 	<p>The manage access rights option functionality works the same as the one explained in <a href="#manage-access-rights">[Section]</a>.</p>
@@ -663,7 +703,7 @@
 			the risk treatment plan).</li>
 	</ul>
 	<figure id="_FIG_45" class="figure">
-		<img src="img/47.png" class="figure-img img-fluid" />
+		<img src="img/staticsettings.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Additional TRICK Service settings.</figcaption>
 	</figure>
 	<h3 id="broadcast-center"><a id="administration-broadcasting"></a>Broadcast center</h3>
@@ -683,7 +723,7 @@
 	<ul>
 		<li><strong>Type</strong>: The type of notification, which essentially translated to a colour (Info: blue, Success: green, Warning: yellow, Error: red);</li>
 		<li><strong>From</strong>: the date/time when the notification shall first appear;</li>
-		<li><strong>To</strong>: the date/time when the notification shall stop appearing;</li>
+		<li><strong>To </strong>: the date/time when the notification shall stop appearing;</li>
 		<li><strong>French</strong>: the message displayed for French-speaking users;</li>
 		<li><strong>English</strong>: the message displayed for English-speaking users.</li>
 	</ul>
@@ -813,7 +853,7 @@
 					the title of the document should be indicated here.</td>
 			</tr>
 			<tr>
-				<td>Definition of decision escalation paths</td>
+				<td>Definition of decision escalation paths in case of change of risks</td>
 				<td>Description on how major decisions are made within the company in relation to security incidents.</td>
 			</tr>
 			<tr>
@@ -855,9 +895,10 @@
 		</tbody>
 	</table>
 	<h3 id="parameters"><a id="analysis-parameter"></a>Parameters</h3>
-	<p>The parameters page includes the labels of probability/impact scales, the risk acceptance threshold (for qualitative risk
-		analysis), CSSF parameters, various parameters and security maturity related parameters.</p>
-	<h4>Labels of probability/impact scale</h4>
+	<p>The parameters page includes the labels of probability/Impact scales, the risk acceptance threshold,
+		 CSSF parameters, various parameters and security maturity related parameters. Some of these parameters are only applicable for qualitative or mixed risk analysis.</mark>.</p>
+	
+		 <h4>Labels of probability/impact scale</h4>
 	<p>This section allows the user to define the (short) labels for the different probability and impact scales used in the risk
 		analysis. The labels are used throughout the risk analysis and the report. They are meant to be synonymous with the actual
 		level value.</p>
@@ -865,7 +906,7 @@
 	<p>The risk acceptance threshold is used to indicate the different levels of risks and what reaction is expected for risks
 		of this level.</p>
 	<figure id="_FIG_47" class="figure">
-		<img src="img/49.png" class="figure-img img-fluid" />
+		<img src="img/risk_acc_threshold.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk acceptance threshold.</figcaption>
 	</figure>
 	<p>By clicking on the “Manage” button, the user can define different importance thresholds. By clicking on the “+” button,
@@ -873,9 +914,20 @@
 		e.g. critical, high, medium, low), the upper limit of the threshold value, a description of the threshold indicating what
 		should be done with risks associated with this level and a colour used in the risk heat map (see <a href="#charts">[Section]</a>).</p>
 	<figure id="_FIG_48" class="figure">
-		<img src="img/50.png" class="figure-img img-fluid" />
+		<img src="img/risk_acc_mgt.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk acceptance threshold management.</figcaption>
 	</figure>
+	<h4 id="CSSF-parameters">CSSF parameters (Qualitative and Mixed risk analysis)</mark></h4>
+	<p>For qualitative and mixed analysis, you are able to change the CSSF parameters:</p>
+	<ul>
+		<li>Impact threshold: the scale for rating the impact of a risk.</li>
+		<li>Probability threshold: the scale for the liklihood of a risk occuring.</li>
+		<li>Direct size: the number of most important “direct” (in the CSSF sense) risks.</li>
+		<li>Indirect size: the number of most important “indirect” (in the CSSF sense) risks.</li>
+		<li>CIA size: the number of most important “Confidentiality/Integrity/Availability” risks.</li>
+	</ul>
+	<h4 id="report-settings"><mark>Report settings</mark></h4></mark></h4>
+
 	<h4 id="various-parameters">Various parameters</h4>
 	<p>The options of the “Various parameters” table are the following:</p>
 	<ul>
@@ -890,29 +942,6 @@
 			to fulfil the ISO/IEC 27001 minimum requirements.</li>
 		<li>Mandatory phase: Option to define a phase in which all security measures become mandatory to be implemented.</li>
 	</ul>
-	<h4>Security maturity related parameters</h4>
-	<h5>Maximal efficiency rate per security maturity level</h5>
-	<p>Finally, we can modify three tables regarding maturity level. The first maturity parameter table contains maximal efficiency
-		rates associated with different security maturity levels. The following figure shows default values for these parameters.</p>
-	<figure id="_FIG_49" class="figure">
-		<img src="img/51.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Maximal efficiency rate per security maturity level.</figcaption>
-	</figure>
-	<h5>Implementation scale of SMT</h5>
-	<p>The second maturity parameter table contains a scale for measuring the implementation rate of the different tasks in the
-		different security maturity levels. The following figure shows the default values for these parameters.</p>
-	<figure id="_FIG_50" class="figure">
-		<img src="img/52.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Implementation scale of SMT.</figcaption>
-	</figure>
-	<h5>Required level of implementation per SML</h5>
-	<p>The last maturity parameter table contains an overview on all tasks related to the different security maturity levels and
-		indicates the needed implementation rate of the tasks to be compliant with a certain security maturity level. The following
-		figures show default values for these parameters.</p>
-	<figure id="_FIG_51" class="figure">
-		<img src="img/53.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Required level of implementation per SML.</figcaption>
-	</figure>
 	<h3 id="probability-impacts"><a id="analysis-parameter-impact-probability"></a>Probability &amp; Impacts</h3>
 	<h4>Probability scale</h4>
 	<p>The probability scale for quantitative risk analysis:Each level represents the yearly probability that a risk may occur.
@@ -924,28 +953,53 @@
 	</figure>
 	<p>The probability scale for qualitative risk analysis:Each level is described qualitatively (see figure below)</p>
 	<figure id="_FIG_53" class="figure">
-		<img src="img/55.png" class="figure-img img-fluid" />
+		<img src="img/prob_scale.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Example of a qualitative probability scale.</figcaption>
 	</figure>
 	<p>The probability scale values are needed during the risk estimation step.</p>
 	<h4>Impact scales</h4>
 	<h5>Qualitative risk analysis</h5>
-	<p>The impact scales section includes an impact scale for each type of impact selected during the creation of the risk analyses.
+	<p>The impact scales section includes an impact scale for each type of impact selected during the creation of the risk analyses<!--how?-->.
 		The user can modify the labels and description of each impact level.</p>
 	<figure id="_FIG_00" class="figure">
-		<img src="img/56.png" class="figure-img img-fluid" />
+		<img src="img/qual_impact.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Overview of qualitative impact scales.</figcaption>
 	</figure>
 	<h5>Quantitative risk analysis</h5>
-	<p>The following figure shows the default parameters for the impact scale:</p>
+	<p>The following figure shows the default parameters for the total consequence scale:</p>
 	<figure id="_FIG_54" class="figure">
 		<img src="img/57.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Impact scale.</figcaption>
+		<figcaption class="figure-caption">total consequence scale.</figcaption>
 	</figure>
 	<p>Each level represents the impact that a risk may have on the organisation should it occur; ranging from insignificant to
 		vital. In <a href="#_FIG_54">[Figure]</a>, all areas highlighted in blue are editable. The indicated values should be in accordance with the size and
 		financial situation of the organisation.</p>
 	<p>The impact scale values are used for computation during the risk estimation step.</p>
+	<h3>Maturity parameters</h3><!---must be explained how to implement it-->
+	<p>Only if you imported "Maturity" from the measures collection for the risk analysis:</p>
+
+	<h4>Maximal efficiency rate per security maturity level</h4>
+	<p>Finally, we can modify three tables regarding maturity level. The first maturity parameter table contains maximal efficiency
+		rates associated with different security maturity levels. The following figure shows default values for these parameters.</p>
+	<figure id="_FIG_49" class="figure">
+		<img src="img/51.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Maximal efficiency rate per security maturity level.</figcaption>
+	</figure>
+	<h4>Implementation rate of SMT</h4>
+	<p>The second maturity parameter table contains a scale for measuring the implementation rate of the different tasks in the
+		different security maturity levels. The following figure shows the default values for these parameters.</p>
+	<figure id="_FIG_50" class="figure">
+		<img src="img/52.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Implementation scale of SMT.</figcaption>
+	</figure>
+	<h4>Required level of implementation per SML</h4>
+	<p>The last maturity parameter table contains an overview on all tasks related to the different security maturity levels and
+		indicates the needed implementation rate of the tasks to be compliant with a certain security maturity level. The following
+		figures show default values for these parameters.</p>
+	<figure id="_FIG_51" class="figure">
+		<img src="img/53.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Required level of implementation per SML.</figcaption>
+	</figure>
 	<h2 id="risk-analysis--">Risk analysis</h2>
 	<h3 id="brainstorming"><a id="analysis-risk-information-risk"></a><a id="analysis-risk-information-vul"></a><a id="analysis-risk-information-threat"></a>Brainstorming</h3>
 	<p>For identifying risks, TRICK Service offers the possibility to perform a brainstorming on most common threats, vulnerabilities,
@@ -1101,7 +1155,7 @@
 		choose to provide a second comment in the “Hidden Comment” column which will not be displayed in the exported report. It
 		is not mandatory for the user to fill in this column however, in certain cases it may be necessary to add more useful information.</p>
 	<h4>Manage</h4>
-	<p>The content of each section (“threats”, “vulnerabilities”, and “risk”) can be edited. In the upper right corner, an option is available to change their content (also see <a href="#_FIG_brainstorming">[Figure]</a>).</p>
+	<p>The content of each section (“threats”, “vulnerabilities”, and “risks”) can be edited. In the upper right corner, an option is available to change their content (also see <a href="#_FIG_brainstorming">[Figure]</a>).</p>
 	<figure id="_FIG_brainstorming" class="figure">
 		<img src="img/brainstorming.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Editing brainstorming sections through export, import, and manual editing.</figcaption>
@@ -1138,11 +1192,14 @@
 				<li>Immaterial Value;</li>
 				<li>Network;</li>
 				<li>Service;</li>
-				<li>Employees;</li>
-				<li>Software.</li>
+				<li>Human resources;</li>
+				<li>IT system</li>
 			</ul>
 		</li>
 		<li>Value: The asset value in k€;</li>
+		<li>ALEO: The value of "Annual Loss Expectancy Optimistic" in k€;</li>
+		<li>ALE: The value of "Annual Loss Expectancy" in k€;</li>
+		<li>ALEP: The value of "Annual Loss Expectancy Pessimistic" in k€;</li>
 		<li>Status: Select or unselect an asset to be considered for the risk analysis;</li>
 		<li>Comment: A comment regarding the asset e.g. a justification of its value, etc.;</li>
 		<li>Hidden comment: A comment regarding the asset which will not be displayed in the final report.</li>
@@ -1172,7 +1229,7 @@
 		By default, the table contains the following scenarios, shown in the figure below.</p>
 	<div class="alert alert-info">ALE related columns are only shown for quantitative risk analyses.</div>
 	<figure id="_FIG_56" class="figure">
-		<img src="img/59.png" class="figure-img img-fluid" />
+		<img src="img/scenarios.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Table of scenarios.</figcaption>
 	</figure>
 	<p>The table contains the following columns.</p>
@@ -1208,7 +1265,7 @@
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>ALEP (k€)</td>
+				<td> ALEP (k€)</td>
 				<td>(Only for a quantitative risk analysis): The total Annual Loss Expectancy sum of the pessimistic risk estimation for
 					the risk scenario in question.</td>
 				<td>No</td>
@@ -1236,21 +1293,22 @@
 	<h5>Adding a scenario</h5>
 	<p>To add a scenario, click on the “Add” button which will open the box shown in <a href="#_FIG_57">[Figure]</a>.</p>
 	<figure id="_FIG_57" class="figure">
-		<img src="img/60.png" class="figure-img img-fluid" />
+		<img src="img/add_new_scenario.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Adding a scenario.</figcaption>
 	</figure>
 	<p>In this box, the following information should be entered:</p>
 	<ul>
 		<li>Apply to: You can choose if the risk scenario should be linked to an asset type or to a specific asset only.</li>
-		<li>Name: The name of the scenario.Type: This drop down menu presents a list of different scenario types. Beside the risk types
-			confidentiality, integrity and availability, the list includes types coming from the CSSF circular. The CSSF types are
+		<li>Name: The name of the scenario.</li>
+		<li>Type: This drop down menu presents a list of different scenario types. Beside the risk types
+			confidentiality, integrity, availability, exploitability and reliability, the list includes types coming from the CSSF circular. The CSSF types are
 			enumerated in <a href="#_TAB_5">[Table]</a> below.</li>
 		<li>Status: This option allows you to indicate if the defined risk scenario should be considered during risk estimation.</li>
 		<li>Description: A brief description of the scenario.</li>
 		<li>Applicable asset types (The different asset types are described in <a href="#risk-assessment">[Section]</a>.) / Applicable Assets: Select to which assets/ type of assets the scenario applies to. This information
 			dictates the asset estimation (cf. section “Risk estimation”).</li>
 	</ul>
-	<p>In addition to the risk types of confidentiality, integrity, and availability, the CSSF categorises risk types as indicated
+	<p>In addition to the risk types of confidentiality, integrity, and availability, the CSSF categorises risk types are as indicated
 		in the table below. All the risk types contained in the table below can be selected from the risk type drop down menu when
 		adding a scenario.</p>
 	<table class="table table-sm table-striped" id="_TAB_5">
@@ -1390,6 +1448,11 @@
 			</tr>
 		</tbody>
 	</table>
+	<p>In addition, by clicking on tab "Properties" you can define charactristics of your scenario.</p>
+	<figure id="_FIG_588" class="figure">
+		<img src="img/char_scenario.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">charactristics for a scenario.</figcaption>
+	</figure>
 	<h5>Edit / modify a scenario</h5>
 	<p>By selecting a risk scenario and clicking on the “Edit” button, you can modify all information related to the risk scenario.
 		See <a href="#risk-assessment">[Section]</a> for the description of the different fields that can be edited.</p>
@@ -1424,10 +1487,10 @@
 		<img src="img/62.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk sheet selection.</figcaption>
 	</figure>
-	<h5 id="risk-sheet">Risk sheet</h5>
-	<p>The risk sheet (see figure below), allows the user to provide detailed information about a specific risk.</p>
+	<h5 id="risk-sheet">Risk sheet</h5><!--not such title-->
+	<p>The risk sheet (see figure below), allows the user to provide detailed information about a specific risk.</span></p>
 	<figure id="_FIG_60" class="figure">
-		<img src="img/63.png" class="figure-img img-fluid" />
+		<img src="img/risksheet.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk sheet.</figcaption>
 	</figure>
 	<p>The risk sheet contains the following elements:</p>
@@ -1436,6 +1499,7 @@
 		<li>Category: The category indicates what security dimension is impacted by the risk (availability, confidentiality, integrity);</li>
 		<li>Risk ID: The user can indicate a risk ID to each risk. The risk ID must be unique.</li>
 		<li>Owner: This text field allows to indicate a risk owner.</li>
+		<li>Uncertainty computation: to indicate the level of certainty of the estimation of probability (only if the user enable the uncertainty).</li>
 		<li>Risk estimation section: This section is used to indicate the probability and possible impacts of the risk to analyse.
 			The user can indicate values for “RAW” estimation (risk level if no security measures are in place), “NET” estimation
 			(current risk level with currently implemented security measures) and expected “EXP” estimation (risk level once the risk
@@ -1716,22 +1780,23 @@
 	<p>After this step, a new window appears, showing all measures collections included in the risk analysis.</p>
 	<p>Several functionalities exist:</p>
 	<ul>
-		<li>Import a security standard form the knowledge base (“Import” button, see section “Import a security measures collection
+		<li>Import a security standard form the knowledge base (“Import from knowledge base” button, see section “Import a security measures collection
 			from the knowledge base”).</li>
+			<li>Import from a file (“Import from file" button).</li>
 		<li>Create custom security measures (“Add” button, see section “Create a custom security measure”);</li>
 	</ul>
 	<figure id="_FIG_65" class="figure">
-		<img src="img/68.png" class="figure-img img-fluid" />
+		<img src="img/measure_collection_management.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Manage standards of a risk analysis.</figcaption>
 	</figure>
 	<p>The user can delete a collection from the analysis by selecting the collection and clicking on “Delete” button. The “Edit”
 		button can be used to edit the information of a custom security measures list (see section Create a custom security measure)</p>
 	<h5>Import a security measures collection from the knowledge base</h5>
-	<p>The user can add a new security measures collection from the knowledgebase by clicking on the “Import” button. In the new
+	<p>The user can add a new security measures collection from the knowledgebase by clicking on the “Import from knwledge base” button. In the new
 		interface, the user can select a measures collection from the knowledge base and add it to the analysis by clicking on
 		the “+” button.</p>
 	<figure id="_FIG_66" class="figure">
-		<img src="img/69.png" class="figure-img img-fluid" />
+		<img src="img/meas_coll_knowledge.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add new standard from the Knowledge base.</figcaption>
 	</figure>
 	<h5>Create a custom security measure collection</h5>
@@ -1743,18 +1808,20 @@
 		<li>
 			<strong>Name</strong>: The name of the custom security measure list;</li>
 		<li>
+			<strong>Internal name</strong>: The real name of the custom security measure list;</li>
+		<li>
 			<strong>Computable</strong>: Select if the security measures to be included in the security measure list can reduce risks or not;</li>
 		<li>
 			<strong>Description</strong>: A description for the new custom security measure list.</li>
 	</ul>
 	<p>After clicking on the “Save” button, the new security measure list will be added to the risk analysis.</p>
-	<h5>Add security measure in custom security measure list</h5>
+	<h5>Add security measure in custom security measure list</h5><!--not clear-->
 	<p>The following sections define how to add security measures to a custom security measures list. Section “Asset type related
 		security measures” describes how to add a security measure to a security measure list that has influence on all risks of
-		a specific asset type and section “Asset related security measures” describes how to add a security measure to a security
+		a specific asset type and section “Asset related security measures” (in the following)describes how to add a security measure to a security
 		measure list that has influence on all risks of a specific asset.</p>
 	<p>How to define the type of a custom security measures collection is described in section “Create a custom security measure”.</p>
-	<h5>Asset type related security measures</h5>
+	<h5>Asset type related security measures</h5><!--not clear, there is no add button-->
 	<p>First the user should select the custom security measure list from the drop down list of the “Measures by collection” view.
 		Next, the user can add, edit or delete a custom security measure.</p>
 	<figure id="_FIG_67" class="figure">
@@ -1817,10 +1884,10 @@
 		<li><strong>Compliance rate:</strong> The percentage of measures that have reached the statement-of-applicability threshold (configured in <a href="#various-parameters">[Section]</a>) with respect to all applicable and measurable measures. Note that this number is for informational purposes only and might differ from indications on the action plan.</li>
 	</ul>
 	<p>The user has the options to add, edit or delete implementation phases. These options are explained in the following paragraphs.</p>
-	<p>By clicking on the “Add” button, the user get a new window where he can define a start and end date of an implementation
+	<p>By clicking on the “Add”<!--the title of the open window is `Add New Phase #5`--> button, the user get a new window where he can define a start and end date of an implementation
 		phase. By clicking on the “Save” button, the new implementation phase will be added to the list of implementation phases.</p>
 	<figure id="_FIG_71" class="figure">
-		<img src="img/74.png" class="figure-img img-fluid" />
+		<img src="img/new_phase.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add new implementation phase.</figcaption>
 	</figure>
 	<p>To modify the start or end date of an implementation phase, the user should double click on the date field or select the
@@ -1918,7 +1985,7 @@
 	<h3 id="statement-of-applicability-soa"><a id="analysis-soa"></a>Statement of Applicability (SOA)</h3>
 	<p>The “SOA” section enables users to see for each security measure coming from the annex of ISO 27001, which couple asset/threat
 		has the best reduction of ALE.</p>
-	<p>The column “Comment” allows the user to fill in some information regarding the measure and the asset/threat.</p>
+	<p>The column “justification” allows the user to fill in some information regarding the measure and the asset/threat</p>	
 	<p>The last column “Reference” enables the user to give a reference to a document or any other type of support in evidence
 		of the status of the measure.</p>
 	<h3 id="action-plan-summary"><a id="analysis-summary"></a>Action plan summary</h3>
@@ -1951,15 +2018,15 @@
 					rate of the security measures from a security standard.</td>
 			</tr>
 			<tr>
-				<td>Non-compliant measures of the …</td>
+				<td>Non-compliant to …</td>
 				<td>Number of measures that are not compliant with ISO/IEC 27001 or ISO/IEC 27002 requirements.</td>
 			</tr>
 			<tr>
-				<td>Number of measures for phase</td>
+				<td>Measures in phase (#)</td>
 				<td>The number of measures which will be treated during the phase</td>
 			</tr>
 			<tr>
-				<td>Implemented measures (number)…</td>
+				<td>Implemented after (#)…</td>
 				<td>The number of measures already implemented</td>
 			</tr>
 			<tr>
@@ -1974,7 +2041,7 @@
 				<td>The risk reduction in k€risk_reduction = ALE_previous_phase - ALE_current_phase</td>
 			</tr>
 			<tr>
-				<td>1.3. Average yearly cost of phase (k€/y)</td>
+				<td>1.3. Average yearly cost (k€/y)</td>
 				<td>Average yearly cost of phase</td>
 			</tr>
 			<tr>
@@ -2098,17 +2165,17 @@
 	</ul>
 	<h3 id="charts">Charts</h3>
 	<h4><a id="analysis-chart-compliance"></a>Compliance by measures collection</h4>
-	<p>The section “Compliance by Standard” graphically represents the level of conformance with the standards ISO 27001 &amp;
+	<p>The section “Compliance” graphically represents the level of conformance with the standards ISO 27001 &amp;
 		27002 after the different implementation phases that have been defined.</p>
 	<p>A chapter with all not-applicable measures will appear on the chart without conformance value, mentioned with (NA).</p>
-	<h4><a id="analysis-chart-heat-map"></a>Risk heat map</h4>
+	<h4><a id="analysis-chart-heat-map"></a>Risk heat map (only for qualititative and mixed risk analysis)</h4>
 	<p>The risk heat map provides an overview of the number of risks per risk level. This allows, based on the risk acceptance
 		thresholds, to see the number of risks that are currently not acceptable.</p>
 	<p><a href="#_FIG_heatmap">[Figure]</a> shows an example heat map. On the right hand-side, the risk acceptance thresholds
 		are repeated for convenience (see <a href="#risk-acceptance-threshold">[Section]</a>). The left hand-side shows the
 		heatmap table, each cell of which containing the number of risks that were specified for the given impact and probability level.</p>
 	<figure id="_FIG_heatmap" class="figure">
-		<img src="img/heatmap.png" class="figure-img img-fluid" />
+		<img src="img/risk_heat_map.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk heat map.</figcaption>
 	</figure>
 	<p>Below, the same heat map is displayed again, but this taking the evolution of risk into account. See <a href="#_FIG_heatmap-evolution">[Figure]</a>
@@ -2134,7 +2201,7 @@
 		knowing that the scenario with the highest ALE sum is represented on first position.</p>
 	<p>The second chart shows the ALE by scenario type. All ALE of one type of risk scenario is summed up and the scenario type
 		with the highest sum is ordered on first position.</p>
-	<h4><a id="analysis-chart-evolution"></a>Evolution of profitability and ISO compliance (only for quantitative risk analyses)</h4>
+	<h4><a id="analysis-chart-evolution"></a>Evolution of profitability by action plan(only for quantitative and mixed risk analyses)</h4>
 	<p>The chart “Evolution of profitability and ISO compliance” shows how profitable the different implementation phases of the
 		risk treatment plan are and how the compliance rate with the international standards 27001 and 27002 evolves.</p>
 	<h4><a id="analysis-chart-budget"></a>Budget by Action Plan (only for quantitative risk analyses)</h4>
@@ -2160,43 +2227,46 @@
 	<h3 id="export--">Export</h3>
 	<p>Clicking on “Export” will open the centralised export interface, from where most of the data entered into TRICK Service can be exported to portable formats.</p>
 	<figure class="figure" id="_FIG_exportui">
-		<img src="img/export_ui.png" class="figure-img img-fluid" />
+		<img src="img/export_v15.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Centralized export interface.</figcaption>
 	</figure>
 	<p>The interface is structured as follows: on the right-hand side, the user can choose what shall be exported. The left-hand side of the interface will then show configuration options (if applicable), which are explained in the sub-sections below. As a final step, the data can be exported via the “Export” button in the lower right corner. See <a href="#_FIG_exportui">[Figure]</a> for an illustration.</p>
+	<h4>Assets</h4>
+	<p>You can export all assets used in the risk analysis as an Excel file by click on "Assets" and then "Export" button.</p>
 	<h4>Brainstorming</h4>
 	<p>Export all data from all sheets from the “Brainstorming” section (see <a href="#brainstorming">[Section]</a>) into a single Excel file (with three sheets). The structure of the Excel file is the same as the one in TRICK Service.</p>
-	<h4 id="export--measures">Measures</h4>
-	<p>Exports all security measures from the selected measure collections as an Excel sheet. Multiple standards can be selected using the SHIFT and CTRL keys on the keyboard.</p>
-	<h4>Report</h4>
-	<p>By clicking on “Export”, the user will get a structured risk analysis report including all data of selected the risk analysis.
-		The report is a word file including macros for the creation of charts &amp; tables.</p>
-	<figure id="_FIG_74b" class="figure">
-		<img src="img/78b.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Export risk analysis report.</figcaption>
+
+	<h4 id="export--json_interface">ILR: JSON File for Serima</h4>
+	<p>This option allows users to export a risk assessment file in an ILR compatible JSON format which can be further imported to Serima platform</p>
+	<p>There are two mandatory inputs required to be provided during the import. Refer (<a href="#_FIG_exportjson">[Figure]</a>) below.
+	<ul>
+		<li>
+			<strong>JSON source file (Exported from Serima):</strong> The user requires to provide a path to the JSON file imported from Serima.
+		</li>
+		<li>
+			<strong>Asset mapping file: </strong>The user should provide here a path of (; separated) CSV file which maps Trick Service asset names to ILR asset names. It is important to note here that the mapping From
+			trickServiceAssetName to corresponding serima name (defined by ILR) is a many to many mapping. 
+			<br>
+			<strong>The syntax of each line of CSV file is as below:<br></strong>
+			<em>&lt;TrickServiceAssetName&gt; ; &lt;CorrespondingSerimaAssetName &gt;</em><br>	
+			
+			<strong>Example of mapping file:</strong><br>
+			<em>&lt;Airconditioner&gt; ; &lt;ILR_En_GAS_Airconditioner&gt;</em><br>	
+			<em>&lt;Airconditioner&gt; ; &lt;ILR_En_Elec_Airconditioner&gt;</em><br>	
+			<em>&lt;&gt;ILR_En_X_Supply of natural gas; &lt;ILR_En_Gas_Supply of natural gas;&gt;</em><br>	
+			<em>&lt;ILR_En_Y_Supply of natural gas &lt;ILR_En_Gas_Supply of natural gas;&gt;</em><br>	
+		</li>
+	</ul>
+	<figure class="figure" id="_FIG_exportjson">
+		<img src="img/export_as_json.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">JSON Export interface</figcaption>
 	</figure>
-	<p>When exporting a report, you will be asked to select the template to use. The list features all templates deployed by default in TRICK Service, and the templates that have been manually uploaded for the related customer (see <a href="#customers">[Section]</a>).</p>
-	<p>You can also upload a previously exported report that gets automatically updated (even if styling or content changes have been made to the document).</p>
-	<div class="alert alert-warning">This feature is still experimental, though, and might not work as expected.</div>
-	<h4>Statement of Applicability</h4>
-	<p>By clicking on “Export”, the user will get a word document including the statement of applicability.</p>
+    </p>
+
 	<h4 id="export--risk-estimations">Risk estimations</h4>
 	<p>By clicking on “Export”, you will get an Excel spreadsheet that contains all likelihood and impact estimations for all assets and scenarios.</p>
-	<p>In contrast to the risk sheet, this spreadsheet can be imported back into TRICK Service.</p>
-	<h4>Risk sheet</h4>
-	<p>This allows you to export a register of all the risks encoded in TRICK Service. It is a summary of all of the risk estimations, arranged visually.</p>
-	<p>The risk sheet can exported in two formats: as a Word report (for printing) or as an Excel file (for manipulation). The following options can be configured:</p>
-	<ul>
-		<li><strong>Risk sheets format:</strong> (Only for Word report) Whether the risk sheet should meet with the CSSF requirements.</li>
-		<li><strong>Impact threshold:</strong> The minimum impact starting at which a risk is exported. If a risk has a lower impact, it will be omitted in the export.</li>
-		<li><strong>Probability threshold:</strong> </li>
-		<li><strong>Direct size:</strong> The number of most important “direct” (in the CSSF sense) risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
-		<li><strong>Indirect size:</strong> The number of most important “indirect” (in the CSSF sense) risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
-		<li><strong>CIA size:</strong> The number of most important “confidentiality/integrity/integrity” risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
-		<li><strong>Owner:</strong> A filter for only exporting those risks that are associated to the selected owner. Select “All” to disable the filter.</li>
-	</ul>
-	<div class="alert alert-warning">The risk sheet is only meant for documentation/compliance purposes. It cannot be imported back into TRICK Service! Consider exporting the risk estimations, instead.</div>
-	<h4 id="export--rrf">RRF</h4>
+	<p>In contrast to the risk sheet, this spreadsheet can be imported back into TRICK Service.</p> 
+	<h4 id="export--rrf">Risk reduction factors</h4>
 	<p>This option allows to export all RRF values of the different standards in Microsoft Excel format. This allows the user to modify more fast several RRF values. With the help of the Import option, the user can reimport and overwrite the RRF values again.</p>
 	<div class="alert alert-warning">
 		The exported file is bound to the analysis and analysis version that it was exported from!
@@ -2204,28 +2274,73 @@
 		This choice has been been made to prevent accidental upload of bad data and potential data loss.
 		If you absolutely want to copy the RRF values from analysis “A” to analysis “B”, you can always export the RRF values for both “A” and “B”, copy over the contents manually (in Excel) from the exported file “A” to the exported file “B”, and import file “B” into analysis “B”.
 	</div>
+	<h4>Risk registers</h4>
+	<p>Click the "Export" button to export the risk register. The exported file is meant for compliance/documentation purposes, and cannot be imported back into TRICK Service. If you want to re-import changes, consider exporting the risk estimations directly, instead.</p>
+	<h4>Risk scenarios</h4>
+	<p>The user can have list of scenarios in the risk analysis by clicking on "Export" button.</p>
+	<h4 id="risk--sheets">Risk sheets</h4>
+	<p>This allows you to export a register of all the risks encoded in TRICK Service. It is a summary of all of the risk estimations, arranged visually.</p>
+	<figure id="_FIG_74r" class="figure">
+		<img src="img/risk_sheet.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Export risk sheet.</figcaption>
+	</figure>
+	<p>The risk sheet can exported in two formats: as a Word report (for printing) or as an Excel file (for manipulation). The following options can be configured:</p>
+	<ul>
+		<li><strong>Risk sheets format:</strong> (Only for Word report) Whether the risk sheet should meet with the CSSF requirements.</li>
+		<li><strong>Impact/Probability threshold:</strong> These options remove risk analysis that have the Impact/Probability less than these values from the exported report. <!-- The minimum impact/probability starting at which a risk is exported.-->In other words, if a risk has a lower impact/probability, it will be omitted in the export.</li>
+		<li><strong>Direct size:</strong> The number of most important “direct” (in the CSSF sense) risks that shall be exported. In other words, this value (e.g. 20) allows the user to have a list of the risks (e.g. 20) that have direct effect to the risk analysis. All other risks will be omitted. Select “All” to disable the filter.</li>
+		<li><strong>Indirect size:</strong> The number of most important “indirect” (in the CSSF sense) risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
+		<li><strong>CIA size:</strong> The number of most important "confidentiality/integrity/availablity" risks that shall be exported. All other risks will be omitted. Select “All” to disable the filter.</li>
+		<li><strong>Owner:</strong> A filter for only exporting those risks that are associated to the selected owner. Select “All” to disable the filter.</li>
+	</ul>
+	<div class="alert alert-warning">The risk sheet is only meant for documentation/compliance purposes. It cannot be imported back into TRICK Service! Consider exporting the risk estimations, instead.</div>
+	
+	<h4 id="export--measures">Security measures</h4>
+	<p>Exports all security measures from the selected measure collections as an Excel sheet. Multiple standards can be selected using the SHIFT and CTRL keys on the keyboard.</p>
+	<h4 id="word--report">Word report</h4>
+	<p>By clicking on “Export”, the user will get a structured risk analysis report including all data of selected the risk analysis.
+		The report is a word file including macros for the creation of charts &amp; tables.</p>
+	<figure id="_FIG_74b" class="figure">
+		<img src="img/78b_v2.12.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Export risk analysis report.</figcaption>
+	</figure>
+	<p>When exporting a report, you will be asked to select the template to use. The list features all templates deployed by default in TRICK Service, and the templates that have been manually uploaded for the related customer (see <a href="#customers">[Section]</a>).
+		For mixed reports use bookmarks in the word template to set which aspects of the report are to be exported in "qualitative" and which are to be exported in "quantitative".</p>
+	<p>You can also upload a previously exported report that gets automatically updated (even if styling or content changes have been made to the document).</p>
+	<div class="alert alert-warning">This feature is still experimental, though, and might not work as expected.</div>
 	<h3 id="import--">Import</h3>
 	<p>Clicking on “Import” will open the centralised import interface, from where data can be imported back (again) into TRICK Service.</p>
 	<figure class="figure" id="_FIG_importui">
-		<img src="img/import_ui.png" class="figure-img img-fluid" />
+		<img src="img/import_end.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Centralized import interface.</figcaption>
 	</figure>
 	<p>The interface is structured as follows: on the right-hand side, the user can choose what shall be imported. The left-hand side of the interface will then show configuration options (if applicable) and a possibility to select the import file. The options are explained in the sub-sections below. As a final step, the data can be imported via the “Import” button in the lower right corner. See <a href="#_FIG_importui">[Figure]</a> for an illustration.</p>
-	<h4>Brainstorming</h4>
-	<p>Clears all data from the sheets in TRICK Service, and replaces it with the data contained in the provided Excel file (with three sheets). It is strongly recommended to use a previously exported file as a template.</p>
-	<h4>Measures</h4>
-	<p>Imports back previously exported security measures from an Excel spreadsheet. The format of the file is the same than the one exported by TRICK Service (<a href="#export--measures">[Section]</a>). Instead of starting from a raw file, consider exporting a file, adapting it, and importing it.</p>
-	<h4>Risk estimations</h4>
+	<h4 id="import--assets">Assets</h4>
+	<p>The user can import assets that have been exported previously using TRICK Service.</p>
+	<h4 id="import--brainstorming">Brainstorming</h4>
+	<p>Importing brainsorming can be done using two modes:</p>
+	<li><strong>Overwrite:</strong>Clears all data from the sheets in TRICK Service, and replaces it with the data contained in the provided Excel file (with three sheets). It is strongly recommended to use a previously exported file as a template.</li>
+	<li><strong>Update:</strong>Update: If this mode is selected the import of a brainstorming excel sheet will not erase the existing values before the import.
+		        When this option is selected the values that have the same ID are overwritten.</li>
+	<figure class="figure" id="_FIG_importBrainStorming">
+		<img src="img/brainstorming_import_with_update.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Brainstorming export interface.</figcaption>
+	</figure>	
+	<h4 id="import--risk-estimation">Risk estimations</h4>
 	<p>Imports back previously exported risk estimations from an Excel spreadsheet. The format of the file is the same than the one exported by TRICK Service (<a href="#export--risk-estimations">[Section]</a>). Instead of starting from a raw file, consider exporting a file, adapting it, and importing it.</p>
-	<h4>RRF</h4>
+	<h4 id="import--RRF">Risk reduction factors</h4>
 	<p>The RRF values can be imported either from a previously exported file, or from the knowledge database (i.e., from another analysis). In either case, the RRF values will be replaced by those in the file/analysis for the selected standards.</p>
 	<p>In the first case, the file must match the format of the file exported by TRICK Service (<a href="#export--rrf">[Section]</a>). The RRF values for all standards contained in the file will be imported. When a standard is missing in the file, the related RRF values will remain unchanged in the analysis.</p>
 	<p>In the second case, the user must select a risk analysis profile, or an analysis of a customer. In a seconds step, the user must select all standards for which he wishes to import the RRF values; multiple standards can be selected using the SHIFT or CTRL keys on the keyboard. When a standard is not selected, the related RRF values will remain unchanged in the analysis.</p>
 	<figure id="_FIG_75" class="figure">
-		<img src="img/79.png" class="figure-img img-fluid" />
+		<img src="img/import_RRF.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Import of risk specificity values.</figcaption>
 	</figure>
-	<h3 id="rrf-only-for-quantitative-risk-analyses">RRF (only for quantitative risk analyses)</h3>
+	<h4 id="import--risk-scenario">Risk scenarios</h4>
+	Imports back previously exported risk scenarios from an Excel sheet produced by TRICK Service that can be edited manually before being imported.
+	<h4 id="import--security-measures">Security measures</h4>
+	<p>Imports back previously exported security measures from an Excel spreadsheet. The format of the file is the same than the one exported by TRICK Service (<a href="#export--measures">[Section]</a>). Instead of starting from a raw file, consider exporting a file, adapting it, and importing it.</p>
+	<h3 id="rrf-only-for-quantitative-risk-analyses">Risk reduction factor (only for quantitative risk analyses)</h3>
 	<p>The open RRF option opens the Risk Reduction Factor view where the user can define the risk specificities for the different
 		risk scenarios and the influence of the security measures on risks of the current risk analysis.</p>
 	<figure class="figure">
@@ -2886,13 +3001,13 @@
 	<p>TRICK Service includes an HTTP/ReST API for providing external risk input to risk analyses, making them thus dynamic. External
 		input is available as named parameters in a risk assessment, more precisely, in the “probability” field of every risk assessment.</p>
 	<h2 id="use">Use</h2>
-	<p>Before the API can be accessed, a dedicated “IDS user” needs to be created and enabled via the Administration interface
-		(see <a href="#ids">[Section]</a> for details). By default, the newly created IDS user does not have access to any risk analysis. In the risk
-		analysis overview, click on “Manage IDS” (see <a href="#manage-ids">[Section]</a>) and select the IDS users you wish to subscribe to. Every risk analysis that is subscribed to an IDS user,
-		gets automatically updated when the IDS reports to the TRICK Service API. Put differently, when an IDS updates dynamic
-		parameters via the API, all risk analyses that have subscribed to this IDS will update their corresponding copies of the
-		dynamic parameters to the given values.If you wish that dynamic parameters should no longer be updated for a certain risk
-		analysis, unsubscribe from the respective IDS user via the “Manage IDS” interface (see <a href="#manage-ids">[Section]</a>).</p>
+	<p>Before the API can be accessed, a dedicated “probe” needs to be created and enabled via the Administration interface
+		(see <a href="#ids">[Section]</a> for details). By default, the newly created probe does not have access to any risk analysis. In the risk
+		analysis overview, click on “Manage probe subscriptions” (see <a href="#manage-ids">[Section]</a>) and select the probe you wish to subscribe to. Every risk analysis that is subscribed to a probe,
+		gets automatically updated when the probe reports to the TRICK Service API. Put differently, when a probe updates dynamic
+		parameters via the API, all risk analyses that have subscribed to this probe will update their corresponding copies of the
+		dynamic parameters to the given values. If you wish that dynamic parameters should no longer be updated for a certain risk
+		analysis, unsubscribe from the respective probe via the “Manage probe subscriptions” interface (see <a href="#manage-ids">[Section]</a>).</p>
 	<div class="alert alert-info">For performance reasons, the dynamic parameters are only updated once every 900 seconds (15 minutes). More precisely, if
 		a value is reported via the API, it is first checked if an update of the dynamic parameters is already scheduled. If yes,
 		nothing happens (the value will be handled in the scheduled update), otherwise an update is scheduled after 900 seconds.
@@ -2903,7 +3018,7 @@
 		<code>https://trickservice.itrust.lu/Api/&lt;method_name&gt;</code>, where the available method names are listed below.Every HTTP request must have the following HTTP headers set:</p>
 	<pre>Accept: application/json;charset=UTF-8 <br />Content-Type: application/json;charset=UTF-8 <br />X-Auth-Token: &lt;api_token&gt;</pre>
 	<p>Above,
-		<code>&lt;api_token&gt;</code> should be replaced by the API token that is displayed in the IDS administration ( <a href="#ids">[Section]</a>). It is this token that is responsible for the authentication.The actual HTTP request body must be encoded
+		<code>&lt;api_token&gt;</code> should be replaced by the API token that is displayed in the probe administration ( <a href="#ids">[Section]</a>). It is this token that is responsible for the authentication.The actual HTTP request body must be encoded
 		in JSON. See the sections below for more details.</p>
 	<h2 id="methods">Methods</h2>
 	<p>The TRICK Service exposes methods which can be accessed using a HTTP client as described below. Parameters are passed to
@@ -2946,7 +3061,7 @@
 	<p>Each line defines a parameter which has the given value starting from the given time and until the next timestamp for which
 		a value was defined. For instance, if the API receives two requests that define (c=demo, t=0, v=5) and (c=demo, t=3600,
 		v=10), then the parameter “demo” has the value 5 between 12:00am and 1:00am, and the value 10 starting from 1:00am.</p>
-	<h3 id="reporting-ids-notifications">Reporting IDS notifications</h3>
+	<h3 id="reporting-ids-notifications">Reporting probe notifications</h3>
 	<p>This method accepts notifications (alerts) from external sources (such as intrusion detection systems) from which TRICK
 		Service computes a risk level (from 0 to 1) that is available as a dynamic parameter in risk assessments. Each alert will
 		raise the risk level: the higher the severity (see below), the higher the risk level will be raised. The risk level will
@@ -3189,6 +3304,41 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+	<h2 id="whats-new-in-ts-2.15">What's new in TRICK Service 2.15</h2>
+	<ul>		
+		<li> Export analysis in JSON format. Refer (<a href="#export--json_interface"></a>)</li>
+	</ul>
+	<h2 id="whats-new-in-ts-2.14">What's new in TRICK Service 2.14</h2>
+	<ul>
+		<li> Bug Fixes:</li>
+		<li> "Measures collections > View by collection" does not display the top line when opening.</li>
+		<li> Incomplete (export/import) of RRF: For 27701, the import stops at: item 9.4.2.1.</li> 
+		<li> Improved the risk assessment export file with an improved formatting.</li> 
+		<li> Updated word template</li>
+		<li> Fixed Slow performance of app.trick.-service.lu and trickservice.itrust.com.</li>
+		<li> Forbidding the user from specifying multiple versions of the same measure collection in a given analysis. The reason for prohibiting is due to the technical limitation of the tool.</li>
+		<li> Brainstorming import allows differential import. Refer (<a href="#import--brainstorming"></a>) </li>
+		<li> Central export interface improved.</li>	
+		<li> Added a new property to Trick service database.</li>  		
+		<li> Enhanced error and warning messages</li>
+
+	</ul>
+	<h2 id="whats-new-in-ts-2.13">What's new in TRICK Service 2.13</h2>
+	<ul>
+		<li> A free-to-use (ftu) TRICK Service version deployed.</li>
+	</ul>
+	<h2 id="whats-new-in-ts-2.12">What's new in TRICK Service 2.12</h2>
+	<ul>
+		<li>ATENA logo available across all versions.</li>
+		<li>Formatting of exported analysis report improvised.</li>
+		<li>Removed "Banded" from export.</li>
+		<li>Exported word report modified for representing probability with greater precision in the paramater table.</li> 
+		<li>Mixing qualitative and quantitative in word reports  (<a href="#word--report"></a>)</li>
+		<li>Fixed error in word export document related to impact </li>
+		<li>Fixed synchronization of draw and trick service assets</li>
+		<li>Trick Service to Redmine synchronization enabled</li>
+
+	</ul>
 	<h2 id="whats-new-in-ts-2.11">What's new in TRICK Service 2.11</h2>
 	<ul>
 		<li>Central export interface: all im-/export features can now be found in a central place.</li>
