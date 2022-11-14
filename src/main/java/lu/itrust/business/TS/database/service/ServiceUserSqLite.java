@@ -17,7 +17,7 @@ import lu.itrust.business.TS.usermanagement.User;
 public interface ServiceUserSqLite {
 	public UserSQLite get(Long id);
 
-	public UserSQLite getByFilename(String filename);
+	public UserSQLite getByName(String filename);
 
 	public UserSQLite getByIdAndUser(Long id, String username);
 

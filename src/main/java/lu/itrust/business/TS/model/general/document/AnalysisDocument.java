@@ -1,59 +1,44 @@
 package lu.itrust.business.TS.model.general.document;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
-import lu.itrust.business.TS.usermanagement.User;
-
 @MappedSuperclass
-public abstract class AnalysisDocument extends AbstractDocument {
+@AttributeOverride(name = "length", column = @Column(name = "dtSize"))
+@AttributeOverride(name = "name", column = @Column(name = "dtFilename", unique = true))
+@AttributeOverride(name = "data", column = @Column(name = "dtFile", length = 16777216))
+public class AnalysisDocument extends Document {
 
-	@Column(name = "dtIdentifier", nullable = false)
-	private String identifier = null;
+	@Column(name = "dtVersion")
+	private String version;
 
-	@ManyToOne
-	@JoinColumn(name = "fiUser", nullable = false)
-	private User user = null;
+	@Column(name = "dtLabel")
+	private String label;
 
-	public AnalysisDocument() {
+	protected AnalysisDocument() {
 	}
 
-	public AnalysisDocument(User user, String identifier, String label, String version, String filename, byte[] file, long size) {
-		super(label, version, filename, file, size);
-		this.identifier = identifier;
-		this.user = user;
+	protected AnalysisDocument(String label, String version, String name, byte[] data, long length) {
+		super(name, length, data);
+		this.label = label;
+		this.version = version;
 	}
 
-	/**
-	 * @return the user
-	 */
-	public User getUser() {
-		return user;
+	public String getVersion() {
+		return version;
 	}
 
-	/**
-	 * @param user
-	 *            the user to set
-	 */
-	public void setUser(User user) {
-		this.user = user;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
-	/**
-	 * @return the identifier
-	 */
-	public String getIdentifier() {
-		return identifier;
+	public String getLabel() {
+		return label;
 	}
 
-	/**
-	 * @param identifier
-	 *            the identifier to set
-	 */
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 }

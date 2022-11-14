@@ -43,7 +43,7 @@
 					<td data-trick-field='version'><spring:message text="${template.version}" /></td>
 					<td data-trick-field='language' data-trick-real-value="${template.language.id}"><spring:message text="${template.language.name}" /></td>
 					<td><fmt:formatDate value="${template.created}" type="both"/></td>
-					<td><fmt:formatNumber value="${template.size/(1024*1024)}" maxFractionDigits="2" /> <spring:message code="label.metric.megabit" text="Mb" /></td>
+					<td><fmt:formatNumber value="${template.length/(1024*1024)}" maxFractionDigits="2" /> <spring:message code="label.metric.megabit" text="Mb" /></td>
 				</tr>
 			</c:forEach>
 		</tbody>

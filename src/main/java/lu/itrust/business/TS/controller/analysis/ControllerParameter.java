@@ -156,6 +156,7 @@ public class ControllerParameter extends AbstractController {
 			setupQualitativeParameterUI(model, analysis);
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("reportSettings", loadReportSettings(analysis));
+		model.addAttribute("exportFilenames", loadExportFileNames(analysis));
 		model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));

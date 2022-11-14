@@ -56,11 +56,11 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * getByFileName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFilename(java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByName(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public UserSQLite getByFilename(String filename) {
+	public UserSQLite getByName(String filename) {
 		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResultOptional().orElse(null);
 	}
 
@@ -156,7 +156,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@Override
 	public void delete(String filename) {
-		delete(getByFilename(filename));
+		delete(getByName(filename));
 	}
 
 	/**

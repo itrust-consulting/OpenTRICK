@@ -1228,7 +1228,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	protected boolean initialise() throws Docx4JException, IOException {
 		if (getTemplate() != null) {
 			setFile(InstanceManager.getServiceStorage().createTmpFile());
-			InstanceManager.getServiceStorage().store(getTemplate().getFile(), getFile().getName());
+			InstanceManager.getServiceStorage().store(getTemplate().getData(), getFile().getName());
 		}
 
 		if (!getFile().exists())

@@ -74,7 +74,7 @@ public class Constant {
 	 * VVV the version number
 	 * TSE (stand for TRICK Service Export and is the document type
 	 */
-	public static final String ITR_FILE_NAMING = "05-X_TSE_%s-%s-%s_v%s.%s";
+	public static final String ITR_FILE_NAMING = "%s_%s-%s-%s_v%s.%s";
 
 	/**
 	 * @see #ITR_FILE_NAMING
@@ -707,7 +707,7 @@ public class Constant {
 
 	public static final String USER_IV_2_FACTOR_SECRET = "user-iv-2-factor-secret";
 
-	public static final String CLEAN_UP_FILE_NAME = "\\.|/|-|:|\\\\|&|,|\\$|\\+|\\||£|&|\\[|\\]|\\(|\\)|\\{|\\}|\\'|\"";
+	public static final String CLEAN_UP_FILE_NAME = "\\.|/|:|\\\\|&|,|\\$|\\+|\\||£|&|\\[|\\]|\\(|\\)|\\{|\\}|\\'|\"";
 
 	/*
 	 * *************************************************************************
@@ -718,7 +718,7 @@ public class Constant {
 	 * The maximum number of past seconds which the chart of dynamic parameter
 	 * evolution should display.
 	 */
-	public static final long CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS = 12 * 30 * 86400;
+	public static final long CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS = 12l * 30l * 86400l;
 	/**
 	 * Factor by which the time interval (x-axis) is progressively multiplied.
 	 */

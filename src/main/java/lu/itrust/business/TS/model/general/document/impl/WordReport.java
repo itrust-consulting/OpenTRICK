@@ -14,7 +14,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.TS.model.general.ReportType;
-import lu.itrust.business.TS.model.general.document.AnalysisDocument;
+import lu.itrust.business.TS.model.general.document.UserDocument;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -25,7 +25,7 @@ import lu.itrust.business.TS.usermanagement.User;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name="id", column=@Column(name="idWordReport"))
-public class WordReport extends AnalysisDocument {
+public class WordReport extends UserDocument {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", columnDefinition = "varchar(255) default 'STA'")

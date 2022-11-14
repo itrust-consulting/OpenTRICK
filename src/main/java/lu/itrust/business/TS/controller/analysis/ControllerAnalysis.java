@@ -666,6 +666,7 @@ public class ControllerAnalysis extends AbstractController {
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("login", user.getLogin());
 			model.addAttribute("reportSettings", loadReportSettings(analysis));
+			model.addAttribute("exportFilenames", loadExportFileNames(analysis));
 			model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));
 			loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
 

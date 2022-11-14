@@ -36,6 +36,7 @@ import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocument;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.ilr.AssetEdge;
 import lu.itrust.business.TS.model.ilr.AssetNode;
@@ -199,6 +200,14 @@ public class ExportAnalysis {
 			// ****************************************************************
 			exportDependencyGraph();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.simple_documents",
+					"Export analysis documents, DRAW json, DRAW png", 48));
+
+			// ****************************************************************
+			// * export Simple documents
+			// ****************************************************************
+			exportSimpleDocuments();
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.scenarios", "Export scenarios", 52));
 
 			// ****************************************************************
@@ -290,6 +299,34 @@ public class ExportAnalysis {
 		}
 	}
 
+	private void exportSimpleDocuments() throws SQLException {
+		
+		System.out.println("Export simple documents");
+
+		final List<Object> params = new ArrayList<>();
+
+		StringBuilder query = new StringBuilder();
+		int counter = 0;
+
+		for (SimpleDocument document : analysis.getDocuments().values()) {
+			counter = prepareQuery(params,
+					"INSERT INTO simple_document select ? as id, ? as dtCreated,? as dtData,? as dtLength, ? as dtName, ? as dtType",
+					4, query, counter);
+			params.add(document.getId());
+			params.add(document.getCreated());
+			params.add(document.getData());
+			params.add(document.getLength());
+			params.add(document.getName());
+			params.add(document.getType());
+		}
+
+		if (!params.isEmpty()) {
+			sqlite.query(query.toString(), params);
+			params.clear();
+		}
+
+	}
+
 	/**
 	 * @return the sqlite
 	 */
@@ -328,7 +365,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		List<Object> params = new ArrayList<Object>();
+		List<Object> params = new ArrayList<>();
 		String query = "", unionQuery = " UNION Select ?,?,?,?,?,?,?,?,?",
 				baseQuery = "INSERT INTO risk_profile SELECT ? as id_threat,? as id_asset,? as actionPlan,? as treatment,? as strategy,? as exp_probability,? as exp_vulnerability,? as raw_probability,? as raw_vulnerability";
 
@@ -1293,7 +1330,7 @@ public class ExportAnalysis {
 	}
 
 	private void exportSettings() throws SQLException {
-		
+
 		System.out.println("Export settings");
 
 		// ****************************************************************
@@ -2280,7 +2317,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * export action plan types
 		// ****************************************************************
-		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'"
+		sqlite.query("INSERT INTO action_plan_type SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'"
 				+ "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION "
 				+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
 
@@ -2321,7 +2358,7 @@ public class ExportAnalysis {
 			if (assetquery.equals(Constant.EMPTY_STRING)) {
 
 				// set first part of query
-				assetquery = "INSERT INTO actionplanasset SELECT ? as idActionPlanAssetCalculation, ? as idActionPlanCalculation, ? as idActionPlanType, ? as idNorm, ? as dtNormVersion,";
+				assetquery = "INSERT INTO action_plan_asset SELECT ? as idActionPlanAssetCalculation, ? as idActionPlanCalculation, ? as idActionPlanType, ? as idNorm, ? as dtNormVersion,";
 				assetquery += "? as idMeasureActionPlan, ? as idAsset,? as dtCurrentALE UNION";
 
 				// set limit
@@ -2341,7 +2378,7 @@ public class ExportAnalysis {
 					assetparams.clear();
 
 					// reset first part of query
-					assetquery = "INSERT INTO actionplanasset SELECT ? as idActionPlanAssetCalculation, ? as idActionPlanCalculation, ? as idActionPlanType, ? as idNorm, ? as dtNormVersion,";
+					assetquery = "INSERT INTO action_plan_asset SELECT ? as idActionPlanAssetCalculation, ? as idActionPlanCalculation, ? as idActionPlanType, ? as idNorm, ? as dtNormVersion,";
 					assetquery += "? as idMeasureActionPlan, ? as idAsset,? as dtCurrentALE UNION";
 
 					// reset limit
@@ -2403,7 +2440,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// build query
-			query = DatabaseHandler.generateInsertQuery("ActionPlanSummary", 20);
+			query = DatabaseHandler.generateInsertQuery("action_plan_summary", 20);
 
 			// add parameters
 			params.clear();
@@ -2474,7 +2511,7 @@ public class ExportAnalysis {
 			if (query.equals(Constant.EMPTY_STRING)) {
 
 				// set first part query
-				query = "INSERT INTO actionplan SELECT ? as 'idActionPlanCalculation',? as 'idActionPlanType', ? as 'norm',? as 'idMeasure',? as 'dtOrder',? as 'dtCost',? as 'dtROI',";
+				query = "INSERT INTO action_plan SELECT ? as 'idActionPlanCalculation',? as 'idActionPlanType', ? as 'norm',? as 'idMeasure',? as 'dtOrder',? as 'dtCost',? as 'dtROI',";
 				query += "? as 'dtTotalALE',? as 'dtDeltaALE' UNION";
 
 				// set limit
@@ -2494,7 +2531,7 @@ public class ExportAnalysis {
 					params.clear();
 
 					// reset first part query
-					query = "INSERT INTO actionplan SELECT ? as 'idActionPlanCalculation',? as 'idActionPlanType', ? as 'norm',? as 'idMeasure',? as 'dtOrder',? as 'dtCost',? as 'dtROI',";
+					query = "INSERT INTO action_plan SELECT ? as 'idActionPlanCalculation',? as 'idActionPlanType', ? as 'norm',? as 'idMeasure',? as 'dtOrder',? as 'dtCost',? as 'dtROI',";
 					query += "? as 'dtTotalALE',? as 'dtDeltaALE' UNION";
 
 					// reset limit
@@ -2601,12 +2638,19 @@ public class ExportAnalysis {
 
 		for (AssetNode node : analysis.getAssetNodes()) {
 			counter = prepareQuery(params,
-					"INSERT INTO asset_node SELECT ? as 'id_asset',? as 'confidentiality', ? as 'integrity',? as 'availability'",
+					"INSERT INTO asset_node SELECT ? as 'id_asset',? as 'confidentiality', ? as 'integrity',? as 'availability', ? as position_x, ? as position_y",
 					4, query, counter);
 			params.add(node.getAsset().getId());
 			params.add(node.getInheritedConfidentiality());
 			params.add(node.getInheritedIntegrity());
 			params.add(node.getInheritedAvailability());
+			if (node.getPosition() == null) {
+				params.add(null);
+				params.add(null);
+			} else {
+				params.add(node.getPosition().getX());
+				params.add(node.getPosition().getY());
+			}
 			edges.addAll(node.getEdges().values());
 			// execute query
 		}

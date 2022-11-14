@@ -869,7 +869,7 @@ function editField(element, controller, id, field, type) {
 				fieldEditor = new AssessmentImpactFieldEditor(element);
 		} else if (controller === "MaturityMeasure")
 			fieldEditor = new MaturityMeasureFieldEditor(element);
-		else if(controller ==="ReportSetting")
+		else if(controller ==="ReportSetting" || controller === "ExportFileName")
 			fieldEditor = new ReportSettingEditor(element);
 		else
 			fieldEditor = new FieldEditor(element);

@@ -16,7 +16,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-sm-6">
 			<fieldset>
 				<legend>
 					<spring:message code="label.title.parameter.simple.various" />
@@ -179,11 +179,12 @@
 					</table>
 				</fieldset>
 			</div>
-			<div class="col-md-6">
+			<div class="col-sm-6">
 				<jsp:include page="risk-acceptance.jsp" />
 			</div>
 		</c:if>
-		<div class='col-md-6'>
+
+			<div class='col-sm-6'>
 			<fieldset>
 				<legend>
 					<spring:message code="label.title.parameter.report.setting" />
@@ -201,6 +202,29 @@
 								<spring:message text="${setting.value}" var="color" />
 								<td><spring:message code="label.report.setting.${fn:toLowerCase(setting.key)}"/></td>
 								<td style="background-color: #${color};" data-real-value='#${color}' data-trick-field="${setting.key}" data-trick-field='value' data-trick-content='color' onclick="return editField(this);"></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</fieldset>
+		</div>
+		<div class='col-sm-6'>
+			<fieldset>
+				<legend>
+					<spring:message code="label.title.parameter.export.filename" />
+				</legend>
+				<table class="table table-hover table-condensed" id="table_parameter_export_filename">
+					<thead>
+						<tr>
+							<th><spring:message code="label.export.filename.name" /></th>
+							<th class="textaligncenter"><spring:message code="label.export.filename.prefix" /></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach items="${exportFilenames}" var="setting" varStatus="status">
+							<tr data-trick-class="ExportFileName" data-trick-id="${setting.key}">
+								<td><spring:message code="label.export.filename.${fn:toLowerCase(setting.key)}"/></td>
+								<td class="editable textaligncenter" data-trick-field="${setting.key}" data-trick-field='value' data-trick-field-type="string" onclick="return editField(this);"><spring:message text="${setting.value}" /></td>
 							</tr>
 						</c:forEach>
 					</tbody>

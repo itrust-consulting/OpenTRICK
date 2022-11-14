@@ -22,7 +22,7 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.document.AbstractDocument;
+import lu.itrust.business.TS.model.general.document.AnalysisDocument;
 
 /**
  * @author eomar
@@ -31,8 +31,8 @@ import lu.itrust.business.TS.model.general.document.AbstractDocument;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@AttributeOverrides({ @AttributeOverride(name = "id", column = @Column(name = "idReportTemplate")), @AttributeOverride(name = "filename", column = @Column(name = "dtFilename")) })
-public class ReportTemplate extends AbstractDocument {
+@AttributeOverride(name = "id", column = @Column(name = "idReportTemplate"))
+public class ReportTemplate extends AnalysisDocument {
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
@@ -42,17 +42,18 @@ public class ReportTemplate extends AbstractDocument {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", nullable = false)
 	private AnalysisType type;
-	
+
 	@Column(name = "dtEditable", nullable = false)
 	private boolean editable = true;
-	
+
 	@Transient
 	private boolean outToDate;
 
 	public ReportTemplate() {
 	}
 
-	public ReportTemplate(AnalysisType type, Language language, String label, String version, String filename, byte[] file, long size) {
+	public ReportTemplate(AnalysisType type, Language language, String label, String version, String filename,
+			byte[] file, long size) {
 		super(label, version, filename, file, size);
 		this.language = language;
 		this.type = type;
@@ -87,9 +88,9 @@ public class ReportTemplate extends AbstractDocument {
 		setVersion(template.getVersion());
 		setEditable(template.isEditable());
 		setLanguage(template.getLanguage());
-		if (template.getFile() != null) {
-			setFile(template.getFile());
-			setFilename(template.getFilename());
+		if (template.getData() != null) {
+			setData(template.getData());
+			setName(template.getName());
 		}
 	}
 

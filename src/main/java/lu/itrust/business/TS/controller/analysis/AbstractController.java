@@ -31,6 +31,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.TSSettingName;
@@ -44,7 +45,7 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 @PreAuthorize(ROLE_MIN_USER)
 public abstract class AbstractController {
-	
+
 	@Autowired
 	protected TaskExecutor executor;
 
@@ -69,17 +70,20 @@ public abstract class AbstractController {
 	@Autowired
 	protected ServiceTaskFeedback serviceTaskFeedback;
 
-	protected boolean loadUserSettings(Principal principal, @Nullable TicketingSystem ticketingSystem, @Nullable Model model, @Nullable User user) {
+	protected boolean loadUserSettings(Principal principal, @Nullable TicketingSystem ticketingSystem,
+			@Nullable Model model, @Nullable User user) {
 		boolean allowedTicketing = false, adminAllowedTicketing = false;
 		try {
 			adminAllowedTicketing = serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (!(ticketingSystem == null || ticketingSystem.getType() == null) && StringUtils.hasText(ticketingSystem.getUrl()) && ticketingSystem.isEnabled()
+			if (!(ticketingSystem == null || ticketingSystem.getType() == null)
+					&& StringUtils.hasText(ticketingSystem.getUrl()) && ticketingSystem.isEnabled()
 					&& adminAllowedTicketing) {
 				if (user == null)
 					user = serviceUser.get(principal.getName());
 				allowedTicketing = user.getCredentials().containsKey(ticketingSystem);
 				if (model != null && allowedTicketing) {
-					model.addAttribute(TICKETING_NAME, StringUtils.capitalize(ticketingSystem.getType().name().toLowerCase()));
+					model.addAttribute(TICKETING_NAME,
+							StringUtils.capitalize(ticketingSystem.getType().name().toLowerCase()));
 					model.addAttribute(TICKETING_URL, ticketingSystem.getUrl());
 				}
 			}
@@ -93,7 +97,7 @@ public abstract class AbstractController {
 		}
 		return allowedTicketing;
 	}
-	
+
 	protected Map<ReportSetting, String> loadReportSettings(Analysis analysis) {
 		final Map<ReportSetting, String> settings = new LinkedHashMap<>();
 		for (ReportSetting setting : ReportSetting.values()) {
@@ -103,10 +107,20 @@ public abstract class AbstractController {
 		}
 		return settings;
 	}
-	
+
+	protected Map<ExportFileName, String> loadExportFileNames(Analysis analysis) {
+		final Map<ExportFileName, String> settings = new LinkedHashMap<>();
+		for (ExportFileName setting : ExportFileName.values())
+			settings.put(setting, analysis.findSetting(setting));
+
+		return settings;
+	}
+
 	protected void setupQualitativeParameterUI(Model model, Analysis analysis) {
-		model.addAttribute("impactLabel", analysis.findImpacts().stream().filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
-				.map(ScaleType::getName).orElse(null));
+		model.addAttribute("impactLabel",
+				analysis.findImpacts().stream()
+						.filter(scaleType -> !scaleType.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny()
+						.map(ScaleType::getName).orElse(null));
 		int level = analysis.getLikelihoodParameters().size() - 1;
 		model.addAttribute("maxImportance", level * level);
 		model.addAttribute("colorManager", new ColorManager(analysis.getRiskAcceptanceParameters()));

@@ -122,6 +122,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -254,6 +255,7 @@ public class ControllerDataManager {
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.ACTION_PLAN)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "ActionPlan", analysis.getVersion(),
 					"xlsx");
@@ -284,6 +286,7 @@ public class ControllerDataManager {
 			exportAsset(analysis, spreadsheetMLPackage);
 			response.setContentType("xlsx");
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.ASSET)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Asset", analysis.getVersion(),
 					"xlsx");
@@ -359,8 +362,7 @@ public class ControllerDataManager {
 	}
 
 	@PostMapping(value = "/ILR/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	// @PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal,
-	// T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal,T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportILRProcess(@RequestParam(value = "ilrData") MultipartFile ilrData,
 			@RequestParam(value = "mappingFile", required = false) MultipartFile mappingFile,
 			HttpServletRequest request,
@@ -383,6 +385,7 @@ public class ControllerDataManager {
 
 			response.setContentType("json");
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.ILR_DATA)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "ILR-Data", analysis.getVersion(),
 					"json");
@@ -511,6 +514,7 @@ public class ControllerDataManager {
 			response.setContentType("xlsx");
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.RISK_ESTIMATION)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "RiskEstimation", analysis.getVersion(),
 					"xlsx");
@@ -570,7 +574,7 @@ public class ControllerDataManager {
 				rowNames.add(asset.getName());
 		});
 
-		Map<String, Map<String, Integer>> dependancies = analysis.getAssetNodes().stream()
+		Map<String, Map<String, Double>> dependancies = analysis.getAssetNodes().stream()
 				.flatMap(e -> e.getEdges().values().stream())
 				.collect(Collectors.groupingBy(e -> e.getChild().getAsset().getName(),
 						Collectors.toMap(e -> e.getParent().getAsset().getName(), AssetEdge::getWeight)));
@@ -588,7 +592,7 @@ public class ControllerDataManager {
 
 		for (String assetName : rowNames) {
 			final Row row = factory.createRow();
-			final Map<String, Integer> myDependancies = dependancies.getOrDefault(assetName, Collections.emptyMap());
+			final Map<String, Double> myDependancies = dependancies.getOrDefault(assetName, Collections.emptyMap());
 			for (int i = 0; i < columns.size(); i++) {
 				switch (i) {
 					case 0:
@@ -598,7 +602,7 @@ public class ControllerDataManager {
 						setValue(row, i, assetTypes.get(assetToTypes.get(assetName)));
 						break;
 					default:
-						setValue(row, i, myDependancies.getOrDefault(columns.get(i), 0));
+						setValue(row, i, myDependancies.getOrDefault(columns.get(i), 0D));
 
 				}
 			}
@@ -656,6 +660,7 @@ public class ControllerDataManager {
 			response.setContentType("xlsx");
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.MEASURE_COLLECTION)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "MeasureCollection", analysis.getVersion(),
 					"xlsx");
@@ -882,7 +887,10 @@ public class ControllerDataManager {
 
 				if (worksheetPart.getContents().getDimension() != null)
 					worksheetPart.getContents().getDimension().setRef(table.getRef());
-				int rowIndex = 1, colSize = address.getEnd().getCol();
+
+				int rowIndex = 1;
+				int colSize = address.getEnd().getCol();
+
 				for (RiskInformation riskInformation : riskInformations) {
 					int colIndex = 0;
 					Row row = getRow(sheet, rowIndex++, colSize);
@@ -898,6 +906,7 @@ public class ControllerDataManager {
 			}
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.BRAINSTORMING)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Brainstorming", analysis.getVersion(),
 					"xlsx");
@@ -1017,6 +1026,7 @@ public class ControllerDataManager {
 				try {
 					response.setContentType("xlsx");
 					final String filename = String.format(Constant.ITR_FILE_NAMING,
+							Utils.cleanUpFileName(analysis.findSetting(ExportFileName.RRF)),
 							Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 							Utils.cleanUpFileName(analysis.getLabel()), "RRF", analysis.getVersion(),
 							"xlsx");
@@ -1053,6 +1063,7 @@ public class ControllerDataManager {
 			exportScenario(analysis, spreadsheetMLPackage);
 			response.setContentType("xlsx");
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.SCENARIO)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Scenario", analysis.getVersion(),
 					"xlsx");
@@ -1303,8 +1314,8 @@ public class ControllerDataManager {
 				AnalysisType.QUANTITATIVE, AnalysisType.HYBRID));
 		analyses.removeIf(analysis -> analysis.getId() == idAnalysis);
 		Collections.sort(analyses, new AnalysisComparator());
-		List<Customer> customers = new ArrayList<Customer>();
-		analyses.stream().map(analysis -> analysis.getCustomer()).distinct()
+		List<Customer> customers = new ArrayList<>();
+		analyses.stream().map(Analysis::getCustomer).distinct()
 				.forEach(customer -> customers.add(customer));
 		model.addAttribute("standards", standards);
 		model.addAttribute("customers", customers);
@@ -1656,7 +1667,7 @@ public class ControllerDataManager {
 		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, analysis.getScenarios().size());
 		final Map<String, String> scenarioTypes = exportScenarioType(spreadsheetMLPackage,
 				new Locale(analysis.getLanguage().getAlpha2()), factory);
-				
+
 		for (Scenario scenario : analysis.getScenarios()) {
 			Row row = factory.createRow();
 			for (int i = 0; i <= columns.length; i++) {

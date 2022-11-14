@@ -80,8 +80,6 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
-	
-
 	/**
 	 * 
 	 */
@@ -156,7 +154,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	 * Sets the "bounds" field with a value
 	 * 
 	 * @param bounds
-	 *            The value to set the Bound values (from and to values)
+	 *               The value to set the Bound values (from and to values)
 	 */
 	public void setBounds(Bounds bounds) {
 		this.bounds = bounds;
@@ -172,7 +170,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 
 	/**
 	 * @param type
-	 *            the type to set
+	 *             the type to set
 	 */
 	public void setType(ScaleType type) {
 		this.type = type;
@@ -188,7 +186,7 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 
 	/**
 	 * @param acronym
-	 *            the acronym to set
+	 *                the acronym to set
 	 */
 	public void setAcronym(String acronym) {
 		this.acronym = acronym;
@@ -209,14 +207,13 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 
 	/**
 	 * @param label
-	 *            the label to set
+	 *              the label to set
 	 */
 
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	
-	
+
 	@Override
 	public String getBaseKey() {
 		return getAcronym();
@@ -262,37 +259,45 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	 */
 	public static void ComputeScales(List<ImpactParameter> impacts) {
 		impacts.sort((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()));
-		if (impacts.size() % 2 == 0) {
-			for (int level = 0, maxLevel = impacts.size() - 1; level < impacts.size(); level++) {
-				if (level == 0) {
-					ImpactParameter current = impacts.get(level);
-					if (level == maxLevel)
-						current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
-					else
-						current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
-				} else if (level == maxLevel)
-					impacts.get(level).setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
-				else {
-					ImpactParameter current = impacts.get(level);
-					current.setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
-				}
-			}
-		} else {
-			ImpactParameter prev = null;
-			for (int level = 1, maxLevel = impacts.size() - 1; level < maxLevel; level += 2) {
-				ImpactParameter current = impacts.get(level), next = impacts.get(level + 1);
-				prev = impacts.get(level - 1);
-				if (prev.getLevel() == 0)
-					prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
+		// if (impacts.size() % 2 == 0) {
+		for (int level = 0, maxLevel = impacts.size() - 1; level < impacts.size(); level++) {
+			if (level == 0) {
+				ImpactParameter current = impacts.get(level);
+				if (level == maxLevel)
+					current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
 				else
-					prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
-				current.setValue(Math.sqrt(prev.getValue() * next.getValue()));
-				current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
-				next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+					current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
+			} else if (level == maxLevel)
+				impacts.get(level)
+						.setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+			else {
+				ImpactParameter current = impacts.get(level);
+				current.setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(),
+						Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
 			}
 		}
+		/*
+		 * } else {
+		 * ImpactParameter prev = null;
+		 * for (int level = 1, maxLevel = impacts.size() - 1; level < maxLevel; level +=
+		 * 2) {
+		 * ImpactParameter current = impacts.get(level), next = impacts.get(level + 1);
+		 * prev = impacts.get(level - 1);
+		 * if (prev.getLevel() == 0)
+		 * prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() *
+		 * prev.getValue())));
+		 * else
+		 * prev.setBounds(new Bounds(prev.getBounds().getFrom(),
+		 * Math.sqrt(current.getValue() * prev.getValue())));
+		 * current.setValue(Math.sqrt(prev.getValue() * next.getValue()));
+		 * current.setBounds(new Bounds(prev.getBounds().getTo(),
+		 * Math.sqrt(current.getValue() * next.getValue())));
+		 * next.setBounds(new Bounds(current.getBounds().getTo(),
+		 * Constant.DOUBLE_MAX_VALUE));
+		 * }
+		 * }
+		 */
 
 	}
 
-	
 }

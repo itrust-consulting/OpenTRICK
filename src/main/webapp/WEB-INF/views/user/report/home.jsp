@@ -42,7 +42,7 @@
 						<option value="label" ${reportControl.sort == 'label'?'selected':''}><spring:message code="label.analysis.label" text="Name" /></option>
 						<option value="version" ${reportControl.sort == 'version'?'selected':''}><spring:message code="label.analysis.version" text="Version" /></option>
 						<option value="created" ${reportControl.sort == 'created'?'selected':''}><spring:message code="label.date.created" text="Created date" /></option>
-						<option value="size" ${reportControl.sort == 'size'?'selected':''}><spring:message code="label.file.size" text="Size" /></option>
+						<option value="length" ${reportControl.sort == 'length'?'selected':''}><spring:message code="label.file.size" text="Size" /></option>
 					</select>
 				</div>
 			</div>

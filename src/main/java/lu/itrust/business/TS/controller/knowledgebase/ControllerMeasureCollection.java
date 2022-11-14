@@ -313,6 +313,7 @@ public class ControllerMeasureCollection {
 	public @ResponseBody ResponseEntity<Resource> downloadTemplate(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
 		final String filename = String.format(Constant.ITR_FILE_NAMING,
+				"R5xx_STA",
 				"KB",
 				"Template", "MeasureCollection", appVersion,
 				"xlsx");
@@ -486,6 +487,7 @@ public class ControllerMeasureCollection {
 			}
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					"R5xx_STA",
 					"KB",
 					Utils.cleanUpFileName(standard.getLabel()), "MeasureCollection", standard.getVersion(),
 					"xlsx");

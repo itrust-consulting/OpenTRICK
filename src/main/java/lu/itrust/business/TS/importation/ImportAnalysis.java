@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.importation;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -65,11 +67,14 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocument;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocumentType;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
 import lu.itrust.business.TS.model.ilr.AssetEdge;
 import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.ilr.ILRImpact;
+import lu.itrust.business.TS.model.ilr.Position;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.IMaturityParameter;
@@ -333,7 +338,6 @@ public class ImportAnalysis {
 
 			notifyUpdate(handler, "info.simple_parameters.importing", "Import simple parameters", increase(6));
 			importSimpleParameters();
-			
 
 			// ****************************************************************
 			// * import dynamic parameters
@@ -400,10 +404,13 @@ public class ImportAnalysis {
 			notifyUpdate(handler, "info.phase.importing", "Import phases", increase(5));// 55%
 			importPhases();
 
+			notifyUpdate(handler, "info.norm_measures.importing", "Analysis normal measures", increase(5));// 60%
+			importSimpleDocuments();
+
 			// ****************************************************************
 			// * import AnalysisStandard measures
 			// ****************************************************************
-			notifyUpdate(handler, "info.norm_measures.importing", "Analysis normal measures", increase(10));// 60%
+			notifyUpdate(handler, "info.norm_measures.importing", "Analysis normal measures", increase(5));// 65%
 			importNormalMeasures();
 
 			importRiskProfileMeasures();
@@ -469,6 +476,30 @@ public class ImportAnalysis {
 			// clear maps
 			clearData();
 		}
+	}
+
+	private void importSimpleDocuments() throws SQLException {
+
+		ResultSet rs = null;
+		try {
+			rs = sqlite.query("SELECT * FROM asset_node");
+			if (rs == null)
+				return;
+			while (rs.next()) {
+				final byte[] data = rs.getBytes("dtData");
+				final String name = rs.getString("dtName");
+				final long length = rs.getLong("dtLength");
+				final Timestamp created = rs.getTimestamp("dtCreated");
+				final SimpleDocumentType type = SimpleDocumentType.valueOf(rs.getString("dtType"));
+				if (type == null || data == null || data.length == 0)
+					continue;
+				analysis.getDocuments().put(type, new SimpleDocument(type, name, length, data, created));
+			}
+		} finally {
+			if (rs != null)
+				rs.close();
+		}
+
 	}
 
 	/**
@@ -1096,8 +1127,8 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		String typename = "";
-		assetTypes = new HashMap<Integer, AssetType>();
-		assets = new HashMap<Integer, Asset>();
+		assetTypes = new HashMap<>();
+		assets = new HashMap<>();
 		AssetType assetType = null;
 		Asset tempAsset = null;
 
@@ -1235,7 +1266,7 @@ public class ImportAnalysis {
 				// * retrieve asset type values for measures
 				// ****************************************************************
 
-				final List<Object> params = new ArrayList<Object>();
+				final List<Object> params = new ArrayList<>();
 
 				params.add(normalMeasure.getAnalysisStandard().getStandard().getLabel());
 
@@ -1359,13 +1390,14 @@ public class ImportAnalysis {
 		}
 	}
 
-	private void importDependencyGraph() throws SQLException {
+	private void importDependencyGraph() throws SQLException, NoSuchAlgorithmException {
 		// Import dependency graph
 		ResultSet rs = null;
 		try {
 			rs = sqlite.query("SELECT * FROM asset_node");
 			if (rs == null)
 				return;
+			final SecureRandom random = SecureRandom.getInstanceStrong();
 			final Map<Integer, AssetNode> nodes = new HashMap<>();
 			while (rs.next()) {
 				final int assetId = rs.getInt("id_asset");
@@ -1373,6 +1405,13 @@ public class ImportAnalysis {
 				node.setInheritedConfidentiality(rs.getInt("confidentiality"));
 				node.setInheritedIntegrity(rs.getInt("integrity"));
 				node.setInheritedAvailability(rs.getInt("availability"));
+
+				final Double x = getDouble(rs, "position_x", null);
+				if (x == null) {
+					node.setPosition(Position.generate(assets.size(), random));
+				} else {
+					node.setPosition(new Position(x, getDouble(rs, "position_y")));
+				}
 				this.analysis.getAssetNodes().add(node);
 				nodes.put(assetId, node);
 			}
@@ -1384,7 +1423,7 @@ public class ImportAnalysis {
 				while (rs.next()) {
 					final AssetEdge edge = new AssetEdge(nodes.get(rs.getInt("id_parent")),
 							nodes.get(rs.getInt("id_child")),
-							rs.getInt("weight"));
+							rs.getDouble("weight"));
 					edge.getParent().getEdges().put(edge.getChild(), edge);
 				}
 				rs.close();
@@ -1527,6 +1566,8 @@ public class ImportAnalysis {
 				this.impactParameters = impactParameters.stream()
 						.collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
 			}
+
+			
 
 		} finally {
 			// close result
@@ -2053,7 +2094,7 @@ public class ImportAnalysis {
 			query = "SELECT * FROM maturity_required_LIPS";
 			// execute query
 			rs = sqlite.query(query, null);
-			List<MaturityParameter> parameters = new ArrayList<MaturityParameter>();
+			List<MaturityParameter> parameters = new ArrayList<>();
 			// retrieve the name, and with the name find out the category
 			while (rs.next()) {
 
@@ -2174,9 +2215,9 @@ public class ImportAnalysis {
 		double cost = 0;
 		Phase phase = null;
 		String query = "";
-		analysisStandards = new HashMap<Standard, AnalysisStandard>();
-		standards = new HashMap<String, Standard>();
-		measures = new HashMap<String, Measure>();
+		analysisStandards = new HashMap<>();
+		standards = new HashMap<>();
+		measures = new HashMap<>();
 		AnalysisStandard analysisStandard = null;
 		Standard standard = null;
 		String standardName = "";
@@ -3470,11 +3511,15 @@ public class ImportAnalysis {
 		}
 	}
 
-	public static double getDouble(ResultSet rs, String name) {
+	public static Double getDouble(ResultSet rs, String name) {
+		return getDouble(rs, name, 0D);
+	}
+
+	public static Double getDouble(ResultSet rs, String name, Double defaultValue) {
 		try {
 			return rs.getDouble(name);
 		} catch (SQLException e) {
-			return 0;
+			return defaultValue;
 		}
 	}
 

@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -62,7 +65,12 @@ public class AssetNode implements Cloneable {
     @MapKey(name = "child")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Cascade(CascadeType.ALL)
-    private Map<AssetNode,AssetEdge> edges = new HashMap<>();
+    private Map<AssetNode, AssetEdge> edges = new HashMap<>();
+
+    @Embedded
+    @AttributeOverride(name = "x", column = @Column(name = "dtPositionX"))
+    @AttributeOverride(name = "y", column = @Column(name = "dtPositionY"))
+    private Position position;
 
     public AssetNode() {
     }
@@ -119,12 +127,20 @@ public class AssetNode implements Cloneable {
         this.inheritedAvailability = inheritedAvailability;
     }
 
-    public Map<AssetNode,AssetEdge> getEdges() {
+    public Map<AssetNode, AssetEdge> getEdges() {
         return edges;
     }
 
-    public void setEdges(final Map<AssetNode,AssetEdge> edges) {
+    public void setEdges(final Map<AssetNode, AssetEdge> edges) {
         this.edges = edges;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public boolean isLeaf() {
@@ -162,8 +178,11 @@ public class AssetNode implements Cloneable {
     public AssetNode clone() {
         try {
             AssetNode assetNode = (AssetNode) super.clone();
+            if (assetNode.position != null)
+                assetNode.position = new Position(position.getX(), position.getY());
             if (edges != null)
-                assetNode.edges = edges.values().stream().map(AssetEdge::clone).collect(Collectors.toMap(AssetEdge::getChild, Function.identity()));
+                assetNode.edges = edges.values().stream().map(AssetEdge::clone)
+                        .collect(Collectors.toMap(AssetEdge::getChild, Function.identity()));
             return assetNode;
         } catch (CloneNotSupportedException e) {
             throw new TrickException("error.clone.asset_node", "AssetNode cannot be copied");
@@ -189,8 +208,11 @@ public class AssetNode implements Cloneable {
     public AssetNode duplicate() {
         try {
             AssetNode assetNode = (AssetNode) super.clone();
+            if (assetNode.position != null)
+                assetNode.position = new Position(position.getX(), position.getY());
             if (edges != null)
-                assetNode.edges = edges.values().stream().map(e -> e.duplicate(assetNode)).collect(Collectors.toMap(AssetEdge::getChild, Function.identity()));
+                assetNode.edges = edges.values().stream().map(e -> e.duplicate(assetNode))
+                        .collect(Collectors.toMap(AssetEdge::getChild, Function.identity()));
             assetNode.id = 0;
             return assetNode;
         } catch (CloneNotSupportedException e) {

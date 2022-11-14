@@ -157,9 +157,9 @@ public class DefaultReportTemplateLoader {
 			reportTemplate.setLabel(fields[0]);
 			reportTemplate.setLanguage(daoLanguage.getByAlpha3(fields[1]));
 			reportTemplate.setVersion(fields[2]);
-			reportTemplate.setFilename(file.getFilename());
-			reportTemplate.setFile(IOUtils.toByteArray(stream));
-			reportTemplate.setSize(reportTemplate.getFile().length);
+			reportTemplate.setName(file.getFilename());
+			reportTemplate.setData(IOUtils.toByteArray(stream));
+			reportTemplate.setLength(reportTemplate.getData().length);
 			reportTemplate.setCreated(new Timestamp(file.lastModified()));
 			reportTemplate.setEditable(false);
 			reportTemplate.setType(type);

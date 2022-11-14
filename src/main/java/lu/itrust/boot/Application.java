@@ -13,12 +13,15 @@ import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfigu
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 /**
  * @author eomar
  *
  */
-@SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class, FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class })
+@EnableWebSecurity
+@SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
+		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class })
 @ImportResource("classpath:spring/application-config.xml")
 public class Application extends SpringBootServletInitializer {
 

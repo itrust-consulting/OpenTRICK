@@ -26,6 +26,7 @@ import lu.itrust.business.TS.helper.Task;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
@@ -103,7 +104,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 			if (exportReport.getFile() == null) {
 				if (reportTemplate == null)
 					throw new TrickException("error.report.template.not.found", "Report template cannot be found");
-				else if (reportTemplate.getFile() == null)
+				else if (reportTemplate.getData() == null)
 					throw new TrickException("error.report.template.no.data", "Report template has been corrupted");
 			}
 			exportReport.export(reportTemplate, new Task(getId(), 1, 98), analysis, getServiceTaskFeedback());
@@ -147,6 +148,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 			final File file = exportReport.getFile();
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+			Utils.cleanUpFileName(analysis.findSetting(ExportFileName.REPORT)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Report", analysis.getVersion(),
 					"docx",System.nanoTime());

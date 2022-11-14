@@ -49,11 +49,11 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByFilename(java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByName(java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByFilename(String filename)  {
-		return daoUserSqLite.getByFilename(filename);
+	public UserSQLite getByName(String filename)  {
+		return daoUserSqLite.getByName(filename);
 	}
 
 	/**

@@ -50,6 +50,7 @@ import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.general.document.impl.WordReport;
 import lu.itrust.business.TS.model.general.helper.Utils;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -252,6 +253,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));
 			wordMLPackage.save(workFile);
 			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.SOA)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "SOA", analysis.getVersion(),
 					"docx", System.nanoTime());

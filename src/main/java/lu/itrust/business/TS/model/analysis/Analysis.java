@@ -2,7 +2,9 @@ package lu.itrust.business.TS.model.analysis;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -57,6 +59,8 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocument;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocumentType;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
@@ -322,6 +326,15 @@ public class Analysis implements Cloneable {
 	@Access(AccessType.FIELD)
 	@OrderBy("name")
 	private List<ScaleType> ilrImpactTypes = new ArrayList<>();
+
+	@OneToMany
+	@MapKey(name = "type")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	@OrderBy("created")
+	private Map<SimpleDocumentType,SimpleDocument> documents = new LinkedHashMap<>();
 
 	/** Version of the Analysis */
 	@Column(name = "dtVersion", nullable = false, length = 12)
@@ -737,12 +750,12 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<IParameter> findByGroup(String... groups) {
-		final List<IParameter> parameters = new LinkedList<>();
+		final List<IParameter> ps = new LinkedList<>();
 		for (String group : groups) {
 			if (this.parameters.containsKey(group))
-				parameters.addAll(this.parameters.get(group));
+				ps.addAll(this.parameters.get(group));
 		}
-		return parameters;
+		return ps;
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
@@ -866,12 +879,9 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Asset> findSelectedAsset() {
-		List<Asset> assets = new LinkedList<Asset>();
-		for (Asset asset : this.assets) {
-			if (asset.isSelected())
-				assets.add(asset);
-		}
-		return assets;
+		if (assets == null)
+			return Collections.emptyList();
+		return this.assets.stream().filter(Asset::isSelected).collect(Collectors.toList());
 	}
 
 	public List<Asset> findSelectedAssets() {
@@ -888,7 +898,7 @@ public class Analysis implements Cloneable {
 	 * @return The Scenario List Object
 	 */
 	public List<Scenario> findSelectedScenarios() {
-		List<Scenario> tmpscenarios = new ArrayList<Scenario>();
+		List<Scenario> tmpscenarios = new ArrayList<>();
 		for (Scenario scenario : scenarios)
 			if (scenario.isSelected())
 				tmpscenarios.add(scenario);
@@ -908,27 +918,27 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Phase> findUsablePhase() {
-		List<Phase> phases = new ArrayList<Phase>();
+		List<Phase> ps = new ArrayList<>();
 		if (this.actionPlans == null || this.actionPlans.isEmpty())
-			return phases;
+			return ps;
 		for (ActionPlanEntry actionPlanEntry : this.actionPlans) {
 			Phase phase = actionPlanEntry.getMeasure().getPhase();
-			if (phase != null && !phases.contains(phase))
-				phases.add(phase);
+			if (phase != null && !ps.contains(phase))
+				ps.add(phase);
 		}
 
-		for (int i = 0; i < phases.size(); i++) {
-			Phase phase = phases.get(i);
-			for (int j = 0; j < phases.size(); j++) {
-				if (phases.get(j).getNumber() > phase.getNumber()) {
-					phases.set(i, phases.get(j));
-					phases.set(j, phase);
-					phase = phases.get(i);
+		for (int i = 0; i < ps.size(); i++) {
+			Phase phase = ps.get(i);
+			for (int j = 0; j < ps.size(); j++) {
+				if (ps.get(j).getNumber() > phase.getNumber()) {
+					ps.set(i, ps.get(j));
+					ps.set(j, phase);
+					phase = ps.get(i);
 				}
 			}
 		}
 
-		return phases;
+		return ps;
 
 	}
 
@@ -1033,9 +1043,9 @@ public class Analysis implements Cloneable {
 
 	@Transient
 	public List<IBoundedParameter> getBoundedParamters() {
-		List<IBoundedParameter> parameters = getImpactParameters().stream().collect(Collectors.toList());
-		parameters.addAll(getLikelihoodParameters());
-		return parameters;
+		final List<IBoundedParameter> ps = getImpactParameters().stream().collect(Collectors.toList());
+		ps.addAll(getLikelihoodParameters());
+		return ps;
 	}
 
 	/**
@@ -1092,7 +1102,7 @@ public class Analysis implements Cloneable {
 	public List<IAcronymParameter> getExpressionParameters() {
 		// We assume that all parameters that have an acronym can be used in an
 		// expression
-		// Maybe we want to change this in the future (checking parameter.type);
+		// May be we want to change this in the future (checking parameter.type);
 		// then this is the place to act.
 		// In that case, we must update
 		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
@@ -1102,7 +1112,7 @@ public class Analysis implements Cloneable {
 				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_TYPE_PROPABILITY_NAME)
 						|| entry.getKey().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC))
-				.flatMap(entry -> entry.getValue().stream()).map(parameter -> (IAcronymParameter) parameter)
+				.flatMap(entry -> entry.getValue().stream()).map(IAcronymParameter.class::cast)
 				.collect(Collectors.toList());
 	}
 
@@ -1394,7 +1404,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<Assessment> findSelectedAssessments() {
-		return assessments.stream().filter(e -> e.isSelected()).collect(Collectors.toList());
+		return assessments.stream().filter(Assessment::isSelected).collect(Collectors.toList());
 	}
 
 	public <T> T findSetting(AnalysisSetting setting) {
@@ -1403,6 +1413,10 @@ public class Analysis implements Cloneable {
 
 	public String findSetting(ReportSetting setting) {
 		return setting == null ? null : settings.getOrDefault(setting.name(), setting.getValue());
+	}
+
+	public String findSetting(ExportFileName setting) {
+		return setting == null ? null : settings.getOrDefault(setting.name(), "05-X_TSE");
 	}
 
 	@OneToMany
@@ -1480,12 +1494,20 @@ public class Analysis implements Cloneable {
 		return version;
 	}
 
-	public Map<String,String> getSettings() {
+	public Map<String, String> getSettings() {
 		return settings;
 	}
 
-	public void setSettings(Map<String,String> settings){
+	public void setSettings(Map<String, String> settings) {
 		this.settings = settings;
+	}
+
+	public Map<SimpleDocumentType,SimpleDocument> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(Map<SimpleDocumentType,SimpleDocument> documents) {
+		this.documents = documents;
 	}
 
 	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments,
@@ -1505,9 +1527,9 @@ public class Analysis implements Cloneable {
 	 * @param impacts
 	 */
 	public void groupExtended(List<LikelihoodParameter> probabilities, List<ImpactParameter> impacts) {
-		this.getParameters().values().stream().flatMap(paramters -> paramters.stream())
-				.filter(parameter -> parameter instanceof IBoundedParameter)
-				.map(parameter -> (IBoundedParameter) parameter).forEach(parameter -> {
+		this.getParameters().values().stream().flatMap(Collection::stream)
+				.filter(IBoundedParameter.class::isInstance)
+				.map(IBoundedParameter.class::cast).forEach(parameter -> {
 					if ((parameter instanceof ImpactParameter)
 							&& parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
 						impacts.add((ImpactParameter) parameter);
@@ -1584,7 +1606,7 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		List<Phase> tmpPhases = new ArrayList<Phase>();
+		List<Phase> tmpPhases = new ArrayList<>();
 
 		Phase smallest = null;
 		List<NormalStandard> normalStandards = this.findAllNormalStandards();
@@ -1625,7 +1647,7 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 
 		// check until temporary list is empty (phases are ordered)
-		while (this.phases.size() > 0) {
+		while (!this.phases.isEmpty()) {
 
 			// ****************************************************************
 			// * for each run use the first element as phase number to check to
@@ -1782,16 +1804,16 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Assessment> removeAssessment(Asset asset) {
-		final List<Assessment> assessments = new LinkedList<>();
-		this.assessments.removeIf(assessment -> assessment.getAsset().equals(asset) && assessments.add(assessment));
-		return assessments;
+		final List<Assessment> assmts = new LinkedList<>();
+		this.assessments.removeIf(assessment -> assessment.getAsset().equals(asset) && assmts.add(assessment));
+		return assmts;
 	}
 
 	public List<Assessment> removeAssessment(Scenario scenario) {
-		final List<Assessment> assessments = new LinkedList<>();
+		final List<Assessment> assmts = new LinkedList<>();
 		this.assessments
-				.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
-		return assessments;
+				.removeIf(assessment -> assessment.getScenario().equals(scenario) && assmts.add(assessment));
+		return assmts;
 	}
 
 	public List<Scenario> removeFromScenario(Asset asset) {
@@ -1808,7 +1830,7 @@ public class Analysis implements Cloneable {
 	 */
 	public UserAnalysisRight removeRights(User user) {
 		final UserAnalysisRight userRight = findRightsforUser(user);
-		return userRight == null ? null : userRights.remove(userRight) ? userRight : null;
+		return userRight == null ? null : this.userRights.remove(userRight) ? userRight : null;
 	}
 
 	public List<RiskProfile> removeRiskProfile(Asset asset) {
@@ -1954,7 +1976,7 @@ public class Analysis implements Cloneable {
 	 */
 	public void setHistory(History history) {
 		if (histories == null)
-			histories = new ArrayList<History>();
+			histories = new ArrayList<>();
 		histories.add(history);
 	}
 
@@ -2124,6 +2146,12 @@ public class Analysis implements Cloneable {
 			this.settings.remove(name);
 		else
 			this.settings.put(name, String.valueOf(value));
+	}
+
+	public Object removeSetting(String name) {
+		if (name == null)
+			return null;
+		return this.settings.remove(name);
 	}
 
 	public void setSimpleParameters(List<SimpleParameter> parameters) {
@@ -2316,7 +2344,7 @@ public class Analysis implements Cloneable {
 		try {
 			if (value == null)
 				return (T) setting.getDefaultValue();
-			return (T) ParseSettingValue(value, setting.getType());
+			return (T) parseSettingValue(value, setting.getType());
 		} catch (Exception e) {
 			return (T) setting.getDefaultValue();
 		}
@@ -2403,7 +2431,7 @@ public class Analysis implements Cloneable {
 
 	@Transient
 	@SuppressWarnings("unchecked")
-	public static <T> T ParseSettingValue(String value, Class<T> type) {
+	public static <T> T parseSettingValue(String value, Class<T> type) {
 		if (String.class.equals(type))
 			return (T) value;
 		else if (Boolean.class.equals(type))
@@ -2432,5 +2460,4 @@ public class Analysis implements Cloneable {
 	public List<AnalysisStandard> findAllAnalysisStandard() {
 		return getAnalysisStandards().values().stream().collect(Collectors.toList());
 	}
-
 }

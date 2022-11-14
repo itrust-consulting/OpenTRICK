@@ -17,7 +17,7 @@ public interface ServiceWordReport {
 
 	WordReport get(Long id);
 
-	WordReport getByFilename(String fileName);
+	WordReport getByName(String fileName);
 
 	WordReport getByIdAndUser(Long id, String username);
 

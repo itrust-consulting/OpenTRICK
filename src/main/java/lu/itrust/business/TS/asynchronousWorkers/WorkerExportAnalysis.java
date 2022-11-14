@@ -33,6 +33,7 @@ import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.document.impl.UserSQLite;
@@ -192,9 +193,10 @@ public class WorkerExportAnalysis extends WorkerImpl {
 			}
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.DATABASE)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "DB", analysis.getVersion(),
-					"sqlite",System.nanoTime());
+					"sqlite", System.nanoTime());
 
 			UserSQLite userSqLite = new UserSQLite(user, analysis.getIdentifier(), analysis.getLabel(),
 					analysis.getVersion(), filename,

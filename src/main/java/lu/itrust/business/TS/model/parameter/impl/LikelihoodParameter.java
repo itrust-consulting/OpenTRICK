@@ -88,7 +88,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 		this(level, acronym, value);
 		setBounds(bounds);
 	}
-	
+
 	/**
 	 * @param level
 	 * @param acronym
@@ -123,7 +123,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 
 	/**
 	 * @param level
-	 *            the level to set
+	 *              the level to set
 	 */
 	public void setLevel(int level) {
 		if (level < 0)
@@ -133,7 +133,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 
 	/**
 	 * @param bounds
-	 *            the bounds to set
+	 *               the bounds to set
 	 */
 	public void setBounds(Bounds bounds) {
 		this.bounds = bounds;
@@ -164,7 +164,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 
 	/**
 	 * @param label
-	 *            the label to set
+	 *              the label to set
 	 */
 
 	public void setLabel(String label) {
@@ -224,37 +224,46 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 
 	public static void ComputeScales(List<LikelihoodParameter> parameters) {
 		parameters.sort((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()));
-		if (parameters.size() % 2 == 0) {
-			for (int level = 0, maxLevel = parameters.size() - 1; level < parameters.size(); level++) {
-				if (level == 0) {
-					LikelihoodParameter current = parameters.get(level);
-					if (level == maxLevel)
-						current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
-					else
-						current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * parameters.get(level + 1).getValue())));
-				} else if (level == maxLevel)
-					parameters.get(level).setBounds(new Bounds(parameters.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
-				else {
-					LikelihoodParameter current = parameters.get(level);
-					current.setBounds(new Bounds(parameters.get(level - 1).getBounds().getTo(), Math.sqrt(current.getValue() * parameters.get(level + 1).getValue())));
-				}
-			}
-		} else {
-			LikelihoodParameter prev = null;
-			for (int level = 1, maxLevel = parameters.size() - 1; level < maxLevel; level += 2) {
-				LikelihoodParameter current = parameters.get(level), next = parameters.get(level + 1);
-				prev = parameters.get(level - 1);
-				if (prev.getLevel() == 0)
-					prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
+		// if (parameters.size() % 2 == 0) {
+		for (int level = 0, maxLevel = parameters.size() - 1; level < parameters.size(); level++) {
+			if (level == 0) {
+				LikelihoodParameter current = parameters.get(level);
+				if (level == maxLevel)
+					current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
 				else
-					prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
-				current.setValue(Math.sqrt(prev.getValue() * next.getValue()));
-				current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
-				next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+					current.setBounds(
+							new Bounds(0, Math.sqrt(current.getValue() * parameters.get(level + 1).getValue())));
+			} else if (level == maxLevel)
+				parameters.get(level).setBounds(
+						new Bounds(parameters.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+			else {
+				LikelihoodParameter current = parameters.get(level);
+				current.setBounds(new Bounds(parameters.get(level - 1).getBounds().getTo(),
+						Math.sqrt(current.getValue() * parameters.get(level + 1).getValue())));
 			}
 		}
+		/*
+		 * } else {
+		 * LikelihoodParameter prev = null;
+		 * for (int level = 1, maxLevel = parameters.size() - 1; level < maxLevel; level
+		 * += 2) {
+		 * LikelihoodParameter current = parameters.get(level), next =
+		 * parameters.get(level + 1);
+		 * prev = parameters.get(level - 1);
+		 * if (prev.getLevel() == 0)
+		 * prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() *
+		 * prev.getValue())));
+		 * else
+		 * prev.setBounds(new Bounds(prev.getBounds().getFrom(),
+		 * Math.sqrt(current.getValue() * prev.getValue())));
+		 * current.setValue(Math.sqrt(prev.getValue() * next.getValue()));
+		 * current.setBounds(new Bounds(prev.getBounds().getTo(),
+		 * Math.sqrt(current.getValue() * next.getValue())));
+		 * next.setBounds(new Bounds(current.getBounds().getTo(),
+		 * Constant.DOUBLE_MAX_VALUE));
+		 * }
+		 * }
+		 */
 	}
-
-	
 
 }

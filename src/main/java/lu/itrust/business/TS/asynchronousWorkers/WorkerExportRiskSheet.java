@@ -71,6 +71,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.messagehandler.TaskName;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisSetting;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
@@ -639,11 +640,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
 			spreadsheetMLPackage.save(file);
-			
+
 			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.RISK_SHEET_EXCEL)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "RiskSheet", analysis.getVersion(),
-					"xlsx",System.nanoTime());
+					"xlsx", System.nanoTime());
 
 			final WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(),
 					analysis.getVersion(), daoUser.get(username), filename,
@@ -736,9 +738,10 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			wordprocessingMLPackage.save(workFile);
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.RISK_SHEET_WORD)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "RiskSheet", analysis.getVersion(),
-					"docx",System.nanoTime());
+					"docx", System.nanoTime());
 
 			final WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(),
 					analysis.getVersion(), user, filename, workFile.length(),

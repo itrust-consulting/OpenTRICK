@@ -476,7 +476,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.perform(get("/KnowledgeBase/Standard/Template").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn();
-		assertEquals("attachment; filename=\"05-X_TSE_KB-Template-MeasureCollection_v2.13c.xlsx\"",
+		assertEquals("attachment; filename=\"R5xx_STA_TSE_KB-Template-MeasureCollection_v2.13c.xlsx\"",
 				result.getResponse().getHeaderValue("Content-Disposition"));
 		assertEquals(templateResource.contentLength(), result.getResponse().getContentLengthLong());
 		assertEquals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -534,7 +534,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.andExpect(status().isOk()).andReturn();
 		assertEquals(
 				String.format("attachment; filename=\"%s\"",
-						"05-X_TSE_KB-Standardfortest-MeasureCollection_v2015.xlsx"),
+						"R5xx_STA_TSE_KB-Standardfortest-MeasureCollection_v2015.xlsx"),
 				result.getResponse().getHeaderValue("Content-Disposition"));
 		assertEquals(FilenameUtils.getExtension(importStandard), result.getResponse().getContentType());
 	}

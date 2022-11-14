@@ -229,10 +229,10 @@ public class ControllerCustomer {
 				if (templateForm.getFile().getSize() > maxSize)
 					result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
 				else {
-					template.setFilename(templateForm.getFile().getOriginalFilename());
-					template.setSize(templateForm.getFile().getSize());
+					template.setName(templateForm.getFile().getOriginalFilename());
+					template.setLength(templateForm.getFile().getSize());
 					if (DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
-						template.setFile(templateForm.getFile().getBytes());
+						template.setData(templateForm.getFile().getBytes());
 					else
 						result.put("file", messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 				}
@@ -241,7 +241,7 @@ public class ControllerCustomer {
 			}
 		}
 
-		if (template.getFile() == null || template.getFile().length == 0)
+		if (template.getData() == null || template.getData().length == 0)
 			result.put("file", messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
 
 		if (!StringUtils.hasText(templateForm.getLabel()))
@@ -349,12 +349,12 @@ public class ControllerCustomer {
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("%s_v%s.docx", reportTemplate.getLabel(), reportTemplate.getVersion()) + "\"");
 
 		// set sqlite file size as response size
-		response.setContentLength((int) reportTemplate.getSize());
+		response.setContentLength((int) reportTemplate.getLength());
 
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
 		// client side the sqlite file)
-		FileCopyUtils.copy(reportTemplate.getFile(), response.getOutputStream());
+		FileCopyUtils.copy(reportTemplate.getData(), response.getOutputStream());
 		/**
 		 * Log
 		 */

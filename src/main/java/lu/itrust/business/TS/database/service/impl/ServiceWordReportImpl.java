@@ -37,8 +37,8 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#getByFilename(java.lang.String)
 	 */
 	@Override
-	public WordReport getByFilename(String fileName) {
-		return daoWordReport.getByFilename(fileName);
+	public WordReport getByName(String fileName) {
+		return daoWordReport.getByName(fileName);
 	}
 
 	/* (non-Javadoc)

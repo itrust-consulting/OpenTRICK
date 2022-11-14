@@ -65,6 +65,7 @@ import lu.itrust.business.TS.helper.chartJS.item.ColorBound;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
+import lu.itrust.business.TS.model.analysis.ExportFileName;
 import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -185,7 +186,8 @@ public class ControllerFieldEditor {
 	@Autowired
 	private ServiceRiskProfile serviceRiskProfile;
 
-	private Pattern computeCostPattern = Pattern.compile("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
+	private Pattern computeCostPattern = Pattern.compile(
+			"internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
 
 	private Pattern riskProfileNoFieldPattern = Pattern.compile("^*\\.id$|^\\*.asset\\.*$|^*.scenario\\.*");
 
@@ -208,7 +210,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/ActionPlanEntry/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 
 			// retrieve analysis
@@ -218,10 +221,12 @@ public class ControllerFieldEditor {
 			// retrieve phase
 			Integer number = (Integer) FieldValue(fieldEditor);
 			if (number == null)
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 			if (phase == null)
-				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
 			// set new phase value of measure
 			ape.getMeasure().setPhase(phase);
@@ -230,7 +235,8 @@ public class ControllerFieldEditor {
 			serviceMeasure.saveOrUpdate(ape.getMeasure());
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.ationplan.updated", null, "ActionPlan entry was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.ationplan.updated", null,
+					"ActionPlan entry was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -238,7 +244,8 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -254,15 +261,18 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/Assessment/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Assessment', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Result result = updateAssessment(fieldEditor, serviceAssessment.getFromAnalysisById(idAnalysis, elementID), idAnalysis, locale, false);
+		Result result = updateAssessment(fieldEditor, serviceAssessment.getFromAnalysisById(idAnalysis, elementID),
+				idAnalysis, locale, false);
 		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
 	}
 
 	@PostMapping(value = "/Asset/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String asset(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String asset(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 		try {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -273,7 +283,8 @@ public class ControllerFieldEditor {
 			if (validator == null)
 				serviceDataValidation.register(validator = new AssetValidator());
 			if (!validator.isEditable(fieldEditor.getFieldName()))
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 
 			Object value = FieldValue(fieldEditor);
 
@@ -285,19 +296,22 @@ public class ControllerFieldEditor {
 			Field field = FindField(Asset.class, fieldEditor.getFieldName());
 			// check if field is a phase
 			if (!SetFieldValue(asset, field, value))
-				JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+				JsonMessage
+						.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
 
 			// update measure
 			serviceAsset.saveOrUpdate(asset);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", locale));
+			return JsonMessage.Success(
+					messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -313,15 +327,19 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/Estimation/Update", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and @permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public Result estimation(@RequestBody FieldEditor fieldEditor, @RequestParam("asset") int idAsset, @RequestParam("scenario") int idScenario, HttpSession session, Locale locale,
+	public Result estimation(@RequestBody FieldEditor fieldEditor, @RequestParam("asset") int idAsset,
+			@RequestParam("scenario") int idScenario, HttpSession session, Locale locale,
 			Principal principal) {
 		if (fieldEditor.getFieldName().equals("scenario.description")) {
-			Scenario scenario = serviceScenario.getFromAnalysisById((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idScenario);
+			Scenario scenario = serviceScenario
+					.getFromAnalysisById((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idScenario);
 			if (scenario == null)
-				return Result.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
+				return Result.Error(
+						messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
 			scenario.setDescription(fieldEditor.getValue().toString().trim());
 			serviceScenario.saveOrUpdate(scenario);
-			return Result.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", locale));
+			return Result.Success(messageSource.getMessage("success.scenario.updated", null,
+					"Scenario was successfully updated", locale));
 		} else if (fieldEditor.getFieldName().startsWith("riskProfile."))
 			return updateRiskProfile(fieldEditor, idAsset, idScenario, session, locale);
 		else
@@ -340,10 +358,12 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/ImpactParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ImpactParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			if (fieldEditor.getFieldName().equals("acronym"))
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
@@ -361,34 +381,39 @@ public class ControllerFieldEditor {
 			// set field
 			Field field = FindField(ImpactParameter.class, fieldEditor.getFieldName());
 			if (field == null)
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			field.setAccessible(true);
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				switch (fieldEditor.getFieldName()) {
-				case "value":
-					final Analysis analysis = serviceAnalysis.get(idAnalysis);
-					parameter.setValue(parameter.getValue() * 1000);
-					if (parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)) {
-						ImpactParameter.ComputeScales(analysis.getImpactParameters().stream().filter(i -> i.getType().equals(parameter.getType())).collect(Collectors.toList()));
-						UpdateAssessmentImpact(analysis, parameter.getType());
-					} else
+					case "value":
+						final Analysis analysis = serviceAnalysis.get(idAnalysis);
+						parameter.setValue(parameter.getValue() * 1000);
+						if (parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)) {
+							ImpactParameter.ComputeScales(analysis.getImpactParameters().stream()
+									.filter(i -> i.getType().equals(parameter.getType())).collect(Collectors.toList()));
+							UpdateAssessmentImpact(analysis, parameter.getType());
+						} else
+							serviceImpactParameter.saveOrUpdate(parameter);
+						break;
+					case "label":
+						List<ImpactParameter> impactParameters = serviceImpactParameter
+								.findByIdAnalysisAndLevel(idAnalysis, parameter.getLevel());
+						impactParameters.forEach(impact -> impact.setLabel(fieldEditor.getValue().toString()));
+						serviceImpactParameter.saveOrUpdate(impactParameters);
+						break;
+					default:
 						serviceImpactParameter.saveOrUpdate(parameter);
-					break;
-				case "label":
-					List<ImpactParameter> impactParameters = serviceImpactParameter.findByIdAnalysisAndLevel(idAnalysis, parameter.getLevel());
-					impactParameters.forEach(impact -> impact.setLabel(fieldEditor.getValue().toString()));
-					serviceImpactParameter.saveOrUpdate(impactParameters);
-					break;
-				default:
-					serviceImpactParameter.saveOrUpdate(parameter);
-					break;
+						break;
 				}
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.impact.update", null, "Impact was successfully update", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.impact.update", null,
+						"Impact was successfully update", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -396,7 +421,8 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -411,7 +437,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/History/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'History', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String history(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) throws Exception {
+	public String history(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale,
+			HttpSession session, Principal principal) throws Exception {
 
 		try {
 			// retrieve analysis
@@ -439,18 +466,21 @@ public class ControllerFieldEditor {
 				serviceHistory.saveOrUpdate(history);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.history.updated", null, "History was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.history.updated", null,
+						"History was successfully updated", locale));
 			} else
 
 				// return error rmessage
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -465,7 +495,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/ItemInformation/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ItemInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String itemInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) throws Exception {
+	public String itemInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale,
+			HttpSession session, Principal principal) throws Exception {
 		try {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -478,17 +509,20 @@ public class ControllerFieldEditor {
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null, "Item information was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null,
+						"Item information was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -504,10 +538,12 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/LikelihoodParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'LikelihoodParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String likelihoodParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String likelihoodParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			if (fieldEditor.getFieldName().equals("acronym"))
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
@@ -526,24 +562,28 @@ public class ControllerFieldEditor {
 			Field field = FindField(LikelihoodParameter.class, fieldEditor.getFieldName());
 
 			if (field == null)
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			field.setAccessible(true);
 
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				if ("value".equals(fieldEditor.getFieldName())) {
 					final Analysis analysis = serviceAnalysis.get(idAnalysis);
-					analysis.getLikelihoodParameters().stream().filter(p -> p.getId().equals(elementID)).forEach(p -> p.setValue(parameter.getValue()));
+					analysis.getLikelihoodParameters().stream().filter(p -> p.getId().equals(elementID))
+							.forEach(p -> p.setValue(parameter.getValue()));
 					ParameterManager.ComputeLikehoodValue(analysis.getLikelihoodParameters());
 					UpdateAssessmentLikelihood(analysis);
 				} else
 					serviceLikelihoodParameter.saveOrUpdate(parameter);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.likelihood.update", null, "Likelihood was successfully update", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.likelihood.update", null,
+						"Likelihood was successfully update", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -551,7 +591,8 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -567,7 +608,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/MaturityMeasure/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String maturityMeasure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String maturityMeasure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
 
@@ -579,7 +621,8 @@ public class ControllerFieldEditor {
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 
 				// retrieve parameters
-				List<SimpleParameter> simpleParameters = serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis);
+				List<SimpleParameter> simpleParameters = serviceSimpleParameter
+						.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis);
 
 				// retrieve single parameters
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -603,12 +646,14 @@ public class ControllerFieldEditor {
 						serviceMeasure.saveOrUpdate(measure);
 
 						// return success message
-						return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+						return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null,
+								"Measure was successfully updated", locale));
 					}
 				}
 
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			} else
 
 				// update as if it would be a normal measure
@@ -619,17 +664,20 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
 	@PostMapping(value = "/MaturityParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String maturityparameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) throws Exception {
+	public String maturityparameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale,
+			HttpSession session, Principal principal) throws Exception {
 
 		try {
 			if (!smlPatten.matcher(fieldEditor.getFieldName()).matches())
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
@@ -652,17 +700,20 @@ public class ControllerFieldEditor {
 				// update field
 				serviceMaturityParameter.saveOrUpdate(parameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+						"Parameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -678,7 +729,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/Measure/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String measure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String measure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 
 		try {
 			// retrieve analysis
@@ -697,10 +749,12 @@ public class ControllerFieldEditor {
 					Integer number = null;
 					number = (Integer) FieldValue(fieldEditor);
 					if (number == null)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+								"Data cannot be updated", locale));
 					Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 					if (phase == null)
-						return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
+						return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null,
+								"Phase cannot be found", locale));
 
 					// set new phase number
 					measure.setPhase(phase);
@@ -710,7 +764,8 @@ public class ControllerFieldEditor {
 
 					Object value = FieldValue(fieldEditor);
 					if (value == null)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+								"Data cannot be updated", locale));
 
 					// get validator
 					if (!serviceDataValidation.isRegistred(Measure.class))
@@ -723,9 +778,11 @@ public class ControllerFieldEditor {
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
 						acronyms.addAll(serviceDynamicParameter.findAcronymByAnalysisId(idAnalysis));
-						if (!(new StringExpressionParser(value.toString(), StringExpressionParser.IMPLEMENTATION).isValid(acronyms)))
+						if (!(new StringExpressionParser(value.toString(), StringExpressionParser.IMPLEMENTATION)
+								.isValid(acronyms)))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
-									"Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
+									"Invalid expression. Check the syntax and make sure that all used parameters exist.",
+									locale));
 						measure.setImplementationRate(value);
 					} else
 						SetFieldValue(measure, field, value);
@@ -761,7 +818,8 @@ public class ControllerFieldEditor {
 
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+									"Data cannot be updated", locale));
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
@@ -772,8 +830,10 @@ public class ControllerFieldEditor {
 
 						if (field != null) {
 							field.setAccessible(true);
-							MeasureProperties properties = DAOHibernate.Initialise(normalMeasure.getMeasurePropertyList());
-							if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative")
+							MeasureProperties properties = DAOHibernate
+									.Initialise(normalMeasure.getMeasurePropertyList());
+							if (field.getName().equals("preventive") || field.getName().equals("detective")
+									|| field.getName().equals("limitative")
 									|| field.getName().equals("corrective")) {
 								if (!(fieldEditor.getValue() instanceof Integer))
 									fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
@@ -781,7 +841,8 @@ public class ControllerFieldEditor {
 							field.set(properties, fieldEditor.getValue());
 							normalMeasure.setMeasurePropertyList(properties);
 						} else if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
-							normalMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
+							normalMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(),
+									(Integer) fieldEditor.getValue());
 						else {
 							AssetTypeValue assetData = null;
 							for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues()) {
@@ -810,7 +871,8 @@ public class ControllerFieldEditor {
 
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+									"Data cannot be updated", locale));
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
@@ -821,8 +883,10 @@ public class ControllerFieldEditor {
 
 						if (field != null) {
 							field.setAccessible(true);
-							MeasureProperties properties = DAOHibernate.Initialise(assetMeasure.getMeasurePropertyList());
-							if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative")
+							MeasureProperties properties = DAOHibernate
+									.Initialise(assetMeasure.getMeasurePropertyList());
+							if (field.getName().equals("preventive") || field.getName().equals("detective")
+									|| field.getName().equals("limitative")
 									|| field.getName().equals("corrective")) {
 								if (!(fieldEditor.getValue() instanceof Integer))
 									fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
@@ -830,7 +894,8 @@ public class ControllerFieldEditor {
 							field.set(properties, fieldEditor.getValue());
 							assetMeasure.setMeasurePropertyList(properties);
 						} else if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
-							assetMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
+							assetMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(),
+									(Integer) fieldEditor.getValue());
 						else {
 							MeasureAssetValue assetData = null;
 							for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues()) {
@@ -850,7 +915,8 @@ public class ControllerFieldEditor {
 				}
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null,
+					"Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -858,7 +924,8 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -873,7 +940,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/SimpleParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) throws Exception {
+	public String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale,
+			HttpSession session, Principal principal) throws Exception {
 
 		try {
 			// retrieve analysis id
@@ -891,23 +959,28 @@ public class ControllerFieldEditor {
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			switch (simpleParameter.getTypeName()) {
-			case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
-			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
-			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
-				if (((double) value) < 0 || ((double) value) > 100)
-					return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
-							String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
-				break;
-			case Constant.PARAMETERTYPE_TYPE_SINGLE_NAME:
-				if (simpleParameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
-					if (((double) value) <= 0)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0", locale));
-				} else if (simpleParameter.getDescription().equals(Constant.PARAMETER_MAX_RRF) || simpleParameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
+				case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
+				case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
+				case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
 					if (((double) value) < 0 || ((double) value) > 100)
-						return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
+						return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound",
+								new Object[] { value },
 								String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
-				}
-				break;
+					break;
+				case Constant.PARAMETERTYPE_TYPE_SINGLE_NAME:
+					if (simpleParameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+						if (((double) value) <= 0)
+							return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime",
+									null, "Default lifetime has to be > 0", locale));
+					} else if (simpleParameter.getDescription().equals(Constant.PARAMETER_MAX_RRF)
+							|| simpleParameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
+						if (((double) value) < 0 || ((double) value) > 100)
+							return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound",
+									new Object[] { value },
+									String.format("Invalid input: value (%f) should be between 0 and 100", value),
+									locale));
+					}
+					break;
 			}
 			// create field
 			Field field = FindField(SimpleParameter.class, fieldEditor.getFieldName());
@@ -916,17 +989,20 @@ public class ControllerFieldEditor {
 				// update field
 				serviceSimpleParameter.saveOrUpdate(simpleParameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "SimpleParameter was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+						"SimpleParameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -942,7 +1018,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/Phase/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String phase(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String phase(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 
 		try {
 			// retrieve analysis
@@ -958,7 +1035,8 @@ public class ControllerFieldEditor {
 			// update phase
 			servicePhase.saveOrUpdate(phase);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.phase.updated", null, "Phase was successfully updated", locale));
+			return JsonMessage.Success(
+					messageSource.getMessage("success.phase.updated", null, "Phase was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -966,13 +1044,15 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	@PostMapping(value = "/ReportSetting", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object reportSetting(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	public Object reportSetting(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale,
+			Principal principal) {
 		final Map<String, String> result = new LinkedHashMap<>();
 		final ReportSetting setting = ReportSetting.valueOf(fieldEditor.getFieldName());
 		if (setting == null)
@@ -998,6 +1078,30 @@ public class ControllerFieldEditor {
 		return result;
 	}
 
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PostMapping(value = "/ExportFileName", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public Object exportFIleName(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale,
+			Principal principal) {
+		final Map<String, String> result = new LinkedHashMap<>();
+		final ExportFileName setting = ExportFileName.valueOf(fieldEditor.getFieldName());
+		if (setting == null)
+			result.put("error", messageSource.getMessage("error.export.filename.setting.not.found", null, locale));
+		else {
+			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			final String value = fieldEditor.getValue() == null ? null : fieldEditor.getValue().toString();
+			if (StringUtils.hasText(value))
+				analysis.setSetting(setting.name(), value.trim());
+			else
+				analysis.removeSetting(setting.name());
+			if (result.isEmpty()) {
+				serviceAnalysis.saveOrUpdate(analysis);
+				result.put("value", analysis.findSetting(setting));
+				result.put("success", messageSource.getMessage("success.update.export.filename", null, locale));
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * parameter: <br>
 	 * Description
@@ -1009,7 +1113,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/RiskAcceptanceParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskAcceptanceParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String riskAcceptanceParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
+	public String riskAcceptanceParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 		try {
 			// retrieve analysis id
@@ -1019,29 +1124,34 @@ public class ControllerFieldEditor {
 			// create field
 			Field field = FindField(RiskAcceptanceParameter.class, fieldEditor.getFieldName());
 			// set field data
-			if (fieldEditor.getFieldName().equals("color") && !hexColor.matcher(fieldEditor.getValue().toString()).matches())
+			if (fieldEditor.getFieldName().equals("color")
+					&& !hexColor.matcher(fieldEditor.getValue().toString()).matches())
 				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
 			if (SetFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceRiskAcceptanceParameter.saveOrUpdate(simpleParameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+						"Parameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
 	@PostMapping(value = "/RiskInformation/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String riskInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String riskInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
@@ -1055,18 +1165,21 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			field.setAccessible(true);
 			if (!SetFieldData(field, riskInformation, fieldEditor, null))
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			// update phase
 			serviceRiskInformation.saveOrUpdate(riskInformation);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null,
+					"Risk information was successfully updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1082,9 +1195,11 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/RiskProfile/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskProfile', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String riskProfile(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String riskProfile(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Result result = updateRiskProfile(fieldEditor, serviceRiskProfile.getFromAnalysisById(idAnalysis, elementID), idAnalysis, locale);
+		Result result = updateRiskProfile(fieldEditor, serviceRiskProfile.getFromAnalysisById(idAnalysis, elementID),
+				idAnalysis, locale);
 		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
 	}
 
@@ -1102,7 +1217,8 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/Scenario/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String scenario(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String scenario(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 		try {
 
 			// retrieve analysis
@@ -1122,7 +1238,8 @@ public class ControllerFieldEditor {
 			if (field != null) {
 				// check if field is a phase
 				field.setAccessible(true);
-				if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative") || field.getName().equals("corrective")) {
+				if (field.getName().equals("preventive") || field.getName().equals("detective")
+						|| field.getName().equals("limitative") || field.getName().equals("corrective")) {
 					if (!(fieldEditor.getValue() instanceof Integer))
 						fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
 				}
@@ -1135,18 +1252,21 @@ public class ControllerFieldEditor {
 				if (Scenario.isCategoryKey(fieldEditor.getFieldName()))
 					scenario.setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
 				else {
-					AssetTypeValue assetData = scenario.getAssetTypeValues().stream().filter(assetTypeValue -> assetTypeValue.hasSameType(fieldEditor.getFieldName())).findAny()
+					AssetTypeValue assetData = scenario.getAssetTypeValues().stream()
+							.filter(assetTypeValue -> assetTypeValue.hasSameType(fieldEditor.getFieldName())).findAny()
 							.orElse(null);
 					if (assetData != null)
 						assetData.setValue((Integer) fieldEditor.getValue());
 					else
-						return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+						return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+								"Field does not support editing on the fly", locale));
 				}
 			}
 
 			serviceScenario.saveOrUpdate(scenario);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null,
+					"Scenario was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -1154,7 +1274,8 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1170,13 +1291,15 @@ public class ControllerFieldEditor {
 	 */
 	@PostMapping(value = "/SOA/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String soa(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public String soa(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
 
 		try {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve measure
-			AbstractNormalMeasure measure = (AbstractNormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+			AbstractNormalMeasure measure = (AbstractNormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis,
+					elementID);
 
 			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
 
@@ -1184,7 +1307,8 @@ public class ControllerFieldEditor {
 
 			// check if field is a phase
 			if (!SetFieldData(field, mesprep, fieldEditor))
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 			measure.setMeasurePropertyList(mesprep);
 
@@ -1192,7 +1316,8 @@ public class ControllerFieldEditor {
 			serviceMeasure.saveOrUpdate(measure);
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null,
+					"Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -1200,19 +1325,22 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
 	@PostMapping(value = "/Measure/{id}/Update", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #id, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public Result updateMeasure(@PathVariable int id, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	public Result updateMeasure(@PathVariable int id, @RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale, Principal principal) {
 		Result result = null;
 		try {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (fieldEditor.getFieldName().equalsIgnoreCase("cost"))
-				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return Result.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Measure measure = serviceMeasure.get(id);
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 				Object value = null;
@@ -1226,7 +1354,8 @@ public class ControllerFieldEditor {
 			} else {
 				Field field = FindField(measure.getClass(), fieldEditor.getFieldName());
 				if (field == null)
-					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+					return Result.Error(
+							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 				Object value = FieldValue(fieldEditor);
 
@@ -1238,9 +1367,11 @@ public class ControllerFieldEditor {
 					return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 				if (SetFieldValue(measure, field, value))
-					result = Result.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+					result = Result.Success(messageSource.getMessage("success.measure.updated", null,
+							"Measure was successfully updated", locale));
 				else
-					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+					return Result.Error(
+							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 				Object realValue = null;
 				if (fieldEditor.getFieldName().equals("investment"))
@@ -1250,17 +1381,22 @@ public class ControllerFieldEditor {
 				if (computeCostPattern.matcher(fieldEditor.getFieldName()).find()) {
 					Measure.ComputeCost(measure, serviceAnalysis.get(idAnalysis));
 					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
-					result.add(new FieldValue("cost", format(measure.getCost() * .001, numberFormat, 0), format(measure.getCost(), numberFormat, 0) + " €"));
+					result.add(new FieldValue("cost", format(measure.getCost() * .001, numberFormat, 0),
+							format(measure.getCost(), numberFormat, 0) + " €"));
 					if (realValue == null)
-						result.add(new FieldValue(fieldEditor.getFieldName(), format((Double) field.get(measure), numberFormat, 3)));
+						result.add(new FieldValue(fieldEditor.getFieldName(),
+								format((Double) field.get(measure), numberFormat, 3)));
 					else
 						result.add(
-								new FieldValue(fieldEditor.getFieldName(), format((Double) realValue * .001, numberFormat, 3), format((Double) realValue, numberFormat, 0) + " €"));
+								new FieldValue(fieldEditor.getFieldName(),
+										format((Double) realValue * .001, numberFormat, 3),
+										format((Double) realValue, numberFormat, 0) + " €"));
 				}
 			}
 			serviceMeasure.saveOrUpdate(measure);
 			if (result == null)
-				result = Result.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+				result = Result.Success(messageSource.getMessage("success.measure.updated", null,
+						"Measure was successfully updated", locale));
 		} catch (TrickException e) {
 			if (result == null)
 				result = Result.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1268,9 +1404,11 @@ public class ControllerFieldEditor {
 				result.turnOnError(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			if (result == null)
-				result = Result.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+				result = Result.Error(messageSource.getMessage("error.unknown.edit.field", null,
+						"An unknown error occurred while updating field", locale));
 			else
-				result.turnOnError(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+				result.turnOnError(messageSource.getMessage("error.unknown.edit.field", null,
+						"An unknown error occurred while updating field", locale));
 			TrickLogManager.Persist(e);
 		}
 		return result;
@@ -1297,13 +1435,17 @@ public class ControllerFieldEditor {
 		return numberFormat.format(JSTLFunctions.round(value, decimal));
 	}
 
-	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale, boolean netImportance) {
+	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale,
+			boolean netImportance) {
 
 		try {
 			if (assessment == null)
-				return Result.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
-			if (!(assessment.hasImpact(fieldEditor.getFieldName()) || assessmentEditableField.matcher(fieldEditor.getFieldName()).find()))
-				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return Result.Error(messageSource.getMessage("error.assessment.not_found", null,
+						"Assessment cannot be found", locale));
+			if (!(assessment.hasImpact(fieldEditor.getFieldName())
+					|| assessmentEditableField.matcher(fieldEditor.getFieldName()).find()))
+				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 			// set validator
 			if (!serviceDataValidation.isRegistred(Assessment.class))
 				serviceDataValidation.register(new AssessmentValidator());
@@ -1316,11 +1458,13 @@ public class ControllerFieldEditor {
 				if (optional.isPresent()) {
 					final double value = optional.get();
 					if (value < 0)
-						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
+						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null,
+								"Impact cannot be negative", locale));
 					fieldEditor.setValue(value * 1000);
 				} else if (!factory.hasAcronym(fieldEditor.getValue().toString(), fieldEditor.getFieldName())) {
 					if (!fieldEditor.getFieldName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
-						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
+						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null,
+								"Given value is not supported", locale));
 				}
 
 				final IValue oldValue = assessment.getImpact(fieldEditor.getFieldName());
@@ -1328,7 +1472,8 @@ public class ControllerFieldEditor {
 				final IValue newValue = factory.findValue(fieldEditor.getValue(), fieldEditor.getFieldName());
 
 				if (newValue == null)
-					return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
+					return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null,
+							"Given value is not supported", locale));
 				if (!oldValue.merge(newValue)) {
 					assessment.setImpact(newValue);
 					toDelete = oldValue;
@@ -1343,12 +1488,14 @@ public class ControllerFieldEditor {
 					if (optional.isPresent()) {
 						final double value = optional.get();
 						if (value < 0)
-							return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
+							return Result.Error(messageSource.getMessage("error.negatif.probability.value", null,
+									"Probability cannot be negative", locale));
 						likelihood = factory.findProb(value);
 					} else {
 						likelihood = factory.findProb(fieldEditor.getValue());
 						if (likelihood == null)
-							return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
+							return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null,
+									"Given value is not supported", locale));
 					}
 
 					if (assessment.getLikelihood() != null && assessment.getLikelihood().merge(likelihood))
@@ -1368,43 +1515,66 @@ public class ControllerFieldEditor {
 				// set data to field
 				if (!SetFieldData(field, assessment, fieldEditor))
 					// return error message
-					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+					return Result.Error(
+							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			}
-			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
+			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null,
+					"Assessment was successfully updated", locale));
 			// compute new ALE
 			if (factory != null || fieldEditor.getFieldName().equals("uncertainty")) {
 				if (factory == null)
 					factory = createFactoryForAssessment(idAnalysis);
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 				if (netImportance && AnalysisType.isQualitative(type))
-					result.add(updateFieldValue(idAnalysis, factory.findImportance(assessment), new FieldValue("computedNetImportance")));
+					result.add(updateFieldValue(idAnalysis, factory.findImportance(assessment),
+							new FieldValue("computedNetImportance")));
 				if (AnalysisType.isQuantitative(type)) {
 					AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
-					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
-					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
-					result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2), format(assessment.getALEP(), numberFormat, 0) + " €"));
+					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2),
+							format(assessment.getALE(), numberFormat, 0) + " €"));
+					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2),
+							format(assessment.getALEO(), numberFormat, 0) + " €"));
+					result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2),
+							format(assessment.getALEP(), numberFormat, 0) + " €"));
 					if (fieldEditor.getFieldName().equals("IMPACT"))
 						result.add(new FieldValue("IMPACT", null, assessment.getImpact("IMPACT").getVariable()));
 					else if (fieldEditor.getFieldName().equals("likelihood"))
-						result.add(new FieldValue("likelihood", null, format(assessment.getLikelihoodReal(), numberFormat, 3)));
+						result.add(new FieldValue("likelihood", null,
+								format(assessment.getLikelihoodReal(), numberFormat, 3)));
 					else {
-						RiskRegisterItem registerItem = serviceRiskRegister.getByAssetIdAndScenarioId(assessment.getAsset().getId(), assessment.getScenario().getId());
+						RiskRegisterItem registerItem = serviceRiskRegister.getByAssetIdAndScenarioId(
+								assessment.getAsset().getId(), assessment.getScenario().getId());
 						if (registerItem != null) {
 							double uncertainty = assessment.getUncertainty(), qUncertainty = 1.0 / uncertainty;
-							result.add(new FieldValue("ALE-RAW", format(registerItem.getRawEvaluation().getImportance() * .001, numberFormat, 2),
+							result.add(new FieldValue("ALE-RAW",
+									format(registerItem.getRawEvaluation().getImportance() * .001, numberFormat, 2),
 									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
-							result.add(new FieldValue("ALEO-RAW", format(registerItem.getRawEvaluation().getImportance() * qUncertainty * .001, numberFormat, 2),
+							result.add(new FieldValue("ALEO-RAW",
+									format(registerItem.getRawEvaluation().getImportance() * qUncertainty * .001,
+											numberFormat, 2),
 									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
-							result.add(new FieldValue("ALEP-RAW", format(registerItem.getRawEvaluation().getImportance() * uncertainty * .001, numberFormat, 2),
-									format(registerItem.getRawEvaluation().getImportance() * assessment.getUncertainty(), numberFormat, 0) + " €"));
+							result.add(new FieldValue("ALEP-RAW",
+									format(registerItem.getRawEvaluation().getImportance() * uncertainty * .001,
+											numberFormat, 2),
+									format(registerItem.getRawEvaluation().getImportance()
+											* assessment.getUncertainty(), numberFormat, 0) + " €"));
 
-							result.add(new FieldValue("ALE-EXP", format(registerItem.getExpectedEvaluation().getImportance() * .001, numberFormat, 2),
-									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0) + " €"));
-							result.add(new FieldValue("ALEO-EXP", format(registerItem.getExpectedEvaluation().getImportance() * qUncertainty * .001, numberFormat, 2),
-									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0) + " €"));
-							result.add(new FieldValue("ALEP-EXP", format(registerItem.getExpectedEvaluation().getImportance() * uncertainty * .001, numberFormat, 2),
-									format(registerItem.getExpectedEvaluation().getImportance() * assessment.getUncertainty(), numberFormat, 0) + " €"));
+							result.add(new FieldValue("ALE-EXP",
+									format(registerItem.getExpectedEvaluation().getImportance() * .001, numberFormat,
+											2),
+									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0)
+											+ " €"));
+							result.add(new FieldValue("ALEO-EXP",
+									format(registerItem.getExpectedEvaluation().getImportance() * qUncertainty * .001,
+											numberFormat, 2),
+									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0)
+											+ " €"));
+							result.add(new FieldValue("ALEP-EXP",
+									format(registerItem.getExpectedEvaluation().getImportance() * uncertainty * .001,
+											numberFormat, 2),
+									format(registerItem.getExpectedEvaluation().getImportance()
+											* assessment.getUncertainty(), numberFormat, 0) + " €"));
 						}
 					}
 				}
@@ -1420,12 +1590,15 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
-	private Result updateAssessment(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Locale locale) {
-		return updateAssessment(fieldEditor, serviceAssessment.getByAssetAndScenario(idAsset, idScenario), (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale,
+	private Result updateAssessment(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session,
+			Locale locale) {
+		return updateAssessment(fieldEditor, serviceAssessment.getByAssetAndScenario(idAsset, idScenario),
+				(Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale,
 				true);
 	}
 
@@ -1436,7 +1609,8 @@ public class ControllerFieldEditor {
 				if (assessment.getLikelihood() == null)
 					return;
 				if (assessment.getLikelihood() instanceof FormulaValue)
-					assessment.getLikelihood().merge(factory.findDynValue(assessment.getLikelihood().getVariable(), Constant.PARAMETER_TYPE_PROPABILITY_NAME));
+					assessment.getLikelihood().merge(factory.findDynValue(assessment.getLikelihood().getVariable(),
+							Constant.PARAMETER_TYPE_PROPABILITY_NAME));
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 			});
 		}
@@ -1447,9 +1621,13 @@ public class ControllerFieldEditor {
 		if (!analysis.getAssessments().isEmpty()) {
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
 			analysis.getAssessments().forEach(assessment -> {
-				assessment.getImpacts().stream().filter(value -> value.getName().equals(type.getName()) && (value instanceof RealValue || value instanceof FormulaValue)).findAny()
+				assessment.getImpacts().stream()
+						.filter(value -> value.getName().equals(type.getName())
+								&& (value instanceof RealValue || value instanceof FormulaValue))
+						.findAny()
 						.ifPresent(value -> {
-							final IValue impact = value instanceof AbstractValue ? factory.findValue(value.getRaw(), type.getName())
+							final IValue impact = value instanceof AbstractValue
+									? factory.findValue(value.getRaw(), type.getName())
 									: factory.findDynValue(value.getVariable(), type.getName());
 							if (impact != null) {
 								if (value instanceof AbstractValue)
@@ -1483,25 +1661,33 @@ public class ControllerFieldEditor {
 		return value;
 	}
 
-	private Result updateRiskProfile(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Locale locale) {
-		return updateRiskProfile(fieldEditor, serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario), (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale);
+	private Result updateRiskProfile(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session,
+			Locale locale) {
+		return updateRiskProfile(fieldEditor, serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario),
+				(Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale);
 	}
 
-	private Result updateRiskProfile(FieldEditor fieldEditor, RiskProfile riskProfile, Integer idAnalysis, Locale locale) {
+	private Result updateRiskProfile(FieldEditor fieldEditor, RiskProfile riskProfile, Integer idAnalysis,
+			Locale locale) {
 		try {
 			if (riskProfileNoFieldPattern.matcher(fieldEditor.getFieldName()).matches())
-				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
-			Result result = Result.Success(messageSource.getMessage("success.risk_profile.updated", null, "Risk profile was successfully updated", locale));
+				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
+			Result result = Result.Success(messageSource.getMessage("success.risk_profile.updated", null,
+					"Risk profile was successfully updated", locale));
 			String[] fields = fieldEditor.getFieldName().split("\\.");
 			if (fields.length < 2)
-				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 			Field field = FindField(RiskProfile.class, fields[1]);
 			if (field == null)
-				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						"Field does not support editing on the fly", locale));
 			field.setAccessible(true);
 			if (field.getType().isAssignableFrom(RiskProbaImpact.class)) {
 				if (fields.length != 3)
-					return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
+					return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+							"Field does not support editing on the fly", locale));
 				RiskProbaImpact probaImpact = (RiskProbaImpact) field.get(riskProfile);
 				if (probaImpact == null)
 					probaImpact = new RiskProbaImpact();
@@ -1510,29 +1696,35 @@ public class ControllerFieldEditor {
 					if (fields[2].equals("probability")) {
 						LikelihoodParameter parameter = serviceLikelihoodParameter.findOne((Integer) id, idAnalysis);
 						if (parameter == null)
-							return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+							return Result.Error(messageSource.getMessage("error.edit.type.field", null,
+									"Data cannot be updated", locale));
 						probaImpact.setProbability(parameter);
 					} else {
 						ImpactParameter parameter = serviceImpactParameter.findOne((Integer) id, idAnalysis);
 						if (parameter == null)
-							return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+							return Result.Error(messageSource.getMessage("error.edit.type.field", null,
+									"Data cannot be updated", locale));
 						probaImpact.add(parameter);
 					}
 				} else
-					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+					return Result.Error(
+							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 				result.add(
-						updateFieldValue(idAnalysis, probaImpact.getImportance(), new FieldValue(fields[1].startsWith("raw") ? "computedRawImportance" : "computedExpImportance")));
+						updateFieldValue(idAnalysis, probaImpact.getImportance(), new FieldValue(
+								fields[1].startsWith("raw") ? "computedRawImportance" : "computedExpImportance")));
 			} else if (field.getType().isAssignableFrom(RiskStrategy.class))
 				riskProfile.setRiskStrategy(RiskStrategy.valueOf(fieldEditor.getValue().toString()));
 			else if (field.getName().equals("identifier")) {
 				String identifier = fieldEditor.getValue() == null ? "" : fieldEditor.getValue().toString().trim();
 				if (!identifier.isEmpty() && serviceRiskProfile.isUsed(identifier, idAnalysis))
-					return Result.Error(messageSource.getMessage("error.identifier.is_in_used", null, "Identifier are not available", locale));
+					return Result.Error(messageSource.getMessage("error.identifier.is_in_used", null,
+							"Identifier are not available", locale));
 				else
 					riskProfile.setIdentifier(identifier);
 			} else if (!SetFieldData(field, riskProfile, fieldEditor))
-				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return Result.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			serviceRiskProfile.saveOrUpdate(riskProfile);
 			return result;
 		} catch (TrickException e) {
@@ -1541,7 +1733,8 @@ public class ControllerFieldEditor {
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1577,12 +1770,17 @@ public class ControllerFieldEditor {
 				return format.parse(fieldEditor.getValue().toString());
 			}
 		} catch (NumberFormatException e) {
-			throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
+			throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()),
+					String.valueOf(fieldEditor.getValue().toString()));
 		} catch (ParseException e) {
 			if (fieldEditor.getType().equalsIgnoreCase("date"))
-				throw new TrickException("error.parse.date", String.format("%s is not valid date", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
+				throw new TrickException("error.parse.date",
+						String.format("%s is not valid date", fieldEditor.getValue()),
+						String.valueOf(fieldEditor.getValue().toString()));
 			else
-				throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
+				throw new TrickException("error.parse.number",
+						String.format("%s is not a number", fieldEditor.getValue()),
+						String.valueOf(fieldEditor.getValue().toString()));
 		}
 		// data type not found, return error
 		return null;

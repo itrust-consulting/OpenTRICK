@@ -78,10 +78,10 @@ public class ScaleLevelConvertor {
 			}
 		});
 
-		likelihoods.sort((p1, p2) -> p1.getLevel().compareTo(p2.getLevel()));
-		if (IntStream.range(0, likelihoods.size() - 1)
-				.anyMatch(i -> likelihoods.get(i).getValue() > likelihoods.get(i + 1).getValue())) {
-			final double maxValue = likelihoods.stream().mapToDouble(LikelihoodParameter::getValue).max().orElse(12);
+		parameters.sort((p1, p2) -> p1.getLevel().compareTo(p2.getLevel()));
+		if (IntStream.range(0, parameters.size() - 1)
+				.anyMatch(i -> parameters.get(i).getValue() >= parameters.get(i + 1).getValue())) {
+			final double maxValue = parameters.stream().mapToDouble(LikelihoodParameter::getValue).max().orElse(12);
 			computeLikelihoods(maxValue, parameters);
 			LikelihoodParameter.ComputeScales(parameters);
 		}
@@ -119,7 +119,7 @@ public class ScaleLevelConvertor {
 		mappedImpacts.forEach((type, impacts) -> {
 			impacts.sort((p1, p2) -> p1.getLevel().compareTo(p2.getLevel()));
 			if (IntStream.range(0, impacts.size() - 1)
-					.anyMatch(i -> impacts.get(i).getValue() > impacts.get(i + 1).getValue())) {
+					.anyMatch(i -> impacts.get(i).getValue() >= impacts.get(i + 1).getValue())) {
 				computeImpacts(maxValue, impacts);
 				ImpactParameter.ComputeScales(impacts);
 			}
@@ -130,51 +130,56 @@ public class ScaleLevelConvertor {
 	public static void computeLikelihoods(double maxValue, List<LikelihoodParameter> likelihoods) {
 		final int maxLevel = likelihoods.size();
 		double currentValue = maxValue;
-		if (maxLevel % 2 == 0) {
-			for (int level = maxLevel - 1; level >= 0; level--) {
-				if (level == (maxLevel - 1))
-					likelihoods.get(level).setValue(currentValue);
-				else
-					likelihoods.get(level).setValue(currentValue *= 0.5);
-			}
-		} else {
-			LikelihoodParameter prev = null;
-			for (int level = maxLevel - 2; level > 0; level -= 2) {
-				LikelihoodParameter current = likelihoods.get(level),
-						next = prev == null ? likelihoods.get(level + 1) : prev;
-				prev = likelihoods.get(level - 1);
-				if (prev.getLevel() == maxLevel)
-					prev.setValue(currentValue);
-				else
-					prev.setValue(currentValue *= 0.5);
-				current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
-			}
+		// if (maxLevel % 2 == 0) {
+		for (int level = maxLevel - 1; level >= 0; level--) {
+			if (level == (maxLevel - 1))
+				likelihoods.get(level).setValue(currentValue);
+			else
+				likelihoods.get(level).setValue(currentValue *= 0.5);
 		}
+		/*
+		 * } else {
+		 * LikelihoodParameter prev = null;
+		 * for (int level = maxLevel - 2; level > 0; level -= 2) {
+		 * LikelihoodParameter current = likelihoods.get(level),
+		 * next = prev == null ? likelihoods.get(level + 1) : prev;
+		 * prev = likelihoods.get(level - 1);
+		 * if (prev.getLevel() == maxLevel)
+		 * prev.setValue(currentValue);
+		 * else
+		 * prev.setValue(currentValue *= 0.5);
+		 * current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
+		 * }
+		 * }
+		 */
 
 	}
 
 	public static void computeImpacts(double maxValue, List<ImpactParameter> impacts) {
 		final int maxLevel = impacts.size();
 		double currentValue = maxValue;
-		if (maxLevel % 2 == 0) {
-			for (int level = maxLevel - 1; level >= 0; level--) {
-				if (level == (maxLevel - 1))
-					impacts.get(level).setValue(currentValue);
-				else
-					impacts.get(level).setValue(currentValue *= 0.5);
-			}
-		} else {
-			ImpactParameter prev = null;
-			for (int level = maxLevel - 2; level > 0; level -= 2) {
-				ImpactParameter current = impacts.get(level), next = prev == null ? impacts.get(level + 1) : prev;
-				prev = impacts.get(level - 1);
-				if (prev.getLevel() == maxLevel)
-					prev.setValue(currentValue);
-				else
-					prev.setValue(currentValue *= 0.5);
-				current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
-			}
+		// if (maxLevel % 2 == 0) {
+		for (int level = maxLevel - 1; level >= 0; level--) {
+			if (level == (maxLevel - 1))
+				impacts.get(level).setValue(currentValue);
+			else
+				impacts.get(level).setValue(currentValue *= 0.5);
 		}
+		/*
+		 * } else {
+		 * ImpactParameter prev = null;
+		 * for (int level = maxLevel - 2; level > 0; level -= 2) {
+		 * ImpactParameter current = impacts.get(level), next = prev == null ?
+		 * impacts.get(level + 1) : prev;
+		 * prev = impacts.get(level - 1);
+		 * if (prev.getLevel() == maxLevel)
+		 * prev.setValue(currentValue);
+		 * else
+		 * prev.setValue(currentValue *= 0.5);
+		 * current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
+		 * }
+		 * }
+		 */
 
 	}
 

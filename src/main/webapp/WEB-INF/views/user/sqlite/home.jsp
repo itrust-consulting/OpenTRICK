@@ -47,7 +47,7 @@
 						<option value="label" ${sqliteControl.sort == 'label'?'selected':''}><spring:message code="label.analysis.label" text="Name" /></option>
 						<option value="version" ${sqliteControl.sort == 'version'?'selected':''}><spring:message code="label.analysis.version" text="Version" /></option>
 						<option value="created" ${sqliteControl.sort == 'created'?'selected':''}><spring:message code="label.date.created" text="Created date" /></option>
-						<option value="size" ${sqliteControl.sort == 'size'?'selected':''}><spring:message code="label.file.size" text="Size" /></option>
+						<option value="length" ${sqliteControl.sort == 'length'?'selected':''}><spring:message code="label.file.size" text="Size" /></option>
 					</select>
 				</div>
 			</div>

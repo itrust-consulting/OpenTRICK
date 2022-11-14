@@ -28,7 +28,7 @@ public class AssetEdge implements Cloneable {
     private long id;
 
     @Column(name = "dtWeight")
-    private int weight;
+    private double weight;
 
     @Transient
     private boolean marked;
@@ -47,10 +47,10 @@ public class AssetEdge implements Cloneable {
     }
 
     public AssetEdge(AssetNode parent, AssetNode child) {
-        this(parent, child, 1);
+        this(parent, child, 1d);
     }
 
-    public AssetEdge(AssetNode parent, AssetNode child, int weight) {
+    public AssetEdge(AssetNode parent, AssetNode child, double weight) {
         this.weight = weight;
         this.parent = parent;
         this.child = child;
@@ -64,11 +64,11 @@ public class AssetEdge implements Cloneable {
         this.id = id;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 

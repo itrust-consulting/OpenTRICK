@@ -14,7 +14,7 @@ public class FilterControl extends TrickFilter {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static final String REG_SORT = "identifier|label|size|version|created";
+	private static final String REG_SORT = "identifier|label|name|length|version|created";
 
 	private String sort = "identifier";
 

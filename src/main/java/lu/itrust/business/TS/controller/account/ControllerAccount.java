@@ -232,7 +232,7 @@ public class ControllerAccount {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
-		final String filename = Utils.extractOrignalFilename(wordReport.getFilename());
+		final String filename = Utils.extractOrignalFilename(wordReport.getName());
 
 		String extension = ReportType.getExtension(wordReport.getType(), filename);
 
@@ -243,12 +243,12 @@ public class ControllerAccount {
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
 		// set sqlite file size as response size
-		response.setContentLength((int) wordReport.getSize());
+		response.setContentLength((int) wordReport.getLength());
 
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
 		// client side the sqlite file)
-		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
+		FileCopyUtils.copy(wordReport.getData(), response.getOutputStream());
 		/**
 		 * Log
 		 */
@@ -296,15 +296,15 @@ public class ControllerAccount {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + Utils.extractOrignalFilename(userSqLite.getFilename()) + "\"");
+				"attachment; filename=\"" + Utils.extractOrignalFilename(userSqLite.getName()) + "\"");
 
 		// set sqlite file size as response size
-		response.setContentLength((int) userSqLite.getSize());
+		response.setContentLength((int) userSqLite.getLength());
 
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
 		// client side the sqlite file)
-		FileCopyUtils.copy(userSqLite.getFile(), response.getOutputStream());
+		FileCopyUtils.copy(userSqLite.getData(), response.getOutputStream());
 
 		/**
 		 * Log

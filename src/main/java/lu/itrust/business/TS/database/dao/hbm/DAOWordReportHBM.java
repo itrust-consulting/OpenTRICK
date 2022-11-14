@@ -55,8 +55,9 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public WordReport getByFilename(String fileName) {
-		return (WordReport) getSession().createQuery("From WordReport where filename = :filename").setParameter("filename", fileName).uniqueResultOptional().orElse(null);
+	public WordReport getByName(String name) {
+		return (WordReport) getSession().createQuery("From WordReport where name = :name").setParameter("name", name)
+				.uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -69,7 +70,8 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public WordReport getByIdAndUser(Long id, String username) {
-		return (WordReport) getSession().createQuery("From WordReport where id = :id and user.login = :username").setParameter("id", id).setParameter("username", username)
+		return (WordReport) getSession().createQuery("From WordReport where id = :id and user.login = :username")
+				.setParameter("id", id).setParameter("username", username)
 				.uniqueResultOptional().orElse(null);
 	}
 
@@ -83,7 +85,8 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<WordReport> getAllFromUser(String username) {
-		return getSession().createQuery("From WordReport where user.login = :username order by created desc").setParameter("username", username).getResultList();
+		return getSession().createQuery("From WordReport where user.login = :username order by created desc")
+				.setParameter("username", username).getResultList();
 	}
 
 	/*
@@ -96,7 +99,8 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<WordReport> getAllFromUser(String username, Integer pageIndex, Integer pageSize) {
-		return getSession().createQuery("From WordReport where user.login = :username order by created desc").setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize)
+		return getSession().createQuery("From WordReport where user.login = :username order by created desc")
+				.setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize)
 				.setMaxResults(pageSize).getResultList();
 	}
 
@@ -109,9 +113,13 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<WordReport> getAllFromUserAndIdentifier(String username, String identifier, Integer pageIndex, Integer pageSize) {
-		return getSession().createQuery("From WordReport where identifier = :identifier and user.login = :username order by created desc").setParameter("identifier", identifier)
-				.setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).getResultList();
+	public List<WordReport> getAllFromUserAndIdentifier(String username, String identifier, Integer pageIndex,
+			Integer pageSize) {
+		return getSession().createQuery(
+				"From WordReport where identifier = :identifier and user.login = :username order by created desc")
+				.setParameter("identifier", identifier)
+				.setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize)
+				.getResultList();
 	}
 
 	/*
@@ -176,13 +184,15 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 
 	@Override
 	public void delete(String filename) {
-		delete(getByFilename(filename));
+		delete(getByName(filename));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctIdentifierByUser(User user) {
-		return getSession().createQuery("Select distinct identifier From WordReport where user = :user order by identifier desc").setParameter("user", user).getResultList();
+		return getSession()
+				.createQuery("Select distinct identifier From WordReport where user = :user order by identifier desc")
+				.setParameter("user", user).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -191,12 +201,18 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 		if (!filter.validate())
 			return Collections.emptyList();
 		if ("ALL".equalsIgnoreCase(filter.getFilter()))
-			return getSession().createQuery(String.format("From WordReport where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
+			return getSession()
+					.createQuery(String.format("From WordReport where user.login = :username order by %s %s",
+							filter.getSort(), filter.getDirection()))
+					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize())
+					.setMaxResults(filter.getSize()).getResultList();
 		else
 			return getSession()
-					.createQuery(String.format("From WordReport where user.login = :username and identifier = :filter order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setParameter("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
+					.createQuery(String.format(
+							"From WordReport where user.login = :username and identifier = :filter order by %s %s",
+							filter.getSort(), filter.getDirection()))
+					.setParameter("username", username).setParameter("filter", filter.getFilter())
+					.setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
 					.getResultList();
 	}
 
@@ -207,13 +223,15 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 
 	@Override
 	public List<WordReport> findByCreatedBefore(Date date, int page, int size) {
-		return getSession().createQuery("From WordReport where created < :deleteDate", WordReport.class).setParameter("deleteDate", date).setFirstResult((page - 1) * size)
+		return getSession().createQuery("From WordReport where created < :deleteDate", WordReport.class)
+				.setParameter("deleteDate", date).setFirstResult((page - 1) * size)
 				.setMaxResults(size).list();
 	}
 
 	@Override
 	public long countByCreatedBefore(Date date) {
-		return getSession().createQuery("Select count(*) From WordReport where created < :deleteDate", Long.class).setParameter("deleteDate", date).uniqueResult();
+		return getSession().createQuery("Select count(*) From WordReport where created < :deleteDate", Long.class)
+				.setParameter("deleteDate", date).uniqueResult();
 	}
 
 }

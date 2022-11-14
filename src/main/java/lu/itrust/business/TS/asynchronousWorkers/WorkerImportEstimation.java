@@ -628,7 +628,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 							myCell);
 				} else if (!rootAsset.equals(asset)) {
 
-					final int weight = getInt(row, j, 0, formatter);
+					final double weight = getDouble(row, j, 0d, formatter);
 
 					final AssetNode rootNode = nodes.computeIfAbsent(rootName, k -> new AssetNode(rootAsset));
 
@@ -636,7 +636,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 					AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(node);
 
-					if (weight != 0) {
+					if (Math.abs(weight - 0d) > 1e-9) {
 						if (assetEdge == null)
 							rootNode.getEdges().put(node, new AssetEdge(rootNode, node, weight));
 						else
@@ -1124,7 +1124,8 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	private RiskStrategy parseResponse(String value, RiskStrategy defaultValue) {
 		try {
-			return value == null || value.length() == 0 ? defaultValue : RiskStrategy.valueOf(value.trim().toUpperCase());
+			return value == null || value.length() == 0 ? defaultValue
+					: RiskStrategy.valueOf(value.trim().toUpperCase());
 		} catch (Exception e) {
 			return defaultValue;
 		}

@@ -330,7 +330,7 @@ public class AssessmentAndRiskProfileManager {
 	 * @throws Exception
 	 */
 	public static void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
-		final List<Asset> assets = analysis.findSelectedAsset();
+		final List<Asset> assets = analysis.findSelectedAssets();
 		final Map<Integer, List<Assessment>> assessmentsByAsset = analysis.getAssessments().stream()
 				.filter(a -> a.isSelected())
 				.collect(Collectors.groupingBy(a -> a.getAsset().getId()));

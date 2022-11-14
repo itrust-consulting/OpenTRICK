@@ -366,13 +366,17 @@ public final class ExcelHelper {
 	}
 
 	public static double getDouble(Row row, int index, DataFormatter formatter) {
+		return getDouble(row, index, 0d, formatter);
+	}
+
+	public static double getDouble(Row row, int index, double defaultValue, DataFormatter formatter) {
 		try {
 			String value = getString(row, index, formatter);
 			if (isEmpty(value))
-				return 0;
+				return defaultValue;
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			return 0;
+			return defaultValue;
 		}
 	}
 
