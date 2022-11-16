@@ -22,7 +22,7 @@ public abstract class Docx4jBuilder implements IDocxBuilder {
 	/**
 	 * @param next
 	 */
-	public Docx4jBuilder(IDocxBuilder next) {
+	protected Docx4jBuilder(IDocxBuilder next) {
 		this(next, "");
 	}
 

@@ -325,7 +325,7 @@ public class ControllerApi {
 		return new ApiResult(0);
 	}
 
-	@PutMapping("/data/analysis/{idAnalysis}/dependency/{type}")
+	@PostMapping("/data/analysis/{idAnalysis}/dependency/{type}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object updateAssetDependenciesPng(@PathVariable final Integer idAnalysis,
 			@PathVariable String type,

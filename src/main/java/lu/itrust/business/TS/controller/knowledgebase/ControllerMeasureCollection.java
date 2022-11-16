@@ -313,7 +313,7 @@ public class ControllerMeasureCollection {
 	public @ResponseBody ResponseEntity<Resource> downloadTemplate(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
 		final String filename = String.format(Constant.ITR_FILE_NAMING,
-				"R5xx_STA",
+				"R5xx_STA_TSE",
 				"KB",
 				"Template", "MeasureCollection", appVersion,
 				"xlsx");
@@ -487,7 +487,7 @@ public class ControllerMeasureCollection {
 			}
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
-					"R5xx_STA",
+					"R5xx_STA_TSE",
 					"KB",
 					Utils.cleanUpFileName(standard.getLabel()), "MeasureCollection", standard.getVersion(),
 					"xlsx");
@@ -696,7 +696,7 @@ public class ControllerMeasureCollection {
 	public @ResponseBody Map<String, String> save(@PathVariable("idStandard") int idStandard, @RequestBody String value,
 			Locale locale) {
 		// create error list
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			// create json parser
 			final ObjectMapper mapper = new ObjectMapper();

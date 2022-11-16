@@ -11,8 +11,12 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
+import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
+import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
+import org.docx4j.wml.Drawing;
 import org.docx4j.wml.P;
+import org.docx4j.wml.R;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
@@ -27,6 +31,8 @@ import lu.itrust.business.TS.exportation.word.impl.docx4j.builder.Docx4jData;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocument;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocumentType;
 
 /**
  * @author eomar
@@ -34,13 +40,15 @@ import lu.itrust.business.TS.model.asset.Asset;
  */
 public class Docx4jAssetBuilder extends Docx4jBuilder {
 
+	private static final String TS_ASSET_DEPENDENCY_GRAPH = "ts_dependencygraph";
 	private static final String TS_QL_ASSETNOTSELECTED = "ts_ql_assetnotselected";
 	private static final String TS_QT_ASSETNOTSELECTED = "ts_qt_assetnotselected";
+
 	private static final String TS_QL_ASSET = "ts_ql_asset";
 	private static final String TS_QT_ASSET = "ts_qt_asset";
 
 	public Docx4jAssetBuilder(IDocxBuilder next) {
-		super(next, TS_QT_ASSET, TS_QT_ASSETNOTSELECTED, TS_QL_ASSET, TS_QL_ASSETNOTSELECTED);
+		super(next, TS_QT_ASSET, TS_QT_ASSETNOTSELECTED, TS_QL_ASSET, TS_QL_ASSETNOTSELECTED, TS_ASSET_DEPENDENCY_GRAPH);
 	}
 
 	@Override
@@ -59,12 +67,40 @@ public class Docx4jAssetBuilder extends Docx4jBuilder {
 				case TS_QT_ASSETNOTSELECTED:
 					return quantitativeBuild(data, data.getExportor().getAnalysis().getAssets().stream()
 							.filter(a -> !a.isSelected()).collect(Collectors.toList()));
+				case TS_ASSET_DEPENDENCY_GRAPH:
+					return assetDependancyGraph(data, data.getExportor().getAnalysis().getDocuments()
+							.get(SimpleDocumentType.ASSET_DEPENDENCY_GRAPH_PNG));
 				default:
 					return false;
 			}
-		} catch (XPathBinderAssociationIsPartialException | JAXBException e) {
+		} catch (Exception e) {
 			throw new TrickException("error.internal.report", null, e);
 		}
+	}
+
+	private boolean assetDependancyGraph(Docx4jData data, SimpleDocument document) throws Exception {
+		if (document == null || document.getData() == null || document.getData().length == 0)
+			return true;
+		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
+		final P paragraph = exporter.findP(data.getSource());
+		if (paragraph != null) {
+			final BinaryPartAbstractImage abstractImage = BinaryPartAbstractImage
+					.createImagePart(data.getExportor().getWordMLPackage(), document.getData());
+			final long drawingId = exporter.findDrawingId();
+			final long pictureId = exporter.findPictureId();
+			final Inline inline = abstractImage.createImageInline("Dependency Graph", "Asset Dependency Graph",
+					drawingId,
+					(int) pictureId, false);
+			final P p = data.getExportor().getFactory().createP();
+			final R r = data.getExportor().getFactory().createR();
+			final Drawing drawing  = data.getExportor().getFactory().createDrawing();
+			exporter.setStyle(p, "BodyOfText");
+			p.getContent().add(r);
+			r.getContent().add(drawing);
+			drawing.getAnchorOrInline().add(inline);
+			exporter.insertBefore(paragraph, p);
+		}
+		return true;
 	}
 
 	private boolean quantitativeBuild(final Docx4jData data, final List<Asset> assets) {
@@ -122,8 +158,7 @@ public class Docx4jAssetBuilder extends Docx4jBuilder {
 		return true;
 	}
 
-	private boolean qualitativeBuild(final Docx4jData data, final List<Asset> assets)
-			throws XPathBinderAssociationIsPartialException, JAXBException {
+	private boolean qualitativeBuild(final Docx4jData data, final List<Asset> assets) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraph = (P) exporter.findP(data.getSource());
 		if (paragraph != null) {

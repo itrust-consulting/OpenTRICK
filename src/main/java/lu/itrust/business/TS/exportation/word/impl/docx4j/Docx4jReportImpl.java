@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,9 +30,12 @@ import javax.xml.bind.JAXBException;
 
 import org.docx4j.TraversalUtil;
 import org.docx4j.XmlUtils;
+import org.docx4j.dml.CTNonVisualDrawingProps;
 import org.docx4j.dml.CTSRgbColor;
 import org.docx4j.dml.CTShapeProperties;
 import org.docx4j.dml.CTSolidColorFillProperties;
+import org.docx4j.dml.Graphic;
+import org.docx4j.dml.GraphicData;
 import org.docx4j.dml.chart.CTAxDataSource;
 import org.docx4j.dml.chart.CTBarSer;
 import org.docx4j.dml.chart.CTNumData;
@@ -43,6 +47,8 @@ import org.docx4j.dml.chart.CTStrData;
 import org.docx4j.dml.chart.CTStrRef;
 import org.docx4j.dml.chart.CTStrVal;
 import org.docx4j.dml.chart.CTUnsignedInt;
+import org.docx4j.dml.picture.CTPictureNonVisual;
+import org.docx4j.dml.picture.Pic;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.docProps.custom.Properties.Property;
 import org.docx4j.finders.RangeFinder;
@@ -137,6 +143,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 	private ReportTemplate template;
 
 	private AtomicLong drawingIndex;
+
+	private AtomicLong pictureIndex;
 
 	private String defaultTableStyle;
 
@@ -353,7 +361,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public ClonePartResult cloneChart(Chart part, String name, String description)
-			throws Docx4JException, InvalidFormatException, JAXBException {
+			throws Docx4JException, JAXBException {
 		final Part copy = PartClone.clone(part, null);
 		final Relationship relationship = getWordMLPackage().getMainDocumentPart().addTargetPart(copy,
 				AddPartBehaviour.RENAME_IF_NAME_EXISTS);
@@ -458,8 +466,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public Property createProperty(String name) throws Docx4JException {
-		org.docx4j.docProps.custom.ObjectFactory factory = new org.docx4j.docProps.custom.ObjectFactory();
-		Property property = factory.createPropertiesProperty();
+		Property property = new org.docx4j.docProps.custom.ObjectFactory().createPropertiesProperty();
 		property.setName(name);
 		getWordMLPackage().getDocPropsCustomPart();
 		property.setFmtid(DocPropsCustomPart.fmtidValLpwstr);
@@ -576,10 +583,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public String findChartId(P p) {
-		return p.getContent().parallelStream().filter(r -> r instanceof R)
-				.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
-				.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing)
-				.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> (i instanceof Inline))
+		return p.getContent().parallelStream().filter(R.class::isInstance)
+				.flatMap(r -> ((R) r).getContent().parallelStream()).filter(JAXBElement.class::isInstance)
+				.map(d -> ((JAXBElement<?>) d).getValue()).filter(Drawing.class::isInstance)
+				.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(Inline.class::isInstance)
 				.flatMap(i -> ((Inline) i).getGraphic().getGraphicData().getAny().parallelStream())
 				.map(v -> ((CTRelId) ((JAXBElement<?>) v).getValue()).getId()).findAny().orElse(null);
 	}
@@ -587,10 +594,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public String findChartId(String name) throws XPathBinderAssociationIsPartialException, JAXBException {
 		P paragraph = findTableAnchor(name);
 		if (paragraph == null)
-			return getDocument().getContent().parallelStream().filter(p -> p instanceof P)
-					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
-					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
-					.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing)
+			return getDocument().getContent().parallelStream().filter(P.class::isInstance)
+					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(R.class::isInstance)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(JAXBElement.class::isInstance)
+					.map(d -> ((JAXBElement<?>) d).getValue()).filter(Drawing.class::isInstance)
 					.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream())
 					.filter(i -> (i instanceof Inline) && ((Inline) i).getDocPr() != null
 							&& name.equalsIgnoreCase(((Inline) i).getDocPr().getDescr()))
@@ -600,15 +607,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 			return findChartId(paragraph);
 	}
 
-	public synchronized Long findDrawingId() throws XPathBinderAssociationIsPartialException, JAXBException {
-		if (getDrawingIndex() == null) {
-			setDrawingIndex(new AtomicLong(getDocument().getContent().parallelStream().filter(p -> p instanceof P)
-					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(r -> r instanceof R)
-					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(d -> d instanceof JAXBElement)
-					.map(d -> ((JAXBElement<?>) d).getValue()).filter(d -> d instanceof Drawing)
-					.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(i -> i instanceof Inline)
-					.mapToLong(i -> ((Inline) i).getDocPr().getId()).max().orElse(0)));
-		}
+	public Long findDrawingId() {
 		return getDrawingIndex().incrementAndGet();
 	}
 
@@ -811,8 +810,33 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	@Override
-	public AtomicLong getDrawingIndex() {
+	public synchronized AtomicLong getDrawingIndex() {
+		if (drawingIndex == null) {
+			setDrawingIndex(new AtomicLong(getDocument().getContent().parallelStream().filter(P.class::isInstance)
+					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(R.class::isInstance)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(JAXBElement.class::isInstance)
+					.map(d -> ((JAXBElement<?>) d).getValue()).filter(Drawing.class::isInstance)
+					.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(Inline.class::isInstance)
+					.mapToLong(i -> ((Inline) i).getDocPr().getId()).max().orElse(0)));
+		}
 		return drawingIndex;
+	}
+
+	@Override
+	public synchronized AtomicLong getPictureIndex() {
+		if (pictureIndex == null) {
+			pictureIndex = new AtomicLong(getDocument().getContent().parallelStream().filter(P.class::isInstance)
+					.flatMap(p -> ((P) p).getContent().parallelStream()).filter(R.class::isInstance)
+					.flatMap(r -> ((R) r).getContent().parallelStream()).filter(JAXBElement.class::isInstance)
+					.map(d -> ((JAXBElement<?>) d).getValue()).filter(Drawing.class::isInstance)
+					.flatMap(d -> ((Drawing) d).getAnchorOrInline().parallelStream()).filter(Inline.class::isInstance)
+					.map(i -> ((Inline) i).getGraphic()).filter(Objects::nonNull).map(Graphic::getGraphicData)
+					.filter(Objects::nonNull).map(GraphicData::getPic)
+					.filter(Objects::nonNull).map(Pic::getNvPicPr).filter(Objects::nonNull)
+					.map(CTPictureNonVisual::getCNvPr).filter(Objects::nonNull)
+					.mapToLong(CTNonVisualDrawingProps::getId).max().orElse(0));
+		}
+		return pictureIndex;
 	}
 
 	@Override
@@ -1056,7 +1080,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	/**
 	 * @param drawingIndex the drawingIndex to set
 	 */
-	public void setDrawingIndex(AtomicLong drawingIndex) {
+	public synchronized void setDrawingIndex(AtomicLong drawingIndex) {
 		this.drawingIndex = drawingIndex;
 	}
 
@@ -1143,6 +1167,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		if (r.getRPr() == null)
 			r.setRPr(getFactory().createRPr());
 		r.getRPr().setB(getFactory().createBooleanDefaultTrue());
+		r.getRPr().getB().setVal(bold);
 		paragraph.getContent().add(r);
 		return paragraph;
 	}
@@ -1536,6 +1561,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 			case "proba":
 			case "summary":
 				return prefix + tmp;
+			case "dependencygraph":
 			case "chartalebyasset":
 			case "chartalebyassettype":
 			case "chartalebyscenario":
@@ -1633,6 +1659,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	public void setColors(ColorSet colors) {
 		this.colors = colors;
+	}
+
+	public long findPictureId() {
+		return getPictureIndex().incrementAndGet();
 	}
 
 }

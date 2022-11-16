@@ -4,6 +4,9 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -38,6 +41,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocument;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.ilr.AssetEdge;
 import lu.itrust.business.TS.model.ilr.AssetImpact;
@@ -261,6 +265,9 @@ public class Duplicator {
 					(int) (minProgress + bound * 42)));
 
 			copy.setAnalysisStandards(new ArrayList<>());
+
+			copy.setDocuments(analysis.getDocuments().values().stream().map(SimpleDocument::new)
+					.collect(Collectors.toMap(SimpleDocument::getType, Function.identity())));
 
 			if (!analysis.getAnalysisStandards().isEmpty()) {
 
@@ -602,7 +609,7 @@ public class Duplicator {
 			// phases
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.phase", "Clear phases", 50));
 
-			copy.setPhases(new ArrayList<Phase>());
+			copy.setPhases(new ArrayList<>());
 
 			Map<Integer, Phase> phases = new LinkedHashMap<>();
 
@@ -627,6 +634,8 @@ public class Duplicator {
 			// standards
 			serviceTaskFeedback.send(idTask,
 					new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60));
+
+			copy.setDocuments(Collections.emptyMap());
 
 			copy.setAnalysisStandards(new ArrayList<>());
 			if (!standards.isEmpty()) {

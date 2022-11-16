@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.AssessmentAndRiskProfileManager;
@@ -493,6 +492,7 @@ public class ControllerCreation {
 
 						);
 
+				analysis.setDocuments(new HashMap<>());
 			}
 
 			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisForm.getScenario());

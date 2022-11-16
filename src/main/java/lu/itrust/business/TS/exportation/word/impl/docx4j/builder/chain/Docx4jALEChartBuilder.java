@@ -103,7 +103,7 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 		final P paragraph = exporter.findP(data.getSource());
 		if (paragraph != null) {
 			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+			final Map<Integer, ALE> ales = new LinkedHashMap<>();
 			for (Assessment assessment : assessments) {
 				ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
 				if (ale == null)
@@ -122,7 +122,7 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 		final P paragraph = exporter.findP(data.getSource());
 		if (paragraph != null) {
 			final List<Assessment> assessments = data.getExportor().getAnalysis().findSelectedAssessments();
-			final Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+			final Map<Integer, ALE> ales = new LinkedHashMap<>();
 			for (Assessment assessment : assessments) {
 				ALE ale = ales.get(assessment.getScenario().getId());
 				if (ale == null)

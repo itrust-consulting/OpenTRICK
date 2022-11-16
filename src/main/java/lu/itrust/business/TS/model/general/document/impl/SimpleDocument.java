@@ -36,6 +36,10 @@ public class SimpleDocument extends Document {
         setType(type);
     }
 
+    public SimpleDocument(SimpleDocument data) {
+        this(data.type, data.getName(), data.getLength(), data.getData().clone(), data.getCreated());
+    }
+
     public SimpleDocumentType getType() {
         return type;
     }
