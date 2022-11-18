@@ -540,8 +540,20 @@ public class ControllerDataManager {
 		final Set<AssetNode> rootSetNodes = new HashSet<>();
 		final Set<AssetNode> branchSetNodes = new HashSet<>();
 		final Set<AssetNode> leafSetNodes = new HashSet<>();
-		analysis.getAssetNodes().forEach(n -> sortNodeByDependancyLevel(n, rootSetNodes, branchSetNodes, leafSetNodes));
-		rootSetNodes.removeAll(branchSetNodes);
+
+		analysis.getAssetNodes().stream().flatMap(e -> e.getEdges().values().stream()).forEach(e -> {
+			leafSetNodes.add(e.getParent());
+			if (e.getChild().isLeaf())
+				rootSetNodes.add(e.getChild());
+			else
+				branchSetNodes.add(e.getChild());
+		});
+
+		analysis.getAssetNodes().stream()
+				.filter(e -> !(rootSetNodes.contains(e) || branchSetNodes.contains(e) || leafSetNodes.contains(e)))
+				.forEach(leafSetNodes::add);
+
+		leafSetNodes.removeAll(branchSetNodes);
 
 		final List<String> columns = rootSetNodes.stream().map(e -> e.getAsset().getName())
 				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
@@ -574,10 +586,11 @@ public class ControllerDataManager {
 				rowNames.add(asset.getName());
 		});
 
-		Map<String, Map<String, Double>> dependancies = analysis.getAssetNodes().stream()
+		final Map<String, Map<String, Double>> dependancies = analysis.getAssetNodes().stream()
 				.flatMap(e -> e.getEdges().values().stream())
-				.collect(Collectors.groupingBy(e -> e.getChild().getAsset().getName(),
-						Collectors.toMap(e -> e.getParent().getAsset().getName(), AssetEdge::getWeight)));
+				.collect(Collectors.groupingBy(e -> e.getParent().getAsset().getName(),
+						Collectors.toMap(e -> e.getChild().getAsset().getName(),
+								e -> (e.getWeight() == 0 ? 1 : e.getWeight()))));
 
 		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Dependency");
 		final SheetData sheetData = worksheetPart.getContents().getSheetData();

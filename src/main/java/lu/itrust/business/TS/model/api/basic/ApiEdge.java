@@ -8,7 +8,7 @@ public class ApiEdge {
 
     private String target;
 
-    private double p;
+    private double p = 1;
 
     public ApiEdge() {
     }
@@ -36,7 +36,7 @@ public class ApiEdge {
     }
 
     public double getP() {
-        return p;
+        return p == 0 ? 1 : p;
     }
 
     public void setP(double p) {

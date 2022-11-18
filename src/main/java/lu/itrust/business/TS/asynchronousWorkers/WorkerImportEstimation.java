@@ -615,30 +615,29 @@ public class WorkerImportEstimation extends WorkerImpl {
 			}
 
 			final AssetNode node = nodes.computeIfAbsent(asset.getName().toLowerCase(), k -> new AssetNode(asset));
+			final Map<AssetNode, AssetEdge> oldEdges = oldDependancies.get(node);
 			for (int j = 0; j < columns.size(); j++) {
 				if (nameIndex == j || assetTypeIndex == j)
 					continue;
-				final String rootName = columns.get(j);
-				final Asset rootAsset = assets.get(rootName);
-				if (rootAsset == null) {
+				final String childName = columns.get(j);
+				final Asset childAsset = assets.get(childName);
+				if (childAsset == null) {
 					final String myCell = new CellRef(headerRowIndex, j).toString();
 					throw new TrickException("error.import.data.asset.not_found",
-							String.format("Asset `%s` cannot be found! See cell `%s`", rootName, myCell),
-							rootName,
+							String.format("Asset `%s` cannot be found! See cell `%s`", childName, myCell),
+							childName,
 							myCell);
-				} else if (!rootAsset.equals(asset)) {
+				} else if (!childAsset.equals(asset)) {
 
 					final double weight = getDouble(row, j, 0d, formatter);
 
-					final AssetNode rootNode = nodes.computeIfAbsent(rootName, k -> new AssetNode(rootAsset));
+					final AssetNode childNode = nodes.computeIfAbsent(childName, k -> new AssetNode(childAsset));
 
-					Map<AssetNode, AssetEdge> oldEdges = oldDependancies.get(rootNode);
-
-					AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(node);
+					AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(childNode);
 
 					if (Math.abs(weight - 0d) > 1e-9) {
 						if (assetEdge == null)
-							rootNode.getEdges().put(node, new AssetEdge(rootNode, node, weight));
+							node.getEdges().put(childNode, new AssetEdge(node, childNode, weight));
 						else
 							assetEdge.setWeight(weight);
 					}

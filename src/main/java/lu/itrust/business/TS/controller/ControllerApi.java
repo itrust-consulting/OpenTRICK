@@ -372,7 +372,7 @@ public class ControllerApi {
 	public void getSimpleDocument(@PathVariable final Integer idAnalysis, @PathVariable String type,
 			HttpServletRequest request, HttpServletResponse response, final Principal principal,
 			final Locale locale) throws IOException {
-				
+
 		// get user file by given file id and username
 
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
