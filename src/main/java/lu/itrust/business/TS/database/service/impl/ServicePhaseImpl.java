@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.general.Phase;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServicePhaseImpl implements ServicePhase {
 

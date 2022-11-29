@@ -2639,7 +2639,7 @@ public class ExportAnalysis {
 		for (AssetNode node : analysis.getAssetNodes()) {
 			counter = prepareQuery(params,
 					"INSERT INTO asset_node SELECT ? as 'id_asset',? as 'confidentiality', ? as 'integrity',? as 'availability', ? as position_x, ? as position_y",
-					4, query, counter);
+					6, query, counter);
 			params.add(node.getAsset().getId());
 			params.add(node.getInheritedConfidentiality());
 			params.add(node.getInheritedIntegrity());

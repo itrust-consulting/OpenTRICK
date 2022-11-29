@@ -19,6 +19,7 @@ import lu.itrust.business.TS.usermanagement.UserCredential;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceUserCredentialImpl implements ServiceUserCredential {
 
 	@Autowired

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -21,6 +22,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 9, 2014
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 
 	@Autowired

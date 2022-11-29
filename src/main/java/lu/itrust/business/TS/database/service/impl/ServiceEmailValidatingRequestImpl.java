@@ -19,6 +19,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceEmailValidatingRequestImpl implements ServiceEmailValidatingRequest {
 	

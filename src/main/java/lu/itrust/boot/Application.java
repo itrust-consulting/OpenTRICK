@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -21,7 +23,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  */
 @EnableWebSecurity
 @SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
-		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class })
+		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class,
+		DataSourceTransactionManagerAutoConfiguration.class,
+		HibernateJpaAutoConfiguration.class })
 @ImportResource("classpath:spring/application-config.xml")
 public class Application extends SpringBootServletInitializer {
 

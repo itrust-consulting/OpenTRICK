@@ -21,6 +21,7 @@ import lu.itrust.business.TS.model.riskinformation.RiskInformation;
  * @since Jan 16, 2013
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 
 	@Autowired

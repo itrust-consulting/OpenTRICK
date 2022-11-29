@@ -19,7 +19,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @since Jan 16, 2013
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescriptionText {
 
 	@Autowired

@@ -19,7 +19,7 @@ public class Register extends BaseUnitTesting {
 			throws InterruptedException {
 
 		getDriver().get(getBaseUrl() + "/Register");
-		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("registerform")));
+		//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("registerform")));
 
 		sendKeys(findElement(By.id("login")), username);
 		sendKeys(findElement(By.id("password")), password);
@@ -31,6 +31,6 @@ public class Register extends BaseUnitTesting {
 		new Select(findElement(By.id("locale"))).selectByValue(language);
 		click(By.cssSelector("button.btn.btn-primary"));
 
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.visibilityOfElementLocated(By.id("login_form")));
+		//new WebDriverWait(getDriver(), 30).until(ExpectedConditions.visibilityOfElementLocated(By.id("login_form")));
 	}
 }

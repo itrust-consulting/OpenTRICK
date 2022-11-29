@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,6 +58,7 @@ import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceSimpleDocument;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -74,6 +76,7 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.document.impl.SimpleDocument;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.ilr.AssetEdge;
 import lu.itrust.business.TS.model.ilr.AssetImpact;
@@ -180,6 +183,9 @@ public class ControllerCreation {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceSimpleDocument serviceSimpleDocument;
+
 	@GetMapping
 	public String buildCustom(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 
@@ -212,9 +218,9 @@ public class ControllerCreation {
 			if (!serviceDataValidation.isRegistred(AnalysisForm.class))
 				serviceDataValidation.register(new CustomAnalysisValidator());
 
-			Map<String, String> errors = serviceDataValidation.validate(analysisForm);
-			for (String error : errors.keySet())
-				errors.put(error, serviceDataValidation.ParseError(errors.get(error), messageSource, locale));
+			final Map<String, String> errors = serviceDataValidation.validate(analysisForm);
+			for (Entry<String, String> error : errors.entrySet())
+				errors.put(error.getKey(), serviceDataValidation.ParseError(error.getValue(), messageSource, locale));
 
 			analysisForm.updateProfile();
 
@@ -461,8 +467,8 @@ public class ControllerCreation {
 
 			analysis.updateType();
 
-			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
-			Map<Integer, Asset> mappingAssets = assets.isEmpty() ? Collections.emptyMap()
+			final List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
+			final Map<Integer, Asset> mappingAssets = assets.isEmpty() ? Collections.emptyMap()
 					: new LinkedHashMap<>(assets.size());
 			for (Asset asset : assets) {
 				Asset duplication = asset.duplicate();
@@ -492,12 +498,14 @@ public class ControllerCreation {
 
 						);
 
-				analysis.setDocuments(new HashMap<>());
+				analysis.setDocuments(serviceSimpleDocument.findByAnalysisId(analysisForm.getAsset()).stream()
+						.map(SimpleDocument::new)
+						.collect(Collectors.toMap(SimpleDocument::getType, Function.identity(), (e1, e2) -> e1)));
 			}
 
-			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisForm.getScenario());
+			final List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisForm.getScenario());
 
-			Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() ? Collections.emptyMap()
+			final Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() ? Collections.emptyMap()
 					: new LinkedHashMap<>(scenarios.size());
 			for (Scenario scenario : scenarios) {
 				Scenario duplication = scenario.duplicate(mappingAssets);

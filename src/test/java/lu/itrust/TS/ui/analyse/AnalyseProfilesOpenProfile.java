@@ -154,7 +154,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		selectCheckBox(true, By.xpath(getProfileRow(profileName) + "//input"));
 		click(By.xpath("//a[contains(@onclick,'deleteAnalysis')]"));
 		click(By.id("deleteanalysisbuttonYes"));
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("deleteanalysisbuttonYes")));
+		//new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("deleteanalysisbuttonYes")));
 		getDriver().navigate().refresh();
 		assert (findElement(By.xpath(getProfileRow(profileName))) == null && shouldDelete) || (findElement(By.xpath(getProfileRow(profileName))) != null && !shouldDelete);
 	}
@@ -203,7 +203,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 
 		click(By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]"));
 
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]")));
+		//new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]")));
 
 		// delete analyse
 		deleteAnalysis(companyName, analyseName);

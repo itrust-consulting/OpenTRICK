@@ -219,8 +219,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 
 		click(By.xpath("//div[@id='buildAnalysisModal']//button[@name='save']"));
 
-		new WebDriverWait(getDriver(), 60)
-				.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='buildAnalysisModal']")));
+		/*new WebDriverWait(getDriver(), 60)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='buildAnalysisModal']")));*/
 
 		assert !isElementPresent(By.xpath("//div[@id='buildAnalysisModal']"));
 	}
@@ -255,8 +255,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 		click(By.xpath("//a[contains(@onclick,'deleteAnalysis')]"));
 		click(By.id("deleteanalysisbuttonYes"));
 
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(
-				By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")));
+		/*new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(
+				By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")));*/
 		assert findElement(
 				By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")) == null;
 	}
@@ -356,8 +356,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 					((JavascriptExecutor) getDriver()).executeScript(
 							"arguments[0].focus(); arguments[0].blur(); return true", input.getElement());
 
-					new WebDriverWait(getDriver(), 10)
-							.until(ExpectedConditions.stalenessOf(input.getElement()));
+					/*new WebDriverWait(getDriver(), 10)
+							.until(ExpectedConditions.stalenessOf(input.getElement()));*/
 					assert possibleInput.getText().equals(newValue);
 
 				} else {
@@ -414,7 +414,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 				+ "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
 		ArrayList<String> acronyms = new ArrayList<>();
 		if (impactScale != null) {
-			new WebDriverWait(getDriver(), 30).until(ExpectedConditions.visibilityOf(impactScale));
+			/*new WebDriverWait(getDriver(), 30).until(ExpectedConditions.visibilityOf(impactScale));*/
 			click(By.xpath("//div[@id='" + section
 					+ "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
 			waitClick(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ImpactParameter']/td[2]"));

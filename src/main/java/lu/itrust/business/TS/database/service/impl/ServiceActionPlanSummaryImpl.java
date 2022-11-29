@@ -20,6 +20,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 

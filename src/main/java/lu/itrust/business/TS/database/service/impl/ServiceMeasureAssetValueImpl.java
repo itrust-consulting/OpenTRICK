@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.standard.measure.impl.MeasureAssetValue;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 

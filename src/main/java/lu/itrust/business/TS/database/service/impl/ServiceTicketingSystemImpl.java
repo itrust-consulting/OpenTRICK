@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.general.TicketingSystem;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceTicketingSystemImpl implements ServiceTicketingSystem {
 	
 	@Autowired

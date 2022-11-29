@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.asset.Asset;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceAssetImpl implements ServiceAsset {
 

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceSimpleParameterImpl implements lu.itrust.business.TS.database.service.ServiceSimpleParameter {
 
 	@Autowired

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceImpactParameterImpl implements ServiceImpactParameter {
 

@@ -831,7 +831,7 @@ public class ControllerFieldEditor {
 						if (field != null) {
 							field.setAccessible(true);
 							MeasureProperties properties = DAOHibernate
-									.Initialise(normalMeasure.getMeasurePropertyList());
+									.initialise(normalMeasure.getMeasurePropertyList());
 							if (field.getName().equals("preventive") || field.getName().equals("detective")
 									|| field.getName().equals("limitative")
 									|| field.getName().equals("corrective")) {
@@ -884,7 +884,7 @@ public class ControllerFieldEditor {
 						if (field != null) {
 							field.setAccessible(true);
 							MeasureProperties properties = DAOHibernate
-									.Initialise(assetMeasure.getMeasurePropertyList());
+									.initialise(assetMeasure.getMeasurePropertyList());
 							if (field.getName().equals("preventive") || field.getName().equals("detective")
 									|| field.getName().equals("limitative")
 									|| field.getName().equals("corrective")) {
@@ -1301,7 +1301,7 @@ public class ControllerFieldEditor {
 			AbstractNormalMeasure measure = (AbstractNormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis,
 					elementID);
 
-			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
+			MeasureProperties mesprep = DAOHibernate.initialise(measure.getMeasurePropertyList());
 
 			Field field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
 

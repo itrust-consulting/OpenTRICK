@@ -24,7 +24,7 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @Service
 public class ServiceDataValidationImpl implements ServiceDataValidation {
 
-	private Map<Class<?>, ValidatorField> validators = new LinkedHashMap<Class<?>, ValidatorField>();
+	private Map<Class<?>, ValidatorField> validators = new LinkedHashMap<>();
 
 	/**
 	 * register: <br>

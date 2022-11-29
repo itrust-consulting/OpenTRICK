@@ -3,17 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.15l</version>
+	<version>2.15m</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
-		<spring-boot.version>2.3.12.RELEASE</spring-boot.version>
-		<spring-mvc.version>5.2.22.RELEASE</spring-mvc.version>
-		<hibernate.version>5.6.11.Final</hibernate.version>
-		<log4j2.version>2.19.0</log4j2.version>
-		<mysql.version>8.0.30</mysql.version>
-		<jackson-bom.version>2.13.3</jackson-bom.version>
+		<spring-boot.version>2.7.5</spring-boot.version>
 	</properties>
 
 	<dependencies>
@@ -21,6 +16,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -347,9 +348,13 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>5.2.4</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-mysql</artifactId>
+		</dependency>
+		
 		<!-- JIRA -->
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>
@@ -492,73 +497,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-webmvc</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-aop</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-tx</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context-support</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-expression</artifactId>
-				<version>${spring-mvc.version}</version>
-			</dependency>
-
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>

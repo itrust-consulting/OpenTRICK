@@ -21,6 +21,7 @@ import lu.itrust.business.TS.model.standard.StandardType;
  * @version
  * @since Jan 24, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 

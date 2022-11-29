@@ -1,4 +1,4 @@
-    package lu.itrust.business.TS.usermanagement.helper;
+package lu.itrust.business.TS.usermanagement.helper;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.LocaleResolver;
 
@@ -46,25 +44,29 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	private AccountLockerManager accountLockerManager;
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws ServletException, IOException {
 		try {
 			User myUser = daoUser.get(authentication.getName());
 			if (myUser.getLocale() == null)
 				myUser.setLocale("en");
 			localeResolver.setLocale(request, response, new Locale(myUser.getLocale()));
-			String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date());
-			String remoteaddr = request.getHeader("X-FORWARDED-FOR");
-			if (remoteaddr == null)
-				remoteaddr = request.getRemoteAddr();
-			if (authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME))) {
-				System.out.println(stringdate + " CustomAuthenticationSuccessHandler - Pre-authentication: " + authentication.getName() + " is pre-authenticated! Requesting IP: "
+			final String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date());
+			final String remoteaddr = AccountLockerManager.getIP(request);
+			if (authentication.getAuthorities().stream()
+					.anyMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME))) {
+				System.out.println(stringdate + " CustomAuthenticationSuccessHandler - Pre-authentication: "
+						+ authentication.getName() + " is pre-authenticated! Requesting IP: "
 						+ remoteaddr);
 				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.pre_authenticated",
-						String.format("%s is pre-authenticated from %s", authentication.getName(), remoteaddr), authentication.getName(), LogAction.SIGN_IN, remoteaddr);
+						String.format("%s is pre-authenticated from %s", authentication.getName(), remoteaddr),
+						authentication.getName(), LogAction.SIGN_IN, remoteaddr);
 			} else {
 				System.out.println(
-						stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + authentication.getName() + "'! Requesting IP: " + remoteaddr);
-				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", authentication.getName(), remoteaddr),
+						stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '"
+								+ authentication.getName() + "'! Requesting IP: " + remoteaddr);
+				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect",
+						String.format("%s connects from %s", authentication.getName(), remoteaddr),
 						authentication.getName(), LogAction.SIGN_IN, remoteaddr);
 				accountLockerManager.clean(authentication.getName(), remoteaddr);
 			}
@@ -74,11 +76,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			if (!response.isCommitted())
 				super.onAuthenticationSuccess(request, response, authentication);
 			else
-				saveAuthentication(request, response, authentication);
+				clearAuthenticationAttributes(request);
 		}
 	}
 
-	private void saveAuthentication(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		clearAuthenticationAttributes(request);
-	}
 }

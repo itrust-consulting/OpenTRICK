@@ -18,6 +18,7 @@ import lu.itrust.business.TS.usermanagement.IDS;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceIDSImpl implements ServiceIDS {
 

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.usermanagement.User;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceResetPasswordImpl implements ServiceResetPassword {
 
 	@Autowired

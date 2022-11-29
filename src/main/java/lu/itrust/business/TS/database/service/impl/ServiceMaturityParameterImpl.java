@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceMaturityParameterImpl implements ServiceMaturityParameter {
 

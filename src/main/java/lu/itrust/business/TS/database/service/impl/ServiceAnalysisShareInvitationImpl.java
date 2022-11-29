@@ -21,6 +21,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceAnalysisShareInvitationImpl implements ServiceAnalysisShareInvitation {
 

@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.iteminformation.ItemInformation;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceItemInformationImpl implements ServiceItemInformation {
 

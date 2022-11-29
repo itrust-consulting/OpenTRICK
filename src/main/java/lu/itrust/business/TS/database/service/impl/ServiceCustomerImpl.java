@@ -19,6 +19,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceCustomerImpl implements ServiceCustomer {
 

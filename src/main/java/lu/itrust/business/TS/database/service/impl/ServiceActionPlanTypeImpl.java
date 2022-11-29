@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanType;
  * @version
  * @since Feb 7, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 

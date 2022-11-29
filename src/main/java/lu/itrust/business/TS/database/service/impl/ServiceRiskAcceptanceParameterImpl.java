@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.parameter.impl.RiskAcceptanceParameter;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceRiskAcceptanceParameterImpl implements ServiceRiskAcceptanceParameter {
 	
 	@Autowired

@@ -20,8 +20,8 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version
  * @since Jan 16, 2013
  */
-@Transactional
 @Service
+@Transactional(readOnly = true)
 public class ServiceRoleImpl implements ServiceRole {
 
 	@Autowired

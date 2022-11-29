@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceLikelihoodParameterImpl implements ServiceLikelihoodParameter {
 

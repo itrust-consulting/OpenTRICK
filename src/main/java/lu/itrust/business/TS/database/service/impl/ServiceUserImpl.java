@@ -22,6 +22,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 1, 2013
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceUserImpl implements ServiceUser {
 
 	@Autowired

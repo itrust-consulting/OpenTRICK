@@ -56,7 +56,7 @@ public class ChangeAdministrationSettings extends BaseUnitTesting {
 
 		signOut();
 
-		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.presenceOfElementLocated(By.id("login_form")));
+		//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.presenceOfElementLocated(By.id("login_form")));
 
 		assert isElementPresent(By.xpath(xpathState)) != state;
 	}

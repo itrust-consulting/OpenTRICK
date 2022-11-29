@@ -191,7 +191,7 @@
 											<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
 													code='label.status.na' /></td>
 										</c:when>
-										<c:when test="${likelihood.raw eq likelihood.real}">
+										<c:when test="${likelihood.raw.equals(likelihood.real)}">
 											<c:choose>
 												<c:when test="${likelihood.real==0}">
 													<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
@@ -216,7 +216,7 @@
 										</c:when>
 										<c:otherwise>
 											<c:choose>
-												<c:when test="${impact.raw eq impact.real}">
+												<c:when test="${impact.raw.equals(impact.real)}">
 													<fmt:formatNumber value="${impact.real}" var="realImpact" />
 													<c:choose>
 														<c:when test="${impact.real < 10000}">
@@ -252,7 +252,7 @@
 											<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" title='${naParameterLabel}' onclick="return editField(this);"><spring:message
 													code='label.status.na' /></td>
 										</c:when>
-										<c:when test="${likelihood.raw eq likelihood.real}">
+										<c:when test="${likelihood.raw.equals(likelihood.real)}">
 											<c:choose>
 												<c:when test="${likelihood.real==0}">
 													<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
@@ -318,7 +318,7 @@
 								</c:when>
 								<c:otherwise>
 									<c:choose>
-										<c:when test="${impact.raw eq impact.real}">
+										<c:when test="${impact.raw.equals(impact.real)}">
 											<fmt:formatNumber value="${impact.real}" var="realImpact" />
 											<c:choose>
 												<c:when test="${impact.real < 10000}">
@@ -352,7 +352,7 @@
 									<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message
 											code='label.status.na' /></td>
 								</c:when>
-								<c:when test="${likelihood.raw eq likelihood.real}">
+								<c:when test="${likelihood.raw.equals(likelihood.real)}">
 									<c:choose>
 										<c:when test="${likelihood.real==0}">
 											<td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" title='0' data-real-value='0'><spring:message

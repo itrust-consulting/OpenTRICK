@@ -68,7 +68,7 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null)
 			throw new AuthenticationServiceException("User session has been expired!");
-		else if (!authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME)))
+		else if (authentication.getAuthorities().stream().noneMatch(role -> role.getAuthority().equals(Constant.ROLE_OTP_NAME)))
 			throw new AuthenticationServiceException("User is already authenticated");
 		String code = request.getParameter(Constant.OTP_CHALLENGE_USER_RESPONSE);
 		if (code == null)

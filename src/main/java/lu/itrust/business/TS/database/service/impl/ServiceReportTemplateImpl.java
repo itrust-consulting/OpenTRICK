@@ -20,6 +20,7 @@ import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	
 	@Autowired

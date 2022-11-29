@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceDynamicParameterImpl implements ServiceDynamicParameter {
 

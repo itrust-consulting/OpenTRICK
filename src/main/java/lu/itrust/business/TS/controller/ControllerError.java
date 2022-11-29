@@ -43,9 +43,9 @@ public class ControllerError implements ErrorController {
 		}
 		return modelAndView;
 	}
-
+/* 
 	@Override
 	public String getErrorPath() {
 		return "/Error";
-	}
+	}*/
 }

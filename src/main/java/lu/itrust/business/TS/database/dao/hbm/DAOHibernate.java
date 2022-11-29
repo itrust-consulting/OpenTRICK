@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * HibernateDAO.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author itrust consulting s.à.rl. :
  * @version
  * @since 11 janv. 2013
  */
@@ -55,7 +55,7 @@ public class DAOHibernate {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T Initialise(T object) {
+	public static <T> T initialise(T object) {
 		Hibernate.initialize(object);
 		if (object instanceof HibernateProxy) {
 			return (T) ((HibernateProxy) object).getHibernateLazyInitializer().getImplementation();

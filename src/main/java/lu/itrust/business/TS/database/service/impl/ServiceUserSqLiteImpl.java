@@ -21,6 +21,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2014
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 
 	@Autowired

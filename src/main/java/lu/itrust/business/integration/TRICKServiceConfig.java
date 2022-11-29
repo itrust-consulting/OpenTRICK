@@ -3,37 +3,25 @@
  */
 package lu.itrust.business.integration;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.ServletRegistration;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.apache.tomcat.util.descriptor.web.WebXmlParser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
@@ -50,16 +38,7 @@ import lu.itrust.business.TS.helper.InstanceManager;
  *
  */
 @Configuration
-public class TSConfig {
-
-	@Autowired
-	private Environment environment;
-
-	@Autowired
-	private ResourceLoader resourceLoader;
-
-	@Autowired
-	private BasicDataSource dataSource;
+public class TRICKServiceConfig {
 
 	@Bean
 	public CommandLineRunner init(ServiceStorage serviceStorage) {
@@ -124,43 +103,6 @@ public class TSConfig {
 	}
 
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		final CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowCredentials(true);
-		configuration.setMaxAge(Duration.ofSeconds(900));
-		configuration.setAllowedOrigins(Collections.singletonList("*"));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "HEAD", "OPTIONS"));
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/Api/**", configuration);
-		return source;
-	}
-
-	@Bean
-	@DependsOn("flyway")
-	public LocalSessionFactoryBean sessionFactory() throws IOException {
-		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type")
-				+ ".xml";
-		final Properties properties = new Properties();
-		final Resource resource = resourceLoader.getResource(path);
-		final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		sessionFactory.setDataSource(dataSource);
-		sessionFactory.setPackagesToScan("lu.itrust.business.TS");
-		properties.put("hibernate.dialect", environment.getProperty("jdbc.dialect"));
-		properties.put("hibernate.show_sql", environment.getProperty("jdbc.show_sql"));
-		properties.put("hibernate.jdbc.time_zone", environment.getProperty("jdbc.time_zone"));
-		properties.put("hibernate.hbm2ddl.auto", environment.getProperty("jdbc.hbm2ddl.auto"));
-		properties.put("hibernate.javax.cache.provider", environment.getProperty("jdbc.cache.provider"));
-		properties.put("hibernate.cache.use_query_cache", environment.getProperty("jdbc.cache.use_query_cache"));
-		properties.put("hibernate.cache.region.factory_class", environment.getProperty("jdbc.cache.factory_class"));
-		properties.put("hibernate.cache.use_second_level_cache",
-				environment.getProperty("jdbc.cache.use_second_level"));
-		if (resource.exists())
-			properties.put("hibernate.javax.cache.uri", resource.getURI().toString());
-		sessionFactory.setHibernateProperties(properties);
-		return sessionFactory;
-	}
-
-	@Bean
 	public ServletContextInitializer initializer() {
 		return servletContext -> {
 			try (InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/web.xml")) {
@@ -171,7 +113,7 @@ public class TSConfig {
 				final WebXmlParser parser = new WebXmlParser(false, false, true);
 				final boolean success = parser.parseWebXml(new InputSource(inputStream), webXml, false);
 				if (success) {
-					webXml.getContextParams().forEach((name, value) -> servletContext.setInitParameter(name, value));
+					webXml.getContextParams().forEach(servletContext::setInitParameter);
 					for (ServletDef def : webXml.getServlets().values()) {
 						ServletRegistration.Dynamic reg = servletContext.addServlet(def.getServletName(),
 								def.getServletClass());

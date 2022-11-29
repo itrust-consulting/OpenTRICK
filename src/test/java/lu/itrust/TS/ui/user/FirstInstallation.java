@@ -14,8 +14,8 @@ public class FirstInstallation extends BaseUnitTesting {
 	public void firstInstallation() throws Exception {
 		goToAdministration();
 		click(By.xpath("//a[@onclick='return installTrickService();']"));
-		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("task-manager")));
-		new WebDriverWait(getDriver(), 60).until(ExpectedConditions.invisibilityOfElementLocated(By.id("task-manager")));
+		//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("task-manager")));
+		//new WebDriverWait(getDriver(), 60).until(ExpectedConditions.invisibilityOfElementLocated(By.id("task-manager")));
 	}
 
 	@Test(groups = { "firstInstallationAddCustomer" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
@@ -43,7 +43,7 @@ public class FirstInstallation extends BaseUnitTesting {
 		click(By.xpath("//a[@href='#tab_user']"));
 		click(By.xpath("//a[@onclick='return newUser();']"));
 
-		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("user_login")));
+		//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("user_login")));
 
 		sendKeys(findElement(By.id("user_login")), username);
 		sendKeys(findElement(By.id("user_password")), password);

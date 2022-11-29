@@ -21,6 +21,7 @@ import lu.itrust.business.TS.model.standard.StandardType;
  * @since Jan 16, 2013
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceStandardImpl implements ServiceStandard {
 
 	@Autowired

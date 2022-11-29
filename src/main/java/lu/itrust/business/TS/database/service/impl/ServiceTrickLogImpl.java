@@ -22,6 +22,7 @@ import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceTrickLogImpl implements ServiceTrickLog {
 
 	@Autowired

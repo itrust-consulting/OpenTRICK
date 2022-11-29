@@ -279,8 +279,8 @@ public class MeasureManager {
 					continue;
 				// Force hibernate to initialise data
 				((NormalMeasure) measure).setMeasurePropertyList(
-						DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
-				normalMeasure.setMeasurePropertyList(DAOHibernate.Initialise(normalMeasure.getMeasurePropertyList()));
+						DAOHibernate.initialise(((NormalMeasure) measure).getMeasurePropertyList()));
+				normalMeasure.setMeasurePropertyList(DAOHibernate.initialise(normalMeasure.getMeasurePropertyList()));
 				normalMeasure.copyMeasureCharacteristicsTo(((NormalMeasure) measure));
 				daoMeasure.saveOrUpdate(measure);
 			}

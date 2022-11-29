@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceProfileImpl implements ServiceRiskProfile {
 
 	@Autowired

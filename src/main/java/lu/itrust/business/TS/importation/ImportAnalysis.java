@@ -482,7 +482,7 @@ public class ImportAnalysis {
 
 		ResultSet rs = null;
 		try {
-			rs = sqlite.query("SELECT * FROM asset_node");
+			rs = sqlite.query("SELECT * FROM simple_document");
 			if (rs == null)
 				return;
 			while (rs.next()) {

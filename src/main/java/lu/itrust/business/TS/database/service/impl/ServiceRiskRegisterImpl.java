@@ -18,8 +18,8 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
  * @version
  * @since Jan 16, 2013
  */
-@Transactional
 @Service
+@Transactional(readOnly = true)
 public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 
 	@Autowired

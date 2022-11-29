@@ -4,14 +4,14 @@
 	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:task="http://www.springframework.org/schema/task" xmlns:websocket="http://www.springframework.org/schema/websocket"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+						http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+						http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+						http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 	<context:annotation-config />
 
@@ -46,10 +46,6 @@
 	</task:scheduled-tasks>
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
-
-	<mvc:cors>
-		<mvc:mapping path="/Api/**" allowed-origins="*" max-age="900" allow-credentials="true" allowed-methods="GET,POST,DELETE,HEAD,OPTIONS" />
-	</mvc:cors>
 
 	<mvc:resources mapping="/static/**" location="/WEB-INF/static/views/">
 		<mvc:cache-control max-age="31536000" cache-public="true" />
@@ -191,11 +187,9 @@
 		<bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
 			<property name="paramName" value="theme" />
 		</bean>
-     
 		<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />
 		</bean>
-
 	</mvc:interceptors>
 
 	<import resource="spring-security.xml" />

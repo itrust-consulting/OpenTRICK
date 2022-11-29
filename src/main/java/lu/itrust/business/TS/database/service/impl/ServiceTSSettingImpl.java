@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.general.TSSettingName;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceTSSettingImpl implements ServiceTSSetting {
 
 	@Autowired

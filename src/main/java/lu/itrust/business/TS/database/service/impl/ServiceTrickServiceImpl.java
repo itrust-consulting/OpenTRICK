@@ -17,6 +17,7 @@ import lu.itrust.business.TS.model.TrickService;
  * @since Apr 23, 2014
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceTrickServiceImpl implements ServiceTrickService {
 
 	@Autowired

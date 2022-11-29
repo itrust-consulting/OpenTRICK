@@ -19,7 +19,7 @@ import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
  * @since Jan 16, 2013
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ServiceParameterTypeImpl implements ServiceParameterType {
 
 	@Autowired

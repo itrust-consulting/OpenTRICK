@@ -20,6 +20,7 @@ import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
  * @version
  * @since Jan 16, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceMeasureImpl implements ServiceMeasure {
 

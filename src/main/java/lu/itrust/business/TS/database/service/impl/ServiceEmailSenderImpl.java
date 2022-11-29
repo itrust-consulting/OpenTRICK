@@ -46,6 +46,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version
  * @since Jan 26, 2015
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
@@ -89,7 +90,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
-					Map<String, Object> model = new LinkedHashMap<String, Object>();
+					Map<String, Object> model = new LinkedHashMap<>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
@@ -149,7 +150,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
-					Map<String, Object> model = new LinkedHashMap<String, Object>();
+					Map<String, Object> model = new LinkedHashMap<>();
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					model.put("hostname", hotname);
 					model.put("username", StringEscapeUtils.escapeHtml4(password.getUser().getLogin()));

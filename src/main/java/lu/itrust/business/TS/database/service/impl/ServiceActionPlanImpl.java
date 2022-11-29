@@ -22,6 +22,7 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
  * @version
  * @since Feb 13, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceActionPlanImpl implements ServiceActionPlan {
 

@@ -192,11 +192,11 @@ public class BaseUnitTesting {
 			System.err.println("Error");
 			assert !waitClick(by);
 		}
-		new WebDriverWait(getDriver(), 40).until(
+		/*new WebDriverWait(getDriver(), 40).until(
 				ExpectedConditions.and(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")),
-						ExpectedConditions.elementToBeClickable(by)));
+						ExpectedConditions.elementToBeClickable(by)));*/
 
-		new WebDriverWait(getDriver(), 10).until(new Function<WebDriver, Boolean>() {
+		/*new WebDriverWait(getDriver(), 10).until(new Function<WebDriver, Boolean>() {
 			public Boolean apply(WebDriver driver) throws TimeoutException {
 				try {
 					driver.findElement(by).click();
@@ -205,13 +205,13 @@ public class BaseUnitTesting {
 					return false;
 				}
 			}
-		});
+		});*/
 	}
 
 	// private functions
 	protected WebElement findElement(By by) {
 		try {
-			new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(by));
+			//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(by));
 			return getDriver().findElement(by);
 		} catch (Exception e1) {
 			return null;
@@ -220,7 +220,7 @@ public class BaseUnitTesting {
 
 	protected List<WebElement> findElements(By by) {
 		try {
-			new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(by));
+			//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(by));
 			return getDriver().findElements(by);
 		} catch (NoSuchElementException e) {
 			return null;
@@ -245,15 +245,15 @@ public class BaseUnitTesting {
 		new Select(findElement(By.id("customerSelectorFilter"))).selectByVisibleText(companyName);
 		if (analyseName != null)
 			selectAnalysis(analyseName);
-		new WebDriverWait(getDriver(), 2).until(ExpectedConditions.presenceOfElementLocated(By.id("section_analysis")));
+		//new WebDriverWait(getDriver(), 2).until(ExpectedConditions.presenceOfElementLocated(By.id("section_analysis")));
 	}
 
 	//
 	protected void goToKnowledgeBase() throws InterruptedException {
 		getDriver().get(baseUrl + "/KnowledgeBase");
 
-		new WebDriverWait(getDriver(), 2)
-				.until(ExpectedConditions.presenceOfElementLocated(By.id("section_profile_analysis")));
+		/*new WebDriverWait(getDriver(), 2)
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("section_profile_analysis")));*/
 	}
 
 	protected boolean isElementPresent(By by) {
@@ -282,7 +282,7 @@ public class BaseUnitTesting {
 
 		try {
 			int count = 0;
-			new WebDriverWait(getDriver(), 10).until(ExpectedConditions.not(ExpectedConditions.stalenessOf(element)));
+			//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.not(ExpectedConditions.stalenessOf(element)));
 			while (count < 10 && !getTextFromTextareaInput(element).equals(msg)) {
 				continueClearingUntilClear(element);
 				element.sendKeys(msg);
@@ -308,7 +308,7 @@ public class BaseUnitTesting {
 
 	protected boolean waitClick(By by) {
 		try {
-			new WebDriverWait(getDriver(), 10).until(ExpectedConditions.elementToBeClickable(by));
+			//new WebDriverWait(getDriver(), 10).until(ExpectedConditions.elementToBeClickable(by));
 			return true;
 		} catch (TimeoutException e) {
 			return false;
@@ -316,8 +316,8 @@ public class BaseUnitTesting {
 	}
 
 	protected void waitLoadingIndicator() {
-		new WebDriverWait(getDriver(), 30)
-				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
+		/*new WebDriverWait(getDriver(), 30)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));*/
 		assert !isElementPresent(By.id("#loading-indicator"));
 	}
 }

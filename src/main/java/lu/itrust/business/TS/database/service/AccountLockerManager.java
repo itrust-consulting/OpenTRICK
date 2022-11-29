@@ -33,7 +33,9 @@ public interface AccountLockerManager {
 		String remoteaddr = request.getHeader("X-FORWARDED-FOR");
 		if (remoteaddr == null)
 			remoteaddr = request.getRemoteAddr();
-		return remoteaddr;
+		
+
+		return remoteaddr == null? remoteaddr : remoteaddr.replaceAll("[\\[\\]]", "");
 	}
 
 	void clean();

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.history.History;
  * @version
  * @since Oct 22, 2013
  */
+@Transactional(readOnly = true)
 @Service
 public class ServiceHistoryImpl implements ServiceHistory {
 

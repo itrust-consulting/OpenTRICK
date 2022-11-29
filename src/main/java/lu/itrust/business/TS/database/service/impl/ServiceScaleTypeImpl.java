@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  *
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceScaleTypeImpl implements ServiceScaleType {
 
 	@Autowired

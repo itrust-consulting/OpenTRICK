@@ -95,8 +95,8 @@ public class Analyse extends BaseAnalyse {
 		chooseElementInsideDropdown("//a[@href='#tabActionPlan']", false);
 		click(By.xpath("//ul[@id='menu_actionplans']//a[contains(@onclick,'displayActionPlanOptions')]"));
 		click(By.xpath("//button[@id='computeActionPlanButton']"));
-		new WebDriverWait(getDriver(), 30).until(
-				ExpectedConditions.invisibilityOfElementLocated(By.xpath("//span[@id='task-counter' and text()='1']")));
+		/*new WebDriverWait(getDriver(), 30).until(
+				ExpectedConditions.invisibilityOfElementLocated(By.xpath("//span[@id='task-counter' and text()='1']")));*/
 		waitLoadingIndicator();
 	}
 
@@ -291,8 +291,8 @@ public class Analyse extends BaseAnalyse {
 		sendKeys(findElement(By.id("history_version")), "0.0.2");
 		sendKeys(findElement(By.id("history_comment")), "Bla bla nium");
 		click(By.id("history_submit_button"));
-		new WebDriverWait(getDriver(), 20)
-				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("history_submit_button")));
+		/*new WebDriverWait(getDriver(), 20)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("history_submit_button")));*/
 
 		// check data
 		selectCheckBox(true,

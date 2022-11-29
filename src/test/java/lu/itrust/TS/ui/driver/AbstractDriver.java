@@ -41,7 +41,7 @@ public abstract class AbstractDriver implements Driver {
 					return build(path);
 			}
 		}
-		new WebDriverWait(driver, 30).until((ExpectedCondition<Boolean>) wd -> ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
+		//new WebDriverWait(driver, 30).until((ExpectedCondition<Boolean>) wd -> ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
 		return driver;
 	}
 
@@ -62,7 +62,7 @@ public abstract class AbstractDriver implements Driver {
 	 */
 	protected WebDriver build(String path) {
 		assert !skipTests;
-		DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+		DesiredCapabilities capabilities = new DesiredCapabilities();
 		capabilities.setCapability("browser.cache.disk.enable", false);
 		capabilities.setCapability("browser.cache.memory.enable", false);
 		capabilities.setCapability("browser.cache.offline.enable", false);

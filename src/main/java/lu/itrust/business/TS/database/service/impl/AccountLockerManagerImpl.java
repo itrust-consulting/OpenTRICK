@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -26,6 +27,7 @@ import lu.itrust.business.TS.usermanagement.helper.AccountLocker;
  * @author eomar
  *
  */
+@Transactional(readOnly = true)
 @Component
 public class AccountLockerManagerImpl implements AccountLockerManager, Serializable {
 
@@ -74,9 +76,7 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 		AccountLocker accountLocker = lockedUsers.get(username);
 		if (accountLocker == null) {
 			synchronized (lockedUsers) {
-				accountLocker = lockedUsers.get(username);
-				if (accountLocker == null)
-					lockedUsers.put(username, accountLocker = new AccountLocker());
+				accountLocker = lockedUsers.computeIfAbsent(username, k -> new AccountLocker());
 			}
 		}
 		if (accountLocker.isLocked())
@@ -87,12 +87,25 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 			String[] names = username.split(AccountLockerManager.SEPRARATOR);
 			String key = Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + ":" + accountLocker.hashCode());
 			if (names.length == 2) {
-				TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.ip.locked",
-						String.format("%s account is locked for %d minutes from %s", names[0], lockMinute, names[1]), names[0], LogAction.LOCK_ACCOUNT, names[0], lockMinute + "",
-						names[1]);
-				serviceEmailSender.sendAccountLocked(key, names[1], accountLocker.getLockTime(), names[0]);
+				if (names[0].startsWith("service-attempt")) {
+					final String serviceName = names[0].replace("service-attempt-", "");
+					TrickLogManager.Persist(LogLevel.WARNING, String.format("error.%s.ip.locked", serviceName),
+							String.format(
+									"The following service `%s` will not reacheable from this IP address `%s` for %d minutes",
+									serviceName, names[1], lockMinute,
+									names[1]),
+							names[0], LogAction.DENY_ACCESS, serviceName, names[1], lockMinute + "");
+				} else {
+					TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.ip.locked",
+							String.format("%s account is locked for %d minutes from %s", names[0], lockMinute,
+									names[1]),
+							names[0], LogAction.LOCK_ACCOUNT, names[0], lockMinute + "",
+							names[1]);
+					serviceEmailSender.sendAccountLocked(key, names[1], accountLocker.getLockTime(), names[0]);
+				}
 			} else {
-				TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.locked", String.format("%s account is locked for %d minutes", username, lockMinute), username,
+				TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.locked",
+						String.format("%s account is locked for %d minutes", username, lockMinute), username,
 						LogAction.LOCK_ACCOUNT, username, lockMinute + "");
 				serviceEmailSender.sendAccountLocked(key, null, accountLocker.getLockTime(), names[0]);
 			}
@@ -113,7 +126,9 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 		if (!lockedUsers.isEmpty()) {
 			synchronized (lockedUsers) {
 				if (!lockedUsers.isEmpty())
-					lockedUsers.entrySet().removeIf(entry -> (entry.getValue().getLastAttemption() + lockTime) < currentTime && entry.getValue().getLockTime() < currentTime);
+					lockedUsers.entrySet()
+							.removeIf(entry -> (entry.getValue().getLastAttemption() + lockTime) < currentTime
+									&& entry.getValue().getLockTime() < currentTime);
 			}
 			if (!unlockCodes.isEmpty()) {
 				synchronized (unlockCodes) {

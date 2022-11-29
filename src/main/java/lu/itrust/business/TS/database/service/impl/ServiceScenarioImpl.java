@@ -20,6 +20,7 @@ import lu.itrust.business.TS.model.scenario.ScenarioType;
  * @since May 13, 2014
  */
 @Service
+@Transactional(readOnly = true)
 public class ServiceScenarioImpl implements ServiceScenario {
 
 	@Autowired
