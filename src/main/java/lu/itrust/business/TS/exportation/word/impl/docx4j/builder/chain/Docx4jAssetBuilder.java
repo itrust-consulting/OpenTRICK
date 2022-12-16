@@ -9,15 +9,12 @@ import static lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImp
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBException;
-
 import org.docx4j.dml.wordprocessingDrawing.Inline;
-import org.docx4j.jaxb.XPathBinderAssociationIsPartialException;
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
 import org.docx4j.wml.Drawing;
 import org.docx4j.wml.P;
-import org.docx4j.wml.R;
 import org.docx4j.wml.PPrBase.TextAlignment;
+import org.docx4j.wml.R;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;

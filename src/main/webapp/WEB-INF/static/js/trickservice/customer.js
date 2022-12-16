@@ -1,9 +1,8 @@
 function initUserCustomerList() {
 	$('#usercustomer').hide().after("<ul class='list-group' style='max-height: 300px; padding: 5px;margin:0; overflow: auto;'></ul>");
 	$('#usercustomer option').each(function () {
-		var selected = "";
-
-		var attr = $(this).attr('selected');
+		let selected = "";
+		let attr = $(this).attr('selected');
 
 		if (typeof attr !== 'undefined' && attr !== false) {
 			selected = " active";
@@ -12,7 +11,7 @@ function initUserCustomerList() {
 	});
 	$('#customerusersform .list-group li').on('click', function () {
 		$(this).toggleClass('active');
-		var allVal = new Array();
+		let allVal = new Array();
 		$('#customerusersform .list-group li.active').each(function () {
 			allVal.push($(this).attr("data-trick-opt"));
 		});
@@ -33,7 +32,7 @@ function getCustomerSection() {
 }
 
 function saveCustomer(form) {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$("#addCustomerModel .label-danger").remove();
 	$.ajax({
 		url: loadTargetContext() + "/Customer/Save",
@@ -41,9 +40,9 @@ function saveCustomer(form) {
 		data: serializeFormToJson(form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var hasError = false;
-			for (var error in response) {
-				var errorElement = document.createElement("label");
+			let hasError = false;
+			for (let error in response) {
+				let errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				switch (error) {
@@ -106,7 +105,7 @@ function saveCustomer(form) {
 
 function deleteCustomer(customerId, organisation) {
 	if (customerId == null || customerId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		let selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
 			return false;
 		organisation = $("#section_customer tbody tr[data-trick-id='" + (customerId = selectedScenario[0]) + "']>td:nth-child(2)").text();
@@ -115,7 +114,7 @@ function deleteCustomer(customerId, organisation) {
 		MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer <strong>" + organisation + "</strong>?", organisation));
 	$("#deletecustomerbuttonYes").unbind().click(function () {
 		$("#deleteCustomerModel").modal('hide');
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: loadTargetContext() + "/Customer/" + customerId + "/Delete",
 			type: "POST",
@@ -161,15 +160,15 @@ function newCustomer() {
 
 function editSingleCustomer(customerId) {
 	if (customerId == null || customerId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_customer");
+		let selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
 			return false;
 		customerId = selectedScenario[0];
 	}
 	$("#addCustomerModel .label-danger").remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] *[data-trick-name]").each(function () {
-		var $this = $(this), $field = $("#customer_" + $(this).attr("data-trick-name")), value = $this.attr("data-real-value");
+	$("#section_customer").find("tr[data-trick-id='" + customerId + "'] *[data-trick-name]").each(function () {
+		let $this = $(this), $field = $("#customer_" + $(this).attr("data-trick-name")), value = $this.attr("data-real-value");
 		if (value == undefined)
 			$field.prop("value", $this.text().trim());
 		else if($field.hasClass("btn-group"))
@@ -187,7 +186,7 @@ function editSingleCustomer(customerId) {
 
 function manageCustomerTemplate(customerId) {
 	if (customerId == null || customerId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_customer");
+		let selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
 			return false;
 		customerId = selectedScenario[0];
@@ -196,27 +195,27 @@ function manageCustomerTemplate(customerId) {
 	if (customerId == null || customerId == undefined || !canManageCustomerTemplate())
 		return false;
 
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Manage",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $modal = $("#reportTemplateModal", new DOMParser().parseFromString(response, "text/html"));
+			let $modal = $("#reportTemplateModal", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 
-				var $tabs = $modal.find("#menu_manage_customer_template a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer button[name='cancel']"), $backBtn = $modal
+				let $tabs = $modal.find("#menu_manage_customer_template a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer button[name='cancel']"), $backBtn = $modal
 					.find(".modal-footer a[role='back'].btn"), $saveBtn = $modal.find(".modal-footer button[name='save']"), $btnSubmit = $("button[name='submit']", $modal);
 
-				var $file = $("input[type='file']", $modal), $fileInfo = $("input[name='filename']", $modal), $browse = $("button[name='browse']", $modal);
+				let $file = $("input[type='file']", $modal), $fileInfo = $("input[name='filename']", $modal), $browse = $("button[name='browse']", $modal);
 
 				$browse.on("click", (e) => $file.trigger("click"));
 
 				$file.on("change", (e) => {
-					var value = $file.val();
+					let value = $file.val();
 					if (value.trim() === '')
 						$saveBtn.prop("disabled", $file.is(":required"));
 					else {
-						var size = parseInt($file.attr("maxlength"))
+						let size = parseInt($file.attr("maxlength"))
 						if ($file[0].files[0].size > size) {
 							showDialog("error", MessageResolver("error.file.too.large", undefined, size));
 							return false;
@@ -279,13 +278,13 @@ function manageCustomerTemplate(customerId) {
 }
 
 function reloadReportTemplateTable(customerId, $modal) {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Manage",
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_customer_template table.table");
+			let $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_customer_template table.table");
 			if ($table.length) {
 				$("#section_manage_customer_template table.table", $modal).replaceWith($table);
 				updateMenu(undefined, '#section_manage_customer_template', '#menu_manage_customer_template');
@@ -301,7 +300,7 @@ function reloadReportTemplateTable(customerId, $modal) {
 }
 
 function saveReportTemplate(e) {
-	var $modal = $(e.currentTarget).closest(".modal"), $form = $("#reportTemplate-form", $modal), $progress = $("#loading-indicator").show(), customerId = $("input[name='customer']", $form).val();
+	let $modal = $(e.currentTarget).closest(".modal"), $form = $("#reportTemplate-form", $modal), $progress = $("#loading-indicator").show(), customerId = $("input[name='customer']", $form).val();
 	$("label.label-danger",$modal).remove();
 	$.ajax({
 		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Save",
@@ -319,8 +318,8 @@ function saveReportTemplate(e) {
 				showDialog("#alert-dialog", response.error);
 			else if (typeof response == 'object') {
 
-				for (var field in response) {
-					var message = response[field];
+				for (let field in response) {
+					let message = response[field];
 
 					if (field === "customer")
 						showDialog("#alert-dialog", message);
@@ -348,14 +347,14 @@ function checkItemCount() {
 }
 
 function editReportTemplate(e) {
-	var $current = $(e.currentTarget);
+	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
-	var $modal = $current.closest(".modal"), $form = $("#reportTemplate-form",$modal);
-	var $tr = $("#section_manage_customer_template tbody>tr[data-trick-editable='true'] input:checked").closest("tr");
+	let $modal = $current.closest(".modal"), $form = $("#reportTemplate-form",$modal);
+	let $tr = $("#section_manage_customer_template tbody>tr[data-trick-editable='true'] input:checked").closest("tr");
 	if (!$tr.length)
 		return false;
-	var type = $("td[data-trick-field='type']", $tr).attr("data-trick-real-value"),
+	let type = $("td[data-trick-field='type']", $tr).attr("data-trick-real-value"),
 		idLanguage = $("td[data-trick-field='language']", $tr).attr("data-trick-real-value"), isProfile = $modal.attr("data-trick-is-profile")==="true";
 	$("select[name='language']", $form).val(idLanguage);
 	$("input[name='id']", $form).val($tr.attr("data-trick-id"));
@@ -376,24 +375,24 @@ function editReportTemplate(e) {
 }
 
 function addReportTemplate(e) {
-	var $current = $(e.currentTarget);
+	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
-	var $form = $("#reportTemplate-form", $current.closest(".modal")).trigger("reset");
+	let $form = $("#reportTemplate-form", $current.closest(".modal")).trigger("reset");
 	$("input[name='type'][value='QUANTITATIVE']", $form).closest(".btn").trigger("click");
 	$("input[type='file']", $form).attr("required", "required").trigger("change");
 	$("input[name='id']", $form).val("-1");
 }
 function deleteReportTemplate(e) {
-	var $current = $(e.currentTarget);
+	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
-	var $modal = $current.closest(".modal"), selections = findSelectItemIdBySection("section_manage_customer_template", $modal).filter((i) => parseInt(i) > 0);
+	let $modal = $current.closest(".modal"), selections = findSelectItemIdBySection("section_manage_customer_template", $modal).filter((i) => parseInt(i) > 0);
 	if (!selections.length)
 		return false;
-	var customerId = $("input[name='customer']", $modal).val(), $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.report.template", "Are you sure, you want to delete selected template?", selections.length));
+	let customerId = $("input[name='customer']", $modal).val(), $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.report.template", "Are you sure, you want to delete selected template?", selections.length));
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: loadTargetContext() + "/Customer/" + customerId + "/Report-template",
 			data: JSON.stringify(selections),
@@ -419,10 +418,10 @@ function deleteReportTemplate(e) {
 }
 
 function downloadReportTemplate(e) {
-	var $current = $(e.currentTarget);
+	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
-	var $modal = $current.closest(".modal"), selections = findSelectItemIdBySection("section_manage_customer_template", $modal).filter((i) => parseInt(i) > 0);
+	let $modal = $current.closest(".modal"), selections = findSelectItemIdBySection("section_manage_customer_template", $modal).filter((i) => parseInt(i) > 0);
 	if (!selections.length)
 		return false;
 	if (selections.length > application["reportTemplateDownloadItemLimit"])

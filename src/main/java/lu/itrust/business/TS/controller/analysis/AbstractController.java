@@ -36,6 +36,7 @@ import lu.itrust.business.TS.model.analysis.ReportSetting;
 import lu.itrust.business.TS.model.cssf.helper.ColorManager;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.TicketingSystem;
+import lu.itrust.business.TS.model.general.TicketingSystemType;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -72,19 +73,32 @@ public abstract class AbstractController {
 
 	protected boolean loadUserSettings(Principal principal, @Nullable TicketingSystem ticketingSystem,
 			@Nullable Model model, @Nullable User user) {
-		boolean allowedTicketing = false, adminAllowedTicketing = false;
+		boolean allowedTicketing = false;
+		boolean adminAllowedTicketing = false;
 		try {
+
 			adminAllowedTicketing = serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
 			if (!(ticketingSystem == null || ticketingSystem.getType() == null)
-					&& StringUtils.hasText(ticketingSystem.getUrl()) && ticketingSystem.isEnabled()
+					&& (StringUtils.hasText(ticketingSystem.getUrl()) ||
+							ticketingSystem.getType().isNoClient())
+					&& ticketingSystem.isEnabled()
 					&& adminAllowedTicketing) {
+
 				if (user == null)
 					user = serviceUser.get(principal.getName());
-				allowedTicketing = user.getCredentials().containsKey(ticketingSystem);
-				if (model != null && allowedTicketing) {
+
+				allowedTicketing = ticketingSystem.getType().isNoClient()
+						|| user != null && user.getCredentials().containsKey(ticketingSystem);
+
+				if (model != null) {
+
+					if (!ticketingSystem.getType().isNoClient() && StringUtils.hasText(ticketingSystem.getUrl()))
+						model.addAttribute(TICKETING_URL, ticketingSystem.getUrl());
+
 					model.addAttribute(TICKETING_NAME,
 							StringUtils.capitalize(ticketingSystem.getType().name().toLowerCase()));
-					model.addAttribute(TICKETING_URL, ticketingSystem.getUrl());
+					model.addAttribute("ticketingType", ticketingSystem.getType());
+					model.addAttribute("isNoClientTicketing", ticketingSystem.getType().isNoClient());
 				}
 			}
 		} catch (Exception e) {

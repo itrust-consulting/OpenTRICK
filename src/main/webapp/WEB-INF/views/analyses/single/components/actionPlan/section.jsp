@@ -37,21 +37,37 @@
 				<c:if test="${isLinkedToProject}">
 					<c:set var="ttSysName" value="${fn:toLowerCase(ticketingName)}" />
 					<c:choose>
-						<c:when test="${isEditable}">
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
-								onclick="return synchroniseWithTicketingSystem('#section_actionplans')"><spring:message code="label.open.ticket_measure" text="Open Measure/Ticket" /></a></li>
-							<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return generateTickets('#section_actionplans')"><spring:message
-										code="label.action.create_or_update.tickets" text="Generate/Update Tickets" /></a></li>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_actionplans')"><a href="#"
-								onclick="return linkToTicketingSystem('#section_actionplans')"><spring:message code="label.link.to.ticketing.system" arguments="${ticketingName}"
-										text="Link to ${ticketingName}" /></a></li>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
-								onclick="return unLinkToTicketingSystem('#section_actionplans')"><spring:message code="label.unlink.from.ticketing.system" arguments="${ticketingName}"
-										text="Unlink from ${ticketingName}" /></a></li>
+						<c:when test="${isNoClientTicketing}">
+							<c:choose>
+								<c:when test="${isEditable and ttSysName == 'email'}">
+									<li class="disabled" data-trick-selectable="multi" data-trick-single-check="!isLinkedTicketingSystem('#section_actionplans')"><a href="#" onclick="return createTickets('#section_actionplans')"><spring:message
+																code="label.action.create.email.tickets" text="Create ticket by email" /></a></li>
+									<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return generateTickets('#section_actionplans')"><spring:message
+														code="label.action.update.email.tickets" text="Re-create ticket by email" /></a></li>
+									<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
+												onclick="return unLinkToTicketingSystem('#section_actionplans')"><spring:message code="label.action.clear.email.status" text="Clean ticket status" /></a></li>
+								</c:when>
+							</c:choose>
 						</c:when>
 						<c:otherwise>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
-								onclick="return openTicket('#section_actionplans')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
+							<c:choose>
+								<c:when test="${isEditable}">
+									<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
+										onclick="return synchroniseWithTicketingSystem('#section_actionplans')"><spring:message code="label.open.ticket_measure" text="Open Measure/Ticket" /></a></li>
+									<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return generateTickets('#section_actionplans')"><spring:message
+												code="label.action.create_or_update.tickets" text="Generate/Update Tickets" /></a></li>
+									<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_actionplans')"><a href="#"
+										onclick="return linkToTicketingSystem('#section_actionplans')"><spring:message code="label.link.to.ticketing.system" arguments="${ticketingName}"
+												text="Link to ${ticketingName}" /></a></li>
+									<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
+										onclick="return unLinkToTicketingSystem('#section_actionplans')"><spring:message code="label.unlink.from.ticketing.system" arguments="${ticketingName}"
+												text="Unlink from ${ticketingName}" /></a></li>
+								</c:when>
+								<c:otherwise>
+									<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
+										onclick="return openTicket('#section_actionplans')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
+								</c:otherwise>
+							</c:choose>
 						</c:otherwise>
 					</c:choose>
 				</c:if>
@@ -129,18 +145,35 @@
 										<c:if test="${isLinkedToProject}">
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_actionplans','#menu_actionplans');"></td>
 										</c:if>
-										<td><spring:message text="${ape.order}" /></td>
-										<td><spring:message text="${ape.measure.analysisStandard.standard.name}" /></td>
 										<td><c:choose>
-												<c:when test="${isLinkedToProject and not empty ape.measure.ticket}">
-													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
-													<a href="${ticketLink}" target="_ticket_ts" class="btn btn-default btn-xs"><spring:message text="${ape.measure.measureDescription.reference}" /></a>
+												<c:when test="${isLinkedToProject}">
+													<c:choose>
+														<c:when test="${not empty ape.measure.ticket}">
+															<c:choose>
+																<c:when test="${isNoClientTicketing}">
+																	<span style="white-space: nowrap;"><i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${ape.order}" /></span>
+																</c:when>
+																<c:otherwise>
+																	<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
+																	<a href="${ticketLink}" target="_ticket_ts" style="padding-top:0; padding-left: 0" class="btn btn-link"><span style="white-space: nowrap;"><i class="fa fa-link" style="font-size: 12px;" aria-hidden="true"></i> <spring:message text="${ape.order}" /></span></a>
+																</c:otherwise>
+															</c:choose>
+														</c:when>
+															<c:when test="${isNoClientTicketing}">
+																<span style="white-space: nowrap;"><i class="fa fa-paper-plane-o" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${ape.order}" /></span>
+															</c:when>
+															<c:otherwise>
+																<i class="fa fa-chain-broken" style="font-size: 10px" aria-hidden="true"></i> <spring:message text="${ape.order}" />
+															</c:otherwise>
+													</c:choose>
 												</c:when>
 												<c:otherwise>
 													<spring:message text="${ape.measure.measureDescription.reference}" />
 												</c:otherwise>
 											</c:choose></td>
-										<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></b> <br /> <spring:message
+										<td><spring:message text="${ape.measure.analysisStandard.standard.name}" /></td>
+										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
+										<td><strong><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></strong> <br /> <spring:message
 												text="${ape.measure.getToDo()}" /></td>
 										<c:choose>
 											<c:when test="${apt=='APQ'}">

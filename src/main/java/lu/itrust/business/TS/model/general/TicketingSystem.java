@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cache;
@@ -44,6 +45,12 @@ public class TicketingSystem {
 	@JoinColumn(name = "fiCustomer")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private Customer customer;
+
+	@ManyToOne
+	@Cascade(CascadeType.ALL)
+	@JoinColumn(name = "fiEmailTemplate")
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private EmailTemplate emailTemplate;
 
 	public long getId() {
 		return id;
@@ -91,6 +98,14 @@ public class TicketingSystem {
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+	}
+
+	public EmailTemplate getEmailTemplate() {
+		return emailTemplate;
+	}
+
+	public void setEmailTemplate(EmailTemplate emailTemplate) {
+		this.emailTemplate = emailTemplate;
 	}
 
 }

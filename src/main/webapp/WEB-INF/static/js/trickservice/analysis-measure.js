@@ -88,16 +88,16 @@ function loadMeasureData(id) {
 			success: function (response) {
 				var $measureUI = $("div#measure-ui", new DOMParser().parseFromString(response, "text/html"));
 				if ($measureUI.length) {
-					
-					backupFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],$currentUI);
-					restoreFieldHeight("measure",["description", "measure-tocheck", "measure-comment","measure-todo"],$measureUI);
-					
+
+					backupFieldHeight("measure", ["description", "measure-tocheck", "measure-comment", "measure-todo"], $currentUI);
+					restoreFieldHeight("measure", ["description", "measure-tocheck", "measure-comment", "measure-todo"], $measureUI);
+
 					$currentUI.replaceWith($measureUI);
-					
+
 					$("#description-switch-language .btn", $measureUI).on("click", e => {
-						return updateDescription($(e.currentTarget), id,$("#description", $measureUI),$progress);
+						return updateDescription($(e.currentTarget), id, $("#description", $measureUI), $progress);
 					});
-					
+
 					if (OPEN_MODE.isReadOnly()) {
 						$("select:not([disabled])", $measureUI).prop("disabled", true);
 						$("input:not([disabled]),textarea:not([disabled])", $measureUI).attr("readOnly", true);
@@ -123,22 +123,22 @@ function loadMeasureData(id) {
 	return false;
 }
 
-function updateDescription($element,id,$description, $progress){
+function updateDescription($element, id, $description, $progress) {
 	$progress.show();
 	$.ajax({
-		url: context + "/Analysis/Standard/Measure/" + id + "/Description/"+$element.attr("lang"),
+		url: context + "/Analysis/Standard/Measure/" + id + "/Description/" + $element.attr("lang"),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response) {
-			if(response["error"])
+			if (response["error"])
 				showDialog("#alert-dialog", response["error"]);
-			else if(response["description"]!=undefined){
+			else if (response["description"] != undefined) {
 				$description.attr("lang", language).text(response["description"]);
-				$element.attr("disabled",true).find("img").attr("src", $element.attr("data-flag-disabled"));
-				var lang = $element.attr("lang"), $other = $element.parent().find(".btn[lang!='"+lang+"']");
-				$other.removeAttr('disabled').find("img").attr("src", $other.attr("data-flag-enabled") );
+				$element.attr("disabled", true).find("img").attr("src", $element.attr("data-flag-disabled"));
+				var lang = $element.attr("lang"), $other = $element.parent().find(".btn[lang!='" + lang + "']");
+				$other.removeAttr('disabled').find("img").attr("src", $other.attr("data-flag-enabled"));
 			}
 			else unknowError();
-		},error: unknowError
+		}, error: unknowError
 	}).complete(() => $progress.hide());
 	return false;
 }
@@ -253,7 +253,7 @@ function updateMeasureNavigationControl(measure) {
 		var $chapter = findMeasuresChapter(chapter, $measureContainer, $chapterSelector);
 		$("<a href='#' style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' class='list-group-item' />").attr("title", measure.domain).attr(
 			"data-trick-reference", measure.reference).attr("data-trick-id", measure.id).text(
-			measure.reference + " - " + measure.domain).appendTo($chapter).on("click", changeMeasure);
+				measure.reference + " - " + measure.domain).appendTo($chapter).on("click", changeMeasure);
 		sortMeasureChapterByReference($chapter);
 	}
 	return updateMeasureView();
@@ -310,16 +310,16 @@ function initiliseMeasureView() {
 
 	$chapterSelector
 		.on(
-		'change',
-		function (e) {
-			var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), $measuresContainer = $("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='"
-				+ standardId + "']:visible");
-			$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + this.value + "']:visible").hide();
-			$measuresContainer.find("div.list-group[data-trick-chapter-name='" + this.value + "']:hidden").show();
-			updateMeasureUI();
-			$nav.trigger("trick.update.nav");
-			return false;
-		});
+			'change',
+			function (e) {
+				var $target = $(e.currentTarget), $parent = $target.closest("div[data-trick-standard-name]"), standardId = $parent.attr('data-trick-id'), $measuresContainer = $("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='"
+					+ standardId + "']:visible");
+				$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + this.value + "']:visible").hide();
+				$measuresContainer.find("div.list-group[data-trick-chapter-name='" + this.value + "']:hidden").show();
+				updateMeasureUI();
+				$nav.trigger("trick.update.nav");
+				return false;
+			});
 
 	application["measure-view-init"] = true;
 	$standardSelector.trigger("change");

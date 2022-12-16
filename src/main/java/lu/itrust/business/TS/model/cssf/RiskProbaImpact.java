@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;

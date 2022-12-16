@@ -311,7 +311,7 @@ public class ExportAnalysis {
 		for (SimpleDocument document : analysis.getDocuments().values()) {
 			counter = prepareQuery(params,
 					"INSERT INTO simple_document select ? as id, ? as dtCreated,? as dtData,? as dtLength, ? as dtName, ? as dtType",
-					4, query, counter);
+					6, query, counter);
 			params.add(document.getId());
 			params.add(document.getCreated());
 			params.add(document.getData());

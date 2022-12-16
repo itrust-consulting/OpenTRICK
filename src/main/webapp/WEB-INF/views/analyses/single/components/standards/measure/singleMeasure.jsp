@@ -57,11 +57,25 @@
 			</c:if>
 			<td><c:choose>
 					<c:when test="${hasTicket}">
-						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
-						<a href="${ticketLink}" target="_ticket_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+						<c:choose>
+							<c:when test="${isNoClientTicketing}"><span style="white-space: nowrap;"><i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></c:when>
+							<c:otherwise>
+								<c:set var="ttSysName" value="${fn:toLowerCase(ticketingName)}" />
+								<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
+								<a href="${ticketLink}" target="_ticket_ts" class="btn btn-link btn-xs" style="padding-top:0; padding-left: 0"><span style="white-space: nowrap;"><i class="fa fa-link" style="font-size: 12px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></a>
+							</c:otherwise>
+						</c:choose>
 					</c:when>
 					<c:otherwise>
-						<spring:message text="${measure.measureDescription.reference}" />
+						<c:choose>
+							<c:when test="${isNoClientTicketing}"><span style="white-space: nowrap;"><i class="fa fa-paper-plane-o" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></c:when>
+							<c:when test="${isLinkedToProject}">
+								<span style="white-space: nowrap;"><i class="fa fa-chain-broken" style="font-size: 10px" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span>
+							</c:when>
+							<c:otherwise>
+								<spring:message text="${measure.measureDescription.reference}" />
+							</c:otherwise>
+						</c:choose>
 					</c:otherwise>
 				</c:choose></td>
 			<td ${popoverRef} colspan="${selectedStandard.label=='27002' and hasMaturity? '14' : '13' }"><spring:message
@@ -91,11 +105,25 @@
 			</c:if>
 			<td ${not isAnalysisOnly?dblclickaction:''}><c:choose>
 					<c:when test="${hasTicket}">
-						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
-						<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+						<c:choose>
+							<c:when test="${isNoClientTicketing}"><span style="white-space: nowrap;"><i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></c:when>
+							<c:otherwise>
+							     <c:set var="ttSysName" value="${fn:toLowerCase(ticketingName)}" />
+								<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
+								<a href="${ticketLink}" target="_ticket_ts" class="btn btn-link btn-xs" style="padding-top:0; padding-left: 0" class="btn btn-link"><span style="white-space: nowrap;"><i class="fa fa-link" style="font-size: 12px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></a>
+							</c:otherwise>
+						</c:choose>
 					</c:when>
 					<c:otherwise>
-						<spring:message text="${measure.measureDescription.reference}" />
+						<c:choose>
+							<c:when test="${isNoClientTicketing}"><span style="white-space: nowrap;"><i class="fa fa-paper-plane-o" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></c:when>
+							<c:when test="${isLinkedToProject}">
+								<span style="white-space: nowrap;"><i class="fa fa-chain-broken" style="font-size: 10px" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span>
+							</c:when>
+							<c:otherwise>
+								<spring:message text="${measure.measureDescription.reference}" />
+							</c:otherwise>
+						</c:choose>
 					</c:otherwise>
 				</c:choose></td>
 			<td ${popoverRef}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>

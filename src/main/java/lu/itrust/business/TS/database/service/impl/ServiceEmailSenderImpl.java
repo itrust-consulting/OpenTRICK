@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.service.impl;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.LinkedHashMap;
@@ -9,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 
+import javax.annotation.Nonnull;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -16,6 +18,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -28,12 +31,17 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.MalformedTemplateNameException;
+import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateNotFoundException;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.AnalysisShareInvitation;
+import lu.itrust.business.TS.model.general.document.impl.Attachment;
+import lu.itrust.business.TS.model.general.email.Email;
+import lu.itrust.business.TS.model.general.email.Recipient;
 import lu.itrust.business.TS.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
@@ -71,6 +79,100 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	@Autowired
 	private DAOUser daoUser;
 
+	@Override
+	public String processTemplateIntoString(String templateString, final Map<String, Object> model) {
+		try {
+			final Template template = new Template("email-string-template", new StringReader(templateString),
+					freemarkerConfiguration, "UTF-8");
+			return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+		} catch (IOException e) {
+			throw new TrickException("error.template.io.exception", "The template cannot be empty", e);
+		} catch (TemplateException e) {
+			throw new TrickException("error.template.parse.exception", "The template cannot be parsed", e);
+		}
+	}
+
+	
+	@Override
+	public void send(@Nonnull Email email, @Nonnull final Map<String, Object> model) {
+		try {
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException,
+						MissingResourceException, IOException, TemplateException {
+
+					final MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					message.setText(processTemplateIntoString(email.getBody(), model), false);
+
+					message.setFrom(emailSender);
+					message.setSubject(email.getSubject());
+
+					for (Recipient recipient : email.getRecipients()) {
+						switch (recipient.getType()) {
+							case TO:
+								message.addTo(recipient.getEmail());
+								break;
+							case CC:
+								message.addCc(recipient.getEmail());
+								break;
+							case BCC:
+								message.addBcc(recipient.getEmail());
+								break;
+						}
+					}
+
+					for (Attachment attachment : email.getAttachments()) {
+						message.addAttachment(attachment.getName(),
+								new ByteArrayResource(attachment.getData(), attachment.getName()));
+					}
+				}
+
+			};
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+	}
+
+	@Override
+	public void send(@Nonnull Email email) {
+		try {
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage)
+						throws MessagingException, MissingResourceException, IOException, TemplateException {
+
+					final MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					message.setFrom(emailSender);
+					message.setSubject(email.getSubject());
+					message.setText(email.getBody(), email.isHtml());
+
+					for (Recipient recipient : email.getRecipients()) {
+						switch (recipient.getType()) {
+							case TO:
+								message.addTo(recipient.getEmail());
+								break;
+							case CC:
+								message.addCc(recipient.getEmail());
+								break;
+							case BCC:
+								message.addBcc(recipient.getEmail());
+								break;
+						}
+					}
+
+					for (Attachment attachment : email.getAttachments()) {
+						message.addAttachment(attachment.getName(),
+								new ByteArrayResource(attachment.getData(), attachment.getName()));
+					}
+
+					
+				}
+			};
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+	}
+
 	/**
 	 * sendRegistrationMail: <br>
 	 * Description
@@ -84,18 +186,23 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	public void send(final List<User> recipients, final User user) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+				public void prepare(MimeMessage mimeMessage) throws MessagingException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
-					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+					message.setSubject(
+							messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					Map<String, Object> model = new LinkedHashMap<>();
-					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+					model.put("title",
+							messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.ftl" : "new-user-info-en.ftl"), "UTF-8"),
+							freemarkerConfiguration.getTemplate(
+									(locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.ftl"
+											: "new-user-info-en.ftl"),
+									"UTF-8"),
 							model), true);
 					message.setTo(user.getEmail());
 				}
@@ -110,14 +217,16 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			for (final User admin : recipients) {
 				try {
 					MimeMessagePreparator preparator = new MimeMessagePreparator() {
-						public void prepare(MimeMessage mimeMessage) throws MissingResourceException, MessagingException, TemplateNotFoundException, MalformedTemplateNameException,
-								ParseException, IOException, TemplateException {
+						public void prepare(MimeMessage mimeMessage) throws MissingResourceException,
+								MessagingException, IOException, TemplateException {
 							Locale locale = admin.getLocaleObject();
 							MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 							message.setFrom(emailSender);
-							message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
-							Map<String, Object> model = new LinkedHashMap<String, Object>();
-							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
+							message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null,
+									"New TRICK Service user", locale));
+							Map<String, Object> model = new LinkedHashMap<>();
+							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null,
+									"New TRICK Service user", locale));
 							model.put("login", StringEscapeUtils.escapeHtml4(admin.getLogin()));
 							model.put("userLogin", StringEscapeUtils.escapeHtml4(user.getLogin()));
 							model.put("userEmail", StringEscapeUtils.escapeHtml4(user.getEmail()));
@@ -125,7 +234,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 							message.setText(
 									FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
-											.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.ftl" : "new-user-admin-en.ftl"), "UTF-8"), model),
+											.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra")
+													? "new-user-admin-fr.ftl"
+													: "new-user-admin-en.ftl"), "UTF-8"),
+											model),
 									true);
 							message.setTo(admin.getEmail());
 						}
@@ -144,18 +256,23 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	public void send(final ResetPassword password, final String hotname) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
-						MissingResourceException, IOException, TemplateException {
+				public void prepare(MimeMessage mimeMessage)
+						throws MessagingException, MissingResourceException, IOException, TemplateException {
 					Locale locale = password.getUser().getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
-					message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
+					message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null,
+							"Reset password", locale));
 					Map<String, Object> model = new LinkedHashMap<>();
-					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
+					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null,
+							"Reset password", locale));
 					model.put("hostname", hotname);
 					model.put("username", StringEscapeUtils.escapeHtml4(password.getUser().getLogin()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.ftl" : "reset-password-en.ftl"), "UTF-8"),
+							freemarkerConfiguration.getTemplate(
+									(locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.ftl"
+											: "reset-password-en.ftl"),
+									"UTF-8"),
 							model), true);
 					message.setTo(password.getUser().getEmail());
 				}
@@ -170,23 +287,30 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	public void sendOTPCode(String code, Long timeout, User user) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+				public void prepare(MimeMessage mimeMessage) throws MessagingException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
 					Timestamp timestamp = new Timestamp(timeout);
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
-					message.setSubject(messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
+					message.setSubject(messageSource.getMessage("label.otp.email.code.subject", null,
+							"TRICK Service authentication code", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
-					model.put("title", messageSource.getMessage("label.otp.email.code.subject", null, "TRICK Service authentication code", locale));
-					model.put("expireDate", StringEscapeUtils.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
-					model.put("expireDateTime", StringEscapeUtils.escapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
+					model.put("title", messageSource.getMessage("label.otp.email.code.subject", null,
+							"TRICK Service authentication code", locale));
+					model.put("expireDate", StringEscapeUtils
+							.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
+					model.put("expireDateTime", StringEscapeUtils
+							.escapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("code", code);
 					message.setText(
 							FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
-									.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "on-time-password-fr.ftl" : "on-time-password-en.ftl"), "UTF-8"), model),
+									.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra")
+											? "on-time-password-fr.ftl"
+											: "on-time-password-en.ftl"), "UTF-8"),
+									model),
 							true);
 					message.setTo(user.getEmail());
 				}
@@ -206,23 +330,30 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			if (user == null)
 				return;
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+				public void prepare(MimeMessage mimeMessage) throws MessagingException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
 					Timestamp timestamp = new Timestamp(timeout);
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
-					message.setSubject(messageSource.getMessage("label.account.locked.subject", null, "TRICK Service account locked", locale));
-					Map<String, Object> model = new LinkedHashMap<String, Object>();
-					model.put("title", messageSource.getMessage("label.title.account.locked", null, "TRICK Service account locked", locale));
-					model.put("expireDate", StringEscapeUtils.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
-					model.put("expireDateTime", StringEscapeUtils.escapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
+					message.setSubject(messageSource.getMessage("label.account.locked.subject", null,
+							"TRICK Service account locked", locale));
+					Map<String, Object> model = new LinkedHashMap<>();
+					model.put("title", messageSource.getMessage("label.title.account.locked", null,
+							"TRICK Service account locked", locale));
+					model.put("expireDate", StringEscapeUtils
+							.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
+					model.put("expireDateTime", StringEscapeUtils
+							.escapeHtml4(DateFormat.getTimeInstance(DateFormat.MEDIUM, locale).format(timestamp)));
 					model.put("hostname", String.format("%s/Unlock-account/%s", hostServer, code));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("ip", ip);
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "account-locked-fr.ftl" : "account-locked-en.ftl"), "UTF-8"),
+							freemarkerConfiguration.getTemplate(
+									(locale.getISO3Language().equalsIgnoreCase("fra") ? "account-locked-fr.ftl"
+											: "account-locked-en.ftl"),
+									"UTF-8"),
 							model), true);
 					message.setTo(user.getEmail());
 				}
@@ -238,21 +369,28 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	public void send(AnalysisShareInvitation invitation) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+				public void prepare(MimeMessage mimeMessage) throws MessagingException,
 						MissingResourceException, IOException, TemplateException {
-					final Map<String, Object> model = new LinkedHashMap<String, Object>();
+					final Map<String, Object> model = new LinkedHashMap<>();
 					final Locale locale = new Locale(invitation.getAnalysis().getLanguage().getAlpha3());
 					final MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					final User user = invitation.getHost();
 					message.setFrom(emailSender);
-					message.setSubject(messageSource.getMessage("label.share.analysis.subject", null, "TRICK Service: Risk analysis access", locale));
-					model.put("title", messageSource.getMessage("label.title.share.analysis", null, "TRICK Service: Risk analysis access", locale));
+					message.setSubject(messageSource.getMessage("label.share.analysis.subject", null,
+							"TRICK Service: Risk analysis access", locale));
+					model.put("title", messageSource.getMessage("label.title.share.analysis", null,
+							"TRICK Service: Risk analysis access", locale));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
-					model.put("accept", String.format("%s/Analysis/ManageAccess/%s/Accept", hostServer, invitation.getToken()));
-					model.put("reject", String.format("%s/Analysis-access-management/%s/Reject", hostServer, invitation.getToken()));
+					model.put("accept",
+							String.format("%s/Analysis/ManageAccess/%s/Accept", hostServer, invitation.getToken()));
+					model.put("reject", String.format("%s/Analysis-access-management/%s/Reject", hostServer,
+							invitation.getToken()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "share-analysis-fr.ftl" : "share-analysis-en.ftl"), "UTF-8"),
+							freemarkerConfiguration.getTemplate(
+									(locale.getISO3Language().equalsIgnoreCase("fra") ? "share-analysis-fr.ftl"
+											: "share-analysis-en.ftl"),
+									"UTF-8"),
 							model), true);
 					message.setTo(invitation.getEmail());
 				}
@@ -268,20 +406,25 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	public void send(EmailValidatingRequest validatingRequest) {
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+				public void prepare(MimeMessage mimeMessage) throws MessagingException,
 						MissingResourceException, IOException, TemplateException {
-					final Map<String, Object> model = new LinkedHashMap<String, Object>();
+					final Map<String, Object> model = new LinkedHashMap<>();
 					final Locale locale = validatingRequest.getUser().getLocaleObject();
 					final MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					final User user = validatingRequest.getUser();
 					message.setFrom(emailSender);
-					message.setSubject(messageSource.getMessage("label.email.validation.subject", null, "TRICK Service: Email validation", locale));
-					model.put("title", messageSource.getMessage("label.title.email.validation", null, "TRICK Service: Email validation", locale));
+					message.setSubject(messageSource.getMessage("label.email.validation.subject", null,
+							"TRICK Service: Email validation", locale));
+					model.put("title", messageSource.getMessage("label.title.email.validation", null,
+							"TRICK Service: Email validation", locale));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("link", String.format("%s/Validate/%s/Email", hostServer, validatingRequest.getToken()));
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "email-validation-fr.ftl" : "email-validation-en.ftl"), "UTF-8"),
+							freemarkerConfiguration.getTemplate(
+									(locale.getISO3Language().equalsIgnoreCase("fra") ? "email-validation-fr.ftl"
+											: "email-validation-en.ftl"),
+									"UTF-8"),
 							model), true);
 					message.setTo(validatingRequest.getEmail());
 				}
@@ -291,4 +434,5 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			TrickLogManager.Persist(e);
 		}
 	}
+
 }

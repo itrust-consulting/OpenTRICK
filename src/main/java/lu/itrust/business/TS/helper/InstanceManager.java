@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.database.service.ServiceStorage;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -26,6 +27,9 @@ public class InstanceManager {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
+	private ServiceEmailSender serviceEmailSender;
+
+	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
@@ -33,6 +37,8 @@ public class InstanceManager {
 	
 	@Autowired
 	private MessageSource messageSource;
+
+	
 
 	private InstanceManager() {
 		setInstance(this);
@@ -54,6 +60,10 @@ public class InstanceManager {
 			}
 		}
 		return manager;
+	}
+
+	public static ServiceEmailSender getServiceEmailSender(){
+		return getInstance().serviceEmailSender;
 	}
 
 	public static ServiceStorage getServiceStorage() {

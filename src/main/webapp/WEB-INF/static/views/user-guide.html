@@ -494,9 +494,9 @@
 		<img src="img/add_credential.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Add New Credentials.</figcaption>
 	</figure>
-	<p>In the add new credential window, you have two options for creating credential for the customers for accessing the Ticketing system (Jira/Redmine): Token or Password.</p> 
+	<p>In the add new credential window, you have two options for creating credential for the customers for accessing the Ticketing system (Jira/Redmine/Email): Token or Password.</p> 
 	<ul>	
-		<li>Token: to create a token as credential, you need to enable Token and choose the customer and add the value of the created Token which is available in the ticketing system (Jira/Redmine).</mark></li>
+		<li>Token: to create a token as credential, you need to enable Token and choose the customer and add the value of the created Token which is available in the ticketing system (Jira/Redmine/Email).</mark></li>
 	    <li>Password: You can also enable "password" and by choosing the customer, adding a username and the value of the password in the ticketing system create a credential.</li>
 		
 	</ul>
@@ -647,7 +647,7 @@
 		users or deleting a customer. </p>
 	<p>The options “Add”, “Edit” and “Delete” are explained in <a href="#customers">[Section]</a>. The option “Manage customer users” is explained in the following subsection.</p>
 	<figure id="_FIG_40" class="figure">
-		<img src="img/customers.png" class="figure-img img-fluid" />
+		<img src="img/customers_v2.16.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Customer section on admin page.</figcaption>
 	</figure>
 	<div class="alert alert-info">The “Profile only” option is used to define a customer that is linked to the risk analysis profiles. At most one customer
@@ -669,6 +669,75 @@
 		<img src="img/MCRT1842.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Manage customer template.</figcaption>
 	</figure>
+
+	<h4 id="ticketing_system_management"><a id="administration-ts-ticketing_system_management"></a>Managing customer ticketing system</h4>
+	<p>A customer can be authorised to one of three ticketing systems (JIRA/Redmine/Email). In order to enable one of these ticketing system select Edit after selecting a customer and then select the appropriate ticketing system (see <a href="#_FIG_UPDATE_CUSTOMER_TICKETING_SYSTEM">[Figure]</a>):</p>
+	<ul>
+		<li><strong>JIRA:</strong> This option authorises the customer to the JIRA ticketing system</li>
+		<li><strong>Redmine:</strong> This option authorises the customer to the Redmine ticketing system</li>
+		<li><strong>Email:</strong> This option authorises the customer to the email ticketing system. If this option is selected as the ticketing system then an email template needs to be additionally set for the customer. 
+			In order to do this select the customer and Click "Manage email template for ticketing system" <a href="#_FIG_40">[Figure]</a>. 
+			Edit the template in the dialog box that appears <a href="#_FIG_EMAIL_TEXT_FORMAT">[Figure]</a>
+			The fields of the template are explained below:
+			<ul>
+				<li><strong>Email:</strong> The email id of the responsible user whom the ticketing system email(s) will be sent</li>
+				<li><strong>Subject:</strong> The subject of the email to be sent by the ticketing system. It is limited by 998 characters and must be chosen from one of the following options:
+					<ul>
+						<li><strong>Security measure:</strong>If this subject is chosen then the subject line of email is replaced by the corresponding Security measure for which the ticket was created.</li>
+						<li><strong>Collection Security measure:</strong> If this subject is chosen then the subject line of email is replaced by the collection number followed by corresponding Security measure for which the ticket was created.</li>
+						<li><strong>To do:</strong> If this subject is chosen then the subject line of email is replaced by the "To do" column of Security measure for which the ticket was created. </li>
+						<li><strong>To check:</strong> If this subject is chosen then the subject line of email is replaced by the "To check" column of Security measure for which the ticket was created.</li>
+					</ul>
+				</li>
+				<li><strong>Pause between emails:</strong> This is the interval between sending two consecutive emails. This ensures that the email delivery system does not consider these emails as spam.</li>
+				<li><strong>HTML Format:</strong> The body of the text message could be specified in an HTML format or in TEXT format. This option allows the user to choose between the two.</li>
+				<li><strong>Body:</strong> The body is a template email message in either a raw text format or html format which can contain the placeholders enumerated below.
+					However for a better compatibility with ticketing system prefer to use text format. Please note that special characters in the template should not be used for an effective ticketing system management.
+					These placeholders stand for respective columns of the Risk Treatment/Compliance Collection (see <a href="#analysis-standards">[Section]</a>). 
+					<ul>
+						<li><code>${Std}</code> for Collection name.</li>					
+						<li><code>${Ref}</code> for Reference.</li>
+						<li><code>${SecMeasure}</code> for Security measure.</li>
+						<li><code>${Desc}</code> for Measure desciption.</li>
+						<li><code>${ST}</code> for Status.</li>
+						<li><code>${IR}</code> for Implementation rate.</li>
+						<li><code>${IW}</code> for Internal workload.</li>
+						<li><code>${EW}</code> for External workload.</li>
+						<li><code>${INV}</code> for Investment.</li>
+						<li><code>${LT}</code> for Life time.</li>
+						<li><code>${IM}</code> Internal maintenance.</li>
+						<li><code>${EM}</code> for External maintenance.</li>
+						<li><code>${RM}</code> Recurrent maintenance.</li>
+						<li><code>${CS}</code> for Cost.</li>
+						<li><code>${PH}</code> for Phase.</li>
+						<li><code>${PHB}</code> for Phase start date.</li>
+						<li><code>${PHE}</code> for Phase end date.</li>
+						<li><code>${Comment}</code> for Comment.</li>
+						<li><code>${ToDo}</code> for To do.</li>
+						<li><code>${Owner}</code> for Owner.</li>
+						<li><code>${ToCheck}</code> for To check.</li>
+					</ul>			
+					For an example of using TEXT format  (see <a href="#_FIG_EMAIL_TEXT_FORMAT">[Figure]</a>). <br>
+					For an example of using HTML format (see <a href="#_FIG_EMAIL_HTML_FORMAT">[Figure]</a>) <br>
+					Once the email template is created tickets can be created by emails (see <a href="#analysis-standards_creating_email_tickets">[Section]</a>)
+				</li>
+			</ul>
+		</li>
+	</ul>
+	<figure id="_FIG_UPDATE_CUSTOMER_TICKETING_SYSTEM" class="figure">
+		<img src="img/edit_customer_ticketing_system.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Update the customer for a specific ticketing system</figcaption>
+	</figure>
+	<figure id="_FIG_EMAIL_TEXT_FORMAT" class="figure">
+		<img src="img/email_ticket_creation_text_format.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Email template ticket creation with text format</figcaption>
+	</figure>
+	<figure id="_FIG_EMAIL_HTML_FORMAT" class="figure">
+		<img src="img/email_ticket_creation_html_format.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Email ticket creation with html format</figcaption>
+	</figure>
+
+
 		<h3 id="all-analyses"><a id="administration-analyses"></a>All analyses</h3>
 	<p>The “All analyses” section includes a list of all analyses of the different customers. The different risk analyses of the
 		different customers can be shown by selecting a customer in the analyses filter positioned on the top of the list.</p>
@@ -706,6 +775,9 @@
 		<img src="img/staticsettings.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Additional TRICK Service settings.</figcaption>
 	</figure>
+
+
+
 	<h3 id="broadcast-center"><a id="administration-broadcasting"></a>Broadcast center</h3>
 	<p>The broadcast center lists all notifications that are sent to all users of the platform (see <a href="#_FIG_broadcast">[Figure]</a>).
 		The notification will appear in the lower right corner of the screen, when a user visits the platform. See <a href="#_FIG_broadcast-notification">[Figure]</a> for an example.</p>
@@ -1533,13 +1605,13 @@
 		<img src="img/64.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Measures collections view of Risk treatment / Compliance drop-down list.</figcaption>
 	</figure>
-	<h5><a id="analysis-standards"></a>View by collection</h5>
+	<h5 id="analysis-standards"><a id="analysis-standards"></a>View by collection</h5>
 	<p>By clicking on the “View by collection” option, the user get as page having a dropdown list of all measure collections available
 		for the current risk analysis. By selecting one of the collections, all security measures of the collection are shown in
 		a table view.</p>
 	<p>The image below shows an excerpt of the ISO/IEC 27002 measure collection in TRICK Service.</p>
 	<figure id="_FIG_62" class="figure">
-		<img src="img/65.png" class="figure-img img-fluid" />
+		<img src="img/65_v2.16.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Standards/measures – Table view.</figcaption>
 	</figure>
 	<p>The security measures tables contain the following information:</p>
@@ -1658,6 +1730,23 @@
 			</tr>
 		</tbody>
 	</table>
+
+	<h6 id="analysis-standards_creating_email_tickets"><a id="analysis-standards_creating_email_tickets"></a>Creating ticket by emails</h6>
+	<p> The measure by collection page (see <a href="#_FIG_62">[Figure]</a>) provides the following intefaces for email ticket creation and updation:
+		<ul> Before selecting one of the following options select one or more secutiry measure(s) collection for which the ticket needs to be created/modified. 
+			<li><strong>Create ticket by email: </strong>This option allows for creation of ticket(s) by email by using the email template defined in (see <a href="#ticketing_system_management">[Section]</a>). 
+				Once an email ticket has been created the mail icon on the specified collection measure row changes to darker color indicating that the ticket has been already been created (see <a href="#_FIG_EMAIL_TICKET">[Figure]</a>).</li>
+			<li><strong>Re-create ticket by email:</strong> If an email ticket for a security measure collection has been created already the option to Create ticket by email gets disabled. However in this cases
+			ticket could be recreated by selecting this option. Note a new ticketing email will be sent in this case.</li>
+			<li><strong>Clean ticket status:</strong> This option allows to clean the ticket created status for the selected collection measure(s). Once this option is selected the email sent icon is reverted to original state indicating that no ticket email was created.</li>
+		</ul>
+	</p>
+
+	<figure id="_FIG_EMAIL_TICKET" class="figure">
+		<img src="img/email_ticket_creation.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Email ticket creation and update options.</figcaption>
+	</figure>
+
 	<h5><a id="analysis-measure-edition"></a>View by Measure</h5>
 	<p>The “View by Measure” page consists of two areas. Area 1 represents the navigation pane, and Area 2 is the detailed view
 		including the entry fields.</p>
@@ -2253,12 +2342,12 @@
 			<strong>Example of mapping file:</strong><br>
 			<em>&lt;Airconditioner&gt; ; &lt;ILR_En_GAS_Airconditioner&gt;</em><br>	
 			<em>&lt;Airconditioner&gt; ; &lt;ILR_En_Elec_Airconditioner&gt;</em><br>	
-			<em>&lt;&gt;ILR_En_X_Supply of natural gas; &lt;ILR_En_Gas_Supply of natural gas;&gt;</em><br>	
-			<em>&lt;ILR_En_Y_Supply of natural gas &lt;ILR_En_Gas_Supply of natural gas;&gt;</em><br>	
+			<em>&lt;ILR_En_X_Supply of natural gas&gt; ; &lt;ILR_En_Gas_Supply of natural gas&gt;</em><br>	
+			<em>&lt;ILR_En_Y_Supply of natural gas &gt; ; &lt;ILR_En_Gas_Supply of natural gas&gt;</em><br>	
 		</li>
 	</ul>
 	<figure class="figure" id="_FIG_exportjson">
-		<img src="img/export_as_json.png" class="figure-img img-fluid" />
+		<img src="img/export_as_json.png" alt="Export as JSON" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">JSON Export interface</figcaption>
 	</figure>
     </p>
@@ -2307,6 +2396,262 @@
 	<p>When exporting a report, you will be asked to select the template to use. The list features all templates deployed by default in TRICK Service, and the templates that have been manually uploaded for the related customer (see <a href="#customers">[Section]</a>).
 		For mixed reports use bookmarks in the word template to set which aspects of the report are to be exported in "qualitative" and which are to be exported in "quantitative".</p>
 	<p>You can also upload a previously exported report that gets automatically updated (even if styling or content changes have been made to the document).</p>
+	<h5 id="word--report-external-template">Word report using external template</h5>
+	<p>
+		The word report can be generated using an external template as well. The external template if used can contain the following bookmarks as placeholders for TS reporting data:
+	</p>
+	<table class="table table-sm table-striped" id="_TAB_EXTERNAL_TEMPLATE_ROWS">
+		<caption>Description of bookmarks to be used in external template</caption>
+		<thead>
+			<tr>
+				<th>Bookmark Category</th>
+				<th>Bookmark Name</th>
+				<th>Description</th>				
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Common</td>
+				<td>TS_RISK</td>
+				<td>Table of Risk exposure estimation</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_SCENARIO</td>
+				<td>Table of Considered risk scenarios.</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_SCOPE</td>
+				<td>Table for general considerations on the target of the risk analysis.</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_THREAT</td>
+				<td>Table for threat exposure estimation.</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_VULNERABILITY</td>
+				<td>Table of list of vulnerabilities and its exposure level.</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_CURRENTSECURITYLEVEL</td>
+				<td>No</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_LISTCOLLECTION</td>
+				<td>List of security frameworks</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_MEASURESCOLLECTION</td>
+				<td>Table of measures collection</td>
+			</tr>
+			<tr>
+				<td>Common</td>
+				<td>TS_DEPENDENCYGRAPH</td>
+				<td>Exported Dependency Graph PNG from DRAW (see <a href="https://draw.trickservice.com/documentation/index.html#save_to_ts">Export to Trick Service section in DRAW</a>) </td>
+			</tr>
+
+			<tr>
+				<td>Mixed</td>
+				<td>TS_HY_ADDITIONALCOLLECTION</td>
+				<td>Additional Collection</td>
+			</tr>
+
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_ACTIONPLAN</td>
+				<td>Table of Qualitative Risk treatment plan</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_ADDITIONALCOLLECTION</td>
+				<td>Qualitative Addtional Collection</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_ASSESSMENT</td>
+				<td>Annual Loss Expectancy of assets</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_ASSET</td>
+				<td>Table of List of assets considered in the risk analysis.</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_ASSETNOTSELECTED</td>
+				<td>Table of List of assets not considered in the risk analysis.</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_IMPACT</td>
+				<td>Table of Impact scale.</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_IMPACTLIST</td>
+				<td>Table of list of Impact List</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_PHASE</td>
+				<td>Risk treatment plan implementation phases</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_PROBA</td>
+				<td>Table of Probability scale</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QL_SUMMARY</td>
+				<td>Characteristics of implementation phases</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_QT_ACTIONPLAN</td>
+				<td>Qualitative Risk treatment plan.</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_RISKACCEPTANCE</td>
+				<td>Qualitative Risk acceptance</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_RISKHEATMAP</td>
+				<td>Risk heat map</td>
+			</tr>
+			<tr>
+				<td>Qualitative</td>
+				<td>TS_RISKHEATMAPSUMMARY</td>
+				<td>Summary of Risk heat map</td>
+			</tr>
+
+			<tr>
+				<td>Qualitative Charts</td>
+				<td>TS_CHARTRISKBYASSET</td>
+				<td>Chart of risks by assets</td>
+			</tr>
+			<tr>
+				<td>Qualitative Charts</td>
+				<td>TS_CHARTRISKBYASSETTYPE</td>
+				<td>Chart of risks by asset types</td>
+			</tr>
+			<tr>
+				<td>Qualitative Charts</td>
+				<td>TS_CHARTRISKBYSCENARIO</td>
+				<td>Chart of risk by Risk scenario</td>
+			</tr>
+			<tr>
+				<td>Qualitative Charts</td>
+				<td>TS_CHARTRISKBYSCENARIOTYPE</td>
+				<td>Chart of risk by scenario type</td>
+			</tr>
+			<tr>
+				<td>Qualitative Charts</td>
+				<td>TS_QL_CHARTCOMPLIANCE27001</td>
+				<td>ISO/IEC 27001 compliance levels during the different implementation phases.</td>
+			</tr>
+			<tr>
+				<td>Qualitative Charts</td>
+				<td>TS_QL_CHARTCOMPLIANCE27002</td>
+				<td>ISO/IEC 27002 compliance levels during the different implementation phases.</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_ADDITIONALCOLLECTION</td>
+				<td>Additional Collection</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_ASSESSMENT</td>
+				<td>Quantitative assessement</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_ASSET</td>
+				<td>List of assets considered in the risk analysis</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_ASSETNOTSELECTED</td>
+				<td>List of assets not considered in the risk analysis.</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_IMPACT</td>
+				<td>Quantitative impact</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_IMPACTLIST</td>
+				<td>Quantitative impact list</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_PHASE</td>
+				<td>Risk treatment plan phases</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_PROBA</td>
+				<td>Probability Scale</td>
+			</tr>
+			<tr>
+				<td>Quantitative</td>
+				<td>TS_QT_SUMMARY</td>
+				<td>Summary of treatment plan</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_CHARTALEBYASSET</td>
+				<td>Chart of Annual Loss Expectancy by assets</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_CHARTALEBYASSETTYPE</td>
+				<td>Chart of Annual Loss Expectancy by asset type</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_CHARTALEBYSCENARIO</td>
+				<td>Annual Loss Expectancy by Risk scenario.</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_CHARTALEBYSCENARIOTYPE</td>
+				<td>Annual Loss Expectancy by scenario type</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_CHARTRENTABILITY</td>
+				<td>Chart Rent ability</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_QT_CHARTCOMPLIANCE27001</td>
+				<td>ISO/IEC 27001 compliance levels during the different implementation phases.</td>
+			</tr>
+			<tr>
+				<td>Quantitative Charts</td>
+				<td>TS_QT_CHARTCOMPLIANCE27002</td>
+				<td>ISO/IEC 27002 compliance levels during the different implementation phases.</td>
+			</tr>
+			<tr>
+				<td>Table Styles</td>
+				<td>TableTS</td>
+				<td>Trick Service Table</td>
+			</tr>
+		</tbody>
+	</table>
+
+
 	<div class="alert alert-warning">This feature is still experimental, though, and might not work as expected.</div>
 	<h3 id="import--">Import</h3>
 	<p>Clicking on “Import” will open the centralised import interface, from where data can be imported back (again) into TRICK Service.</p>
@@ -3305,7 +3650,11 @@
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
 	<h2 id="whats-new-in-ts-2.15">What's new in TRICK Service 2.15</h2>
-	<ul>		
+	<ul>
+		<li> Admin feature for creating and managing customer email ticketing system(<a href="#customers--"></a>) </li>
+		<li> Bug fix around reset password</li>
+		<li> New user is no longer blocked by default</li>
+		<li> Changes around Word Export of word report (<a href="#word--report"></a>) </li>				
 		<li> Export analysis in JSON format. Refer (<a href="#export--json_interface"></a>)</li>
 	</ul>
 	<h2 id="whats-new-in-ts-2.14">What's new in TRICK Service 2.14</h2>

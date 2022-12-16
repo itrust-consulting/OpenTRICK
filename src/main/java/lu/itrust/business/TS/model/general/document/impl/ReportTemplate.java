@@ -4,7 +4,6 @@
 package lu.itrust.business.TS.model.general.document.impl;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;

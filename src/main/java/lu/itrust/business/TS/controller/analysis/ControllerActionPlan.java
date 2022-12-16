@@ -119,8 +119,13 @@ public class ControllerActionPlan extends AbstractController {
 		final Analysis analysis = serviceAnalysis.get(selected);
 		final List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		model.addAttribute("isLinkedToProject", analysis.hasProject() && loadUserSettings(principal,analysis.getCustomer().getTicketingSystem(), model, null));
-		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
+		final boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(),
+				model,
+				null);
+		final boolean isNoClientTicketing = (boolean) model.asMap().getOrDefault("isNoClientTicketing", false);
+		model.addAttribute("isLinkedToProject", allowedTicketing && (isNoClientTicketing || analysis.hasProject()));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode)
+				&& serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("analysisId", selected);
@@ -130,11 +135,13 @@ public class ControllerActionPlan extends AbstractController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/Assets", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String loadAssets(@RequestParam(defaultValue = "APPN") String selectedApt, Model model, HttpSession session, Principal principal) throws Exception {
+	public String loadAssets(@RequestParam(defaultValue = "APPN") String selectedApt, Model model, HttpSession session,
+			Principal principal) throws Exception {
 		try {
 			section(model, session, principal);
 			model.addAttribute("selectedApt", ActionPlanMode.valueOf(selectedApt));
-			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
+			model.addAttribute("assets", ActionPlanManager
+					.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
 			return "analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
@@ -153,7 +160,8 @@ public class ControllerActionPlan extends AbstractController {
 	 */
 	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
+	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale,
+			Map<String, Object> model) throws Exception {
 		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
 		model.put("type", serviceAnalysis.getAnalysisTypeById(analysisID));
@@ -172,13 +180,15 @@ public class ControllerActionPlan extends AbstractController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
+	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale,
+			@RequestBody String value) throws Exception {
 
 		// prepare permission verifier
-		final PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
+		final PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
+				serviceUserAnalysisRight);
 
 		final ObjectMapper mapper = new ObjectMapper();
-		
+
 		final JsonNode jsonNode = mapper.readTree(value);
 
 		// retrieve analysis id to compute
@@ -202,16 +212,19 @@ public class ControllerActionPlan extends AbstractController {
 			}
 
 			final boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
-			
-			final Worker worker = new WorkerComputeActionPlan( analysisId, standards, uncertainty, reloadSection);
-			
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(),locale))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+
+			final Worker worker = new WorkerComputeActionPlan(analysisId, standards, uncertainty, reloadSection);
+
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+						"Too many tasks running in background", locale));
 			// execute task
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null,
+					"Action plan computation was started successfully", locale));
 		} else {
-			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+			return JsonMessage
+					.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		}
 	}
 }

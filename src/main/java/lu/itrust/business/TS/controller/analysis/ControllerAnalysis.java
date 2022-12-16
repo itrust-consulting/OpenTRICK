@@ -218,13 +218,9 @@ public class ControllerAnalysis extends AbstractController {
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result,
-			@PathVariable int analysisId, Principal principal, Locale locale)
-			throws Exception {
-
-		final Map<String, String> errors = new LinkedHashMap<String, String>();
-
+			@PathVariable int analysisId, Principal principal, Locale locale) {
+		final Map<String, String> errors = new LinkedHashMap<>();
 		try {
-
 			// retrieve analysis object
 			final Analysis analysis = serviceAnalysis.get(analysisId);
 
@@ -649,12 +645,9 @@ public class ControllerAnalysis extends AbstractController {
 			if (!analysis.isProfile()) {
 				final Map<String, List<RiskInformation>> riskInformations = RiskInformationManager
 						.Split(analysis.getRiskInformations());
-				if (!riskInformations.containsKey(Constant.RI_TYPE_RISK))
-					riskInformations.put(Constant.RI_TYPE_RISK, Collections.emptyList());
-				if (!riskInformations.containsKey(Constant.RI_TYPE_VUL))
-					riskInformations.put(Constant.RI_TYPE_VUL, Collections.emptyList());
-				if (!riskInformations.containsKey(Constant.RI_TYPE_THREAT))
-					riskInformations.put(Constant.RI_TYPE_THREAT, Collections.emptyList());
+				riskInformations.computeIfAbsent(Constant.RI_TYPE_RISK, k -> Collections.emptyList());
+				riskInformations.computeIfAbsent(Constant.RI_TYPE_VUL, k -> Collections.emptyList());
+	            riskInformations.computeIfAbsent(Constant.RI_TYPE_THREAT, k -> Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
 			analysis.getAssets().sort(Comparators.ASSET());

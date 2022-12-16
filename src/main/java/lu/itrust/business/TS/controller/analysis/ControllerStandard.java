@@ -522,7 +522,8 @@ public class ControllerStandard extends AbstractController {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object importFromFile(@RequestParam(value = "file") MultipartFile file,
 			@RequestParam(value = "id") int id,
-			@RequestParam(value = "type",required = false) StandardType type, @RequestParam(value = "name",required = false) String name,
+			@RequestParam(value = "type", required = false) StandardType type,
+			@RequestParam(value = "name", required = false) String name,
 			HttpSession session, Principal principal, Locale locale) {
 		if (id > 0) {
 			final Standard standard = serviceStandard.get(id);
@@ -558,6 +559,9 @@ public class ControllerStandard extends AbstractController {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
 		final Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+		final boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model,
+				null);
+		final boolean isNoClientTicketing = (boolean) model.asMap().getOrDefault("isNoClientTicketing", false);
 		model.addAttribute("measure", measure);
 		loadAnalysisSettings(model, idAnalysis);
 		loadEfficience(model, idAnalysis, measure);
@@ -568,8 +572,8 @@ public class ControllerStandard extends AbstractController {
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
-		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis)
-				&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+		model.addAttribute("isLinkedToProject",
+				allowedTicketing && (isNoClientTicketing || serviceAnalysis.hasProject(idAnalysis)));
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
@@ -716,6 +720,11 @@ public class ControllerStandard extends AbstractController {
 			final MeasureDescription measureDescription = measure.getMeasureDescription();
 			final MeasureDescriptionText measureDescriptionText = measureDescription
 					.getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+			final boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(),
+					model,
+					null);
+			final boolean isNoClientTicketing = (boolean) model.asMap().getOrDefault("isNoClientTicketing", false);
+
 			model.addAttribute("measureDescriptionText", measureDescriptionText);
 			model.addAttribute("measureDescription", measureDescription);
 			if (measureDescriptionText != null) {
@@ -734,8 +743,10 @@ public class ControllerStandard extends AbstractController {
 			if (isMaturity)
 				model.addAttribute("impscales", serviceSimpleParameter
 						.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis));
-			model.addAttribute("isLinkedToProject", analysis.hasProject()
-					&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+
+			model.addAttribute("isLinkedToProject",
+					allowedTicketing && (isNoClientTicketing || serviceAnalysis.hasProject(idAnalysis)));
+
 			model.addAttribute("showTodo", measureDescription.isComputable());
 			model.addAttribute("selectedMeasure", measure);
 			model.addAttribute("phases", phases);
@@ -1008,6 +1019,11 @@ public class ControllerStandard extends AbstractController {
 
 		final boolean hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 
+		final boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(),
+				model,
+				null);
+		final boolean isNoClientTicketing = (boolean) model.asMap().getOrDefault("isNoClientTicketing", false);
+
 		analysisStandards.forEach(analysisStandard -> {
 			standards.add(analysisStandard.getStandard());
 			measuresByStandard.put(analysisStandard.getStandard().getName(), analysisStandard.getMeasures());
@@ -1025,8 +1041,8 @@ public class ControllerStandard extends AbstractController {
 
 		model.addAttribute("measuresByStandard", measuresByStandard);
 
-		model.addAttribute("isLinkedToProject", analysis.hasProject()
-				&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+		model.addAttribute("isLinkedToProject",
+				allowedTicketing && (isNoClientTicketing || serviceAnalysis.hasProject(idAnalysis)));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode)
 				&& serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
@@ -1068,6 +1084,11 @@ public class ControllerStandard extends AbstractController {
 		final List<Standard> standards = new ArrayList<Standard>(1);
 		final Map<String, List<Measure>> measuresByStandard = new HashMap<>(1);
 		final ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		final boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(),
+				model,
+				null);
+		final boolean isNoClientTicketing = (boolean) model.asMap().getOrDefault("isNoClientTicketing", false);
+
 		if (analysisStandard.getStandard().is(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis,
 					Constant.STANDARD_MATURITY);
@@ -1090,8 +1111,8 @@ public class ControllerStandard extends AbstractController {
 
 		model.addAttribute("measuresByStandard", measuresByStandard);
 
-		model.addAttribute("isLinkedToProject", analysis.hasProject()
-				&& loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, null));
+		model.addAttribute("isLinkedToProject",
+				allowedTicketing && (isNoClientTicketing || serviceAnalysis.hasProject(idAnalysis)));
 
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 

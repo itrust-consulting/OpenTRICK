@@ -164,7 +164,7 @@ public class MeasureDescription implements Cloneable {
 			else if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase("en"))
 				descriptionTextEnglish = measureDescriptionText;
 		}
-		return descriptionTextEnglish != null ? descriptionTextEnglish : measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : null;
+		return descriptionTextEnglish != null ? descriptionTextEnglish : !measureDescriptionTexts.isEmpty() ? measureDescriptionTexts.get(0) : null;
 	}
 
 	/**

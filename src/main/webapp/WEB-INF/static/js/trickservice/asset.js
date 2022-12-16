@@ -132,7 +132,7 @@ function editAsset(rowTrickId, isAdding) {
 }
 
 function saveAsset(form) {
-	var $progress = $("#loading-indicator").show(), $assetModal = $("#addAssetModal"), $form = $("#" + form), data = serializeAsset($form);
+	let $progress = $("#loading-indicator").show(), $assetModal = $("#addAssetModal"), $form = $("#" + form), data = serializeAsset($form);
 	$(".label-danger,.alert", $assetModal).remove();
 	$.ajax({
 		url: context + "/Analysis/Asset/Save",
@@ -140,9 +140,9 @@ function saveAsset(form) {
 		data: JSON.stringify(data),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			for (var error in response.errors) {
+			for (let error in response.errors) {
 				if (error != "asset") {
-					var $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
+					let $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
 					switch (error) {
 						case "name":
 							$errorElement.appendTo($("#asset_name", $form).parent());

@@ -10,7 +10,7 @@
 <c:set var="canModify" value="${isProfile or accessLevel < 3}" scope="request"/>
 <c:set var="isEditable" value="${canModify and open!='READ'}" scope="request" />
 <c:set var="canExport" value="${accessLevel < 2 and not (isProfile or open=='READ')}" scope="request" />
-<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request" />
+<c:set var="isLinkedToProject" value="${allowedTicketing and (isNoClientTicketing or analysis.hasProject())}" scope="request" />
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>

@@ -12,34 +12,37 @@ import javax.persistence.MappedSuperclass;
 public abstract class Document {
 
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "idDocument")
-	private long id;
-	
-	@Column(name = "dtName")
-	private String name;
-	
-	@Column(name = "dtLength")
-	private long length;
-	
-	@Column(name = "dtData", length = 16777216)
-	private byte[] data;
-	
-	@Column(name = "dtCreated")
-	private Timestamp created;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idDocument")
+    private long id;
+
+    @Column(name = "dtName")
+    private String name;
+
+    @Column(name = "dtLength")
+    private long length;
+
+    @Column(name = "dtData", length = 16777216)
+    private byte[] data;
+
+    @Column(name = "dtCreated")
+    private Timestamp created;
 
     protected Document() {
     }
 
     protected Document(String name, long length, byte[] data) {
-       this(name, length, data, new Timestamp(System.currentTimeMillis()));
+        this(name, length, data, new Timestamp(System.currentTimeMillis()));
     }
 
     protected Document(String name, long length, byte[] data, Timestamp created) {
         this.name = name;
         this.length = length;
         this.data = data;
-        this.created = created;
+        if (created == null)
+            this.created = new Timestamp(System.currentTimeMillis());
+        else
+            this.created = created;
     }
 
     public long getId() {
@@ -49,7 +52,6 @@ public abstract class Document {
     public void setId(long id) {
         this.id = id;
     }
-
 
     public String getName() {
         return name;
@@ -83,8 +85,4 @@ public abstract class Document {
         this.created = created;
     }
 
-    
-
-    
-    
 }

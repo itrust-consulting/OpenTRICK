@@ -40,7 +40,7 @@
 					<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && hasRight('ALL')"><a href="#" onclick="return editSingleAnalysis();"> <span
 							class="glyphicon glyphicon-edit"></span> <spring:message code="label.properties" /></a></li>
 
-					<c:if test="${allowedTicketing}">
+					<c:if test="${allowedTicketing and not empty ticketingURL}">
 						<li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && !isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
 								class="glyphicon glyphicon-link"></span> <spring:message code="label.menu.link.project" arguments="${ticketingName}" text="Link to ${ticketingName}" /></a></li>
 
@@ -116,13 +116,13 @@
 				<table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;">
 					<thead>
 						<tr>
-							<th width="1%"><c:if test="${allowedTicketing}">
+							<th width="1%"><c:if test="${allowedTicketing and not empty ticketingURL}">
 									<input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis');">
 								</c:if></th>
 							<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
 							<th width="5%"><spring:message code="label.analysis.type" text="Type" /></th>
 							<th width="35%"><spring:message code="label.analysis.comment" text="Comment" /></th>
-							<c:if test="${allowedTicketing}">
+							<c:if test="${allowedTicketing and not empty ticketingURL}">
 								<th><spring:message code="label.link.to.project" arguments="${ticketingName}" text="${ticketingName}" /></th>
 							</c:if>
 							<th><spring:message code="label.analysis.version" text="version" /></th>
@@ -158,7 +158,7 @@
 									</c:choose> <span style="margin-left: 5px;"><spring:message text="${analysis.label}" /></span></td>
 								<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
 								<td data-trick-content='text'><spring:message text="${analysis.lastHistory.comment}" /></td>
-								<c:if test="${allowedTicketing}">
+								<c:if test="${allowedTicketing and not empty ticketingURL}">
 									<th><c:choose>
 											<c:when test="${not empty analysis.project}">
 												<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).ProjectLink(ticketingName.toLowerCase(),ticketingURL,analysis.project)"

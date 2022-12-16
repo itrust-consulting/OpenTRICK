@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -60,6 +63,7 @@ import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.form.AnalysisRightForm;
 import lu.itrust.business.TS.form.CustomerForm;
@@ -75,13 +79,16 @@ import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.EmailTemplate;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.TicketingSystem;
 import lu.itrust.business.TS.model.general.TicketingSystemType;
 import lu.itrust.business.TS.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.TS.model.general.helper.EmailTemplateForm;
 import lu.itrust.business.TS.model.general.helper.Notification;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -197,7 +204,8 @@ public class ControllerAdmin {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
+	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model)
+			throws Exception {
 		model.put("users", serviceUser.getAll());
 		model.put("IDSs", serviceIDS.getAll());
 		List<Customer> customers = serviceCustomer.getAll();
@@ -227,6 +235,7 @@ public class ControllerAdmin {
 				customerID = profileId;
 		}
 		model.put("status", getStatus());
+
 		if (customers != null && customers.size() > 0) {
 			model.put("customers", customers);
 			List<Analysis> analyses = Collections.emptyList();
@@ -238,24 +247,26 @@ public class ControllerAdmin {
 			model.put("analyses", analyses);
 		}
 
-		List<TSSetting> tsSettings = new LinkedList<TSSetting>(), ticketingSystems = new LinkedList<>();
+		final List<TSSetting> tsSettings = new LinkedList<>();
+		final List<TSSetting> ticketingSystems = new LinkedList<>();
+
 		for (TSSettingName name : TSSettingName.values()) {
 			TSSetting tsSetting = serviceTSSetting.get(name);
 			if (tsSetting == null) {
 				switch (name) {
-				case SETTING_ALLOWED_RESET_PASSWORD:
-				case SETTING_ALLOWED_SIGNUP:
-					tsSetting = new TSSetting(name, true);
-					break;
-				case USER_GUIDE_URL_TYPE:
-					tsSetting = new TSSetting(name, null);
-					break;
-				case USER_GUIDE_URL:
-					tsSetting = new TSSetting(name, "/static/user-guide.html");
-					break;
-				case SETTING_ALLOWED_TICKETING_SYSTEM_LINK:
-					tsSetting = new TSSetting(name, false);
-					break;
+					case SETTING_ALLOWED_RESET_PASSWORD:
+					case SETTING_ALLOWED_SIGNUP:
+						tsSetting = new TSSetting(name, true);
+						break;
+					case USER_GUIDE_URL:
+						tsSetting = new TSSetting(name, "/static/user-guide.html");
+						break;
+					case SETTING_ALLOWED_TICKETING_SYSTEM_LINK:
+						tsSetting = new TSSetting(name, false);
+						break;
+					case USER_GUIDE_URL_TYPE:
+					default:
+						tsSetting = new TSSetting(name, null);
 				}
 
 				if (tsSetting != null)
@@ -268,7 +279,8 @@ public class ControllerAdmin {
 				tsSettings.add(tsSetting);
 
 		}
-		boolean adminAllowedTicketing = ticketingSystems.stream().anyMatch(e -> e.getName() == TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK && e.getBoolean());
+		boolean adminAllowedTicketing = ticketingSystems.stream()
+				.anyMatch(e -> e.getName() == TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK && e.getBoolean());
 		model.put(Constant.ADMIN_ALLOWED_TICKETING, adminAllowedTicketing);
 		model.put("ticketingSystems", ticketingSystems);
 		model.put("tsSettings", tsSettings);
@@ -290,7 +302,8 @@ public class ControllerAdmin {
 		if (filter != null)
 			return filter;
 		User user = serviceUser.get(username);
-		filter = new TrickLogFilter(user.getInteger(LOG_FILTER_PAGE_SIZE), user.getSetting(LOG_FILTER_LEVEL), user.getSetting(LOG_FILTER_TYPE), user.getSetting(LOG_FILTER_ACTION),
+		filter = new TrickLogFilter(user.getInteger(LOG_FILTER_PAGE_SIZE), user.getSetting(LOG_FILTER_LEVEL),
+				user.getSetting(LOG_FILTER_TYPE), user.getSetting(LOG_FILTER_ACTION),
 				user.getSetting(LOG_FILTER_AUTHOR), user.getSetting(LOG_FILTER_SORT_DIRECTION));
 		session.setAttribute(TRICK_LOG_FILTER, filter);
 		return filter;
@@ -311,7 +324,8 @@ public class ControllerAdmin {
 
 		if (status != null) {
 
-			if (!status.isInstalled() && serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE) && serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE))
+			if (!status.isInstalled() && serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE)
+					&& serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE))
 				status.setInstalled(true);
 
 			if (version.equals(status.getVersion()))
@@ -325,7 +339,8 @@ public class ControllerAdmin {
 
 		status = new TrickService(version, installed);
 
-		status.setInstalled(serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE) && serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE));
+		status.setInstalled(serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE)
+				&& serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE));
 
 		serviceTrickService.saveOrUpdate(status);
 
@@ -343,31 +358,36 @@ public class ControllerAdmin {
 				setting = tsSetting;
 			else
 				setting.setValue(tsSetting.getValue());
-			if (StringUtils.hasText(setting.getValue()) && tsSetting.getName() != TSSettingName.USER_GUIDE_URL) {
+			if (ObjectUtils.isEmpty(setting.getValue()) && !tsSetting.getName().equals(TSSettingName.USER_GUIDE_URL)) {
 				if (!setting.equals(tsSetting))
 					serviceTSSetting.delete(tsSetting.getName().name());
 			} else
 				serviceTSSetting.saveOrUpdate(setting);
 			return true;
 		} finally {
-			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null, tsSetting.getNameLower(), Locale.ENGLISH);
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ADMINISTRATION, "log.setting.change", String.format("Settings: %s, value: %s", settingName, tsSetting.getString()),
+			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null,
+					tsSetting.getNameLower(), Locale.ENGLISH);
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ADMINISTRATION, "log.setting.change",
+					String.format("Settings: %s, value: %s", settingName, tsSetting.getString()),
 					principal.getName(), LogAction.CHANGE, settingName, tsSetting.getString());
 		}
 
 	}
 
 	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String uiSwitchAnalysisOwner(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
+	public String uiSwitchAnalysisOwner(@PathVariable Integer idAnalysis, Model model, Principal principal,
+			RedirectAttributes attributes, Locale locale) {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null || analysis.isProfile()) {
-				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null,
+						"Action does not authorised", locale));
 				return "redirect:/Error";
 			}
 			model.addAttribute("analysis", analysis);
 			Map<User, AnalysisRight> userAnalysisRights = new LinkedHashMap<User, AnalysisRight>();
-			analysis.getUserRights().forEach(userRight -> userAnalysisRights.put(userRight.getUser(), userRight.getRight()));
+			analysis.getUserRights()
+					.forEach(userRight -> userAnalysisRights.put(userRight.getUser(), userRight.getRight()));
 			serviceUser.getAllOthers(userAnalysisRights.keySet()).forEach(user -> userAnalysisRights.put(user, null));
 			userAnalysisRights.remove(analysis.getOwner());
 			model.addAttribute("userAnalysisRights", userAnalysisRights);
@@ -379,22 +399,28 @@ public class ControllerAdmin {
 	}
 
 	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner/{idOwner}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String switchAnalysisOwner(@PathVariable Integer idAnalysis, @PathVariable Integer idOwner, Model model, Principal principal,
+	public @ResponseBody String switchAnalysisOwner(@PathVariable Integer idAnalysis, @PathVariable Integer idOwner,
+			Model model, Principal principal,
 			RedirectAttributes attributes, Locale locale) {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null || analysis.isProfile())
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
+						"Action does not authorised", locale));
 			else if (analysis.getOwner().getId() == idOwner)
-				return JsonMessage.Success(messageSource.getMessage("info.nothing.changed", null, "Nothing was changed", locale));
+				return JsonMessage
+						.Success(messageSource.getMessage("info.nothing.changed", null, "Nothing was changed", locale));
 			User owner = serviceUser.get(idOwner);
 			if (owner == null)
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
+						"Action does not authorised", locale));
 			new SwitchAnalysisOwnerHelper(serviceAnalysis).switchOwner(principal, analysis, owner);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null, "Analysis owner was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null,
+					"Analysis owner was successfully updated", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
 
@@ -410,7 +436,8 @@ public class ControllerAdmin {
 	 * @return
 	 */
 	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
-	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
+	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model)
+			throws Exception {
 		List<Analysis> analyses = serviceAnalysis.getAllFromCustomer(customerSection);
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
 		session.setAttribute("currentAdminCustomer", customerSection);
@@ -421,7 +448,8 @@ public class ControllerAdmin {
 	}
 
 	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, Principal principal, HttpSession session) {
+	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, Principal principal,
+			HttpSession session) {
 		try {
 			Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (selected != null && ids.contains(selected))
@@ -434,7 +462,8 @@ public class ControllerAdmin {
 	}
 
 	@RequestMapping(value = "/Log/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String sectionLog(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
+	public String sectionLog(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal,
+			Model model) {
 		try {
 			model.addAttribute("trickLogs", serviceTrickLog.getAll(page, loadLogFilter(session, principal.getName())));
 		} catch (Exception e) {
@@ -444,7 +473,8 @@ public class ControllerAdmin {
 	}
 
 	@RequestMapping(value = "/Log/Filter/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateLogFilter(@RequestBody TrickLogFilter logFilter, Principal principal, HttpSession session, Locale locale) {
+	public @ResponseBody String updateLogFilter(@RequestBody TrickLogFilter logFilter, Principal principal,
+			HttpSession session, Locale locale) {
 		try {
 			User user = serviceUser.get(principal.getName());
 			user.setSetting(LOG_FILTER_LEVEL, logFilter.getLevel());
@@ -455,7 +485,8 @@ public class ControllerAdmin {
 			user.setSetting(LOG_FILTER_SORT_DIRECTION, logFilter.getDirection());
 			session.setAttribute(TRICK_LOG_FILTER, logFilter);
 			serviceUser.saveOrUpdate(user);
-			return JsonMessage.Success(messageSource.getMessage("success.filter.updated", null, "Filter has been successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.filter.updated", null,
+					"Filter has been successfully updated", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
@@ -473,7 +504,8 @@ public class ControllerAdmin {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Analysis/{analysisID}/ManageAccess")
-	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
+	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model)
+			throws Exception {
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 		Analysis analysis = serviceAnalysis.get(analysisID);
 		if (!analysis.isProfile()) {
@@ -502,20 +534,25 @@ public class ControllerAdmin {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Analysis/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal,
+			Locale locale) throws Exception {
 		try {
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
-			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null,
+					"Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
+						((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
 	@RequestMapping("/Analysis/{analysisId}/Switch/Customer")
-	public String switchCUstomerForm(@PathVariable("analysisId") int analysisId, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String switchCUstomerForm(@PathVariable("analysisId") int analysisId, Principal principal, Model model,
+			RedirectAttributes attributes, Locale locale) throws Exception {
 		model.addAttribute("idAnalysis", analysisId);
 		model.addAttribute("currentCustomers", serviceAnalysis.getCustomersByIdAnalysis(analysisId));
 		model.addAttribute("customers", serviceCustomer.getAllNotProfiles());
@@ -523,17 +560,22 @@ public class ControllerAdmin {
 	}
 
 	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis, @PathVariable("idCustomer") int idCustomer, Principal principal, Locale locale)
+	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis,
+			@PathVariable("idCustomer") int idCustomer, Principal principal, Locale locale)
 			throws Exception {
 		String identifier = serviceAnalysis.getIdentifierByIdAnalysis(idAnalysis);
 		if (identifier == null)
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		else if (serviceCustomer.isProfile(idCustomer))
-			return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 		else if (!serviceCustomer.exists(idCustomer))
-			return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
 		customerManager.switchCustomer(identifier, idCustomer, principal.getName());
-		return JsonMessage.Success(messageSource.getMessage("success.analyses.updated", null, "Analyses have been updated", locale));
+		return JsonMessage.Success(
+				messageSource.getMessage("success.analyses.updated", null, "Analyses have been updated", locale));
 	}
 
 	/**
@@ -546,8 +588,8 @@ public class ControllerAdmin {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String userSection(Model model, HttpSession session, Principal principal) throws Exception {
+	@GetMapping(value = "/User/Section", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String userSection(Model model, HttpSession session, Principal principal) {
 		model.addAttribute("users", serviceUser.getAll());
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
@@ -564,8 +606,8 @@ public class ControllerAdmin {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Add", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
+	@GetMapping(value = "/User/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String getAllRoles(Map<String, Object> model, HttpSession session) {
 		model.put("roles", RoleType.ROLES);
 		model.put("enabledOTP", enabledOTP);
 		model.put("forcedOTP", forcedOTP);
@@ -584,8 +626,8 @@ public class ControllerAdmin {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Edit/{userId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
+	@GetMapping(value = "/User/Edit/{userId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) {
 		model.put("user", serviceUser.get(userId));
 		model.put("enabledOTP", enabledOTP);
 		model.put("forcedOTP", forcedOTP);
@@ -605,12 +647,12 @@ public class ControllerAdmin {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	@PostMapping(value = "/User/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			List<Role> userRoles = new LinkedList<Role>();
+			List<Role> userRoles = new LinkedList<>();
 			User user = buildUser(errors, value, locale, userRoles, principal);
 			if (!errors.isEmpty())
 				return errors;
@@ -621,14 +663,20 @@ public class ControllerAdmin {
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user",
+						String.format("Target: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.CREATE, user.getLogin(),
+						userAccess == null ? "none" : userAccess.name());
 				// give access
 				user.getRoles().stream().filter(role -> role.getType() != userAccess)
-						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
-								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
+						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION,
+								"log.user.get.access",
+								String.format("Target: %s, access: %s", user.getLogin(),
+										role.getRoleName().toLowerCase()),
+								principal.getName(), LogAction.GIVE_ACCESS,
 								user.getLogin(), role.getType().name()));
-				errors.put("success", messageSource.getMessage("success.user.created", null, "User was successfully created", locale));
+				errors.put("success", messageSource.getMessage("success.user.created", null,
+						"User was successfully created", locale));
 			} else {
 				serviceUser.saveOrUpdate(user);
 				/**
@@ -636,21 +684,29 @@ public class ControllerAdmin {
 				 */
 				// remove access
 				userRoles.stream().filter(role -> !user.hasRole(role))
-						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
-								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
+						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION,
+								"log.user.remove.access",
+								String.format("Target: %s, access: %s", user.getLogin(),
+										role.getRoleName().toLowerCase()),
+								principal.getName(), LogAction.REMOVE_ACCESS,
 								user.getLogin(), role.getType().name()));
 				// give access
 				user.getRoles().stream().filter(role -> !userRoles.contains(role))
-						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
-								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
+						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION,
+								"log.user.grant.access",
+								String.format("Target: %s, access: %s", user.getLogin(),
+										role.getRoleName().toLowerCase()),
+								principal.getName(), LogAction.GRANT_ACCESS,
 								user.getLogin(), role.getType().name()));
-				errors.put("success", messageSource.getMessage("success.user.update", null, "User was successfully updated", locale));
+				errors.put("success",
+						messageSource.getMessage("success.user.update", null, "User was successfully updated", locale));
 			}
+		} catch (TrickException e) {
+			errors.put("user", messageSource.getMessage(e.getCode(),
+					e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			if (e instanceof TrickException)
-				errors.put("user", messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
-			else
-				errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			errors.put("user",
+					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 		return errors;
 	}
@@ -663,12 +719,13 @@ public class ControllerAdmin {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/User/{idUser}/Prepare-to-delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String deleteUser(@PathVariable int idUser, Model model, RedirectAttributes attributes, Locale locale) {
 		try {
 			User user = serviceUser.get(idUser);
 			if (user == null) {
-				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null,
+						"Action does not authorised", locale));
 				return "redirect:/Error";
 			}
 			model.addAttribute("user", user);
@@ -681,17 +738,20 @@ public class ControllerAdmin {
 		}
 	}
 
-	@RequestMapping(value = "/User/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object deleteUser(@RequestBody UserDeleteHelper deleteHelper, Principal principal, Locale locale) {
-		Map<Object, String> errors = new LinkedHashMap<Object, String>();
+	@PostMapping(value = "/User/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object deleteUser(@RequestBody UserDeleteHelper deleteHelper, Principal principal,
+			Locale locale) {
+		Map<Object, String> errors = new LinkedHashMap<>();
 		try {
 			customDelete.deleteUser(deleteHelper, errors, principal, messageSource, locale);
 			if (errors.isEmpty())
-				return JsonMessage.Success(messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
+				return JsonMessage.Success(
+						messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			if (errors.isEmpty())
-				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+				return JsonMessage.Error(
+						messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
 	}
@@ -708,10 +768,12 @@ public class ControllerAdmin {
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/Customer/{customerID}/Manage-access")
-	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
+	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal)
+			throws Exception {
 		model.addAttribute("customer", serviceCustomer.get(customerID));
 		model.addAttribute("users", serviceUser.getAll());
-		model.addAttribute("customerUsers", serviceUser.getAllFromCustomer(customerID).stream().collect(Collectors.toMap(User::getLogin, user -> true)));
+		model.addAttribute("customerUsers", serviceUser.getAllFromCustomer(customerID).stream()
+				.collect(Collectors.toMap(User::getLogin, user -> true)));
 		return "admin/customer/manage-access";
 	}
 
@@ -726,32 +788,117 @@ public class ControllerAdmin {
 	 * @throws Exception
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/Customer/{customerID}/Manage-access/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String updateCustomerUsers(@RequestBody Map<Integer, Boolean> accesses, @PathVariable("customerID") int customerID, Model model, Principal principal,
+	@PostMapping(value = "/Customer/{customerID}/Manage-access/Update", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updateCustomerUsers(@RequestBody Map<Integer, Boolean> accesses,
+			@PathVariable("customerID") int customerID, Model model, Principal principal,
 			Locale locale, RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list
 		try {
 			Customer customer = serviceCustomer.get(customerID);
 			// create json parser
 			serviceUser.getAll(accesses.keySet()).forEach(user -> {
-				Boolean userhasaccess = accesses.get(user.getId());
-				if (userhasaccess) {
+				boolean userHasAccess = accesses.getOrDefault(user.getId(), false);
+				if (userHasAccess) {
 					if (!user.containsCustomer(customer)) {
 						user.addCustomer(customer);
 						serviceUser.saveOrUpdate(user);
 						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
-								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
+								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()),
+								principal.getName(), LogAction.GIVE_ACCESS,
 								customer.getOrganisation(), user.getLogin());
 					}
 				} else
 					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
 			});
-			return JsonMessage.Success(messageSource.getMessage("label.customer.manage.users.success", null, "Customer users successfully updated!", locale));
+			return JsonMessage.Success(messageSource.getMessage("label.customer.manage.users.success", null,
+					"Customer users successfully updated!", locale));
 		} catch (Exception e) {
 			// return errors
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
+	}
+
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@GetMapping(value = "/Customer/{customerID}/Email-template/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String editEmailTemplate(@PathVariable int customerID, Model model) {
+		final Customer customer = serviceCustomer.get(customerID);
+		if (customer == null)
+			throw new ResourceNotFoundException();
+
+		final TicketingSystem ticketingSystem = customer.getTicketingSystem();
+
+		if (ticketingSystem == null || ticketingSystem.getType() != TicketingSystemType.EMAIL)
+			throw new IllegalArgumentException("No ticketing system or invalid type");
+
+		final EmailTemplate emailTemplate = ticketingSystem.getEmailTemplate();
+		if (emailTemplate == null)
+			model.addAttribute("form", new EmailTemplate());
+		else
+			model.addAttribute("form", emailTemplate);
+
+		model.addAttribute("customerID", customerID);
+
+		return "admin/customer/eamil-template";
+	}
+
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@PostMapping(value = "/Customer/{customerID}/Email-template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object editEmailTemplate(@PathVariable int customerID, @RequestBody EmailTemplateForm form,
+			Locale locale) {
+
+		final Customer customer = serviceCustomer.get(customerID);
+		if (customer == null)
+			throw new ResourceNotFoundException();
+
+		final TicketingSystem ticketingSystem = customer.getTicketingSystem();
+		if (ticketingSystem == null || ticketingSystem.getType() != TicketingSystemType.EMAIL)
+			throw new IllegalArgumentException("No ticketing system or invalid type");
+
+		final Map<String, Object> result = new HashMap<>();
+
+		final Map<String, Object> errors = new HashMap<>();
+
+		final EmailTemplate emailTemplate = ticketingSystem.getEmailTemplate();
+
+		result.put("errors", errors);
+
+		if (ObjectUtils.isEmpty(form.getEmail()))
+			errors.put("email", messageSource.getMessage("error.email.template.email.empty", null,
+					"Email cannot be empty", locale));
+		else if (Constant.REGEXP_VALID_EMAIL.matches(form.getEmail()))
+			errors.put("email", messageSource.getMessage("error.email.template.email.invalid", null,
+					"Pleasse check the email address", locale));
+
+		if (ObjectUtils.isEmpty(form.getTitle()))
+			errors.put("title", messageSource.getMessage("error.email.template.title.empty", null,
+					"Title cannot be empty", locale));
+
+		if (ObjectUtils.isEmpty(form.getTemplate()))
+			errors.put("template", messageSource.getMessage("error.email.template.template.empty", null,
+					"Template cannot be empty", locale));
+
+		if (form.getInternalTime() < 0)
+			errors.put("internalTime", messageSource.getMessage("error.email.template.internal_time.negative", null,
+					"Internal time cannot be negative", locale));
+
+		if (errors.isEmpty()) {
+
+			if (emailTemplate == null) {
+				form.setId(0);
+				ticketingSystem.setEmailTemplate(new EmailTemplate(form));
+			} else
+				emailTemplate.update(form);
+
+			serviceCustomer.saveOrUpdate(customer);
+
+			result.put("success", messageSource.getMessage("success.update.email.template", null,
+					"Email template had been updated successfully", locale));
+		}
+
+		return result;
+
 	}
 
 	/**
@@ -765,8 +912,9 @@ public class ControllerAdmin {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Customer/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
-		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING, serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
+	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) {
+		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING,
+				serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/customer/customers";
 	}
@@ -795,22 +943,28 @@ public class ControllerAdmin {
 				} else if (!serviceCustomer.profileExists())
 					serviceCustomer.save(customer);
 				else
-					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
-			} else if (customer.isCanBeUsed() && !serviceCustomer.isProfile(customer.getId()) || !(customer.isCanBeUsed() || serviceCustomer.isProfile(customer.getId()))
-					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null,
+							"A customer profile already exists", locale));
+			} else if (customer.isCanBeUsed() && !serviceCustomer.isProfile(customer.getId())
+					|| !(customer.isCanBeUsed() || serviceCustomer.isProfile(customer.getId()))
+					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed())
+							&& (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
 				errors.put("canBeUsed",
-						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+						messageSource.getMessage("error.customer.profile.attach.user", null,
+								"Only a customer who is not attached to a user can be used as profile", locale));
 
 			/**
 			 * Log
 			 */
 			if (errors.isEmpty())
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
+				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer",
+						String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			errors.put("customer",
+					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -822,20 +976,24 @@ public class ControllerAdmin {
 	 * 
 	 */
 	@RequestMapping(value = "Customer/{customerId}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
+	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal,
+			HttpServletRequest request, Locale locale) throws Exception {
 		try {
 			customDelete.deleteCustomer(customerId, principal.getName());
-			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null,
+					"Customer was deleted successfully", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
 
 	@GetMapping(value = "Customer/{customerId}/Report-template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal, Locale locale) {
+	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal,
+			Locale locale) {
 		final Customer customer = serviceCustomer.get(customerId);
 		if (customer == null || customer.isCanBeUsed())
-			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+			throw new AccessDeniedException(
+					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		model.addAttribute("customer", customer);
 		model.addAttribute("reportTemplates", defaultReportTemplateLoader.findAll());
 		model.addAttribute("types", AnalysisType.values());
@@ -845,32 +1003,39 @@ public class ControllerAdmin {
 	}
 
 	@PostMapping(value = "Customer/{customerId}/Report-template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object reportTemplateSave(@PathVariable("customerId") int customerId, @ModelAttribute ReportTemplateForm templateForm, Model model, Principal principal,
+	public @ResponseBody Object reportTemplateSave(@PathVariable("customerId") int customerId,
+			@ModelAttribute ReportTemplateForm templateForm, Model model, Principal principal,
 			Locale locale) {
 		Customer customer = serviceCustomer.get(customerId);
 		if (customer == null || customer.isCanBeUsed())
-			throw new AccessDeniedException(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+			throw new AccessDeniedException(
+					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		ReportTemplate template = serviceReportTemplate.findByIdAndCustomer(templateForm.getId(), customerId);
 		if (template == null)
-			return JsonMessage.Error(messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+			return JsonMessage.Error(
+					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		Map<String, Object> result = new LinkedHashMap<>();
 		try {
 			long maxSize = Math.min(maxUploadFileSize, maxTemplateSize);
 			if (templateForm.getFile().getSize() > maxSize)
-				result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize }, "File is to large", locale));
+				result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize },
+						"File is to large", locale));
 			else {
 				template.setName(templateForm.getFile().getOriginalFilename());
 				template.setData(templateForm.getFile().getBytes());
 				template.setLength(templateForm.getFile().getSize());
 				if (!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
-					result.put("file", messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
+					result.put("file",
+							messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
 		} catch (IOException e) {
-			result.put("file", messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
+			result.put("file",
+					messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
 		}
 
 		if (template.getData() == null || template.getData().length == 0)
-			result.put("file", messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
+			result.put("file",
+					messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
 
 		if (result.isEmpty()) {
 			template.setEditable(false);
@@ -892,7 +1057,8 @@ public class ControllerAdmin {
 	 * @throws Exception
 	 */
 	@RequestMapping("Customer/Report-template/{id}/Download")
-	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response,
+			Locale locale) throws Exception {
 
 		ReportTemplate reportTemplate = serviceReportTemplate.findOne(id);
 
@@ -906,13 +1072,15 @@ public class ControllerAdmin {
 			return "errors/404";
 
 		if (customer.isCanBeUsed())
-			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+			throw new AccessDeniedException(
+					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
 		// set response contenttype to sqlite
 		response.setContentType("docx");
 
 		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("%s_v%s.docx", reportTemplate.getLabel(), reportTemplate.getVersion()) + "\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\""
+				+ String.format("%s_v%s.docx", reportTemplate.getLabel(), reportTemplate.getVersion()) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) reportTemplate.getLength());
@@ -925,10 +1093,14 @@ public class ControllerAdmin {
 		 * Log
 		 */
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
-				String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s", customer.getContactPerson(), reportTemplate.getLabel(),
-						reportTemplate.getVersion(), reportTemplate.getCreated(), reportTemplate.getType(), reportTemplate.getLanguage().getAlpha3()),
-				principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), reportTemplate.getLabel(), reportTemplate.getVersion(),
-				String.valueOf(reportTemplate.getCreated()), String.valueOf(reportTemplate.getType()), reportTemplate.getLanguage().getAlpha3());
+				String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
+						customer.getContactPerson(), reportTemplate.getLabel(),
+						reportTemplate.getVersion(), reportTemplate.getCreated(), reportTemplate.getType(),
+						reportTemplate.getLanguage().getAlpha3()),
+				principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), reportTemplate.getLabel(),
+				reportTemplate.getVersion(),
+				String.valueOf(reportTemplate.getCreated()), String.valueOf(reportTemplate.getType()),
+				reportTemplate.getLanguage().getAlpha3());
 
 		// return
 		return null;
@@ -966,7 +1138,8 @@ public class ControllerAdmin {
 	@DeleteMapping(value = "/Notification/Clear", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object clearNotification(Locale locale) {
 		serviceMessageNotifier.clear(null);
-		return JsonMessage.Success(messageSource.getMessage("success.clear.notification", null, "Notifications had been successfully cleared", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.clear.notification", null,
+				"Notifications had been successfully cleared", locale));
 	}
 
 	@PostMapping(value = "/Notification/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -984,7 +1157,8 @@ public class ControllerAdmin {
 				if (form.isAll())
 					serviceMessageNotifier.notifyAll(notification);
 				else
-					form.getTargets().stream().map(id -> serviceUser.findUsernameById(id)).filter(username -> username != null)
+					form.getTargets().stream().map(id -> serviceUser.findUsernameById(id))
+							.filter(username -> username != null)
 							.forEach(username -> serviceMessageNotifier.notifyUser(username, notification));
 			}
 		}
@@ -993,7 +1167,8 @@ public class ControllerAdmin {
 
 	private Notification updateMessages(Notification notification) {
 		String[] locales = { "en", "fr" };
-		String defaultMessage = notification.getMessages().values().stream().map(value -> value == null ? "" : value.trim()).filter(value -> !value.isEmpty()).findAny()
+		String defaultMessage = notification.getMessages().values().stream()
+				.map(value -> value == null ? "" : value.trim()).filter(value -> !value.isEmpty()).findAny()
 				.orElse(null);
 		for (String langue : locales) {
 			String message = notification.getMessages().get(langue);
@@ -1001,9 +1176,11 @@ public class ControllerAdmin {
 				if (!StringUtils.hasText(notification.getCode()))
 					notification.getMessages().put(langue, defaultMessage);
 				else
-					notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(), notification.getParameters(), defaultMessage, new Locale(langue)));
+					notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(),
+							notification.getParameters(), defaultMessage, new Locale(langue)));
 			} else if (StringUtils.hasText(notification.getCode()))
-				notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(), notification.getParameters(), message, new Locale(langue)));
+				notification.getMessages().put(langue, messageSource.getMessage(notification.getCode(),
+						notification.getParameters(), message, new Locale(langue)));
 		}
 		return notification;
 	}
@@ -1021,7 +1198,8 @@ public class ControllerAdmin {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) throws JsonProcessingException, IOException {
+	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles,
+			Principal principal) throws JsonProcessingException, IOException {
 		User user = null;
 		String error = null;
 		boolean newUser = false;
@@ -1030,7 +1208,8 @@ public class ControllerAdmin {
 			serviceDataValidation.register(validator = new UserValidator());
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(source);
-		String login = jsonNode.get("login").asText(), password = jsonNode.get("password").asText(), firstname = jsonNode.get("firstName").asText(),
+		String login = jsonNode.get("login").asText(), password = jsonNode.get("password").asText(),
+				firstname = jsonNode.get("firstName").asText(),
 				lastname = jsonNode.get("lastName").asText(), email = jsonNode.get("email").asText();
 		int id = jsonNode.get("id").asInt(), connexionType = jsonNode.get("connexionType").asInt();
 		if (id > 0) {
@@ -1042,7 +1221,8 @@ public class ControllerAdmin {
 			if (error != null)
 				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if (serviceUser.existByUsername(login))
-				errors.put("login", messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
+				errors.put("login",
+						messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
 			else
 				user.setLogin(login);
 		}

@@ -573,6 +573,16 @@ $.fn.serializeJSON = function () {
 	return json;
 };
 
+function convertFormToJSON(form) {
+	return $(form)
+	  .serializeArray()
+	  .reduce(function (json, { name, value }) {
+		json[name] = value;
+		return json;
+	  }, {});
+  }
+  
+
 function permissionError() {
 	return showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
 }
