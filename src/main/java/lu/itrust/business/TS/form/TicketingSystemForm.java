@@ -19,6 +19,8 @@ public class TicketingSystemForm {
 	private String url;
 	
 	private String name;
+
+	private String tracker;
 	
 	private TicketingSystemType type;
 	
@@ -64,4 +66,11 @@ public class TicketingSystemForm {
 		this.enabled = enabled;
 	}
 
+	public String getTracker() {
+		return tracker;
+	}
+
+	public void setTracker(String tracker) {
+		this.tracker = tracker;
+	}
 }

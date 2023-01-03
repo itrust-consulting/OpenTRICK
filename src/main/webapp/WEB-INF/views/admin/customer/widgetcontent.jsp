@@ -136,6 +136,13 @@
 								</div>
 							</div>
 							<div class="form-group">
+								<label for="ticketingSystem.tracker" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.tracker" />'> <spring:message code="label.ticketing.system.tracker" />
+								</label>
+								<div class="col-sm-9">
+									<input name="ticketingSystem.tracker" id="customer_tickecting_system_tracker" class="form-control" type="text" />
+								</div>
+							</div>
+							<div class="form-group">
 								<label for="ticketingSystem.url" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.ticketing.system.url" />'> <spring:message code="label.ticketing.system.url" />
 								</label>
 								<div class="col-sm-9">

@@ -195,7 +195,8 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			List<Measure> updateMeasures, ValueFactory valueFactory, MessageHandler handler, int maxProgess)
 			throws InterruptedException {
 		if (client != null)
-			return client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), newMeasures,
+			return client.createIssues(analysis.getProject(), analysis.getCustomer().getTicketingSystem().getTracker(),
+					analysis.getLanguage().getAlpha2(), newMeasures,
 					updateMeasures, valueFactory, handler, maxProgess);
 		final EmailTemplate template = analysis.getCustomer().getTicketingSystem().getEmailTemplate();
 		if (template == null)
@@ -221,7 +222,6 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		final int min = handler.getProgress();
 		final int size = measures.size();
 		int current = 0;
-
 
 		handler.update("info.creating.email.tickets", "Creating tickets by email", min);
 
@@ -282,7 +282,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 
 			handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
 
-			//Todo: save email and use the id as ticket ID.
+			// Todo: save email and use the id as ticket ID.
 
 			measure.setTicket("ts@email-" + System.currentTimeMillis());
 

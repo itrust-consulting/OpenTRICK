@@ -31,7 +31,7 @@ public interface Client extends Closeable {
 
 	boolean createIssue(String idProject, TicketingTask task);
 
-	boolean createIssues(String project, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, ValueFactory factory, MessageHandler handler, int maxProgess);
+	boolean createIssues(String project,String tracker, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, ValueFactory factory, MessageHandler handler, int maxProgess);
 
 	TicketingTask findTaskById(String idTask);
 

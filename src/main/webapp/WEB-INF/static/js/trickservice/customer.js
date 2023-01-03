@@ -76,6 +76,9 @@ function saveCustomer(form) {
 					case "ticketingSystem.name":
 						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_name").parent());
 						break;
+					case "ticketingSystem.tracker":
+						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_tracker").parent());
+						break;
 					case "ticketingSystem.type":
 						$(errorElement).appendTo($("#customer_form #customer_tickecting_system_type").parent());
 						break;

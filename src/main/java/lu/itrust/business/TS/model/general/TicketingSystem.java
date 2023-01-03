@@ -40,11 +40,16 @@ public class TicketingSystem {
 	@Column(name = "dtEnabled")
 	private boolean enabled;
 
+	@Column(name = "dtTracker")
+	private String tracker;
+
 	@OneToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "fiCustomer")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private Customer customer;
+
+	
 
 	@ManyToOne
 	@Cascade(CascadeType.ALL)
@@ -92,6 +97,15 @@ public class TicketingSystem {
 		this.enabled = enabled;
 	}
 
+	public String getTracker() {
+		return tracker;
+	}
+
+	public void setTracker(String tracker) {
+		this.tracker = tracker;
+	}
+
+
 	public Customer getCustomer() {
 		return customer;
 	}
@@ -107,5 +121,4 @@ public class TicketingSystem {
 	public void setEmailTemplate(EmailTemplate emailTemplate) {
 		this.emailTemplate = emailTemplate;
 	}
-
 }

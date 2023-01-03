@@ -114,10 +114,10 @@ public class RedmineClient implements Client {
 	 */
 	@Override
 	public boolean connect(Map<String, Object> settings) {
-		final String url = settings.getOrDefault("url", "").toString();
+		final String myURL = settings.getOrDefault("url", "").toString();
 		final String username = settings.getOrDefault("username", "").toString();
-		return username.isEmpty() ? connect(url, settings.getOrDefault("token", "").toString())
-				: connect(url, username, settings.getOrDefault("password", "").toString());
+		return username.isEmpty() ? connect(myURL, settings.getOrDefault("token", "").toString())
+				: connect(myURL, username, settings.getOrDefault("password", "").toString());
 	}
 
 	/*
@@ -174,7 +174,7 @@ public class RedmineClient implements Client {
 	@Override
 	public boolean createIssue(String idProject, TicketingTask task) {
 		if (manager == null)
-			return false;
+			return true;
 		try {
 			Project project = manager.getProjectManager().getProjectById(Integer.parseInt(idProject));
 			Tracker tracker = project.getTrackerByName(task.getType());
@@ -182,7 +182,6 @@ public class RedmineClient implements Client {
 				tracker = project.getTrackers().stream().findFirst().orElse(null);
 			Issue issue = new Issue(manager.getTransport(), project.getId(), task.getName());
 			issue.setDescription(task.getDescription());
-			//issue.setAuthorName(task.getReporter());
 			if (task.getAssignee() != null)
 				issue.setAssigneeName(task.getAssignee());
 			if (task.getDue() != null)
@@ -191,7 +190,9 @@ public class RedmineClient implements Client {
 				issue.setDoneRatio(task.getProgress());
 			if (task.getStatus() != null)
 				issue.setStatusName(task.getStatus());
-			Issue persisted = manager.getIssueManager().createIssue(issue);
+			if (tracker != null)
+				issue.setTracker(tracker);
+			Issue persisted = issue.create();
 			task.setId(persisted.getId().toString());
 			return false;
 		} catch (RedmineAuthenticationException e) {
@@ -214,7 +215,7 @@ public class RedmineClient implements Client {
 	 * lu.itrust.business.TS.messagehandler.MessageHandler, int)
 	 */
 	@Override
-	public boolean createIssues(String projectId, String language, Collection<Measure> measures,
+	public boolean createIssues(String projectId,String trackerName, String language, Collection<Measure> measures,
 			Collection<Measure> updateMeasures, ValueFactory factory, MessageHandler handler,
 			int maxProgess) {
 		if (manager == null)
@@ -224,7 +225,7 @@ public class RedmineClient implements Client {
 			final ProjectManager projectManager = manager.getProjectManager();
 			final IssueManager issueManager = manager.getIssueManager();
 			final Project project = projectManager.getProjectByKey(projectId);
-			Tracker tracker = project.getTrackerByName("Task");
+			Tracker tracker = project.getTrackerByName(trackerName);
 			if (tracker == null)
 				tracker = project.getTrackers().stream().findFirst().orElse(null);
 			int min = handler.getProgress(), size = measures.size() + updateMeasures.size(), current = 0;
@@ -244,8 +245,7 @@ public class RedmineClient implements Client {
 					issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
 					issue.setStartDate(measure.getPhase().getBeginDate());
 					issue.setDueDate(measure.getPhase().getEndDate());
-					Issue persisted = issueManager.createIssue(issue);
-					measure.setTicket(persisted.getId().toString());
+					measure.setTicket(issue.create().getId().toString());
 				}
 				handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
 				InstanceManager.getServiceTaskFeedback().send(handler);

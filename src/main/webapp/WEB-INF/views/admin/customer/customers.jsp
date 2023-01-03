@@ -42,7 +42,7 @@
 							<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 								<th rowspan="${colSpan}"><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
 								<c:if test="${adminaAllowedTicketing}">
-									<th class="text-center" colspan="4"><spring:message code="label.ticketing.system"/></th>
+									<th class="text-center" colspan="5"><spring:message code="label.ticketing.system"/></th>
 								</c:if>
 							</sec:authorize>
 						</tr>
@@ -51,6 +51,7 @@
 								<th><spring:message code="label.ticketing.system.enabled"/></th>
 								<th><spring:message code="label.ticketing.system.name"/></th>
 								<th><spring:message code="label.ticketing.system.type"/></th>
+								<th><spring:message code="label.ticketing.system.tracker"/></th>
 								<th><spring:message code="label.ticketing.system.url"/></th>
 							</tr>
 						</c:if>
@@ -73,6 +74,7 @@
 										<td data-trick-name='tickecting_system_enabled' data-real-value="${customer.ticketingSystem.enabled==true}"><spring:message code="label.yes_no.${fn:toLowerCase(customer.ticketingSystem.enabled==true)}" /></td>
 										<td data-trick-name='tickecting_system_name'><spring:message text="${customer.ticketingSystem.name}" /></td>
 										<td data-trick-name='tickecting_system_type' data-real-value="${customer.ticketingSystem.type}"><spring:message code="label.ticketing.system.type.${fn:toLowerCase(customer.ticketingSystem.type)}" text="${customer.ticketingSystem.type}"/></td>
+										<td data-trick-name='tickecting_system_tracker'><spring:message text="${customer.ticketingSystem.tracker}" /></td>
 										<td data-trick-name='tickecting_system_url'><spring:message text="${customer.ticketingSystem.url}" /></td>
 									</c:if>
 									

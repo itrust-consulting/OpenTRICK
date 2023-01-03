@@ -199,6 +199,13 @@ public class CustomerManager {
 									messageSource.getMessage("error.ticketing.system.url.bad.protocol", null, locale));
 						else
 							ticketingSystem.setUrl(systemForm.getUrl());
+
+						if (!StringUtils.hasText(systemForm.getTracker()))
+							errors.put("ticketingSystem.tracker",
+									messageSource.getMessage("error.ticketing.system.tracker.empty", null, locale));
+						else
+							ticketingSystem.setTracker(systemForm.getTracker().trim());
+
 					} else if (ObjectUtils.isEmpty(systemForm.getUrl()) || !isHttpsUrl(systemForm.getUrl())) {
 						ticketingSystem.setUrl(null);
 					}

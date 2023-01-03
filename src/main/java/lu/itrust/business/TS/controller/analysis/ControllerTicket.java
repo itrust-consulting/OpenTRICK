@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
+import org.codehaus.jackson.map.ser.ArraySerializers.IntArraySerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -147,7 +148,7 @@ public class ControllerTicket extends AbstractController {
 	public @ResponseBody String unlinkToProject(@RequestBody List<Integer> ids, Model model, Principal principal,
 			Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		final Customer customer = serviceCustomer.findByAnalysisId(ids.size() > 1 ? ids.get(0) : -1);
+		final Customer customer = ids.isEmpty() ? null : serviceCustomer.findByAnalysisId(ids.get(0));
 		if (customer == null || !(user.containsCustomer(customer)
 				&& loadUserSettings(principal, customer.getTicketingSystem(), model, user)))
 			throw new ResourceNotFoundException();
@@ -158,13 +159,14 @@ public class ControllerTicket extends AbstractController {
 					analysis.setProject(null);
 					serviceAnalysis.saveOrUpdate(analysis);
 				});
-		return JsonMessage.Success(ids.size() > 1
-				? messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name },
-						String.format("Analyses has been successfully unlinked from %s", name),
-						locale)
-				: messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name },
+		return JsonMessage.Success(ids.isEmpty()
+				? messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name },
 						String.format("Analysis has been successfully unlinked from %s", name),
+						locale)
+				: messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name },
+						String.format("Analyses has been successfully unlinked from %s", name),
 						locale));
+
 	}
 
 	@PostMapping(value = "/Measure/Generate", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
