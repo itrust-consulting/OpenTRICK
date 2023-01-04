@@ -29,7 +29,7 @@ public class V2_2_5__Fix_Risk_Profile_data extends TrickServiceDataBaseMigration
 			Integer idAnalysis = row.getInt("idAnalysis"), idOldImpact = row.getInt("idImpactParameter"), idRiskProfile = row.getInt("idRiskProfile");
 			String acronym = row.getString("acronym"), key = String.format(KEY_FORMAT, acronym, idAnalysis);
 			if (!parametersMappers.containsKey(key)) {
-				template.query(PARAMETER_REQUEST, new Object[] { idAnalysis, acronym }, (row2) -> {
+				template.query(PARAMETER_REQUEST,  newArgPreparedStatementSetter(new Object[] { idAnalysis, acronym }), (row2) -> {
 					parametersMappers.put(key, row2.getInt("idImpactParameter"));
 				});
 			}

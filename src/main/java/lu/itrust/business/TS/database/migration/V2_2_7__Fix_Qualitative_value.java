@@ -21,7 +21,7 @@ public class V2_2_7__Fix_Qualitative_value extends TrickServiceDataBaseMigration
 	@Override
 	public void migrate(JdbcTemplate template) throws Exception {
 		template.query(LOAD_QUANTITATIVE_IMPACT_ID, (res) -> {
-			template.query(LOAD_VALUE_TO_MIGRATE, new Object[] { res.getLong("idScaleType") }, (rs) -> {
+			template.query(LOAD_VALUE_TO_MIGRATE, newArgPreparedStatementSetter(new Object[] { res.getLong("idScaleType") }), (rs) -> {
 				long idRealValue = rs.getLong("idRealValue"), idImpact = rs.getLong("idImpactParameter");
 				Map<String, Object> parameters = new HashMap<>();
 				SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(template.getDataSource()).withTableName("Value").usingGeneratedKeyColumns("idValue");

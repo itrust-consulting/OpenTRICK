@@ -21,17 +21,21 @@ public class V2_1_9__PrepareMigration extends TrickServiceDataBaseMigration {
 
 	@Override
 	public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-		ResultSet foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(null, null, "Parameter");
+		ResultSet foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(getSchema(),
+				null,
+				"Parameter");
 		while (foreignKeys.next())
-			jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME")));
-		
-		foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(null, null, "ParameterType");
+			deleteForeignKeys(jdbcTemplate, foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME"));
+
+		foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(getSchema(), null,
+				"ParameterType");
 		while (foreignKeys.next())
-			jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME")));
-		
-		foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(null, null, "ExtendedParameter");
+			deleteForeignKeys(jdbcTemplate, foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME"));
+
+		foreignKeys = jdbcTemplate.getDataSource().getConnection().getMetaData().getExportedKeys(getSchema(), null,
+				"ExtendedParameter");
 		while (foreignKeys.next())
-			jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME")));
+			deleteForeignKeys(jdbcTemplate, foreignKeys.getString("FKTABLE_NAME"), foreignKeys.getString("FK_NAME"));
 	}
 
 }

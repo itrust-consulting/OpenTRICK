@@ -5,7 +5,5 @@ ALTER TABLE `RiskProfile` ADD `dtRawVulnerability` INT(11) NULL DEFAULT '1' AFTE
 ALTER TABLE `RiskProfile` ADD `dtExpVulnerability` INT(11) NULL DEFAULT '1' AFTER `dtRawVulnerability`;
 
 ALTER TABLE `Assessment` CHANGE `dtVulnerability` `dtVulnerability` INT(11) NOT NULL;
---ALTER TABLE `RiskProfile` CHANGE `dtRawVulnerability` `dtRawVulnerability` INT(11) NOT NULL;
---ALTER TABLE `RiskProfile` CHANGE `dtExpVulnerability` `dtExpVulnerability` INT(11) NOT NULL; 
 
 COMMIT;
