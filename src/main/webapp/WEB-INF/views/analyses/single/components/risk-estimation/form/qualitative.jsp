@@ -388,7 +388,7 @@
 									</c:otherwise>
 								</c:choose>
 								<c:choose>
-									<c:when test="${impact.real eq impact.raw }">
+									<c:when test="${impact.raw.equals(impact.real)}">
 										<input name="IMPACT" class="form-control text-right" value="${impactValue}" list="dataList-parameter-impact" placeholder="${impactValue}" data-trick-type='string'
 											title="${impact.variable}">
 									</c:when>
