@@ -28,13 +28,13 @@ public abstract class AbstractParameterType implements IParameterType {
 	/**
 	 * 
 	 */
-	public AbstractParameterType() {
+	protected AbstractParameterType() {
 	}
 
 	/**
 	 * @param name
 	 */
-	public AbstractParameterType(String name) {
+	protected AbstractParameterType(String name) {
 		this.name = name;
 	}
 

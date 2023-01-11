@@ -4,6 +4,6 @@
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)" var="mappedParameters" scope="request" />
 <jsp:include page="other.jsp" />
 <jsp:include page="impact_probability.jsp" />
-<c:if test="${(type.quantitative or not type.qualitative) and hasMaturity}">
+<c:if test="${type.quantitative and hasMaturity}">
 	<jsp:include page="maturity/home.jsp" />
 </c:if>

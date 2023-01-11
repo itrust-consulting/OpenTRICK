@@ -64,7 +64,7 @@ public class ValueFactory {
 				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_DYNAMIC)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD))
-				.flatMap(entry -> entry.getValue().stream()).forEach(parameter -> add(parameter));
+				.flatMap(entry -> entry.getValue().stream()).forEach(this::add);
 	}
 
 	private void add(IParameter parameter) {
@@ -165,7 +165,7 @@ public class ValueFactory {
 	private IValue findByLevel(Integer level, List<? extends ILevelParameter> parameters) {
 		int mid = parameters.size() / 2;
 		ILevelParameter parameter = (ILevelParameter) parameters.get(mid);
-		if (parameter.getLevel() == level)
+		if (parameter.getLevel().equals(level) )
 			return new Value(parameter);
 		else if (mid == 0)
 			return new LevelValue(level, parameter);

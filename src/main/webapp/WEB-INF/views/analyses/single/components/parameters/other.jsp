@@ -32,27 +32,38 @@
 							</c:if>
 							<th class="textaligncenter"><spring:message code="label.parameter.simple.soa" /></th>
 							<th class="textaligncenter"><spring:message code="label.parameter.simple.mandatory_phase" /></th>
+							<c:if test="${isILR}">
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.ilr_rrf_threshold" /></th>
+							</c:if>
 						</tr>
 					</thead>
 					<tbody>
 						<tr data-trick-class="SimpleParameter" class='editable'>
 							<c:forEach items="${mappedParameters['SINGLE']}" var="parameter">
 								<c:choose>
-									<c:when test="${parameter.description=='soaThreshold'}">
+									<c:when test="${parameter.description == 'soaThreshold'}">
 										<td data-trick-id="${parameter.id}" data-name="soaThreshold" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
 											data-trick-field-type="double" onclick="return editField(this);" data-trick-callback='soaThresholdUpdate()'><fmt:formatNumber value="${parameter.value}"
 												maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
-									<c:when test="${parameter.description=='max_rrf'}">
-										<td data-trick-id="${parameter.id}" data-name="max_rrf" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
-											data-trick-field-type="double" onclick="return editField(this);" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}"
-												maxFractionDigits="0" pattern="#" /></td>
+									<c:when test="${parameter.description == 'max_rrf'}">
+										<c:if test="${type.quantitative }">
+											<td data-trick-id="${parameter.id}" data-name="max_rrf" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
+												data-trick-field-type="double" onclick="return editField(this);" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}"
+													maxFractionDigits="0" pattern="#" /></td>
+										</c:if>
 									</c:when>
-									<c:when test="${parameter.description== 'lifetime_default'}">
+									<c:when test="${parameter.description == 'lifetime_default'}">
 										<td data-trick-id="${parameter.id}" data-trick-min-value='1e-19' class="textaligncenter" data-trick-field="value" data-trick-callback='updateMeasuresCost()'
 											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
-									<c:when test="${parameter.description=='mandatoryPhase'}">
+									<c:when test="${parameter.description == 'ilr_rrf_threshold'}">
+										<c:if test="${type.quantitative }">
+											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
+												data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+										</c:if>
+									</c:when>
+									<c:when test="${parameter.description == 'mandatoryPhase'}">
 										<td data-trick-id="${parameter.id}" data-trick-callback-pre="extractPhase(this,true)" class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
 											onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
@@ -183,8 +194,70 @@
 				<jsp:include page="risk-acceptance.jsp" />
 			</div>
 		</c:if>
+		<c:if test="${isILR}">
+			<div class="col-sm-6">
+				<fieldset>
+					<legend>
+						<c:choose>
+							<c:when test="${isEditable}">
+								<spring:message code="label.title.parameter.ilr_soa_scale" />
+								<span class="pull-right">
+									<button class='btn btn-xs btn-link' onclick="return manageIlrSoaScale(true)" style="font-size: 15px">
+										<i class="fa fa-cog" aria-hidden="true"></i>
+										<spring:message code='label.action.manage' />
+									</button>
+								</span>
+							</c:when>
+							<c:otherwise>
+								<spring:message code="label.title.parameter.ilr_soa_scale" />
+							</c:otherwise>
+						</c:choose>
+					</legend>
+					<table class="table table-hover table-condensed" id="table_parameter_ilr_soa_scale">
+						<thead>
+							<tr>
+								<th class="textaligncenter"><spring:message code="label.importance.threshold" /></th>
+								<th style="width: 50%"><spring:message code="label.description" /></th>
+								<th class="textaligncenter"><spring:message code="label.color" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<c:when test="${empty mappedParameters['ILR_SOA_SCALE']}">
+									<tr class='warning'>
+										<td colspan="4"><spring:message code='info.ilr_soa_scale.current.empty' /></td>
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<c:set var="size" value="${mappedParameters['ILR_SOA_SCALE'].size()}" />
+									<c:forEach items="${mappedParameters['ILR_SOA_SCALE']}" var="parameter" varStatus="status">
+										<tr data-trick-class="IlrSoaScaleParameter" data-trick-id="${parameter.id}" ${isEditable? 'ondblclick="return manageIlrSoaScale()"':''}>
+											<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" var="value" />
+											<td class='textaligncenter' data-trick-field="value"><c:choose>
+												<c:when test="${status.index==0 and value eq -1}">
+													<spring:message code="label.title.measure.status.na" />
+												</c:when>
+												<c:otherwise>
+													${empty prevValue || prevValue eq 0?'[' : ']' } <span class='text-muted'>${empty prevValue?0 : prevValue}</span> ; ${value} ]
+												</c:otherwise>
+												</c:choose></td>
+											<c:set var="prevValue" value="${value == -1? 0 : value}" />
+											<spring:message text="${parameter.color}" var="color" />
+											<td class='editable' data-trick-field='description' data-trick-content="text" data-trick-field-type='string' onclick="return editField(this);"><spring:message
+													text="${parameter.description}" /></td>
+											<td style="background-color: ${color};" data-trick-field='color' data-trick-content="color" data-trick-field-type='string' data-real-value='${color}'
+												onclick="return editField(this);"></td>
+										</tr>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
+				</fieldset>
+			</div>
+		</c:if>
 
-			<div class='col-sm-6'>
+		<div class='col-sm-6'>
 			<fieldset>
 				<legend>
 					<spring:message code="label.title.parameter.report.setting" />

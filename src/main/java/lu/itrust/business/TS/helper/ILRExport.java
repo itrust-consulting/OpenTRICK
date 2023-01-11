@@ -3,6 +3,7 @@ package lu.itrust.business.TS.helper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -20,11 +23,19 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.ilr.ILRImpact;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.monarc.MonarcDatabase;
 import lu.itrust.monarc.MonarcInstance;
+import lu.itrust.monarc.MonarcMeasures;
 import lu.itrust.monarc.MonarcRisks;
+import lu.itrust.monarc.MonarcSoa;
+import lu.itrust.monarc.MonarcSoaScaleComment;
 import lu.itrust.monarc.MonarcThreats;
 import lu.itrust.monarc.MonarcVulnerabilities;
 
@@ -32,29 +43,80 @@ public class ILRExport {
 
     private static final String MAPPING[][] = { { "reputation", "reputational" }, { "personal", "privacy" } };
 
+    private class IlrSoaScale {
+        double from;
+        double to;
+        MonarcSoaScaleComment scaleComment;
+
+        public IlrSoaScale(double from, double to, MonarcSoaScaleComment scaleComment) {
+            setFrom(from);
+            setTo(to);
+            setScaleComment(scaleComment);
+            if (getFrom() > getTo())
+                throw new TrickException("error.ilr_soa_scale.conflict", "Please check ILR SOA Scale Mapping!");
+        }
+
+        public double getFrom() {
+            return from;
+        }
+
+        public void setFrom(double from) {
+            this.from = from;
+        }
+
+        public double getTo() {
+            return to;
+        }
+
+        public void setTo(double to) {
+            this.to = to;
+        }
+
+        public MonarcSoaScaleComment getScaleComment() {
+            return scaleComment;
+        }
+
+        public void setScaleComment(MonarcSoaScaleComment scaleComment) {
+            this.scaleComment = scaleComment;
+        }
+
+        public boolean isBounded(double value) {
+            return from == 0 ? value >= from && value <= to : value > from && value <= to;
+        }
+    }
+
     public void exportILRData(Analysis analysis, List<ScaleType> scales, File data, File mapping)
             throws Exception {
         final Map<Asset, List<Assessment>> assessments = analysis.getAssessments().stream()
                 .filter(e -> e.getAsset().isSelected() && e.getScenario().isSelected())
                 .collect(Collectors.groupingBy(Assessment::getAsset));
+
         final Map<String, List<String>> ilrToTSAssets = loadAssetMapping(mapping);
+
+        final Map<String, String> stdToReferencials = loadStandardMapping(mapping);
+
         final Map<String, AssetNode> nodes = analysis.getAssetNodes().stream()
                 .collect(Collectors.toMap(e -> e.getAsset().getName(), Function.identity()));
+
         final Map<String, ScaleType> scaleTypes = scales.stream()
                 .collect(Collectors.toMap(e -> e.getName().toLowerCase(), Function.identity()));
+
+        final ValueFactory factory = new ValueFactory(analysis.getParameters());
+
         for (String[] scaleMapping : MAPPING) {
             if (!scaleTypes.containsKey(scaleMapping[0])) {
                 final ScaleType myImpact = scaleTypes.get(scaleMapping[1]);
                 if (myImpact != null)
                     scaleTypes.put(scaleMapping[0], myImpact);
             }
-
         }
 
         final Map<String, RiskProfile> mappingProfiles = analysis.getRiskProfiles().stream()
                 .collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 
         final MonarcDatabase database = new MonarcDatabase(data.getAbsolutePath());
+
+        exportSOA(analysis, factory, stdToReferencials, database);
 
         for (Entry<Asset, List<Assessment>> entry : assessments.entrySet()) {
 
@@ -171,11 +233,120 @@ public class ILRExport {
 
     }
 
+    private void exportSOA(Analysis analysis, ValueFactory factory, Map<String, String> stdToReferencials,
+            MonarcDatabase database) {
+
+        final List<IlrSoaScale> soaScales = generateIlrSoaScales(analysis, database);
+
+        final Map<String, MonarcSoa> soaMapper = database.getAllMonarcSoas().stream()
+                .collect(Collectors.toMap(MonarcSoa::getMeasureId, Function.identity()));
+
+        analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).forEach(e -> {
+            final Map<String, MonarcMeasures> measures = database.searchMeasuresByReferentialLabel(
+                    stdToReferencials.getOrDefault(e.getStandard().getName(), e.getStandard().getName())).stream()
+                    .collect(Collectors.toMap(MonarcMeasures::getCode, Function.identity()));
+            if (measures.isEmpty())
+                return;
+
+            for (Measure measure : e.getMeasures()) {
+                final MonarcMeasures mm = measures.get(measure.getMeasureDescription().getReference());
+                if (mm != null) {
+                    final MonarcSoa soa = soaMapper.get(mm.getUuid());
+                    if (soa == null)
+                        continue;
+
+                    // clear status
+                    soa.setBP(0);
+                    soa.setBR(0);
+                    soa.setCO(0);
+                    soa.setEX(0);
+                    soa.setLR(0);
+                    soa.setRRA(0);
+
+                    soa.setEvidences(measure.getComment());
+                    soa.setActions(measure.getToDo());
+                    soa.setRemarks(((AbstractNormalMeasure) measure).getSoaComment());
+
+                    final double implementRate = measure.getImplementationRateValue(factory);
+                    final Integer scaleComment = getIlrSoaScale(implementRate, soaScales);
+
+                    switch (measure.getStatus()) {
+                        case Constant.MEASURE_STATUS_APPLICABLE:
+                            if (e.getStandard().isComputable())
+                                soa.setRRA(1);
+                            else
+                                soa.setBP(1);
+                            soa.setSoaScaleComment(scaleComment);
+                            break;
+                        case Constant.MEASURE_STATUS_MANDATORY:
+                            soa.setLR(1);
+                            soa.setSoaScaleComment(scaleComment);
+                            break;
+                        default:
+                            soa.setEX(1);
+                            soa.setSoaScaleComment(null);
+                    }
+                }
+            }
+        });
+    }
+
+    private Integer getIlrSoaScale(double implementRate, List<IlrSoaScale> soaScales) {
+        final int mid = soaScales.size() / 2;
+        IlrSoaScale scale = soaScales.get(mid);
+        if (scale.isBounded(implementRate) || mid == 0)
+            return scale.getScaleComment().getId();
+        else if (scale.getFrom() > implementRate)
+            return getIlrSoaScale(implementRate, soaScales.subList(0, mid));
+        else
+            return getIlrSoaScale(implementRate, soaScales.subList(mid, soaScales.size()));
+    }
+
+    private List<IlrSoaScale> generateIlrSoaScales(Analysis analysis, MonarcDatabase database) {
+        final List<IlrSoaScale> soaScales = new ArrayList<>();
+
+        final List<IlrSoaScaleParameter> parameters = analysis.getIlrSoaScaleParameters();
+
+        parameters.sort((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()));
+
+        for (int i = 0; i < parameters.size(); i++) {
+            final IlrSoaScaleParameter parameter = parameters.get(i);
+            if (i == 0 && parameter.getValue() < 0) {
+                soaScales.add(new IlrSoaScale(parameter.getValue() - 1, parameter.getValue(), new MonarcSoaScaleComment(
+                        parameter.getId(), i, false, parameter.getColor(), parameter.getDescription())));
+            } else if (i == 0) {
+                soaScales.add(new IlrSoaScale(0, parameter.getValue(), new MonarcSoaScaleComment(
+                        parameter.getId(), i, false, parameter.getColor(), parameter.getDescription())));
+            } else {
+                soaScales
+                        .add(new IlrSoaScale(parameters.get(i - 1).getValue(), parameter.getValue(),
+                                new MonarcSoaScaleComment(
+                                        parameter.getId(), i, false, parameter.getColor(),
+                                        parameter.getDescription())));
+            }
+        }
+
+        if (soaScales.isEmpty())
+            throw new TrickException("error.ilr_soa_scale.empty", "Please update ILR SOA Scale Mapping!");
+
+        database.setSoaScaleComments(soaScales.stream().map(IlrSoaScale::getScaleComment).collect(Collectors.toList()));
+
+        return soaScales;
+    }
+
+    private Map<String, String> loadStandardMapping(File file) throws IOException {
+        return file == null || !file.exists() ? Collections.emptyMap()
+                : Files.readAllLines(file.toPath()).stream().map(e -> e.split(";"))
+                        .filter(e -> e.length == 3 && e[0].equalsIgnoreCase("STD"))
+                        .collect(Collectors.toMap(e -> e[1].trim().toLowerCase(), e -> e[2].trim()));
+    }
+
     private Map<String, List<String>> loadAssetMapping(File file) throws IOException {
         return file == null || !file.exists() ? Collections.emptyMap()
-                : Files.readAllLines(file.toPath()).stream().map(e -> e.split(";")).filter(e -> e.length == 2)
-                        .collect(Collectors.groupingBy(e -> e[0].trim().toLowerCase(),
-                                Collectors.mapping(e -> e[1].trim(), Collectors.toList())));
+                : Files.readAllLines(file.toPath()).stream().map(e -> e.split(";"))
+                        .filter(e -> e.length == 3 && e[0].equalsIgnoreCase("ASSET"))
+                        .collect(Collectors.groupingBy(e -> e[1].trim().toLowerCase(),
+                                Collectors.mapping(e -> e[2].trim(), Collectors.toList())));
     }
 
     private List<MonarcInstance> findOrCreateAsset(final Map<String, List<String>> ilrToTSAssets,

@@ -31,14 +31,14 @@ public abstract class Parameter implements IParameter {
 	@Column(name = "dtValue", nullable = false)
 	private double value = 0;
 
-	public Parameter() {
+	protected Parameter() {
 	}
 
 	/**
 	 * @param value
 	 * @param description
 	 */
-	public Parameter(double value, String description) {
+	protected Parameter(double value, String description) {
 		this.value = value;
 		this.description = description;
 	}

@@ -67,6 +67,7 @@ import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
@@ -333,7 +334,7 @@ public class Analysis implements Cloneable {
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("created")
-	private Map<SimpleDocumentType,SimpleDocument> documents = new LinkedHashMap<>();
+	private Map<SimpleDocumentType, SimpleDocument> documents = new LinkedHashMap<>();
 
 	/** Version of the Analysis */
 	@Column(name = "dtVersion", nullable = false, length = 12)
@@ -965,7 +966,7 @@ public class Analysis implements Cloneable {
 	 */
 	public List<ActionPlanEntry> findActionPlan(String mode) {
 
-		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
+		List<ActionPlanEntry> ape = new ArrayList<>();
 		for (int i = 0; i < this.actionPlans.size(); i++) {
 			if (this.actionPlans.get(i).getActionPlanType().getActionPlanMode().getName().equals(mode)) {
 				ape.add(this.actionPlans.get(i));
@@ -1217,6 +1218,17 @@ public class Analysis implements Cloneable {
 	public String getLatestVersion() {
 		History history = getLastHistory();
 		return history == null ? "" : history.getVersion();
+	}
+
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis")
+	@Access(AccessType.PROPERTY)
+	@Cascade(CascadeType.ALL)
+	@OrderBy("value")
+	@SuppressWarnings("unchecked")
+	public List<IlrSoaScaleParameter> getIlrSoaScaleParameters() {
+		return (List<IlrSoaScaleParameter>) this.getParameters()
+				.computeIfAbsent(Constant.PARAMETER_CATEGORY_ILR_SOA_SCALE, k -> new ArrayList<>());
 	}
 
 	@OneToMany
@@ -1501,11 +1513,11 @@ public class Analysis implements Cloneable {
 		this.settings = settings;
 	}
 
-	public Map<SimpleDocumentType,SimpleDocument> getDocuments() {
+	public Map<SimpleDocumentType, SimpleDocument> getDocuments() {
 		return documents;
 	}
 
-	public void setDocuments(Map<SimpleDocumentType,SimpleDocument> documents) {
+	public void setDocuments(Map<SimpleDocumentType, SimpleDocument> documents) {
 		this.documents = documents;
 	}
 
@@ -2041,6 +2053,10 @@ public class Analysis implements Cloneable {
 	 */
 	public void setLanguage(Language language) {
 		this.language = language;
+	}
+
+	public void setIlrSoaScaleParameters(List<IlrSoaScaleParameter> parameters) {
+		this.getParameters().put(Constant.PARAMETER_CATEGORY_ILR_SOA_SCALE, parameters);
 	}
 
 	public void setLikelihoodParameters(List<LikelihoodParameter> parameters) {

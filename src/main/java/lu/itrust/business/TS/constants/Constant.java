@@ -315,6 +315,7 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
 	public final static String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
+	public final static String PARAMETERTYPE_TYPE_ILR_SOA_SCALE = "ILR_SOA_SCALE";
 
 	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME,
 			PARAMETERTYPE_TYPE_DYNAMIC_NAME };
@@ -398,6 +399,8 @@ public class Constant {
 
 	public final static String PARAMETER_CATEGORY_DYNAMIC = "DYNAMIC";
 
+	public final static String PARAMETER_CATEGORY_ILR_SOA_SCALE = PARAMETERTYPE_TYPE_ILR_SOA_SCALE;
+
 	public final static String PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD = "LIKELIHOOD";
 
 	public final static String PARAMETER_CATEGORY_MATURITY = "MATURITY";
@@ -413,7 +416,6 @@ public class Constant {
 	public static final String EXPLOITABILITY_RISK = "Exploitability";
 	public static final String RELIABILITY_RISK = "Reliability";
 	public static final String ILR_RISK = "ILR";
-
 
 	public static final String CONFIDENTIALITY = "CONFIDENTIALITY";
 	public static final String INTEGRITY = "INTEGRITY";
@@ -543,6 +545,7 @@ public class Constant {
 	public static final String VALUE_TO_IMPACT = "value_to_impact";
 
 	/** List of Constants for the Sqlite Table "parameter" */
+	public static final String ILR_RRF_THRESHOLD = "ilr_rrf_threshold";
 	public static final String PARAMETER_MAX_RRF = "max_rrf";
 	public static final String MANDATORY_PHASE = "mandatoryPhase";
 	public static final String SOA_THRESHOLD = "soaThreshold";
