@@ -20,6 +20,7 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceHistory;
+import lu.itrust.business.TS.database.service.ServiceIlrSoaScaleParameter;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
@@ -118,6 +119,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
 
+	@Autowired
+	private ServiceIlrSoaScaleParameter serviceIlrSoaScaleParameter;
+
 	public PermissionEvaluatorImpl() {
 	}
 
@@ -195,111 +199,117 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			switch (className) {
 
-			case "Scenario": {
-				if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "Asset": {
-				if (!serviceAsset.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "Assessment": {
-				if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "Measure": {
-				if (!serviceMeasure.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "ItemInformation": {
-				if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "Phase": {
-				if (!servicePhase.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "RiskInformation": {
-				if (!serviceRiskInformation.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "RiskProfile": {
-				if (!serviceRiskProfile.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "SimpleParameter": {
-				if (!serviceSimpleParameter.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "Scenario": {
+					if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "Asset": {
+					if (!serviceAsset.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "Assessment": {
+					if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "Measure": {
+					if (!serviceMeasure.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "ItemInformation": {
+					if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "Phase": {
+					if (!servicePhase.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "RiskInformation": {
+					if (!serviceRiskInformation.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "RiskProfile": {
+					if (!serviceRiskProfile.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "SimpleParameter": {
+					if (!serviceSimpleParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "LikelihoodParameter": {
-				if (!serviceLikelihoodParameter.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "LikelihoodParameter": {
+					if (!serviceLikelihoodParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "MaturityParameter": {
-				if (!serviceMaturityParameter.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "MaturityParameter": {
+					if (!serviceMaturityParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "ImpactParameter": {
-				if (!serviceImpactParameter.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "ImpactParameter": {
+					if (!serviceImpactParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "ActionPlanEntry": {
-				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "ActionPlanSummary": {
-				if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "ActionPlanEntry": {
+					if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+				case "ActionPlanSummary": {
+					if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "RiskAcceptanceParameter":
-				if (!serviceRiskAcceptanceParameter.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			case "History": {
-				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "RiskAcceptanceParameter":
+					if (!serviceRiskAcceptanceParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				case "History": {
+					if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "RiskRegister": {
-				if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "RiskRegister": {
+					if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "DynamicParameter": {
-				if (!serviceDynamicParameter.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "DynamicParameter": {
+					if (!serviceDynamicParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			case "Standard": {
-				if (!serviceStandard.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
+				case "Standard": {
+					if (!serviceStandard.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
 
-			default:
-				return false;
+				case "IlrSoaScaleParameter": {
+					if (!serviceIlrSoaScaleParameter.belongsToAnalysis(analysisId, elementId))
+						return false;
+					break;
+				}
+
+				default:
+					return false;
 			}
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {

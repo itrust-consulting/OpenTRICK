@@ -16,12 +16,15 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,8 +46,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 /**
  * ControllerAdministration.java: <br>
@@ -177,15 +178,14 @@ public class ControllerActionPlan extends AbstractController {
 	 * @param analysisId
 	 * @param attributes
 	 * @return
+	 * @throws JsonProcessingException
+	 * @throws JsonMappingException
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "/Compute", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale,
-			@RequestBody String value) throws Exception {
-
-		// prepare permission verifier
-		final PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
-				serviceUserAnalysisRight);
+			@RequestBody String value) throws JsonProcessingException {
 
 		final ObjectMapper mapper = new ObjectMapper();
 
@@ -194,37 +194,38 @@ public class ControllerActionPlan extends AbstractController {
 		// retrieve analysis id to compute
 		final int analysisId = jsonNode.get("id").asInt();
 
-		// verify if user is authorized to compute the actionplan
-		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
+		// retrieve options selected by the user
 
-			// retrieve options selected by the user
+		final boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
 
-			final boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
+		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 
-			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
+		List<Integer> standards = new ArrayList<>();
 
-			List<Integer> standards = new ArrayList<Integer>();
-
-			for (AnalysisStandard analysisStandard : analysisStandards) {
-				if (jsonNode.get("standard_" + analysisStandard.getId()) != null)
-					if (jsonNode.get("standard_" + analysisStandard.getId()).asBoolean())
-						standards.add(analysisStandard.getId());
-			}
-
-			final boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
-
-			final Worker worker = new WorkerComputeActionPlan(analysisId, standards, uncertainty, reloadSection);
-
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
-						"Too many tasks running in background", locale));
-			// execute task
-			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null,
-					"Action plan computation was started successfully", locale));
-		} else {
-			return JsonMessage
-					.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		for (AnalysisStandard analysisStandard : analysisStandards) {
+			if (jsonNode.get("standard_" + analysisStandard.getId()) != null)
+				if (jsonNode.get("standard_" + analysisStandard.getId()).asBoolean())
+					standards.add(analysisStandard.getId());
 		}
+
+		final boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
+
+		final Worker worker = new WorkerComputeActionPlan(analysisId, standards, uncertainty, reloadSection);
+
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+					"Too many tasks running in background", locale));
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null,
+				"Action plan computation was started successfully", locale));
+
+		/*
+		 * return JsonMessage
+		 * .Success(messageSource.getMessage("error.permission_denied", null,
+		 * "Permission denied!", locale));
+		 */
+
 	}
+
 }

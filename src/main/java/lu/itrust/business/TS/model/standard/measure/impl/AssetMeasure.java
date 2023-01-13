@@ -46,7 +46,7 @@ public class AssetMeasure extends AbstractNormalMeasure implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** The List of AssetTypeValues */
-	private List<MeasureAssetValue> measureAssetValues = new ArrayList<MeasureAssetValue>();
+	private List<MeasureAssetValue> measureAssetValues = new ArrayList<>();
 	
 
 	public AssetMeasure() {

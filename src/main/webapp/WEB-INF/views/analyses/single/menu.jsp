@@ -106,6 +106,9 @@
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">
 				<li class="dropdown-header"><spring:message code="label.menu.title.manual.update" /></li>
+				<c:if test="${isEditable and type.qualitative}">
+					<li><a href="#" onclick="return computeRiskProfileMeasure()"> <spring:message code="label.action.compute.risk_profile.measure" /></a></li>
+				</c:if>
 				<c:choose>
 					<c:when test="${type.qualitative}">
 						<li><a href="#" onclick="return calculateAction({'id':'${analysis.id}'})"> <spring:message code="label.action.compute.action_plan" /></a></li>

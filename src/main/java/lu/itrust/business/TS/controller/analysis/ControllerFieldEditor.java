@@ -43,6 +43,7 @@ import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceHistory;
+import lu.itrust.business.TS.database.service.ServiceIlrSoaScaleParameter;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
@@ -81,6 +82,7 @@ import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
@@ -185,6 +187,9 @@ public class ControllerFieldEditor {
 
 	@Autowired
 	private ServiceRiskProfile serviceRiskProfile;
+
+	@Autowired
+	private ServiceIlrSoaScaleParameter serviceIlrSoaScaleParameter;
 
 	private Pattern computeCostPattern = Pattern.compile(
 			"internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
@@ -1130,6 +1135,52 @@ public class ControllerFieldEditor {
 			if (SetFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceRiskAcceptanceParameter.saveOrUpdate(simpleParameter);
+				// return success message
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+						"Parameter was successfully updated", locale));
+			} else
+				// return error message
+				return JsonMessage.Error(
+						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return error
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+					"An unknown error occurred while updating field", locale));
+		}
+	}
+	
+
+	/**
+	 * parameter: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value = "/IlrSoaScaleParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'IlrSoaScaleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String ilrSoaScaleParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
+			Locale locale, HttpSession session, Principal principal){
+		try {
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			// get parameter object
+			IlrSoaScaleParameter simpleParameter = serviceIlrSoaScaleParameter.findOne(elementID, idAnalysis);
+			// create field
+			Field field = FindField(IlrSoaScaleParameter.class, fieldEditor.getFieldName());
+			// set field data
+			if (fieldEditor.getFieldName().equals("color")
+					&& !hexColor.matcher(fieldEditor.getValue().toString()).matches())
+				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
+			if (SetFieldData(field, simpleParameter, fieldEditor)) {
+				// update field
+				serviceIlrSoaScaleParameter.saveOrUpdate(simpleParameter);
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
 						"Parameter was successfully updated", locale));

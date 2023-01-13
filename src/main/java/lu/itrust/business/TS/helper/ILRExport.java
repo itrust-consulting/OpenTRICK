@@ -3,12 +3,16 @@ package lu.itrust.business.TS.helper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,20 +23,28 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.ilr.ILRImpact;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
+import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
 import lu.itrust.monarc.MonarcDatabase;
+import lu.itrust.monarc.MonarcDuedate;
 import lu.itrust.monarc.MonarcInstance;
 import lu.itrust.monarc.MonarcMeasures;
+import lu.itrust.monarc.MonarcRecos;
+import lu.itrust.monarc.MonarcRecs;
 import lu.itrust.monarc.MonarcRisks;
 import lu.itrust.monarc.MonarcSoa;
 import lu.itrust.monarc.MonarcSoaScaleComment;
@@ -44,9 +56,9 @@ public class ILRExport {
     private static final String MAPPING[][] = { { "reputation", "reputational" }, { "personal", "privacy" } };
 
     private class IlrSoaScale {
-        double from;
-        double to;
-        MonarcSoaScaleComment scaleComment;
+        private double from;
+        private double to;
+        private MonarcSoaScaleComment scaleComment;
 
         public IlrSoaScale(double from, double to, MonarcSoaScaleComment scaleComment) {
             setFrom(from);
@@ -85,6 +97,53 @@ public class ILRExport {
         }
     }
 
+    private class MeasureMapper {
+
+        private String reference;
+
+        private Measure tsMeasure;
+
+        private MonarcMeasures ilrMeasure;
+
+        public MeasureMapper(Measure tsMeasure) {
+            this(tsMeasure, null);
+        }
+
+        public MeasureMapper(Measure tsMeasure, MonarcMeasures ilrMeasure) {
+            this.tsMeasure = tsMeasure;
+            this.ilrMeasure = ilrMeasure;
+            if (tsMeasure != null)
+                setReference(tsMeasure.getMeasureDescription().getReference());
+            else if (ilrMeasure != null)
+                setReference(ilrMeasure.getCode());
+        }
+
+        public String getReference() {
+            return reference;
+        }
+
+        public void setReference(String reference) {
+            this.reference = reference;
+        }
+
+        public Measure getTsMeasure() {
+            return tsMeasure;
+        }
+
+        public void setTsMeasure(Measure tsMeasure) {
+            this.tsMeasure = tsMeasure;
+        }
+
+        public MonarcMeasures getIlrMeasure() {
+            return ilrMeasure;
+        }
+
+        public void setIlrMeasure(MonarcMeasures ilrMeasure) {
+            this.ilrMeasure = ilrMeasure;
+        }
+
+    }
+
     public void exportILRData(Analysis analysis, List<ScaleType> scales, File data, File mapping)
             throws Exception {
         final Map<Asset, List<Assessment>> assessments = analysis.getAssessments().stream()
@@ -115,6 +174,13 @@ public class ILRExport {
                 .collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 
         final MonarcDatabase database = new MonarcDatabase(data.getAbsolutePath());
+
+        final Map<String, Map<String, MeasureMapper>> measureMappers = extractMeasures(analysis, stdToReferencials,
+                factory,
+                database);
+
+        final Map<String, Map<String, MonarcRecs>> recsMappers = extractRecords(analysis, stdToReferencials,
+                database);
 
         exportSOA(analysis, factory, stdToReferencials, database);
 
@@ -162,10 +228,12 @@ public class ILRExport {
                         .searchVulnerabilityByInstanceId(monarcInstance.getId()).stream()
                         .collect(Collectors.toMap(MonarcVulnerabilities::getUuid, Function.identity()));
 
-                database.searchAMVByInstanceId(monarcInstance.getId()).forEach(e -> {
-                    final MonarcRisks risk = risks.get(e.getUuid());
-                    final MonarcThreats threat = threats.get(e.getThreat());
-                    final MonarcVulnerabilities vulnerability = vulnerabilities.get(e.getVulnerability());
+                final Map<Integer, Set<MonarcRecs>> mysRects = new HashMap<>();
+
+                database.searchAMVByInstanceId(monarcInstance.getId()).forEach(amv -> {
+                    final MonarcRisks risk = risks.get(amv.getUuid());
+                    final MonarcThreats threat = threats.get(amv.getThreat());
+                    final MonarcVulnerabilities vulnerability = vulnerabilities.get(amv.getVulnerability());
                     if (threat == null || vulnerability == null)
                         return;
 
@@ -223,14 +291,89 @@ public class ILRExport {
                             risk.setThreatRate(Math.max(
                                     Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), 4),
                                     risk.getThreatRate()));
+
+                        riskProfile.getMeasures().stream()
+                                .map(m -> measureMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
+                                        Collections.emptyMap()).get(m.getMeasureDescription().getReference()))
+                                .filter(Objects::nonNull).filter(m -> m.getIlrMeasure() != null)
+                                .forEach(m ->
+
+                                amv.addMeasure(m.getIlrMeasure().getUuid()));
+
+                        riskProfile.getMeasures().stream()
+                                .map(m -> recsMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
+                                        Collections.emptyMap()).get(m.getMeasureDescription().getReference()))
+                                .filter(Objects::nonNull)
+                                .forEach(m -> mysRects.computeIfAbsent(risk.getId(), e -> new HashSet<>()).add(m));
                     }
 
+                });
+
+                mysRects.forEach((id, recs) -> {
+                    monarcInstance.getRecos().computeIfAbsent(id + "",
+                            r -> recs.stream().map(rc -> database.createOrUpdate(id, rc))
+                                    .collect(Collectors.toMap(MonarcRecos::getUuid, Function.identity())));
+
+                    recs.forEach(rc -> monarcInstance.getRecs().remove(rc.getUuid()));
                 });
             }
         }
 
         database.saveInstancesToJSON(data.getAbsolutePath());
 
+    }
+
+    private Map<String, Map<String, MonarcRecs>> extractRecords(Analysis analysis,
+            Map<String, String> stdToReferencials, MonarcDatabase database) {
+
+        final Map<String, Map<String, MonarcRecs>> recMappers = new HashMap<>();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        analysis.getAnalysisStandards().forEach((name, aStd) -> {
+            final Map<String, MonarcRecs> ilrRecs = database
+                    .searchRecsByRecSetsLabel(stdToReferencials.getOrDefault(name, name)).stream()
+                    .collect(Collectors.toMap(MonarcRecs::getCode, Function.identity()));
+            if (ilrRecs.isEmpty())
+                return;
+            aStd.getMeasures().forEach(m -> {
+                final MonarcRecs rec = ilrRecs.get(m.getMeasureDescription().getReference());
+                if (rec != null) {
+                    rec.setComment(m.getComment());
+                    rec.setResponsable(m.getResponsible());
+                    rec.setDescription(m.getToDo());
+                    rec.setDuedate(
+                            new MonarcDuedate(dateFormat.format(m.getPhase().getEndDate()) + " 00:00:00.000000", 3,
+                                    "Europe/Luxembourg"));
+                }
+            });
+            recMappers.put(name, ilrRecs);
+        });
+
+        return recMappers;
+    }
+
+    private Map<String, Map<String, MeasureMapper>> extractMeasures(Analysis analysis,
+            final Map<String, String> stdToReferencials, final ValueFactory factory, final MonarcDatabase database) {
+        final Map<String, Map<String, MeasureMapper>> measureMappers = new HashMap<>();
+
+        analysis.getAnalysisStandards().forEach((n, a) -> {
+            final List<MonarcMeasures> ilrMeasures = database
+                    .searchMeasuresByReferentialLabel(stdToReferencials.getOrDefault(n, n));
+            if (ilrMeasures.isEmpty())
+                return;
+            final Map<String, MeasureMapper> measures = measureMappers.computeIfAbsent(n, b -> a.getMeasures().stream()
+                    .filter(m -> !(m.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+                            || m.getImplementationRateValue(factory) >= 100))
+                    .collect(Collectors.toMap(e -> e.getMeasureDescription().getReference(), MeasureMapper::new)));
+
+            ilrMeasures.forEach(e -> {
+                final MeasureMapper mapper = measures.get(e.getCode());
+                if (mapper == null)
+                    System.err.println(String.format("%s: %s", n, e.getCode()));
+                else
+                    mapper.setIlrMeasure(e);
+            });
+        });
+        return measureMappers;
     }
 
     private void exportSOA(Analysis analysis, ValueFactory factory, Map<String, String> stdToReferencials,
@@ -242,8 +385,9 @@ public class ILRExport {
                 .collect(Collectors.toMap(MonarcSoa::getMeasureId, Function.identity()));
 
         analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).forEach(e -> {
-            final Map<String, MonarcMeasures> measures = database.searchMeasuresByReferentialLabel(
-                    stdToReferencials.getOrDefault(e.getStandard().getName(), e.getStandard().getName())).stream()
+            final String name = stdToReferencials.getOrDefault(e.getStandard().getName(), e.getStandard().getName());
+            final List<MonarcMeasures> monarcMeasures = database.searchMeasuresByReferentialLabel(name);
+            final Map<String, MonarcMeasures> measures = monarcMeasures.stream()
                     .collect(Collectors.toMap(MonarcMeasures::getCode, Function.identity()));
             if (measures.isEmpty())
                 return;

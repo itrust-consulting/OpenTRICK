@@ -39,10 +39,10 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	/** The List of Measure Properties */
 	protected MeasureProperties measurePropertyList = null;
 
-	public AbstractNormalMeasure() {
+	protected AbstractNormalMeasure() {
 	}
 
-	public AbstractNormalMeasure(MeasureDescription measureDescription) {
+	protected AbstractNormalMeasure(MeasureDescription measureDescription) {
 		super(measureDescription);
 		setMeasurePropertyList(new MeasureProperties());
 	}
@@ -123,8 +123,9 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public double getImplementationRateValue(ValueFactory factory) {
 		try {
-			final double value = (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
-			return value < 0 ? 0 : value > 100 ? 100 : value;
+			final double value = (new StringExpressionParser(this.getImplementationRate(),
+					StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
+			return (value < 0 ? 0 : (value > 100 ? 100 : value));
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -133,8 +134,9 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public double getImplementationRateValue(Map<String, Double> factory) {
 		try {
-			final double value = (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
-			return value < 0 ? 0 : value > 100 ? 100 : value;
+			final double value = (new StringExpressionParser(this.getImplementationRate(),
+					StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
+			return (value < 0 ? 0 : (value > 100 ? 100 : value));
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -144,7 +146,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public List<String> getVariablesInvolvedInImplementationRateValue() {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION)).getInvolvedVariables().stream().collect(Collectors.toList());
+			return (new StringExpressionParser(this.getImplementationRate(), StringExpressionParser.IMPLEMENTATION))
+					.getInvolvedVariables().stream().collect(Collectors.toList());
 		} catch (Exception ex) {
 			return Collections.emptyList();
 		}
@@ -158,7 +161,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Transient
 	public String getSoaComment() {
 		String value = measurePropertyList == null ? "" : measurePropertyList.getSoaComment();
-		return !hasText(value) && Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(getStatus()) ? getComment() : value;
+		return !hasText(value) && Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(getStatus()) ? getComment()
+				: value;
 	}
 
 	@Transient
@@ -177,7 +181,8 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
 		if (!(implementationRate instanceof String || implementationRate instanceof Number))
-			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
+			throw new TrickException("error.norm_measure.implementation_rate.invalid",
+					"ImplementationRate needs to be of Type String!");
 		setImplementationRate(implementationRate.toString());
 	}
 

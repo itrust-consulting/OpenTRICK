@@ -94,6 +94,29 @@ $.fn.loadOrUpdateChart = function (parameters) {
 	return this;
 };
 
+function computeRiskProfileMeasure() {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		let $progress = $("#loading-indicator").show();
+		$.ajax({
+			url: context + "/Analysis/Assessment/RiskProfile/Compute-measure",
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				if (response.success){
+					showDialog("success", response.success);
+					riskEstimationUpdate(true);
+				}
+				else if (response.error) {
+					showDialog("error", response.error);
+				} else unknowError();
+			},
+			error: unknowError
+		}).complete(() => $progress.hide());
+	} else
+		permissionError();
+	return false;
+}
+
 function findAnalysisId() {
 	let id = application['selected-analysis-id'];
 	if (id === undefined) {
@@ -1084,6 +1107,93 @@ function manageRiskAcceptance() {
 										showNotifcation('success', response.success);
 										reloadSection(["section_parameter_impact_probability", "section_parameter", "section_riskregister"]);
 										riskEstimationUpdate(true);
+									} else
+										unknowError();
+								},
+								error: unknowError
+							}).complete(function () {
+								$progress.hide();
+							});
+						});
+
+						$content.appendTo("#widgets").modal("show").on("hidden.bs.modal", function () {
+							$content.remove();
+						});
+					}
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
+	return false;
+}
+
+function manageIlrSoaScale() {
+	let $progress = $("#loading-indicator").show();
+	$
+		.ajax(
+			{
+				url: context + "/Analysis/Parameter/Ilr-soa-scale/form",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					let $content = $("#modalIlrSoaScaleFormForm", new DOMParser().parseFromString(response, "text/html"));
+					if (!$content.length)
+						showError("Error data cannot be loaded");
+					else {
+						let actionDelete = function () {
+							$(this).closest("tr").remove();
+						};
+						$("button[name='delete']", $content).on("click", actionDelete);
+						$("button[name='add']", $content)
+							.on(
+								"click",
+								function () {
+									let $this = $(this), $trParent = $this.closest("tr"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
+										"<span class='range-text'>0</span>").appendTo($div), $range = $(
+											"<input type='range' min='-1' max='100'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
+									$removeBtn.appendTo($("<td/>").appendTo($tr));
+									$div.appendTo($("<td />").appendTo($tr));
+									$("<textarea name='description' class='form-control resize_vectical_only' rows='1' />").appendTo($("<td />").appendTo($tr));
+									$inputColor.appendTo($("<td />").appendTo($tr));
+									$trParent.before($tr);
+									$removeBtn.on("click", actionDelete);
+									$range.on("input change", function () {
+										$rangeInfo.text(this.value);
+										this.setAttribute("title", this.value);
+									});
+								});
+
+						$("input[type='range']", $content).on("input change", function () {
+							$(".range-text", this.parentElement).text(this.value);
+							this.setAttribute("title", this.value);
+						});
+
+						$("button[name='save']", $content).on("click", function () {
+							$progress.show();
+							let $table = $("table[data-trick-size]", $content), data = [];
+							$("tr[data-trick-id]", $table).each(function () {
+								let $this = $(this);
+								data.push({
+									id: $this.attr("data-trick-id"),
+									value: $("input[name='value']", $this).val(),
+									description: $("textarea[name='description']", $this).val(),
+									color: $("input[name='color']", $this).val()
+								});
+							});
+
+							$.ajax({
+								url: context + "/Analysis/Parameter/Ilr-soa-scale/Save",
+								type: "post",
+								data: JSON.stringify(data),
+								contentType: "application/json;charset=UTF-8",
+								success: function (response, textStatus, jqXHR) {
+									if (response.error)
+										showNotifcation('danger', response.error);
+									else if (response.success) {
+										$content.modal("hide");
+										showNotifcation('success', response.success);
+										reloadSection(["section_parameter_impact_probability", "section_parameter"]);
 									} else
 										unknowError();
 								},

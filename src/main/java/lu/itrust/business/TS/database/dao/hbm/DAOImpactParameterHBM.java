@@ -170,7 +170,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	 */
 	@Override
 	public void delete(Collection<? extends ImpactParameter> entities) {
-		entities.forEach(parameter -> delete(parameter));
+		entities.forEach(this::delete);
 	}
 
 	/*

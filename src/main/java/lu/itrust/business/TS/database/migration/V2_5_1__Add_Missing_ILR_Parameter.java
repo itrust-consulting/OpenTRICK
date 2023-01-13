@@ -27,12 +27,11 @@ public class V2_5_1__Add_Missing_ILR_Parameter extends TrickServiceDataBaseMigra
 
     private void addMissingParameters(JdbcTemplate jdbcTemplate) {
         final Object[][] ilrSoaScales = {
-                { -1, "#FFFFFF", "Not applicable" },
-                { 20, "#FD661F", "Not achieved" },
-                { 40, "#FD661F", "Rudimentary achieved" },
-                { 60, "#FFBC1C", "Partially achieved" },
-                { 80, "#FFBC1C", "Largely achieved" },
-                { 100, "#D6F107", "Fully achieved" }
+                { 20, "#fa7070", "Not achieved" },
+                { 40, "#ecac35", "Rudimentary achieved" },
+                { 60, "#cdfa34", "Partially achieved" },
+                { 80, "#7bd645", "Largely achieved" },
+                { 100, "#0ccb11", "Fully achieved" }
         };
 
         final Object[] singleParameter = { "ilr_rrf_threshold", 5, singleParameterId };
