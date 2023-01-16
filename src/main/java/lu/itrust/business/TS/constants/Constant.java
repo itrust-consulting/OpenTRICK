@@ -758,12 +758,14 @@ public class Constant {
 
 	public static final String[] NORMAL_MEASURE_COLUMNS = { "Reference", "Status", "Implemention", "Internal Workload",
 			"External Workload", "Investment", "Life time",
-			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "To check",
+			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Importance",
+			"Responsible", "To check",
 			"Comment", "To do" };
 
 	public static final String[] MATURITY_MEASURE_COLUMNS = { "Reference", "Status", "Implemention",
 			"Internal Workload", "External Workload", "Investment", "Life time",
-			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Responsible", "Comment",
+			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Importance",
+			"Responsible", "Comment",
 			"To do" };
 
 	public static final String ANALYSIS_REPORT_DARK_COLOR = "REPORT_DARK_COLOR";

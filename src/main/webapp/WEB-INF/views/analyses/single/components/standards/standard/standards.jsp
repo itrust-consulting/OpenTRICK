@@ -135,6 +135,7 @@
 							<th width="2%" title='<spring:message code="label.title.measure.ri" />'><spring:message code="label.measure.ri" /></th>
 							<th width="2%" title='<spring:message code="label.title.measure.cost" />'><spring:message code="label.measure.cost" /></th>
 							<th width="2%" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
+							<th width="2%" title='<spring:message code="label.title.measure.importance" />'><spring:message code="label.measure.importance" /></th>
 							<th width="3%" title='<spring:message code="label.title.measure.responsible" />'><spring:message code="label.measure.responsible" /></th>
 							<c:choose>
 								<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
@@ -210,10 +211,10 @@
 											</c:choose></td>
 										<c:choose>
 											<c:when test="${hasMaturity and standard.equals('27002') }">
-												<td ${popoverRef} colspan="14"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												<td ${popoverRef} colspan="15"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											</c:when>
 											<c:otherwise>
-												<td ${popoverRef} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												<td ${popoverRef} colspan="14"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											</c:otherwise>
 										</c:choose>
 										<c:choose>
@@ -329,6 +330,11 @@
 												<c:when test="${measure.phase.number == 0}">NA</c:when>
 												<c:otherwise>${measure.phase.number}</c:otherwise>
 											</c:choose></td>
+										<td ${css} onclick="return editField(this);" data-trick-choose="1,2,3" data-trick-choose-translate='L,M,H' data-trick-choose-title='Low,Medium,High' data-trick-field="importance" data-trick-field-type="integer"><c:choose>
+											<c:when test="${measure.importance eq 1}">L</c:when>
+											<c:when test="${measure.importance eq 2}">M</c:when>
+											<c:when test="${measure.importance eq 3}">H</c:when>
+										</c:choose></td>
 										<td ${css} onclick="return editField(this);" data-trick-field="responsible" data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 										<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 											<td ${css} onclick="return editField(this);" data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message

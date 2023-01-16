@@ -93,6 +93,9 @@ public abstract class Measure implements Cloneable {
 	/** The recurrent investment of maintenance of the Measure (Currency) */
 	private double recurrentInvestment = 0;
 
+	/** The measure importance */
+	private int importance = 2;
+
 	/** The Cost of the Measure (Currency) */
 	private double cost = 0;
 
@@ -109,7 +112,7 @@ public abstract class Measure implements Cloneable {
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
-	
+
 	public Measure() {
 	}
 
@@ -141,7 +144,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "phase" field with a Phase object
 	 * 
 	 * @param phase
-	 *            The object to set the Phase
+	 *              The object to set the Phase
 	 */
 	public void setPhase(Phase phase) {
 		this.phase = phase;
@@ -165,7 +168,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "id" field with a value
 	 * 
 	 * @param id
-	 *            The Measure ID
+	 *           The Measure ID
 	 */
 	public void setId(int id) {
 		if (id < 1) {
@@ -190,11 +193,12 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "status" field with a value
 	 * 
 	 * @param status
-	 *            The value to set the Status
+	 *               The value to set the Status
 	 */
 	public void setStatus(String status) {
 
-		if ((status == null) || (status.trim().isEmpty()) || !status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS))
+		if ((status == null) || (status.trim().isEmpty())
+				|| !status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS))
 			this.status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
 		else
 			this.status = status.trim();
@@ -216,7 +220,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "implementationRate" field with a Object
 	 * 
 	 * @param implementationRate
-	 *            The value to set the Implementation Rate
+	 *                           The value to set the Implementation Rate
 	 * @throws TrickException
 	 */
 	public void setImplementationRate(Object implementationRate) throws TrickException {
@@ -240,7 +244,7 @@ public abstract class Measure implements Cloneable {
 	 */
 	@Transient
 	public abstract double getImplementationRateValue(Map<String, Double> factory);
-	
+
 	@Transient
 	public double getImplementationRateValue() {
 		return getImplementationRateValue(Collections.emptyMap());
@@ -248,7 +252,6 @@ public abstract class Measure implements Cloneable {
 
 	@Transient
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
-	
 
 	@Transient
 	public double getImplementationRateValue(List<IAcronymParameter> expressionParameters) {
@@ -272,7 +275,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "internalWL" field with a value
 	 * 
 	 * @param internalWL
-	 *            The value to set the Internal Workload
+	 *                   The value to set the Internal Workload
 	 * @throws TrickException
 	 */
 	public void setInternalWL(double internalWL) throws TrickException {
@@ -297,7 +300,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "externalWL" field with a value
 	 * 
 	 * @param externalWL
-	 *            The value to set the External Workload
+	 *                   The value to set the External Workload
 	 * @throws TrickException
 	 */
 	public void setExternalWL(double externalWL) throws TrickException {
@@ -322,7 +325,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "investment" field with a value
 	 * 
 	 * @param investment
-	 *            The value to set the Investment
+	 *                   The value to set the Investment
 	 * @throws TrickException
 	 */
 	public void setInvestment(double investment) throws TrickException {
@@ -347,7 +350,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "lifetime" field with a value
 	 * 
 	 * @param lifetime
-	 *            The value to set the Lifetime
+	 *                 The value to set the Lifetime
 	 * @throws TrickException
 	 */
 	public void setLifetime(double lifetime) throws TrickException {
@@ -372,7 +375,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "cost" field with a value
 	 * 
 	 * @param cost
-	 *            The value to set the Cost
+	 *             The value to set the Cost
 	 * @throws TrickException
 	 */
 	public void setCost(double cost) throws TrickException {
@@ -397,7 +400,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "comment" field with a value
 	 * 
 	 * @param comment
-	 *            The value to set the Comment
+	 *                The value to set the Comment
 	 */
 	public void setComment(String comment) {
 		this.comment = comment == null ? "" : comment;
@@ -419,7 +422,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the "toDo" field with a value
 	 * 
 	 * @param toDo
-	 *            The value to set the "ToDo" comment
+	 *             The value to set the "ToDo" comment
 	 */
 	public void setToDo(String toDo) {
 		this.toDo = toDo == null ? "" : toDo;
@@ -470,7 +473,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the Field "measureDescription" with a value.
 	 * 
 	 * @param measureDescription
-	 *            The Value to set the measureDescription field
+	 *                           The Value to set the measureDescription field
 	 */
 	public void setMeasureDescription(MeasureDescription measureDescription) {
 		this.measureDescription = measureDescription;
@@ -492,7 +495,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the Field "internalMaintenance" with a value.
 	 * 
 	 * @param internalMaintenance
-	 *            The Value to set the internalMaintenance field
+	 *                            The Value to set the internalMaintenance field
 	 */
 	public void setInternalMaintenance(double internalMaintenance) {
 		this.internalMaintenance = internalMaintenance;
@@ -514,7 +517,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the Field "externalMaintenance" with a value.
 	 * 
 	 * @param externalMaintenance
-	 *            The Value to set the externalMaintenance field
+	 *                            The Value to set the externalMaintenance field
 	 */
 	public void setExternalMaintenance(double externalMaintenance) {
 		this.externalMaintenance = externalMaintenance;
@@ -536,7 +539,7 @@ public abstract class Measure implements Cloneable {
 	 * Sets the Field "recurrentInvestment" with a value.
 	 * 
 	 * @param recurrentInvestment
-	 *            The Value to set the recurrentInvestment field
+	 *                            The Value to set the recurrentInvestment field
 	 */
 	public void setRecurrentInvestment(double recurrentInvestment) {
 		this.recurrentInvestment = recurrentInvestment;
@@ -556,10 +559,22 @@ public abstract class Measure implements Cloneable {
 	 * TicketingTask id
 	 * 
 	 * @param ticket
-	 *            the ticket to set
+	 *               the ticket to set
 	 */
 	public void setTicket(String ticket) {
 		this.ticket = ticket;
+	}
+
+	@Column(name = "dtImportance")
+	public int getImportance() {
+		return importance;
+	}
+
+	public void setImportance(int importance) {
+		if (importance < 1 || importance > 3)
+			throw new TrickException("error.measure.importance.out_of_bound",
+					"Measure importance should be between 1 and 3");
+		this.importance = importance;
 	}
 
 	/**
@@ -639,8 +654,10 @@ public abstract class Measure implements Cloneable {
 		lifetimeDefault = analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
-				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
+				measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);

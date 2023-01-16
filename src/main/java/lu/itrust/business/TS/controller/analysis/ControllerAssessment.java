@@ -198,7 +198,7 @@ public class ControllerAssessment {
 				Constant.PARAMETER_MAX_RRF);
 
 		final double rrfThreshold = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
-				Constant.ILR_RRF_THRESHOLD, 5d)*0.01;
+				Constant.ILR_RRF_THRESHOLD, 5d) * 0.01;
 
 		final int mandatoryPhase = (int) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
 				Constant.MANDATORY_PHASE, 1d);
@@ -222,7 +222,8 @@ public class ControllerAssessment {
 					if (rrf >= rrfThreshold) {
 						final RiskProfile riskProfile = riskProfiles
 								.get(RiskProfile.key(ass.getAsset(), ass.getScenario()));
-						if (riskProfile != null) {
+								
+						if (!(riskProfile == null || RiskStrategy.ACCEPT.equals(riskProfile.getRiskStrategy()))) {
 							riskProfile.getMeasures().add(e);
 						}
 

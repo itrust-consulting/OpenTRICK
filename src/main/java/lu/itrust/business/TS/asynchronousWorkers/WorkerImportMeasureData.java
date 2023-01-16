@@ -132,25 +132,31 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				setStarted(new Timestamp(System.currentTimeMillis()));
 				setCurrent(Thread.currentThread());
 			}
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
 			session = getSessionFactory().openSession();
 			session.beginTransaction();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			loadMeasures(analysis);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 90));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.saving.analysis", null, "Saving risk analysis", 90));
 			daoAnalysis.saveOrUpdate(analysis);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 			session.getTransaction().commit();
 
-			MessageHandler handler = new MessageHandler("success.import.measure.data", "Measures data has been successfully imported", 100);
+			MessageHandler handler = new MessageHandler("success.import.measure.data",
+					"Measures data has been successfully imported", 100);
 
 			handler.setAsyncCallbacks(new AsyncCallback("reload"));
 
 			getServiceTaskFeedback().send(getId(), handler);
 
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.import.measure.data",
-					String.format("Analysis: %s, version: %s, Type: Measure data", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
+					String.format("Analysis: %s, version: %s, Type: Measure data", analysis.getIdentifier(),
+							analysis.getVersion()),
+					username, LogAction.IMPORT,
 					analysis.getIdentifier(), analysis.getVersion());
 
 		} catch (Exception e) {
@@ -163,10 +169,12 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				}
 			}
 			if (e instanceof TrickException) {
-				getServiceTaskFeedback().send(getId(), new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler(((TrickException) e).getCode(),
+						((TrickException) e).getParameters(), e.getMessage(), e));
 			} else {
 				TrickLogManager.Persist(e);
-				getServiceTaskFeedback().send(getId(), new MessageHandler("error.500.message", "Internal error occurred", e));
+				getServiceTaskFeedback().send(getId(),
+						new MessageHandler("error.500.message", "Internal error occurred", e));
 			}
 		} finally {
 			try {
@@ -184,17 +192,22 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final DataFormatter formatter = new DataFormatter();
-		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream().filter(s -> s.getState() == STSheetState.VISIBLE)
+		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream()
+				.filter(s -> s.getState() == STSheetState.VISIBLE)
 				.collect(Collectors.toMap(Sheet::getName, Function.identity()));
-		final Map<Integer, Phase> phases = analysis.getPhases().stream().collect(Collectors.toMap(Phase::getNumber, Function.identity()));
+		final Map<Integer, Phase> phases = analysis.getPhases().stream()
+				.collect(Collectors.toMap(Phase::getNumber, Function.identity()));
 		final int maxProgress = 90 / Math.max(analysis.getAnalysisStandards().size(), 1);
 		int index = 1, minProgress = 6;
 		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values())
-			minProgress = loadData(analysis, workbook, formatter, sheets, phases, analysisStandard, minProgress, maxProgress * index++);
+			minProgress = loadData(analysis, workbook, formatter, sheets, phases, analysisStandard, minProgress,
+					maxProgress * index++);
 	}
 
-	private int loadData(Analysis analysis, final WorkbookPart workbook, final DataFormatter formatter, final Map<String, Sheet> sheets, final Map<Integer, Phase> phases,
-			AnalysisStandard analysisStandard, final int minProgress, final int maxProgress) throws Exception, Docx4JException {
+	private int loadData(Analysis analysis, final WorkbookPart workbook, final DataFormatter formatter,
+			final Map<String, Sheet> sheets, final Map<Integer, Phase> phases,
+			AnalysisStandard analysisStandard, final int minProgress, final int maxProgress)
+			throws Exception, Docx4JException {
 		final Sheet sheet = sheets.get(analysisStandard.getStandard().getName());
 		if (sheet == null)
 			return minProgress;
@@ -203,7 +216,8 @@ public class WorkerImportMeasureData extends WorkerImpl {
 			return minProgress;
 		final TablePart table = findTableNameStartWith(getWorksheetPart(sheetData), "Measures");
 		if (table == null)
-			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!", "Measures");
+			throw new TrickException("error.import.data.table.not.found", "Table named `Measures` cannot be found!",
+					"Measures");
 
 		final AddressRef address = AddressRef.parse(table.getContents().getRef());
 
@@ -212,15 +226,18 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		if (size < 2 || table.getContents().getTableColumns().getTableColumn().size() < 2)
 			return minProgress;
 		final List<SimpleParameter> parameters = findMaturityImplementationRates(analysis, analysisStandard);
-		final List<String> columns = table.getContents().getTableColumns().getTableColumn().stream().map(c -> c.getName().toLowerCase()).collect(Collectors.toList());
-		final Map<String, Measure> measures = analysisStandard.getMeasures().stream().collect(Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()));
+		final List<String> columns = table.getContents().getTableColumns().getTableColumn().stream()
+				.map(c -> c.getName().toLowerCase()).collect(Collectors.toList());
+		final Map<String, Measure> measures = analysisStandard.getMeasures().stream()
+				.collect(Collectors.toMap(m -> m.getMeasureDescription().getReference(), Function.identity()));
 		final Map<String, String> columnsMapper = new LinkedHashMap<>(Constant.NORMAL_MEASURE_COLUMNS.length);
 		for (String column : Constant.NORMAL_MEASURE_COLUMNS)
 			columnsMapper.put(column.toLowerCase(), column);
 		final int refIndex = columns.indexOf("reference");
 		if (refIndex == -1)
 			throw new TrickException("error.import.measure.data.no.reference", "Reference column cannot be found!");
-		final MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures", minProgress);
+		final MessageHandler handler = new MessageHandler("info.updating.measure", null, "Update security measures",
+				minProgress);
 		getServiceTaskFeedback().send(getId(), handler);
 		for (int i = 1; i < size; i++) {
 			final Row row = sheetData.getRow().get(i);
@@ -236,65 +253,86 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				if (name == null || j == refIndex)
 					continue;
 				switch (name) {
-				case "Status":
-					measure.setStatus(getString(row, j, formatter));
-					break;
-				case "Phase":
-					measure.setPhase(phases.getOrDefault(getInt(row, j, formatter), measure.getPhase()));
-					break;
-				case "Responsible":
-					measure.setResponsible(getString(row, j, formatter));
-					break;
-				case "To check":
-					if (measure instanceof AbstractNormalMeasure)
-						((AbstractNormalMeasure) measure).setToCheck(getString(row, j, formatter));
-					break;
-				case "Comment":
-					measure.setComment(getString(row, j, formatter));
-					break;
-				case "To do":
-					measure.setToDo(getString(row, j, formatter));
-					break;
-				default:
-					boolean tmpUpdateCost = true;
-					switch (name) {
-					case "Implemention":
-						double value = getDouble(row, j, formatter) * 100;
-						if (value > 100)
-							value = 100;
-						else if (value < 0)
-							value = 0;
-						if (measure instanceof MaturityMeasure)
-							measure.setImplementationRate(findParameter(value, parameters));
-						else
-							measure.setImplementationRate(value);
+					case "Status":
+						measure.setStatus(getString(row, j, formatter));
 						break;
-					case "Internal Workload":
-						measure.setInternalWL(getDouble(row, j, formatter));
+					case "Phase":
+						measure.setPhase(phases.getOrDefault(getInt(row, j, formatter), measure.getPhase()));
 						break;
-					case "External Workload":
-						measure.setExternalWL(getDouble(row, j, formatter));
+					case "Importance":
+						final String importance = getString(row, j, formatter);
+						if (importance != null) {
+							switch (importance.trim().toUpperCase()) {
+								case "1":
+								case "L":
+									measure.setImportance(1);
+									break;
+								case "3":
+								case "H":
+									measure.setImportance(3);
+									break;
+								case "2":
+								case "M":
+									measure.setImportance(2);
+									break;
+								default:
+									break;
+							}
+						}
 						break;
-					case "Investment":
-						measure.setInvestment(getDouble(row, j, formatter) * 1000);
+					case "Responsible":
+						measure.setResponsible(getString(row, j, formatter));
 						break;
-					case "Life time":
-						measure.setLifetime(getDouble(row, j, formatter));
+					case "To check":
+						if (measure instanceof AbstractNormalMeasure)
+							((AbstractNormalMeasure) measure).setToCheck(getString(row, j, formatter));
 						break;
-					case "Internal Maintenance":
-						measure.setInternalMaintenance(getDouble(row, j, formatter));
+					case "Comment":
+						measure.setComment(getString(row, j, formatter));
 						break;
-					case "External Maintenance":
-						measure.setExternalMaintenance(getDouble(row, j, formatter));
-						break;
-					case "Recurrent Maintenance":
-						measure.setRecurrentInvestment(getDouble(row, j, formatter) * 1000);
+					case "To do":
+						measure.setToDo(getString(row, j, formatter));
 						break;
 					default:
-						tmpUpdateCost = false;
-						break;
-					}
-					updateCost |= tmpUpdateCost;
+						boolean tmpUpdateCost = true;
+						switch (name) {
+							case "Implemention":
+								double value = getDouble(row, j, formatter) * 100;
+								if (value > 100)
+									value = 100;
+								else if (value < 0)
+									value = 0;
+								if (measure instanceof MaturityMeasure)
+									measure.setImplementationRate(findParameter(value, parameters));
+								else
+									measure.setImplementationRate(value);
+								break;
+							case "Internal Workload":
+								measure.setInternalWL(getDouble(row, j, formatter));
+								break;
+							case "External Workload":
+								measure.setExternalWL(getDouble(row, j, formatter));
+								break;
+							case "Investment":
+								measure.setInvestment(getDouble(row, j, formatter) * 1000);
+								break;
+							case "Life time":
+								measure.setLifetime(getDouble(row, j, formatter));
+								break;
+							case "Internal Maintenance":
+								measure.setInternalMaintenance(getDouble(row, j, formatter));
+								break;
+							case "External Maintenance":
+								measure.setExternalMaintenance(getDouble(row, j, formatter));
+								break;
+							case "Recurrent Maintenance":
+								measure.setRecurrentInvestment(getDouble(row, j, formatter) * 1000);
+								break;
+							default:
+								tmpUpdateCost = false;
+								break;
+						}
+						updateCost |= tmpUpdateCost;
 				}
 
 				if (updateCost)
@@ -308,9 +346,11 @@ public class WorkerImportMeasureData extends WorkerImpl {
 		return handler.getProgress();
 	}
 
-	private List<SimpleParameter> findMaturityImplementationRates(Analysis analysis, AnalysisStandard analysisStandard) {
+	private List<SimpleParameter> findMaturityImplementationRates(Analysis analysis,
+			AnalysisStandard analysisStandard) {
 		if (analysisStandard instanceof MaturityStandard)
-			return analysis.getSimpleParameters().stream().filter(p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME))
+			return analysis.getSimpleParameters().stream()
+					.filter(p -> p.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME))
 					.sorted((p0, p1) -> Double.compare(p0.getValue(), p1.getValue())).collect(Collectors.toList());
 		else
 			return Collections.emptyList();

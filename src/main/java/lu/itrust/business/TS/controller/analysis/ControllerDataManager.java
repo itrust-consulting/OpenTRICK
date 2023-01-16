@@ -1611,6 +1611,18 @@ public class ControllerDataManager {
 					case "Phase":
 						setValue(row, i, measure.getPhase().getNumber());
 						break;
+					case "Importance":
+						switch (measure.getImportance()) {
+							case 1:
+								setValue(row, i, "L");
+								break;
+							case 3:
+								setValue(row, i, "H");
+								break;
+							default:
+								setValue(row, i, "M");
+						}
+						break;
 					case "Responsible":
 						setValue(row, i, measure.getResponsible());
 						break;

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.helper;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,22 +25,18 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.ilr.AssetNode;
 import lu.itrust.business.TS.model.ilr.ILRImpact;
-import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
-import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.impl.AssetMeasure;
-import lu.itrust.business.TS.model.standard.measure.impl.NormalMeasure;
+import lu.itrust.monarc.MonarcAMV;
 import lu.itrust.monarc.MonarcDatabase;
 import lu.itrust.monarc.MonarcDuedate;
 import lu.itrust.monarc.MonarcInstance;
@@ -97,52 +95,54 @@ public class ILRExport {
         }
     }
 
-    private class MeasureMapper {
-
-        private String reference;
-
-        private Measure tsMeasure;
-
-        private MonarcMeasures ilrMeasure;
-
-        public MeasureMapper(Measure tsMeasure) {
-            this(tsMeasure, null);
-        }
-
-        public MeasureMapper(Measure tsMeasure, MonarcMeasures ilrMeasure) {
-            this.tsMeasure = tsMeasure;
-            this.ilrMeasure = ilrMeasure;
-            if (tsMeasure != null)
-                setReference(tsMeasure.getMeasureDescription().getReference());
-            else if (ilrMeasure != null)
-                setReference(ilrMeasure.getCode());
-        }
-
-        public String getReference() {
-            return reference;
-        }
-
-        public void setReference(String reference) {
-            this.reference = reference;
-        }
-
-        public Measure getTsMeasure() {
-            return tsMeasure;
-        }
-
-        public void setTsMeasure(Measure tsMeasure) {
-            this.tsMeasure = tsMeasure;
-        }
-
-        public MonarcMeasures getIlrMeasure() {
-            return ilrMeasure;
-        }
-
-        public void setIlrMeasure(MonarcMeasures ilrMeasure) {
-            this.ilrMeasure = ilrMeasure;
-        }
-
-    }
+    /*
+     * private class MeasureMapper {
+     * 
+     * private String reference;
+     * 
+     * private Measure tsMeasure;
+     * 
+     * private MonarcMeasures ilrMeasure;
+     * 
+     * public MeasureMapper(Measure tsMeasure) {
+     * this(tsMeasure, null);
+     * }
+     * 
+     * public MeasureMapper(Measure tsMeasure, MonarcMeasures ilrMeasure) {
+     * this.tsMeasure = tsMeasure;
+     * this.ilrMeasure = ilrMeasure;
+     * if (tsMeasure != null)
+     * setReference(tsMeasure.getMeasureDescription().getReference());
+     * else if (ilrMeasure != null)
+     * setReference(ilrMeasure.getCode());
+     * }
+     * 
+     * public String getReference() {
+     * return reference;
+     * }
+     * 
+     * public void setReference(String reference) {
+     * this.reference = reference;
+     * }
+     * 
+     * public Measure getTsMeasure() {
+     * return tsMeasure;
+     * }
+     * 
+     * public void setTsMeasure(Measure tsMeasure) {
+     * this.tsMeasure = tsMeasure;
+     * }
+     * 
+     * public MonarcMeasures getIlrMeasure() {
+     * return ilrMeasure;
+     * }
+     * 
+     * public void setIlrMeasure(MonarcMeasures ilrMeasure) {
+     * this.ilrMeasure = ilrMeasure;
+     * }
+     * 
+     * }
+     */
 
     public void exportILRData(Analysis analysis, List<ScaleType> scales, File data, File mapping)
             throws Exception {
@@ -162,27 +162,20 @@ public class ILRExport {
 
         final ValueFactory factory = new ValueFactory(analysis.getParameters());
 
-        for (String[] scaleMapping : MAPPING) {
-            if (!scaleTypes.containsKey(scaleMapping[0])) {
-                final ScaleType myImpact = scaleTypes.get(scaleMapping[1]);
-                if (myImpact != null)
-                    scaleTypes.put(scaleMapping[0], myImpact);
-            }
-        }
-
         final Map<String, RiskProfile> mappingProfiles = analysis.getRiskProfiles().stream()
                 .collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 
         final MonarcDatabase database = new MonarcDatabase(data.getAbsolutePath());
 
-        final Map<String, Map<String, MeasureMapper>> measureMappers = extractMeasures(analysis, stdToReferencials,
-                factory,
+        final Map<String, Map<String, MonarcMeasures>> measureMappers = extractMeasures(analysis, stdToReferencials,
                 database);
 
         final Map<String, Map<String, MonarcRecs>> recsMappers = extractRecords(analysis, stdToReferencials,
                 database);
 
         exportSOA(analysis, factory, stdToReferencials, database);
+
+        updateScaleTypes(scaleTypes);
 
         for (Entry<Asset, List<Assessment>> entry : assessments.entrySet()) {
 
@@ -201,20 +194,7 @@ public class ILRExport {
             for (MonarcInstance monarcInstance : monarcInstances) {
                 if (node != null) {
                     // Update consequences
-                    monarcInstance.getConsequences().values().forEach(e -> {
-                        final ScaleType scaleType = scaleTypes.get(e.getScaleImpactType().getLabel2().toLowerCase());
-                        if (scaleType == null)
-                            return;
-
-                        final ILRImpact c = node.getImpact().getConfidentialityImpacts().get(scaleType);
-                        final ILRImpact i = node.getImpact().getIntegrityImpacts().get(scaleType);
-                        final ILRImpact a = node.getImpact().getAvailabilityImpacts().get(scaleType);
-
-                        e.setC(Math.max((c == null ? -1 : Math.min(c.getValue(), 4)), e.getC()));
-                        e.setI(Math.max((i == null ? -1 : Math.min(i.getValue(), 4)), e.getI()));
-                        e.setD(Math.max((a == null ? -1 : Math.min(a.getValue(), 4)), e.getD()));
-                        e.setIsHidden(0);
-                    });
+                    updateConsequences(scaleTypes, node, monarcInstance);
                 }
 
                 final Map<String, MonarcRisks> risks = database.searchRiskByInstanceId(monarcInstance.getId()).stream()
@@ -231,81 +211,9 @@ public class ILRExport {
                 final Map<Integer, Set<MonarcRecs>> mysRects = new HashMap<>();
 
                 database.searchAMVByInstanceId(monarcInstance.getId()).forEach(amv -> {
-                    final MonarcRisks risk = risks.get(amv.getUuid());
-                    final MonarcThreats threat = threats.get(amv.getThreat());
-                    final MonarcVulnerabilities vulnerability = vulnerabilities.get(amv.getVulnerability());
-                    if (threat == null || vulnerability == null)
-                        return;
-
-                    final Assessment assessment = myAssessments
-                            .get(Scenario.getILRKey(threat.getCode(), vulnerability.getCode()));
-
-                    if (assessment == null)
-                        return;
-
-                    risk.setVulnerabilityRate(
-                            Math.max(Math.min(assessment.getVulnerability(), 4), risk.getVulnerabilityRate()));
-
-                    if (StringUtils.hasText(assessment.getOwner())) {
-                        if (StringUtils.hasText(risk.getRiskOwner())) {
-                            if (!risk.getRiskOwner().toLowerCase().contains(assessment.getOwner().toLowerCase()))
-                                risk.setRiskOwner(risk.getRiskOwner() + ", " + assessment.getOwner());
-                        } else {
-                            risk.setRiskOwner(assessment.getOwner());
-                        }
-                    }
-
-                    if (StringUtils.hasText(assessment.getComment())) {
-                        if (StringUtils.hasText(risk.getComment())) {
-                            if (!risk.getComment().toLowerCase().contains(assessment.getComment().toLowerCase()))
-                                risk.setComment(risk.getComment() + ". " + assessment.getComment());
-                        } else {
-                            risk.setComment(assessment.getComment());
-                        }
-                    }
-
-                    final RiskProfile riskProfile = mappingProfiles
-                            .get(RiskProfile.key(asset, assessment.getScenario()));
-
-                    if (riskProfile == null)
-                        risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
-                    else {
-
-                        if (StringUtils.hasText(riskProfile.getActionPlan())) {
-                            if (StringUtils.hasText(risk.getContext())) {
-                                if (!risk.getContext().toLowerCase()
-                                        .contains(riskProfile.getActionPlan().toLowerCase()))
-                                    risk.setContext(risk.getContext() + ". " + riskProfile.getActionPlan());
-                            } else {
-                                risk.setContext(riskProfile.getActionPlan());
-                            }
-                        }
-
-                        risk.setKindOfMeasure(
-                                Math.min(risk.getKindOfMeasure(), getRiskStrategy(riskProfile.getRiskStrategy())));
-
-                        if (riskProfile.getRawProbaImpact() == null
-                                || riskProfile.getRawProbaImpact().getProbability() == null)
-                            risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
-                        else
-                            risk.setThreatRate(Math.max(
-                                    Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), 4),
-                                    risk.getThreatRate()));
-
-                        riskProfile.getMeasures().stream()
-                                .map(m -> measureMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
-                                        Collections.emptyMap()).get(m.getMeasureDescription().getReference()))
-                                .filter(Objects::nonNull).filter(m -> m.getIlrMeasure() != null)
-                                .forEach(m ->
-
-                                amv.addMeasure(m.getIlrMeasure().getUuid()));
-
-                        riskProfile.getMeasures().stream()
-                                .map(m -> recsMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
-                                        Collections.emptyMap()).get(m.getMeasureDescription().getReference()))
-                                .filter(Objects::nonNull)
-                                .forEach(m -> mysRects.computeIfAbsent(risk.getId(), e -> new HashSet<>()).add(m));
-                    }
+                    updateAMVAndRecos(mappingProfiles, measureMappers, recsMappers, myAssessments, risks,
+                            threats,
+                            vulnerabilities, mysRects, amv);
 
                 });
 
@@ -313,14 +221,130 @@ public class ILRExport {
                     monarcInstance.getRecos().computeIfAbsent(id + "",
                             r -> recs.stream().map(rc -> database.createOrUpdate(id, rc))
                                     .collect(Collectors.toMap(MonarcRecos::getUuid, Function.identity())));
-
-                    recs.forEach(rc -> monarcInstance.getRecs().remove(rc.getUuid()));
+                    recs.forEach(monarcInstance::remove);
                 });
+
             }
         }
 
+        // Delete recs without description.
+
+        database.removeIf(e -> !StringUtils.hasText(e.getDescription()));
+
         database.saveInstancesToJSON(data.getAbsolutePath());
 
+    }
+
+    private void updateScaleTypes(final Map<String, ScaleType> scaleTypes) {
+        for (String[] scaleMapping : MAPPING) {
+            if (!scaleTypes.containsKey(scaleMapping[0])) {
+                final ScaleType myImpact = scaleTypes.get(scaleMapping[1]);
+                if (myImpact != null)
+                    scaleTypes.put(scaleMapping[0], myImpact);
+            }
+        }
+    }
+
+    private void updateAMVAndRecos(final Map<String, RiskProfile> mappingProfiles,
+            final Map<String, Map<String, MonarcMeasures>> measureMappers,
+            final Map<String, Map<String, MonarcRecs>> recsMappers,
+            final Map<String, Assessment> myAssessments, final Map<String, MonarcRisks> risks,
+            final Map<String, MonarcThreats> threats, final Map<String, MonarcVulnerabilities> vulnerabilities,
+            final Map<Integer, Set<MonarcRecs>> mysRects, MonarcAMV amv) {
+        final MonarcRisks risk = risks.get(amv.getUuid());
+        final MonarcThreats threat = threats.get(amv.getThreat());
+        final MonarcVulnerabilities vulnerability = vulnerabilities.get(amv.getVulnerability());
+        if (threat == null || vulnerability == null)
+            return;
+
+        final Assessment assessment = myAssessments
+                .get(Scenario.getILRKey(threat.getCode(), vulnerability.getCode()));
+
+        if (assessment == null)
+            return;
+
+        risk.setVulnerabilityRate(
+                Math.max(Math.min(assessment.getVulnerability(), 4), risk.getVulnerabilityRate()));
+
+        if (StringUtils.hasText(assessment.getOwner())) {
+            if (StringUtils.hasText(risk.getRiskOwner())) {
+                if (!risk.getRiskOwner().toLowerCase().contains(assessment.getOwner().toLowerCase()))
+                    risk.setRiskOwner(risk.getRiskOwner() + ", " + assessment.getOwner());
+            } else {
+                risk.setRiskOwner(assessment.getOwner());
+            }
+        }
+
+        if (StringUtils.hasText(assessment.getComment())) {
+            if (StringUtils.hasText(risk.getComment())) {
+                if (!risk.getComment().toLowerCase().contains(assessment.getComment().toLowerCase()))
+                    risk.setComment(risk.getComment() + ". " + assessment.getComment());
+            } else {
+                risk.setComment(assessment.getComment());
+            }
+        }
+
+        final RiskProfile riskProfile = mappingProfiles
+                .get(RiskProfile.key(assessment.getAsset(), assessment.getScenario()));
+
+        if (riskProfile == null)
+            risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
+        else {
+
+            if (StringUtils.hasText(riskProfile.getActionPlan())) {
+                if (StringUtils.hasText(risk.getContext())) {
+                    if (!risk.getContext().toLowerCase()
+                            .contains(riskProfile.getActionPlan().toLowerCase()))
+                        risk.setContext(risk.getContext() + ". " + riskProfile.getActionPlan());
+                } else {
+                    risk.setContext(riskProfile.getActionPlan());
+                }
+            }
+
+            risk.setKindOfMeasure(
+                    Math.min(risk.getKindOfMeasure(), getRiskStrategy(riskProfile.getRiskStrategy())));
+
+            if (riskProfile.getRawProbaImpact() == null
+                    || riskProfile.getRawProbaImpact().getProbability() == null)
+                risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
+            else
+                risk.setThreatRate(Math.max(
+                        Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), 4),
+                        risk.getThreatRate()));
+
+            riskProfile.getMeasures().stream()
+                    .map(m -> measureMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
+                            Collections.emptyMap())
+                            .get(m.getMeasureDescription().getReference()))
+                    .filter(Objects::nonNull)
+                    .forEach(m -> amv.addMeasure(m.getUuid()));
+
+            riskProfile.getMeasures().stream()
+                    .map(m -> recsMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
+                            Collections.emptyMap())
+                            .get(String.format("%s %s", m.getMeasureDescription().getStandard().getName(),
+                                    m.getMeasureDescription().getReference())))
+                    .filter(Objects::nonNull)
+                    .forEach(m -> mysRects.computeIfAbsent(risk.getId(), e -> new HashSet<>()).add(m));
+        }
+    }
+
+    private void updateConsequences(final Map<String, ScaleType> scaleTypes, final AssetNode node,
+            MonarcInstance monarcInstance) {
+        monarcInstance.getConsequences().values().forEach(e -> {
+            final ScaleType scaleType = scaleTypes.get(e.getScaleImpactType().getLabel2().toLowerCase());
+            if (scaleType == null)
+                return;
+
+            final ILRImpact c = node.getImpact().getConfidentialityImpacts().get(scaleType);
+            final ILRImpact i = node.getImpact().getIntegrityImpacts().get(scaleType);
+            final ILRImpact a = node.getImpact().getAvailabilityImpacts().get(scaleType);
+
+            e.setC(Math.max((c == null ? -1 : Math.min(c.getValue(), 4)), e.getC()));
+            e.setI(Math.max((i == null ? -1 : Math.min(i.getValue(), 4)), e.getI()));
+            e.setD(Math.max((a == null ? -1 : Math.min(a.getValue(), 4)), e.getD()));
+            e.setIsHidden(0);
+        });
     }
 
     private Map<String, Map<String, MonarcRecs>> extractRecords(Analysis analysis,
@@ -328,6 +352,7 @@ public class ILRExport {
 
         final Map<String, Map<String, MonarcRecs>> recMappers = new HashMap<>();
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         analysis.getAnalysisStandards().forEach((name, aStd) -> {
             final Map<String, MonarcRecs> ilrRecs = database
                     .searchRecsByRecSetsLabel(stdToReferencials.getOrDefault(name, name)).stream()
@@ -335,11 +360,13 @@ public class ILRExport {
             if (ilrRecs.isEmpty())
                 return;
             aStd.getMeasures().forEach(m -> {
-                final MonarcRecs rec = ilrRecs.get(m.getMeasureDescription().getReference());
+                final MonarcRecs rec = ilrRecs
+                        .get(String.format("%s %s", name, m.getMeasureDescription().getReference()));
                 if (rec != null) {
                     rec.setComment(m.getComment());
                     rec.setResponsable(m.getResponsible());
                     rec.setDescription(m.getToDo());
+                    rec.setImportance(m.getImportance());
                     rec.setDuedate(
                             new MonarcDuedate(dateFormat.format(m.getPhase().getEndDate()) + " 00:00:00.000000", 3,
                                     "Europe/Luxembourg"));
@@ -351,27 +378,18 @@ public class ILRExport {
         return recMappers;
     }
 
-    private Map<String, Map<String, MeasureMapper>> extractMeasures(Analysis analysis,
-            final Map<String, String> stdToReferencials, final ValueFactory factory, final MonarcDatabase database) {
-        final Map<String, Map<String, MeasureMapper>> measureMappers = new HashMap<>();
+    private Map<String, Map<String, MonarcMeasures>> extractMeasures(Analysis analysis,
+            final Map<String, String> stdToReferencials, final MonarcDatabase database) {
+        final Map<String, Map<String, MonarcMeasures>> measureMappers = new HashMap<>();
 
         analysis.getAnalysisStandards().forEach((n, a) -> {
             final List<MonarcMeasures> ilrMeasures = database
-                    .searchMeasuresByReferentialLabel(stdToReferencials.getOrDefault(n, n));
-            if (ilrMeasures.isEmpty())
-                return;
-            final Map<String, MeasureMapper> measures = measureMappers.computeIfAbsent(n, b -> a.getMeasures().stream()
-                    .filter(m -> !(m.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
-                            || m.getImplementationRateValue(factory) >= 100))
-                    .collect(Collectors.toMap(e -> e.getMeasureDescription().getReference(), MeasureMapper::new)));
-
-            ilrMeasures.forEach(e -> {
-                final MeasureMapper mapper = measures.get(e.getCode());
-                if (mapper == null)
-                    System.err.println(String.format("%s: %s", n, e.getCode()));
-                else
-                    mapper.setIlrMeasure(e);
-            });
+                    .searchMeasuresByReferentialLabel(
+                            stdToReferencials.getOrDefault(a.getStandard().getName(), a.getStandard().getName()));
+            if (!ilrMeasures.isEmpty())
+                measureMappers.computeIfAbsent(a.getStandard().getName(),
+                        b -> ilrMeasures.stream()
+                                .collect(Collectors.toMap(MonarcMeasures::getCode, Function.identity())));
         });
         return measureMappers;
     }
@@ -393,46 +411,51 @@ public class ILRExport {
                 return;
 
             for (Measure measure : e.getMeasures()) {
-                final MonarcMeasures mm = measures.get(measure.getMeasureDescription().getReference());
-                if (mm != null) {
-                    final MonarcSoa soa = soaMapper.get(mm.getUuid());
-                    if (soa == null)
-                        continue;
-
-                    // clear status
-                    soa.setBP(0);
-                    soa.setBR(0);
-                    soa.setCO(0);
-                    soa.setEX(0);
-                    soa.setLR(0);
-                    soa.setRRA(0);
-
-                    soa.setEvidences(measure.getComment());
-                    soa.setActions(measure.getToDo());
-                    soa.setRemarks(((AbstractNormalMeasure) measure).getSoaComment());
-
-                    final double implementRate = measure.getImplementationRateValue(factory);
-                    final Integer scaleComment = getIlrSoaScale(implementRate, soaScales);
-
-                    switch (measure.getStatus()) {
-                        case Constant.MEASURE_STATUS_APPLICABLE:
-                            if (e.getStandard().isComputable())
-                                soa.setRRA(1);
-                            else
-                                soa.setBP(1);
-                            soa.setSoaScaleComment(scaleComment);
-                            break;
-                        case Constant.MEASURE_STATUS_MANDATORY:
-                            soa.setLR(1);
-                            soa.setSoaScaleComment(scaleComment);
-                            break;
-                        default:
-                            soa.setEX(1);
-                            soa.setSoaScaleComment(null);
-                    }
-                }
+                updateSOA(factory, soaScales, soaMapper, e, measures, measure);
             }
         });
+    }
+
+    private void updateSOA(ValueFactory factory, final List<IlrSoaScale> soaScales,
+            final Map<String, MonarcSoa> soaMapper, AnalysisStandard e, final Map<String, MonarcMeasures> measures,
+            Measure measure) {
+        final MonarcMeasures mm = measures.get(measure.getMeasureDescription().getReference());
+        if (mm != null) {
+            final MonarcSoa soa = soaMapper.get(mm.getUuid());
+            if (soa != null) {
+                // clear status
+                soa.setBP(0);
+                soa.setBR(0);
+                soa.setCO(0);
+                soa.setEX(0);
+                soa.setLR(0);
+                soa.setRRA(0);
+
+                soa.setEvidences(measure.getComment());
+                soa.setActions(measure.getToDo());
+                soa.setRemarks(((AbstractNormalMeasure) measure).getSoaComment());
+
+                final double implementRate = measure.getImplementationRateValue(factory);
+                final Integer scaleComment = getIlrSoaScale(implementRate, soaScales);
+
+                switch (measure.getStatus()) {
+                    case Constant.MEASURE_STATUS_APPLICABLE:
+                        if (e.getStandard().isComputable())
+                            soa.setRRA(1);
+                        else
+                            soa.setBP(1);
+                        soa.setSoaScaleComment(scaleComment);
+                        break;
+                    case Constant.MEASURE_STATUS_MANDATORY:
+                        soa.setLR(1);
+                        soa.setSoaScaleComment(scaleComment);
+                        break;
+                    default:
+                        soa.setEX(1);
+                        soa.setSoaScaleComment(null);
+                }
+            }
+        }
     }
 
     private Integer getIlrSoaScale(double implementRate, List<IlrSoaScale> soaScales) {

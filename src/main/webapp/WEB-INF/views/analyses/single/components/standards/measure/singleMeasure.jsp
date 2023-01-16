@@ -193,6 +193,11 @@
 					<c:when test="${measure.phase.number == 0}">NA</c:when>
 					<c:otherwise>${measure.phase.number}</c:otherwise>
 				</c:choose></td>
+			<td ${css} onclick="return editField(this);" data-trick-choose="1,2,3" data-trick-choose-translate='L,M,H' data-trick-choose-title='Low,Medium,High' data-trick-field="importance" data-trick-field-type="integer"><c:choose>
+				<c:when test="${measure.importance eq 1}">L</c:when>
+				<c:when test="${measure.importance eq 2}">M</c:when>
+				<c:when test="${measure.importance eq 3}">H</c:when>
+			</c:choose></td>
 			<td ${css} onclick="return editField(this);" data-trick-field="responsible" data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 			<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 				<td ${css} onclick="return editField(this);" data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></td>

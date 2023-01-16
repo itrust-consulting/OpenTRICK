@@ -17,6 +17,10 @@ import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
  */
 public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 
+	/**
+	 *
+	 */
+	private static final String MEASURE_DESCRIPTION_TEXTS = "measureDescriptionTexts";
 	private static final String STANDARD = "standard";
 	private static final String LEVEL = "level";
 	private static final String REFERENCE = "reference";
@@ -46,7 +50,7 @@ public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 			else if(!(candidate instanceof Standard))
 				return ERROR_UNSUPPORTED_DATA_STANDARD_STANDARD_VALUE_IS_NOT_SUPPORTED;
 			break;
-		case "measureDescriptionTexts":
+		case MEASURE_DESCRIPTION_TEXTS:
 			if(candidate == null)
 				return ERROR_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_TEXTS_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_HAVE_DESCRIPTION_TEXT;
 			else if(!(candidate instanceof List))
@@ -65,7 +69,7 @@ public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 			if(!(candidate instanceof String))
 				return ERROR_UNSUPPORTED_DATA_REFERENCE_REFERENCE_VALUE_IS_NOT_SUPPORTED;
 			String reference = (String) candidate;
-			if(reference==null || reference.trim().isEmpty())
+			if(reference.trim().isEmpty())
 				return ERROR_MEASURE_DESCRIPTION_REFERENCE_REFERENCE_CANNOT_BE_EMPTY;
 			break;
 		case COMPUTABLE:
