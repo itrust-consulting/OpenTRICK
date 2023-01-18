@@ -47,6 +47,7 @@ import lu.itrust.business.TS.database.service.ServiceAssetNode;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
+import lu.itrust.business.TS.database.service.ServiceIlrSoaScaleParameter;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
@@ -137,6 +138,9 @@ public class ControllerCreation {
 
 	@Autowired
 	private ServiceDynamicParameter serviceDynamicParameter;
+
+	@Autowired
+	private ServiceIlrSoaScaleParameter serviceIlrSoaScaleParameter;
 
 	@Autowired
 	private ServiceImpactParameter serviceImpactParameter;
@@ -434,6 +438,10 @@ public class ControllerCreation {
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
 			mappingParameters.putAll(serviceDynamicParameter.findByAnalysisId(analysisForm.getParameter()).stream()
+					.map(duplicateParameter(analysis))
+					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+
+			mappingParameters.putAll(serviceIlrSoaScaleParameter.findByAnalysisId(analysisForm.getParameter()).stream()
 					.map(duplicateParameter(analysis))
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 

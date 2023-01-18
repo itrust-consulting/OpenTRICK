@@ -12,6 +12,10 @@
 </c:if>
 <c:set var="language" value="${locale.language}" scope="request" />
 <fmt:setLocale value="fr" scope="session" />
+<c:forEach begin="1" step="1" end="3" var="impValue">
+	<spring:message code="label.measure.importance.value" arguments="${impValue}" var="imp${impValue}" />
+	<spring:message code="label.title.measure.importance.value" arguments="${impValue}" var="titleImp${impValue}" />
+</c:forEach>
 <div class="tab-pane" id="tab-action-plan">
 	<div class="section" id="section_actionplans">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
@@ -122,6 +126,7 @@
 									<th style="width: 2%;" title='<spring:message code="label.title.measure.ew" />'><spring:message code="label.measure.ew" /></th>
 									<th style="width: 2%;" title='<spring:message code="label.title.measure.inv" />'><spring:message code="label.measure.inv" /></th>
 									<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
+									<th style="width: 2%;" title='<spring:message code="label.title.measure.importance" />'><spring:message code="label.measure.importance" /></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -208,6 +213,11 @@
 													${ape.measure.phase.number}
 												</c:otherwise>
 											</c:choose></td>
+										<td class="editable" data-trick-field="importance" data-trick-field-type="integer" onclick="return editField(this);" data-trick-choose="1,2,3" data-trick-choose-translate='${imp1},${imp2},${imp3}' data-trick-choose-title='${titleImp1},${titleImp2},${titleImp3}'><c:choose>
+											<c:when test="${ape.measure.importance eq 1}">${imp1}</c:when>
+											<c:when test="${ape.measure.importance eq 2}">${imp2}</c:when>
+											<c:when test="${ape.measure.importance eq 3}">${imp3}</c:when>
+										</c:choose></td>
 									</tr>
 								</c:forEach>
 							</tbody>

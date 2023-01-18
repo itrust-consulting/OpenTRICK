@@ -41,8 +41,9 @@ public class Docx4jActionPlanFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
-		int[] cols = (type.isQualitative() ? new int[] { 187, /*534,*/ 734, 4595, 187, 500, 500, 500, 500, 187, 508 }
-				: new int[] { 187, /*534,*/ 734, 4595, 500, 653, 480, 500, 500, 500, 500, 187, 508 });
+		int[] cols = (type.isQualitative()
+				? new int[] { 187, 734, 4595, 187, 500, 500, 500, 500, 187, 187, 508 }
+				: new int[] { 187, 734, 4595, 500, 653, 480, 500, 500, 500, 500, 187, 187, 508 });
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		getTrs(table).forEach(tr -> updateRow(tr, cols, "dxa"));

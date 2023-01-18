@@ -46,6 +46,7 @@ import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
@@ -81,9 +82,9 @@ public class ExportAnalysis {
 
 	private static final int SCENARIO_COLUMN_COUNT = 59;
 
-	private static final int MEASURE_ROW_COUNT = 71;
+	private static final int MEASURE_ROW_COUNT = 72;
 
-	private static final int MATURITY_MEASURE_ROW_COUNT = 27;
+	private static final int MATURITY_MEASURE_ROW_COUNT = 28;
 
 	/***********************************************************************************************
 	 * Fields
@@ -300,7 +301,7 @@ public class ExportAnalysis {
 	}
 
 	private void exportSimpleDocuments() throws SQLException {
-		
+
 		System.out.println("Export simple documents");
 
 		final List<Object> params = new ArrayList<>();
@@ -1280,6 +1281,8 @@ public class ExportAnalysis {
 		// ****************************************************************
 		exportSimpleParameters();
 
+		exportIlrSoaScaleParameters();
+
 		exportRiskAcceptanceParameters();
 
 		// ****************************************************************
@@ -1319,6 +1322,30 @@ public class ExportAnalysis {
 			} else
 				query += unionQuery;
 			params.add(parameter.getLabel());
+			params.add(parameter.getValue().intValue());
+			params.add(parameter.getColor());
+			params.add(parameter.getDescription());
+		}
+
+		if (!query.isEmpty())
+			sqlite.query(query, params);
+
+	}
+
+	private void exportIlrSoaScaleParameters() throws SQLException {
+		final List<Object> params = new ArrayList<>();
+		String query = "", unionQuery = " UNION SELECT ?,?,?",
+				baseQuery = "INSERT INTO ilr_soa_scale SELECT ? as level, ? as color, ? as description";
+		List<IlrSoaScaleParameter> parameters = analysis.getIlrSoaScaleParameters();
+		for (IlrSoaScaleParameter parameter : parameters) {
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 4 > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
 			params.add(parameter.getValue().intValue());
 			params.add(parameter.getColor());
 			params.add(parameter.getDescription());
@@ -1764,7 +1791,7 @@ public class ExportAnalysis {
 								+ "? as 'accidental',? as 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',"
 								+ "? as 'external_setup',? as 'investment',? as 'lifetime',? as 'internal_maintenance',? as 'external_maintenance',"
 								+ "? as 'recurrent_investment',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',"
-								+ "? as 'responsible',? as 'phase',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
+								+ "? as 'responsible',? as 'phase',? as 'importance',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 						// System.out.println(measurequery);
 
@@ -1795,7 +1822,7 @@ public class ExportAnalysis {
 									+ "? as 'accidental',? as 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',"
 									+ "? as 'external_setup',? as 'investment',? as 'lifetime',? as 'internal_maintenance',? as 'external_maintenance',"
 									+ "? as 'recurrent_investment',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',"
-									+ "? as 'responsible',? as 'phase',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
+									+ "? as 'responsible',? as 'phase',? as 'importance',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 							// reset limit counter
 							measurecounter = MEASURE_ROW_COUNT;
@@ -1804,7 +1831,7 @@ public class ExportAnalysis {
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
 							measurecounter += MEASURE_ROW_COUNT;
@@ -1857,6 +1884,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getToCheck());
 					measureparams.add(measure.getResponsible());
 					measureparams.add(measure.getPhase().getNumber());
+					measureparams.add(measure.getImportance());
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
@@ -1992,7 +2020,7 @@ public class ExportAnalysis {
 								+ "? as 'accidental',? as 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',"
 								+ "? as 'external_setup',? as 'investment',? as 'lifetime',? as 'internal_maintenance',? as 'external_maintenance',"
 								+ "? as 'recurrent_investment',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',"
-								+ "? as 'responsible',? as 'phase',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
+								+ "? as 'responsible',? as 'phase',? as 'importance',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 						// set ? limit
 						measurecounter = MEASURE_ROW_COUNT;
@@ -2021,7 +2049,7 @@ public class ExportAnalysis {
 									+ "? as 'accidental',? as 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',"
 									+ "? as 'external_setup',? as 'investment',? as 'lifetime',? as 'internal_maintenance',? as 'external_maintenance',"
 									+ "? as 'recurrent_investment',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',"
-									+ "? as 'responsible',? as 'phase',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
+									+ "? as 'responsible',? as 'phase',? as 'importance',? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 							// reset limit counter
 							measurecounter = MEASURE_ROW_COUNT;
@@ -2030,7 +2058,7 @@ public class ExportAnalysis {
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
 							measurecounter += MEASURE_ROW_COUNT;
@@ -2083,6 +2111,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getToCheck());
 					measureparams.add(measure.getResponsible());
 					measureparams.add(measure.getPhase().getNumber());
+					measureparams.add(measure.getImportance());
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
@@ -2216,7 +2245,7 @@ public class ExportAnalysis {
 
 						// set query
 						measurequery = "INSERT INTO maturities SELECT ? as 'name_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-						measurequery += " 'domain',? as 'phase',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
+						measurequery += " 'domain',? as 'phase',? as 'importance',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
 						measurequery += "'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo', ? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 						measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
@@ -2239,7 +2268,7 @@ public class ExportAnalysis {
 
 							// reset query
 							measurequery = "INSERT INTO maturities SELECT ? as 'name_norme', ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-							measurequery += " 'domain',? as 'phase',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
+							measurequery += " 'domain',? as 'phase',? as 'importance',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
 							measurequery += "? as 'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 							measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
@@ -2250,7 +2279,7 @@ public class ExportAnalysis {
 							// limit reached -> NO
 
 							// add insert data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
 							measurecounter += MATURITY_MEASURE_ROW_COUNT;
@@ -2268,6 +2297,7 @@ public class ExportAnalysis {
 							.getAMeasureDescriptionText(this.analysis.getLanguage());
 					measureparams.add(descriptionText == null ? "" : descriptionText.getDomain());
 					measureparams.add(maturity.getPhase().getNumber());
+					measureparams.add(maturity.getImportance());
 					measureparams.add(maturity.getStatus());
 					measureparams.add(maturity.getImplementationRateValue(expressionParameters) / 100.0);
 					measureparams.add(maturity.getInternalWL());

@@ -11,120 +11,134 @@ function rrfError(message) {
 }
 
 function updateMaxRRF() {
-	application["maxRRF"] = parseInt($("td[data-name='max_rrf']","#section_parameter").text().replace(/\s/g,'').replace(",","."));
+	application["maxRRF"] = parseInt($("td[data-name='max_rrf']", "#section_parameter").text().replace(/\s/g, '').replace(",", "."));
+	return false;
+}
+
+function fixMaxRRFThresholdFromRRF(){
+	if(application["maxRRF"] === undefined)
+		updateMaxRRF();
+	$("td[data-name='ilr_rrf_threshold']", "#section_parameter").attr("data-trick-max-value", application["maxRRF"]);
+	return false;
+}
+
+function fixMinRRFFromRRFThreshold(){
+	let minRRF = parseInt($("td[data-name='ilr_rrf_threshold']", "#section_parameter").text().replace(/\s/g, '').replace(",", ".")) || 0;
+	$("td[data-name='max_rrf']", "#section_parameter").attr("data-trick-min-value", minRRF);
+	return false;
 }
 
 function loadRRF() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$
 		.ajax(
-		{
-			url: context + "/Analysis/RRF",
-			type: "get",
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				var $rrfUI = $("#rrfEditor", new DOMParser().parseFromString(response, "text/html"));
+			{
+				url: context + "/Analysis/RRF",
+				type: "get",
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					let $rrfUI = $("#rrfEditor", new DOMParser().parseFromString(response, "text/html"));
 
-				if (!$rrfUI.length) {
-					unknowError();
-					return false;
-				} else {
-					if(application["maxRRF"]===undefined)
-						updateMaxRRF();
-					$("#rrfEditor").replaceWith($rrfUI);
+					if (!$rrfUI.length) {
+						unknowError();
+						return false;
+					} else {
+						if (application["maxRRF"] === undefined)
+							updateMaxRRF();
+						$("#rrfEditor").replaceWith($rrfUI);
 
-					initialiseMeasureSliders();
+						initialiseMeasureSliders();
 
-					initialiseMeasuresClick();
+						initialiseMeasuresClick();
 
-					initialiseScenariosClick();
+						initialiseScenariosClick();
 
-					initialiseStandardFilter();
+						initialiseStandardFilter();
 
-					if (application.openMode !== OPEN_MODE.READ) {
+						if (application.openMode !== OPEN_MODE.READ) {
 
-						var $controlApplySubChapter = $("#measure-control-apply-sub-chapter", $rrfUI), $selectetiveControlApplySubChapter = $(
-							"#measure-control-apply-selective-sub-chapter", $rrfUI), applyMeasureCharacteristics = function (data, idMeasure) {
-								if (data.length) {
-									$.ajax({
-										url: context + "/Analysis/RRF/Measure/" + idMeasure + "/Update-child",
-										type: "post",
-										data: JSON.stringify(data),
-										contentType: "application/json;charset=UTF-8",
-										success: function (response, textStatus, jqXHR) {
-											if (response.success == undefined)
-												rrfError(response.error == undefined ? undefined : response.error);
-										},
-										error: function () {
-											rrfError();
-										}
+							let $controlApplySubChapter = $("#measure-control-apply-sub-chapter", $rrfUI), $selectetiveControlApplySubChapter = $(
+								"#measure-control-apply-selective-sub-chapter", $rrfUI), applyMeasureCharacteristics = function (data, idMeasure) {
+									if (data.length) {
+										$.ajax({
+											url: context + "/Analysis/RRF/Measure/" + idMeasure + "/Update-child",
+											type: "post",
+											data: JSON.stringify(data),
+											contentType: "application/json;charset=UTF-8",
+											success: function (response, textStatus, jqXHR) {
+												if (response.success == undefined)
+													rrfError(response.error == undefined ? undefined : response.error);
+											},
+											error: function () {
+												rrfError();
+											}
 
-									});
-								}
-							};
-						if ($controlApplySubChapter.length) {
-							$controlApplySubChapter.on("click", function () {
-								var $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
-									.parent(), level = $selectedMeasure.attr("data-trick-value"), data = [];
-								$("[data-trick-value^='" + level + ".']", $parent).each(function () {
-									data.push($(this).attr("data-trick-id"));
-								});
-								applyMeasureCharacteristics(data, $selectedMeasure.attr("data-trick-id"));
-							});
-						}
-
-						if ($selectetiveControlApplySubChapter.length) {
-							$selectetiveControlApplySubChapter
-								.on(
-								"click",
-								function () {
-									var $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
-										.parent(), level = $selectedMeasure.attr("data-trick-value"), $form = $("<form class='form-horizontal'></form>");
-									$("[data-trick-value^='" + level + ".']", $parent)
-										.each(
-										function () {
-											var $this = $(this), $formGroup = $("<div class='form-group'><div class='col-md-1'><input style='margin-top:-5px' type='checkbox' class='form-control'></div><label class='col-md-11'></label></div>");
-											$("label", $formGroup).text($this.text())
-											$("input", $formGroup).attr("name", $this.attr("data-trick-id"));
-											$formGroup.appendTo($form);
 										});
-									var $input = $("input", $form);
-									if ($input.length) {
-										var parentText = $selectedMeasure.text().replace("\t", "").replace("\n", " ").trim(), modal = new Modal(undefined,
-											$form).setTitle(MessageResolver("label.title.rrf.apply.measure.characteristics",
-												"RRF: Apply measure ({0})  characteristics".replace("{0}", parentText), parentText));
-
-										$("button[data-control-type='ok']", modal.modal_footer).on("click", function () {
-											var data = []
-											$("input:checked", $form).each(function () {
-												data.push($(this).attr("name"));
-											});
-											applyMeasureCharacteristics(data, $selectedMeasure.attr("data-trick-id"));
-										}).text(MessageResolver("label.action.apply", "Apply"));
-										modal.Show();
 									}
+								};
+							if ($controlApplySubChapter.length) {
+								$controlApplySubChapter.on("click", function () {
+									let $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
+										.parent(), level = $selectedMeasure.attr("data-trick-value"), data = [];
+									$("[data-trick-value^='" + level + ".']", $parent).each(function () {
+										data.push($(this).attr("data-trick-id"));
+									});
+									applyMeasureCharacteristics(data, $selectedMeasure.attr("data-trick-id"));
 								});
-						}
-					}
-					$rrfUI.modal("show");
-					setTimeout(function () {
-						loadMeasureChart();
-						$('#chart-container-pending', $rrfUI).remove();
-					}, 500);
+							}
 
-					$rrfUI.on("hidden.bs.modal", (e) => {
-						if (window["rrf-chart"]) {
-							window["rrf-chart"].destroy();
-							
-							delete window["rrf-chart"];
+							if ($selectetiveControlApplySubChapter.length) {
+								$selectetiveControlApplySubChapter
+									.on(
+										"click",
+										function () {
+											let $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
+												.parent(), level = $selectedMeasure.attr("data-trick-value"), $form = $("<form class='form-horizontal'></form>");
+											$("[data-trick-value^='" + level + ".']", $parent)
+												.each(
+													function () {
+														let $this = $(this), $formGroup = $("<div class='form-group'><div class='col-md-1'><input style='margin-top:-5px' type='checkbox' class='form-control'></div><label class='col-md-11'></label></div>");
+														$("label", $formGroup).text($this.text())
+														$("input", $formGroup).attr("name", $this.attr("data-trick-id"));
+														$formGroup.appendTo($form);
+													});
+											let $input = $("input", $form);
+											if ($input.length) {
+												var parentText = $selectedMeasure.text().replace("\t", "").replace("\n", " ").trim(), modal = new Modal(undefined,
+													$form).setTitle(MessageResolver("label.title.rrf.apply.measure.characteristics",
+														"RRF: Apply measure ({0})  characteristics".replace("{0}", parentText), parentText));
+
+												$("button[data-control-type='ok']", modal.modal_footer).on("click", function () {
+													let data = []
+													$("input:checked", $form).each(function () {
+														data.push($(this).attr("name"));
+													});
+													applyMeasureCharacteristics(data, $selectedMeasure.attr("data-trick-id"));
+												}).text(MessageResolver("label.action.apply", "Apply"));
+												modal.Show();
+											}
+										});
+							}
 						}
-					})
-				}
-			},
-			error: unknowError
-		}).complete(function () {
-			$progress.hide();
-		});
+						$rrfUI.modal("show");
+						setTimeout(function () {
+							loadMeasureChart();
+							$('#chart-container-pending', $rrfUI).remove();
+						}, 500);
+
+						$rrfUI.on("hidden.bs.modal", (e) => {
+							if (window["rrf-chart"]) {
+								window["rrf-chart"].destroy();
+
+								delete window["rrf-chart"];
+							}
+						})
+					}
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+			});
 
 	return false;
 }

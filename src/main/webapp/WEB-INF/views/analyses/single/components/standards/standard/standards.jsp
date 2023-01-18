@@ -17,6 +17,10 @@
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
+<c:forEach begin="1" step="1" end="3" var="impValue">
+	<spring:message code="label.measure.importance.value" arguments="${impValue}" var="imp${impValue}" />
+	<spring:message code="label.title.measure.importance.value" arguments="${impValue}" var="titleImp${impValue}" />
+</c:forEach>
 <c:set var="implementationRateAttr">
 	<c:choose>
 		<c:when test="${type=='QUALITATIVE' or not showDynamicAnalysis}">
@@ -330,10 +334,10 @@
 												<c:when test="${measure.phase.number == 0}">NA</c:when>
 												<c:otherwise>${measure.phase.number}</c:otherwise>
 											</c:choose></td>
-										<td ${css} onclick="return editField(this);" data-trick-choose="1,2,3" data-trick-choose-translate='L,M,H' data-trick-choose-title='Low,Medium,High' data-trick-field="importance" data-trick-field-type="integer"><c:choose>
-											<c:when test="${measure.importance eq 1}">L</c:when>
-											<c:when test="${measure.importance eq 2}">M</c:when>
-											<c:when test="${measure.importance eq 3}">H</c:when>
+										<td ${css} onclick="return editField(this);" data-trick-choose="1,2,3" data-trick-choose-translate='${imp1},${imp2},${imp3}' data-trick-choose-title='${titleImp1},${titleImp2},${titleImp3}' data-trick-field="importance" data-trick-field-type="integer"><c:choose>
+											<c:when test="${measure.importance eq 1}">${imp1}</c:when>
+											<c:when test="${measure.importance eq 2}">${imp2}</c:when>
+											<c:when test="${measure.importance eq 3}">${imp3}</c:when>
 										</c:choose></td>
 										<td ${css} onclick="return editField(this);" data-trick-field="responsible" data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 										<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">

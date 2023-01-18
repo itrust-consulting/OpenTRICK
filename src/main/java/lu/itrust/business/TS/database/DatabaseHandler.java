@@ -18,7 +18,7 @@ import lu.itrust.business.TS.component.TrickLogManager;
  * @version 0.1
  * @since 2012-08-21
  */
-public class DatabaseHandler implements AutoCloseable{
+public class DatabaseHandler implements AutoCloseable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -41,7 +41,7 @@ public class DatabaseHandler implements AutoCloseable{
 	 * This constructor creates a Sqlite Database Connection
 	 * 
 	 * @param database
-	 *            The Database Name OR the Sqlite Filename
+	 *                 The Database Name OR the Sqlite Filename
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 * 
@@ -63,47 +63,6 @@ public class DatabaseHandler implements AutoCloseable{
 		// * create connection using JDBC driver
 		// ****************************************************************
 		con = DriverManager.getConnection(url);
-	}
-
-	/**
-	 * DatabaseHandler: <br>
-	 * This constructor creates a MySQL Database Connection.
-	 * 
-	 * @param database
-	 *            The Database Name
-	 * @param user
-	 *            The Database Username
-	 * @param password
-	 *            The Database User Password
-	 * @param hostname
-	 *            The Server Hostname
-	 * @param port
-	 *            The Server Port
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws SQLException
-	 * 
-	 * @
-	 */
-	@Deprecated
-	public DatabaseHandler(String database, String user, String password, String hostname, int port)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-
-		// ****************************************************************
-		// * use JDBC driver
-		// ****************************************************************
-		Class.forName("com.mysql.jdbc.Driver").newInstance();
-
-		// ****************************************************************
-		// * create URL for the database connection
-		// ****************************************************************
-		String url = "jdbc:mysql://" + hostname + ":" + port + "/" + database;
-
-		// ****************************************************************
-		// * create connection using the URL and the JDBC driver
-		// ****************************************************************
-		con = DriverManager.getConnection(url, user, password);
 	}
 
 	/***********************************************************************************************
@@ -147,39 +106,13 @@ public class DatabaseHandler implements AutoCloseable{
 			// ****************************************************************
 			// return status if autocommit was really set to false
 			// ****************************************************************
-
-			// check if autocommit is false -> YES
-			if (con.getAutoCommit() == false) {
-
-				// ****************************************************************
-				// * return status
-				// ****************************************************************
-				res = true;
-			} else {
-
-				// check if autocommit is false -> NO
-
-				// ****************************************************************
-				// * return status
-				// ****************************************************************
-				res = false;
-			}
-
-			// ****************************************************************
-			// * return result
-			// ****************************************************************
-			return res;
+			res = !con.getAutoCommit();
 
 		} catch (Exception e) {
-
-			// error text
-			System.out.println("Erro: Could not create transaction");
-
-			// return false
-			return res;
+			TrickLogManager.Persist(e);
 		}
+		return res;
 	}
-
 
 	/**
 	 * close: <br>
@@ -205,43 +138,25 @@ public class DatabaseHandler implements AutoCloseable{
 	 */
 	public boolean commit() {
 
-		System.out.println("Commit Transaction...");
-
 		// ****************************************************************
 		// * initialise return variable
 		// ****************************************************************
 		boolean res = false;
 
 		try {
-
 			// commit a transaction
 			con.commit();
-
 			// release savepoint
 			con.releaseSavepoint(sp);
-
 			// set autocommit to true (end transaction)
 			con.setAutoCommit(true);
-
 			// return autocommit status
-			if (con.getAutoCommit() == true) {
-				res = true;
-			} else {
-				res = false;
-			}
+			res = con.getAutoCommit();
 
-			// ****************************************************************
-			// * return result
-			// ****************************************************************
-			return res;
 		} catch (Exception e) {
-
-			// error text
-			System.out.println("Error: Could not commit transaction changes");
-
-			// return status
-			return res;
+			TrickLogManager.Persist(e);
 		}
+		return res;
 	}
 
 	/**
@@ -262,23 +177,17 @@ public class DatabaseHandler implements AutoCloseable{
 		// ****************************************************************
 		// * create prepared statment for the query
 		// ****************************************************************
-		PreparedStatement st1 = con.prepareStatement("SELECT LAST_INSERT_ID()");
-
-		// execute the query
-		ResultSet rs = st1.executeQuery();
-
-		// retrieve the result
-		while (rs.next()) {
-
-			// ****************************************************************
-			// * set the variable with the last ID
-			// ****************************************************************
-			lastid = rs.getInt(1);
+		try (PreparedStatement st1 = con.prepareStatement("SELECT LAST_INSERT_ID()")) {
+			// execute the query
+			ResultSet rs = st1.executeQuery();
+			// retrieve the result
+			while (rs.next()) {
+				// ****************************************************************
+				// * set the variable with the last ID
+				// ****************************************************************
+				lastid = rs.getInt(1);
+			}
 		}
-
-		// close result
-		rs.close();
-
 		// ****************************************************************
 		// * return the result
 		// ****************************************************************
@@ -305,27 +214,22 @@ public class DatabaseHandler implements AutoCloseable{
 		// ****************************************************************
 		// * create prepared statment for the query
 		// ****************************************************************
-		PreparedStatement st1 = con.prepareStatement("SELECT LAST_INSERT_ROWID()");
-
-		// execute the query
-		ResultSet rs = st1.executeQuery();
-
-		// retrieve the result
-		while (rs.next()) {
-
-			// ****************************************************************
-			// * set the variable with the last ID
-			// ****************************************************************
-			lastid = rs.getInt(1);
+		try (PreparedStatement st1 = con.prepareStatement("SELECT LAST_INSERT_ROWID()")) {
+			// execute the query
+			ResultSet rs = st1.executeQuery();
+			// retrieve the result
+			while (rs.next()) {
+				// ****************************************************************
+				// * set the variable with the last ID
+				// ****************************************************************
+				lastid = rs.getInt(1);
+			}
 		}
-
-		// close result
-		rs.close();
-
 		// ****************************************************************
 		// * return the result
 		// ****************************************************************
 		return lastid;
+
 	}
 
 	/**
@@ -335,9 +239,9 @@ public class DatabaseHandler implements AutoCloseable{
 	 * Query Result
 	 * 
 	 * @param query
-	 *            The SQL Structured Query
+	 *               The SQL Structured Query
 	 * @param params
-	 *            The List of parameters (any Value Type)
+	 *               The List of parameters (any Value Type)
 	 * 
 	 * @return The Result of the executed Query
 	 * 
@@ -350,21 +254,15 @@ public class DatabaseHandler implements AutoCloseable{
 		// ****************************************************************
 		ResultSet res = null;
 		try {
-			Boolean queryres = false;
-
 			// ****************************************************************
 			// * create prepared statment of the given query
 			// ****************************************************************
 			st = con.prepareStatement(query);
-
 			// ****************************************************************
 			// * execute prepared statment query
 			// ****************************************************************
-			queryres = st.execute();
-
 			// check if query was successfully executed -> YES
-			if (queryres == true) {
-
+			if (st.execute()) {
 				// ****************************************************************
 				// * set the result in from of resultset
 				// ****************************************************************
@@ -387,9 +285,9 @@ public class DatabaseHandler implements AutoCloseable{
 	 * Query Result
 	 * 
 	 * @param query
-	 *            The SQL Structured Query
+	 *               The SQL Structured Query
 	 * @param params
-	 *            The List of parameters (any Value Type)
+	 *               The List of parameters (any Value Type)
 	 * 
 	 * @return The Result of the executed Query
 	 * 
@@ -401,7 +299,6 @@ public class DatabaseHandler implements AutoCloseable{
 		// * initialise variables
 		// ****************************************************************
 		ResultSet res = null;
-		Boolean queryres = false;
 
 		// ****************************************************************
 		// * create prepared statment of the given query
@@ -428,10 +325,9 @@ public class DatabaseHandler implements AutoCloseable{
 		// ****************************************************************
 		// * execute prepared statment query
 		// ****************************************************************
-		queryres = st.execute();
 
 		// check if query was successfully executed -> YES
-		if (queryres == true) {
+		if (st.execute()) {
 
 			// ****************************************************************
 			// * set the result in from of resultset
@@ -453,43 +349,24 @@ public class DatabaseHandler implements AutoCloseable{
 	 */
 	public boolean rollback() {
 
-		System.out.println("Rollback Transaction...");
-
 		// ****************************************************************
 		// * initialise return variable
 		// ****************************************************************
 		boolean res = false;
 
 		try {
-
 			// perform a rollback to savepoint
 			con.rollback(sp);
-
 			// release the savepoint
 			con.releaseSavepoint(sp);
-
 			// set autocommit to true (end transaction)
 			con.setAutoCommit(true);
-
 			// return autocommit status
-			if (con.getAutoCommit() == true) {
-				res = true;
-			} else {
-				res = false;
-			}
-
-			// ****************************************************************
-			// * return result
-			// ****************************************************************
-			return res;
+			res = con.getAutoCommit();
 		} catch (Exception e) {
-
-			// error text
-			System.out.println("Error: Could not rollback transaction changes");
-
-			// return false
-			return res;
+			TrickLogManager.Persist(e);
 		}
+		return res;
 	}
 
 	/**
@@ -498,16 +375,16 @@ public class DatabaseHandler implements AutoCloseable{
 	 * place holders to add parameters to a given SQL Table.
 	 * 
 	 * @param table
-	 *            The MySQL or Sqlite Table
+	 *                    The MySQL or Sqlite Table
 	 * @param paramNumber
-	 *            The Number of Parameters (Place Holders)
+	 *                    The Number of Parameters (Place Holders)
 	 */
 	public static final String generateInsertQuery(String table, int paramNumber) {
 
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		String query = "";
+		StringBuilder query = new StringBuilder();
 
 		// check if at least 1 parameter -> YES
 		if (paramNumber > 0) {
@@ -517,21 +394,19 @@ public class DatabaseHandler implements AutoCloseable{
 			// ****************************************************************
 
 			// build first part of query
-			query = "INSERT INTO " + table + " VALUES(";
+
+			query.append("INSERT INTO " + table + " VALUES(");
 
 			// parse parameters and add number of ? parameters
 			for (int index = 1; index <= paramNumber; index++) {
-
 				// check if last parameter -> YES
 				if (index == paramNumber) {
-
 					// set last part of query
-					query += "?)";
+					query.append("?)");
 				} else {
 					// check if last part of query -> NO
-
 					// set next parameter
-					query += "?,";
+					query.append("?,");
 				}
 			}
 		}
@@ -539,6 +414,6 @@ public class DatabaseHandler implements AutoCloseable{
 		// ****************************************************************
 		// * return built query
 		// ****************************************************************
-		return query;
+		return query.toString();
 	}
 }

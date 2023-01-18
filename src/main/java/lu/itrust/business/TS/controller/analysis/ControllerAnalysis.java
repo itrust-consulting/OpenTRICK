@@ -658,7 +658,6 @@ public class ControllerAnalysis extends AbstractController {
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("login", user.getLogin());
-			model.addAttribute("maxRRF", analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF, 20));
 			model.addAttribute("reportSettings", loadReportSettings(analysis));
 			model.addAttribute("exportFilenames", loadExportFileNames(analysis));
 			model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));

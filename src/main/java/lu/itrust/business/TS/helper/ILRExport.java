@@ -227,8 +227,13 @@ public class ILRExport {
             }
         }
 
-        // Delete recs without description.
+        //Update Phase
+        database.getMethod().setStepInit(true);
+        database.getMethod().setStepModel(true);
+        database.getMethod().setStepEval(true);
+        database.getMethod().setStepManage(true);
 
+        // Delete recs without description.
         database.removeIf(e -> !StringUtils.hasText(e.getDescription()));
 
         database.saveInstancesToJSON(data.getAbsolutePath());

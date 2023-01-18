@@ -424,6 +424,7 @@ public class Duplicator {
 			copy.setRecurrentInvestment(0);
 			copy.setInternalMaintenance(0);
 			copy.setExternalMaintenance(0);
+			copy.setImportance(2);
 			copy.setExternalWL(0);
 			copy.setInternalWL(0);
 			copy.setInvestment(0);

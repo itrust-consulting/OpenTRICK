@@ -177,7 +177,6 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));
-		model.addAttribute("maxRRF", analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF, 20));
 		return "analyses/single/components/parameters/other";
 	}
 

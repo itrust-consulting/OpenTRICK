@@ -49,7 +49,7 @@
 									<c:when test="${parameter.description == 'max_rrf'}">
 										<c:if test="${type.quantitative }">
 											<td data-trick-id="${parameter.id}" data-name="max_rrf" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
-												data-trick-field-type="double" onclick="return editField(this);" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}"
+												data-trick-field-type="double" onclick="return editField(this);" data-trick-callback-pre="fixMinRRFFromRRFThreshold()" data-trick-callback='updateMaxRRF()'><fmt:formatNumber value="${parameter.value}"
 													maxFractionDigits="0" pattern="#" /></td>
 										</c:if>
 									</c:when>
@@ -58,9 +58,9 @@
 											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description == 'ilr_rrf_threshold'}">
-										<c:if test="${type.quantitative }">
-											<td data-trick-id="${parameter.id}" data-name="ilr_rrf_threshold"  data-trick-min-value='0' data-trick-max-value='${empty maxRRF? 100: maxRRF}' class="textaligncenter" data-trick-field="value"
-												data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" /></td>
+										<c:if test="${isILR}">
+											<td data-trick-id="${parameter.id}" data-name="ilr_rrf_threshold"  data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value"
+												data-trick-field-type="double" onclick="return editField(this);" data-trick-callback-pre="fixMaxRRFThresholdFromRRF()" ><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" /></td>
 										</c:if>
 									</c:when>
 									<c:when test="${parameter.description == 'mandatoryPhase'}">
@@ -79,6 +79,7 @@
 				</table>
 			</fieldset>
 		</div>
+		
 		<c:if test="${type.qualitative}">
 			<spring:message code='label.nil' var="nil" />
 			<spring:message code='label.all' var="all" />

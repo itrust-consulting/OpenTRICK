@@ -267,13 +267,13 @@ public class WorkerImportMeasureData extends WorkerImpl {
 								case "L":
 									measure.setImportance(1);
 									break;
-								case "3":
-								case "H":
-									measure.setImportance(3);
-									break;
 								case "2":
 								case "M":
 									measure.setImportance(2);
+									break;
+								case "3":
+								case "H":
+									measure.setImportance(3);
 									break;
 								default:
 									break;

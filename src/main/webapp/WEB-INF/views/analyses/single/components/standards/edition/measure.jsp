@@ -83,6 +83,12 @@
 			<spring:message code="label.title.measure.status.m" var="titleStatusM" />
 			<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 			<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
+
+			<c:forEach begin="1" step="1" end="3" var="impValue">
+				<spring:message code="label.measure.importance.value" arguments="${impValue}" var="imp${impValue}" />
+				<spring:message code="label.title.measure.importance.value" arguments="${impValue}" var="titleImp${impValue}" />
+			</c:forEach>
+
 			<spring:message code="label.metric.year" var="metricYear" />
 			<spring:message code="label.metric.euro" var="metricEuro" />
 			<spring:message code="label.metric.keuro" var="metricKEuro" />
@@ -94,7 +100,7 @@
 							<th colspan="2" style="text-align: center;"><spring:message code="label.actual.status" /></th>
 							<th colspan="4" style="text-align: center;"><spring:message code="label.initial.setup" /></th>
 							<th colspan="3" style="text-align: center;"><spring:message code="label.maintenance" /></th>
-							<th colspan="3" style="text-align: center;"><spring:message code="label.planning" /></th>
+							<th colspan="4" style="text-align: center;"><spring:message code="label.planning" /></th>
 						</tr>
 						<tr class="form-group-fill">
 							<th title='<spring:message code="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.status" /></th>
@@ -109,6 +115,7 @@
 							<th title='<spring:message code="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 1px solid #ddd"><spring:message code="label.recurrent" /></th>
 							<th title='<spring:message code="label.title.measure.cost" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.cost" /></th>
 							<th title='<spring:message code="label.title.measure.phase" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.phase" /></th>
+							<th title='<spring:message code="label.title.measure.importance" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.importance" /></th>
 							<th title='<spring:message code="label.title.measure.responsible" />' style="width: 2%"><spring:message code="label.title.measure.responsible" /></th>
 						</tr>
 					</thead>
@@ -160,6 +167,11 @@
 												<option value="${phase.id}" ${selectedMeasure.phase.number == phase.number?'selected':''}>${phase.number}</option>
 											</c:forEach>
 									</select></td>
+									<td><select class='form-control' name="importance" data-trick-value='${selectedMeasure.importance}' data-trick-type='integer'>
+											<option value='1' ${selectedMeasure.importance eq 1?'selected' : ''} title='${titleImp1}'>${imp1}</option>
+											<option value='2' ${selectedMeasure.importance eq 2?'selected' : ''} title='${titleImp2}'>${imp2}</option>
+											<option value='3' ${selectedMeasure.importance eq 3?'selected' : ''} title='${titleImp3}'>${imp3}</option>
+									</select></td>
 									<td><spring:message text="${selectedMeasure.responsible}" var="responsible" /> <input name="responsible" class="form-control" value='${responsible}'
 										placeholder="${responsible}" data-trick-type='string'></td>
 								</tr>
@@ -195,6 +207,7 @@
 											<span class="input-group-addon">${metricKEuro}</span><input name="cost" readonly="readonly" class="form-control numeric" disabled="disabled">
 										</div></td>
 									<td><select name='phase' class="form-control" style="padding-left: 6px; padding-right: 6px" disabled="disabled"></select></td>
+									<td><select name='importance' class="form-control" style="padding-left: 6px; padding-right: 6px" disabled="disabled"></select></td>
 									<td><spring:message text="${selectedMeasure.responsible}" var="responsible" /> <input name="responsible" class="form-control" disabled="disabled"></td>
 								</tr>
 							</c:otherwise>

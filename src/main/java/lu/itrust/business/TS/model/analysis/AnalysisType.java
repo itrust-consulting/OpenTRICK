@@ -3,11 +3,13 @@
  */
 package lu.itrust.business.TS.model.analysis;
 
+import java.io.Serializable;
+
 /**
  * @author eomar
  *
  */
-public enum AnalysisType {
+public enum AnalysisType implements Serializable {
 	QUANTITATIVE, HYBRID, QUALITATIVE;
 
 	public boolean isHybrid() {

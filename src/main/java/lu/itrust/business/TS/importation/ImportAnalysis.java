@@ -84,6 +84,7 @@ import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.IlrSoaScaleParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
@@ -1567,8 +1568,6 @@ public class ImportAnalysis {
 						.collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
 			}
 
-			
-
 		} finally {
 			// close result
 			if (rs != null)
@@ -2029,6 +2028,7 @@ public class ImportAnalysis {
 				maturityMeasure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
 				maturityMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 				maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
+				maturityMeasure.setImportance(getInt(rs, "importance", 2));
 				maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS).replace("'", "''"));
 				maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO).replace("'", "''"));
 				maturityMeasure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));
@@ -2415,6 +2415,7 @@ public class ImportAnalysis {
 				measure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
 				measure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 				measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
+				measure.setImportance(getInt(rs, "importance", 2));
 				measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 				if (measure instanceof AbstractNormalMeasure)
 					((AbstractNormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? ""
@@ -3055,6 +3056,7 @@ public class ImportAnalysis {
 		SimpleParameter simpleParameter = null;
 		String query = "";
 		ParameterType parameterType = null;
+		final boolean hasIlrScale = NaturalOrderComparator.compareTo(version, "2.5") >= 0;
 
 		// ****************************************************************
 		// * import scope values:
@@ -3096,9 +3098,14 @@ public class ImportAnalysis {
 		try {
 			currentSqliteTable = "scope";
 			// build query
-			query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase FROM scope";
-			// execute query
-			rs = sqlite.query(query, null);
+			if (hasIlrScale) {
+				query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, ilr_rrf_threshold FROM scope";
+				// execute query
+				rs = sqlite.query(query, null);
+			} else {
+				rs = sqlite.query(
+						"SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase FROM scope");
+			}
 			// retrieve parameter type
 			parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 			// paramter type does not exist -> NO
@@ -3185,6 +3192,12 @@ public class ImportAnalysis {
 				simpleParameter.setDescription(Constant.MANDATORY_PHASE);
 				simpleParameter.setType(parameterType);
 				simpleParameter.setValue(rs.getInt(Constant.MANDATORY_PHASE));
+				this.analysis.add(simpleParameter);
+
+				simpleParameter = new SimpleParameter();
+				simpleParameter.setDescription(Constant.ILR_RRF_THRESHOLD);
+				simpleParameter.setType(parameterType);
+				simpleParameter.setValue(getDouble(rs, Constant.ILR_RRF_THRESHOLD, 5d));
 				this.analysis.add(simpleParameter);
 
 				/*
@@ -3309,7 +3322,7 @@ public class ImportAnalysis {
 				this.analysis.add(simpleParameter);
 			}
 
-			if (!isCompability1X() && analysis.isQualitative()) {
+			if (!isCompability1X()) {
 				// close result
 				rs.close();
 				parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME);
@@ -3322,6 +3335,22 @@ public class ImportAnalysis {
 						this.analysis.add(new RiskAcceptanceParameter(getStringOrEmpty(rs, "label"),
 								rs.getDouble("level"), getStringOrEmpty(rs, "color"),
 								getStringOrEmpty(rs, "description")));
+					rs.close();
+				}
+
+				if (hasIlrScale) {
+					parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE);
+					if (parameterType == null)
+						daoParameterType
+								.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE));
+								
+					rs = sqlite.query("SELECT level, color, description from ilr_soa_scale");
+					if (rs != null) {
+						while (rs.next())
+							this.analysis.add(new IlrSoaScaleParameter(
+									rs.getDouble("level"), getStringOrEmpty(rs, "color"),
+									getStringOrEmpty(rs, "description")));
+					}
 				}
 			}
 

@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.tile.manage.ilr-soa-scale" />
+					<spring:message code="label.tile.manage.ilr_soa_scale" />
 				</h4>
 			</div>
 			<div class="modal-body" style="padding-top: 5px;">

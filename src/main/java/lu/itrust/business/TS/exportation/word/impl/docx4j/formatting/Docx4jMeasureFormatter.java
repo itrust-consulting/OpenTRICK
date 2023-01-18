@@ -36,13 +36,15 @@ public class Docx4jMeasureFormatter extends Docx4jFormatter {
 	protected boolean formatMe(Tbl table, AnalysisType type, ColorSet colors) {
 		if (!isSupported(table))
 			return false;
-		int[] headers = { 1017, 1975, 779, 636, 878, 910, 988, 675, 878, 878, 898, 758, 493, 779, 2254, 2254 },
-				cols = { 732, 2193, 238, 338, 338, 338, 338, 238, 338, 338, 338, 338, 219, 416, 6064, 6064 }, mergeCols = { 732, sum(1, 15, cols), 6064 };
+		int[] headers = { 1017, 1975, 779, 636, 878, 910, 988, 675, 878, 878, 898, 758, 493, 493, 779, 2254, 2254 },
+				cols = { 732, 2193, 238, 338, 338, 338, 338, 238, 338, 338, 338, 338, 219, 219, 416, 6064, 6064 },
+				mergeCols = { 732, sum(1, 16, cols), 6064 };
 		table.getTblPr().getTblW().setType("dxa");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(16157));
 		for (int i = 0; i < headers.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(headers[i]));
-		getTrs(table).forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "dxa"));
+		getTrs(table)
+				.forEach(tr -> updateRow(tr, tr.getContent().size() == mergeCols.length ? mergeCols : cols, "dxa"));
 		return true;
 	}
 
@@ -52,7 +54,5 @@ public class Docx4jMeasureFormatter extends Docx4jFormatter {
 			value += cols[i];
 		return value;
 	}
-
-	
 
 }

@@ -320,7 +320,7 @@ public class Analysis implements Cloneable {
 
 	@OneToMany
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	@JoinTable(name = "AnalysisILRImpactTypes", joinColumns = @JoinColumn(name = "fiAnalysis", referencedColumnName = "idAnalysis"), inverseJoinColumns = @JoinColumn(name = "fiScaleType", referencedColumnName = "idScaleType"), uniqueConstraints = @UniqueConstraint(columnNames = {
+	@JoinTable(name = "AnalysisILRImpactTypes", joinColumns = @JoinColumn(name = "fiAnalysis", referencedColumnName = "idAnalysis",unique = false), inverseJoinColumns = @JoinColumn(name = "fiScaleType", referencedColumnName = "idScaleType", unique = false), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"fiAnalysis", "fiScaleType" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	@Access(AccessType.FIELD)
