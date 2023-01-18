@@ -190,50 +190,57 @@ public class ControllerAssessment {
 	public @ResponseBody Object computeRiskProfileMeasure(Model model, HttpSession session, Principal principal,
 			Locale locale) {
 
-		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		try {
 
-		final Analysis analysis = serviceAnalysis.get(idAnalysis);
+			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		final IParameter maxRRFParameter = analysis.findSimpleParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
-				Constant.PARAMETER_MAX_RRF);
+			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-		final double rrfThreshold = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
-				Constant.ILR_RRF_THRESHOLD, 5d) * 0.01;
+			final IParameter maxRRFParameter = analysis.findSimpleParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
+					Constant.PARAMETER_MAX_RRF);
 
-		final int mandatoryPhase = (int) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
-				Constant.MANDATORY_PHASE, 1d);
+			final double rrfThreshold = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
+					Constant.ILR_RRF_THRESHOLD, 5d) * 0.01;
 
-		final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
-				.filter(RiskProfile::isSelected).collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+			final int mandatoryPhase = (int) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
+					Constant.MANDATORY_PHASE, 1d);
 
-		final List<Assessment> assessments = analysis.getAssessments().stream()
-				.filter(Assessment::isSelected).collect(Collectors.toList());
+			final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
+					.filter(RiskProfile::isSelected)
+					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 
-		final ValueFactory factory = new ValueFactory(analysis.getParameters());
+			final List<Assessment> assessments = analysis.getAssessments().stream()
+					.filter(Assessment::isSelected).collect(Collectors.toList());
 
-		analysis.getRiskProfiles().forEach(e -> e.getMeasures().clear());
+			final ValueFactory factory = new ValueFactory(analysis.getParameters());
 
-		analysis.getAnalysisStandards().values().stream().filter(e -> !e.getStandard().is(Constant.STANDARD_MATURITY))
-				.flatMap(e -> e.getMeasures().stream())
-				.filter(e -> !(e.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
-						|| e.getImplementationRateValue(factory) >= 100 && e.getPhase().getNumber() <= mandatoryPhase))
-				.filter(AbstractNormalMeasure.class::isInstance).forEach(e -> assessments.stream().forEach(ass -> {
-					final double rrf = RRF.calculateRRF(ass, maxRRFParameter, e);
-					if (rrf >= rrfThreshold) {
-						final RiskProfile riskProfile = riskProfiles
-								.get(RiskProfile.key(ass.getAsset(), ass.getScenario()));
-								
-						if (!(riskProfile == null || RiskStrategy.ACCEPT.equals(riskProfile.getRiskStrategy()))) {
-							riskProfile.getMeasures().add(e);
+			analysis.getRiskProfiles().forEach(e -> e.getMeasures().clear());
+
+			analysis.getAnalysisStandards().values().stream()
+					.filter(e -> !e.getStandard().is(Constant.STANDARD_MATURITY))
+					.flatMap(e -> e.getMeasures().stream())
+					.filter(e -> !(e.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+							|| e.getImplementationRateValue(factory) >= 100
+									&& e.getPhase().getNumber() <= mandatoryPhase))
+					.filter(AbstractNormalMeasure.class::isInstance).forEach(e -> assessments.stream().forEach(ass -> {
+						final double rrf = RRF.calculateRRF(ass, maxRRFParameter, e);
+						if (rrf >= rrfThreshold) {
+							final RiskProfile riskProfile = riskProfiles
+									.get(RiskProfile.key(ass.getAsset(), ass.getScenario()));
+
+							if (!(riskProfile == null || RiskStrategy.ACCEPT.equals(riskProfile.getRiskStrategy()))) {
+								riskProfile.getMeasures().add(e);
+							}
+
 						}
+					})
 
-					}
-				})
+					);
 
-				);
-
-		serviceAnalysis.saveOrUpdate(analysis);
-
+			serviceAnalysis.saveOrUpdate(analysis);
+		} catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
 		return JsonMessage.Success(messageSource.getMessage("success.compute.risk_profile_measure", null,
 				"Risk Estimation measures had been computed successfully", locale));
 
