@@ -1,0 +1,120 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGBUS (0x7) at pc=0x00007fc21c82c8db, pid=24732, tid=24747
+#
+# JRE version: OpenJDK Runtime Environment (11.0.15+10) (build 11.0.15+10-Ubuntu-0ubuntu0.20.04.1)
+# Java VM: OpenJDK 64-Bit Server VM (11.0.15+10-Ubuntu-0ubuntu0.20.04.1, mixed mode, sharing, tiered, compressed oops, g1 gc, linux-amd64)
+# Problematic frame:
+# j  jdk.internal.misc.Signal.dispatch(I)V+0 java.base@11.0.15
+#
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   Unknown
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/eomar/.vscode-server/data/User/globalStorage/redhat.vscode-xml -Xverify:none -Xmx64M org.eclipse.lemminx.XMLServerLauncher
+
+Host: 
+[error occurred during error reporting (printing summary machine and OS info), id 0x7, SIGBUS (0x7) at pc=0x00007fc23991f489]
+
+
+[timeout occurred during error reporting in step "printing date and time"] after 30 s.
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007fc2340ca800):  JavaThread "Signal Dispatcher" daemon [_thread_in_Java, id=24747, stack(0x00007fc1ff973000,0x00007fc1ffa74000)]
+
+Stack: [0x00007fc1ff973000,0x00007fc1ffa74000],  sp=0x00007fc1ffa728c8,  free space=1022k
+Native frames: (J=compiled Java code, A=aot compiled Java code, j=interpreted, Vv=VM code, C=native code)
+j  jdk.internal.misc.Signal.dispatch(I)V+0 java.base@11.0.15
+v  ~StubRoutines::call_stub
+V  [libjvm.so+0x869cc4]
+[error occurred during error reporting (printing native stack), id 0x7, SIGBUS (0x7) at pc=0x00007fc2399211fe]
+
+
+siginfo: si_signo: 7 (SIGBUS), si_code: 2 (BUS_ADRERR), si_addr: 0x00007fc1ffa678c8
+
+Register to memory mapping:
+
+RAX=0x00007fc214685d88 is pointing into metadata
+RBX={method} {0x000000080031f010} 'dispatch' '(I)V' in 'jdk/internal/misc/Signal'
+RCX=0x0000000000000008 is an unknown value
+RDX=0x0000000000000003 is an unknown value
+RSP=0x00007fc1ffa728c8 is pointing into the stack for thread: 0x00007fc2340ca800
+RBP=0x00007fc1ffa72910 is pointing into the stack for thread: 0x00007fc2340ca800
+RSI=0x00007fc2340cb660 points into unknown readable memory: 0x0000001e00000003 | 03 00 00 00 1e 00 00 00
+RDI=0x0000000000000004 is an unknown value
+R8 ={method} {0x000000080031f010} 'dispatch' '(I)V' in 'jdk/internal/misc/Signal'
+R9 =0x00007fc2340cb690 points into unknown readable memory: 0x000000080031f010 | 10 f0 31 00 08 00 00 00
+R10=0x0 is NULL
+R11=0x000000080031e578 is pointing into metadata
+R12=0x0 is NULL
+R13=0x000000080093c770 is pointing into metadata
+R14=0x00007fc1ffa72938 is pointing into the stack for thread: 0x00007fc2340ca800
+R15=0x00007fc2340ca800 is a thread
+
+
+Registers:
+RAX=0x00007fc214685d88, RBX=0x000000080031f010, RCX=0x0000000000000008, RDX=0x0000000000000003
+RSP=0x00007fc1ffa728c8, RBP=0x00007fc1ffa72910, RSI=0x00007fc2340cb660, RDI=0x0000000000000004
+R8 =0x000000080031f010, R9 =0x00007fc2340cb690, R10=0x0000000000000000, R11=0x000000080031e578
+R12=0x0000000000000000, R13=0x000000080093c770, R14=0x00007fc1ffa72938, R15=0x00007fc2340ca800
+RIP=0x00007fc21c82c8db, EFLAGS=0x0000000000010202, CSGSFS=0x002b000000000033, ERR=0x0000000000000006
+  TRAPNO=0x000000000000000e
+
+Top of Stack: (sp=0x00007fc1ffa728c8)
+0x00007fc1ffa728c8:   00007fc1ffa728c8 000000080093c770
+0x00007fc1ffa728d8:   00007fc1ffa72938 000000080031e8a8
+0x00007fc1ffa728e8:   0000000000000000 00000000ffe2a8e8
+0x00007fc1ffa728f8:   000000080031f010 0000000000000000 
+
+Instructions: (pc=0x00007fc21c82c8db)
+0x00007fc21c82c7db:   00 e9 95 00 00 00 48 8b f3 48 8d 44 24 08 4c 89
+0x00007fc21c82c7eb:   6d c0 49 8b ff c5 f8 77 49 89 af 38 03 00 00 49
+0x00007fc21c82c7fb:   89 87 28 03 00 00 f7 c4 0f 00 00 00 0f 84 12 00
+0x00007fc21c82c80b:   00 00 48 83 ec 08 e8 ea 76 5b 1c 48 83 c4 08 e9
+0x00007fc21c82c81b:   05 00 00 00 e8 dc 76 5b 1c 49 ba 00 00 00 00 00
+0x00007fc21c82c82b:   00 00 00 4d 89 97 28 03 00 00 49 ba 00 00 00 00
+0x00007fc21c82c83b:   00 00 00 00 4d 89 97 38 03 00 00 49 ba 00 00 00
+0x00007fc21c82c84b:   00 00 00 00 00 4d 89 97 30 03 00 00 c5 f8 77 49
+0x00007fc21c82c85b:   81 7f 08 00 00 00 00 0f 84 05 00 00 00 e9 93 23
+0x00007fc21c82c86b:   ff ff 4c 8b 6d c0 4c 8b 75 c8 c3 48 8b 43 18 48
+0x00007fc21c82c87b:   85 c0 0f 84 12 00 00 00 8b 48 18 83 c1 08 89 48
+0x00007fc21c82c88b:   18 23 48 30 0f 84 d3 01 00 00 89 84 24 00 f0 ff
+0x00007fc21c82c89b:   ff 89 84 24 00 e0 ff ff 89 84 24 00 d0 ff ff 89
+0x00007fc21c82c8ab:   84 24 00 c0 ff ff 89 84 24 00 b0 ff ff 89 84 24
+0x00007fc21c82c8bb:   00 a0 ff ff 89 84 24 00 90 ff ff 89 84 24 00 80
+0x00007fc21c82c8cb:   ff ff 89 84 24 00 70 ff ff 89 84 24 00 60 ff ff
+0x00007fc21c82c8db:   89 84 24 00 50 ff ff 89 84 24 00 40 ff ff 89 84
+0x00007fc21c82c8eb:   24 00 30 ff ff 89 84 24 00 20 ff ff 89 84 24 00
+0x00007fc21c82c8fb:   10 ff ff 89 84 24 00 00 ff ff 89 84 24 00 f0 fe
+0x00007fc21c82c90b:   ff 89 84 24 00 e0 fe ff 89 84 24 00 d0 fe ff 89
+0x00007fc21c82c91b:   84 24 00 c0 fe ff 41 c6 87 e5 03 00 00 00 80 3d
+0x00007fc21c82c92b:   67 fd fc 1c 00 0f 84 2a 00 00 00 48 8b 75 e8 49
+0x00007fc21c82c93b:   8b ff f7 c4 0f 00 00 00 0f 84 12 00 00 00 48 83
+0x00007fc21c82c94b:   ec 08 e8 1e 24 a0 1c 48 83 c4 08 e9 05 00 00 00
+0x00007fc21c82c95b:   e8 10 24 a0 1c 41 0f b6 5d 00 49 ba e0 d7 82 39
+0x00007fc21c82c96b:   c2 7f 00 00 41 ff 24 da e8 05 00 00 00 e9 92 00
+0x00007fc21c82c97b:   00 00 48 8d 44 24 08 4c 89 6d c0 49 8b ff c5 f8
+0x00007fc21c82c98b:   77 49 89 af 38 03 00 00 49 89 87 28 03 00 00 f7
+0x00007fc21c82c99b:   c4 0f 00 00 00 0f 84 12 00 00 00 48 83 ec 08 e8
+0x00007fc21c82c9ab:   31 b2 5b 1c 48 83 c4 08 e9 05 00 00 00 e8 23 b2
+0x00007fc21c82c9bb:   5b 1c 49 ba 00 00 00 00 00 00 00 00 4d 89 97 28
+0x00007fc21c82c9cb:   03 00 00 49 ba 00 00 00 00 00 00 00 00 4d 89 97 
+
+
+Stack slot to memory mapping:
+stack at sp + 0 slots: 0x00007fc1ffa728c8 is pointing into the stack for thread: 0x00007fc2340ca800
+stack at sp + 1 slots: 0x000000080093c770 is pointing into metadata
+stack at sp + 2 slots: 0x00007fc1ffa72938 is pointing into the stack for thread: 0x00007fc2340ca800
+stack at sp + 3 slots: 0x000000080031e8a8 is pointing into metadata
+stack at sp + 4 slots: 0x0 is NULL
+stack at sp + 5 slots: 0x00000000ffe2a8e8 points into unknown readable memory: 0x0000003e3abc8801 | 01 88 bc 3a 3e 00 00 00
+stack at sp + 6 slots: {method} {0x000000080031f010} 'dispatch' '(I)V' in 'jdk/internal/misc/Signal'
+stack at sp + 7 slots: 0x0 is NULL
+
+method entry point (kind = zerolocals)  [0x00007fc21c82c640, 0x00007fc21c82cb20]  1248 bytes

@@ -111,10 +111,10 @@
 				</c:if>
 				<c:choose>
 					<c:when test="${type.qualitative}">
-						<li><a href="#" onclick="return calculateAction({'id':'${analysis.id}'})"> <spring:message code="label.action.compute.action_plan" /></a></li>
+						<li><a href="#" onclick="return calculateAction()"> <spring:message code="label.action.compute.action_plan" /></a></li>
 					</c:when>
 					<c:otherwise>
-						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.action.compute.action_plan" /></a></li>
+						<li><a href="#" onclick="return displayActionPlanOptions()"> <spring:message code="label.action.compute.action_plan" /></a></li>
 						<c:if test="${not isEditable}">
 							<li class="divider"></li>
 						</c:if>

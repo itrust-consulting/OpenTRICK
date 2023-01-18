@@ -185,28 +185,14 @@ public class ControllerActionPlan extends AbstractController {
 	@PostMapping(value = "/Compute", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale,
-			@RequestBody String value) throws JsonProcessingException {
-
-		final ObjectMapper mapper = new ObjectMapper();
-
-		final JsonNode jsonNode = mapper.readTree(value);
+			@RequestBody List<Integer> standards) {
 
 		// retrieve analysis id to compute
-		final int analysisId = jsonNode.get("id").asInt();
+		final Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// retrieve options selected by the user
 
 		final boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
-
-		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
-
-		List<Integer> standards = new ArrayList<>();
-
-		for (AnalysisStandard analysisStandard : analysisStandards) {
-			if (jsonNode.get("standard_" + analysisStandard.getId()) != null)
-				if (jsonNode.get("standard_" + analysisStandard.getId()).asBoolean())
-					standards.add(analysisStandard.getId());
-		}
 
 		final boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
 
@@ -219,12 +205,6 @@ public class ControllerActionPlan extends AbstractController {
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null,
 				"Action plan computation was started successfully", locale));
-
-		/*
-		 * return JsonMessage
-		 * .Success(messageSource.getMessage("error.permission_denied", null,
-		 * "Permission denied!", locale));
-		 */
 
 	}
 

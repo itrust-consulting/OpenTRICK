@@ -4,7 +4,7 @@ function displayActionPlanOptions(analysisId) {
 		type: "GET",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionplancomputeoptions");
+			let $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionplancomputeoptions");
 			if ($content.length)
 				new Modal($content.clone()).Show();
 			else
@@ -16,21 +16,20 @@ function displayActionPlanOptions(analysisId) {
 }
 
 function calculateActionPlanWithOptions(form) {
-	var $form = $("#" + form), data = {
-		"id": $form.find("input[name='id']").val()
-	};
-	$form.find("input[name^='standard_']").each(function () {
-		data[this.name] = this.checked;
+	let $form = $("#" + form), data = [];
+	let length = 'standard_'.length;
+	$form.find("input[name^='standard_']").filter((i,e) => e.checked).each(function () {
+		data.push(parseInt(this.name.substring(length)));
 	});
 	return calculateAction(data);
 }
 
 function calculateAction(data) {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/ActionPlan/Compute",
 		type: "post",
-		data: JSON.stringify(data),
+		data: JSON.stringify(data || []),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
@@ -48,7 +47,7 @@ function calculateAction(data) {
 }
 
 function hideActionplanAssets(sectionactionplan, menu) {
-	var actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
+	let actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
 	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
 		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 		$(menu + " a#actionplanassetsmenulink").html(
@@ -63,7 +62,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 		url: context + "/Analyis/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("tr[data-trick-id='" + idActionPlanEntry + "']");
+			let $content = $(new DOMParser().parseFromString(response, "text/html")).find("tr[data-trick-id='" + idActionPlanEntry + "']");
 			if ($content.length)
 				$("#section_actionplan_" + type + " tr[data-trick-id='" + idActionPlanEntry + "']").replaceWith($content);
 			else
@@ -76,7 +75,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 }
 
 function displayActionPlanAssets() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/ActionPlan/Assets",
 		data: {
@@ -84,17 +83,17 @@ function displayActionPlanAssets() {
 		},
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionPlanAssets");
+			let $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionPlanAssets");
 			if ($content.length) {
 				var $oldView = $("#actionPlanAssets");
 				if (!$oldView.length)
 					$content.appendTo($("#widgets"))
 				else
 					$oldView.replaceWith($content);
-				var $body = $content.find(".modal-body");
-				var resizer = function () {
-					var height = $(window).height();
-					var multi = height < 200 ? 0.50 : height < 520 ? 0.60 : height < 600 ? 0.65 : height < 770 ? 0.72 : height < 820 ? 0.77 : height < 900 ? 0.78 : 0.80;
+				let $body = $content.find(".modal-body");
+				let resizer = function () {
+					let height = $(window).height();
+					let multi = height < 200 ? 0.50 : height < 520 ? 0.60 : height < 600 ? 0.65 : height < 770 ? 0.72 : height < 820 ? 0.77 : height < 900 ? 0.78 : 0.80;
 					$body.css({
 						'max-height': (height * multi) + 'px',
 						'overflow': 'auto'

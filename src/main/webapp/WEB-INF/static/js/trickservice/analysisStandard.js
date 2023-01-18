@@ -669,10 +669,7 @@ function manageSOA() {
 									if (response.error != undefined)
 										showDialog("#alert-dialog", response.error);
 									else if (response.success != undefined) {
-										calculateAction({
-											"id": idAnalysis
-										});
-
+										calculateAction();
 										setTimeout(function () {
 											$progress.show();
 											setTimeout(function name() {

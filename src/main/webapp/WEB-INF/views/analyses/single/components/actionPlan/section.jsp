@@ -90,7 +90,7 @@
 							<spring:message code="label.action.compute" /></a></li>
 				</c:when>
 				<c:otherwise>
-					<li ${isLinkedToProject? 'class="pull-right"' :''}><a href="#" onclick="return calculateAction({'id':'${empty analysisId? analysis.id : analysisId}'})"><i
+					<li ${isLinkedToProject? 'class="pull-right"' :''}><a href="#" onclick="return calculateAction()"><i
 							class="glyphicon glyphicon-expand"></i> <spring:message code="label.action.compute" /></a></li>
 				</c:otherwise>
 			</c:choose>

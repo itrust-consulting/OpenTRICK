@@ -55,6 +55,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
@@ -117,8 +118,11 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		this.mockMvc.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
-				getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc
+				.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD)).param("customer",
+								getInteger(ME_CUSTOMER).toString()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;
 
@@ -127,7 +131,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
 				Worker worker2 = workersPoolManager.get(workerId);
-				if (worker2 != null && worker2.isMatch("class+customer.id", WorkerAnalysisImport.class, getInteger(ME_CUSTOMER))) {
+				if (worker2 != null
+						&& worker2.isMatch("class+customer.id", WorkerAnalysisImport.class, getInteger(ME_CUSTOMER))) {
 					worker = worker2;
 					break;
 				}
@@ -150,7 +155,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_01_CheckImportedAnalysis() {
 		Analysis analysis = serviceAnalysis.getByIdentifierAndVersion(identifier, version);
-		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		notNull(analysis,
+				String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		put(ANALYSIS_KEY, analysis.getId());
 		assertEquals("Bad analysis version", version, analysis.getVersion());
 		assertEquals("Bad analysis identifier", identifier, analysis.getIdentifier());
@@ -164,15 +170,17 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public synchronized void test_02_ComputeActionPlan() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis id cannot be found");
-		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-				.content(String.format("{\"id\":%d}", idAnalysis))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.content("[]")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
 				Worker worker2 = workersPoolManager.get(workerId);
-				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, idAnalysis)) {
+				if (worker2 != null
+						&& worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, idAnalysis)) {
 					worker = worker2;
 					break;
 				}
@@ -215,15 +223,23 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_04_CheckActionPlan() throws Exception {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
-		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		notNull(analysis,
+				String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		List<Object[]> data = new ArrayList<Object[]>(7);
-		data.add(new Object[] { "27002", "5.1.1", "Policies for information security", "Define sectorial policies.", 5426.5d, 573.5d, 3600d, -3026.5d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "Custom", "1.1.1", "Custom security measure", " 	Custom security measure To do text", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "Custom Asset", "1.1", "Subdomain name", "Subdomain name  custom asset todo", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "Custom Asset", "1.2", "Subdomaine name 2", "Subdomain name 2  custom asset todo", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "Custom non-computable", "1.1.1", "Non-comp domain name", "Non-comp domain name todo", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "27001", "5.1.2", "Establishment of security policy & objectives", "", 5426.5d, 0d, 21000d, -21000d, 10d, 1d, 0d, 3 });
-		data.add(new Object[] { "27002", "6.1.1", "Information security roles and responsibilities", "Define roles and responsibilities.", 5110.76d, 315.74d, 200d, 115.74d, 1d, 0d,
+		data.add(new Object[] { "27002", "5.1.1", "Policies for information security", "Define sectorial policies.",
+				5426.5d, 573.5d, 3600d, -3026.5d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom", "1.1.1", "Custom security measure", " 	Custom security measure To do text",
+				5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom Asset", "1.1", "Subdomain name", "Subdomain name  custom asset todo", 5426.5d,
+				0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom Asset", "1.2", "Subdomaine name 2", "Subdomain name 2  custom asset todo",
+				5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom non-computable", "1.1.1", "Non-comp domain name", "Non-comp domain name todo",
+				5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "27001", "5.1.2", "Establishment of security policy & objectives", "", 5426.5d, 0d,
+				21000d, -21000d, 10d, 1d, 0d, 3 });
+		data.add(new Object[] { "27002", "6.1.1", "Information security roles and responsibilities",
+				"Define roles and responsibilities.", 5110.76d, 315.74d, 200d, 115.74d, 1d, 0d,
 				0d, 4 });
 		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlans();
 		notEmpty(actionPlanEntries, "Action plan should not be empty");
@@ -257,36 +273,51 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_04_CheckActionPlanSummary() throws Exception {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
-		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		notNull(analysis,
+				String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		List<SummaryStage> summaryStages = analysis.findSummary(ActionPlanMode.APPN);
-		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildRawData(summaryStages, analysis.getPhases());
+		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildRawData(summaryStages,
+				analysis.getPhases());
 		Map<String, Object[]> exceptedResults = new LinkedHashMap<String, Object[]>();
 
 		exceptedResults.put(LABEL_PHASE_BEGIN_DATE,
-				new Object[] { null, parseSQLDate("2015-07-13"), parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13") });
+				new Object[] { null, parseSQLDate("2015-07-13"), parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"),
+						parseSQLDate("2018-07-13") });
 		exceptedResults.put(LABEL_PHASE_END_DATE,
-				new Object[] { null, parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13"), parseSQLDate("2019-07-13") });
+				new Object[] { null, parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13"),
+						parseSQLDate("2019-07-13") });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom Asset", new Object[] { 0, 100, 100, 100, 100 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "27001", new Object[] { 96, 96, 96, 100, 100 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "27002", new Object[] { 0, 50, 50, 50, 100 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom", new Object[] { 50, 100, 100, 100, 100 });
-		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom non-computable", new Object[] { 0, 100, 100, 100, 100 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom non-computable",
+				new Object[] { 0, 100, 100, 100, 100 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Maturity", new Object[] { 1, 1, 1, 1, 1 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE, new Object[] { 0, 5, 0, 1, 1 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED, new Object[] { 8, 13, 13, 14, 15 });
-		exceptedResults.put(LABEL_PROFITABILITY_ALE_UNTIL_END, new Object[] { 6000.0, 5426.5, 5426.5, 5426.5, 5110.7615 });
-		exceptedResults.put(LABEL_PROFITABILITY_RISK_REDUCTION, new Object[] { 0.0, 573.5, 0.0, 0.0, 315.73850000000004 });
-		exceptedResults.put(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, new Object[] { 0.0, 18000.0, 0.0, 21000.0, 200.0 });
-		exceptedResults.put(LABEL_PROFITABILITY_ROSI, new Object[] { 0.0, -17426.5, 0.0, -21000.0, 115.73850000000004 });
-		exceptedResults.put(LABEL_PROFITABILITY_ROSI_RELATIF, new Object[] { 0.0, -0.9681388888888889, 0.0, -1.0, 0.5786925000000003 });
+		exceptedResults.put(LABEL_PROFITABILITY_ALE_UNTIL_END,
+				new Object[] { 6000.0, 5426.5, 5426.5, 5426.5, 5110.7615 });
+		exceptedResults.put(LABEL_PROFITABILITY_RISK_REDUCTION,
+				new Object[] { 0.0, 573.5, 0.0, 0.0, 315.73850000000004 });
+		exceptedResults.put(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE,
+				new Object[] { 0.0, 18000.0, 0.0, 21000.0, 200.0 });
+		exceptedResults.put(LABEL_PROFITABILITY_ROSI,
+				new Object[] { 0.0, -17426.5, 0.0, -21000.0, 115.73850000000004 });
+		exceptedResults.put(LABEL_PROFITABILITY_ROSI_RELATIF,
+				new Object[] { 0.0, -0.9681388888888889, 0.0, -1.0, 0.5786925000000003 });
 		exceptedResults.put(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, new Object[] { 0.0, 5.0, 0.0, 10.0, 1.0 });
 		exceptedResults.put(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, new Object[] { 0.0, 5.0, 0.0, 1.0, 0.0 });
 		exceptedResults.put(LABEL_RESOURCE_PLANNING_INVESTMENT, new Object[] { 0.0, 5000.0, 0.0, 0.0, 0.0 });
-		exceptedResults.put(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST, new Object[] { 0.0, 15000.0, 0.0, 11000.0, 1000.0 });
-		exceptedResults.put(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, new Object[] { 0.0, 1.002053388090349, 5.9958932238193015, 5.9958932238193015, 15.989048596851472 });
-		exceptedResults.put(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, new Object[] { 0.0, 1.002053388090349, 5.9958932238193015, 5.9958932238193015, 5.9958932238193015 });
-		exceptedResults.put(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT, new Object[] { 0.0, 2004.106776180698, 6995.208761122519, 6995.208761122519, 6995.208761122519 });
-		exceptedResults.put(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, new Object[] { 0.0, 19008.213552361398, 18986.99520876112, 29986.99520876112, 29980.15058179329 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST,
+				new Object[] { 0.0, 15000.0, 0.0, 11000.0, 1000.0 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE,
+				new Object[] { 0.0, 1.002053388090349, 5.9958932238193015, 5.9958932238193015, 15.989048596851472 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE,
+				new Object[] { 0.0, 1.002053388090349, 5.9958932238193015, 5.9958932238193015, 5.9958932238193015 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT,
+				new Object[] { 0.0, 2004.106776180698, 6995.208761122519, 6995.208761122519, 6995.208761122519 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST,
+				new Object[] { 0.0, 19008.213552361398, 18986.99520876112, 29986.99520876112, 29980.15058179329 });
 		for (String key : exceptedResults.keySet()) {
 			Object[] expectedData = exceptedResults.get(key);
 			Object data = expectedData[expectedData.length - 1];
@@ -317,14 +348,21 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	protected void test_05_CheckRiskRegister() throws Exception {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
-		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		notNull(analysis,
+				String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		List<Object[]> data = new ArrayList<Object[]>(6);
-		data.add(new Object[] { "I2 - Fraudulent manipulation coming from internal", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.087, 8489.48, 742.49 });
-		data.add(new Object[] { "I3 - Accidental manipulation", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.084, 8709.73, 735.66 });
-		data.add(new Object[] { "I1 - External manipulation", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.082, 8778.35, 721.99 });
-		data.add(new Object[] { "C3 - Accidental disclosure", "Customer documents", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.073, 9838.32, 721.8 });
-		data.add(new Object[] { "A_all - Complete loss, including backup", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.073, 9836.8, 719.58 });
-		data.add(new Object[] { "A_1 - Partial loss or temporary", "Servers", 1d, 1000d, 1000d, 1d, 1000d, 1000d, 0.756, 951.84, 719.58 });
+		data.add(new Object[] { "I2 - Fraudulent manipulation coming from internal", "Servers", 0.1, 10000d, 1000d, 0.1,
+				10000d, 1000d, 0.087, 8489.48, 742.49 });
+		data.add(new Object[] { "I3 - Accidental manipulation", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d,
+				0.084, 8709.73, 735.66 });
+		data.add(new Object[] { "I1 - External manipulation", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.082,
+				8778.35, 721.99 });
+		data.add(new Object[] { "C3 - Accidental disclosure", "Customer documents", 0.1, 10000d, 1000d, 0.1, 10000d,
+				1000d, 0.073, 9838.32, 721.8 });
+		data.add(new Object[] { "A_all - Complete loss, including backup", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d,
+				1000d, 0.073, 9836.8, 719.58 });
+		data.add(new Object[] { "A_1 - Partial loss or temporary", "Servers", 1d, 1000d, 1000d, 1d, 1000d, 1000d, 0.756,
+				951.84, 719.58 });
 		List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
 		notEmpty(registerItems, "Risk register should be empty");
 		for (int i = 0; i < registerItems.size(); i++)
@@ -334,15 +372,22 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	private void validate(RiskRegisterItem riskRegisterItem, Object[] objects) {
 		assertEquals("Bad scenario", objects[0], riskRegisterItem.getScenario().getName());
 		assertEquals("Bad asset", objects[1], riskRegisterItem.getAsset().getName());
-		assertEquals("Bad raw probability", (double) objects[2], riskRegisterItem.getRawEvaluation().getProbability(), 1E-3);
+		assertEquals("Bad raw probability", (double) objects[2], riskRegisterItem.getRawEvaluation().getProbability(),
+				1E-3);
 		assertEquals("Bad raw impact", (double) objects[3], riskRegisterItem.getRawEvaluation().getImpact(), 1E-2);
-		assertEquals("Bad raw importance", (double) objects[4], riskRegisterItem.getRawEvaluation().getImportance(), 1E-2);
-		assertEquals("Bad net probability", (double) objects[5], riskRegisterItem.getNetEvaluation().getProbability(), 1E-3);
+		assertEquals("Bad raw importance", (double) objects[4], riskRegisterItem.getRawEvaluation().getImportance(),
+				1E-2);
+		assertEquals("Bad net probability", (double) objects[5], riskRegisterItem.getNetEvaluation().getProbability(),
+				1E-3);
 		assertEquals("Bad net impact", (double) objects[6], riskRegisterItem.getNetEvaluation().getImpact(), 1E-2);
-		assertEquals("Bad net importance", (double) objects[7], riskRegisterItem.getNetEvaluation().getImportance(), 1E-2);
-		assertEquals("Bad expected probability", (double) objects[8], riskRegisterItem.getExpectedEvaluation().getProbability(), 1E-3);
-		assertEquals("Bad expected impact", (double) objects[9], riskRegisterItem.getExpectedEvaluation().getImpact(), 1E-2);
-		assertEquals("Bad expected importance", (double) objects[10], riskRegisterItem.getExpectedEvaluation().getImportance(), 1E-2);
+		assertEquals("Bad net importance", (double) objects[7], riskRegisterItem.getNetEvaluation().getImportance(),
+				1E-2);
+		assertEquals("Bad expected probability", (double) objects[8],
+				riskRegisterItem.getExpectedEvaluation().getProbability(), 1E-3);
+		assertEquals("Bad expected impact", (double) objects[9], riskRegisterItem.getExpectedEvaluation().getImpact(),
+				1E-2);
+		assertEquals("Bad expected importance", (double) objects[10],
+				riskRegisterItem.getExpectedEvaluation().getImportance(), 1E-2);
 
 	}
 
@@ -350,8 +395,11 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public synchronized void test_04_ExportSQLite() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
-		this.mockMvc.perform(get("/Analysis/Data-manager/Sqlite/Export-process").with(csrf()).param("idAnalysis", idAnalysis + "").with(httpBasic(USERNAME, PASSWORD))
-				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc
+				.perform(get("/Analysis/Data-manager/Sqlite/Export-process").with(csrf())
+						.param("idAnalysis", idAnalysis + "").with(httpBasic(USERNAME, PASSWORD))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
@@ -374,11 +422,13 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		try {
 			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
-			if(worker.getError()!=null)
+			if (worker.getError() != null)
 				worker.getError().printStackTrace();
 			isNull(worker.getError(), "An error occured while export analysis");
 			notNull(messageHandler, "Last message cannot be found");
-			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+			this.mockMvc
+					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
@@ -393,12 +443,17 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_04_ExportSQLite")
 	public void test_05_DownloadSQLite() throws Exception {
 		try {
-			MvcResult result = this.mockMvc.perform(get(String.format("/Account/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-					.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
+			MvcResult result = this.mockMvc
+					.perform(get(String.format("/Account/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf())
+							.with(httpBasic(USERNAME, PASSWORD))
+							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
+					.andExpect(status().isOk()).andReturn();
 			notNull(result, "No result");
 			MockHttpServletResponse response = result.getResponse();
 			assertTrue("Bad length", response.getContentLength() / 1048576.0 >= 1E-2);
-			assertEquals("Bad content-disposition", "attachment; filename=\"05-X_TSE_me-TSValidationAnalysis-DB_v0.2.sqlite\"", response.getHeaderValue("Content-Disposition"));
+			assertEquals("Bad content-disposition",
+					"attachment; filename=\"05-X_TSE_me-TSValidationAnalysis-DB_v0.2.sqlite\"",
+					response.getHeaderValue("Content-Disposition"));
 			assertEquals("Bad contentType", "sqlite", response.getContentType());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -415,18 +470,22 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
 				.perform(
-						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf())
+								.with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
 
 		notEmpty(templates, "No template can be found");
 
-		Long idTemplate = templates.stream().filter(p -> p.getType() == AnalysisType.QUANTITATIVE).map(ReportTemplate::getId).findAny().orElse(-1L);
+		Long idTemplate = templates.stream().filter(p -> p.getType() == AnalysisType.QUANTITATIVE)
+				.map(ReportTemplate::getId).findAny().orElse(-1L);
 
 		assertTrue("Template cannot be found", idTemplate > 0);
 
 		this.mockMvc
-				.perform(post("/Analysis/Data-manager/Report/Export-process").param("analysis", idAnalysis + "").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8).param("type", "QUANTITATIVE").param("template", idTemplate + ""))
+				.perform(post("/Analysis/Data-manager/Report/Export-process").param("analysis", idAnalysis + "")
+						.with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8).param("type", "QUANTITATIVE")
+						.param("template", idTemplate + ""))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;
@@ -453,7 +512,9 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			isNull(worker.getError(), "An error occured while export word report");
 			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 			notNull(messageHandler, "Last message cannot be found");
-			this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+			this.mockMvc
+					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 			assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
@@ -467,12 +528,17 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_06_ExportReport")
 	public void test_07_DownloadReport() throws Exception {
-		MvcResult result = this.mockMvc.perform(get(String.format("/Account/Report/%d/Download", getInteger("key_word_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
+		MvcResult result = this.mockMvc
+				.perform(get(String.format("/Account/Report/%d/Download", getInteger("key_word_export"))).with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();
 		assertTrue("Bad length", response.getContentLength() / 1048576.0 > 1E-2);
-		assertEquals("Bad content-disposition", "attachment; filename=\"05-X_TSE_me-TSValidationAnalysis-Report_v0.2.docx\"", response.getHeaderValue("Content-Disposition"));
+		assertEquals("Bad content-disposition",
+				"attachment; filename=\"05-X_TSE_me-TSValidationAnalysis-Report_v0.2.docx\"",
+				response.getHeaderValue("Content-Disposition"));
 		assertEquals("Bad contentType", "docx", response.getContentType());
 	}
 }

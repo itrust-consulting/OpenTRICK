@@ -8,6 +8,7 @@ import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,15 +68,17 @@ public class TS_04_Computation extends SpringTestConfiguration {
 
 	@Test(timeOut = 120000)
 	public synchronized void test_00_ActionPlan() throws Exception {
-		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-				.content(String.format("{\"id\":%d}", ANALYSIS_ID))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.content("[]")).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
 				Worker worker2 = workersPoolManager.get(workerId);
-				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, ANALYSIS_ID)) {
+				if (worker2 != null
+						&& worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, ANALYSIS_ID)) {
 					worker = worker2;
 					break;
 				}
@@ -94,54 +97,65 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	}
 
 	@Deprecated
-	//@Test
+	// @Test
 	@Transactional(readOnly = true)
 	protected void loadCSSFParameter() {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
-		SimpleParameter simpleParameter = (SimpleParameter) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
+		SimpleParameter simpleParameter = (SimpleParameter) analysis
+				.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
 		notNull(simpleParameter, "Analysis cannot be found");
 		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, simpleParameter.getId());
 	}
 
 	@Deprecated
-	//@Test(dependsOnMethods = "loadCSSFParameter")
+	// @Test(dependsOnMethods = "loadCSSFParameter")
 	protected void test_01_UpdateCSSFParameter() throws Exception {
 		int id = getInteger(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/SimpleParameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
-						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id, "value", "double", -1D)))
+				.perform(post("/Analysis/EditField/SimpleParameter/" + id).with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id,
+								"value", "double", -1D)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Deprecated
-	//@Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter", "loadCSSFParameter" })
+	// @Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter",
+	// "loadCSSFParameter" })
 	protected synchronized void test_01_RiskRegister() throws Exception {
-		/*this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		Worker worker = null;
-		for (int i = 0; i < 3000; i++) {
-			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
-			notEmpty(tasks, "No background task found");
-			for (String workerId : tasks) {
-				Worker worker2 = workersPoolManager.get(workerId);
-				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class, ANALYSIS_ID)) {
-					worker = worker2;
-					break;
-				}
-			}
-			if (worker == null)
-				wait(10);
-			else
-				break;
-		}
-
-		notNull(worker, "Risk register worker cannot be found");
-		while (worker.isWorking())
-			wait(100);
-		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
-		isNull(worker.getError(), "An error occured while compute risk register");*/
+		/*
+		 * this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with
+		 * (httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS,
+		 * ANALYSIS_ID)
+		 * .contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).
+		 * andExpect(jsonPath("$.success").exists());
+		 * Worker worker = null;
+		 * for (int i = 0; i < 3000; i++) {
+		 * List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+		 * notEmpty(tasks, "No background task found");
+		 * for (String workerId : tasks) {
+		 * Worker worker2 = workersPoolManager.get(workerId);
+		 * if (worker2 != null && worker2.isMatch("class+analysis.id",
+		 * WorkerComputeRiskRegister.class, ANALYSIS_ID)) {
+		 * worker = worker2;
+		 * break;
+		 * }
+		 * }
+		 * if (worker == null)
+		 * wait(10);
+		 * else
+		 * break;
+		 * }
+		 * 
+		 * notNull(worker, "Risk register worker cannot be found");
+		 * while (worker.isWorking())
+		 * wait(100);
+		 * serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		 * isNull(worker.getError(), "An error occured while compute risk register");
+		 */
 	}
 
 	@Test(dependsOnMethods = "test_00_ActionPlan")
@@ -152,7 +166,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	}
 
 	@Deprecated
-	//@Test(dependsOnMethods = "test_01_RiskRegister")
+	// @Test(dependsOnMethods = "test_01_RiskRegister")
 	@Transactional(readOnly = true)
 	protected void test_03_CheckRiskRegister() throws Exception {
 
