@@ -65,6 +65,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
 import lu.itrust.business.TS.form.CSSFExportForm;
 import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -94,17 +95,19 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public class WorkerExportRiskSheet extends WorkerImpl {
 
-	public static String ENG_TEMPLATE;
+	public static volatile String ENG_TEMPLATE;
 
-	public static String FR_TEMPLATE;
+	public static volatile String FR_TEMPLATE;
 
-	public static String P_STYLE = "BodyOfText";
+	public static volatile String P_STYLE = "BodyOfText";
 
-	public static String TC_P_STYLE = "TabText2";
+	public static volatile String TC_P_STYLE = "TabText2";
 
-	public static String DEFAULT_EXCEL_TEMPLATE;
+	public static volatile String DEFAULT_EXCEL_TEMPLATE;
 
-	public static String DEFAULT_EXCEL_TABLE;
+	public static volatile String DEFAULT_EXCEL_TABLE;
+
+	public static volatile String EXCEL_HEADER_FOOTER_SHEET_NAME = "Hist";
 
 	private String alpha2 = "EN";
 
@@ -616,12 +619,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			showRawColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
+			final String name = getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet",
+					getLocale());
 			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(
 					new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])),
-					getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet", getLocale()),
+					name,
 					indexes[1]);
 
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
+
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
 			addHeader(worksheetPart.getContents(), factory, scaleTypes);
@@ -639,6 +645,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				addEstimation(worksheetPart.getContents(), factory, cias, scaleTypes);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
+
+			ExcelHelper.applyHeaderAndFooter(EXCEL_HEADER_FOOTER_SHEET_NAME, name, spreadsheetMLPackage);
+
 			spreadsheetMLPackage.save(file);
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING_WIHT_CTRL,

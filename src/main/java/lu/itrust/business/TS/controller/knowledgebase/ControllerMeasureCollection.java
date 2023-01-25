@@ -174,7 +174,7 @@ public class ControllerMeasureCollection {
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 
 		// init errors list
-		final Map<String, String> errors = new LinkedHashMap<String, String>();
+		final Map<String, String> errors = new LinkedHashMap<>();
 
 		// create new empty object
 		final Standard standard = new Standard();
@@ -396,8 +396,11 @@ public class ControllerMeasureCollection {
 			TablePart tablePart = findTable(sheet, "TableNormInfo");
 			tablePart.getContents().getRef();
 			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-			int row = address.getBegin().getRow() + 1, nameCol = address.getBegin().getCol(), labelCol = nameCol + 1,
-					versionCol = labelCol + 1, descCol = versionCol + 1;
+			int row = address.getBegin().getRow() + 1;
+			int nameCol = address.getBegin().getCol();
+			int labelCol = nameCol + 1;
+			int versionCol = labelCol + 1;
+			int descCol = versionCol + 1;
 			// standard name
 			Cell cell = sheet.getRow().get(row).getC().get(nameCol);
 			setValue(cell, standard.getName());

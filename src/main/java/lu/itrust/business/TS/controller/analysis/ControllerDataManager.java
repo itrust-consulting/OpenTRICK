@@ -106,6 +106,7 @@ import lu.itrust.business.TS.exportation.word.ExportReport;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.CellRef;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
 import lu.itrust.business.TS.form.CSSFExportForm;
 import lu.itrust.business.TS.form.DataManagerItem;
 import lu.itrust.business.TS.form.ExportWordReportForm;
@@ -177,6 +178,9 @@ public class ControllerDataManager {
 
 	@Value("${app.settings.excel.default.table.style}")
 	private String defaultExcelTableStyle;
+
+	@Value("${app.settings.excel.header.footer.sheet.name}")
+	private String headerFooterSheetName;
 
 	@Autowired
 	private DefaultReportTemplateLoader defaultReportTemplateLoader;
@@ -666,6 +670,8 @@ public class ControllerDataManager {
 					final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage,
 							analysisStandard.getStandard().getName());
 					exportMeasureStandard(factory, analysisStandard, worksheetPart);
+					ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, analysisStandard.getStandard().getName(),
+							mlPackage);
 				}
 			}
 			response.setContentType("xlsx");
@@ -914,6 +920,9 @@ public class ControllerDataManager {
 					setValue(row.getC().get(colIndex++), riskInformation.getComment());
 					setValue(row.getC().get(colIndex++), riskInformation.getHiddenComment());
 				}
+
+				ExcelHelper.applyHeaderAndFooter(headerFooterSheetName,
+						mapper[1].toString(), mlPackage);
 			}
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
@@ -1476,6 +1485,7 @@ public class ControllerDataManager {
 
 			sheet.getRow().add(row);
 		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
 	}
 
 	private void writeAssetDefaultCells(final Map<String, String> assetTypes, Asset asset, final Row row) {
@@ -1564,6 +1574,7 @@ public class ControllerDataManager {
 			setValue(row, 1, value);
 			sheet.getRow().add(row);
 		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
 		return names;
 	}
 
@@ -1675,6 +1686,7 @@ public class ControllerDataManager {
 			for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
 				sheet.getRow().add(writeActionPLanData(factory.createRow(), colCount, actionPlanEntry,
 						expressionParameters, locale));
+			ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
 		}
 	}
 
@@ -1711,6 +1723,7 @@ public class ControllerDataManager {
 
 			sheet.getRow().add(row);
 		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
 	}
 
 	private Map<String, String> exportScenarioType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale,
@@ -1732,6 +1745,7 @@ public class ControllerDataManager {
 			setValue(row, 1, value);
 			sheet.getRow().add(row);
 		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
 		return names;
 	}
 

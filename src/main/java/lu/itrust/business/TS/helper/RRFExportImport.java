@@ -33,11 +33,14 @@ import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskRegister;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.word.impl.docx4j.helper.ExcelHelper;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -275,7 +278,8 @@ public class RRFExportImport {
 					case RAW_PREVENTIVE:
 						scenario.setPreventive(value);
 						break;
-					default:break;
+					default:
+						break;
 				}
 			}
 		}
@@ -442,6 +446,8 @@ public class RRFExportImport {
 				case RAW_PREVENTIVE:
 					properties.setPreventive(value);
 					break;
+				default:
+                    break;
 			}
 		}
 	}
@@ -520,6 +526,9 @@ public class RRFExportImport {
 						mappedValue.getOrDefault(measure.getId() + "_" + assetType.getName(), 0));
 
 		}
+
+		ExcelHelper.applyHeaderAndFooter(WorkerExportRiskSheet.EXCEL_HEADER_FOOTER_SHEET_NAME,
+				analysisStandard.getStandard().getName(), mlPackage);
 	}
 
 	private void writeScenario(List<Scenario> scenarios, SpreadsheetMLPackage mlPackage)
@@ -576,6 +585,8 @@ public class RRFExportImport {
 								.collect(Collectors.joining(";")));
 			}
 		}
+		ExcelHelper.applyHeaderAndFooter(WorkerExportRiskSheet.EXCEL_HEADER_FOOTER_SHEET_NAME, RAW_SCENARIOS,
+				mlPackage);
 	}
 
 	private int writingMeasureData(Row row, int totalCol, String[] categories,

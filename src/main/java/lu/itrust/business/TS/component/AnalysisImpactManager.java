@@ -61,7 +61,7 @@ public class AnalysisImpactManager {
 		boolean[] change = new boolean[] { false };
 		impacts.forEach((id, present) -> {
 			if (parameters.containsKey(id) && !present)
-				change[0] |= removeImpactScale(id, parameters.get(id), analysis);
+				change[0] |= removeImpactScale(parameters.get(id), analysis);
 			else if (present)
 				change[0] |= addImpactScale(id, maxLevel, maxValue, labels, analysis);
 		});
@@ -115,7 +115,7 @@ public class AnalysisImpactManager {
 		return !impacts.isEmpty();
 	}
 
-	private boolean removeImpactScale(Integer id, List<ImpactParameter> parameters, Analysis analysis) {
+	private boolean removeImpactScale(List<ImpactParameter> parameters, Analysis analysis) {
 		if (parameters == null || parameters.isEmpty())
 			return true;
 		analysis.getImpactParameters().removeAll(parameters);

@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.exportation.word.impl.docx4j.helper;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -7,13 +8,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang.ObjectUtils.Null;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.VMLPart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.PrinterSettings;
 import org.docx4j.openpackaging.parts.SpreadsheetML.Styles;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
+import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPart;
 import org.docx4j.relationships.Relationship;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.jaxb.Context;
@@ -32,6 +39,8 @@ import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
+
+import lu.itrust.business.TS.model.general.helper.Utils;
 
 public final class ExcelHelper {
 
@@ -431,13 +440,20 @@ public final class ExcelHelper {
 		}
 	}
 
-	public static SheetData findSheet(WorkbookPart workbookPart, String name) throws Exception {
+	public static Worksheet findWorkSheet(WorkbookPart workbookPart, String name) throws Exception {
 		String id = workbookPart.getContents().getSheets().getSheet().parallelStream()
-				.filter(s -> s.getName().equals(name)).map(s -> s.getId()).findAny().orElse(null);
+				.filter(s -> s.getName().equals(name)).map(Sheet::getId).findAny().orElse(null);
 		if (isEmpty(id))
 			return null;
 		WorksheetPart worksheetPart = (WorksheetPart) workbookPart.getRelationshipsPart().getPart(id);
-		return worksheetPart.getContents().getSheetData();
+		return worksheetPart.getContents();
+	}
+
+	public static SheetData findSheet(WorkbookPart workbookPart, String name) throws Exception {
+		var worksheet = findWorkSheet(workbookPart, name);
+		if (worksheet == null)
+			return null;
+		return worksheet.getSheetData();
 	}
 
 	public static SheetData findSheet(WorkbookPart workbookPart, Sheet sheet) throws Exception {
@@ -494,6 +510,58 @@ public final class ExcelHelper {
 		return null;
 	}
 
+	public static boolean applyHeaderAndFooter(String sheetSource, String sheetTarget, SpreadsheetMLPackage mlPackage)
+			throws Exception {
+		final var sourceSheet = findWorkSheet(mlPackage.getWorkbookPart(), sheetSource);
+		if (sourceSheet == null || sourceSheet.getHeaderFooter() == null)
+			return false;
+		final var targetSheet = findWorkSheet(mlPackage.getWorkbookPart(), sheetTarget);
+		if (targetSheet == null || targetSheet.getHeaderFooter() != null)
+			return false;
+		targetSheet.setHeaderFooter(sourceSheet.getHeaderFooter());
+		final var drawingHF = sourceSheet.getLegacyDrawingHF();
+		if (drawingHF == null || targetSheet.getLegacyDrawingHF() != null)
+			return false;
+		final WorksheetPart worksheetPartSource = (WorksheetPart) sourceSheet.getParent();
+		if (worksheetPartSource == null)
+			return false;
+		final var myDrawning = (VMLPart) worksheetPartSource.getRelationshipsPart().getPart(drawingHF.getId());
+		if (myDrawning == null)
+			return false;
+
+		final var worksheetPartTarget = (WorksheetPart) targetSheet.getParent();
+
+		final var vmlIds = findNextPartNumberAndId("/xl/drawings/vmlDrawing", ".vml", mlPackage);
+
+		final VMLPart part = new VMLPart(new PartName(String.format("/xl/drawings/vmlDrawing%d.vml", vmlIds[0])));
+
+		part.setContents(myDrawning.getContents());
+
+		final var id = worksheetPartTarget.addTargetPart(part).getId();
+
+		final var relationships = myDrawning.getRelationshipsPart().getRelationships().getRelationship();
+
+		for (var relationship : relationships) {
+			final var myURL = URI.create(relationship.getTarget().replace("..", "/xl"));
+			final var source = mlPackage.getParts().getParts().values().stream()
+					.filter(p -> p.getPartName().getURI().compareTo(myURL) == 0).findAny().orElse(null);
+			if (source != null) {
+				var myRelationship = new Relationship();
+				myRelationship.setType(source.getRelationshipType());
+				myRelationship.setTarget(relationship.getTarget());
+				myRelationship.setTargetMode(myRelationship.getTargetMode());
+				part.getRelationshipsPart().addRelationship(myRelationship);
+				source.getSourceRelationships().add(myRelationship);
+			}
+		}
+
+		targetSheet.setLegacyDrawingHF(Context.getsmlObjectFactory().createCTLegacyDrawing());
+
+		targetSheet.getLegacyDrawingHF().setId(id);
+
+		return true;
+	}
+
 	/**
 	 * It will retrieve an array of int size 2, int[2]<br>
 	 * [0] Next sheet file name number: /xl/worksheets/sheet[0].xml<br>
@@ -503,23 +571,21 @@ public final class ExcelHelper {
 	 * @return
 	 */
 	public static int[] findNextSheetNumberAndId(SpreadsheetMLPackage mlPackage) {
-		final int result[] = { mlPackage.getParts().getParts().values().parallelStream()
-				.filter(p -> p.getPartName().getName().startsWith("/xl/worksheets/sheet")).mapToInt(p -> {
+		return findNextPartNumberAndId("/xl/worksheets/sheet", ".xml", mlPackage);
+	}
+
+	public static int[] findNextPartNumberAndId(String path, String extension, SpreadsheetMLPackage mlPackage) {
+		final var pattern = String.format("[%s]|[%s]", path, extension);
+		return new int[] { mlPackage.getParts().getParts().values().parallelStream()
+				.filter(p -> p.getPartName().getName().startsWith(path)).mapToInt(p -> {
 					try {
 						return Integer
-								.parseInt(p.getPartName().getName().replaceAll("[/xl/worksheets/sheet]|[.xml]", ""));
+								.parseInt(p.getPartName().getName().replaceAll(pattern, ""));
 					} catch (NumberFormatException e) {
 						return 0;
 					}
-				}).max().orElse(0) + 1, 1 };
-
-		try {
-			result[1] = Integer
-					.parseInt(mlPackage.getWorkbookPart().getRelationshipsPart().getNextId().replace("rId", ""));
-		} catch (NumberFormatException e) {
-		}
-		return result;
-
+				}).max().orElse(0) + 1,
+				Utils.parseInt(mlPackage.getWorkbookPart().getRelationshipsPart().getNextId().replace("rId", ""), 1) };
 	}
 
 	public static boolean isEmptyOrWhiteSpace(String value) {

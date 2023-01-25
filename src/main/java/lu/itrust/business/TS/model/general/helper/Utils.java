@@ -31,4 +31,12 @@ public final class Utils {
 		return index == -1 ? name : name.substring(0, index);
 	}
 
+	public static int parseInt(String value, int defaultValue){
+		try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+		}
+	}
+
 }

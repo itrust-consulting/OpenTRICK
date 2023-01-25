@@ -96,7 +96,7 @@ public class ActionPlanComputation {
 
 	private MessageSource messageSource;
 
-	private List<Phase> phases = new ArrayList<Phase>();
+	private List<Phase> phases = new ArrayList<>();
 
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 

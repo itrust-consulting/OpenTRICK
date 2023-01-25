@@ -123,6 +123,11 @@ public class ControllerRiskRegister {
 	public void setRiskRegisterExcelTable(String table) {
 		WorkerExportRiskSheet.DEFAULT_EXCEL_TABLE = table;
 	}
+
+	@Value("${app.settings.excel.header.footer.sheet.name}")
+	public void setHeaderFooterSheetName(String name) {
+		WorkerExportRiskSheet.EXCEL_HEADER_FOOTER_SHEET_NAME = name;
+	}
 	
 	@Value("${app.settings.excel.default.template.path}")
 	public void setRiskRegisterExcelTemplate(String template) {
