@@ -140,7 +140,7 @@
 		<dependency>
 			<groupId>lu.itrust.monarc</groupId>
 			<artifactId>monarc</artifactId>
-			<version>0.6</version>
+			<version>0.7</version>
 		</dependency>
 
 		<!-- For Spring security -->

@@ -218,16 +218,18 @@ public class ILRExport {
                 });
 
                 mysRects.forEach((id, recs) -> {
-                    monarcInstance.getRecos().computeIfAbsent(id + "",
-                            r -> recs.stream().map(rc -> database.createOrUpdate(id, rc))
-                                    .collect(Collectors.toMap(MonarcRecos::getUuid, Function.identity())));
-                    recs.forEach(monarcInstance::remove);
+                    final Map<String, MonarcRecos> recos = monarcInstance.getRecos().computeIfAbsent(id + "",
+                            r -> new HashMap<>());
+                                  
+                    recs.stream().map(rc -> database.createOrUpdate(id, rc))
+                            .forEach(reco -> recos.computeIfAbsent(reco.getUuid(), k -> reco)
+                                    .addParentInstance(monarcInstance.getId() + ""));
                 });
 
             }
         }
 
-        //Update Phase
+        // Update Phase
         database.getMethod().setStepInit(true);
         database.getMethod().setStepModel(true);
         database.getMethod().setStepEval(true);
