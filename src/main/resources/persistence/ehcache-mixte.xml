@@ -14,7 +14,7 @@
 		<expiry>
 			<ttl unit="days">90</ttl>
 		</expiry>
-		<heap unit="entries">2000</heap>
+		<heap unit="entries">20000</heap>
 	</cache-template>
 
 	<cache-template name="entityDefaultCache">
@@ -22,13 +22,13 @@
 			<ttl unit="days">90</ttl>
 		</expiry>
 		<resources>
-			<heap unit="MB">25</heap>
+			<heap unit="MB">1</heap>
 			<disk persistent="false" unit="GB">1</disk>
-			<offheap unit="MB">50</offheap>
+			<offheap unit="MB">5</offheap>
 		</resources>
 		<heap-store-settings>
-			<max-object-graph-size>10000</max-object-graph-size>
-			<max-object-size unit="MB">100</max-object-size>
+			<max-object-graph-size>200000</max-object-graph-size>
+			<max-object-size unit="MB">50</max-object-size>
 		</heap-store-settings>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
 	</cache-template>
@@ -38,13 +38,13 @@
 			<ttl unit="days">45</ttl>
 		</expiry>
 		<resources>
-			<heap unit="MB">30</heap>
-			<disk persistent="false" unit="GB">2</disk>
-			<offheap unit="MB">60</offheap>
+			<heap unit="MB">1</heap>
+			<disk persistent="false" unit="GB">1</disk>
+			<offheap unit="MB">5</offheap>
 		</resources>
 		<heap-store-settings>
 			<max-object-graph-size>5000</max-object-graph-size>
-			<max-object-size unit="MB">100</max-object-size>
+			<max-object-size unit="MB">50</max-object-size>
 		</heap-store-settings>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
 	</cache-template>
@@ -54,7 +54,7 @@
 			<ttl unit="days">180</ttl>
 		</expiry>
 		<resources>
-			<disk persistent="false" unit="GB">5</disk>
+			<disk persistent="false" unit="GB">1</disk>
 		</resources>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
 	</cache-template>
@@ -106,7 +106,7 @@
 	<cache alias="lu.itrust.business.TS.model.parameter.value.impl.FormulaValue" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.parameter.type.impl.ParameterType" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.model.analysis.AnalysisShareInvitation" uses-template="entityDefaultCache" />
-	<cache alias="lu.itrust.business.TS.model.general.TSSetting" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.TS.model.general.TSSetting" uses-template="defaultCache" />
 	<cache alias="lu.itrust.business.TS.model.externalnotification.ExternalNotification" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.usermanagement.EmailValidatingRequest" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.TS.usermanagement.IDS" uses-template="entityDefaultCache" />

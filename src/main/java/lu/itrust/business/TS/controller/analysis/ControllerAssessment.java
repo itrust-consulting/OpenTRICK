@@ -221,7 +221,7 @@ public class ControllerAssessment {
 					.flatMap(e -> e.getMeasures().stream())
 					.filter(e -> !(e.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
 							|| e.getImplementationRateValue(factory) >= 100
-									&& e.getPhase().getNumber() <= mandatoryPhase))
+									&& e.getPhase().getNumber() > mandatoryPhase))
 					.filter(AbstractNormalMeasure.class::isInstance).forEach(e -> assessments.stream().forEach(ass -> {
 						final double rrf = RRF.calculateRRF(ass, maxRRFParameter, e);
 						if (rrf >= rrfThreshold) {

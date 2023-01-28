@@ -4,7 +4,7 @@
 
 	<diskStore path="java.io.tmpdir/ts-ehcache" />
 
-	<defaultCache maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000" diskSpoolBufferSizeMB="400" maxEntriesLocalDisk="10000000"
+	<defaultCache maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000" diskSpoolBufferSizeMB="50" maxEntriesLocalDisk="10000000"
 		diskExpiryThreadIntervalSeconds="5184000" memoryStoreEvictionPolicy="LRU" statistics="true">
 		<persistence strategy="localTempSwap" />
 	</defaultCache>

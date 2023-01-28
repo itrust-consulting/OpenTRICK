@@ -127,6 +127,9 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	@Value("${app.settings.test.knownledge.base.standard.import}")
 	private String importStandard;
 
+	@Value("${app.settings.version}${app.settings.version.revision}")
+	private String appVersion;
+
 	@Test
 	public void test_00_Show27001Standard() throws Exception {
 		this.mockMvc
@@ -476,7 +479,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.perform(get("/KnowledgeBase/Standard/Template").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn();
-		assertEquals("attachment; filename=\"R5xx_STA_TSE_KB-Template-MeasureCollection_v2.13c.xlsx\"",
+		assertEquals("attachment; filename=\"R5xx_STA_TSE_KB-Template-MeasureCollection_v" + appVersion + ".xlsx\"",
 				result.getResponse().getHeaderValue("Content-Disposition"));
 		assertEquals(templateResource.contentLength(), result.getResponse().getContentLengthLong());
 		assertEquals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
