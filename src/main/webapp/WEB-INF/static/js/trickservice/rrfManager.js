@@ -15,14 +15,14 @@ function updateMaxRRF() {
 	return false;
 }
 
-function fixMaxRRFThresholdFromRRF(){
-	if(application["maxRRF"] === undefined)
+function fixMaxRRFThresholdFromRRF() {
+	if (application["maxRRF"] === undefined)
 		updateMaxRRF();
 	$("td[data-name='ilr_rrf_threshold']", "#section_parameter").attr("data-trick-max-value", application["maxRRF"]);
 	return false;
 }
 
-function fixMinRRFFromRRFThreshold(){
+function fixMinRRFFromRRFThreshold() {
 	let minRRF = parseInt($("td[data-name='ilr_rrf_threshold']", "#section_parameter").text().replace(/\s/g, '').replace(",", ".")) || 0;
 	$("td[data-name='max_rrf']", "#section_parameter").attr("data-trick-min-value", minRRF);
 	return false;
@@ -146,28 +146,28 @@ function loadRRF() {
 function initialiseMeasureSliders() {
 
 	var $modal = $("#rrfEditor"), $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']", $modal), level = $selectedMeasure
-		.attr("data-trick-value"), $sliders = $("#control_rrf_measure .slider", $modal);
+		.attr("data-trick-value"), $sliders = $("#control_rrf_measure input[type='range']", $modal);
 	if ($("[data-trick-value^='" + level + ".']", $selectedMeasure.parent()).length)
 		$("[id^='measure-control-apply']", $modal).show();
 	else
 		$("[id^='measure-control-apply']", $modal).hide();
-	$sliders.slider({
-		reversed: true
-	}).each(function () {
+	$sliders.each(function () {
 		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");
 		} else {
-			$(this).on("slideStop", function (event) {
-				var field = event.target.name, fieldValue = event.value, previousValue = $("#control_rrf_measure #measure_" + field + "_value", $modal).attr("value");
-				$("#control_rrf_measure input[id='measure_" + field + "_value']", $modal).attr("value", fieldValue);
-				return updateMeasureProperty(field, fieldValue, previousValue, $(this));
+			$(this).on("change", function (event) {
+				var field = event.target.name, fieldValue = parseFloat(event.target.value), previousValue = $("#control_rrf_measure #measure_" + field.replace("\.", "_") + "_value", $modal).attr("value");
+				$("#control_rrf_measure input[id='measure_" + field.replace("\.", "_") + "_value']", $modal).attr("value", fieldValue);
+				return updateMeasureProperty(field, fieldValue, parseFloat(previousValue), $(this));
 			});
 		}
 	});
 }
 
 function updateMeasureProperty(property, value, previousValue, slider) {
+	if (value === previousValue)
+		return false;
 	var $modal = $("#rrfEditor"), idMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']", $modal).attr("data-trick-id");
 	if (idMeasure == null || idMeasure == undefined)
 		return false;
@@ -183,8 +183,8 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			if (response.success == undefined) {
-				$("#control_rrf_measure #measure_" + property + "_value", $modal).attr("value", previousValue);
-				$(slider).slider('setValue', previousValue);
+				$("#control_rrf_measure #measure_" + property.replace("\.", "_") + "_value", $modal).attr("value", previousValue);
+				$(slider).attr("value", previousValue);
 				rrfError(response.error == undefined ? undefined : response.error);
 			} else
 				loadMeasureChart();
@@ -196,30 +196,30 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 }
 
 function initialiseScenarioSliders() {
-	var $modal = $("#rrfEditor"), $sliders = $("#control_rrf_scenario .slider", $modal);
-	$sliders.slider({
-		reversed: true
-	}).each(
+	var $modal = $("#rrfEditor"), $sliders = $("#control_rrf_scenario input[type='range']", $modal);
+	$sliders.each(
 		function () {
 			if (application.openMode === OPEN_MODE.READ) {
 				$(this).prop("disabled", true);
 				$(this).addClass("disabled");
 			} else {
 				$(this).on(
-					"slideStop",
+					"change",
 					function (event) {
-						var field = event.target.name, fieldValue = event.value, previousValue = $("#control_rrf_scenario #scenario_" + field + "_value", $modal).attr(
+						var field = event.target.name, fieldValue = parseFloat(event.target.value), previousValue = $("#control_rrf_scenario #scenario_" + field + "_value", $modal).attr(
 							"value"), displayvalue = fieldValue;
 						if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
 							displayvalue = fieldValue.toFixed(2);
 						$("#control_rrf_scenario #scenario_" + field + "_value", $modal).attr("value", displayvalue);
-						return updateScenarioProperty(field, fieldValue, previousValue, $(this));
+						return updateScenarioProperty(field, fieldValue, parseFloat(previousValue), $(this));
 					});
 			}
 		});
 }
 
 function updateScenarioProperty(property, value, previousValue, slider) {
+	if (value === previousValue)
+		return false;
 	var $modal = $("#rrfEditor"), idScenario = $("#selectable_rrf_scenario_controls .active[data-trick-class='Scenario']", $modal).attr("data-trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return false;
@@ -239,7 +239,7 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 			if (response.success == undefined) {
 				$("#control_rrf_scenario #scenario_" + property + "_value", $modal).attr("value", previousValue);
 				rrfError(response.error == undefined ? undefined : response.error);
-				$(slider).slider('setValue', previousValue);
+				$(slider).attr("value", previousValue);
 			} else {
 
 				if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective") {

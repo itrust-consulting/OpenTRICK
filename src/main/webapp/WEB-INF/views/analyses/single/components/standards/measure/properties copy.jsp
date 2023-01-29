@@ -4,14 +4,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div id="tab_properties" class="tab-pane measure-property ${not isAnalysisOnly?'active':''}" style="padding-top: 17px;">
-	<div style="overflow-x: auto; overflow-y: hidden;  scrollbar-width: thin;">
+	<div style="overflow-x: auto; overflow-y: hidden">
 		<table class="table">
 			<thead>
-				<tr id="slidersTitle" class="text-center">
+				<tr id="slidersTitle">
 					<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
 					<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 					<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
-						<th class="info text-center" style="min-width:60px" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
+						<th class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 								key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 					</c:forEach>
 					<th class="success"><spring:message code="label.rrf.measure.preventive" /></th>
@@ -39,59 +39,56 @@
 			</thead>
 			<tbody>
 				<tr id="sliders" class="slider-vertical" style="text-align: center;">
-					<td class="warning" data-trick-class="MeasureProperties"><input type="range" orient="vertical" id="fmeasure" value="${measureForm.properties.getFMeasure()}"
-						min="0" max="10" step="1" value="${measureForm.properties.getFMeasure()}" name="fmeasure" orientation="vertical"
-						selection="after" tooltip="show"></td>
-					<td class="warning" data-trick-class="MeasureProperties"><input type="range" orient="vertical" id="fsectoral" value="${measureForm.properties.getFSectoral()}"
-						min="0" max="4" step="1" value="${measureForm.properties.getFSectoral()}" name="fsectoral" orientation="vertical"
-						selection="after" tooltip="show"></td>
+					<td class="warning" data-trick-class="MeasureProperties"><div class="measure-slider"><sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="fmeasure" value="${measureForm.properties.getFMeasure()}"
+						min="0" max="10" step="1" value="${measureForm.properties.getFMeasure()}" name="fmeasure" /></div></td>
+					<td class="warning" data-trick-class="MeasureProperties"><div class="measure-slider"><sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="fsectoral" value="${measureForm.properties.getFSectoral()}"
+						min="0" max="4" step="1" value="${measureForm.properties.getFSectoral()}" name="fsectoral" /></div></td>
 					<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
-						<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input
-							type="range" orient="vertical" id="${fn:replace(category,'.','_')}" value="${measureForm.properties.getCategoryValue(category)}" min="0" max="4"
-							step="1" value="${measureForm.properties.getCategoryValue(category)}" name=<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />
-							orientation="vertical" selection="after" tooltip="show"></td>
+						<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value='<spring:message text="${category}"/>' >
+							<div class="measure-slider"><sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="${fn:replace(category,'.','_')}" value="${measureForm.properties.getCategoryValue(category)}" min="0" max="4"
+							step="1" value="${measureForm.properties.getCategoryValue(category)}" name='<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />'></sl-range></div></td>
 					</c:forEach>
-					<td class="success"><input type="range" id="preventive" orient="vertical" value="${measureForm.properties.preventive}" min="0" max="4"
-						step="1" value="${measureForm.properties.preventive}" orientation="vertical" selection="after" name="preventive"
-						tooltip="show"></td>
-					<td class="success"><input type="range" orient="vertical" id="detective" value="${measureForm.properties.detective}" min="0" max="4"
+					<td class="success"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="preventive" value="${measureForm.properties.preventive}" min="0" max="4"
+						step="1" value="${measureForm.properties.preventive}" name="preventive"
+						/></div></td>
+					<td class="success"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="detective" value="${measureForm.properties.detective}" min="0" max="4"
 						step="1" value="${measureForm.properties.detective}" name="detective" orientation="vertical" selection="after"
-						tooltip="show"></td>
-					<td class="success"><input type="range" id="limitative" orient="vertical" value="${measureForm.properties.limitative}" min="0" max="4"
-						step="1" value="${measureForm.properties.limitative}" orientation="vertical" selection="after" name="limitative"
-						tooltip="show"></td>
-					<td class="success"><input type="range" orient="vertical" id="corrective" value="${measureForm.properties.corrective}" min="0" max="4"
+						/></div></td>
+					<td class="success"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="limitative" value="${measureForm.properties.limitative}" min="0" max="4"
+						step="1" value="${measureForm.properties.limitative}" name="limitative"
+						/></div></td>
+					<td class="success"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="corrective" value="${measureForm.properties.corrective}" min="0" max="4"
 						step="1" value="${measureForm.properties.corrective}" name="corrective" orientation="vertical" selection="after"
-						tooltip="show"></td>
-					<td class="warning"><input type="range" orient="vertical" id="intentional" value="${measureForm.properties.intentional}" min="0" max="4"
+						/></div></td>
+					<td class="warning"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="intentional" value="${measureForm.properties.intentional}" min="0" max="4"
 						step="1" value="${measureForm.properties.intentional}" name="intentional" orientation="vertical" selection="after"
-						tooltip="show"></td>
-					<td class="warning"><input type="range" orient="vertical" id="accidental" value="${measureForm.properties.accidental}" min="0" max="4"
+						/></div></td>
+					<td class="warning"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="accidental" value="${measureForm.properties.accidental}" min="0" max="4"
 						step="1" value="${measureForm.properties.accidental}" name="accidental" orientation="vertical" selection="after"
-						tooltip="show"></td>
-					<td class="warning"><input type="range" orient="vertical" id="environmental" value="${measureForm.properties.environmental}" min="0" max="4"
+						/></div></td>
+					<td class="warning"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="environmental" value="${measureForm.properties.environmental}" min="0" max="4"
 						step="1" value="${measureForm.properties.environmental}" name="environmental" orientation="vertical" selection="after"
-						tooltip="show"></td>
-					<td class="warning"><input type="range" orient="vertical" id="internalThreat" value="${measureForm.properties.internalThreat}" min="0" max="4"
+						/></div></td>
+					<td class="warning"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="internalThreat" value="${measureForm.properties.internalThreat}" min="0" max="4"
 						step="1" value="${measureForm.properties.internalThreat}" name="internalThreat" orientation="vertical" selection="after"
-						tooltip="show"></td>
-					<td class="warning"><input type="range" orient="vertical" id="externalThreat" value="${measureForm.properties.externalThreat}" min="0" max="4"
+						/></div></td>
+					<td class="warning"><div class="measure-slider"> <sl-range style=" --track-color-active: wihte; --track-color-inactive: white;" id="externalThreat" value="${measureForm.properties.externalThreat}" min="0" max="4"
 						step="1" value="${measureForm.properties.externalThreat}" name="externalThreat" orientation="vertical" selection="after"
-						tooltip="show"></td>
+						/></div></td>
 					<c:choose>
 						<c:when test="${measureForm.type == 'ASSET'}">
 							<c:forEach items="${measureForm.assetValues}" var="assetValue">
-								<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="range" orient="vertical"
+								<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><div class="measure-slider"> <sl-range style=" --track-color-active: var(--sl-color-primary-600); --track-color-inactive: var(--sl-color-primary-100);"
 									id='asset_slider_<spring:message text="${assetValue.id}"/>' value="${assetValue.value}" min="0" max="100" step="1"
-									value="${assetValue.value}" name="<spring:message text="${assetValue.id}"/>" orientation="vertical" selection="after"
-									tooltip="show"></td>
+									value="${assetValue.value}" name='<spring:message text="${assetValue.id}"/>' orientation="vertical" selection="after"
+									/></div></td>
 							</c:forEach>
 						</c:when>
 						<c:when test="${measureForm.type == 'NORMAL'}">
 							<c:forEach items="${measureForm.assetValues}" var="assetValue">
-								<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><input type="range" orient="vertical" id='asset_slider_<spring:message text="${assetValue.id}"/>'
+								<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><div class="measure-slider"> <sl-range style=" --track-color-active: var(--sl-color-primary-600); --track-color-inactive: var(--sl-color-primary-100);" id='asset_slider_<spring:message text="${assetValue.id}"/>'
 									value="${assetValue.value}" min="0" max="100" step="1" value="${assetValue.value}"
-									name="<spring:message text="${assetValue.id}"/>" orientation="vertical" selection="after" tooltip="show"></td>
+									name='<spring:message text="${assetValue.id}"/>' /></div></td>
 							</c:forEach>
 						</c:when>
 					</c:choose>
@@ -109,11 +106,11 @@
 					<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="preventive_value"
 						value='<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.preventive}</fmt:formatNumber>' name="preventive"></td>
 					<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="detective_value"
-						value="<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.detective}</fmt:formatNumber>" name="detective"></td>
+						value='<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.detective}</fmt:formatNumber>' name="detective"></td>
 					<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="limitative_value"
-						value="<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.limitative}</fmt:formatNumber>" name="limitative"></td>
+						value='<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.limitative}</fmt:formatNumber>' name="limitative"></td>
 					<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="corrective_value"
-						value="<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.corrective}</fmt:formatNumber>" name="corrective"></td>
+						value='<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.corrective}</fmt:formatNumber>' name="corrective"></td>
 					<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="intentional_value"
 						value="${measureForm.properties.intentional}" name="intentional"></td>
 					<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="accidental_value"

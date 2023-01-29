@@ -40,48 +40,45 @@
 	</thead>
 	<tbody>
 		<tr >
-			<td class="text-center warning"><input type="text" class="slider" id="measure_fmeasure" value="${strength_measure}" data-slider-min="0" data-slider-max="10" data-slider-step="1"
-				data-slider-value="${strength_measure}" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center warning"><input type="text" class="slider" id="measure_fsectoral" value="${strength_sectorial}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${strength_sectorial}" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+			<td class="text-center warning"><input type="range" id="measure_fmeasure" value="${strength_measure}" min="0" max="10" step="1"
+				value="${strength_measure}" name="fmeasure" orient="vertical"></td>
+			<td class="text-center warning"><input type="range" id="measure_fsectoral" value="${strength_sectorial}" min="0" max="4" step="1"
+				value="${strength_sectorial}" name="fsectoral" orient="vertical"></td>
 			<c:if test="${!empty(categories)}">
 				<c:forEach items="${categories.keySet()}" var="category">
-					<td class="text-center info" data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-						id="measure_${fn:replace(category,'.','_')}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-						data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
-						data-slider-tooltip="show"></td>
+					<td class="text-center info" data-trick-class="Category" data-trick-value='<spring:message text="${category}"/>' ><input type="range"
+						id="measure_${fn:replace(category,'.','_')}" value="${categories.get(category)}" min="0" max="4" step="1" value="${categories.get(category)}" 
+						name='<spring:message text="${category}" />' orient="vertical" ></td>
 				</c:forEach>
 			</c:if>
-			<td class="text-center success"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive" data-slider-tooltip="show"></td>
-			<td class="text-center success"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center success"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative" data-slider-tooltip="show"></td>
-			<td class="text-center success"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center warning"><input type="text" class="slider" id="measure_intentional" value="${intentional}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${intentional}" name="intentional" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center warning"><input type="text" class="slider" id="measure_accidental" value="${accidental}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center warning"><input type="text" class="slider" id="measure_environmental" value="${environmental}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${environmental}" name="environmental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center warning"><input type="text" class="slider" id="measure_internalThreat" value="${internalThreat}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${internalThreat}" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-			<td class="text-center warning"><input type="text" class="slider" id="measure_externalThreat" value="${externalThreat}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-				data-slider-value="${externalThreat}" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+			<td class="text-center success"><input type="range" id="measure_preventive"  value="${preventive}" min="0" max="4" step="1"
+				value="${preventive}" orient="vertical"selection="after" name="preventive"tooltip="show"></td>
+			<td class="text-center success"><input type="range" id="measure_detective" value="${detective}" min="0" max="4" step="1"
+				value="${detective}" name="detective" orient="vertical"></td>
+			<td class="text-center success"><input type="range" id="measure_limitative"  value="${limitative}" min="0" max="4" step="1"
+				value="${limitative}" orient="vertical"selection="after" name="limitative"tooltip="show"></td>
+			<td class="text-center success"><input type="range" id="measure_corrective" value="${corrective}" min="0" max="4" step="1"
+				value="${corrective}" name="corrective" orient="vertical"></td>
+			<td class="text-center warning"><input type="range" id="measure_intentional" value="${intentional}" min="0" max="4" step="1"
+				value="${intentional}" name="intentional" orient="vertical"></td>
+			<td class="text-center warning"><input type="range" id="measure_accidental" value="${accidental}" min="0" max="4" step="1"
+				value="${accidental}" name="accidental" orient="vertical"></td>
+			<td class="text-center warning"><input type="range" id="measure_environmental" value="${environmental}" min="0" max="4" step="1"
+				value="${environmental}" name="environmental" orient="vertical"></td>
+			<td class="text-center warning"><input type="range" id="measure_internalThreat" value="${internalThreat}" min="0" max="4" step="1"
+				value="${internalThreat}" name="internalThreat" orient="vertical"></td>
+			<td class="text-center warning"><input type="range" id="measure_externalThreat" value="${externalThreat}" min="0" max="4" step="1"
+				value="${externalThreat}" name="externalThreat" orient="vertical"></td>
 			<c:if test="${!empty(assetTypeValues)}">
 				<c:forEach items="${assetTypeValues}" var="assetTypeValue">
-					<td data-trick-class="AssetType" class='text-center' ><input type="text" class="slider" id='measure_<spring:message text="${assetTypeValue.assetType.name}"/>' value="${assetTypeValue.value}"
-						data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetTypeValue.value}" name=<spring:message text="${assetTypeValue.assetType.name}"/>
-						data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+					<td data-trick-class="AssetType" class='text-center' ><input type="range" id='measure_<spring:message text="${assetTypeValue.assetType.name}"/>' value="${assetTypeValue.value}"
+						min="0" max="100" step="1" value="${assetTypeValue.value}" name='<spring:message text="${assetTypeValue.assetType.name}"/>' orient="vertical"></td>
 				</c:forEach>
 			</c:if>
 			<c:if test="${!empty(assets)}">
 				<c:forEach items="${assets}" var="asset">
-					<td data-trick-class="MeasureAssetValue" class='text-center'><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
-						data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="<spring:message text="${asset.asset.name}"/>"
-						data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+					<td data-trick-class="MeasureAssetValue" class='text-center'><input type="range" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
+						min="0" max="100" step="1" value="${asset.value}" name='<spring:message text="${asset.asset.name}"/>' orient="vertical"></td>
 				</c:forEach>
 			</c:if>
 		</tr>

@@ -23,47 +23,37 @@
 					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
 					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
 					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
-					<%-- <c:forEach items="${selectedScenario.assetTypeValues}" var="assetTypeValue">
-						<th class="text-center"><spring:message code="label.asset_type.${fn:toLowerCase(assetTypeValue.assetType.name)}" /></th>
-					</c:forEach> --%>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${selectedScenario.preventive}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.preventive}" data-slider-orientation="vertical"
-						data-slider-selection="after" name="preventive" data-slider-tooltip="show"></td>
-					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="${selectedScenario.detective}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.detective}" name="detective" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
-					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="${selectedScenario.limitative}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.limitative}" data-slider-orientation="vertical"
-						data-slider-selection="after" name="limitative" data-slider-tooltip="show"></td>
-					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="${selectedScenario.corrective}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.corrective}" name="corrective" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
+					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="range" id="scenario_preventive" orient="vertical" value="${selectedScenario.preventive}"
+						min="0" max="1" step="0.05" value="${selectedScenario.preventive}" 
+						selection="after" name="preventive" tooltip="show"></td>
+					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="range" orient="vertical" id="scenario_detective" value="${selectedScenario.detective}"
+						min="0" max="1" step="0.05" value="${selectedScenario.detective}" name="detective" 
+						></td>
+					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="range" id="scenario_limitative" orient="vertical" value="${selectedScenario.limitative}"
+						min="0" max="1" step="0.05" value="${selectedScenario.limitative}" 
+						selection="after" name="limitative" tooltip="show"></td>
+					<td class="text-center ${cssclass} pdlc" data-trick-type="type"><input type="range" orient="vertical" id="scenario_corrective" value="${selectedScenario.corrective}"
+						min="0" max="1" step="0.05" value="${selectedScenario.corrective}" name="corrective" 
+						></td>
 
-					<td class="text-center warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="${selectedScenario.intentional}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${selectedScenario.intentional}" name="intentional" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
-					<td class="text-center warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="${selectedScenario.accidental}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${selectedScenario.accidental}" name="accidental" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
-					<td class="text-center warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="${selectedScenario.environmental}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${selectedScenario.environmental}" name="environmental" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
-					<td class="text-center warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="${selectedScenario.internalThreat}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${selectedScenario.internalThreat}" name="internalThreat" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
-					<td class="text-center warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="${selectedScenario.externalThreat}"
-						data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${selectedScenario.externalThreat}" name="externalThreat" data-slider-orientation="vertical"
-						data-slider-selection="after" data-slider-tooltip="show"></td>
-
-					<%-- <c:forEach items="${selectedScenario.assetTypeValues}" var="assetTypeValue">
-						<td data-trick-class="AssetType" class='text-center'><input type="text" class="slider" id='scenario_<spring:message text="${assetTypeValue.assetType.name}"/>'
-							value="${assetTypeValue.value}" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${assetTypeValue.value}"
-							name='<spring:message text="${assetTypeValue.assetType.name}"/>' data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-					</c:forEach> --%>
+					<td class="text-center warning" data-trick-type="source"><input type="range" orient="vertical" id="scenario_intentional" value="${selectedScenario.intentional}"
+						min="0" max="1" step="1" value="${selectedScenario.intentional}" name="intentional" 
+						></td>
+					<td class="text-center warning" data-trick-type="source"><input type="range" orient="vertical" id="scenario_accidental" value="${selectedScenario.accidental}"
+						min="0" max="1" step="1" value="${selectedScenario.accidental}" name="accidental" 
+						></td>
+					<td class="text-center warning" data-trick-type="source"><input type="range" orient="vertical" id="scenario_environmental" value="${selectedScenario.environmental}"
+						min="0" max="1" step="1" value="${selectedScenario.environmental}" name="environmental" 
+						></td>
+					<td class="text-center warning" data-trick-type="source"><input type="range" orient="vertical" id="scenario_internalThreat" value="${selectedScenario.internalThreat}"
+						min="0" max="1" step="1" value="${selectedScenario.internalThreat}" name="internalThreat" 
+						></td>
+					<td class="text-center warning" data-trick-type="source"><input type="range" orient="vertical" id="scenario_externalThreat" value="${selectedScenario.externalThreat}"
+						min="0" max="1" step="1" value="${selectedScenario.externalThreat}" name="externalThreat"></td>
 				</tr>
 				<tr>
 					<td class="text-center ${cssclass}  pdlc" data-trick-type="type"><input type="text" id="scenario_preventive_value" readonly="readonly" class="text-center form-control"
@@ -84,10 +74,6 @@
 						value="${selectedScenario.internalThreat}"></td>
 					<td class="text-center warning" data-trick-type="source"><input type="text" readonly="readonly" class="text-center form-control" id="scenario_externalThreat_value"
 						value="${selectedScenario.externalThreat}"></td>
-				<%-- 	<c:forEach items="${selectedScenario.assetTypeValues}" var="assetTypeValue">
-						<td data-trick-class="AssetType"><input type="text" id='scenario_<spring:message text="${assetTypeValue.assetType.name}"/>_value' readonly="readonly"
-							class="text-center form-control" value="${assetTypeValue.value}" name="<spring:message text="${assetTypeValue.assetType.name}" />"></td>
-					</c:forEach> --%>
 				</tr>
 			</tbody>
 		</table>

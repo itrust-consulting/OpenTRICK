@@ -81,7 +81,6 @@
 	<script src="<c:url value="/js/chartjs/Chart.bundle.min.js" />"></script>
 	<script src="<c:url value="/js/chartjs/plugins.js" />"></script>
 	<script src="<c:url value="/js/chartjs/Chart.HeatMap.js" />"></script>
-	<script src="<c:url value="/js/bootstrap/bootstrap-slider.min.js" />"></script>
 	<script src="<c:url value="/js/trickservice/analysis.js" />"></script>
 	<script type="text/javascript" src="<c:url value="/js/trickservice/fieldeditor.js" />"></script>
 	<script type="text/javascript" src="<c:url value="/js/trickservice/scenario.js" />"></script>

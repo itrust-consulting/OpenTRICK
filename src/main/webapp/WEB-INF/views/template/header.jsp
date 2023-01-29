@@ -18,7 +18,6 @@
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/jquery-ui.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/font-awesome.min.css" />' />
-<link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap-slider.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.vertical-tabs.min.css" />' />
 <c:forEach items="${customCSSs}" var="customCSS">
   <link rel="stylesheet" href='<c:url value="${customCSS}" />' type="text/css" />

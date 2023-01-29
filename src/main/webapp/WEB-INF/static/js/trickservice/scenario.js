@@ -34,16 +34,13 @@ function editScenario(rowTrickId, isAdding) {
 						let scrollY = window.scrollY;
 						let scrollX = window.scrollX;
 						$modal.appendTo("#widgets").modal("show").on("shown.bs.modal", (e) => {
-							window.scroll(0, 0);
-							$modal.find(".slider").slider({
-								reversed: true,
-								tooltip_position: 'bottom',
-							}).each(
+							$modal.find("input[type='range'][orient='vertical']").each(
 								function () {
 									$(this).on(
 										"change",
 										function (event) {
-											$modal.find("#scenario_" + event.target.name + "_value").val(event.value.newValue);
+											$modal.find("#scenario_" + event.target.name + "_value").val(event.target.value);
+											event.target.title=event.target.value;
 											switch (event.target.name) {
 												case "preventive":
 												case "detective":
@@ -64,13 +61,6 @@ function editScenario(rowTrickId, isAdding) {
 								});
 						}).on("hidden.bs.modal", (e) => {
 							$modal.remove();
-							if (scrollY) {
-								if (scrollX)
-									window.scroll(scrollX, scrollY);
-								else window.scroll(0, scrollY);
-							} else if (scrollX){
-								window.scroll(scrollX, 0);
-							}
 						});
 						$(document.body).addClass("modal-open");
 					} else $modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", (e) => $modal.remove());

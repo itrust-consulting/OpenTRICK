@@ -407,11 +407,11 @@ function setupMeasureManager($content) {
 			if (application.analysisType.isQuantitative()) {
 				var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
 					+ id
-					+ '" ><input type="text" class="slider" id="asset_slider_'
+					+ '" ><input type="range" id="asset_slider_'
 					+ id
-					+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="property_asset_'
+					+ '" value="0" min="0" max="100" step="1" value="0" name="property_asset_'
 					+ id
-					+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>'), $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="'
+					+ '" orient="vertical" selection="after" tooltip="show"></td>'), $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="'
 						+ id
 						+ '"><input type="text" id="property_asset_'
 						+ id
@@ -422,10 +422,9 @@ function setupMeasureManager($content) {
 				$header.appendTo($content.find("#slidersTitle"));
 				$data.appendTo($content.find("#sliders"));
 				$value.appendTo($content.find("#values"));
-				$data.find(".slider").slider({
-					reversed: true
-				}).on('change', function (event) {
-					$value.find("input").val(event.value.newValue);
+				$data.find("input[type='range']").on('change', function (event) {
+					event.currentTarget.title=event.target.value;
+					$value.find("input").val(event.currentTarget.value);
 				});
 			}
 		};
@@ -464,11 +463,10 @@ function setupMeasureManager($content) {
 	}
 
 	if (application.analysisType.isQuantitative()) {
-		$content.find(".slider").slider({
-			reversed: true
-		}).each(function () {
+		$content.find("input[type='range']").each(function () {
 			$(this).on("change", function (event) {
-				$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
+				event.currentTarget.title=event.target.value;
+				$content.find("#values input[name='" + event.currentTarget.name + "']").val(event.target.value);
 			});
 		});
 	}

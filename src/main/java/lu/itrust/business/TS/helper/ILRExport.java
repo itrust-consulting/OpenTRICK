@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.helper;
 
-import static org.mockito.Mockito.mock;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
