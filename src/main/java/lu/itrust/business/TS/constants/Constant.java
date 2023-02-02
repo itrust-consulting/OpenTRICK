@@ -212,7 +212,7 @@ public class Constant {
 			+ "I6-BCM|I7-Soustrait|I8-SI|I8\\.1-Secu|I8\\.2-Dev|I8\\.3-Expl|I8\\.4-Support|I9-Prest|I10-Aut";
 
 	/** The Regular expression for valid Risk Categories */
-	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|..0Confidentiality|Availability|Integrity|Exploitability|Reliability|^ILR$";
+	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "^Direct([1-7]|6\\.[1-4])$|^Indirect([1-9]|8\\.[1-4]|10)$|^Confidentiality$|^Availability$|^Integrity$|^Exploitability$|^Reliability$|^ILR$";
 
 	/***********************************************************************************************
 	 * List of Regular Expressions - END
