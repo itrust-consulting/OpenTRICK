@@ -123,7 +123,9 @@ public class ControllerRegister {
 	 */
 	@RequestMapping("/Register")
 	@PreAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.TS.model.general.TSSettingName).SETTING_ALLOWED_SIGNUP,true)")
-	public String add(Map<String, Object> model) {
+	public String add(Map<String, Object> model, Principal principal) {
+		if (principal != null)
+			return "redirect:/";
 		model.put("user", new User());
 		return "default/register";
 	}

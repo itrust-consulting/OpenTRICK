@@ -42,8 +42,8 @@
 	
 	<!-- end API -->
 	<http use-expressions="false" entry-point-ref="loginUrlAuthenticationEntryPoint" auto-config="false" authentication-manager-ref="authenticationManager">
-		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
-		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
+		<!--<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
+		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />-->
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/actuator/**" access="ROLE_ADMIN,ROLE_SUPERVISOR" />
 		<intercept-url pattern="/static/**" access="ROLE_USER,ROLE_ADMIN,ROLE_SUPERVISOR,ROLE_CONSULTANT" />
@@ -73,7 +73,7 @@
 
 	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationFilter">
 		<beans:constructor-arg name="url" value="/signin" />
-		<beans:constructor-arg name="redirectURL" value="/OTP/Options" />
+		<beans:constructor-arg name="redirectURL" value="/OTP" />
 	</beans:bean>
 
 	<beans:bean id="otpAuthenticationProcessingFilter" class="lu.itrust.business.TS.usermanagement.helper.OTPAuthenticationProcessingFilter">

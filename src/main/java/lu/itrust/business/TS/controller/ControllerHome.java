@@ -69,9 +69,11 @@ public class ControllerHome {
 	@Autowired
 	private ServiceEmailValidatingRequest serviceEmailValidatingRequest;
 
-	@PreAuthorize(Constant.ROLE_MIN_USER)
+	@PreAuthorize(Constant.ROLE_MIN_OTP)
 	@RequestMapping({ "", "/Home" })
-	public String home() throws Exception {
+	public String home(HttpServletRequest request) {
+		if (request.isUserInRole(Constant.ROLE_OTP_NAME))
+			return "redirect:/OTP";
 		return "default/home";
 	}
 
@@ -88,7 +90,10 @@ public class ControllerHome {
 	}
 
 	@RequestMapping("/Login")
-	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
+	public String login(HttpServletRequest request, HttpServletResponse response, Principal principal, Locale locale,
+			Model model) {
+		if (principal != null)
+			return "redirect:/";
 		loadSettings(model, locale);
 		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null,

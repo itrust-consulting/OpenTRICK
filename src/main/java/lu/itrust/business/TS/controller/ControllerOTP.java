@@ -44,7 +44,7 @@ public class ControllerOTP {
 	@Value("${app.settings.otp.attempt.timeout}")
 	private long otpTimeout;
 
-	@RequestMapping("/Options")
+	@RequestMapping(value = {"","/Options"})
 	public String options(Principal principal, Model model, Locale locale) {
 		User user = serviceUser.get(principal.getName());
 		char[] characters = user.getEmail().toCharArray();
@@ -78,7 +78,7 @@ public class ControllerOTP {
 			break;
 		default:
 			attributes.addFlashAttribute("error", "error.otp.method.not_found");
-			return "redirect:/OTP/Options";
+			return "redirect:/OTP";
 		}
 		model.addAttribute("otp-method", method);
 		return "otp/form";

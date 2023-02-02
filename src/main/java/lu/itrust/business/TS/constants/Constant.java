@@ -35,7 +35,10 @@ public class Constant {
 	/** Role supervisor */
 	public static final String ROLE_SUPERVISOR_ONLY = "hasRole('ROLE_SUPERVISOR')";
 
-	/** Role at least consultant */
+	/** Role at least OTP */
+	public static final String ROLE_MIN_OTP = "hasAnyRole('ROLE_PRE_AUTHEN','ROLE_USER', 'ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
+
+	/** Role at least USER */
 	public static final String ROLE_MIN_USER = "hasAnyRole('ROLE_USER', 'ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
 
 	/** Role at least consultant */
