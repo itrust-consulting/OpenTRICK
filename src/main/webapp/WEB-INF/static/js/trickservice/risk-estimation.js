@@ -570,7 +570,8 @@ function displayParameters(name, title) {
 	let html = $(name).map(function() { return this.innerHTML; }).get().join("");
 	let view = new Modal(undefined, html), $modalBody = $(view.modal_body), $legend = $modalBody.find("legend").remove().slice(0, 1);
 	$(view.modal_footer).remove();
-	$modalBody.find("th[data-th-name='qualification']").css({
+	$(view.modal_dialog).addClass("modal-mdl");
+	$modalBody.css({"overflow-y" : "auto", "max-height" : "800px"}).find("th[data-th-name='qualification']").css({
 		"text-align": "center"
 	});
 	$modalBody.find("tbody").css({
@@ -579,6 +580,7 @@ function displayParameters(name, title) {
 	if (!title)
 		title = $legend.text();
 	view.setTitle(title);
+	
 	view.Show();
 	return false;
 }
