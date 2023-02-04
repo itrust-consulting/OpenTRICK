@@ -102,7 +102,6 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public void setVulnerability(Integer vulnerability) {
-
 		this.vulnerability = vulnerability == null ? 1 : vulnerability;
 	}
 

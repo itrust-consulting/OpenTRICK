@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ import lu.itrust.monarc.MonarcMeasures;
 import lu.itrust.monarc.MonarcRecos;
 import lu.itrust.monarc.MonarcRecs;
 import lu.itrust.monarc.MonarcRisks;
+import lu.itrust.monarc.MonarcScales;
 import lu.itrust.monarc.MonarcSoa;
 import lu.itrust.monarc.MonarcSoaScaleComment;
 import lu.itrust.monarc.MonarcThreats;
@@ -50,6 +52,8 @@ import lu.itrust.monarc.MonarcVulnerabilities;
 public class ILRExport {
 
     private static final String MAPPING[][] = { { "reputation", "reputational" }, { "personal", "privacy" } };
+
+    private static final int VULNERABILITY_SCALE_TYPE = 3;
 
     private class IlrSoaScale {
         private double from;
@@ -93,55 +97,6 @@ public class ILRExport {
         }
     }
 
-    /*
-     * private class MeasureMapper {
-     * 
-     * private String reference;
-     * 
-     * private Measure tsMeasure;
-     * 
-     * private MonarcMeasures ilrMeasure;
-     * 
-     * public MeasureMapper(Measure tsMeasure) {
-     * this(tsMeasure, null);
-     * }
-     * 
-     * public MeasureMapper(Measure tsMeasure, MonarcMeasures ilrMeasure) {
-     * this.tsMeasure = tsMeasure;
-     * this.ilrMeasure = ilrMeasure;
-     * if (tsMeasure != null)
-     * setReference(tsMeasure.getMeasureDescription().getReference());
-     * else if (ilrMeasure != null)
-     * setReference(ilrMeasure.getCode());
-     * }
-     * 
-     * public String getReference() {
-     * return reference;
-     * }
-     * 
-     * public void setReference(String reference) {
-     * this.reference = reference;
-     * }
-     * 
-     * public Measure getTsMeasure() {
-     * return tsMeasure;
-     * }
-     * 
-     * public void setTsMeasure(Measure tsMeasure) {
-     * this.tsMeasure = tsMeasure;
-     * }
-     * 
-     * public MonarcMeasures getIlrMeasure() {
-     * return ilrMeasure;
-     * }
-     * 
-     * public void setIlrMeasure(MonarcMeasures ilrMeasure) {
-     * this.ilrMeasure = ilrMeasure;
-     * }
-     * 
-     * }
-     */
-
     public void exportILRData(Analysis analysis, List<ScaleType> scales, File data, File mapping)
             throws Exception {
         final Map<Asset, List<Assessment>> assessments = analysis.getAssessments().stream()
@@ -170,6 +125,9 @@ public class ILRExport {
 
         final Map<String, Map<String, MonarcRecs>> recsMappers = extractRecords(analysis, stdToReferencials,
                 database);
+
+        final int maxVulnerabilityScale = Optional.ofNullable(database.searchScaleByType(VULNERABILITY_SCALE_TYPE))
+                .map(MonarcScales::getMax).orElse(3);
 
         exportSOA(analysis, factory, stdToReferencials, database);
 
@@ -211,14 +169,14 @@ public class ILRExport {
                 database.searchAMVByInstanceId(monarcInstance.getId()).forEach(amv -> {
                     updateAMVAndRecos(mappingProfiles, measureMappers, recsMappers, myAssessments, risks,
                             threats,
-                            vulnerabilities, mysRects, amv);
+                            vulnerabilities, mysRects, amv, maxVulnerabilityScale);
 
                 });
 
                 mysRects.forEach((id, recs) -> {
                     final Map<String, MonarcRecos> recos = monarcInstance.getRecos().computeIfAbsent(id + "",
                             r -> new HashMap<>());
-                                  
+
                     recs.stream().map(rc -> database.createOrUpdate(id, rc))
                             .forEach(reco -> recos.computeIfAbsent(reco.getUuid(), k -> reco)
                                     .addParentInstance(monarcInstance.getId() + ""));
@@ -255,7 +213,7 @@ public class ILRExport {
             final Map<String, Map<String, MonarcRecs>> recsMappers,
             final Map<String, Assessment> myAssessments, final Map<String, MonarcRisks> risks,
             final Map<String, MonarcThreats> threats, final Map<String, MonarcVulnerabilities> vulnerabilities,
-            final Map<Integer, Set<MonarcRecs>> mysRects, MonarcAMV amv) {
+            final Map<Integer, Set<MonarcRecs>> mysRects, MonarcAMV amv, int maxVulnerabilityScale) {
         final MonarcRisks risk = risks.get(amv.getUuid());
         final MonarcThreats threat = threats.get(amv.getThreat());
         final MonarcVulnerabilities vulnerability = vulnerabilities.get(amv.getVulnerability());
@@ -269,7 +227,7 @@ public class ILRExport {
             return;
 
         risk.setVulnerabilityRate(
-                Math.max(Math.min(assessment.getVulnerability(), 4), risk.getVulnerabilityRate()));
+                Math.max(Math.min(assessment.getVulnerability(), maxVulnerabilityScale), risk.getVulnerabilityRate()));
 
         if (StringUtils.hasText(assessment.getOwner())) {
             if (StringUtils.hasText(risk.getRiskOwner())) {
@@ -323,6 +281,17 @@ public class ILRExport {
                             .get(m.getMeasureDescription().getReference()))
                     .filter(Objects::nonNull)
                     .forEach(m -> amv.addMeasure(m.getUuid()));
+            if (!(riskProfile.getExpProbaImpact() == null || riskProfile.getRiskStrategy() == RiskStrategy.ACCEPT)) {
+                risk.setReductionAmount(
+
+                        Math.min(Math.min(
+                                Math.max(Math.max(
+                                        risk.getVulnerabilityRate()
+                                                - riskProfile.getExpProbaImpact().getVulnerability(),
+                                        risk.getReductionAmount()),
+                                        0),//the maximun with 0 can be removed as reduction amount should be by default to 0.
+                                maxVulnerabilityScale), risk.getVulnerabilityRate()));
+            }
 
             riskProfile.getMeasures().stream()
                     .map(m -> recsMappers.getOrDefault(m.getMeasureDescription().getStandard().getName(),
