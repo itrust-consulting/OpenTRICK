@@ -334,7 +334,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			Standard standard = new DAOStandardHBM(session).getStandardByNameAndVersion(TEST_STANDARD, 2015);
+			Standard standard = new DAOStandardHBM(session).getStandardByLabelAndVersion(TEST_STANDARD, 2015);
 			notNull(standard, "Standard cannot be found");
 			put(TEST_STANDARD_ID, standard.getId());
 		} finally {
@@ -520,7 +520,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			Standard standard = new DAOStandardHBM(session).getStandardByNameAndVersion(STANDARD_FOR_TEST, 2015);
+			Standard standard = new DAOStandardHBM(session).getStandardByLabelAndVersion(STANDARD_FOR_TEST, 2015);
 			notNull(standard, "Standard cannot be found");
 			put(STANDARD_FOR_TEST, standard.getId());
 		} finally {

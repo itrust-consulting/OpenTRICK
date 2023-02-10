@@ -1819,7 +1819,7 @@ public class ImportAnalysis {
 
 				standard = standards.get(String.format("%s_%d", Constant.STANDARD_MATURITY, standardVersion));
 				if (standard == null) {
-					standard = daoStandard.getStandardByNameAndVersion(Constant.STANDARD_MATURITY, standardVersion);
+					standard = daoStandard.getStandardByLabelAndVersion(Constant.STANDARD_MATURITY, standardVersion);
 					if (standard == null) {
 						// standard is not in database create new standard and
 						// save
@@ -2268,7 +2268,7 @@ public class ImportAnalysis {
 
 				standard = standards.get(standardName + "_" + standardVersion);
 				if (standard == null) {
-					standard = daoStandard.getStandardByNameAndVersion(standardName, standardVersion);
+					standard = daoStandard.getStandardByLabelAndVersion(standardName, standardVersion);
 					// standard is not in database create new standard and save
 					// in
 					// into
@@ -2282,7 +2282,7 @@ public class ImportAnalysis {
 						// add standard to map
 					} else if (standard.isAnalysisOnly()) {
 						standard = standard.duplicate();
-						standard.setVersion(daoStandard.getNextVersionByNameAndType(standardName, standard.getType()));
+						standard.setVersion(daoStandard.getNextVersionByLabelAndType(standardName, standard.getType()));
 						daoStandard.save(standard);
 						// add standard to map
 					}

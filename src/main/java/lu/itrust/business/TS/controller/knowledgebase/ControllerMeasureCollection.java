@@ -185,7 +185,7 @@ public class ControllerMeasureCollection {
 
 		// check if standard has to be create (new) or updated
 		if (standard.getId() < 1) {
-			if (serviceStandard.existsByNameAndVersion(standard.getLabel(), standard.getVersion()))
+			if (serviceStandard.existsByLabelAndVersion(standard.getLabel(), standard.getVersion()))
 				errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null,
 						"Version already exists", locale));
 			else
@@ -222,7 +222,7 @@ public class ControllerMeasureCollection {
 								.findByLabelAndAnalysisOnlyFalse(persited.getLabel());
 						standards.remove(persited);
 						for (Standard std : standards) {
-							if (serviceStandard.existsByNameAndVersion(standard.getLabel(), std.getVersion())) {
+							if (serviceStandard.existsByLabelAndVersion(standard.getLabel(), std.getVersion())) {
 								errors.put("standard",
 										messageSource.getMessage("error.norm.rename.sub.version", null, locale));
 								break;

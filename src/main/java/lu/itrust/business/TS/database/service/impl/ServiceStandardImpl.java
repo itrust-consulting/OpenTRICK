@@ -74,12 +74,12 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardByNameAndVersion(java.lang.String,
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardByLabelAndVersion(java.lang.String,
 	 *      int)
 	 */
 	@Override
-	public Standard getStandardByNameAndVersion(String label, int version) {
-		return daoStandard.getStandardByNameAndVersion(label, version);
+	public Standard getStandardByLabelAndVersion(String label, int version) {
+		return daoStandard.getStandardByLabelAndVersion(label, version);
 	}
 
 	/**
@@ -88,12 +88,12 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#existsByNameAndVersion(java.lang.String,
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#existsByLabelAndVersion(java.lang.String,
 	 *      int)
 	 */
 	@Override
-	public boolean existsByNameAndVersion(String label, int version) {
-		return daoStandard.existsByNameAndVersion(label, version);
+	public boolean existsByLabelAndVersion(String label, int version) {
+		return daoStandard.existsByLabelAndVersion(label, version);
 	}
 
 	/**
@@ -206,13 +206,13 @@ public class ServiceStandardImpl implements ServiceStandard {
 	}
 
 	@Override
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType) {
-		return daoStandard.getNextVersionByNameAndType(label, standardType);
+	public Integer getNextVersionByLabelAndType(String label, StandardType standardType) {
+		return daoStandard.getNextVersionByLabelAndType(label, standardType);
 	}
 
 	@Override
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type) {
-		return daoStandard.existsByNameVersionType(label, version, type);
+	public boolean existsByLabelVersionType(String label, Integer version, StandardType type) {
+		return daoStandard.existsByLabelVersionType(label, version, type);
 	}
 
 	@Override
@@ -231,8 +231,8 @@ public class ServiceStandardImpl implements ServiceStandard {
 	}
 
 	@Override
-	public boolean existsByName(String name) {
-		return daoStandard.existsByName(name);
+	public boolean existsByLabel(String name) {
+		return daoStandard.existsByLabel(name);
 	}
 
 	@Override

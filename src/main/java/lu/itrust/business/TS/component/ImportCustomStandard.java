@@ -245,11 +245,12 @@ public class ImportCustomStandard {
 		final Row data = infoSheet.getRow().get(addressRef.getEnd().getRow());
 		final int labelIndex = data.getC().size() == 4 ? addressRef.getBegin().getCol()
 				: addressRef.getBegin().getCol() + 1;
-		final String label = getString(data.getC().get(labelIndex), formatter);
+		final String label = StringUtils.trimWhitespace(getString(data.getC().get(labelIndex), formatter));
 		final int version = getInt(data.getC().get(labelIndex + 1), formatter);
 
-		final String name = StringUtils.isEmpty(this.standardName) ? (data.getC().size() == 4 ? label
-				: getString(data.getC().get(addressRef.getBegin().getCol()), formatter)) : this.standardName;
+		final String name = StringUtils
+				.trimWhitespace(!StringUtils.hasText(this.standardName) ? (data.getC().size() == 4 ? label
+						: getString(data.getC().get(addressRef.getBegin().getCol()), formatter)) : this.standardName);
 
 		if (isEmpty(label))
 			throw new TrickException("error.standard.label.empty", "Standard internal name cannot be empty");
@@ -354,21 +355,24 @@ public class ImportCustomStandard {
 			final int languageCount = (address.getEnd().getCol() - (startIndex + 1)) / 2;
 			for (int j = 0; j < languageCount; j++) {
 				Language language = languages.get(j);
-				int domInd = j * 2 + (startIndex + 2), descInd = domInd + 1;
+				int domInd = j * 2 + (startIndex + 2);
+				int descInd = domInd + 1;
 				MeasureDescriptionText descriptionText = daoMeasureDescriptionText
 						.getForMeasureDescriptionAndLanguage(measureDescription.getId(), language.getId());
 				if (descriptionText == null)
 					measureDescription.getMeasureDescriptionTexts()
 							.add(descriptionText = new MeasureDescriptionText(measureDescription, language));
-				String domain = getString(row, domInd, formatter), description = getString(row, descInd, formatter);
+				String domain = getString(row, domInd, formatter);
+				String description = getString(row, descInd, formatter);
 				if (StringUtils.hasText(domain))
-					descriptionText.setDomain(domain);
+					descriptionText.setDomain(domain.trim());
 				if (StringUtils.hasText(description))
-					descriptionText.setDescription(description);
+					descriptionText.setDescription(description.trim());
 				if (assetIndex > -1) {
 					String asset = getString(row, assetIndex, formatter);
 					if (StringUtils.hasText(asset))
-						assetsByRef.put(reference, Arrays.asList(asset.split(";")));
+						assetsByRef.put(reference, Arrays.asList(asset.trim().split(";")).stream().map(String::trim)
+								.collect(Collectors.toList()));
 				}
 
 			}
@@ -456,8 +460,8 @@ public class ImportCustomStandard {
 	private Map<Integer, Language> loadLanguages(SheetData sheet, AddressRef address, DataFormatter formatter) {
 		final Map<Integer, Language> languages = new HashMap<>();
 		final Row row = sheet.getRow().get(address.getBegin().getRow());
-		final int startIndex = hasLevel(row, formatter) ? 1 : 0,
-				languageCount = (address.getEnd().getCol() - (1 + startIndex)) / 2;
+		final int startIndex = hasLevel(row, formatter) ? 1 : 0;
+		final int languageCount = (address.getEnd().getCol() - (1 + startIndex)) / 2;
 		for (int i = 0; i < languageCount; i++) {
 			String domain = getString(row.getC().get(i * 2 + (2 + startIndex)), formatter);
 			if (isEmpty(domain))

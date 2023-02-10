@@ -21,11 +21,11 @@ public interface DAOStandard {
 
 	public List<Standard> findByLabelAndAnalysisOnlyFalse(String label);
 
-	public Standard getStandardByNameAndVersion(String label, Integer version);
+	public Standard getStandardByLabelAndVersion(String label, Integer version);
 
-	public boolean existsByNameAndVersion(String label, Integer version);
+	public boolean existsByLabelAndVersion(String label, Integer version);
 
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type);
+	public boolean existsByLabelVersionType(String label, Integer version, StandardType type);
 	
 	public List<Standard> getAll();
 
@@ -41,7 +41,7 @@ public interface DAOStandard {
 
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID);
 	
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType);
+	public Integer getNextVersionByLabelAndType(String label, StandardType standardType);
 	
 	public void save(Standard standard);
 
@@ -57,7 +57,7 @@ public interface DAOStandard {
 
 	public List<Standard> getAllNotInAnalysisAndNotMaturity(Integer idAnalysis);
 
-	public boolean existsByName(String name);
+	public boolean existsByLabel(String name);
 
 	public boolean isLabelConflicted(String newName, String oldName);
 

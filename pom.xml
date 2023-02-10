@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.15t</version>
+	<version>2.15u</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -140,7 +140,7 @@
 		<dependency>
 			<groupId>lu.itrust.monarc</groupId>
 			<artifactId>monarc</artifactId>
-			<version>0.7.4</version>
+			<version>0.7.5</version>
 		</dependency>
 
 		<!-- For Spring security -->
@@ -261,12 +261,26 @@
 			<artifactId>log4j-slf4j-impl</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.vlkan.log4j2/log4j2-logstash-layout -->
+		<!-- https://mvnrepository.com/artifact/com.vlkan.log4j2/log4j2-logstash-layout 
 		<dependency>
 			<groupId>com.vlkan.log4j2</groupId>
 			<artifactId>log4j2-logstash-layout</artifactId>
 			<version>1.0.5</version>
+		</dependency>-->
+	
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-layout-template-json</artifactId>
 		</dependency>
+	<!--
+
+		<dependency>
+			<groupId>org.appenders.log4j</groupId>
+			<artifactId>log4j2-elasticsearch-jest</artifactId>
+			<version>1.6.1</version>
+		</dependency> 
+
+		-->
 
 		<!-- https://mvnrepository.com/artifact/com.lmax/disruptor -->
 		<dependency>

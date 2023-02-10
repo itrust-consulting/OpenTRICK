@@ -325,29 +325,10 @@ public class Duplicator {
 			Map<String, IParameter> parameters, Map<Integer, Asset> assets,
 			boolean anonymize) throws Exception {
 
-		if (!analysisStandard.getStandard().isAnalysisOnly()) {
-
-			AnalysisStandard astandard = analysisStandard.duplicate();
-
-			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
-			for (Measure measure : analysisStandard.getMeasures())
-				if (anonymize)
-					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets,
-							parameters, anonymize));
-				else
-					measures.add(duplicateMeasure(measure,
-							phases.containsKey(measure.getPhase().getNumber())
-									? phases.get(measure.getPhase().getNumber())
-									: phases.get(Constant.PHASE_DEFAULT),
-							astandard, assets,
-							parameters, anonymize));
-
-			astandard.setMeasures(measures);
-			return astandard;
-		} else {
+		if (analysisStandard.getStandard().isAnalysisOnly()) {
 			final Standard standard = analysisStandard.getStandard().duplicate();
 
-			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getName(), standard.getType()));
+			standard.setVersion(daoStandard.getNextVersionByLabelAndType(standard.getLabel(), standard.getType()));
 
 			final List<MeasureDescription> mesDescs = daoMeasureDescription
 					.getAllByStandard(analysisStandard.getStandard());
@@ -394,6 +375,23 @@ public class Duplicator {
 			tmpAnalysisStandard.setMeasures(measures);
 
 			return tmpAnalysisStandard;
+		} else {
+			AnalysisStandard astandard = analysisStandard.duplicate();
+			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
+			for (Measure measure : analysisStandard.getMeasures())
+				if (anonymize)
+					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets,
+							parameters, anonymize));
+				else
+					measures.add(duplicateMeasure(measure,
+							phases.containsKey(measure.getPhase().getNumber())
+									? phases.get(measure.getPhase().getNumber())
+									: phases.get(Constant.PHASE_DEFAULT),
+							astandard, assets,
+							parameters, anonymize));
+
+			astandard.setMeasures(measures);
+			return astandard;
 		}
 	}
 

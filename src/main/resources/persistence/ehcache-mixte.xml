@@ -14,7 +14,7 @@
 		<expiry>
 			<ttl unit="days">90</ttl>
 		</expiry>
-		<heap unit="entries">20000</heap>
+		<heap unit="entries">5000</heap>
 	</cache-template>
 
 	<cache-template name="entityDefaultCache">
@@ -22,12 +22,12 @@
 			<ttl unit="days">90</ttl>
 		</expiry>
 		<resources>
-			<heap unit="MB">1</heap>
-			<disk persistent="false" unit="GB">1</disk>
-			<offheap unit="MB">5</offheap>
+			<heap unit="entries">10000</heap>
+			<disk persistent="false" unit="MB">30</disk>
+			<offheap unit="MB">3</offheap>
 		</resources>
 		<heap-store-settings>
-			<max-object-graph-size>200000</max-object-graph-size>
+			<max-object-graph-size>500000</max-object-graph-size>
 			<max-object-size unit="MB">50</max-object-size>
 		</heap-store-settings>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
@@ -38,13 +38,13 @@
 			<ttl unit="days">45</ttl>
 		</expiry>
 		<resources>
-			<heap unit="MB">1</heap>
-			<disk persistent="false" unit="GB">1</disk>
+			<heap unit="entries">15000</heap>
+			<disk persistent="false" unit="MB">50</disk>
 			<offheap unit="MB">5</offheap>
 		</resources>
 		<heap-store-settings>
-			<max-object-graph-size>5000</max-object-graph-size>
-			<max-object-size unit="MB">50</max-object-size>
+			<max-object-graph-size>500000</max-object-graph-size>
+			<max-object-size unit="MB">200</max-object-size>
 		</heap-store-settings>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
 	</cache-template>
@@ -54,7 +54,7 @@
 			<ttl unit="days">180</ttl>
 		</expiry>
 		<resources>
-			<disk persistent="false" unit="GB">1</disk>
+			<disk persistent="false" unit="MB">50</disk>
 		</resources>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
 	</cache-template>

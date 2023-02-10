@@ -43,11 +43,11 @@ public class Standard implements Cloneable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idStandard")
-	private int id = -1;
+	private int id = 0;
 
 	/** Standard internal name */
 	@Column(name = "dtName", nullable = false)
-	private String name="";
+	private String name = "";
 
 	/** Standard internal name */
 	@Column(name = "dtLabel", nullable = false)
@@ -105,7 +105,8 @@ public class Standard implements Cloneable {
 	 * @param computable
 	 * @throws TrickException
 	 */
-	public Standard(String name, String label, StandardType type, int version, String description, boolean computable) throws TrickException {
+	public Standard(String name, String label, StandardType type, int version, String description, boolean computable)
+			throws TrickException {
 		this(name, label, version);
 		this.setType(type);
 		this.setDescription(description);
@@ -236,17 +237,14 @@ public class Standard implements Cloneable {
 		if (getClass() != obj.getClass())
 			return false;
 		Standard other = (Standard) obj;
-		if (id != other.id)
-			if (id == -1 && other.id != -1)
-				return false;
+		if (id != other.id && (id < 1 && other.id >= 1))
+			return false;
 		if (label == null) {
 			if (other.label != null)
 				return false;
-		} else if (!label.equals(other.label))
+		} else if (!label.equalsIgnoreCase(other.label))
 			return false;
-		if (version != other.version)
-			return false;
-		return true;
+		return version == other.version;
 	}
 
 	/**
@@ -259,7 +257,8 @@ public class Standard implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Standard [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description + ", computable=" + computable + "]";
+		return "Standard [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description
+				+ ", computable=" + computable + "]";
 	}
 
 	/**
@@ -284,7 +283,7 @@ public class Standard implements Cloneable {
 	 */
 	public Standard duplicate() throws CloneNotSupportedException {
 		Standard standard = (Standard) super.clone();
-		standard.id = -1;
+		standard.id = 0;
 		return standard;
 	}
 
@@ -388,7 +387,8 @@ public class Standard implements Cloneable {
 	}
 
 	public Boolean is(String name) {
-		return (analysisOnly || !(name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002))) ? this.name.equalsIgnoreCase(name)
+		return (analysisOnly || !(name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002)))
+				? this.name.equalsIgnoreCase(name)
 				: this.label.startsWith(name);
 	}
 

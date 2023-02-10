@@ -268,7 +268,7 @@ public class WorkerImportStandard extends WorkerImpl {
 			throw new TrickException("error.standard.name.empty", "Standard display name cannot be empty");
 		if (version == 0)
 			throw new TrickException("error.standard.version.zero", "Standard version must be greather than 0");
-		Standard standard = daoStandard.getStandardByNameAndVersion(label, version);
+		Standard standard = daoStandard.getStandardByLabelAndVersion(label, version);
 		if (standard == null)
 			standard = new Standard(name.trim(), label.trim(), version);
 		else if (standard.isAnalysisOnly())

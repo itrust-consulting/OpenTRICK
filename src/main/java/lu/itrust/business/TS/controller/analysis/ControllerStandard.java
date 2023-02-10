@@ -343,7 +343,7 @@ public class ControllerStandard extends AbstractController {
 				return errors;
 			if (standard.getId() < 1) {
 				standard.setVersion(
-						serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
+						serviceStandard.getNextVersionByLabelAndType(standard.getLabel(), standard.getType()));
 				switch (standard.getType()) {
 					case ASSET:
 						analysis.add(new AssetStandard(standard));
@@ -530,7 +530,7 @@ public class ControllerStandard extends AbstractController {
 			if (standard != null) {
 				name = standard.getName();
 				type = standard.getType();
-			} else if (type == null || StringUtils.isEmpty(name)) {
+			} else if (type == null || !StringUtils.hasLength(name)) {
 				return JsonMessage.Error(messageSource.getMessage("error.standard.not_found", null, locale));
 			}
 		}
@@ -1253,7 +1253,7 @@ public class ControllerStandard extends AbstractController {
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
 			if (!label.equals(prevLabel) || standard.getId() < 1)
-				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, standard.getType()));
+				standard.setVersion(serviceStandard.getNextVersionByLabelAndType(label, standard.getType()));
 			// return success
 			return standard;
 

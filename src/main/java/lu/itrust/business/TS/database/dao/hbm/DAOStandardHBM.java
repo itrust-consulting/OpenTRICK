@@ -79,12 +79,12 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardByNameAndVersion(java.lang.String,
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardByLabelAndVersion(java.lang.String,
 	 *      java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Standard getStandardByNameAndVersion(String label, Integer version) {
+	public Standard getStandardByLabelAndVersion(String label, Integer version) {
 		return (Standard) getSession().createQuery("from Standard where label = :label and version = :version").setParameter("label", label).setParameter("version", version)
 				.uniqueResultOptional().orElse(null);
 	}
@@ -93,11 +93,11 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * existsByNameAndVersion: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#existsByNameAndVersion(java.lang.String,
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#existsByLabelAndVersion(java.lang.String,
 	 *      int)
 	 */
 	@Override
-	public boolean existsByNameAndVersion(String label, Integer version) {
+	public boolean existsByLabelAndVersion(String label, Integer version) {
 		return (boolean) getSession().createQuery("select count(*)>0 from Standard where label = :label and version = :version").setParameter("label", label)
 				.setParameter("version", version).getSingleResult();
 	}
@@ -228,13 +228,13 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType) {
+	public Integer getNextVersionByLabelAndType(String label, StandardType standardType) {
 		return (Integer) getSession().createQuery("select max(standard.version)+1 from Standard standard where standard.label = :label and standard.type = :type")
 				.setParameter("label", label).setParameter("type", standardType).uniqueResultOptional().orElse(1);
 	}
 
 	@Override
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type) {
+	public boolean existsByLabelVersionType(String label, Integer version, StandardType type) {
 		return (boolean) getSession().createQuery("select count(*)>0 from Standard where label = :label and version = :version and type = :type").setParameter("label", label)
 				.setParameter("version", version).setParameter("type", type).getSingleResult();
 	}
@@ -267,7 +267,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	}
 
 	@Override
-	public boolean existsByName(String name) {
+	public boolean existsByLabel(String name) {
 		return getSession().createQuery("select count(*) > 0 from Standard where label = :name", Boolean.class).setParameter("name", name).uniqueResult();
 	}
 

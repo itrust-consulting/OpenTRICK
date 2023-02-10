@@ -329,7 +329,7 @@ public class ILRExport {
 
         analysis.getAnalysisStandards().forEach((name, aStd) -> {
             final Map<String, MonarcRecs> ilrRecs = database
-                    .searchRecsByRecSetsLabel(stdToReferencials.getOrDefault(name, name)).stream()
+                    .searchRecsByRecSetsLabel(stdToReferencials.getOrDefault(name.toLowerCase(), name)).stream()
                     .collect(Collectors.toMap(MonarcRecs::getCode, Function.identity()));
             if (ilrRecs.isEmpty())
                 return;
@@ -359,7 +359,7 @@ public class ILRExport {
         analysis.getAnalysisStandards().forEach((n, a) -> {
             final List<MonarcMeasures> ilrMeasures = database
                     .searchMeasuresByReferentialLabel(
-                            stdToReferencials.getOrDefault(a.getStandard().getName(), a.getStandard().getName()));
+                            stdToReferencials.getOrDefault(a.getStandard().getName().toLowerCase(), a.getStandard().getName()));
             if (!ilrMeasures.isEmpty())
                 measureMappers.computeIfAbsent(a.getStandard().getName(),
                         b -> ilrMeasures.stream()
@@ -377,7 +377,7 @@ public class ILRExport {
                 .collect(Collectors.toMap(MonarcSoa::getMeasureId, Function.identity()));
 
         analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).forEach(e -> {
-            final String name = stdToReferencials.getOrDefault(e.getStandard().getName(), e.getStandard().getName());
+            final String name = stdToReferencials.getOrDefault(e.getStandard().getName().toLowerCase(), e.getStandard().getName());
             final List<MonarcMeasures> monarcMeasures = database.searchMeasuresByReferentialLabel(name);
             final Map<String, MonarcMeasures> measures = monarcMeasures.stream()
                     .collect(Collectors.toMap(MonarcMeasures::getCode, Function.identity()));

@@ -342,7 +342,7 @@ public class RRFExportImport {
 					"Standard reference column cannot be found");
 		Map<String, AssetMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(),
-						measure -> (AssetMeasure) measure));
+						AssetMeasure.class::cast));
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			Row row = sheet.getRow().get(i);
 			String value = getString(row.getC().get(index), formatter);
@@ -447,7 +447,7 @@ public class RRFExportImport {
 					properties.setPreventive(value);
 					break;
 				default:
-                    break;
+					break;
 			}
 		}
 	}

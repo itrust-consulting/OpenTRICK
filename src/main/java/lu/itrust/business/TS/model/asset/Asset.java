@@ -294,13 +294,9 @@ public class Asset implements Cloneable {
 		Asset other = (Asset) obj;
 		if (getId() > 0 && other.getId() > 0)
 			return getId() == other.getId();
-
-		if (getName() == null) {
-			if (other.getName() != null) {
-				return false;
-			}
-		}
-		return name.equals(other.name);
+		if (getName() == null && other.getName() != null)
+			return false;
+		return name.equalsIgnoreCase(other.name);
 	}
 
 	/**

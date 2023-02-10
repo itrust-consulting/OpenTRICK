@@ -7,43 +7,46 @@
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t] %-5p %c - %m%n" />
 		</Console>
-		<Socket name="RemoteLogger" host="${env:app.settings.logger.server.host}" port="${env:app.settings.logger.server.port}" ReconnectionDelay="10000" protocol="SSL">
-			<LogstashLayout />
+		<Socket name="RemoteLogger" host="${env:app.settings.logger.server.host}" port="${env:app.settings.logger.server.port}" ReconnectionDelay="10000">
+			<JsonTemplateLayout eventTemplateUri="classpath:ecsLayout.json"/>
+			<SSL protocol="TLSv1.2">
+        		<TrustStore location="${env:app.settings.logger.server.ca_jks_file}" password="${env:app.settings.logger.server.ca_jks_password}"/>
+      		</SSL>
 		</Socket>
 	</Appenders>
 	<Loggers>
 		<Asynclogger name="TrickLogManager" level='DEBUG'>
 			<AppenderRef ref="RemoteLogger" />
 		</Asynclogger>
-		
+
 		<logger name="org.docx4j" level='ERROR' />
-		
+
 		<logger name="org.ehcache.jsr107.Eh107CacheManager" level="WARN" />
-		
+
 		<logger name="org.docx4j.jaxb.JaxbValidationEventHandler" level='ERROR' />
-		
+
 		<logger name="org.docx4j.jaxb.NamespacePrefixMapperUtils" level='ERROR' />
-		
+
 		<logger name="org.docx4j.openpackaging.contenttype.ContentTypeManager" level='ERROR' />
-		
+
 		<logger name="org.docx4j.utils.XSLTUtils" level='ERROR' />
-		
+
 		<logger name="org.hibernate" level='INFO' />
-		
+
 		<logger name="org.hibernate.type" level='INFO' />
-			
+
 		<logger name="org.springframework.security" level='WARN' />
-	
+
 		<logger name="org.springframework.web" level='WARN' />
-		
+
 		<logger name="org.xlsx4j.jaxb.Context" level='WARN' />
-		
+
 		<logger name="stdout.org.springframework" level='WARN' />
-		
-		<logger name="lu.itrust.boot.Application"  level="INFO"/>
-		
+
+		<logger name="lu.itrust.boot.Application" level="INFO"/>
+
 		<logger name="org.apache.coyote.http2.StreamProcessor" level="WARN"/>
-		
+
 		<Root level="INFO">
 			<AppenderRef ref="STDOUT" />
 		</Root>
