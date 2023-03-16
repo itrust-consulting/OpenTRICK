@@ -398,10 +398,10 @@ public class ControllerAnalysis extends AbstractController {
 	@RequestMapping(value = "Manage-settings", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String loadSettingManager(HttpSession session, Model model, Principal principal, Locale locale) {
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Map<String, String> currentSettings = serviceAnalysis.getSettingsByIdAnalysis(integer);
-		Map<AnalysisSetting, Object> settings = new LinkedHashMap<>();
-		AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(integer);
+		final Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Map<String, String> currentSettings = serviceAnalysis.getSettingsByIdAnalysis(integer);
+		final Map<AnalysisSetting, Object> settings = new LinkedHashMap<>();
+		final AnalysisType analysisType = serviceAnalysis.getAnalysisTypeById(integer);
 		for (AnalysisSetting setting : AnalysisSetting.values()) {
 			if (!setting.isSupported(analysisType))
 				continue;
@@ -475,7 +475,7 @@ public class ControllerAnalysis extends AbstractController {
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal,
 			Locale locale) {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		final Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			// prepare permission verifier
 			final PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
@@ -516,11 +516,15 @@ public class ControllerAnalysis extends AbstractController {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
 		final AnalysisType analysisType = analysis.getType();
+		final boolean isFullCostRelatedOld = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
 		currentSettings.forEach((key, value) -> {
 			final AnalysisSetting setting = AnalysisSetting.valueOf(key);
 			if (setting != null && setting.isSupported(analysisType))
 				analysis.setSetting(setting.name(), Analysis.findSetting(setting, value));
 		});
+		final boolean hasChange = (boolean)analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE) != isFullCostRelatedOld;
+		if(hasChange)
+			computeMeasureCost(analysis);
 		serviceAnalysis.saveOrUpdate(analysis);
 		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
 	}
@@ -959,6 +963,24 @@ public class ControllerAnalysis extends AbstractController {
 	// ******************************************************************************************************************
 	// * Actions
 	// ******************************************************************************************************************
+
+	private void computeMeasureCost(final Analysis analysis) {
+		final ValueFactory factory = new ValueFactory(analysis.getExpressionParameters());
+		final boolean isFullCostRelated = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
+		final double internalSetupRate = analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		final double externalSetupRate = analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		final double defaultLifetime = analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		analysis.getAnalysisStandards().values().stream().flatMap(e -> e.getMeasures().stream())
+				.forEach(m -> {
+					final double implementationRate = m.getImplementationRateValue(factory) * 0.01;
+					final double cost = Analysis.computeCost(internalSetupRate, externalSetupRate, defaultLifetime,
+							m.getInternalMaintenance(), m.getExternalMaintenance(),
+							m.getRecurrentInvestment(), m.getInternalWL(), m.getExternalWL(),
+							m.getInvestment(), m.getLifetime(), implementationRate, isFullCostRelated);
+					m.setCost(cost > 0D ? cost : 0D);
+				});
+	}
+
 
 	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(
 			Map<String, List<Measure>> measuresByStandard) {

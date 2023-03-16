@@ -79,20 +79,20 @@ public class ActionPlanComputation {
 	private String idTask;
 
 	/** Analysis Object */
-	private Analysis analysis = null;
+	private Analysis analysis;
 
-	private Locale locale = null;
+	private Locale locale;
 
 	/** List of standards to compute */
-	private List<AnalysisStandard> standards = null;
+	private List<AnalysisStandard> standards;
 
 	/** uncertainty computation flag */
-	private boolean uncertainty = false;
+	private boolean uncertainty;
 
 	/** maturity computation computation flag */
-	private boolean maturitycomputation = false;
+	private boolean maturitycomputation;
 
-	private boolean normalcomputation = false;
+	private boolean normalcomputation;
 
 	private MessageSource messageSource;
 
@@ -100,7 +100,7 @@ public class ActionPlanComputation {
 
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
-	private ValueFactory factory = null;
+	private ValueFactory factory;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -146,12 +146,12 @@ public class ActionPlanComputation {
 	 * as the uncertainty and maturity computation flag.
 	 * 
 	 * @param serviceActionPlanType
-	 * @param sericeAnalysis
 	 * @param serviceTaskFeedback
 	 * @param idTask
 	 * @param analysis
 	 * @param standards
 	 * @param uncertainty
+	 * @param messageSource
 	 */
 	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
 			List<AnalysisStandard> standards, boolean uncertainty, MessageSource messageSource) {
@@ -846,8 +846,8 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		ActionPlanEntry actionPlanEntry = null;
 		Measure measure = null;
-		List<TMA> TMAList = new ArrayList<TMA>();
-		List<Measure> usedMeasures = new ArrayList<Measure>();
+		List<TMA> TMAList = new ArrayList<>();
+		List<Measure> usedMeasures = new ArrayList<>();
 
 		int index = 1;
 

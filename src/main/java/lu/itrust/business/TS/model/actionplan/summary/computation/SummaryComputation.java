@@ -12,6 +12,7 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurrentInvestment;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
@@ -22,13 +23,15 @@ import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 public abstract class SummaryComputation implements ISummaryComputation {
 
 	private double soa;
-	
+
+	private boolean isFullCostRelated;
+
 	private double internalSetupRate;
-	
+
 	private double externalSetupRate;
-	
+
 	private Analysis analysis;
-	
+
 	private ActionPlanType actionPlanType;
 
 	private ValueFactory valueFactory;
@@ -36,15 +39,14 @@ public abstract class SummaryComputation implements ISummaryComputation {
 	private List<Phase> phases;
 
 	private SummaryValues currentValues;
-	
-	private List<ActionPlanEntry> actionPlans;
-	
-	private List<SummaryStage> summaryStages;
-	
-	private MaintenanceRecurrentInvestment preMaintenance;
-	
-	private Map<Integer, MaintenanceRecurrentInvestment> maintenances;
 
+	private List<ActionPlanEntry> actionPlans;
+
+	private List<SummaryStage> summaryStages;
+
+	private MaintenanceRecurrentInvestment preMaintenance;
+
+	private Map<Integer, MaintenanceRecurrentInvestment> maintenances;
 
 	/*
 	 * (non-Javadoc)
@@ -111,15 +113,17 @@ public abstract class SummaryComputation implements ISummaryComputation {
 
 	/**
 	 * @param analysis
-	 *            the analysis to set
+	 *                 the analysis to set
 	 */
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
+		if (analysis != null)
+			setFullCostRelated(analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE)); ;
 	}
 
 	/**
 	 * @param currentValues
-	 *            the currentValues to set
+	 *                      the currentValues to set
 	 */
 	public void setCurrentValues(SummaryValues currentValues) {
 		this.currentValues = currentValues;
@@ -174,8 +178,12 @@ public abstract class SummaryComputation implements ISummaryComputation {
 	public void setActionPlans(List<ActionPlanEntry> actionPlans) {
 		this.actionPlans = actionPlans;
 	}
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.actionplan.summary.computation.ISummaryComputation#getActionPlanType()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.model.actionplan.summary.computation.
+	 * ISummaryComputation#getActionPlanType()
 	 */
 	@Override
 	public ActionPlanType getActionPlanType() {
@@ -240,7 +248,20 @@ public abstract class SummaryComputation implements ISummaryComputation {
 	public void setExternalSetupRate(double externalSetupRate) {
 		this.externalSetupRate = externalSetupRate;
 	}
+
+	/**
+	 * @return the isFullCostRelated
+	 */
+	@Override
+	public boolean isFullCostRelated() {
+		return isFullCostRelated;
+	}
+
+	public void setFullCostRelated(boolean isFullCostRelated) {
+		this.isFullCostRelated = isFullCostRelated;
+	}
+
 	
-	
+
 
 }

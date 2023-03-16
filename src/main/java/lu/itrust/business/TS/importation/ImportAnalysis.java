@@ -52,6 +52,7 @@ import lu.itrust.business.TS.helper.InstanceManager;
 import lu.itrust.business.TS.helper.NaturalOrderComparator;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -435,6 +436,8 @@ public class ImportAnalysis {
 				analysis.setAnalysisStandards(analysisStandards.values().stream()
 						.collect(Collectors.toMap(a -> a.getStandard().getName(), Function.identity())));
 
+			computeMeasureCost();
+
 			// System.out.println("Saving Data to Database...");
 
 			notifyUpdate(handler, "import.saving.analysis", "Saving Data to Database", increase(5));// 90%
@@ -477,6 +480,23 @@ public class ImportAnalysis {
 			// clear maps
 			clearData();
 		}
+	}
+
+	private void computeMeasureCost() {
+		final ValueFactory factory = new ValueFactory(analysis.getExpressionParameters());
+		final boolean isFullCostRelated = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
+		final double internalSetupRate = this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		final double externalSetupRate = this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		final double defaultLifetime = this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		analysis.getAnalysisStandards().values().parallelStream().flatMap(e -> e.getMeasures().parallelStream())
+				.forEach(m -> {
+					final double implementationRate = m.getImplementationRateValue(factory) * 0.01;
+					final double cost = Analysis.computeCost(internalSetupRate, externalSetupRate, defaultLifetime,
+							m.getInternalMaintenance(), m.getExternalMaintenance(),
+							m.getRecurrentInvestment(), m.getInternalWL(), m.getExternalWL(),
+							m.getInvestment(), m.getLifetime(), implementationRate, isFullCostRelated);
+					m.setCost(cost > 0D ? cost : 0D);
+				});
 	}
 
 	private void importSimpleDocuments() throws SQLException {
@@ -1957,38 +1977,41 @@ public class ImportAnalysis {
 				status = rs.getString(Constant.MEASURE_STATUS);
 
 				// set status and by default not applicable (NA)
-				if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE))
-						&& (!status.equals(Constant.MEASURE_STATUS_MANDATORY))
-						&& (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
-
-					// set default status
-					status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
-				}
-				// ****************************************************************
-				// * calculate cost
-				// ****************************************************************
-
-				// check if status is not NA -> YES
-				if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
-						.equals(Constant.MEASURE_STATUS_APPLICABLE))
-						|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
-								.equals(Constant.MEASURE_STATUS_MANDATORY))) {
-
-					// calculate cost
-					cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-							this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-							this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
-							rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"),
-							rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL),
-							rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT),
-							rs.getInt(Constant.MEASURE_LIFETIME));
-				} else {
-
-					// check if status is not NA -> NO
-
-					// set cost to 0
-					cost = 0;
-				}
+				/*
+				 * if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE))
+				 * && (!status.equals(Constant.MEASURE_STATUS_MANDATORY))
+				 * && (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
+				 * 
+				 * // set default status
+				 * status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
+				 * }
+				 * // ****************************************************************
+				 * // * calculate cost
+				 * // ****************************************************************
+				 * 
+				 * // check if status is not NA -> YES
+				 * if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
+				 * .equals(Constant.MEASURE_STATUS_APPLICABLE))
+				 * || (rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
+				 * .equals(Constant.MEASURE_STATUS_MANDATORY))) {
+				 * 
+				 * // calculate cost
+				 * cost = Analysis.computeCost(this.analysis.findParameter(Constant.
+				 * PARAMETER_INTERNAL_SETUP_RATE),
+				 * this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+				 * this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
+				 * rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"),
+				 * rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL),
+				 * rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT),
+				 * rs.getInt(Constant.MEASURE_LIFETIME));
+				 * } else {
+				 * 
+				 * // check if status is not NA -> NO
+				 * 
+				 * // set cost to 0
+				 * cost = 0;
+				 * }
+				 */
 
 				// ****************************************************************
 				// * create instance
@@ -2400,6 +2423,8 @@ public class ImportAnalysis {
 					measure = new NormalMeasure();
 				else if (standard.getType().equals(StandardType.ASSET))
 					measure = new AssetMeasure();
+				else
+					throw new IllegalArgumentException("Unknown measure type");
 
 				measure.setMeasureDescription(mesDesc);
 				if (rs.getString(Constant.MEASURE_REVISION) == null)
@@ -2428,12 +2453,16 @@ public class ImportAnalysis {
 				measure.getMeasureDescription().setComputable(measurecomputable);
 
 				// calculate cost
-				cost = Analysis.computeCost(this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-						this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-						this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
-						measure.getInternalMaintenance(), measure.getExternalMaintenance(),
-						measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
-						measure.getInvestment(), measure.getLifetime());
+				/*
+				 * cost = Analysis.computeCost(this.analysis.findParameter(Constant.
+				 * PARAMETER_INTERNAL_SETUP_RATE),
+				 * this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+				 * this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
+				 * measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+				 * measure.getRecurrentInvestment(), measure.getInternalWL(),
+				 * measure.getExternalWL(),
+				 * measure.getInvestment(), measure.getLifetime());
+				 */
 
 				measure.setCost(cost);
 
@@ -3343,7 +3372,7 @@ public class ImportAnalysis {
 					if (parameterType == null)
 						daoParameterType
 								.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE));
-								
+
 					rs = sqlite.query("SELECT level, color, description from ilr_soa_scale");
 					if (rs != null) {
 						while (rs.next())

@@ -94,16 +94,9 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 	private void notifyUser(String username, Notification notification, boolean save) {
 		if (save)
 			register(notification);
-		List<String> ids = usernameToIds.get(username);
-		if (ids == null)
-			usernameToIds.put(username, ids = new LinkedList<>());
-		ids.add(notification.getId());
+		usernameToIds.computeIfAbsent(username,k -> new LinkedList<>()).add(notification.getId());
 
-		List<String> usernames = idToUsernames.get(notification.getId());
-		if (usernames == null)
-			idToUsernames.put(notification.getId(), usernames = new LinkedList<>());
-
-		usernames.add(username);
+		idToUsernames.computeIfAbsent(notification.getId(), k -> new LinkedList<>()).add(username);
 
 		if (messagingTemplate != null && notification.isShowning(System.currentTimeMillis())) {
 			try {
@@ -150,15 +143,15 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 		if (!name.equals(ALL_USER_KEY))
 			ids.addAll(usernameToIds.getOrDefault(ALL_USER_KEY, Collections.emptyList()));
 
-		List<Notification> notifications = ids.parallelStream().distinct().map(id -> this.notifications.get(id))
+		List<Notification> myMotifications = ids.parallelStream().distinct().map(id -> this.notifications.get(id))
 				.filter(notification -> notification != null && notification.isShowning(currentTime)).collect(Collectors.toList());
 
 		if (!name.equals(ALL_USER_KEY))
-			notifications.parallelStream().filter(Notification::isOnce).forEach(notification -> remove(notification.getId(), name));
+			myMotifications.parallelStream().filter(Notification::isOnce).forEach(notification -> remove(notification.getId(), name));
 
-		notifications.sort((n0, n1) -> n0.getCreated().compareTo(n1.getCreated()) * -1);
+		myMotifications.sort((n0, n1) -> n0.getCreated().compareTo(n1.getCreated()) * -1);
 
-		return notifications;
+		return myMotifications;
 	}
 
 	@Override

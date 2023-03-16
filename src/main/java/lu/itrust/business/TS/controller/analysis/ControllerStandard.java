@@ -1455,12 +1455,15 @@ public class ControllerStandard extends AbstractController {
 
 	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault,
 			Analysis analysis) {
+		final boolean isFullRelatedCost = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
+		final ValueFactory factory = new ValueFactory(analysis.getParameters());
 		analysis.getAnalysisStandards().values().stream()
 				.flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
-					double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
+					final double implementationRate = measure.getImplementationRateValue(factory) * 0.01;
+					final double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
 							measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 							measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
-							measure.getInvestment(), measure.getLifetime());
+							measure.getInvestment(), measure.getLifetime(), implementationRate, isFullRelatedCost);
 					measure.setCost(cost >= 0D ? cost : 0D);
 				});
 	}

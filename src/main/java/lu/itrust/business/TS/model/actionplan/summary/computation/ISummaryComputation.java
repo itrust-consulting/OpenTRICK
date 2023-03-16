@@ -37,6 +37,8 @@ public interface ISummaryComputation {
 	double getExternalSetupRate();
 	
 	double getInternalSetupRate();
+
+	boolean isFullCostRelated();
 	
 	Map<Integer, MaintenanceRecurrentInvestment> getMaintenances();
 	

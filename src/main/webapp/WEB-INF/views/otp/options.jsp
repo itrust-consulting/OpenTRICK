@@ -43,7 +43,7 @@
 						<form name="application" action="${pageContext.request.contextPath}/OTP/Authorise" method="POST"  id="otp-option-application" data-action-name="${signing}">
 							<input hidden="hidden" name="otp-method" value="application">
 							<div class='form-group'>
-								<label><spring:message code='label.otp.enter.application.code' text='Please enter code' /></label> <input name="otp-user-code" type="number" pattern="d{8}"  class="form-control" required="required" placeholder="000000000" >
+								<label><spring:message code='label.otp.enter.application.code' text='Please enter code' /></label> <input name="otp-user-code" size="8" type="number" class="form-control" required="required" placeholder="000000000" >
 							</div>
 							<input type="submit" id="application-form-submit" hidden="hidden"/>
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> 

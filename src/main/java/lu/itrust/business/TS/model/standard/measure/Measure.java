@@ -26,6 +26,7 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisSetting;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
@@ -638,29 +639,32 @@ public abstract class Measure implements Cloneable {
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************
-		double cost = 0;
-		double externalSetupValue = -1;
-		double internalSetupValue = -1;
-		double lifetimeDefault = -1;
 
 		// ****************************************************************
 		// * select external and internal setup rate from parameters
 		// ****************************************************************
 
-		internalSetupValue = analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		final double internalSetupValue = analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
-		externalSetupValue = analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		final double externalSetupValue = analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
-		lifetimeDefault = analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		final double lifetimeDefault = analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+
+		final double implementationRate = measure.getImplementationRateValue(analysis.getExpressionParameters())*0.01;
+
+		final boolean isFullCostRelated = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
+		double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
 				measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
-				measure.getInvestment(), measure.getLifetime());
+				measure.getInvestment(), measure.getLifetime(), implementationRate, isFullCostRelated);
+				
 		// return calculated cost
-		if (cost >= 0)
+		if (cost > 0)
 			measure.setCost(cost);
+		else
+			measure.setCost(0);
 	}
 
 	/**

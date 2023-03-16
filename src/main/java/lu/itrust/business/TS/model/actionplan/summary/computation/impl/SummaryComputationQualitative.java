@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.actionplan.summary.computation.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +104,15 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		if (getActionPlans().isEmpty() || mode != ActionPlanMode.APQ)
 			return;
 
-		generateStage(START_P0, true, 0);
+		final List<Measure> measures;
+
+		if (isFullCostRelated())
+			measures = getActionPlans().stream().map(ActionPlanEntry::getMeasure)
+					.collect(Collectors.toList());
+		else
+			measures = Collections.emptyList();
+
+		generateStage(START_P0, true, 0, measures);
 
 		int phase = getActionPlans().get(0).getMeasure().getPhase().getNumber();
 
@@ -111,7 +120,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			int measurePhase = actionPlanEntry.getMeasure().getPhase().getNumber();
 			if (measurePhase > phase) {
 				for (int i = phase; i < measurePhase; i++) {
-					generateStage("Phase " + i, false, i);
+					generateStage("Phase " + i, false, i, measures);
 					resetCurrentData();
 				}
 				phase = measurePhase;
@@ -121,7 +130,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 		getCurrentValues().conformanceHelper.values().parallelStream().forEach(helper -> helper.conformance = 0);
 
-		generateStage("Phase " + phase, false, phase);
+		generateStage("Phase " + phase, false, phase, measures);
 
 		getSummaryStages().forEach(summary -> {
 			summary.getConformances().forEach(conformity -> conformity.setAnalysisStandard(
@@ -151,6 +160,7 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		getCurrentValues().measureCount++;
 		getCurrentValues().implementedCount++;
 		getCurrentValues().measureCost += measure.getCost();
+
 		// ****************************************************************
 		// * update resource planning values
 		// ****************************************************************
@@ -162,15 +172,17 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		getCurrentValues().investment += measure.getInvestment();
 		// in case of a phase calculation multiply internal maintenance with
 		// phasetime
-		getCurrentValues().internalMaintenance += measure.getInternalMaintenance();
-		// in case of a phase calculation multiply external maintenance with
-		// phasetime
-		getCurrentValues().externalMaintenance += measure.getExternalMaintenance();
-		// update recurrent investment
-		getCurrentValues().recurrentInvestment += measure.getRecurrentInvestment();
+		if (!isFullCostRelated()) {
+			getCurrentValues().internalMaintenance += measure.getInternalMaintenance();
+			// in case of a phase calculation multiply external maintenance with
+			// phasetime
+			getCurrentValues().externalMaintenance += measure.getExternalMaintenance();
+			// update recurrent investment
+			getCurrentValues().recurrentInvestment += measure.getRecurrentInvestment();
+		}
 	}
 
-	private void generateStage(String name, boolean isFirst, int number) {
+	private void generateStage(String name, boolean isFirst, int number, final List<Measure> measures) {
 		double phaseTime = 0;
 		boolean isFirstValidPhase = false;
 
@@ -219,26 +231,33 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			if (denominator == 0)
 				helper.conformance = 0;
 			else
-				helper.conformance += (numerator / (double) denominator);
+				helper.conformance += (numerator / denominator);
 		}
 
-		if (isFirstValidPhase) {
-			getCurrentValues().internalMaintenance += getPreMaintenance().getInternalMaintenance();
-			getCurrentValues().externalMaintenance += getPreMaintenance().getExternalMaintenance();
-			getCurrentValues().recurrentInvestment += getPreMaintenance().getRecurrentInvestment();
-		}
+		final MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = getMaintenances().computeIfAbsent(
+				number - 1,
+				k -> new MaintenanceRecurrentInvestment());
 
-		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = getMaintenances().containsKey(number - 1)
-				? getMaintenances().get(number - 1)
-				: new MaintenanceRecurrentInvestment();
+		if (isFullCostRelated()) {
+			if (number > 0) {
+				measures.stream().forEach(m -> {
+					final double implR = (m.getPhase().getNumber() < number ? 100
+							: m.getImplementationRateValue(getValueFactory())) * 0.01;
+					maintenanceRecurrentInvestment.add(m.getInternalMaintenance() * implR,
+							m.getExternalMaintenance() * implR, m.getRecurrentInvestment() * implR);
 
-		if (getMaintenances().containsKey(number))
-			getMaintenances().get(number).update(getCurrentValues().internalMaintenance,
+				});
+			}
+		} else {
+			if (isFirstValidPhase) {
+				getCurrentValues().internalMaintenance += getPreMaintenance().getInternalMaintenance();
+				getCurrentValues().externalMaintenance += getPreMaintenance().getExternalMaintenance();
+				getCurrentValues().recurrentInvestment += getPreMaintenance().getRecurrentInvestment();
+			}
+			getMaintenances().computeIfAbsent(number, k -> new MaintenanceRecurrentInvestment()).update(
+					getCurrentValues().internalMaintenance,
 					getCurrentValues().externalMaintenance, getCurrentValues().recurrentInvestment);
-		else
-			getMaintenances().put(number,
-					new MaintenanceRecurrentInvestment(getCurrentValues().internalMaintenance,
-							getCurrentValues().externalMaintenance, getCurrentValues().recurrentInvestment));
+		}
 
 		// ****************************************************************
 		// * create summary stage object
@@ -260,13 +279,14 @@ public class SummaryComputationQualitative extends SummaryComputation {
 					- getCurrentValues().previousStage.getImplementedMeasuresCount());
 		else
 			summaryStage.setMeasureCount(getCurrentValues().measureCount);
+
 		summaryStage.setImplementedMeasuresCount(getCurrentValues().implementedCount);
 		summaryStage.setCostOfMeasures(getCurrentValues().measureCost);
 		summaryStage.setInternalWorkload(getCurrentValues().internalWorkload);
 		summaryStage.setExternalWorkload(getCurrentValues().externalWorkload);
 		summaryStage.setInvestment(getCurrentValues().investment);
 
-		if (isFirstValidPhase) {
+		if (isFirstValidPhase && !isFullCostRelated()) {
 			summaryStage.setInternalMaintenance((getPreMaintenance().getInternalMaintenance()
 					+ maintenanceRecurrentInvestment.getInternalMaintenance()) * phaseTime);
 			summaryStage.setExternalMaintenance((getPreMaintenance().getExternalMaintenance()

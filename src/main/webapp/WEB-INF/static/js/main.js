@@ -15,8 +15,8 @@ function Application() {
 	this.analysisType = {};
 	this.errorTemplate = '<div class="popover popover-danger" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	this.timeoutSetting = {
-		idle: 720000,
-		sessionTimeout: 900000,
+		idle: 1680000,
+		sessionTimeout: 1800000,
 		refreshTime: 300000,
 		idleRefreshTime: 180000,
 	}

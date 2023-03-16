@@ -639,7 +639,7 @@ public class ControllerFieldEditor {
 				for (IParameter parameter : simpleParameters) {
 
 					// find the parameter
-					if (Math.abs(parameter.getValue().doubleValue() - value) < 1e-5) {
+					if (Math.abs(parameter.getValue().doubleValue() - value) < 1e-6) {
 
 						// set new implementation rate
 						measure.setImplementationRate(parameter);
@@ -781,7 +781,7 @@ public class ControllerFieldEditor {
 						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
-						List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
+						final List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
 						acronyms.addAll(serviceDynamicParameter.findAcronymByAnalysisId(idAnalysis));
 						if (!(new StringExpressionParser(value.toString(), StringExpressionParser.IMPLEMENTATION)
 								.isValid(acronyms)))

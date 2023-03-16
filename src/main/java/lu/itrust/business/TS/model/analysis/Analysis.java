@@ -320,7 +320,7 @@ public class Analysis implements Cloneable {
 
 	@OneToMany
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	@JoinTable(name = "AnalysisILRImpactTypes", joinColumns = @JoinColumn(name = "fiAnalysis", referencedColumnName = "idAnalysis",unique = false), inverseJoinColumns = @JoinColumn(name = "fiScaleType", referencedColumnName = "idScaleType", unique = false), uniqueConstraints = @UniqueConstraint(columnNames = {
+	@JoinTable(name = "AnalysisILRImpactTypes", joinColumns = @JoinColumn(name = "fiAnalysis", referencedColumnName = "idAnalysis", unique = false), inverseJoinColumns = @JoinColumn(name = "fiScaleType", referencedColumnName = "idScaleType", unique = false), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"fiAnalysis", "fiScaleType" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	@Access(AccessType.FIELD)
@@ -559,30 +559,23 @@ public class Analysis implements Cloneable {
 	public double computeCost(Measure measure) {
 
 		// ****************************************************************
-		// * variable initialisation
-		// ****************************************************************
-		double cost = 0;
-		double externalSetupValue = -1;
-		double internalSetupValue = -1;
-		double lifetimeDefault = -1;
-
-		// ****************************************************************
 		// * select external and internal setup rate from parameters
 		// ****************************************************************
 
-		internalSetupValue = this.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		double internalSetupValue = this.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
-		externalSetupValue = this.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		double externalSetupValue = this.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
-		lifetimeDefault = this.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		double lifetimeDefault = this.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+		double implementationRate = measure.getImplementationRateValue(getExpressionParameters()) * 0.01;
+		boolean isFullRelatedCost = this.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(),
+		return Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault,
+				measure.getInternalWL(),
 				measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(),
-				measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
-
-		// return calculated cost
-		return cost;
+				measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(),
+				implementationRate, isFullRelatedCost);
 	}
 
 	public List<AssetType> distinctAssetType() {
@@ -2301,7 +2294,7 @@ public class Analysis implements Cloneable {
 	 * maintenance in md as well as the recurrent investment per year in keuro. <br>
 	 * Formula used:<br>
 	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em * er)+
-	 * ri))<br>
+	 * ri))*(1- (isFCRM? implR : 0))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
@@ -2312,6 +2305,8 @@ public class Analysis implements Cloneable {
 	 * im: The Internal MaintenanceRecurrentInvestment in Man Days<br>
 	 * em: The External MaintenanceRecurrentInvestment in Man Days<br>
 	 * ri: The recurrent Investment in kEuro<br>
+	 * implR: Implementation rate of the measure
+	 * isFCRM: Full cost related to the measure (computation mode)
 	 * 
 	 * @param internalSetupRate
 	 * 
@@ -2333,12 +2328,17 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param lifetime
 	 * 
+	 * @param implementationRate
+	 * 
+	 * @param isFullCostRelated	
+	 * 
 	 * @return The Calculated Cost
 	 */
 	@Transient
 	public static final double computeCost(double internalSetupRate, double externalSetupRate, double lifetimeDefault,
 			double internalMaintenance, double externalMaintenance, double recurrentInvestment, double internalWorkLoad,
-			double externalWorkLoad, double investment, double lifetime) {
+			double externalWorkLoad, double investment, double lifetime, double implementationRate,
+			boolean isFullCostRelated) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -2350,7 +2350,7 @@ public class Analysis implements Cloneable {
 		return (((internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad) + investment)
 				* (1. / (lifetime == 0 ? lifetimeDefault : lifetime)))
 				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate)
-						+ recurrentInvestment);
+						+ recurrentInvestment) * (1 - (isFullCostRelated ?  implementationRate : 0));
 	}
 
 	@Transient

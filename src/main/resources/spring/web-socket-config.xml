@@ -4,16 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
         http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
-
-
-	<websocket:message-broker application-destination-prefix="/Application" user-destination-prefix="/User">
-		<websocket:stomp-endpoint path="/Messaging">
-			<websocket:sockjs client-library-url="/js/web-socket/sockjs.min.js" />
-		</websocket:stomp-endpoint>
-		<websocket:simple-broker prefix="/Task,/Notification"/>
-	</websocket:message-broker>
 	
-	<sec:websocket-message-broker>
+	<sec:websocket-message-broker same-origin-disabled="true">
 
 		<sec:intercept-message type="CONNECT" access="permitAll" />
 		

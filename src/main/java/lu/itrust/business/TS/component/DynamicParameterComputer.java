@@ -146,7 +146,7 @@ public class DynamicParameterComputer {
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
 		analysis.getAssessments().stream().filter(a -> {
 			final IValue value = a.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME);
-			return (value != null && value instanceof FormulaValue);
+			return value instanceof FormulaValue;
 		}).map(a -> (FormulaValue) a.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME)).forEach(v -> {
 			IValue value = factory.findDynValue(v.getVariable(), Constant.PARAMETER_TYPE_IMPACT_NAME);
 			if (value != null)
