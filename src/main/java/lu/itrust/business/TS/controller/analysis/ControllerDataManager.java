@@ -652,7 +652,7 @@ public class ControllerDataManager {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		model.addAttribute("standards", analysis.findStandards());
 		model.addAttribute("item", new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Export-process"));
-		return "analyses/single/components/data-manager/export/measure";
+		return "jsp/analyses/single/components/data-manager/export/measure";
 	}
 
 	@PostMapping(value = "/Measure/Export-process")
@@ -719,7 +719,7 @@ public class ControllerDataManager {
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("templates", reportTemplates);
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
-		return "analyses/single/components/data-manager/export/report/modal";
+		return "jsp/analyses/single/components/data-manager/export/report/modal";
 	}
 
 	@GetMapping(value = "/Report/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -755,7 +755,7 @@ public class ControllerDataManager {
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("templates", reportTemplates);
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
-		return "analyses/single/components/data-manager/export/report/home";
+		return "jsp/analyses/single/components/data-manager/export/report/home";
 	}
 
 	// *****************************************************************
@@ -987,7 +987,7 @@ public class ControllerDataManager {
 				new DataManagerItem("risk-sheet-report", "/Analysis/Data-manager/Risk-sheet/Export-process"));
 		model.addAttribute("rawRiskSheetItem",
 				new DataManagerItem("risk-sheet-raw", "/Analysis/Data-manager/Risk-sheet/Export-process"));
-		return "analyses/single/components/data-manager/export/risk-sheet/home";
+		return "jsp/analyses/single/components/data-manager/export/risk-sheet/home";
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -1175,7 +1175,7 @@ public class ControllerDataManager {
 			throw new AccessDeniedException("access denied");
 		model.addAttribute("maxFileSize", maxUploadFileSize);
 		model.addAttribute("customer", customer);
-		return "analyses/single/components/data-manager/import/sqlite";
+		return "jsp/analyses/single/components/data-manager/import/sqlite";
 	}
 
 	/**
@@ -1344,7 +1344,7 @@ public class ControllerDataManager {
 				new DataManagerItem("raw-rrf", "/Analysis/Data-manager/RRF-RAW/Import-process", ".xls,.xlsx,.xlsm"));
 		model.addAttribute("rrfItem",
 				new DataManagerItem("rrf-knowledge-base", null, "/Analysis/Data-manager/RRF/Import-process", null));
-		return "analyses/single/components/data-manager/import/rrf";
+		return "jsp/analyses/single/components/data-manager/import/rrf";
 	}
 
 	/**

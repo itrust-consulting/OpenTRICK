@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
-import org.codehaus.jackson.map.ser.ArraySerializers.IntArraySerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -53,7 +51,6 @@ import lu.itrust.business.TS.model.general.Credential;
 import lu.itrust.business.TS.model.general.CredentialType;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.TicketingSystem;
-import lu.itrust.business.TS.model.general.TicketingSystemType;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
@@ -228,7 +225,7 @@ public class ControllerTicket extends AbstractController {
 				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 0, 40));
 				model.addAttribute("measures", measures);
 			}
-			return String.format("analyses/single/components/ticketing/%s/forms/link",
+			return String.format("jsp/analyses/single/components/ticketing/%s/forms/link",
 					model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
 			throw e;
@@ -272,7 +269,7 @@ public class ControllerTicket extends AbstractController {
 				model.addAttribute("tasks",
 						client.findOtherTasksByProjectId(analysis.getProject(), excludes, startIndex, 40));
 			}
-			return String.format("analyses/single/components/ticketing/%s/forms/link",
+			return String.format("jsp/analyses/single/components/ticketing/%s/forms/link",
 					model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
 			throw e;
@@ -336,7 +333,7 @@ public class ControllerTicket extends AbstractController {
 					model.addAttribute("tasks", tasks);
 				}
 			}
-			return String.format("analyses/single/components/ticketing/%s/home",
+			return String.format("jsp/analyses/single/components/ticketing/%s/home",
 					model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
 			throw e;

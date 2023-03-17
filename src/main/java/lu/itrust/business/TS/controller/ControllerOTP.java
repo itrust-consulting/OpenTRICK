@@ -56,7 +56,7 @@ public class ControllerOTP {
 		model.addAttribute("email", new String(characters));          
 		model.addAttribute("application", StringUtils.hasText(user.getSecret()));
 		//model.addAttribute("phoneNumber", "**********86");
-		return "otp/options";
+		return "jsp/otp/options";
 	}
 
 	@RequestMapping("/Generate-code")
@@ -81,6 +81,6 @@ public class ControllerOTP {
 			return "redirect:/OTP";
 		}
 		model.addAttribute("otp-method", method);
-		return "otp/form";
+		return "jsp/otp/form";
 	}
 }

@@ -66,7 +66,7 @@ public class ControllerRiskRegister {
 		model.put("language", analysis.getLanguage().getAlpha2());
 		loadAnalysisSettings(model, analysis);
 		// return view
-		return "analyses/single/components/riskRegister/home";
+		return "jsp/analyses/single/components/riskRegister/home";
 	}
 
 	/**

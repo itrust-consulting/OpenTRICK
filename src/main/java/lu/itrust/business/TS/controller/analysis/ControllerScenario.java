@@ -222,7 +222,7 @@ public class ControllerScenario {
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("isProfile", serviceAnalysis.isProfile(integer));
-		return "analyses/single/components/scenario/scenario";
+		return "jsp/analyses/single/components/scenario/scenario";
 	}
 
 	/**
@@ -564,6 +564,6 @@ public class ControllerScenario {
 		model.addAttribute("type", type);
 		model.addAttribute("assetTypeValues", assetTypeValues);
 		model.addAttribute("assetValues", assetValues);
-		return "analyses/single/components/scenario/form";
+		return "jsp/analyses/single/components/scenario/form";
 	}
 }

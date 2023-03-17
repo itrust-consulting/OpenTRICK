@@ -105,7 +105,7 @@ public class ControllerParameter extends AbstractController {
 				.filter(impact -> impact.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny().orElse(null));
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
-		return "analyses/single/components/parameters/form/mange-impact";
+		return "jsp/analyses/single/components/parameters/form/mange-impact";
 	}
 
 	@RequestMapping(value = "/Impact-scale/Manage/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -131,7 +131,7 @@ public class ControllerParameter extends AbstractController {
 	public String manageScaleLevel(Model model, HttpSession session, Principal principal, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("maxLevel", serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis));
-		return "analyses/single/components/parameters/form/mange-scale-level";
+		return "jsp/analyses/single/components/parameters/form/mange-scale-level";
 	}
 
 	@RequestMapping(value = "/Scale-level/Manage/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -177,7 +177,7 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));
-		return "analyses/single/components/parameters/other";
+		return "jsp/analyses/single/components/parameters/other";
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		model.addAttribute("showDynamicAnalysis",
 				Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
-		return "analyses/single/components/parameters/impact_probability";
+		return "jsp/analyses/single/components/parameters/impact_probability";
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class ControllerParameter extends AbstractController {
 				level = serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis);
 		model.addAttribute("maxImportance", level * level);
 		model.addAttribute("parameters", serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
-		return "analyses/single/components/parameters/form/riskAcceptance";
+		return "jsp/analyses/single/components/parameters/form/riskAcceptance";
 	}
 
 	@DeleteMapping(value = "/Dynamic/Delete/{id}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -382,7 +382,7 @@ public class ControllerParameter extends AbstractController {
 	public String ilrSoaScaleForm(Model model, HttpSession session, Principal principal) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("parameters", serviceIlrSoaScaleParameter.findByAnalysisId(idAnalysis));
-		return "analyses/single/components/parameters/form/ilr-soa-scale";
+		return "jsp/analyses/single/components/parameters/form/ilr-soa-scale";
 	}
 
 	/**

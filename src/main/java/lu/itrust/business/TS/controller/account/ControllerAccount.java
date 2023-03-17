@@ -222,7 +222,7 @@ public class ControllerAccount {
 
 		// if file could not be found retrun 404 error
 		if (wordReport == null)
-			return "errors/404";
+			return "jsp/errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(),
 				wordReport.getVersion());
@@ -283,7 +283,7 @@ public class ControllerAccount {
 
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)
-			return "errors/404";
+			return "jsp/errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(),
 				userSqLite.getVersion());
@@ -362,7 +362,7 @@ public class ControllerAccount {
 			if ((user.isUsing2FA() || forcedOTP) && StringUtils.hasText(secret))
 				model.addAttribute("qrcode", generateQRCode(user, secret));
 		}
-		return "user/home";
+		return "jsp/user/home";
 	}
 
 	/**
@@ -397,7 +397,7 @@ public class ControllerAccount {
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
-		return "user/otp/section";
+		return "jsp/user/otp/section";
 
 	}
 
@@ -437,7 +437,7 @@ public class ControllerAccount {
 			filter = new FilterControl();
 		model.addAttribute("reports",
 				serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "user/report/section";
+		return "jsp/user/report/section";
 	}
 
 	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -448,7 +448,7 @@ public class ControllerAccount {
 			filter = new FilterControl();
 		model.addAttribute("sqlites",
 				serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "user/sqlite/section";
+		return "jsp/user/sqlite/section";
 	}
 
 	@RequestMapping(value = "/Section/Invitation", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -459,7 +459,7 @@ public class ControllerAccount {
 			filter = new InvitationFilter();
 		model.addAttribute("invitations",
 				serviceAnalysisShareInvitation.findAllByUsernameAndFilterControl(principal.getName(), page, filter));
-		return "user/invitation/section";
+		return "jsp/user/invitation/section";
 	}
 
 	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

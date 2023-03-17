@@ -155,7 +155,7 @@ public class ControllerAnalysis extends AbstractController {
 		model.put("oldVersion", serviceAnalysis.getVersionOfAnalysis(analysisId));
 		model.put("analysisId", analysisId);
 		model.put("author", user.getFirstName() + " " + user.getLastName());
-		return "analyses/all/forms/newVersion";
+		return "jsp/analyses/all/forms/newVersion";
 	}
 
 	@RequestMapping("/All")
@@ -409,7 +409,7 @@ public class ControllerAnalysis extends AbstractController {
 		}
 		// load all assets of analysis to model
 		model.addAttribute("settings", settings);
-		return "analyses/single/components/settings/form";
+		return "jsp/analyses/single/components/settings/form";
 	}
 
 	// *****************************************************************
@@ -451,7 +451,7 @@ public class ControllerAnalysis extends AbstractController {
 			// add the analysis object
 			model.put("analysis", analysis);
 
-			return "analyses/all/forms/editAnalysis";
+			return "jsp/analyses/all/forms/editAnalysis";
 		}
 
 		throw new AccessDeniedException(
@@ -684,7 +684,7 @@ public class ControllerAnalysis extends AbstractController {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return "analyses/single/home";
+		return "jsp/analyses/single/home";
 	}
 
 	// *****************************************************************
@@ -800,7 +800,7 @@ public class ControllerAnalysis extends AbstractController {
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
 		model.addAttribute("allowIDS", serviceIDS.exists(true));
-		return "analyses/all/home";
+		return "jsp/analyses/all/home";
 	}
 
 	/**

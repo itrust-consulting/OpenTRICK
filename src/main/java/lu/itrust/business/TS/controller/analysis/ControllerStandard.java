@@ -470,7 +470,7 @@ public class ControllerStandard extends AbstractController {
 					MeasureForm.Build(measure, type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
-			return "analyses/single/components/standards/measure/form";
+			return "jsp/analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error",
@@ -502,7 +502,7 @@ public class ControllerStandard extends AbstractController {
 				AnalysisType.isQuantitative(serviceAnalysis.getAnalysisTypeById(idAnalysis))
 						? serviceStandard.getAllNotInAnalysis(idAnalysis)
 						: serviceStandard.getAllNotInAnalysisAndNotMaturity(idAnalysis));
-		return "analyses/single/components/standards/standard/form/importFromKb";
+		return "jsp/analyses/single/components/standards/standard/form/importFromKb";
 	}
 
 	/****
@@ -576,7 +576,7 @@ public class ControllerStandard extends AbstractController {
 				allowedTicketing && (isNoClientTicketing || serviceAnalysis.hasProject(idAnalysis)));
 		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		return "analyses/single/components/standards/measure/singleMeasure";
+		return "jsp/analyses/single/components/standards/measure/singleMeasure";
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Description/{langue}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -660,7 +660,7 @@ public class ControllerStandard extends AbstractController {
 				}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures,
 						(e1, e2) -> e1, LinkedHashMap::new)));
 
-		return "analyses/single/components/soa/home";
+		return "jsp/analyses/single/components/soa/home";
 	}
 
 	/**
@@ -681,7 +681,7 @@ public class ControllerStandard extends AbstractController {
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		return "analyses/single/components/standards/standard/form/manage";
+		return "jsp/analyses/single/components/standards/standard/form/manage";
 	}
 
 	/**
@@ -704,7 +704,7 @@ public class ControllerStandard extends AbstractController {
 				serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn(
 						(Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), NormalStandard.class,
 						AssetStandard.class));
-		return "analyses/single/components/soa/form";
+		return "jsp/analyses/single/components/soa/form";
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -753,7 +753,7 @@ public class ControllerStandard extends AbstractController {
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
-		return "analyses/single/components/standards/edition/measure";
+		return "jsp/analyses/single/components/standards/edition/measure";
 
 	}
 
@@ -931,7 +931,7 @@ public class ControllerStandard extends AbstractController {
 			model.addAttribute("measureForm", MeasureForm.Build(measure, type, language.getAlpha3()));
 
 			// return success message
-			return "analyses/single/components/standards/measure/form";
+			return "jsp/analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error",
@@ -1053,7 +1053,7 @@ public class ControllerStandard extends AbstractController {
 
 		loadAnalysisSettings(model, idAnalysis);
 
-		return "analyses/single/components/standards/standard/standards";
+		return "jsp/analyses/single/components/standards/standard/standards";
 	}
 
 	/**

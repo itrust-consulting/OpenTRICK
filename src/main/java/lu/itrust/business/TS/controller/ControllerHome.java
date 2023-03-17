@@ -69,12 +69,17 @@ public class ControllerHome {
 	@Autowired
 	private ServiceEmailValidatingRequest serviceEmailValidatingRequest;
 
+	@GetMapping("/test")
+	public String test() {
+		return "templates/base/home";
+	}
+
 	@PreAuthorize(Constant.ROLE_MIN_OTP)
 	@RequestMapping({ "", "/Home" })
 	public String home(HttpServletRequest request) {
 		if (request.isUserInRole(Constant.ROLE_OTP_NAME))
 			return "redirect:/OTP";
-		return "default/home";
+		return "jsp/default/home";
 	}
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -100,7 +105,7 @@ public class ControllerHome {
 					"Account has been created successfully", locale));
 			model.addAttribute("username", request.getParameter("login") == null ? "" : request.getParameter("login"));
 		}
-		return "default/login";
+		return "jsp/default/login";
 	}
 
 	private void loadSettings(Model model, Locale locale) {

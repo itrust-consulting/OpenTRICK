@@ -88,7 +88,7 @@ public class ControllerPhase {
 		model.addAttribute("phases", analysis.getPhases());
 		model.addAttribute("totalPhase", PhaseManager.computeTotal(analysis.getPhases()));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && analysis.isUserAuthorized(principal.getName(), AnalysisRight.MODIFY));
-		return "analyses/single/components/phase/home";
+		return "jsp/analyses/single/components/phase/home";
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class ControllerPhase {
 		} else
 			form.setNumber(1);
 		model.addAttribute("form", form);
-		return "analyses/single/components/phase/form";
+		return "jsp/analyses/single/components/phase/form";
 	}
 
 	@GetMapping(value = "/{id}/Edit", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -196,7 +196,7 @@ public class ControllerPhase {
 		form.setId(phase.getId());
 		form.setNumber(phase.getNumber());
 		model.addAttribute("form", form);
-		return "analyses/single/components/phase/form";
+		return "jsp/analyses/single/components/phase/form";
 	}
 
 	/**

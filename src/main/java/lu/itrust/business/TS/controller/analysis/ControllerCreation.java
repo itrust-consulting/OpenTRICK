@@ -211,7 +211,7 @@ public class ControllerCreation {
 
 		model.addAttribute("locale", locale.getLanguage().toUpperCase());
 
-		return "analyses/all/forms/buildAnalysis";
+		return "jsp/analyses/all/forms/buildAnalysis";
 
 	}
 

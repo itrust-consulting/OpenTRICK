@@ -3,7 +3,6 @@ package lu.itrust.business.TS.controller.analysis;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,8 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
@@ -45,7 +42,6 @@ import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.OpenMode;
-import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 /**
  * ControllerAdministration.java: <br>
@@ -61,28 +57,14 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 public class ControllerActionPlan extends AbstractController {
 
 	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
 	private ServiceActionPlan serviceActionPlan;
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private TaskExecutor executor;
-
-	@Autowired
-	private ServiceTaskFeedback serviceTaskFeedback;
 
 	/**
 	 * showActionPlan: <br>
@@ -98,7 +80,7 @@ public class ControllerActionPlan extends AbstractController {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String showActionPlan(HttpSession session, Model model, Principal principal) throws Exception {
 		section(model, session, principal);
-		return "analyses/single/components/actionplan";
+		return "jsp/analyses/single/components/actionplan";
 	}
 
 	/**
@@ -130,7 +112,7 @@ public class ControllerActionPlan extends AbstractController {
 		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("analysisId", selected);
-		return "analyses/single/components/actionPlan/section";
+		return "jsp/analyses/single/components/actionPlan/section";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -143,7 +125,7 @@ public class ControllerActionPlan extends AbstractController {
 			model.addAttribute("selectedApt", ActionPlanMode.valueOf(selectedApt));
 			model.addAttribute("assets", ActionPlanManager
 					.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
-			return "analyses/single/components/actionPlan/assets";
+			return "jsp/analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			throw e;
@@ -168,7 +150,7 @@ public class ControllerActionPlan extends AbstractController {
 		model.put("type", serviceAnalysis.getAnalysisTypeById(analysisID));
 		model.put("id", analysisID);
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
-		return "analyses/single/components/actionPlan/form";
+		return "jsp/analyses/single/components/actionPlan/form";
 	}
 
 	/**

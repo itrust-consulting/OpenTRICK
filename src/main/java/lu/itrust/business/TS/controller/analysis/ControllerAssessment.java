@@ -126,7 +126,7 @@ public class ControllerAssessment {
 		model.addAttribute("asset", asset);
 		loadAnalysisSettings(model, analysis);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
-		return "analyses/single/components/risk-estimation/asset/home";
+		return "jsp/analyses/single/components/risk-estimation/asset/home";
 	}
 
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -163,7 +163,7 @@ public class ControllerAssessment {
 		loadAnalysisSettings(model, analysis);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
-		return "analyses/single/components/risk-estimation/scenario/home";
+		return "jsp/analyses/single/components/risk-estimation/scenario/home";
 
 	}
 
@@ -182,7 +182,7 @@ public class ControllerAssessment {
 		model.addAttribute("valueFactory", new ValueFactory(dynamicParameters));
 		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis,
 				NormalStandard.class, AssetStandard.class));
-		return "analyses/single/components/risk-estimation/form/measure";
+		return "jsp/analyses/single/components/risk-estimation/form/measure";
 	}
 
 	@PostMapping(value = "/RiskProfile/Compute-measure", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

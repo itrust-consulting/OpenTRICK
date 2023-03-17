@@ -185,7 +185,7 @@ public class ControllerRRF {
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
 		model.addAttribute("language", language.getAlpha2());
 
-		return "analyses/single/components/rrf/editor/measure";
+		return "jsp/analyses/single/components/rrf/editor/measure";
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class ControllerRRF {
 		model.addAttribute("selectedScenario", scenario);
 		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
 		model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
-		return "analyses/single/components/rrf/editor/scenario";
+		return "jsp/analyses/single/components/rrf/editor/scenario";
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class ControllerRRF {
 			model.addAttribute("notenoughdata", true);
 		}
 
-		return "analyses/single/components/rrf/editor/home";
+		return "jsp/analyses/single/components/rrf/editor/home";
 	}
 
 	@RequestMapping(value = "/Measure/{idMeasure}/Update-child", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

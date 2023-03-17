@@ -67,7 +67,7 @@ public class ControllerLanguage {
 	@RequestMapping
 	public String loadAllLanguages(Map<String, Object> model) throws Exception {
 		model.put("languages", serviceLanguage.getAll());
-		return "knowledgebase/language/languages";
+		return "jsp/knowledgebase/language/languages";
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class ControllerLanguage {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model) throws Exception {
 		model.addAttribute("languages", serviceLanguage.getAll());
-		return "knowledgebase/language/languages";
+		return "jsp/knowledgebase/language/languages";
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class ControllerLanguage {
 			return "redirect:/KnowLedgeBase/Language";
 		}
 		model.put("language", language);
-		return "knowledgebase/language/showLanguage";
+		return "jsp/knowledgebase/language/showLanguage";
 	}
 
 	/**

@@ -55,12 +55,6 @@
 		<custom-filter ref="otpAuthenticationProcessingFilter" before="OPENID_FILTER" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
 		<session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />
-		<!--
-		<csrf request-matcher-ref="csrfMatcher"/>
-		<headers>
-			<frame-options policy="SAMEORIGIN" />
-		</headers> 
-		-->
 	</http>
 
 	<beans:bean id="sessionFixationProtectionStrategy" class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
@@ -126,30 +120,6 @@
 	<beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
 
 	<!-- end of Session fixation -->
-
-	<!-- CSRF -->
-	<!--
-	<beans:bean id="messagingURLPattern" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-		<beans:constructor-arg value="/Messaging/**" />
-	</beans:bean>
-
-	<beans:bean id="csrfNegatedRequestMatcher" class="org.springframework.security.web.util.matcher.NegatedRequestMatcher">
-		<beans:constructor-arg ref="messagingURLPattern" />
-	</beans:bean>
-
-	<util:constant id="defaultCSRFMatcher" static-field="org.springframework.security.web.csrf.CsrfFilter.DEFAULT_CSRF_MATCHER" />
-
-	<beans:bean id="csrfMatcher" class="org.springframework.security.web.util.matcher.AndRequestMatcher">
-		<beans:constructor-arg>
-			<beans:list>
-				<beans:ref bean="defaultCSRFMatcher"/>
-				<beans:ref bean="csrfNegatedRequestMatcher" />
-			</beans:list>
-		</beans:constructor-arg>
-	</beans:bean>
-	-->
-
-	<!--End CSRF-->
 
 	<beans:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall" />
 

@@ -50,14 +50,14 @@ public class ControllerScale {
 		model.addAttribute("scaleTypes", serviceScaleType.findAll());
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/home";
+		return "jsp/knowledgebase/scale/home";
 	}
 
 	@RequestMapping(value = "/Add", method = RequestMethod.GET)
 	public String addType(Model model, Locale locale) {
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/form";
+		return "jsp/knowledgebase/scale/form";
 	}
 
 	@RequestMapping(value = "/{id}/Edit", method = RequestMethod.GET)
@@ -65,7 +65,7 @@ public class ControllerScale {
 		model.addAttribute("scaleType", serviceScaleType.findOne(id));
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/form";
+		return "jsp/knowledgebase/scale/form";
 	}
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

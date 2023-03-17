@@ -447,11 +447,9 @@ public class ImportAnalysis {
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
 
-			AssessmentAndRiskProfileManager assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
-
 			// Update values of dynamic parameters
 			if (this.analysis.isQuantitative())
-				new DynamicParameterComputer(session, daoAnalysis, assessmentAndRiskProfileManager)
+				new DynamicParameterComputer(session, daoAnalysis)
 						.computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects

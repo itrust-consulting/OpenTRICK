@@ -127,7 +127,7 @@ public class ControllerRegister {
 		if (principal != null)
 			return "redirect:/";
 		model.put("user", new User());
-		return "default/register";
+		return "jsp/default/register";
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class ControllerRegister {
 	@RequestMapping("/ResetPassword")
 	public String resetPassword(Principal principal, Model model, HttpServletRequest request) {
 		model.addAttribute("resetPassword", new ResetPasswordHelper());
-		return "default/recovery/reset-password";
+		return "jsp/default/recovery/reset-password";
 	}
 
 	public static String URL(HttpServletRequest request) {
@@ -249,7 +249,7 @@ public class ControllerRegister {
 			Locale locale, HttpServletRequest request) {
 		if (resetPassword.isEmpty()) {
 			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
-			return "default/recovery/reset-password";
+			return "jsp/default/recovery/reset-password";
 		}
 
 		try {
@@ -322,7 +322,7 @@ public class ControllerRegister {
 			}
 
 			model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
-			return "default/recovery/change-password";
+			return "jsp/default/recovery/change-password";
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error",
@@ -362,7 +362,7 @@ public class ControllerRegister {
 				&& !changePassword.getRepeatPassword().equals(changePassword.getPassword()))
 			result.rejectValue("repeatPassword", "error.user.repeatPassword.not_same", "Passwords are not the same");
 		if (result.hasErrors())
-			return "default/recovery/change-password";
+			return "jsp/default/recovery/change-password";
 
 		try {
 

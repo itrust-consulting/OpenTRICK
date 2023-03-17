@@ -82,7 +82,7 @@ public class ControllerProfile {
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 		model.addAttribute("analysisStandards", analysisStandards);
 		model.addAttribute("id", analysisId);
-		return "analyses/all/forms/createProfile";
+		return "jsp/analyses/all/forms/createProfile";
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -157,7 +157,7 @@ public class ControllerProfile {
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
 		model.addAttribute("analyses", serviceAnalysis.getAllProfiles());
 		model.addAttribute("login", principal.getName());
-		return "knowledgebase/analysis/analyses";
+		return "jsp/knowledgebase/analysis/analyses";
 	}
 	
 	/**

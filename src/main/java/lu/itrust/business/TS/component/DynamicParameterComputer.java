@@ -45,11 +45,11 @@ public class DynamicParameterComputer {
 	public DynamicParameterComputer() {
 	}
 
-	public DynamicParameterComputer(Session session, AssessmentAndRiskProfileManager assessmentAndRiskProfileManager) {
-		this(session, new DAOAnalysisHBM(session), assessmentAndRiskProfileManager);
+	public DynamicParameterComputer(Session session) {
+		this(session, new DAOAnalysisHBM(session));
 	}
 
-	public DynamicParameterComputer(Session session, DAOAnalysis daoAnalysis, AssessmentAndRiskProfileManager assessmentAndRiskProfileManager) {
+	public DynamicParameterComputer(Session session, DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
 		this.daoIDS = new DAOIDSHBM(session);

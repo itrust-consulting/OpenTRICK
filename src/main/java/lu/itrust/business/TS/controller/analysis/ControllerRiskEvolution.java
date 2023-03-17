@@ -158,7 +158,7 @@ public class ControllerRiskEvolution {
 	public String home(Principal principal, HttpSession session, Model model) throws Exception {
 		LoadUserAnalyses(session, principal, model);
 		model.addAttribute("types", Arrays.stream(AnalysisType.values()).filter(type -> type != AnalysisType.HYBRID).toArray());
-		return "analyses/risk-evolution/home";
+		return "jsp/analyses/risk-evolution/home";
 	}
 
 	@RequestMapping(value = "/Chart/ALE-by-asset", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -145,7 +145,7 @@ public class ControllerMeasureCollection {
 	@RequestMapping
 	public String displayAll(Model model) {
 		model.addAttribute("standards", serviceStandard.getAllNotBoundToAnalysis());
-		return "knowledgebase/standards/standard/standards";
+		return "jsp/knowledgebase/standards/standard/standards";
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class ControllerMeasureCollection {
 	 */
 	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String uploadStandard() throws Exception {
-		return "knowledgebase/standards/standard/uploadForm";
+		return "jsp/knowledgebase/standards/standard/uploadForm";
 	}
 
 	/**
@@ -548,7 +548,7 @@ public class ControllerMeasureCollection {
 			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
-		return "knowledgebase/standards/measure/section";
+		return "jsp/knowledgebase/standards/measure/section";
 	}
 
 	/**
@@ -594,7 +594,7 @@ public class ControllerMeasureCollection {
 		response.setContentType("text/html");
 		response.setCharacterEncoding("UTF-8");
 
-		return "knowledgebase/standards/measure/measure";
+		return "jsp/knowledgebase/standards/measure/measure";
 	}
 
 	/**
@@ -623,7 +623,7 @@ public class ControllerMeasureCollection {
 			model.addAttribute("selectedLanguage", languages.get(0));
 		}
 
-		return "knowledgebase/standards/measure/measuredescriptionform";
+		return "jsp/knowledgebase/standards/measure/measuredescriptionform";
 	}
 
 	/**
@@ -650,7 +650,7 @@ public class ControllerMeasureCollection {
 		MeasureDescription md = null;
 
 		if (mesDesc.isEmpty())
-			return "knowledgebase/standards/measure/measuredescriptioneditform";
+			return "jsp/knowledgebase/standards/measure/measuredescriptioneditform";
 
 		md = mesDesc.get(0).getMeasureDescription();
 
@@ -681,7 +681,7 @@ public class ControllerMeasureCollection {
 			model.addAttribute("selectedLanguage", languages.get(0));
 		}
 
-		return "knowledgebase/standards/measure/measuredescriptioneditform";
+		return "jsp/knowledgebase/standards/measure/measuredescriptioneditform";
 	}
 
 	/**

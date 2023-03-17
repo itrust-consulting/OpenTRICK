@@ -99,7 +99,7 @@ public class ControllerRiskInformation {
 			riskInformationMap.put(category, Collections.emptyList());
 		model.addAttribute("type", category);
 		model.addAttribute("riskInformationMap", riskInformationMap);
-		return "analyses/single/components/risk-information/manage";
+		return "jsp/analyses/single/components/risk-information/manage";
 	}
 
 	@RequestMapping(value = "/Manage/{category}/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -150,7 +150,7 @@ public class ControllerRiskInformation {
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode));
 		model.addAttribute("canExport", permissionEvaluator.userOrOwnerIsAuthorized(idAnalysis, principal, AnalysisRight.EXPORT));
 		model.addAttribute("showHiddenComment", serviceAnalysis.findSetting(idAnalysis, AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT));
-		return "analyses/single/components/risk-information/home";
+		return "jsp/analyses/single/components/risk-information/home";
 	}
 
 

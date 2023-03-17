@@ -125,7 +125,7 @@ public class ControlerCredential {
 						.sorted((c1, c2) -> NaturalOrderComparator.compareTo(c1.getOrganisation(), c2.getOrganisation())).collect(Collectors.toList()));
 		model.addAttribute("types", CredentialType.values());
 		model.addAttribute("form", form);
-		return "user/credential/form";
+		return "jsp/user/credential/form";
 	}
 
 	@GetMapping(value = "/{id}/Edit", consumes = MediaType.TEXT_PLAIN_VALUE, headers = ACCEPT_TEXT_PLAIN_CHARSET_UTF_8, produces = MediaType.TEXT_HTML_VALUE)
@@ -170,7 +170,7 @@ public class ControlerCredential {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionCredential(HttpSession session, Principal principal, Model model) {
 		model.addAttribute("credentials", serviceUserCredential.findByUsername(principal.getName()));
-		return "user/credential/section";
+		return "jsp/user/credential/section";
 	}
 
 	private Boolean isConnected(UserCredentialForm credential, TicketingSystem ticketingSystem) {
