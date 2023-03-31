@@ -1,0 +1,31 @@
+#Input CSV
+#Column Name (Acronym,Value)
+#Column separator (,)
+#Digit separator (.)
+Function Push-To-TS {
+    param (
+        #
+        [string]$url, [string]$token,
+        [Parameter(Mandatory = $true)]
+        [String]
+        $path 
+    )
+   
+    $cvs = [pscustomobject]@{data = Import-CSV $path | Select-Object -Property @{n = "c"; e = { $_.Acronym } }, @{n = "s"; e = { $_.Value } } }
+    $unixTime = [int64](([datetime]::UtcNow) - (get-date "1/1/1970")).TotalSeconds
+    $cvs.data | ForEach-Object {
+        $_ | Add-Member -MemberType NoteProperty -Name "h" -Value 92233720368547
+        $_ | Add-Member -MemberType NoteProperty -Name "t" -Value $unixTime
+    }
+   
+    if ($url -and $token) {
+		
+        $body = $cvs | ConvertTo-Json
+        Invoke-WebRequest -Uri "$($url)/Api/ids/notify" -UseBasicParsing -Headers @{"X-Auth-Token" = $token } -Method Post -ContentType "application/json;charset=utf-8" -Body $body 
+    }
+    else {
+        $cvs.data | Format-Table
+    }
+}
+
+Push-To-TS -path data.csv -token "" -url "https://app.trickservice.com"

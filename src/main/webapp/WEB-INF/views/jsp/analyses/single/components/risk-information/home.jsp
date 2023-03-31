@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
 <c:set var="chapterRegex">^\d(\.0)*$</c:set>
@@ -80,7 +80,7 @@
 								</c:otherwise>
 							</c:choose>
 							<c:choose>
-								<c:when test='${ fct:matches(risk_information.chapter,chapterRegex) }'>
+								<c:when test='${fct:matches(risk_information.chapter,chapterRegex) }'>
 									<td style="height: 32px;"><strong><spring:message text="${risk_information.chapter}" /></strong></td>
 									<c:choose>
 										<c:when test="${categoryRiskInformation == 'Threat'}">

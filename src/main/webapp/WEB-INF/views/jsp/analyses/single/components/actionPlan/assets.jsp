@@ -1,12 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="modal fade" id="actionPlanAssets" tabindex="-1" role="dialog" data-aria-labelledby="actionPlanAssets" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 98%;">
@@ -17,7 +17,7 @@
 					<h4>
 						<spring:message code="label.title.actionplan.assets" />
 					</h4>
-					<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+					<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 					<ul class="nav nav-pills" id="menu_asset_actionplan">
 						<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 							<li ${selectedApt == apt? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
@@ -38,7 +38,7 @@
 									<th style="width: 4%;"><spring:message code="label.measure.norm" /></th>
 									<th style="width: 3%;"><spring:message code="label.reference" /></th>
 									<th style="width: 4%;"><spring:message code="label.action_plan.total_ale" /></th>
-									<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
+									<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 									<c:forEach items="${actionplanassets}" var="asset">
 										<th><spring:message text="${asset.name}" /></th>
 									</c:forEach>
@@ -78,7 +78,7 @@
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
 										<td ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
-										<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)"
+										<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)"
 											var="actionPlanAssets" />
 										<c:forEach items="${actionPlanAssets}" var="apa">
 											<td title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}"

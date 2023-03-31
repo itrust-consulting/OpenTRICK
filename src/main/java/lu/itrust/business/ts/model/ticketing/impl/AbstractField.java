@@ -1,0 +1,77 @@
+/**
+ * 
+ */
+package lu.itrust.business.ts.model.ticketing.impl;
+
+import lu.itrust.business.ts.model.ticketing.TicketingField;
+
+/**
+ * @author eomar
+ *
+ */
+public abstract class AbstractField implements TicketingField {
+
+	private String id;
+
+	private String name;
+
+	/**
+	 * 
+	 */
+	public AbstractField() {
+	}
+
+	/**
+	 * @param id
+	 * @param name
+	 * @param value
+	 */
+	public AbstractField(String id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#getId()
+	 */
+	@Override
+	public String getId() {
+		return this.id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#getName()
+	 */
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#setId(java.lang.
+	 * String)
+	 */
+	@Override
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.ts.model.ticketing.TicketingBase#setName(java.lang.
+	 * String)
+	 */
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+}

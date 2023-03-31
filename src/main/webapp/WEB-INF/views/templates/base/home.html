@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 
-<html>
-    
-  <head>
-    <title>Good Thymes Virtual Grocery</title>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
-    <link rel="stylesheet" type="text/css" media="all" href="/gtvg/css/gtvg.css" />
-  </head>
+<html lang="en" th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-  <body>
-  
+<head th:replace="~{templates/base/header :: header}">
+    <title>TRICK Service</title>
+    <link rel="stylesheet" type="text/css" media="all" href="/css/themes/default.css" />
+</head>
+
+<body>
+
     <p>¡Bienvenido a nuestra tienda de comestibles!</p>
 
-  </body>
+</body>
+
+<footer th:replace="~{templates/base/footer}">
+
+</footer>
 
 </html>

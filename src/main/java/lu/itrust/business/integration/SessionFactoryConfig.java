@@ -8,38 +8,49 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.hibernate.SessionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author eomar
  *
  */
 @Configuration(proxyBeanMethods = false)
+@EnableTransactionManagement
 public class SessionFactoryConfig {
 
 	@Bean
-	@DependsOn("flyway")
+	// @DependsOn("flyway")
 	@ConditionalOnMissingBean
-	public LocalSessionFactoryBean sessionFactory(DataSource firstDataSource,
-			JpaProperties firstJpaProperties) {
-		final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+	public LocalSessionFactoryBean sessionFactory(DataSource firstDataSource, JpaProperties firstJpaProperties) {
+		final LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
 		final Properties properties = new Properties();
 		firstJpaProperties.getProperties().forEach(properties::put);
-		sessionFactory.setDataSource(firstDataSource);
-		sessionFactory.setPackagesToScan("lu.itrust.business.TS");
-		sessionFactory.setHibernateProperties(properties);
-		return sessionFactory;
+		sessionFactoryBean.setDataSource(firstDataSource);
+		sessionFactoryBean.setPackagesToScan("lu.itrust.business.ts");
+		sessionFactoryBean.setHibernateProperties(properties);
+		return sessionFactoryBean;
 	}
+
+	@Bean
+	public PlatformTransactionManager transactionManager(SessionFactory sessionFactory) {
+		return new HibernateTransactionManager(sessionFactory);
+	}
+
+	
 
 	@Bean
 	@Primary

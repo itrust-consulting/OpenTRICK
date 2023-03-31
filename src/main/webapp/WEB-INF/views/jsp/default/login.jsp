@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!-- ###################################################################### HTML #################################################################### -->
-<spring:eval expression="T(lu.itrust.business.TS.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
+<spring:eval expression="T(lu.itrust.business.ts.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
@@ -40,7 +40,7 @@
 					<c:remove var="LOGIN_ERROR_HANDLER" scope="session" />
 				</c:if>
 				<jsp:include page="../template/successErrors.jsp" />
-				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin">
+				<form id="login_form" method="post" action="${pageContext.request.contextPath}/Login">
 					<div class="form-group">
 						<input id="username" name="username" autofocus="autofocus" value="${(!empty (username))? username : ''}"
 							placeholder="<spring:message code='label.signin.login' text='Username'/>" required="required" class="form-control"

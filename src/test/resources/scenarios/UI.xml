@@ -22,7 +22,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -38,7 +38,7 @@
 			</run>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -57,7 +57,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -76,7 +76,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -95,7 +95,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -120,7 +120,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -146,7 +146,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -178,7 +178,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -211,7 +211,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -231,7 +231,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 
@@ -260,7 +260,7 @@
 			</dependencies>
 		</groups>
 		<packages>
-			<package name="lu.itrust.TS.ui.*" />
+			<package name="lu.itrust.ts.ui.*" />
 		</packages>
 	</test>
 </suite>

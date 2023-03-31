@@ -24,7 +24,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/Messaging").setAllowedOrigins(trustedProxies);
+        registry.addEndpoint( "/Messaging","/Messaging/").setAllowedOrigins(trustedProxies);
     }
 
     @Override
@@ -32,5 +32,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         WebSocketMessageBrokerConfigurer.super.configureWebSocketTransport(registry);
         registry.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
     }
-
 }

@@ -2,11 +2,9 @@ package lu.itrust.business.permissionevaluator;
 
 import java.security.Principal;
 
-import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.general.TSSettingName;
-
+import jakarta.servlet.http.HttpSession;
+import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.ts.model.general.TSSettingName;
 /**
  * PermissionEvaluator.java: <br>
  * Detailed description...

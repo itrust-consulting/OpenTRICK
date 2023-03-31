@@ -45,7 +45,7 @@
 
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
 
-	<bean id="dataCleaner" class="lu.itrust.business.TS.component.DataCleaner" />
+	<bean id="dataCleaner" class="lu.itrust.business.ts.component.DataCleaner" />
 
 	<task:scheduled-tasks scheduler="scheduler">
 		<task:scheduled ref="dataCleaner" method="cleanUp" cron="${app.settings.cleaner.cron.setup}"/>
@@ -129,7 +129,7 @@
 		<property name="maxUploadSize" value="${app.settings.upload.file.max.size}"/>
 	</bean>
 
-	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
+	<bean class="lu.itrust.business.ts.usermanagement.listner.helper.PasswordEncryptionHelper">
 		<property name="password" value="${app.settings.password.ecryption.key}" />
 	</bean>
 

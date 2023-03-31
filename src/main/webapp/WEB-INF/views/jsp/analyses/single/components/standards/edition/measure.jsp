@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
 <fmt:setLocale value="fr" scope="session" />
@@ -14,7 +14,7 @@
 				<h3>
 					<c:choose>
 						<c:when test="${isLinkedToProject and not empty selectedMeasure.ticket}">
-							<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,selectedMeasure.ticket)"
+							<spring:eval expression="T(lu.itrust.business.ts.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,selectedMeasure.ticket)"
 								var="ticketLink" />
 							<a href="${ticketLink}" target="_ticket_ts" class='btn-link'><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' /> <i
 								class="fa fa-external-link" aria-hidden="true"></i></a>

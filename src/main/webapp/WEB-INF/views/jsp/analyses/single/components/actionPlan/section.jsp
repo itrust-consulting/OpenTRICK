@@ -1,12 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <c:if test="${empty locale }">
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
@@ -18,7 +18,7 @@
 </c:forEach>
 <div class="tab-pane" id="tab-action-plan">
 	<div class="section" id="section_actionplans">
-		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+		<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -146,7 +146,7 @@
 								<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
 									<tr data-trick-class="ActionPlanEntry" onclick="selectElement(this)" data-trick-id="${ape.id}" data-measure-id='${ape.measure.id}'
 										data-is-linked='${isLinkedToProject and not empty ape.measure.ticket}'
-										data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
+										data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.measureDescription.standard.id}')">
 										<c:if test="${isLinkedToProject}">
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_actionplans','#menu_actionplans');"></td>
 										</c:if>
@@ -159,7 +159,7 @@
 																	<span style="white-space: nowrap;"><i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${ape.order}" /></span>
 																</c:when>
 																<c:otherwise>
-																	<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
+																	<spring:eval expression="T(lu.itrust.business.ts.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
 																	<a href="${ticketLink}" target="_ticket_ts" style="padding-top:0; padding-left: 0" class="btn btn-link"><span style="white-space: nowrap;"><i class="fa fa-link" style="font-size: 12px;" aria-hidden="true"></i> <spring:message text="${ape.order}" /></span></a>
 																</c:otherwise>
 															</c:choose>
@@ -176,7 +176,7 @@
 													<spring:message text="${ape.measure.measureDescription.reference}" />
 												</c:otherwise>
 											</c:choose></td>
-										<td><spring:message text="${ape.measure.analysisStandard.standard.name}" /></td>
+										<td><spring:message text="${ape.measure.measureDescription.standard.name}" /></td>
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
 										<td><strong><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></strong> <br /> <spring:message
 												text="${ape.measure.getToDo()}" /></td>

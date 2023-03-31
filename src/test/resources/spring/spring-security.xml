@@ -49,9 +49,9 @@
 
 	<beans:import resource="authentication-manager.xml" />
 	
-	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" />
+	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.ts.usermanagement.helper.CustomAuthenticationSuccessHandler" />
 
-	<beans:bean id="customAuthenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationFailureHandler">
+	<beans:bean id="customAuthenticationFailureHandler" class="lu.itrust.business.ts.usermanagement.helper.CustomAuthenticationFailureHandler">
 		<beans:property name="defaultFailureUrl" value="/Login/Error" />
 	</beans:bean>
 
@@ -64,9 +64,9 @@
 	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
 	
 	<!-- IDS API-->
-	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
-	<beans:bean class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
-	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.TS.usermanagement.helper.ApiAuthenticationFilter">
+	<beans:bean class="lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
+	<beans:bean class="lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
+	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationFilter">
 		<beans:constructor-arg ref="apiAuthenticationManager"/>
 		<beans:constructor-arg ref="apiAuthenticationEntryPoint"/>
 	</beans:bean>

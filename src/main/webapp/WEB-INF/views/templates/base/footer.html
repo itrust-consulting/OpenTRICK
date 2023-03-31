@@ -1,0 +1,57 @@
+<footer id="footer" class="navbar navbar-inverse navbar-fixed-bottom" style="height: 30px; min-height: 30px">
+	<div class="container" style="height: 100%;"
+		th:with="year=${#calendars.year(#calendars.createNow())},lang=${#locale.language}">
+		<div class="pull-left" style="width: 25%;"
+			th:with="persiteParameter=(${open}? ${open.name}+'&': '')+(${lang} eq 'fr'?'lang=en':'lang=fr')">
+
+			<a th:if="${lang} eq fr" href="?lang=en" th:href="@{''(lang=en)}" role="changeUILanguage"
+				style="color: #ffffff; display: inline-block; padding: 5px;"
+				th:onclick="return switchLangueTo([[${persiteParameter}]]);"
+				onclick="return switchLangueTo('lang=en')"><img src="/images/flags/en.png" alt="English"
+					th:src="@{/images/flags/en.png}" /> English</a>&nbsp;
+			<a th:if="${lang} eq fr" role="changeUILanguage" data-lang='fr'
+				style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="/images/flags/fr_disabled.png"
+					alt="Français" /> Français</a>
+			<a th:if="${lang} ne 'fr'" role="changeUILanguage" data-lang='en'
+				style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="/images/flags/en.png"
+					alt="English" th:src="@{/images/flags/en_disabled.png}" /> English</a>&nbsp;
+			<a th:if="${lang} ne 'fr'" href="lang=fr" th:href="@{''(lang=fr)}" role="changeUILanguage"
+				style="color: #ffffff; display: inline-block; padding: 5px;"
+				th:onclick="return switchLangueTo([[${persiteParameter}]]);"
+				onclick="return switchLangueTo('lang=fr')"><img src="/images/flags/fr.png" alt="Français"
+					th:src="@{/images/flags/fr.png}" /> Français</a>
+		</div>
+		<div style="color: white; text-align: center; width: 50%; margin: 0 auto; margin-top: 5px; float: left;">
+			&copy;
+			[[#{label.copy_right.text(${year+''})}]]</div>
+
+		<div class="pull-right" style="color: white; width: 25%; text-align: right; margin-top: 5px;"
+			th:with="appVersion=${@environment.getProperty('app.settings.version')},appVersionRevision=${@environment.getProperty('app.settings.version.revision')}">
+			<div style="display: inline-block;"
+				sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')"
+				th:with="supportEmail=${@environment.getProperty('app.settings.support.email')}">
+				[[#{label.support.mail}]] <a href="mailto:info@itrust.lu" th:href="'mailto:'+${supportEmail}"
+					style="margin-right: 5px;">
+					[[${supportEmail}]]
+				</a><a href='${userGuideBaseURL}' th:if="${userGuideURL}" th:href="@{${userGuideURL}}"
+					style="color: #fff;" th:attr="data-base-url=@{${userGuideURL}}" target="ts-user-guide"><i
+						class="fa fa-book" aria-hidden="true"></i>
+					[[#{label.user.manual}]]
+				</a></div><img alt="itrust consulting" src="/images/support/itrust.png"
+				th:src="@{/images/support/itrust.png}"
+				style="height: 30px; margin-top: -8px; margin-right: 10px; padding: 0px 10px; margin-bottom: -8px;"><span
+				title="v 2.15" th:text="'v '+${appVersion}" th:title="'v '+${appVersion}+${appVersionRevision}">v
+				2.15</span>
+		</div>
+	</div>
+</footer>
+
+<div class="hidden" id="controller-notifications"
+	sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+	<div th:replace="~{templates/base/success-errors}"></div>
+	<div th:replace="~{templates/base/notifications}"></div>
+</div>
+
+<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')"
+	th:replace="~{templates/base/alert-dialog}">
+</div>

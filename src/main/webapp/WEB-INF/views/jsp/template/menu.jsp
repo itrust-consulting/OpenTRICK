@@ -1,16 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="url">
-	<%=request.getAttribute("javax.servlet.forward.request_uri")%>
-</c:set>
-<c:set var="menu">
-	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
-</c:set>
+<c:set var="url" >${requestScope["jakarta.servlet.forward.request_uri"]}</c:set>
+<c:set var="menu" value='${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}'/>
 <c:if test='${not (empty menu or menu == "Home")}'>
 	<c:set var="homeURL" value="${pageContext.request.contextPath}/Home" />
 </c:if>
@@ -107,7 +103,7 @@
 							</ul></li>
 					</sec:authorize>
 					<li><a href="#" onclick="return $('#logoutFormSubmiter').click()" id='main_menu_logout'><spring:message code="label.menu.logout" text="Logout" /></a>
-						<form id='logout-form' action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
+						<form id='logout-form' action="${pageContext.request.contextPath}/Signout" method="post" style="display: none">
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> <input type="submit" id="logoutFormSubmiter" />
 						</form></li>
 				</ul>

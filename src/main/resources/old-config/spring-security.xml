@@ -1,0 +1,164 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p" xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+		   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<global-method-security pre-post-annotations="enabled">
+		<expression-handler ref="methodSecurityExpressionHandler" />
+	</global-method-security>
+
+	<!-- API -->
+
+	<!-- IDS API 
+	<http pattern="/Api/ids/**" realm="TRICK Service application" authentication-manager-ref="apiAuthenticationManager" auto-config="false" entry-point-ref="apiAuthenticationEntryPoint" create-session="stateless">
+		<cors />
+		<custom-filter ref="apiAuthenticationFilter" position="FORM_LOGIN_FILTER" />
+		<intercept-url pattern="/Api/ids/**" access="hasRole('ROLE_IDS')" requires-channel="https" />
+		<csrf disabled="true"/>
+	</http> -->
+
+	<!-- DATA API 
+	<http pattern="/Api/data/**" realm="TRICK Service application" create-session="stateless">
+		<cors />
+	
+		<intercept-url pattern="/Api/data/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" requires-channel="https" />
+		<csrf disabled="true"/>
+		<http-basic />
+	</http> -->
+
+	<beans:bean id="apiAuthenticationFilter" class="lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationFilter">
+		<beans:constructor-arg ref="apiAuthenticationManager" />
+		<beans:constructor-arg ref="apiAuthenticationEntryPoint" />
+	</beans:bean>
+
+	<beans:bean class="lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationManager" id="apiAuthenticationManager" />
+
+	<beans:bean class="lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationEntryPoint" id="apiAuthenticationEntryPoint" />
+
+	<!-- end API -->
+	<http use-expressions="true" security-context-explicit-save="true" filter-all-dispatcher-types="true" use-authorization-manager="true" auto-config="false" authentication-manager-ref="authenticationManager">
+		<intercept-url request-matcher-ref="forwardRequestMatcher" access="permitAll()" />
+		<intercept-url request-matcher-ref="includeRequestMatcher" access="permitAll()" />
+		<intercept-url pattern="/DoRegister/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/Register/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/Login/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/favicon.ico" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/css/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/fonts/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/js/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/Error/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/images/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/Signin/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/Signup/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/WEB-INF/static/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/test**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/Reset-password/**" access="permitAll" requires-channel="https" />
+		<intercept-url pattern="/actuator/**" access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" />
+		<intercept-url pattern="/Admin/**" access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR')" />
+		<intercept-url pattern="/Analysis/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		<intercept-url pattern="/KnowledgeBase/**" access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		<intercept-url pattern="/Home/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		<intercept-url pattern="/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+		<intercept-url pattern="/static/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')" />
+
+		<custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
+		<!--<custom-filter ref="customUsernamePasswordAuthenticationFilter" position="FORM_LOGIN_FILTER" /> -->
+		<!--<custom-filter ref="otpAuthenticationFilter" after="FORM_LOGIN_FILTER" />
+		<custom-filter ref="otpAuthenticationProcessingFilter" before="OAUTH2_LOGIN_FILTER" />-->
+
+		<request-cache ref="requestCache"/>
+		<!--<intercept-url pattern="/**" access="denyAll" />-->
+		<logout logout-success-url="/Home" logout-url="/Signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
+		<form-login login-page="/Login" default-target-url="/Home" authentication-failure-url="/Login/Error" />
+		<session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />
+	</http>
+
+	<beans:bean id="requestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache" p:matchingRequestParameterName="continue"/>
+
+	<beans:bean name="forwardRequestMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+		<beans:constructor-arg value="FORWARD"/>
+	</beans:bean>
+
+	<beans:bean name="includeRequestMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+		<beans:constructor-arg value="INCLUDE"/>
+	</beans:bean>
+
+
+	<beans:bean id="sessionFixationProtectionStrategy" class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+
+	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.ts.usermanagement.helper.CustomAuthenticationSuccessHandler" p:defaultTargetUrl="/Home" />
+
+	<beans:bean id="authenticationFailureHandler" class="lu.itrust.business.ts.usermanagement.helper.CustomAuthenticationFailureHandler" p:defaultFailureUrl="/Login/Error" />
+
+	<beans:bean id="customUsernamePasswordAuthenticationFilter" class="lu.itrust.business.ts.usermanagement.helper.CustomUsernamePasswordAuthenticationFilter">
+		<beans:constructor-arg value="/Signin" />
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
+		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+		<beans:property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
+		<beans:property name="continueChainBeforeSuccessfulAuthentication" value="${app.settings.otp.enable}" />
+		<beans:property name="enable2FA" value="${app.settings.otp.enable}" />
+		<beans:property name="force2FA" value="${app.settings.otp.force}" />
+	</beans:bean>
+
+	<beans:bean id="otpAuthenticationFilter" class="lu.itrust.business.ts.usermanagement.helper.OTPAuthenticationFilter">
+		<beans:constructor-arg name="url" value="/Signin" />
+		<beans:constructor-arg name="redirectURL" value="/OTP" />
+	</beans:bean>
+
+	<beans:bean id="otpAuthenticationProcessingFilter" class="lu.itrust.business.ts.usermanagement.helper.OTPAuthenticationProcessingFilter">
+		<beans:constructor-arg name="url" value="/OTP/Authorise" />
+		<beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
+		<beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+	</beans:bean>
+
+	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:constructor-arg name="loginFormUrl" value="/Login" />
+	</beans:bean>
+
+	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder" />
+
+	<beans:bean id="methodSecurityExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+		<beans:property name="permissionEvaluator" ref="permissionEvaluator" />
+	</beans:bean>
+
+	<beans:bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
+
+	<!-- Session fixation -->
+
+	<beans:bean id="redirectSessionInformationExpiredStrategy" class="org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy">
+		<beans:constructor-arg name="invalidSessionUrl" value="/Login?Error=25" />
+	</beans:bean>
+
+	<beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+		<beans:constructor-arg name="sessionInformationExpiredStrategy" ref="redirectSessionInformationExpiredStrategy" />
+	</beans:bean>
+
+	<beans:bean id="sessionAuthenticationStrategy" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+		<beans:constructor-arg>
+			<beans:list>
+				<beans:bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+				<beans:bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+					<beans:constructor-arg ref="sessionRegistry" />
+				</beans:bean>
+			</beans:list>
+		</beans:constructor-arg>
+	</beans:bean>
+
+	<beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+	<!-- end of Session fixation -->
+
+	<beans:bean id="firewall" class="org.springframework.security.web.firewall.DefaultHttpFirewall" />
+
+	<http-firewall ref="firewall" />
+
+	<beans:import resource="authentication-manager.xml" />
+
+</beans:beans>

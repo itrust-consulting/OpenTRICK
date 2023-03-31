@@ -1,10 +1,10 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<spring:eval expression="T(lu.itrust.business.TS.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
+<spring:eval expression="T(lu.itrust.business.ts.constants.Constant).REGEXP_VALID_USERNAME" var="usernameRegex" scope="request" />
 <div class="modal fade" id="user-modal-form" tabindex="-1" role="dialog" data-aria-labelledby="user-modal-form" data-aria-hidden="true">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">

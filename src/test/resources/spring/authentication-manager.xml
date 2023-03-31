@@ -23,7 +23,7 @@
 	<beans:bean id="passwordEncoder" class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder" />
 
 	<!-- LDAP Authentication, it can be commented if not used -->
-	<beans:bean id="TRICKLdapUserDetailsMapper" class="lu.itrust.business.TS.usermanagement.helper.TRICKLdapUserDetailsMapper">
+	<beans:bean id="TRICKLdapUserDetailsMapper" class="lu.itrust.business.ts.usermanagement.helper.TRICKLdapUserDetailsMapper">
 		<beans:property name="allowedAuthentication" value="${app.settings.ldap.allowed.authentication}" />
 		<beans:property name="passwordAttributeName" value="${app.settings.ldap.attribute.user_password}" />
 		<beans:property name="alwaysLoadRole" value="${app.settings.ldap.always.load.role}" />

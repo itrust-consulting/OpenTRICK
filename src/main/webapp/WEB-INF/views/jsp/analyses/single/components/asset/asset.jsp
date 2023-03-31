@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
@@ -103,7 +103,7 @@
 					<td colspan="${isEditable? '4': '3'}"><spring:message code="label.total.ale" /></td>
 					<td title='<fmt:formatNumber value="${fct:round(totalAssetValue,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(totalAssetValue*0.001,0)}" /></td>
 					<c:if test="${type.quantitative}">
-						<spring:eval expression="T(lu.itrust.business.TS.component.AssessmentAndRiskProfileManager).ComputeTotalALE(assetALE)" var="ale" />
+						<spring:eval expression="T(lu.itrust.business.ts.component.AssessmentAndRiskProfileManager).ComputeTotalALE(assetALE)" var="ale" />
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>

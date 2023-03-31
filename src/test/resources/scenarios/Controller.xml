@@ -42,7 +42,7 @@
 		</groups>
 
 		 <packages>
-			<package name="lu.itrust.TS.controller" />
+			<package name="lu.itrust.ts.controller" />
 		</packages> 
 		
 	</test>

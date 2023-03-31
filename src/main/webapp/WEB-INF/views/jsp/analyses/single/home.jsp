@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:set var="accessLevel" value="${analysis.findRightsforUserString(login).right.ordinal()}"/>
 <c:set var="isProfile" value="${analysis.profile}" scope="request" />
@@ -48,7 +48,7 @@
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/risk-estimation/home.jsp" />
 					<c:if test="${type.quantitative}">
-						<spring:eval expression="T(lu.itrust.business.TS.component.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
+						<spring:eval expression="T(lu.itrust.business.ts.component.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
 						<c:set var="assetALE" value="${ales[0]}" scope="request" />
 						<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
 					</c:if>
